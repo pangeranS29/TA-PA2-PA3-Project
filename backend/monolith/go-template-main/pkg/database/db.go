@@ -29,6 +29,7 @@ type (
 	DBType   string
 	ConnType string
 	Args     struct {
+		DSN             string
 		Username        string
 		Password        string
 		Host            string
@@ -50,5 +51,9 @@ type (
 )
 
 func (a *Args) IsValid() bool {
+	if a.DSN != "" {
+		return a.DBType != ""
+	}
+
 	return a.Username != "" && a.Password != "" && a.Host != "" && a.Port != 0 && a.Database != "" && a.DBType != ""
 }
