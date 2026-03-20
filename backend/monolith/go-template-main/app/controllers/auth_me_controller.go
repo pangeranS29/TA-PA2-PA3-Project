@@ -19,6 +19,7 @@ func (m *Main) Me(c echo.Context) error {
 	response := models.MeResponse{
 		UserID:        claims.UserID,
 		Email:         claims.Email,
+		PhoneNumber:   claims.PhoneNumber,
 		Role:          claims.Role,
 		TargetApp:     claims.TargetApp,
 		RedirectRoute: claims.RedirectRoute,

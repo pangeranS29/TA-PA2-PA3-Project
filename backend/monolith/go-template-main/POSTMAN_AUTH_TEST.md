@@ -1,34 +1,34 @@
 # Auth API Test Guide (Postman)
 ## 1. Persiapan
 
-1. Pastikan file `.env` sudah berisi `DB_POSTGRES_DSN`.
+1. Pastikan `.env` sudah terisi koneksi DB Supabase.
 2. Jalankan service dari folder `backend/monolith/go-template-main`:
 
 ```bash
 go run cmd/main.go
 ```
 
-3. Base URL default:
+3. Base URL:
 
 ```text
 http://localhost:8080
 ```
 
-## 2. Endpoint yang tersedia
+## 2. Endpoint yang bisa dites
 
 - `GET /health`
 - `POST /auth/register`
 - `POST /auth/login`
-- `GET /auth/me` (protected, wajib Bearer token)
+- `GET /auth/me` (harus pakai Bearer token)
 
-## 3. Test cepat health check
+## 3. Health check
 
 Request:
 
 - Method: `GET`
 - URL: `http://localhost:8080/health`
 
-Expected response:
+Expected:
 
 ```json
 {
@@ -36,25 +36,31 @@ Expected response:
 }
 ```
 
-## 4. Register user
+## 4. Register
 
 Request:
 
 - Method: `POST`
 - URL: `http://localhost:8080/auth/register`
-- Header: `Content-Type: application/json`
-- Body (raw JSON):
+- Headers: `Content-Type: application/json`
+- Body:
 
 ```json
 {
   "name": "Dokter Satu",
   "email": "dokter1@example.com",
+  "phone_number": "081234567890",
   "password": "password123",
   "role_name": "Dokter"
 }
 ```
 
-Role yang valid:
+Catatan `phone_number`:
+
+- Bisa `0812...`, `62812...`, atau `+62812...`
+- Akan dinormalisasi menjadi `+62...`
+
+Role valid:
 
 - `Tenaga-kesehatan`
 - `Dokter`
@@ -62,44 +68,49 @@ Role yang valid:
 - `Bidan`
 - `Orangtua`
 
-Expected response sukses (`201`):
+Expected (`201`):
 
 ```json
 {
   "status_code": 201,
-  "message": [
-    "Success"
-  ],
+  "message": ["Success"],
   "data": {
     "message": "registrasi berhasil"
   }
 }
 ```
 
-## 5. Login user
+## 5. Login
 
 Request:
 
 - Method: `POST`
 - URL: `http://localhost:8080/auth/login`
-- Header: `Content-Type: application/json`
-- Body (raw JSON):
+- Headers: `Content-Type: application/json`
+- Body (identifier bisa email atau nomor hp):
 
 ```json
 {
-  "email": "dokter1@example.com",
+  "identifier": "dokter1@example.com",
   "password": "password123"
 }
 ```
 
-Expected response sukses (`200`) untuk role Dokter:
+Contoh login pakai nomor HP:
+
+```json
+{
+  "identifier": "081234567890",
+  "password": "password123"
+}
+```
+
+Expected (`200`):
 
 ```json
 {
   "status_code": 200,
-  "message": [
-    "Success"
-  ],
+  "message": ["Success"],
   "data": {
     "access_token": "<jwt-token>",
     "token_type": "Bearer",
@@ -107,6 +118,7 @@ Expected response sukses (`200`) untuk role Dokter:
     "user_id": 1,
     "name": "Dokter Satu",
     "email": "dokter1@example.com",
+    "phone_number": "+6281234567890",
     "role": "Dokter",
     "target_app": "website",
     "redirect_route": "/dashboard/dokter"
@@ -114,29 +126,28 @@ Expected response sukses (`200`) untuk role Dokter:
 }
 ```
 
-## 6. Test endpoint protected dengan Bearer token
+## 6. Endpoint protected `/auth/me`
 
 Request:
 
 - Method: `GET`
 - URL: `http://localhost:8080/auth/me`
-- Header:
+- Headers:
 
 ```text
 Authorization: Bearer <access_token_dari_login>
 ```
 
-Expected response sukses (`200`):
+Expected (`200`):
 
 ```json
 {
   "status_code": 200,
-  "message": [
-    "Success"
-  ],
+  "message": ["Success"],
   "data": {
     "user_id": 1,
     "email": "dokter1@example.com",
+    "phone_number": "+6281234567890",
     "role": "Dokter",
     "target_app": "website",
     "redirect_route": "/dashboard/dokter"
@@ -144,38 +155,3 @@ Expected response sukses (`200`):
 }
 ```
 
-## 7. Mapping role ke platform
-
-- `Dokter` -> `website`
-- `Tenaga-kesehatan` -> `website`
-- `Kader` -> `mobile`
-- `Bidan` -> `mobile`
-- `Orangtua` -> `mobile`
-
-## 8. Verifikasi data masuk Supabase
-
-Buka Supabase SQL Editor, jalankan query:
-
-```sql
-select u.id, u.name, u.email, r.name as role_name, u.created_at
-from users u
-join roles r on r.id = u.role_id
-order by u.id desc;
-```
-
-Kalau register berhasil, data user akan muncul di hasil query.
-
-## 9. Catatan auto-migration tabel
-
-Aplikasi menjalankan `AutoMigrate` saat startup.
-
-- Jika tabel `roles` atau `users` belum ada: tabel akan dibuat.
-- Jika tabel sudah ada: tabel tidak dibuat ulang dari nol, data lama tetap ada.
-- Seed role memakai `FirstOrCreate`, jadi role default tidak dobel.
-
-## 10. Skenario error umum
-
-1. Email sudah terdaftar saat register -> `400`.
-2. Role tidak valid / tidak ada di tabel `roles` -> `404`.
-3. Email/password salah saat login -> `400`.
-4. Header Authorization tidak valid saat akses `/auth/me` -> `401`.
