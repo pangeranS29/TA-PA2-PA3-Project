@@ -3,6 +3,7 @@ package usecases
 import (
 	"fmt"
 	"net/mail"
+	"regexp"
 	"strings"
 	"time"
 
@@ -38,6 +39,8 @@ var roleAliases = map[string]string{
 	"orang-tua":        "Orangtua",
 }
 
+var phonePattern = regexp.MustCompile(`^\+62[0-9]{8,13}$`)
+
 func normalizeKey(raw string) string {
 	raw = strings.TrimSpace(strings.ToLower(raw))
 	raw = strings.ReplaceAll(raw, "-", "")
@@ -64,9 +67,45 @@ func roleRedirect(roleName string) (roleDestination, bool) {
 	return destination, ok
 }
 
+func isEmail(input string) bool {
+	_, err := mail.ParseAddress(input)
+	return err == nil
+}
+
+func normalizePhoneNumber(input string) (string, error) {
+	phone := strings.TrimSpace(input)
+	if phone == "" {
+		return "", customerror.NewBadRequestError("nomor hp wajib diisi")
+	}
+
+	phone = strings.ReplaceAll(phone, " ", "")
+	phone = strings.ReplaceAll(phone, "-", "")
+	phone = strings.ReplaceAll(phone, "(", "")
+	phone = strings.ReplaceAll(phone, ")", "")
+
+	switch {
+	case strings.HasPrefix(phone, "+62"):
+		// already normalized
+	case strings.HasPrefix(phone, "62"):
+		phone = "+" + phone
+	case strings.HasPrefix(phone, "08"):
+		phone = "+62" + phone[1:]
+	case strings.HasPrefix(phone, "8"):
+		phone = "+62" + phone
+	default:
+		return "", customerror.NewBadRequestError("format nomor hp tidak valid")
+	}
+
+	if !phonePattern.MatchString(phone) {
+		return "", customerror.NewBadRequestError("format nomor hp tidak valid")
+	}
+
+	return phone, nil
+}
+
 func validateRegisterInput(req *models.RegisterRequest) error {
-	if req.Name == "" || req.Email == "" || req.Password == "" || req.RoleName == "" {
-		return customerror.NewBadRequestError("name, email, password, dan role_name wajib diisi")
+	if req.Name == "" || req.Email == "" || req.PhoneNumber == "" || req.Password == "" || req.RoleName == "" {
+		return customerror.NewBadRequestError("name, email, phone_number, password, dan role_name wajib diisi")
 	}
 
 	if len(req.Name) < 3 {
@@ -91,6 +130,7 @@ func (m *Main) buildAccessToken(user *models.User, destination roleDestination) 
 	claims := models.AuthClaims{
 		UserID:        user.ID,
 		Email:         user.Email,
+		PhoneNumber:   user.PhoneNumber,
 		Role:          user.Role.Name,
 		TargetApp:     destination.TargetApp,
 		RedirectRoute: destination.RedirectRoute,
@@ -117,14 +157,29 @@ func (m *Main) Register(req *models.RegisterRequest) error {
 
 	req.Name = strings.TrimSpace(req.Name)
 	req.Email = strings.TrimSpace(strings.ToLower(req.Email))
+	req.PhoneNumber = strings.TrimSpace(req.PhoneNumber)
 	req.RoleName = normalizeRoleName(req.RoleName)
 
 	if err := validateRegisterInput(req); err != nil {
 		return err
 	}
 
+	normalizedPhoneNumber, err := normalizePhoneNumber(req.PhoneNumber)
+	if err != nil {
+		return err
+	}
+	req.PhoneNumber = normalizedPhoneNumber
+
 	if _, err := m.repository.GetUserByEmail(req.Email); err == nil {
 		return customerror.NewBadRequestError("email sudah terdaftar")
+	} else {
+		if _, ok := err.(customerror.NotFoundError); !ok {
+			return err
+		}
+	}
+
+	if _, err := m.repository.GetUserByPhoneNumber(req.PhoneNumber); err == nil {
+		return customerror.NewBadRequestError("nomor hp sudah terdaftar")
 	} else {
 		if _, ok := err.(customerror.NotFoundError); !ok {
 			return err
@@ -142,14 +197,18 @@ func (m *Main) Register(req *models.RegisterRequest) error {
 	}
 
 	user := &models.User{
-		Name:     req.Name,
-		Email:    req.Email,
-		Password: string(hashedPassword),
-		RoleID:   role.ID,
+		Name:        req.Name,
+		Email:       req.Email,
+		PhoneNumber: req.PhoneNumber,
+		Password:    string(hashedPassword),
+		RoleID:      role.ID,
 	}
 
 	if err := m.repository.CreateUser(user); err != nil {
 		if strings.Contains(strings.ToLower(err.Error()), "duplicate") || strings.Contains(strings.ToLower(err.Error()), "unique") {
+			if strings.Contains(strings.ToLower(err.Error()), "phone") {
+				return customerror.NewBadRequestError("nomor hp sudah terdaftar")
+			}
 			return customerror.NewBadRequestError("email sudah terdaftar")
 		}
 		return err
@@ -163,21 +222,36 @@ func (m *Main) Login(req *models.LoginRequest) (*models.LoginResponse, error) {
 		return nil, customerror.NewBadRequestError("request tidak valid")
 	}
 
-	req.Email = strings.TrimSpace(strings.ToLower(req.Email))
-	if req.Email == "" || req.Password == "" {
-		return nil, customerror.NewBadRequestError("email dan password wajib diisi")
+	identifier := strings.TrimSpace(req.Identifier)
+	if identifier == "" {
+		identifier = strings.TrimSpace(req.Email)
 	}
 
-	user, err := m.repository.GetUserByEmail(req.Email)
+	if identifier == "" || req.Password == "" {
+		return nil, customerror.NewBadRequestError("identifier/email dan password wajib diisi")
+	}
+
+	var user *models.User
+	var err error
+	if isEmail(identifier) {
+		user, err = m.repository.GetUserByEmail(strings.ToLower(identifier))
+	} else {
+		normalizedPhoneNumber, nErr := normalizePhoneNumber(identifier)
+		if nErr != nil {
+			return nil, customerror.NewBadRequestError("identifier harus email atau nomor hp valid")
+		}
+		user, err = m.repository.GetUserByPhoneNumber(normalizedPhoneNumber)
+	}
+
 	if err != nil {
 		if _, ok := err.(customerror.NotFoundError); ok {
-			return nil, customerror.NewBadRequestError("email atau password salah")
+			return nil, customerror.NewBadRequestError("email/nomor hp atau password salah")
 		}
 		return nil, err
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password)); err != nil {
-		return nil, customerror.NewBadRequestError("email atau password salah")
+		return nil, customerror.NewBadRequestError("email/nomor hp atau password salah")
 	}
 
 	destination, ok := roleRedirect(user.Role.Name)
@@ -197,6 +271,7 @@ func (m *Main) Login(req *models.LoginRequest) (*models.LoginResponse, error) {
 		UserID:        user.ID,
 		Name:          user.Name,
 		Email:         user.Email,
+		PhoneNumber:   user.PhoneNumber,
 		Role:          user.Role.Name,
 		TargetApp:     destination.TargetApp,
 		RedirectRoute: destination.RedirectRoute,
