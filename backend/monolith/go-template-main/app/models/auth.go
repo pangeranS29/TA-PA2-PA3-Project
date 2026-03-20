@@ -3,15 +3,17 @@ package models
 import "github.com/golang-jwt/jwt/v5"
 
 type RegisterRequest struct {
-	Name     string `json:"name"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
-	RoleName string `json:"role_name"`
+	Name        string `json:"name"`
+	Email       string `json:"email"`
+	PhoneNumber string `json:"phone_number"`
+	Password    string `json:"password"`
+	RoleName    string `json:"role_name"`
 }
 
 type LoginRequest struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	Identifier string `json:"identifier"`
+	Email      string `json:"email,omitempty"`
+	Password   string `json:"password"`
 }
 
 type LoginResponse struct {
@@ -21,6 +23,7 @@ type LoginResponse struct {
 	UserID        uint   `json:"user_id"`
 	Name          string `json:"name"`
 	Email         string `json:"email"`
+	PhoneNumber   string `json:"phone_number"`
 	Role          string `json:"role"`
 	TargetApp     string `json:"target_app"`
 	RedirectRoute string `json:"redirect_route"`
@@ -29,6 +32,7 @@ type LoginResponse struct {
 type MeResponse struct {
 	UserID        uint   `json:"user_id"`
 	Email         string `json:"email"`
+	PhoneNumber   string `json:"phone_number"`
 	Role          string `json:"role"`
 	TargetApp     string `json:"target_app"`
 	RedirectRoute string `json:"redirect_route"`
@@ -37,6 +41,7 @@ type MeResponse struct {
 type AuthClaims struct {
 	UserID        uint   `json:"user_id"`
 	Email         string `json:"email"`
+	PhoneNumber   string `json:"phone_number"`
 	Role          string `json:"role"`
 	TargetApp     string `json:"target_app"`
 	RedirectRoute string `json:"redirect_route"`
