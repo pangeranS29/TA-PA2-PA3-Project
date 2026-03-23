@@ -6,6 +6,8 @@ import (
 )
 
 type Main struct {
+	repository *repositories.Main
+	config     *config.Config
 }
 
 type usecase struct {
@@ -18,9 +20,10 @@ type Options struct {
 }
 
 func Init(opts Options) *Main {
-	// ucs := &usecase{opts}
-
-	m := &Main{}
+	m := &Main{
+		repository: opts.Repository,
+		config:     opts.Config,
+	}
 
 	return m
 }
