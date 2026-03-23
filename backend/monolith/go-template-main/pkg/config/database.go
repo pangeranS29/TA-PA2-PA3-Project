@@ -25,6 +25,7 @@ type DatabaseInstance struct {
 }
 
 type Database struct {
+	DSN          string        `mapstructure:"dsn" json:"dsn"`
 	Username     string        `mapstructure:"username" json:"username"`
 	Password     string        `mapstructure:"password" json:"password"`
 	URL          string        `mapstructure:"url" json:"url"`
@@ -74,6 +75,7 @@ func LoadDatabaseConfig() DatabasePlatform {
 		},
 		Postgres: DatabaseInstance{
 			Read: Database{
+				DSN:          viper.GetString("DB_POSTGRES_DSN"),
 				Username:     viper.GetString("DB_POSTGRES_USER"),
 				Password:     viper.GetString("DB_POSTGRES_PASSWORD"),
 				URL:          viper.GetString("DB_POSTGRES_HOST"),
@@ -88,6 +90,7 @@ func LoadDatabaseConfig() DatabasePlatform {
 				Timeout:      viper.GetDuration("DB_POSTGRES_TIMEOUT"),
 			},
 			Write: Database{
+				DSN:          viper.GetString("DB_POSTGRES_DSN"),
 				Username:     viper.GetString("DB_POSTGRES_USER"),
 				Password:     viper.GetString("DB_POSTGRES_PASSWORD"),
 				URL:          viper.GetString("DB_POSTGRES_HOST"),

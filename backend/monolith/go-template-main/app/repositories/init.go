@@ -7,6 +7,8 @@ import (
 )
 
 type Main struct {
+	postgres *gorm.DB
+	config   *config.Config
 }
 
 type repository struct {
@@ -19,9 +21,10 @@ type Options struct {
 }
 
 func Init(opts Options) *Main {
-	// repo := &repository{opts}
-
-	m := &Main{}
+	m := &Main{
+		postgres: opts.Postgres,
+		config:   opts.Config,
+	}
 
 	return m
 }

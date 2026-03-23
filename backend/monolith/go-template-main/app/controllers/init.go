@@ -6,6 +6,8 @@ import (
 )
 
 type Main struct {
+	usecases *usecases.Main
+	config   *config.Config
 }
 
 type controller struct {
@@ -18,9 +20,14 @@ type Options struct {
 }
 
 func Init(opts Options) *Main {
-	// ctrl := &controller{opts}
-
-	m := &Main{}
+	m := &Main{
+		usecases: opts.UseCases,
+		config:   opts.Config,
+	}
 
 	return m
+}
+
+func (m *Main) JWTSecret() string {
+	return m.config.JWTSecret
 }
