@@ -20,7 +20,7 @@ func (m *Main) Me(c echo.Context) error {
 		UserID:        claims.UserID,
 		Email:         claims.Email,
 		PhoneNumber:   claims.PhoneNumber,
-		Role:          claims.Role,
+		UserRole:      claims.UserRole,
 		TargetApp:     claims.TargetApp,
 		RedirectRoute: claims.RedirectRoute,
 	}

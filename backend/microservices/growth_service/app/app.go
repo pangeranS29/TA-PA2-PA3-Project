@@ -54,17 +54,10 @@ func (m *Main) Init() (err error) {
 		return
 	}
 
-	// auto migrate
-	err = models.AutoMigrateAndSeed(m.database.Postgres)
-	if err != nil {
-		return
+	// Run database migrations
+	if err := models.RunMigrations(m.database.Postgres); err != nil {
+		return err
 	}
-
-	// seeder (setelah run AutoMigrate)
-	// seeder := seeders.NewSeeder(m.database.Postgres)
-	// if err = seeder.Run(); err != nil {
-	// 	println("Error: seeder gagal dijalankan:", err.Error())
-	// }
 
 	m.repo = repositories.Init(repositories.Options{
 		Config:   m.cfg,
