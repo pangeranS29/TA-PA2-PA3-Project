@@ -1,17 +1,20 @@
 package models
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/gorm"
+)
 
 var defaultRoles = []string{
-	"Tenaga-kesehatan",
-	"Dokter",
-	"Kader",
-	"Bidan",
-	"Orangtua",
+	// "Tenaga-kesehatan",
+	// "Dokter",
+	// "Kader",
+	// "Bidan",
+	// "Orangtua",
 }
 
 func AutoMigrateAndSeed(db *gorm.DB) error {
-	if err := db.AutoMigrate(&Role{}, &User{}); err != nil {
+	// auto migrate
+	if err := db.AutoMigrate(&Role{}, &KaderPosyandu{}, &PetugasKesehatan{}, &User{}, &UserRole{}, &Ibu{}, &Anak{}); err != nil {
 		return err
 	}
 
@@ -21,6 +24,13 @@ func AutoMigrateAndSeed(db *gorm.DB) error {
 			return err
 		}
 	}
+
+	// seeder
+	// log.Println("AutoMigrate selesai. Menjalankan Seeder...")
+	// seeder := seeders.NewSeeder(db)
+	// if err := seeder.Run(); err != nil {
+	// 	println("Error: seeder gagal dijalankan:", err.Error())
+	// }
 
 	return nil
 }

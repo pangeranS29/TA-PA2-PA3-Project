@@ -47,3 +47,11 @@ func (m *Main) CreateUser(user *models.User) error {
 	}
 	return nil
 }
+
+// tambah role
+func (m *Main) CreateUserRole(userRole *models.UserRole) error {
+	if err := m.postgres.Create(userRole).Error; err != nil {
+		return err
+	}
+	return nil
+}
