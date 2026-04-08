@@ -62,6 +62,10 @@ func GetURL(arg *Args) (res *url.URL) {
 }
 
 func GetURLString(arg *Args) (res string) {
+	if arg != nil && arg.DSN != "" {
+		return arg.DSN
+	}
+
 	url := GetURL(arg)
 	if url == nil {
 		return
