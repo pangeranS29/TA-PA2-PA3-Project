@@ -9,6 +9,9 @@ import (
 type Main struct {
 	postgres *gorm.DB
 	config   *config.Config
+
+	Anak *	AnakRepository
+	PelayananKesehatanAnak PelayananKesehatanAnakRepository
 }
 
 type repository struct {
@@ -25,6 +28,7 @@ func Init(opts Options) *Main {
 		postgres: opts.Postgres,
 		config:   opts.Config,
 	}
-
+	m.Anak = NewAnakRepository(opts.Postgres)
+	m.PelayananKesehatanAnak = NewPelayananKesehatanAnakRepository(opts.Postgres)
 	return m
 }

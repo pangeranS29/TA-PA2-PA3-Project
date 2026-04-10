@@ -8,6 +8,9 @@ import (
 type Main struct {
 	usecases *usecases.Main
 	config   *config.Config
+
+	Anak    *AnakController
+	PelayananKesehatanAnak 		*PelayananKesehatanAnakController
 }
 
 type controller struct {
@@ -25,9 +28,12 @@ func Init(opts Options) *Main {
 		config:   opts.Config,
 	}
 
+	m.Anak 	=  NewAnakController(opts.UseCases.Anak)
+	m.PelayananKesehatanAnak = NewPelayananKesehatanAnakController(opts.UseCases.PelayananKesehatanAnak)
 	return m
 }
 
 func (m *Main) JWTSecret() string {
 	return m.config.JWTSecret
 }
+
