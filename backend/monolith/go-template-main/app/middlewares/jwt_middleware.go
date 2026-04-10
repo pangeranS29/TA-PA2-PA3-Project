@@ -48,6 +48,7 @@ func JWTAuth(jwtSecret string) echo.MiddlewareFunc {
 			}
 
 			c.Set("auth_claims", claims)
+			c.Set("role", claims.Role)
 			return next(c)
 		}
 	}

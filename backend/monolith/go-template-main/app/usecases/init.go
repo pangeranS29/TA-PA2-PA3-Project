@@ -8,6 +8,9 @@ import (
 type Main struct {
 	repository *repositories.Main
 	config     *config.Config
+
+	Anak *AnakUseCase
+	PelayananKesehatanAnak PelayananKesehatanAnakUseCase
 }
 
 type usecase struct {
@@ -24,6 +27,7 @@ func Init(opts Options) *Main {
 		repository: opts.Repository,
 		config:     opts.Config,
 	}
-
+	m.Anak = NewAnakUseCase(opts.Repository.Anak)
+	m.PelayananKesehatanAnak = NewPelayananKesehatanAnakUseCase(opts.Repository.PelayananKesehatanAnak)
 	return m
 }
