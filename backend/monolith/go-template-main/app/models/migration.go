@@ -5,16 +5,24 @@ import (
 )
 
 var defaultRoles = []string{
-	// "Tenaga-kesehatan",
-	// "Dokter",
-	// "Kader",
-	// "Bidan",
-	// "Orangtua",
+	"Tenaga-kesehatan",
+	"Dokter",
+	"Kader",
+	"Bidan",
+	"Orangtua",
 }
 
 func AutoMigrateAndSeed(db *gorm.DB) error {
 	// auto migrate
-	if err := db.AutoMigrate(&Role{}, &KaderPosyandu{}, &PetugasKesehatan{}, &User{}, &UserRole{}, &Ibu{}, &Anak{}); err != nil {
+	if err := db.AutoMigrate(
+		&Role{},
+		&KaderPosyandu{},
+		&User{},
+		&Kependudukan{},
+		&Anak{},
+		&MasterStandarAntropometri{},
+		&CatatanPertumbuhan{},
+	); err != nil {
 		return err
 	}
 

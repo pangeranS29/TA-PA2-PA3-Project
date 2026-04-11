@@ -123,7 +123,7 @@ func validateRegisterInput(req *models.RegisterRequest) error {
 	return nil
 }
 
-func (m *Main) buildAccessToken(user *models.User, roleName string, destination roleDestination) (tokenString string, expiresIn int64, err error) {
+func (m *Main) buildAccessToken(user *models.User, destination roleDestination) (tokenString string, expiresIn int64, err error) {
 	now := time.Now()
 	expiry := now.Add(time.Duration(m.config.JWTAccessTokenMins) * time.Minute)
 
@@ -131,7 +131,7 @@ func (m *Main) buildAccessToken(user *models.User, roleName string, destination 
 		UserID:        user.ID,
 		Email:         user.Email,
 		PhoneNumber:   user.PhoneNumber,
-		UserRole:      roleName,
+		Role:          user.Role.Name,
 		TargetApp:     destination.TargetApp,
 		RedirectRoute: destination.RedirectRoute,
 		RegisteredClaims: jwt.RegisteredClaims{
@@ -201,7 +201,7 @@ func (m *Main) Register(req *models.RegisterRequest) error {
 		Email:       req.Email,
 		PhoneNumber: req.PhoneNumber,
 		Password:    string(hashedPassword),
-		Role:        []models.Role{*role}, // Memasukkan relasi Many-to-Many
+		RoleID:      role.ID,
 	}
 
 	if err := m.repository.CreateUser(user); err != nil {
@@ -254,21 +254,12 @@ func (m *Main) Login(req *models.LoginRequest) (*models.LoginResponse, error) {
 		return nil, customerror.NewBadRequestError("email/nomor hp atau password salah")
 	}
 
-	// Pastikan array Role tidak kosong untuk mencegah panic index out of range
-	if len(user.Role) == 0 {
-		return nil, customerror.NewInternalServiceError("akun tidak memiliki role aktif")
-	}
-
-	// Mengambil role pertama yang dimiliki user
-	roleName := user.Role[0].Name
-
-	destination, ok := roleRedirect(roleName)
+	destination, ok := roleRedirect(user.Role.Name)
 	if !ok {
 		return nil, customerror.NewInternalServiceError("role belum memiliki mapping target aplikasi")
 	}
 
-	// Sesuaikan parameter buildAccessToken yang dipanggil
-	accessToken, expiresIn, err := m.buildAccessToken(user, roleName, destination)
+	accessToken, expiresIn, err := m.buildAccessToken(user, destination)
 	if err != nil {
 		return nil, customerror.NewInternalServiceError("gagal membuat access token")
 	}
@@ -281,36 +272,10 @@ func (m *Main) Login(req *models.LoginRequest) (*models.LoginResponse, error) {
 		Name:          user.Name,
 		Email:         user.Email,
 		PhoneNumber:   user.PhoneNumber,
-		UserRole:      roleName, // Sesuaikan properti menjadi UserRole
+		Role:          user.Role.Name,
 		TargetApp:     destination.TargetApp,
 		RedirectRoute: destination.RedirectRoute,
 	}
 
 	return res, nil
 }
-
-// destination, ok := roleRedirect(user.Role.Name)
-// if !ok {
-// 	return nil, customerror.NewInternalServiceError("role belum memiliki mapping target aplikasi")
-// }
-
-// accessToken, expiresIn, err := m.buildAccessToken(user, destination)
-// if err != nil {
-// 	return nil, customerror.NewInternalServiceError("gagal membuat access token")
-// }
-
-// res := &models.LoginResponse{
-// 	AccessToken:   accessToken,
-// 	TokenType:     "Bearer",
-// 	ExpiresIn:     expiresIn,
-// 	UserID:        user.ID,
-// 	Name:          user.Name,
-// 	Email:         user.Email,
-// 	PhoneNumber:   user.PhoneNumber,
-// 	Role:          user.Role.Name,
-// 	TargetApp:     destination.TargetApp,
-// 	RedirectRoute: destination.RedirectRoute,
-// }
-
-// return res, nil
-// }

@@ -60,10 +60,33 @@ func (m *Main) Init() (err error) {
 		return
 	}
 
-	// seeder (setelah run AutoMigrate)
-	// seeder := seeders.NewSeeder(m.database.Postgres)
-	// if err = seeder.Run(); err != nil {
-	// 	println("Error: seeder gagal dijalankan:", err.Error())
+	// SEEDER setelah migrate
+	// seeder kependudukan + anak
+	// kependudukanSeeder := seeders.NewKependudukanSeeder(m.database.Postgres)
+	// if err := kependudukanSeeder.Seed(); err != nil {
+	// 	return err
+	// }
+
+	// // seeder master standar TBU
+	// masterTBUSeeder := seeders.NewMasterStandarTBUSeeder(m.database.Postgres)
+	// if err := masterTBUSeeder.Seed(); err != nil {
+	// 	return err
+	// }
+	// masterBBTBSeeder := seeders.NewMasterStandarBBTBSeeder(m.database.Postgres)
+	// if err := masterBBTBSeeder.Seed(); err != nil {
+	// 	return err
+	// }
+	// masterBBUSeeder := seeders.NewMasterStandarBBUSeeder(m.database.Postgres)
+	// if err := masterBBUSeeder.Seed(); err != nil {
+	// 	return err
+	// }
+	// masterIMTUSeeder := seeders.NewMasterStandarIMTUSeeder(m.database.Postgres)
+	// if err := masterIMTUSeeder.Seed(); err != nil {
+	// 	return err
+	// }
+	// masterLKUSeeder := seeders.NewMasterStandarLKUSeeder(m.database.Postgres)
+	// if err := masterLKUSeeder.Seed(); err != nil {
+	// 	return err
 	// }
 
 	m.repo = repositories.Init(repositories.Options{
