@@ -19,4 +19,17 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	secured := auth.Group("")
 	secured.Use(middlewares.JWTAuth(controller.JWTSecret()))
 	secured.GET("/me", controller.Me)
+
+	pertumbuhan := e.Group("/pertumbuhan")
+	pertumbuhan.Use(middlewares.JWTAuth(controller.JWTSecret()))
+	pertumbuhan.POST("", controller.AddCatatanPertumbuhan)
+	pertumbuhan.GET("/:anak_id", controller.GetRiwayatPertumbuhan)
+	pertumbuhan.GET("/detail/:id", controller.GetDetailCatatanPertumbuhan)
+	pertumbuhan.PUT("/:id", controller.UpdateCatatanPertumbuhan)
+	pertumbuhan.DELETE("/:id", controller.DeleteCatatanPertumbuhan)
+
+	masterStandar := e.Group("/master-standar")
+	masterStandar.Use(middlewares.JWTAuth(controller.JWTSecret()))
+	masterStandar.GET("", controller.GetMasterStandar)
+	masterStandar.POST("", controller.CreateMasterStandar)
 }
