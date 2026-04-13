@@ -38,12 +38,18 @@ func RunAllSeed(db *gorm.DB ) error {
 			return err
 		}
 
-		// 5. Mapping (perbaiki urutan parameter)
-		if err := SeederMapping(tx, kategoriMap, pelayananMap, periodeMap); err != nil {
-			log.Println("❌ SeederMapping failed:", err)
+		//.aturan_seed
+		aturanMap, err := SeederAturanPelayanan(tx)
+		if err != nil {
+			log.Println("❌ SeederAturanPelayanan failed:", err)
 			return err
 		}
 
+		// 5. Mapping (perbaiki urutan parameter)
+			if err := SeederMapping(tx, kategoriMap, pelayananMap, periodeMap, aturanMap); err != nil {
+			log.Println("❌ SeederMapping failed:", err)
+			return err
+		}
 
 		log.Println("✅ All seeding success")
 		return nil
