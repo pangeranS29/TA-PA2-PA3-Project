@@ -1,0 +1,20 @@
+package models
+
+type GrafikPeningkatanBB struct {
+	IDGrafikBB uint      `gorm:"primaryKey" json:"id_grafik_bb"`
+	IDIbu      uint      `gorm:"not null;index" json:"id_ibu"`
+	Ibu        *IbuHamil `gorm:"foreignKey:IDIbu;references:ID" json:"ibu,omitempty"`
+
+	BBPraKehamilanKg            *float64 `gorm:"type:decimal(5,2)" json:"bb_pra_kehamilan_kg"`
+	IMTPraKehamilan             *float64 `gorm:"type:decimal(4,2)" json:"imt_pra_kehamilan"`
+	KategoriIMTPraKehamilan     string   `gorm:"type:varchar(50)" json:"kategori_imt_pra_kehamilan"`
+	RekomendasiPeningkatanBBMin *float64 `gorm:"type:decimal(4,1)" json:"rekomendasi_peningkatan_bb_min"`
+	RekomendasiPeningkatanBBMax *float64 `gorm:"type:decimal(4,1)" json:"rekomendasi_peningkatan_bb_max"`
+
+	MingguKehamilan *int     `json:"minggu_kehamilan"`
+	PeningkatanBBKg *float64 `gorm:"type:decimal(4,2)" json:"peningkatan_bb_kg"`
+}
+
+func (GrafikPeningkatanBB) TableName() string {
+	return "grafik_peningkatan_bb"
+}
