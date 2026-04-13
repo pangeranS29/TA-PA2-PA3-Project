@@ -41,7 +41,7 @@ func (s *KependudukanSeeder) seedKependudukan() error {
 	// Data contoh kependudukan (1 Keluarga: Ayah, Ibu, 2 Anak)
 	kependudukanList := []models.Kependudukan{
 		{
-			NoKartuKeluarga: 3171234567890001,
+			NoKartuKeluarga: 3171234567890101,
 			Nik:             3171234567890001,
 			Nama:            "Budi Santoso",
 			JenisKelamin:    "Laki-laki",
@@ -54,7 +54,7 @@ func (s *KependudukanSeeder) seedKependudukan() error {
 			UpdatedAt: now,
 		},
 		{
-			NoKartuKeluarga: 3171234567890001,
+			NoKartuKeluarga: 3171234567890101,
 			Nik:             3171234567890002,
 			Nama:            "Siti Aminah",
 			JenisKelamin:    "Perempuan",
@@ -67,7 +67,7 @@ func (s *KependudukanSeeder) seedKependudukan() error {
 			UpdatedAt: now,
 		},
 		{
-			NoKartuKeluarga: 3171234567890001,
+			NoKartuKeluarga: 3171234567890101,
 			Nik:             3171234567890003, // NIK untuk disemai ke tabel Anak
 			Nama:            "Ahmad Santoso",
 			JenisKelamin:    "Laki-laki",
@@ -80,7 +80,7 @@ func (s *KependudukanSeeder) seedKependudukan() error {
 			UpdatedAt: now,
 		},
 		{
-			NoKartuKeluarga: 3171234567890001,
+			NoKartuKeluarga: 3171234567890101,
 			Nik:             3171234567890004, // NIK untuk disemai ke tabel Anak
 			Nama:            "Rina Santoso",
 			JenisKelamin:    "Perempuan",
@@ -93,7 +93,7 @@ func (s *KependudukanSeeder) seedKependudukan() error {
 			UpdatedAt: now,
 		},
 		{
-			NoKartuKeluarga: 3171234567890001,
+			NoKartuKeluarga: 3171234567890101,
 			Nik:             3171234567890005, // NIK untuk disemai ke tabel Anak
 			Nama:            "Nahes Purba",
 			JenisKelamin:    "Laki-laki",
