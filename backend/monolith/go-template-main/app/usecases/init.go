@@ -12,8 +12,6 @@ type Main struct {
 	// Existing usecases
 	Anak                   *AnakUseCase
 	PelayananKesehatanAnak PelayananKesehatanAnakUseCase
-	Anak                   *AnakUseCase
-	PelayananKesehatanAnak PelayananKesehatanAnakUseCase
 	Neonatus               NeonatusUsecase
 	KunjunganGizi          KunjunganGiziUseCase
 	KunjunganVitamin       KunjunganVitaminUseCase

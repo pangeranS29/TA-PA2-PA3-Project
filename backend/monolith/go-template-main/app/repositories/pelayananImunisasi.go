@@ -8,17 +8,16 @@ import (
 )
 
 type KunjunganImunisasiRepository interface {
-	Create(k *models.Kehadiranmunisasi) error
-	GetByAnakID(anakID int32) ([]models.Kehadiranmunisasi, error)
-	GetByID(id int32) (*models.Kehadiranmunisasi, error)
-	GetAll() ([]models.Kehadiranmunisasi, error)
+	Create(k *models.KehadiranImunisasi) error
+	GetByAnakID(anakID int32) ([]models.KehadiranImunisasi, error)
+	GetByID(id int32) (*models.KehadiranImunisasi, error)
+	GetAll() ([]models.KehadiranImunisasi, error)
 	Update(id int32, req models.UpdateKunjunganImunisasiRequest, now time.Time) error
 	Delete(id int32) error
 }
 type kunjunganImunisasiRepository struct {
 	db *gorm.DB
 }
-
 
 func NewKunjunganImunisasiRepository(db *gorm.DB) KunjunganImunisasiRepository {
 	return &kunjunganImunisasiRepository{db: db}
@@ -36,13 +35,13 @@ func (r *kunjunganImunisasiRepository) withTx(fn func(tx *gorm.DB) error) error 
 
 	return tx.Commit().Error
 }
-func (r *kunjunganImunisasiRepository) Create(k *models.Kehadiranmunisasi) error {
+func (r *kunjunganImunisasiRepository) Create(k *models.KehadiranImunisasi) error {
 	return r.withTx(func(tx *gorm.DB) error {
 		return tx.Create(k).Error
 	})
 }
-func (r *kunjunganImunisasiRepository) GetByAnakID(anakID int32) ([]models.Kehadiranmunisasi, error) {
-	var data []models.Kehadiranmunisasi
+func (r *kunjunganImunisasiRepository) GetByAnakID(anakID int32) ([]models.KehadiranImunisasi, error) {
+	var data []models.KehadiranImunisasi
 
 	err := r.db.
 		Preload("Detail").
@@ -51,8 +50,8 @@ func (r *kunjunganImunisasiRepository) GetByAnakID(anakID int32) ([]models.Kehad
 
 	return data, err
 }
-func (r *kunjunganImunisasiRepository) GetByID(id int32) (*models.Kehadiranmunisasi, error) {
-	var data models.Kehadiranmunisasi
+func (r *kunjunganImunisasiRepository) GetByID(id int32) (*models.KehadiranImunisasi, error) {
+	var data models.KehadiranImunisasi
 
 	err := r.db.
 		Preload("Detail").
@@ -67,8 +66,8 @@ func (r *kunjunganImunisasiRepository) GetByID(id int32) (*models.Kehadiranmunis
 
 	return &data, nil
 }
-func (r *kunjunganImunisasiRepository) GetAll() ([]models.Kehadiranmunisasi, error) {
-	var data []models.Kehadiranmunisasi
+func (r *kunjunganImunisasiRepository) GetAll() ([]models.KehadiranImunisasi, error) {
+	var data []models.KehadiranImunisasi
 
 	err := r.db.
 		Preload("Detail").
@@ -89,7 +88,7 @@ func (r *kunjunganImunisasiRepository) Update(id int32, req models.UpdateKunjung
 			updates["anak_id"] = req.AnakID
 		}
 
-		if err := tx.Model(&models.Kehadiranmunisasi{}).
+		if err := tx.Model(&models.KehadiranImunisasi{}).
 			Where("id = ?", id).
 			Updates(updates).Error; err != nil {
 			return err
@@ -106,10 +105,10 @@ func (r *kunjunganImunisasiRepository) Update(id int32, req models.UpdateKunjung
 		for _, d := range req.Detail {
 			details = append(details, models.DetailPelayananImunisasi{
 				KunjunganImunisasiID: id,
-				JenisPelayananID:   d.JenisPelayananID,
-				Keterangan:         d.Keterangan,
-				CreatedAt:          now,
-				UpdatedAt:          now,
+				JenisPelayananID:     d.JenisPelayananID,
+				Keterangan:           d.Keterangan,
+				CreatedAt:            now,
+				UpdatedAt:            now,
 			})
 		}
 
@@ -130,7 +129,7 @@ func (r *kunjunganImunisasiRepository) Delete(id int32) error {
 			return err
 		}
 
-		if err := tx.Delete(&models.Kehadiranmunisasi{}, id).Error; err != nil {
+		if err := tx.Delete(&models.KehadiranImunisasi{}, id).Error; err != nil {
 			return err
 		}
 
