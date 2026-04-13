@@ -13,6 +13,14 @@ type Main struct {
 	// Existing
 	Anak                   *AnakRepository
 	PelayananKesehatanAnak PelayananKesehatanAnakRepository
+	Neonatus               PelayananNeonatusRepository
+	KunjunganGizi          KunjunganGiziRepository
+	KunjunganVitamin       KunjunganVitaminRepository
+	KunjunganImunisasi     KunjunganImunisasiRepository
+	PemeriksaanGigi        PemeriksaanGigiRepository
+	PemantauanPertumbuhan  PemantauanPertumbuhanRepository
+	PengukuranLilA         PengukuranLilaRepository
+	CatatanPelayanan       CatatanPelayananRepository
 
 	// New repositories (semua pointer, mengikuti pola Anak)
 	IbuHamil                      *IbuHamilRepository
@@ -80,5 +88,13 @@ func Init(opts Options) *Main {
 	m.CatatanPelayananNifas = NewCatatanPelayananNifasRepository(opts.Postgres)
 	m.Rujukan = NewRujukanRepository(opts.Postgres)
 
+	m.Neonatus = NewPelayananNeonatusRepository(opts.Postgres)
+	m.KunjunganGizi = NewKunjunganGiziRepository(opts.Postgres)
+	m.KunjunganVitamin = NewKunjunganVitaminRepository(opts.Postgres)
+	m.KunjunganImunisasi = NewKunjunganImunisasiRepository(opts.Postgres)
+	m.PemeriksaanGigi = NewPemeriksaanGigiRepository(opts.Postgres)
+	m.PemantauanPertumbuhan = NewPemantauanPertumbuhanRepository(opts.Postgres)
+	m.PengukuranLilA = NewPengukuranLilaRepository(opts.Postgres)
+	m.CatatanPelayanan = NewCatatanPelayananRepository(opts.Postgres)
 	return m
 }

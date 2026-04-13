@@ -23,7 +23,7 @@ func TenagaKesehatan() echo.MiddlewareFunc {
 				})
 			}
 
-			if role != "Kader" && role != "Dokter" {
+			if role != "Bidan" && role != "Dokter" {
 				return c.JSON(http.StatusForbidden, map[string]interface{}{
 					"status_code": http.StatusForbidden,
 					"message":     "Anda Tidak Memiliki Akses",

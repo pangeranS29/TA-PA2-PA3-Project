@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"errors"
-	"fmt"
 	"monitoring-service/app/models"
 	"monitoring-service/app/usecases"
 	"net/http"
@@ -11,40 +10,30 @@ import (
 	"gorm.io/gorm"
 )
 
-type NeonatusController struct {
-	usecase usecases.NeonatusUsecase
+type kunjunganGiziController struct {
+	usecase usecases.KunjunganGiziUseCase
 }
 
-func NewPelayananNeonatusController(uc usecases.NeonatusUsecase) *NeonatusController{
-	return &NeonatusController{usecase: uc}
+func NewKunjunganGiziController(uc usecases.KunjunganGiziUseCase) *kunjunganGiziController {
+	return &kunjunganGiziController{usecase: uc}
 }
 
-// Create
-func (c *NeonatusController) CreatePelayananHandler(ctx echo.Context) error {
-	var req models.CreatePelayananNeonatusRequest
+func (c *kunjunganGiziController) Create(ctx echo.Context) error {
+	var req models.CreatePelayananGiziRequest
 
 	if err := ctx.Bind(&req); err != nil {
 		return ctx.JSON(http.StatusBadRequest, map[string]string{
-			"error": "Invalid request format",
+			"error": "format request tidak valid",
 		})
 	}
 
-	//  DEBUG (hapus nanti kalau sudah aman)
-	fmt.Println("DEBUG REQUEST:", req)
-
-	//  VALIDASI WAJIB (INI KUNCI)
+	// VALIDASI WAJIB
 	if req.AnakID == 0 ||
-		req.PeriodeID == 0 ||
-		req.KategoriUmurID == 0 ||
-		req.Tanggal == "" {
+		req.TenagaKesehatanID == 0 ||
+		req.Tanggal == "" ||
+		req.Lokasi == "" {
 		return ctx.JSON(http.StatusBadRequest, map[string]string{
-			"error": "field wajib tidak boleh kosong atau 0",
-		})
-	}
-
-	if len(req.DetailPelayanan) == 0 {
-		return ctx.JSON(http.StatusBadRequest, map[string]string{
-			"error": "detail_pelayanan wajib diisi",
+			"error": "field wajib tidak boleh kosong",
 		})
 	}
 
@@ -55,16 +44,13 @@ func (c *NeonatusController) CreatePelayananHandler(ctx echo.Context) error {
 	}
 
 	return ctx.JSON(http.StatusOK, map[string]string{
-		"message": "Pelayanan kesehatan anak berhasil dibuat",
+		"message": "kunjungan gizi berhasil dibuat",
 	})
 }
-
-
-
-// GetByAnakID
-func (c *NeonatusController) GetByAnakID(ctx echo.Context) error {
+func (c *kunjunganGiziController) GetByAnakID(ctx echo.Context) error {
 	anakIDStr := ctx.QueryParam("anak_id")
 
+	// kalau kosong → ambil semua
 	if anakIDStr == "" {
 		data, err := c.usecase.GetAll()
 		if err != nil {
@@ -92,10 +78,7 @@ func (c *NeonatusController) GetByAnakID(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, data)
 }
 
-
-
-// // get by id kunjungan
-func (c *NeonatusController) GetByID(ctx echo.Context) error {
+func (c *kunjunganGiziController) GetByID(ctx echo.Context) error {
 	id, err := parseInt32(ctx.Param("id"), "id")
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, map[string]string{
@@ -107,7 +90,7 @@ func (c *NeonatusController) GetByID(ctx echo.Context) error {
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return ctx.JSON(http.StatusNotFound, map[string]string{
-				"error": "Data tidak ditemukan",
+				"error": "data tidak ditemukan",
 			})
 		}
 
@@ -119,23 +102,18 @@ func (c *NeonatusController) GetByID(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, data)
 }
 
-
-
-
-// Update
-func (c *NeonatusController) Update(ctx echo.Context) error {
+func (c *kunjunganGiziController) Update(ctx echo.Context) error {
 	id, err := parseInt32(ctx.Param("id"), "id")
-
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, map[string]string{
 			"error": err.Error(),
 		})
 	}
 
-	var req models.UpdatePelayananNeonatusRequest
+	var req models.UpdatePelayananGiziRequest
 	if err := ctx.Bind(&req); err != nil {
 		return ctx.JSON(http.StatusBadRequest, map[string]string{
-			"error": "Request tidak valid",
+			"error": "request tidak valid",
 		})
 	}
 
@@ -146,13 +124,12 @@ func (c *NeonatusController) Update(ctx echo.Context) error {
 	}
 
 	return ctx.JSON(http.StatusOK, map[string]string{
-		"message": "Berhasil update data",
+		"message": "berhasil update kunjungan gizi",
 	})
 }
 
-func (c *NeonatusController) Delete(ctx echo.Context) error {
+func (c *kunjunganGiziController) Delete(ctx echo.Context) error {
 	id, err := parseInt32(ctx.Param("id"), "id")
-
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, map[string]string{
 			"error": err.Error(),
@@ -166,6 +143,6 @@ func (c *NeonatusController) Delete(ctx echo.Context) error {
 	}
 
 	return ctx.JSON(http.StatusOK, map[string]string{
-		"message": "Berhasil hapus data",
+		"message": "berhasil hapus kunjungan gizi",
 	})
 }

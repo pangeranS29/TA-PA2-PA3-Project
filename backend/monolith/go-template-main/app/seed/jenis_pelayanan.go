@@ -53,6 +53,10 @@ func SeederJenisPelayanan(db *gorm.DB) (map[string]int32, error) {
 		{Nama: "Hasil Skrining Hipotiroid Kongenital", TipeInput: "text", GroupName: "observasi", Section: "kondisi"},
 		{Nama: "Skrining Penyakit jantung bawaan kritis 24-48 jam.", TipeInput: "text", GroupName: "observasi", Section: "kondisi"},
 
+		// ===== VITAMIN A & OBAT CACING =====
+		{Nama: "VIT A KAPSUL BIRU(100.000 IU)", TipeInput: "checkbox", GroupName: "Vitamin A dan Obat Cacing", Section: "Februari/Agustus"},
+		{Nama: "VIT A KAPSUL MERAH(200.000 IU)", TipeInput: "checkbox", GroupName: "Vitamin A dan Obat Cacing", Section: "Februari/Agustus"},
+
 		// ===== IMUNISASI =====
 		{Nama: "Hepatitis B (<24 Jam)", TipeInput: "checkbox", GroupName: "Imunisasi Dasar", Section: "0-24 Jam"},
 		{Nama: "BCG", TipeInput: "checkbox", GroupName: "Imunisasi Dasar", Section: "0-1 Bulan"},

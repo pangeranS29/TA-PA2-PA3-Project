@@ -14,6 +14,7 @@ func SeederKategoriUmur(db *gorm.DB) (map[string]int32, error) {
 	kategoriList := []models.KategoriUmur{
 		{KategoriUmur: "bayi_0_28_hari", MinValue: 0, MaxValue: 28, Unit: "hari"},
 		{KategoriUmur: "bayi_0_1_tahun", MinValue: 0, MaxValue: 12, Unit: "bulan"},
+		{KategoriUmur: "bayi_6_11_bulan", MinValue: 6, MaxValue: 11, Unit: "bulan"},
 		{KategoriUmur: "anak_1_2_tahun", MinValue: 1, MaxValue: 2, Unit: "tahun"},
 		{KategoriUmur: "anak_2_3_tahun", MinValue: 2, MaxValue: 3, Unit: "tahun"},
 		{KategoriUmur: "anak_3_4_tahun", MinValue: 3, MaxValue: 4, Unit: "tahun"},
