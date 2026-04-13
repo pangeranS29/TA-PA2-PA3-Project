@@ -15,7 +15,7 @@ type Mapping struct {
 	Items    []string
 }
 
-func SeederMapping(db *gorm.DB, kategori map[string]int32, pelayanan map[string]int32, periode map[string]int32) error {
+func SeederMapping(db *gorm.DB, kategori map[string]int32, pelayanan map[string]int32, periode map[string]int32,aturanMap map[string]int32,) error {
 
 	log.Println("🌱 Seed: mapping jenis pelayanan ke kategori...")
 

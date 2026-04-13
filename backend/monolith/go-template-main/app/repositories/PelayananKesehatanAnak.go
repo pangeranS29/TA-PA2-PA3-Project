@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"fmt"
 	"monitoring-service/app/models"
 	"time"
 
@@ -45,33 +46,33 @@ func (r *pelayananKesehatanAnakRepository) Create(kunjungan *models.KunjunganAna
 
 	return tx.Commit().Error
 }
-//Get All
-func (r *pelayananKesehatanAnakRepository) GetAll() ([]models.KunjunganAnak, error) {
-	var result []models.KunjunganAnak
+	//Get All
+	func (r *pelayananKesehatanAnakRepository) GetAll() ([]models.KunjunganAnak, error) {
+		var result []models.KunjunganAnak
 
-	err := r.db.
-		Preload("DetailPelayanan").// relasi
-		Order("tanggal DESC"). 
-		Find(&result).Error
+		err := r.db.
+			Preload("DetailPelayanan").// relasi
+			Order("tanggal DESC"). 
+			Find(&result).Error
 
-	if err != nil {
-		return nil, err
+		if err != nil {
+			return nil, err
+		}
+
+		return result, nil
 	}
 
-	return result, nil
-}
+	// GET BY ANAK ID
+	func (r *pelayananKesehatanAnakRepository) GetByAnakID(anakID int32) ([]models.KunjunganAnak, error) {
+		var result []models.KunjunganAnak
 
-// GET BY ANAK ID
-func (r *pelayananKesehatanAnakRepository) GetByAnakID(anakID int32) ([]models.KunjunganAnak, error) {
-	var result []models.KunjunganAnak
+		err := r.db.
+			Preload("DetailPelayanan").
+			Where("anak_id = ?", anakID).
+			Find(&result).Error
 
-	err := r.db.
-		Preload("DetailPelayanan").
-		Where("anak_id = ?", anakID).
-		Find(&result).Error
-
-	return result, err
-}
+		return result, err
+	}
 
 // GET BY ID
 func (r *pelayananKesehatanAnakRepository) GetByID(id int32) (*models.KunjunganAnak, error) {
@@ -88,11 +89,11 @@ func (r *pelayananKesehatanAnakRepository) GetByID(id int32) (*models.KunjunganA
 	return &data, nil
 }
 
-// UPDATE (parent + detail)
-func (r *pelayananKesehatanAnakRepository) Update(id int32, req models.UpdatePelayananKesehatanAnakRequest, tanggal time.Time, now time.Time) error {
+func (r *pelayananKesehatanAnakRepository) Update(id int32,req models.UpdatePelayananKesehatanAnakRequest,tanggal time.Time,now time.Time,) error {
+
 	tx := r.db.Begin()
 
-	// update parent
+	// UPDATE PARENT
 	parent := map[string]interface{}{
 		"updated_at": now,
 	}
@@ -117,7 +118,7 @@ func (r *pelayananKesehatanAnakRepository) Update(id int32, req models.UpdatePel
 		return err
 	}
 
-	// ambil existing detail
+	// AMBIL EXISTING
 	var existing []models.DetailPelayanan
 	if err := tx.Where("kunjungan_anak_id = ?", id).Find(&existing).Error; err != nil {
 		tx.Rollback()
@@ -125,41 +126,34 @@ func (r *pelayananKesehatanAnakRepository) Update(id int32, req models.UpdatePel
 	}
 
 	existingMap := make(map[int32]models.DetailPelayanan)
+	existingByJenis := make(map[int32]models.DetailPelayanan)
+
 	for _, d := range existing {
 		existingMap[d.ID] = d
+		existingByJenis[d.JenisPelayananID] = d
 	}
 
-	requestIDs := map[int32]bool{}
-
+	// LOOP REQUEST
 	for _, d := range req.DetailPelayanan {
 
-		// INSERT
-		if d.ID == 0 {
-			newDetail := models.DetailPelayanan{
-				KunjunganAnakID:  id,
-				JenisPelayananID: d.JenisPelayananID,
-				Nilai:            d.Nilai,
-				Keterangan:       d.Keterangan,
-				CreatedAt:        now,
-				UpdatedAt:        now,
-			}
+		// CASE 1: UPDATE by ID
+		if d.ID != 0 {
 
-			if err := tx.Create(&newDetail).Error; err != nil {
+			existingDetail, ok := existingMap[d.ID]
+			if !ok {
 				tx.Rollback()
-				return err
+				return fmt.Errorf("detail id %d tidak ditemukan", d.ID)
 			}
-			continue
-		}
 
-		requestIDs[d.ID] = true
+			if existingDetail.KunjunganAnakID != id {
+				tx.Rollback()
+				return fmt.Errorf("detail id %d bukan milik kunjungan ini", d.ID)
+			}
 
-		// UPDATE
-		if _, ok := existingMap[d.ID]; ok {
 			if err := tx.Model(&models.DetailPelayanan{}).
 				Where("id = ?", d.ID).
 				Updates(map[string]interface{}{
 					"jenis_pelayanan_id": d.JenisPelayananID,
-					"periode_id:":        req.PeriodeID,
 					"nilai":              d.Nilai,
 					"keterangan":         d.Keterangan,
 					"updated_at":         now,
@@ -167,22 +161,45 @@ func (r *pelayananKesehatanAnakRepository) Update(id int32, req models.UpdatePel
 				tx.Rollback()
 				return err
 			}
-		}
-	}
 
-	// DELETE
-	for _, old := range existing {
-		if !requestIDs[old.ID] {
-			if err := tx.Delete(&models.DetailPelayanan{}, "id = ?", old.ID).Error; err != nil {
+			continue
+		}
+
+		// CASE 2: UPDATE by jenis (anti duplikat)
+		if existingDetail, ok := existingByJenis[d.JenisPelayananID]; ok {
+
+			if err := tx.Model(&models.DetailPelayanan{}).
+				Where("id = ?", existingDetail.ID).
+				Updates(map[string]interface{}{
+					"nilai":      d.Nilai,
+					"keterangan": d.Keterangan,
+					"updated_at": now,
+				}).Error; err != nil {
 				tx.Rollback()
 				return err
 			}
+
+			continue
+		}
+
+		// CASE 3: INSERT
+		newDetail := models.DetailPelayanan{
+			KunjunganAnakID:  id,
+			JenisPelayananID: d.JenisPelayananID,
+			Nilai:            d.Nilai,
+			Keterangan:       d.Keterangan,
+			CreatedAt:        now,
+			UpdatedAt:        now,
+		}
+
+		if err := tx.Create(&newDetail).Error; err != nil {
+			tx.Rollback()
+			return err
 		}
 	}
 
 	return tx.Commit().Error
 }
-
 // DELETE
 func (r *pelayananKesehatanAnakRepository) Delete(id int32) error {
 	return r.db.Delete(&models.KunjunganAnak{}, "id = ?", id).Error
