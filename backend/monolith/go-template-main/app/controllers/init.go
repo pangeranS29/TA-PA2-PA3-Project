@@ -12,6 +12,16 @@ type Main struct {
 	// Controller yang sudah ada
 	Anak                   *AnakController
 	PelayananKesehatanAnak *PelayananKesehatanAnakController
+	Anak                   *AnakController
+	PelayananKesehatanAnak *PelayananKesehatanAnakController
+	Neonatus               *NeonatusController
+	PelayananGiziAnak      *kunjunganGiziController
+	KunjunganVitamin       *KunjunganVitaminController
+	KunjunganImunisasi     *KunjunganImunisasiController
+	PemeriksaanGigi        *PemeriksaanGigiController
+	PemantauanPertumbuhan  *PemantauanPertumbuhanController
+	PengukuranLilA         *PengukuranLilAController
+	CatatanPelayanan       *CatatanPelayananController
 
 	// Controller baru
 	IbuHamil                      *IbuHamilController
@@ -79,6 +89,16 @@ func Init(opts Options) *Main {
 	m.CatatanPelayananNifas = NewCatatanPelayananNifasController(opts.UseCases.CatatanPelayananNifas)
 	m.Rujukan = NewRujukanController(opts.UseCases.Rujukan)
 
+	m.Anak = NewAnakController(opts.UseCases.Anak)
+	m.PelayananKesehatanAnak = NewPelayananKesehatanAnakController(opts.UseCases.PelayananKesehatanAnak)
+	m.Neonatus = NewPelayananNeonatusController(opts.UseCases.Neonatus)
+	m.PelayananGiziAnak = NewKunjunganGiziController(opts.UseCases.KunjunganGizi)
+	m.KunjunganVitamin = NewKunjunganVitaminController(opts.UseCases.KunjunganVitamin)
+	m.KunjunganImunisasi = NewKunjunganImunisasiController(opts.UseCases.KunjunganImunisasi)
+	m.PemeriksaanGigi = NewPemeriksaanGigiController(opts.UseCases.PemeriksaanGigi)
+	m.PemantauanPertumbuhan = NewPemantauanPertumbuhanController(opts.UseCases.PemantauanPertumbuhan)
+	m.PengukuranLilA = NewPengukuranLilAController(opts.UseCases.PengukuranLilA)
+	m.CatatanPelayanan = NewCatatanPelayananController(opts.UseCases.CatatanPelayanan)
 	return m
 }
 

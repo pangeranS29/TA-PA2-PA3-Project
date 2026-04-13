@@ -31,10 +31,10 @@ func (c *PelayananKesehatanAnakController) CreatePelayananHandler(ctx echo.Conte
 		})
 	}
 
-	// 🔥 DEBUG (hapus nanti kalau sudah aman)
+	//  DEBUG (hapus nanti kalau sudah aman)
 	fmt.Println("DEBUG REQUEST:", req)
 
-	// 🔥 VALIDASI WAJIB (INI KUNCI)
+	//  VALIDASI WAJIB (INI KUNCI)
 	if req.AnakID == 0 ||
 		req.PeriodeID == 0 ||
 		req.KategoriUmurID == 0 ||

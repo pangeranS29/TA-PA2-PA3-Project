@@ -15,6 +15,8 @@ type KunjunganGizi struct {
 	TenagaKesehatanID int32          `json:"tenaga_kesehatan_id" gorm:"not null;index"`
 	TenagaKesehatan   *User          `json:"tenaga_kesehatan,omitempty" gorm:"foreignKey:TenagaKesehatanID"`
 	Lokasi            string         `json:"lokasi" gorm:"not null"`
+	ASI               *ASI            `gorm:"foreignKey:KunjunganGiziID;constraint:OnDelete:CASCADE"`
+	MPASI             *MPASI          `gorm:"foreignKey:KunjunganGiziID;constraint:OnDelete:CASCADE"`
 	CreatedAt         time.Time      `json:"created_at"`
 	UpdatedAt         time.Time      `json:"updated_at"`
 	DeletedAt         gorm.DeletedAt `json:"-" gorm:"index"`
