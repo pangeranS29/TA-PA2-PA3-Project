@@ -12,7 +12,6 @@ func AutoMigrate(db *gorm.DB) error {
 		&KategoriUmur{},
 		&PeriodeKunjungan{},
 		&JenisPelayanan{},
-		&JenisPelayananImunisasi{},
 		&JenisPelayananKategori{},
 	); err != nil {
 		return err
@@ -59,7 +58,7 @@ func AutoMigrate(db *gorm.DB) error {
 		&MPASI{},
 		&CatatanPelayanan{},
 		&KehadiranImunisasi{},
-		&Kehadiranmunisasi{},
+		&KehadiranImunisasi{},
 		&DetailPelayananImunisasi{},
 		&PeriksaGigi{},
 		&DeteksiDiniPenyimpangan{},

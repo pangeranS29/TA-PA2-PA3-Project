@@ -6,7 +6,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type Kehadiranmunisasi struct {
+type KehadiranImunisasi struct {
 	ID        int32                      `json:"id" gorm:"primaryKey;autoIncrement"`
 	AnakID    int32                      `json:"anak_id" gorm:"not null;index"`
 	Anak      *Anak                      `json:"anak,omitempty" gorm:"foreignKey:AnakID"`
@@ -17,7 +17,7 @@ type Kehadiranmunisasi struct {
 	DeletedAt gorm.DeletedAt             `json:"-" gorm:"index"`
 }
 
-func (Kehadiranmunisasi) TableName() string {
+func (KehadiranImunisasi) TableName() string {
 	return "kehadiran_imunisasi"
 }
 

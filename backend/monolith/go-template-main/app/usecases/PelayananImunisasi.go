@@ -10,9 +10,9 @@ import (
 type KunjunganImunisasiUseCase interface {
 	Create(req models.CreateKunjunganImunisasiRequest) error
 	Update(id int32, req models.UpdateKunjunganImunisasiRequest) error
-	GetByAnakID(anakID int32) ([]models.Kehadiranmunisasi, error)
-	GetByID(id int32) (*models.Kehadiranmunisasi, error)
-	GetAll() ([]models.Kehadiranmunisasi, error)
+	GetByAnakID(anakID int32) ([]models.KehadiranImunisasi, error)
+	GetByID(id int32) (*models.KehadiranImunisasi, error)
+	GetAll() ([]models.KehadiranImunisasi, error)
 	Delete(id int32) error
 }
 
@@ -31,7 +31,7 @@ func (u *kunjunganImunisasiUseCase) Create(req models.CreateKunjunganImunisasiRe
 
 	now := time.Now()
 
-	kunjungan := models.Kehadiranmunisasi{
+	kunjungan := models.KehadiranImunisasi{
 		AnakID:    req.AnakID,
 		Bulanke:   req.Bulanke,
 		CreatedAt: now,
@@ -53,15 +53,15 @@ func (u *kunjunganImunisasiUseCase) Update(id int32, req models.UpdateKunjunganI
 	now := time.Now()
 	return u.repo.Update(id, req, now)
 }
-func (u *kunjunganImunisasiUseCase) GetByAnakID(anakID int32) ([]models.Kehadiranmunisasi, error) {
+func (u *kunjunganImunisasiUseCase) GetByAnakID(anakID int32) ([]models.KehadiranImunisasi, error) {
 	return u.repo.GetByAnakID(anakID)
 }
 
-func (u *kunjunganImunisasiUseCase) GetByID(id int32) (*models.Kehadiranmunisasi, error) {
+func (u *kunjunganImunisasiUseCase) GetByID(id int32) (*models.KehadiranImunisasi, error) {
 	return u.repo.GetByID(id)
 }
 
-func (u *kunjunganImunisasiUseCase) GetAll() ([]models.Kehadiranmunisasi, error) {
+func (u *kunjunganImunisasiUseCase) GetAll() ([]models.KehadiranImunisasi, error) {
 	return u.repo.GetAll()
 }
 func (u *kunjunganImunisasiUseCase) Delete(id int32) error {

@@ -9,7 +9,7 @@ import (
 type DetailPelayananImunisasi struct {
 	ID                   int32               `json:"id" gorm:"primaryKey;autoIncrement"`
 	KunjunganImunisasiID int32               `json:"kunjungan_imunisasi_id" gorm:"not null;index"`
-	KunjunganImunisasi   *Kehadiranmunisasi `json:"kunjungan_imunisasi,omitempty" gorm:"foreignKey:KunjunganImunisasiID"`
+	KunjunganImunisasi   *KehadiranImunisasi `json:"kunjungan_imunisasi,omitempty" gorm:"foreignKey:KunjunganImunisasiID"`
 	JenisPelayananID     int32               `json:"jenis_pelayanan_id" gorm:"not null;index"`
 	JenisPelayanan       *JenisPelayanan     `json:"jenis_pelayanan,omitempty" gorm:"foreignKey:JenisPelayananID"`
 	Keterangan           string              `json:"keterangan"`

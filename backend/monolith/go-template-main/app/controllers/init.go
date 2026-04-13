@@ -12,8 +12,6 @@ type Main struct {
 	// Controller yang sudah ada
 	Anak                   *AnakController
 	PelayananKesehatanAnak *PelayananKesehatanAnakController
-	Anak                   *AnakController
-	PelayananKesehatanAnak *PelayananKesehatanAnakController
 	Neonatus               *NeonatusController
 	PelayananGiziAnak      *kunjunganGiziController
 	KunjunganVitamin       *KunjunganVitaminController
