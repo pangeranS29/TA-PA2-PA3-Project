@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:ta_pa2_pa3_project/core/themes/app_theme.dart';
+import 'package:ta_pa2_pa3_project/core/utils/auth_session.dart';
+import 'package:ta_pa2_pa3_project/features/auth/login_screen.dart';
 import 'package:ta_pa2_pa3_project/features/hamil/screens/journey_screen.dart';
+import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/tumbuh_kembang_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   @override
@@ -28,7 +31,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   const SizedBox(height: 32),
                   // Menampilkan konten berdasarkan fase yang dipilih
                   if (selectedPhase == "Hamil") _buildHamilContent(),
-                  if (selectedPhase != "Hamil") _buildPlaceholderContent(),
+                  if (selectedPhase == "Tumbuh") _buildTumbuhContent(),
+                  if (selectedPhase != "Hamil" && selectedPhase != "Tumbuh")
+                    _buildPlaceholderContent(),
                 ],
               ),
             ),
@@ -75,7 +80,26 @@ class _DashboardScreenState extends State<DashboardScreen> {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(color: Colors.white.withOpacity(0.2), shape: BoxShape.circle),
-            child: const Icon(Icons.notifications_none, color: Colors.white),
+            child: PopupMenuButton<String>(
+              padding: EdgeInsets.zero,
+              icon: const Icon(Icons.notifications_none, color: Colors.white),
+              onSelected: (value) async {
+                if (value == 'logout') {
+                  await AuthSession.clear();
+                  if (!mounted) return;
+                  Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(builder: (_) => const LoginScreen()),
+                    (route) => false,
+                  );
+                }
+              },
+              itemBuilder: (context) => const [
+                PopupMenuItem<String>(
+                  value: 'logout',
+                  child: Text('Logout'),
+                ),
+              ],
+            ),
           )
         ],
       ),
@@ -363,6 +387,39 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildPlaceholderContent() => const Center(child: Padding(padding: EdgeInsets.all(40), child: Text("Konten fase ini segera hadir!")));
+
+  Widget _buildTumbuhContent() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          "Menu Tumbuh Kembang",
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87),
+        ),
+        const SizedBox(height: 16),
+        _buildMenuCard(
+          title: "Pemantauan Pertumbuhan Anak",
+          subtitle: "Input data, lihat grafik, dan status tumbuh anak",
+          icon: Icons.monitor_heart_outlined,
+          iconColor: Colors.teal,
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const TumbuhKembangScreen()),
+          ),
+        ),
+        _buildMenuCard(
+          title: "Riwayat & Status Gizi",
+          subtitle: "Integrasi endpoint backend /pertumbuhan/:anak_id",
+          icon: Icons.query_stats,
+          iconColor: Colors.indigo,
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const TumbuhKembangScreen()),
+          ),
+        ),
+      ],
+    );
+  }
 
   Widget _buildBottomNav() {
     return BottomNavigationBar(
