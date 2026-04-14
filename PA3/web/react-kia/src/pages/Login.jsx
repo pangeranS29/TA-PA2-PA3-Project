@@ -1,3 +1,4 @@
+// src/pages/Login.jsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { login } from "../services/auth";
@@ -17,7 +18,6 @@ const Login = () => {
       await login(identifier, password);
       navigate("/dashboard");
     } catch (err) {
-      console.error("Login error:", err);
       setError(err.response?.data?.message || "Login gagal, periksa email/telepon dan password");
     } finally {
       setLoading(false);
