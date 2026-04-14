@@ -1,5 +1,13 @@
+// src/components/Layout/Sidebar.jsx
 import { NavLink } from "react-router-dom";
-import { LayoutDashboard, Users, Baby, FileText, Settings, LogOut } from "lucide-react";
+import { 
+  LayoutDashboard, 
+  Users, 
+  Baby, 
+  FileText, 
+  Settings,
+  LogOut 
+} from "lucide-react";
 import { logout } from "../../services/auth";
 
 const Sidebar = () => {
@@ -10,10 +18,6 @@ const Sidebar = () => {
     { path: "/laporan", name: "Laporan", icon: FileText },
     { path: "/pengaturan", name: "Pengaturan", icon: Settings },
   ];
-
-  const handleLogout = () => {
-    logout();
-  };
 
   return (
     <aside className="w-64 bg-indigo-800 text-white flex flex-col">
@@ -35,7 +39,7 @@ const Sidebar = () => {
         ))}
       </nav>
       <button
-        onClick={handleLogout}
+        onClick={logout}
         className="flex items-center gap-3 px-4 py-3 hover:bg-indigo-700 transition border-t border-indigo-700"
       >
         <LogOut size={20} />

@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"monitoring-service/app/controllers"
 
-	"monitoring-service/app/models"
+	// "monitoring-service/app/models"
 	"monitoring-service/app/repositories"
 	"monitoring-service/app/routes"
 
-	"monitoring-service/app/seed"
+	// "monitoring-service/app/seed"
 	"monitoring-service/app/usecases"
 	"monitoring-service/pkg/config"
 	"monitoring-service/pkg/database"
@@ -59,19 +59,19 @@ func (m *Main) Init() (err error) {
 	}
 	fmt.Println("✅ BERHASIL KONEK KE DATABASE")
 
-	// /comment sementara
+	///comment sementara
 
-	//Migrate Tabel
-	err = models.AutoMigrate(m.database.Postgres)
-	if err != nil {
-		return
-	}
+	// //Migrate Tabel
+	// err = models.AutoMigrate(m.database.Postgres)
+	// if err != nil {
+	// 	return
+	// }
 
-	// //Seeder
-	err = seed.RunAllSeed(m.database.Postgres)
-	if err != nil {
-		return
-	}
+	// // //Seeder
+	// err = seed.RunAllSeed(m.database.Postgres)
+	// if err != nil {
+	// 	return
+	// }
 
 	m.repo = repositories.Init(repositories.Options{
 		Config:   m.cfg,

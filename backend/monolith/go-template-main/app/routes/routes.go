@@ -20,10 +20,8 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	secured.GET("/me", controller.Me)
 
 	tenaga := e.Group("/tenaga-kesehatan")
-	tenaga.Use(middlewares.JWTAuth(controller.JWTSecret())) // HARUS PERTAMA
-	tenaga.Use(middlewares.TenagaKesehatan())               // KEDUA
-	tenaga.POST("/ibu-hamil", controller.IbuHamil.Create)
-	tenaga.GET("/ibu-hamil", controller.IbuHamil.GetAll)
+	tenaga.Use(middlewares.JWTAuth(controller.JWTSecret()))
+	tenaga.Use(middlewares.TenagaKesehatan())
 
 	// ===== EXISTING ROUTES =====
 	tenaga.GET("/anak", controller.Anak.AdminList)
