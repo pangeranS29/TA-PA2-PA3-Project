@@ -14,7 +14,7 @@ const Sidebar = () => {
   const menuItems = [
     { path: "/dashboard", name: "Dashboard", icon: LayoutDashboard },
     { path: "/data-ibu", name: "Data Ibu", icon: Users },
-    { path: "/data-anak", name: "Data Anak", icon: Baby },
+    { path: "/Daftar-Anak", name: "Data Anak", icon: Baby },
     { path: "/laporan", name: "Laporan", icon: FileText },
     { path: "/pengaturan", name: "Pengaturan", icon: Settings },
   ];

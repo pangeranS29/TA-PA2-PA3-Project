@@ -24,6 +24,13 @@ type Pagination struct {
 	Total     int `json:"total,omitempty"`
 	TotalPage int `json:"total_page,omitempty"`
 }
+type KehamilanSimple struct {
+	ID  int32 `json:"id"`
+	Ibu struct {
+		NamaIbu string `json:"nama_ibu"`
+		
+	} `json:"ibu"`
+}
 type AnakResponse struct {
 	ID            int32    `json:"id"`
 	Nama          string   `json:"nama"`
@@ -33,5 +40,6 @@ type AnakResponse struct {
 	UsiaTeks      string   `json:"usia_teks"`
 	BeratLahirKg  *float64 `json:"berat_lahir_kg,omitempty"`
 	GolonganDarah *string  `json:"golongan_darah,omitempty"`
+	Kehamilan *KehamilanSimple `json:"kehamilan,omitempty"`
 	// VaksinBerikutnya string   `json:"vaksin_berikutnya"`
 }

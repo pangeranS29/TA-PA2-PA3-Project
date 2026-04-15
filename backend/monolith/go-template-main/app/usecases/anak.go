@@ -206,8 +206,8 @@ func FormatLabelUsia(bulan int) string {
 func (u *AnakUseCase) toAnakResponse(anak *models.Anak) models.AnakResponse {
 	usiaBulan := HitungUsiaBulan(anak.TanggalLahir)
 
-	return models.AnakResponse{
-		ID:            anak.ID, // FIX: jangan di-comment
+	resp := models.AnakResponse{
+		ID:            anak.ID,
 		Nama:          anak.Nama,
 		TanggalLahir:  anak.TanggalLahir.Format("2006-01-02"),
 		JenisKelamin:  anak.JenisKelamin,
@@ -216,4 +216,17 @@ func (u *AnakUseCase) toAnakResponse(anak *models.Anak) models.AnakResponse {
 		BeratLahirKg:  anak.BeratLahirKg,
 		GolonganDarah: anak.GolonganDarah,
 	}
+
+	// 🔥 INI YANG HILANG SELAMA INI
+	if anak.Kehamilan != nil {
+		resp.Kehamilan = &models.KehamilanSimple{
+			ID: anak.Kehamilan.ID,
+		}
+
+		if anak.Kehamilan.Ibu != nil {
+			resp.Kehamilan.Ibu.NamaIbu = anak.Kehamilan.Ibu.NamaIbu
+		}
+	}
+
+	return resp
 }
