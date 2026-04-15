@@ -5,10 +5,11 @@ import (
 
 	"github.com/labstack/echo/v4"
 )
+
 // GetRole mengambil role pengguna dari Echo context.
 func GetRole(c echo.Context) string {
-		role, _ := c.Get("role").(string)
-		return role
+	role, _ := c.Get("role").(string)
+	return role
 }
 
 func TenagaKesehatan() echo.MiddlewareFunc {
@@ -23,7 +24,7 @@ func TenagaKesehatan() echo.MiddlewareFunc {
 				})
 			}
 
-			if role != "Bidan" && role != "Dokter" {
+			if role != "Bidan" && role != "Dokter" && role != "Tenaga-kesehatan" {
 				return c.JSON(http.StatusForbidden, map[string]interface{}{
 					"status_code": http.StatusForbidden,
 					"message":     "Anda Tidak Memiliki Akses",

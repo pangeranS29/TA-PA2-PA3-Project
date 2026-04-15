@@ -10,7 +10,7 @@ import (
 
 func (m *Main) GetRoleByName(roleName string) (*models.Role, error) {
 	var role models.Role
-	if err := m.postgres.Where("nama = ?", roleName).First(&role).Error; err != nil {
+	if err := m.postgres.Where("name = ?", roleName).First(&role).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, customerror.NewNotFoundError("role tidak ditemukan")
 		}
