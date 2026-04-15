@@ -42,6 +42,11 @@ func main() {
 		&models.Kehamilan{},
 		&models.RiwayatKehamilan{},
 		&models.PemeriksaanANC{},
+		&models.SkriningPreeklampsiaDanDiabetes{},
+		&models.Janin{},
+		&models.USGTrimester1{},
+		&models.USGTrimester2{},
+		&models.USGTrimester3{},
 	)
 	if err != nil {
 		log.Fatal("Migrasi Gagal : ", err)
