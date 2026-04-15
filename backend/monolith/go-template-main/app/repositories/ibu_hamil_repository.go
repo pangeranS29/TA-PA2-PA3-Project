@@ -18,7 +18,7 @@ func (r *IbuHamilRepository) Create(ibu *models.IbuHamil) error {
 	return r.db.Create(ibu).Error
 }
 
-func (r *IbuHamilRepository) FindByID(id uint) (*models.IbuHamil, error) {
+func (r *IbuHamilRepository) FindByID(id int32) (*models.IbuHamil, error) {
 	var ibu models.IbuHamil
 	err := r.db.First(&ibu, id).Error
 	return &ibu, err
@@ -34,6 +34,6 @@ func (r *IbuHamilRepository) Update(ibu *models.IbuHamil) error {
 	return r.db.Save(ibu).Error
 }
 
-func (r *IbuHamilRepository) Delete(id uint) error {
+func (r *IbuHamilRepository) Delete(id int32) error {
 	return r.db.Delete(&models.IbuHamil{}, id).Error
 }

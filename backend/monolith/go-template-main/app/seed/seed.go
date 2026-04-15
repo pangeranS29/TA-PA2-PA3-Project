@@ -6,7 +6,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func RunAllSeed(db *gorm.DB ) error {
+func RunAllSeed(db *gorm.DB) error {
 	return db.Transaction(func(tx *gorm.DB) error {
 
 		log.Println("🚀 Start seeding...")
@@ -46,7 +46,7 @@ func RunAllSeed(db *gorm.DB ) error {
 		}
 
 		// 5. Mapping (perbaiki urutan parameter)
-			if err := SeederMapping(tx, kategoriMap, pelayananMap, periodeMap, aturanMap); err != nil {
+		if err := SeederMapping(tx, kategoriMap, pelayananMap, periodeMap, aturanMap); err != nil {
 			log.Println("❌ SeederMapping failed:", err)
 			return err
 		}

@@ -7,10 +7,10 @@ import (
 
 type SkriningPreeklampsiaUsecase interface {
 	Create(s *models.SkriningPreeklampsia) error
-	GetByID(id uint) (*models.SkriningPreeklampsia, error)
-	GetByIbuID(ibuID uint) ([]models.SkriningPreeklampsia, error)
+	GetByID(id int32) (*models.SkriningPreeklampsia, error)
+	GetByIbuID(ibuID int32) ([]models.SkriningPreeklampsia, error)
 	Update(s *models.SkriningPreeklampsia) error
-	Delete(id uint) error
+	Delete(id int32) error
 }
 
 type skriningPreeklampsiaUsecase struct {
@@ -25,11 +25,11 @@ func (u *skriningPreeklampsiaUsecase) Create(s *models.SkriningPreeklampsia) err
 	return u.repo.Create(s)
 }
 
-func (u *skriningPreeklampsiaUsecase) GetByID(id uint) (*models.SkriningPreeklampsia, error) {
+func (u *skriningPreeklampsiaUsecase) GetByID(id int32) (*models.SkriningPreeklampsia, error) {
 	return u.repo.FindByID(id)
 }
 
-func (u *skriningPreeklampsiaUsecase) GetByIbuID(ibuID uint) ([]models.SkriningPreeklampsia, error) {
+func (u *skriningPreeklampsiaUsecase) GetByIbuID(ibuID int32) ([]models.SkriningPreeklampsia, error) {
 	return u.repo.FindByIbuID(ibuID)
 }
 
@@ -37,6 +37,6 @@ func (u *skriningPreeklampsiaUsecase) Update(s *models.SkriningPreeklampsia) err
 	return u.repo.Update(s)
 }
 
-func (u *skriningPreeklampsiaUsecase) Delete(id uint) error {
+func (u *skriningPreeklampsiaUsecase) Delete(id int32) error {
 	return u.repo.Delete(id)
 }

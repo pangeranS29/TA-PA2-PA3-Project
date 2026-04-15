@@ -18,13 +18,13 @@ func (r *PenjelasanHasilGrafikRepository) Create(p *models.PenjelasanHasilGrafik
 	return r.db.Create(p).Error
 }
 
-func (r *PenjelasanHasilGrafikRepository) FindByID(id uint) (*models.PenjelasanHasilGrafik, error) {
+func (r *PenjelasanHasilGrafikRepository) FindByID(id int32) (*models.PenjelasanHasilGrafik, error) {
 	var p models.PenjelasanHasilGrafik
 	err := r.db.First(&p, id).Error
 	return &p, err
 }
 
-func (r *PenjelasanHasilGrafikRepository) FindByIbuID(ibuID uint) ([]models.PenjelasanHasilGrafik, error) {
+func (r *PenjelasanHasilGrafikRepository) FindByIbuID(ibuID int32) ([]models.PenjelasanHasilGrafik, error) {
 	var list []models.PenjelasanHasilGrafik
 	err := r.db.Where("id_ibu = ?", ibuID).Find(&list).Error
 	return list, err
@@ -34,6 +34,6 @@ func (r *PenjelasanHasilGrafikRepository) Update(p *models.PenjelasanHasilGrafik
 	return r.db.Save(p).Error
 }
 
-func (r *PenjelasanHasilGrafikRepository) Delete(id uint) error {
+func (r *PenjelasanHasilGrafikRepository) Delete(id int32) error {
 	return r.db.Delete(&models.PenjelasanHasilGrafik{}, id).Error
 }

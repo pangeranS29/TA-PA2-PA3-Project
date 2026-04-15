@@ -7,10 +7,10 @@ import (
 
 type PemeriksaanLaboratoriumJiwaUsecase interface {
 	Create(p *models.PemeriksaanLaboratoriumJiwa) error
-	GetByID(id uint) (*models.PemeriksaanLaboratoriumJiwa, error)
-	GetByIbuID(ibuID uint) ([]models.PemeriksaanLaboratoriumJiwa, error)
+	GetByID(id int32) (*models.PemeriksaanLaboratoriumJiwa, error)
+	GetByIbuID(ibuID int32) ([]models.PemeriksaanLaboratoriumJiwa, error)
 	Update(p *models.PemeriksaanLaboratoriumJiwa) error
-	Delete(id uint) error
+	Delete(id int32) error
 }
 
 type pemeriksaanLaboratoriumJiwaUsecase struct {
@@ -25,11 +25,11 @@ func (u *pemeriksaanLaboratoriumJiwaUsecase) Create(p *models.PemeriksaanLaborat
 	return u.repo.Create(p)
 }
 
-func (u *pemeriksaanLaboratoriumJiwaUsecase) GetByID(id uint) (*models.PemeriksaanLaboratoriumJiwa, error) {
+func (u *pemeriksaanLaboratoriumJiwaUsecase) GetByID(id int32) (*models.PemeriksaanLaboratoriumJiwa, error) {
 	return u.repo.FindByID(id)
 }
 
-func (u *pemeriksaanLaboratoriumJiwaUsecase) GetByIbuID(ibuID uint) ([]models.PemeriksaanLaboratoriumJiwa, error) {
+func (u *pemeriksaanLaboratoriumJiwaUsecase) GetByIbuID(ibuID int32) ([]models.PemeriksaanLaboratoriumJiwa, error) {
 	return u.repo.FindByIbuID(ibuID)
 }
 
@@ -37,6 +37,6 @@ func (u *pemeriksaanLaboratoriumJiwaUsecase) Update(p *models.PemeriksaanLaborat
 	return u.repo.Update(p)
 }
 
-func (u *pemeriksaanLaboratoriumJiwaUsecase) Delete(id uint) error {
+func (u *pemeriksaanLaboratoriumJiwaUsecase) Delete(id int32) error {
 	return u.repo.Delete(id)
 }

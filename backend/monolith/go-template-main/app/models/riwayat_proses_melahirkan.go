@@ -3,8 +3,8 @@ package models
 import "time"
 
 type RiwayatProsesMelahirkan struct {
-	IDRiwayatMelahirkan uint      `gorm:"primaryKey" json:"id_riwayat_melahirkan"`
-	IDIbu               uint      `gorm:"not null;index" json:"id_ibu"`
+	IDRiwayatMelahirkan int32     `gorm:"primaryKey" json:"id_riwayat_melahirkan"`
+	IDIbu               int32     `gorm:"not null;index" json:"id_ibu"`
 	Ibu                 *IbuHamil `gorm:"foreignKey:IDIbu;references:ID" json:"ibu,omitempty"`
 
 	GGravida int `json:"g_gravida"`

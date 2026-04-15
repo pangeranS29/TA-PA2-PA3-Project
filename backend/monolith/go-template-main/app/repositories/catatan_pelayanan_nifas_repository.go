@@ -18,13 +18,13 @@ func (r *CatatanPelayananNifasRepository) Create(c *models.CatatanPelayananNifas
 	return r.db.Create(c).Error
 }
 
-func (r *CatatanPelayananNifasRepository) FindByID(id uint) (*models.CatatanPelayananNifas, error) {
+func (r *CatatanPelayananNifasRepository) FindByID(id int32) (*models.CatatanPelayananNifas, error) {
 	var c models.CatatanPelayananNifas
 	err := r.db.First(&c, id).Error
 	return &c, err
 }
 
-func (r *CatatanPelayananNifasRepository) FindByIbuID(ibuID uint) ([]models.CatatanPelayananNifas, error) {
+func (r *CatatanPelayananNifasRepository) FindByIbuID(ibuID int32) ([]models.CatatanPelayananNifas, error) {
 	var list []models.CatatanPelayananNifas
 	err := r.db.Where("id_ibu = ?", ibuID).Find(&list).Error
 	return list, err
@@ -34,6 +34,6 @@ func (r *CatatanPelayananNifasRepository) Update(c *models.CatatanPelayananNifas
 	return r.db.Save(c).Error
 }
 
-func (r *CatatanPelayananNifasRepository) Delete(id uint) error {
+func (r *CatatanPelayananNifasRepository) Delete(id int32) error {
 	return r.db.Delete(&models.CatatanPelayananNifas{}, id).Error
 }

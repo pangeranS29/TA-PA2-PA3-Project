@@ -18,13 +18,13 @@ func (r *KeteranganLahirRepository) Create(k *models.KeteranganLahir) error {
 	return r.db.Create(k).Error
 }
 
-func (r *KeteranganLahirRepository) FindByID(id uint) (*models.KeteranganLahir, error) {
+func (r *KeteranganLahirRepository) FindByID(id int32) (*models.KeteranganLahir, error) {
 	var k models.KeteranganLahir
 	err := r.db.First(&k, id).Error
 	return &k, err
 }
 
-func (r *KeteranganLahirRepository) FindByIbuID(ibuID uint) ([]models.KeteranganLahir, error) {
+func (r *KeteranganLahirRepository) FindByIbuID(ibuID int32) ([]models.KeteranganLahir, error) {
 	var list []models.KeteranganLahir
 	err := r.db.Where("id_ibu_relasi = ?", ibuID).Find(&list).Error
 	return list, err
@@ -34,6 +34,6 @@ func (r *KeteranganLahirRepository) Update(k *models.KeteranganLahir) error {
 	return r.db.Save(k).Error
 }
 
-func (r *KeteranganLahirRepository) Delete(id uint) error {
+func (r *KeteranganLahirRepository) Delete(id int32) error {
 	return r.db.Delete(&models.KeteranganLahir{}, id).Error
 }

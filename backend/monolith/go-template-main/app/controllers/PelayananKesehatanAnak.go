@@ -63,7 +63,7 @@ func (c *PelayananKesehatanAnakController) CreatePelayananHandler(ctx echo.Conte
 }
 
 // parse int 32
-func parseInt32(param string, fieldName string) (int32, error) {
+func ParseInt(param string, fieldName string) (int32, error) {
 	val, err := strconv.Atoi(param)
 	if err != nil {
 		return 0, fmt.Errorf("%s harus berupa angka", fieldName)
@@ -85,7 +85,7 @@ func (c *PelayananKesehatanAnakController) GetByAnakID(ctx echo.Context) error {
 		return ctx.JSON(http.StatusOK, data)
 	}
 
-	anakID, err := parseInt32(anakIDStr, "anak_id")
+	anakID, err := ParseInt(anakIDStr, "anak_id")
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, map[string]string{
 			"error": err.Error(),
@@ -104,7 +104,7 @@ func (c *PelayananKesehatanAnakController) GetByAnakID(ctx echo.Context) error {
 
 // // get by id kunjungan
 func (c *PelayananKesehatanAnakController) GetByID(ctx echo.Context) error {
-	id, err := parseInt32(ctx.Param("id"), "id")
+	id, err := ParseInt(ctx.Param("id"), "id")
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, map[string]string{
 			"error": err.Error(),
@@ -129,7 +129,7 @@ func (c *PelayananKesehatanAnakController) GetByID(ctx echo.Context) error {
 
 // Update
 func (c *PelayananKesehatanAnakController) Update(ctx echo.Context) error {
-	id, err := parseInt32(ctx.Param("id"), "id")
+	id, err := ParseInt(ctx.Param("id"), "id")
 
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, map[string]string{
@@ -156,7 +156,7 @@ func (c *PelayananKesehatanAnakController) Update(ctx echo.Context) error {
 }
 
 func (c *PelayananKesehatanAnakController) Delete(ctx echo.Context) error {
-	id, err := parseInt32(ctx.Param("id"), "id")
+	id, err := ParseInt(ctx.Param("id"), "id")
 
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, map[string]string{

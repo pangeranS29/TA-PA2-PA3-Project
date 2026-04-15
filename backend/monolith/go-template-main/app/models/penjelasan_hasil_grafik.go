@@ -3,8 +3,8 @@ package models
 import "time"
 
 type PenjelasanHasilGrafik struct {
-	IDPenjelasan            uint      `gorm:"primaryKey" json:"id_penjelasan"`
-	IDIbu                   uint      `gorm:"not null;index" json:"id_ibu"`
+	IDPenjelasan            int32     `gorm:"primaryKey" json:"id_penjelasan"`
+	IDIbu                   int32     `gorm:"not null;index" json:"id_ibu"`
 	Ibu                     *IbuHamil `gorm:"foreignKey:IDIbu;references:ID" json:"ibu,omitempty"`
 	CatatanPenjelasanGrafik string    `json:"catatan_penjelasan_grafik"`
 	CreatedAt               time.Time `json:"created_at"`

@@ -7,10 +7,10 @@ import (
 
 type CatatanPelayananNifasUsecase interface {
 	Create(c *models.CatatanPelayananNifas) error
-	GetByID(id uint) (*models.CatatanPelayananNifas, error)
-	GetByIbuID(ibuID uint) ([]models.CatatanPelayananNifas, error)
+	GetByID(id int32) (*models.CatatanPelayananNifas, error)
+	GetByIbuID(ibuID int32) ([]models.CatatanPelayananNifas, error)
 	Update(c *models.CatatanPelayananNifas) error
-	Delete(id uint) error
+	Delete(id int32) error
 }
 
 type catatanPelayananNifasUsecase struct {
@@ -25,11 +25,11 @@ func (u *catatanPelayananNifasUsecase) Create(c *models.CatatanPelayananNifas) e
 	return u.repo.Create(c)
 }
 
-func (u *catatanPelayananNifasUsecase) GetByID(id uint) (*models.CatatanPelayananNifas, error) {
+func (u *catatanPelayananNifasUsecase) GetByID(id int32) (*models.CatatanPelayananNifas, error) {
 	return u.repo.FindByID(id)
 }
 
-func (u *catatanPelayananNifasUsecase) GetByIbuID(ibuID uint) ([]models.CatatanPelayananNifas, error) {
+func (u *catatanPelayananNifasUsecase) GetByIbuID(ibuID int32) ([]models.CatatanPelayananNifas, error) {
 	return u.repo.FindByIbuID(ibuID)
 }
 
@@ -37,6 +37,6 @@ func (u *catatanPelayananNifasUsecase) Update(c *models.CatatanPelayananNifas) e
 	return u.repo.Update(c)
 }
 
-func (u *catatanPelayananNifasUsecase) Delete(id uint) error {
+func (u *catatanPelayananNifasUsecase) Delete(id int32) error {
 	return u.repo.Delete(id)
 }

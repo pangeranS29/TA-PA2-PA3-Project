@@ -18,13 +18,13 @@ func (r *PemeriksaanLanjutanTrimester3Repository) Create(p *models.PemeriksaanLa
 	return r.db.Create(p).Error
 }
 
-func (r *PemeriksaanLanjutanTrimester3Repository) FindByID(id uint) (*models.PemeriksaanLanjutanTrimester3, error) {
+func (r *PemeriksaanLanjutanTrimester3Repository) FindByID(id int32) (*models.PemeriksaanLanjutanTrimester3, error) {
 	var p models.PemeriksaanLanjutanTrimester3
 	err := r.db.First(&p, id).Error
 	return &p, err
 }
 
-func (r *PemeriksaanLanjutanTrimester3Repository) FindByIbuID(ibuID uint) ([]models.PemeriksaanLanjutanTrimester3, error) {
+func (r *PemeriksaanLanjutanTrimester3Repository) FindByIbuID(ibuID int32) ([]models.PemeriksaanLanjutanTrimester3, error) {
 	var list []models.PemeriksaanLanjutanTrimester3
 	err := r.db.Where("id_ibu = ?", ibuID).Find(&list).Error
 	return list, err
@@ -34,6 +34,6 @@ func (r *PemeriksaanLanjutanTrimester3Repository) Update(p *models.PemeriksaanLa
 	return r.db.Save(p).Error
 }
 
-func (r *PemeriksaanLanjutanTrimester3Repository) Delete(id uint) error {
+func (r *PemeriksaanLanjutanTrimester3Repository) Delete(id int32) error {
 	return r.db.Delete(&models.PemeriksaanLanjutanTrimester3{}, id).Error
 }

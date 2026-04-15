@@ -7,10 +7,10 @@ import (
 
 type IbuHamilUsecase interface {
 	Create(ibu *models.IbuHamil) error
-	GetByID(id uint) (*models.IbuHamil, error)
+	GetByID(id int32) (*models.IbuHamil, error)
 	GetAll() ([]models.IbuHamil, error)
 	Update(ibu *models.IbuHamil) error
-	Delete(id uint) error
+	Delete(id int32) error
 }
 
 type ibuHamilUsecase struct {
@@ -25,7 +25,7 @@ func (u *ibuHamilUsecase) Create(ibu *models.IbuHamil) error {
 	return u.repo.Create(ibu)
 }
 
-func (u *ibuHamilUsecase) GetByID(id uint) (*models.IbuHamil, error) {
+func (u *ibuHamilUsecase) GetByID(id int32) (*models.IbuHamil, error) {
 	return u.repo.FindByID(id)
 }
 
@@ -37,6 +37,6 @@ func (u *ibuHamilUsecase) Update(ibu *models.IbuHamil) error {
 	return u.repo.Update(ibu)
 }
 
-func (u *ibuHamilUsecase) Delete(id uint) error {
+func (u *ibuHamilUsecase) Delete(id int32) error {
 	return u.repo.Delete(id)
 }

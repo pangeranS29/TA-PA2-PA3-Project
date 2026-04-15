@@ -7,10 +7,10 @@ import (
 
 type CatatanPelayananTrimester2Usecase interface {
 	Create(c *models.CatatanPelayananTrimester2) error
-	GetByID(id uint) (*models.CatatanPelayananTrimester2, error)
-	GetByIbuID(ibuID uint) ([]models.CatatanPelayananTrimester2, error)
+	GetByID(id int32) (*models.CatatanPelayananTrimester2, error)
+	GetByIbuID(ibuID int32) ([]models.CatatanPelayananTrimester2, error)
 	Update(c *models.CatatanPelayananTrimester2) error
-	Delete(id uint) error
+	Delete(id int32) error
 }
 
 type catatanPelayananTrimester2Usecase struct {
@@ -25,11 +25,11 @@ func (u *catatanPelayananTrimester2Usecase) Create(c *models.CatatanPelayananTri
 	return u.repo.Create(c)
 }
 
-func (u *catatanPelayananTrimester2Usecase) GetByID(id uint) (*models.CatatanPelayananTrimester2, error) {
+func (u *catatanPelayananTrimester2Usecase) GetByID(id int32) (*models.CatatanPelayananTrimester2, error) {
 	return u.repo.FindByID(id)
 }
 
-func (u *catatanPelayananTrimester2Usecase) GetByIbuID(ibuID uint) ([]models.CatatanPelayananTrimester2, error) {
+func (u *catatanPelayananTrimester2Usecase) GetByIbuID(ibuID int32) ([]models.CatatanPelayananTrimester2, error) {
 	return u.repo.FindByIbuID(ibuID)
 }
 
@@ -37,6 +37,6 @@ func (u *catatanPelayananTrimester2Usecase) Update(c *models.CatatanPelayananTri
 	return u.repo.Update(c)
 }
 
-func (u *catatanPelayananTrimester2Usecase) Delete(id uint) error {
+func (u *catatanPelayananTrimester2Usecase) Delete(id int32) error {
 	return u.repo.Delete(id)
 }
