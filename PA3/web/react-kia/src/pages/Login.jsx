@@ -15,8 +15,11 @@ const Login = () => {
     setLoading(true);
     setError("");
     try {
-      await login(identifier, password);
-      navigate("/dashboard");
+     const res = await login(identifier, password);
+
+    // console.log("LOGIN RESPONSE:", res);
+    // console.log("USER DATA:", res.data);
+     navigate("/dashboard");
     } catch (err) {
       setError(err.response?.data?.message || "Login gagal, periksa email/telepon dan password");
     } finally {

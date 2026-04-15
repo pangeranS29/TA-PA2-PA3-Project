@@ -5,3 +5,4 @@
 # Build binaries and temporary files
 *.exe
 **/tmp/
+*.log
