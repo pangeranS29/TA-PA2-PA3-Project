@@ -3,8 +3,8 @@ package models
 import "time"
 
 type RingkasanPelayananPersalinan struct {
-	IDRingkasan uint      `gorm:"primaryKey" json:"id_ringkasan"`
-	IDIbu       uint      `gorm:"not null;index" json:"id_ibu"`
+	IDRingkasan int32     `gorm:"primaryKey" json:"id_ringkasan"`
+	IDIbu       int32     `gorm:"not null;index" json:"id_ibu"`
 	Ibu         *IbuHamil `gorm:"foreignKey:IDIbu;references:ID" json:"ibu,omitempty"`
 
 	TanggalMelahirkan        *time.Time `gorm:"type:date" json:"tanggal_melahirkan"`

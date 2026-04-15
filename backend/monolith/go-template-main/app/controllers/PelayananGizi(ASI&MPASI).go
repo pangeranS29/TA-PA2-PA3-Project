@@ -61,7 +61,7 @@ func (c *kunjunganGiziController) GetByAnakID(ctx echo.Context) error {
 		return ctx.JSON(http.StatusOK, data)
 	}
 
-	anakID, err := parseInt32(anakIDStr, "anak_id")
+	anakID, err := ParseInt(anakIDStr, "anak_id")
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, map[string]string{
 			"error": err.Error(),
@@ -79,7 +79,7 @@ func (c *kunjunganGiziController) GetByAnakID(ctx echo.Context) error {
 }
 
 func (c *kunjunganGiziController) GetByID(ctx echo.Context) error {
-	id, err := parseInt32(ctx.Param("id"), "id")
+	id, err := ParseInt(ctx.Param("id"), "id")
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, map[string]string{
 			"error": err.Error(),
@@ -103,7 +103,7 @@ func (c *kunjunganGiziController) GetByID(ctx echo.Context) error {
 }
 
 func (c *kunjunganGiziController) Update(ctx echo.Context) error {
-	id, err := parseInt32(ctx.Param("id"), "id")
+	id, err := ParseInt(ctx.Param("id"), "id")
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, map[string]string{
 			"error": err.Error(),
@@ -129,7 +129,7 @@ func (c *kunjunganGiziController) Update(ctx echo.Context) error {
 }
 
 func (c *kunjunganGiziController) Delete(ctx echo.Context) error {
-	id, err := parseInt32(ctx.Param("id"), "id")
+	id, err := ParseInt(ctx.Param("id"), "id")
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, map[string]string{
 			"error": err.Error(),

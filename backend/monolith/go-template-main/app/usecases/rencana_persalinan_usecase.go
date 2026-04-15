@@ -7,10 +7,10 @@ import (
 
 type RencanaPersalinanUsecase interface {
 	Create(rp *models.RencanaPersalinan) error
-	GetByID(id uint) (*models.RencanaPersalinan, error)
-	GetByIbuID(ibuID uint) ([]models.RencanaPersalinan, error)
+	GetByID(id int32) (*models.RencanaPersalinan, error)
+	GetByIbuID(ibuID int32) ([]models.RencanaPersalinan, error)
 	Update(rp *models.RencanaPersalinan) error
-	Delete(id uint) error
+	Delete(id int32) error
 }
 
 type rencanaPersalinanUsecase struct {
@@ -25,11 +25,11 @@ func (u *rencanaPersalinanUsecase) Create(rp *models.RencanaPersalinan) error {
 	return u.repo.Create(rp)
 }
 
-func (u *rencanaPersalinanUsecase) GetByID(id uint) (*models.RencanaPersalinan, error) {
+func (u *rencanaPersalinanUsecase) GetByID(id int32) (*models.RencanaPersalinan, error) {
 	return u.repo.FindByID(id)
 }
 
-func (u *rencanaPersalinanUsecase) GetByIbuID(ibuID uint) ([]models.RencanaPersalinan, error) {
+func (u *rencanaPersalinanUsecase) GetByIbuID(ibuID int32) ([]models.RencanaPersalinan, error) {
 	return u.repo.FindByIbuID(ibuID)
 }
 
@@ -37,6 +37,6 @@ func (u *rencanaPersalinanUsecase) Update(rp *models.RencanaPersalinan) error {
 	return u.repo.Update(rp)
 }
 
-func (u *rencanaPersalinanUsecase) Delete(id uint) error {
+func (u *rencanaPersalinanUsecase) Delete(id int32) error {
 	return u.repo.Delete(id)
 }

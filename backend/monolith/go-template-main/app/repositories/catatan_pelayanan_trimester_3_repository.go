@@ -18,13 +18,13 @@ func (r *CatatanPelayananTrimester3Repository) Create(c *models.CatatanPelayanan
 	return r.db.Create(c).Error
 }
 
-func (r *CatatanPelayananTrimester3Repository) FindByID(id uint) (*models.CatatanPelayananTrimester3, error) {
+func (r *CatatanPelayananTrimester3Repository) FindByID(id int32) (*models.CatatanPelayananTrimester3, error) {
 	var c models.CatatanPelayananTrimester3
 	err := r.db.First(&c, id).Error
 	return &c, err
 }
 
-func (r *CatatanPelayananTrimester3Repository) FindByIbuID(ibuID uint) ([]models.CatatanPelayananTrimester3, error) {
+func (r *CatatanPelayananTrimester3Repository) FindByIbuID(ibuID int32) ([]models.CatatanPelayananTrimester3, error) {
 	var list []models.CatatanPelayananTrimester3
 	err := r.db.Where("id_ibu = ?", ibuID).Find(&list).Error
 	return list, err
@@ -34,6 +34,6 @@ func (r *CatatanPelayananTrimester3Repository) Update(c *models.CatatanPelayanan
 	return r.db.Save(c).Error
 }
 
-func (r *CatatanPelayananTrimester3Repository) Delete(id uint) error {
+func (r *CatatanPelayananTrimester3Repository) Delete(id int32) error {
 	return r.db.Delete(&models.CatatanPelayananTrimester3{}, id).Error
 }

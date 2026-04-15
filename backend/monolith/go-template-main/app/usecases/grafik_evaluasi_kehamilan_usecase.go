@@ -7,10 +7,10 @@ import (
 
 type GrafikEvaluasiKehamilanUsecase interface {
 	Create(g *models.GrafikEvaluasiKehamilan) error
-	GetByID(id uint) (*models.GrafikEvaluasiKehamilan, error)
-	GetByIbuID(ibuID uint) ([]models.GrafikEvaluasiKehamilan, error)
+	GetByID(id int32) (*models.GrafikEvaluasiKehamilan, error)
+	GetByIbuID(ibuID int32) ([]models.GrafikEvaluasiKehamilan, error)
 	Update(g *models.GrafikEvaluasiKehamilan) error
-	Delete(id uint) error
+	Delete(id int32) error
 }
 
 type grafikEvaluasiKehamilanUsecase struct {
@@ -25,11 +25,11 @@ func (u *grafikEvaluasiKehamilanUsecase) Create(g *models.GrafikEvaluasiKehamila
 	return u.repo.Create(g)
 }
 
-func (u *grafikEvaluasiKehamilanUsecase) GetByID(id uint) (*models.GrafikEvaluasiKehamilan, error) {
+func (u *grafikEvaluasiKehamilanUsecase) GetByID(id int32) (*models.GrafikEvaluasiKehamilan, error) {
 	return u.repo.FindByID(id)
 }
 
-func (u *grafikEvaluasiKehamilanUsecase) GetByIbuID(ibuID uint) ([]models.GrafikEvaluasiKehamilan, error) {
+func (u *grafikEvaluasiKehamilanUsecase) GetByIbuID(ibuID int32) ([]models.GrafikEvaluasiKehamilan, error) {
 	return u.repo.FindByIbuID(ibuID)
 }
 
@@ -37,6 +37,6 @@ func (u *grafikEvaluasiKehamilanUsecase) Update(g *models.GrafikEvaluasiKehamila
 	return u.repo.Update(g)
 }
 
-func (u *grafikEvaluasiKehamilanUsecase) Delete(id uint) error {
+func (u *grafikEvaluasiKehamilanUsecase) Delete(id int32) error {
 	return u.repo.Delete(id)
 }

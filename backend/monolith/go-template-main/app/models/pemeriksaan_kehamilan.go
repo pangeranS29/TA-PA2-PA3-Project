@@ -5,8 +5,8 @@ import (
 )
 
 type PemeriksaanKehamilan struct {
-	IDPeriksa   uint      `gorm:"primaryKey" json:"id_periksa"`
-	IDIbu       uint      `gorm:"not null;index" json:"id_ibu"`
+	IDPeriksa   int32     `gorm:"primaryKey" json:"id_periksa"`
+	IDIbu       int32     `gorm:"not null;index" json:"id_ibu"`
 	Ibu         *IbuHamil `gorm:"foreignKey:IDIbu;references:ID" json:"ibu,omitempty"`
 	Trimester   string    `gorm:"type:varchar(10)" json:"trimester"`
 	KunjunganKe int       `json:"kunjungan_ke"`

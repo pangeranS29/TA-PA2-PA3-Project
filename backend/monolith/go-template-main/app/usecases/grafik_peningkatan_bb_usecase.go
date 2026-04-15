@@ -7,10 +7,10 @@ import (
 
 type GrafikPeningkatanBBUsecase interface {
 	Create(g *models.GrafikPeningkatanBB) error
-	GetByID(id uint) (*models.GrafikPeningkatanBB, error)
-	GetByIbuID(ibuID uint) ([]models.GrafikPeningkatanBB, error)
+	GetByID(id int32) (*models.GrafikPeningkatanBB, error)
+	GetByIbuID(ibuID int32) ([]models.GrafikPeningkatanBB, error)
 	Update(g *models.GrafikPeningkatanBB) error
-	Delete(id uint) error
+	Delete(id int32) error
 }
 
 type grafikPeningkatanBBUsecase struct {
@@ -25,11 +25,11 @@ func (u *grafikPeningkatanBBUsecase) Create(g *models.GrafikPeningkatanBB) error
 	return u.repo.Create(g)
 }
 
-func (u *grafikPeningkatanBBUsecase) GetByID(id uint) (*models.GrafikPeningkatanBB, error) {
+func (u *grafikPeningkatanBBUsecase) GetByID(id int32) (*models.GrafikPeningkatanBB, error) {
 	return u.repo.FindByID(id)
 }
 
-func (u *grafikPeningkatanBBUsecase) GetByIbuID(ibuID uint) ([]models.GrafikPeningkatanBB, error) {
+func (u *grafikPeningkatanBBUsecase) GetByIbuID(ibuID int32) ([]models.GrafikPeningkatanBB, error) {
 	return u.repo.FindByIbuID(ibuID)
 }
 
@@ -37,6 +37,6 @@ func (u *grafikPeningkatanBBUsecase) Update(g *models.GrafikPeningkatanBB) error
 	return u.repo.Update(g)
 }
 
-func (u *grafikPeningkatanBBUsecase) Delete(id uint) error {
+func (u *grafikPeningkatanBBUsecase) Delete(id int32) error {
 	return u.repo.Delete(id)
 }

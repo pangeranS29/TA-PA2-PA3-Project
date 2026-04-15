@@ -7,10 +7,10 @@ import (
 
 type RiwayatKehamilanLaluUsecase interface {
 	Create(rk *models.RiwayatKehamilanLalu) error
-	GetByID(id uint) (*models.RiwayatKehamilanLalu, error)
-	GetByEvaluasiID(evaluasiID uint) ([]models.RiwayatKehamilanLalu, error)
+	GetByID(id int32) (*models.RiwayatKehamilanLalu, error)
+	GetByEvaluasiID(evaluasiID int32) ([]models.RiwayatKehamilanLalu, error)
 	Update(rk *models.RiwayatKehamilanLalu) error
-	Delete(id uint) error
+	Delete(id int32) error
 }
 
 type riwayatKehamilanLaluUsecase struct {
@@ -25,11 +25,11 @@ func (u *riwayatKehamilanLaluUsecase) Create(rk *models.RiwayatKehamilanLalu) er
 	return u.repo.Create(rk)
 }
 
-func (u *riwayatKehamilanLaluUsecase) GetByID(id uint) (*models.RiwayatKehamilanLalu, error) {
+func (u *riwayatKehamilanLaluUsecase) GetByID(id int32) (*models.RiwayatKehamilanLalu, error) {
 	return u.repo.FindByID(id)
 }
 
-func (u *riwayatKehamilanLaluUsecase) GetByEvaluasiID(evaluasiID uint) ([]models.RiwayatKehamilanLalu, error) {
+func (u *riwayatKehamilanLaluUsecase) GetByEvaluasiID(evaluasiID int32) ([]models.RiwayatKehamilanLalu, error) {
 	return u.repo.FindByEvaluasiID(evaluasiID)
 }
 
@@ -37,6 +37,6 @@ func (u *riwayatKehamilanLaluUsecase) Update(rk *models.RiwayatKehamilanLalu) er
 	return u.repo.Update(rk)
 }
 
-func (u *riwayatKehamilanLaluUsecase) Delete(id uint) error {
+func (u *riwayatKehamilanLaluUsecase) Delete(id int32) error {
 	return u.repo.Delete(id)
 }

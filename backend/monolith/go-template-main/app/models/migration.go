@@ -1,69 +1,46 @@
 package models
 
-import (
-	"gorm.io/gorm"
-)
+import "gorm.io/gorm"
 
 func AutoMigrate(db *gorm.DB) error {
-	// 1. Tabel master tanpa foreign key
-	if err := db.AutoMigrate(
+	// Semua model dalam satu slice
+	models := []interface{}{
+		// Master
 		&Role{},
 		&User{},
 		&KategoriUmur{},
 		&PeriodeKunjungan{},
 		&JenisPelayanan{},
 		&JenisPelayananKategori{},
-	); err != nil {
-		return err
-	}
 
-	// 2. IbuHamil (master untuk data ibu)
-	if err := db.AutoMigrate(&IbuHamil{}); err != nil {
-		return err
-	}
+		// Relasi utama
+		&IbuHamil{},
+		&Kehamilan{},
+		&Anak{},
 
-	// 3. Kehamilan (tergantung IbuHamil)
-	if err := db.AutoMigrate(&Kehamilan{}); err != nil {
-		return err
-	}
+		// Evaluasi & riwayat
+		&EvaluasiKesehatanIbu{},
+		&RiwayatKehamilanLalu{},
 
-	// 4. Anak (tergantung Kehamilan)
-	if err := db.AutoMigrate(&Anak{}); err != nil {
-		return err
-	}
-
-	// 5. EvaluasiKesehatanIbu (tergantung IbuHamil)
-	if err := db.AutoMigrate(&EvaluasiKesehatanIbu{}); err != nil {
-		return err
-	}
-
-	// 6. RiwayatKehamilanLalu (tergantung EvaluasiKesehatanIbu)
-	if err := db.AutoMigrate(&RiwayatKehamilanLalu{}); err != nil {
-		return err
-	}
-
-	// 7. Model lainnya (tidak memiliki foreign key ke model di atas yang bermasalah)
-	if err := db.AutoMigrate(
+		// Pelayanan & lainnya
 		&KunjunganAnak{},
 		&AturanPelayanan{},
-		// &KunjunganAnak{},
 		&KunjunganGizi{},
 		&KunjunganVitamin{},
 		&Neonatus{},
-		// &DetailPelayanan{},
 		&DetailPelayananNeonatus{},
 		&DetailPelayananVitamin{},
-		&KunjunganGizi{},
 		&ASI{},
 		&MPASI{},
 		&CatatanPelayanan{},
-		&KehadiranImunisasi{},
 		&KehadiranImunisasi{},
 		&DetailPelayananImunisasi{},
 		&PeriksaGigi{},
 		&DeteksiDiniPenyimpangan{},
 		&PengukuranLila{},
 		&Pertumbuhan{},
+
+		// Kehamilan detail
 		&PemeriksaanKehamilan{},
 		&PemeriksaanDokterTrimester1{},
 		&PemeriksaanLaboratoriumJiwa{},
@@ -74,17 +51,26 @@ func AutoMigrate(db *gorm.DB) error {
 		&PemeriksaanDokterTrimester3{},
 		&PemeriksaanLanjutanTrimester3{},
 		&CatatanPelayananTrimester3{},
+
+		// Grafik & hasil
 		&GrafikEvaluasiKehamilan{},
 		&GrafikPeningkatanBB{},
 		&PenjelasanHasilGrafik{},
+
+		// Persalinan
 		&RencanaPersalinan{},
 		&RingkasanPelayananPersalinan{},
 		&KeteranganLahir{},
 		&RiwayatProsesMelahirkan{},
+
+		// Nifas & rujukan
 		&PelayananIbuNifas{},
 		&CatatanPelayananNifas{},
 		&Rujukan{},
-	); err != nil {
+	}
+
+	// Jalankan automigrate sekali saja
+	if err := db.AutoMigrate(models...); err != nil {
 		return err
 	}
 

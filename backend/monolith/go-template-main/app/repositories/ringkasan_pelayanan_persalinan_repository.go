@@ -18,13 +18,13 @@ func (r *RingkasanPelayananPersalinanRepository) Create(rp *models.RingkasanPela
 	return r.db.Create(rp).Error
 }
 
-func (r *RingkasanPelayananPersalinanRepository) FindByID(id uint) (*models.RingkasanPelayananPersalinan, error) {
+func (r *RingkasanPelayananPersalinanRepository) FindByID(id int32) (*models.RingkasanPelayananPersalinan, error) {
 	var rp models.RingkasanPelayananPersalinan
 	err := r.db.First(&rp, id).Error
 	return &rp, err
 }
 
-func (r *RingkasanPelayananPersalinanRepository) FindByIbuID(ibuID uint) ([]models.RingkasanPelayananPersalinan, error) {
+func (r *RingkasanPelayananPersalinanRepository) FindByIbuID(ibuID int32) ([]models.RingkasanPelayananPersalinan, error) {
 	var list []models.RingkasanPelayananPersalinan
 	err := r.db.Where("id_ibu = ?", ibuID).Find(&list).Error
 	return list, err
@@ -34,6 +34,6 @@ func (r *RingkasanPelayananPersalinanRepository) Update(rp *models.RingkasanPela
 	return r.db.Save(rp).Error
 }
 
-func (r *RingkasanPelayananPersalinanRepository) Delete(id uint) error {
+func (r *RingkasanPelayananPersalinanRepository) Delete(id int32) error {
 	return r.db.Delete(&models.RingkasanPelayananPersalinan{}, id).Error
 }

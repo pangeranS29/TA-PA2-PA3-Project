@@ -8,8 +8,8 @@ import (
 
 type Kehamilan struct {
 	ID                       int32          `gorm:"primaryKey;autoIncrement" json:"id"`
-	IbuID                    int32          `json:"ibu_id" gorm:"not null;index"`
-	Ibu                      *IbuHamil      `gorm:"foreignKey:IbuID;references:ID" json:"ibu,omitempty"`
+	IbuID                    int32          `gorm:"not null;index;constraint:OnDelete:CASCADE" json:"ibu_id"`
+	Ibu                      *IbuHamil      `gorm:"foreignKey:IbuID;references:ID;constraint:OnDelete:CASCADE" json:"ibu,omitempty"`
 	Gravida                  int32          `json:"gravida,omitempty"`
 	Paritas                  int32          `json:"paritas,omitempty"`
 	Abortus                  int32          `json:"abortus,omitempty"`
@@ -21,8 +21,7 @@ type Kehamilan struct {
 	CreatedAt                time.Time      `json:"created_at"`
 	UpdatedAt                time.Time      `json:"updated_at"`
 	DeletedAt                gorm.DeletedAt `json:"-" gorm:"index"`
-
-	Anak []Anak `json:"anak,omitempty" gorm:"foreignKey:KehamilanID"`
+	Anak                     []Anak         `json:"anak,omitempty" gorm:"foreignKey:KehamilanID;constraint:OnDelete:CASCADE"`
 }
 
 func (Kehamilan) TableName() string { return "kehamilan" }

@@ -3,8 +3,8 @@ package models
 import "time"
 
 type GrafikEvaluasiKehamilan struct {
-	IDGrafik uint      `gorm:"primaryKey" json:"id_grafik"`
-	IDIbu    uint      `gorm:"not null;index" json:"id_ibu"`
+	IDGrafik int32     `gorm:"primaryKey" json:"id_grafik"`
+	IDIbu    int32     `gorm:"not null;index" json:"id_ibu"`
 	Ibu      *IbuHamil `gorm:"foreignKey:IDIbu;references:ID" json:"ibu,omitempty"`
 
 	TanggalBulanTahun *time.Time `gorm:"type:date" json:"tanggal_bulan_tahun"`

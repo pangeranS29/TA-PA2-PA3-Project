@@ -7,10 +7,10 @@ import (
 
 type RingkasanPelayananPersalinanUsecase interface {
 	Create(rp *models.RingkasanPelayananPersalinan) error
-	GetByID(id uint) (*models.RingkasanPelayananPersalinan, error)
-	GetByIbuID(ibuID uint) ([]models.RingkasanPelayananPersalinan, error)
+	GetByID(id int32) (*models.RingkasanPelayananPersalinan, error)
+	GetByIbuID(ibuID int32) ([]models.RingkasanPelayananPersalinan, error)
 	Update(rp *models.RingkasanPelayananPersalinan) error
-	Delete(id uint) error
+	Delete(id int32) error
 }
 
 type ringkasanPelayananPersalinanUsecase struct {
@@ -25,11 +25,11 @@ func (u *ringkasanPelayananPersalinanUsecase) Create(rp *models.RingkasanPelayan
 	return u.repo.Create(rp)
 }
 
-func (u *ringkasanPelayananPersalinanUsecase) GetByID(id uint) (*models.RingkasanPelayananPersalinan, error) {
+func (u *ringkasanPelayananPersalinanUsecase) GetByID(id int32) (*models.RingkasanPelayananPersalinan, error) {
 	return u.repo.FindByID(id)
 }
 
-func (u *ringkasanPelayananPersalinanUsecase) GetByIbuID(ibuID uint) ([]models.RingkasanPelayananPersalinan, error) {
+func (u *ringkasanPelayananPersalinanUsecase) GetByIbuID(ibuID int32) ([]models.RingkasanPelayananPersalinan, error) {
 	return u.repo.FindByIbuID(ibuID)
 }
 
@@ -37,6 +37,6 @@ func (u *ringkasanPelayananPersalinanUsecase) Update(rp *models.RingkasanPelayan
 	return u.repo.Update(rp)
 }
 
-func (u *ringkasanPelayananPersalinanUsecase) Delete(id uint) error {
+func (u *ringkasanPelayananPersalinanUsecase) Delete(id int32) error {
 	return u.repo.Delete(id)
 }

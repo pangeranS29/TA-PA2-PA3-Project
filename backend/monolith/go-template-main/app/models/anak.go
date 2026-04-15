@@ -6,14 +6,13 @@ import (
 	"gorm.io/gorm"
 )
 
-// Anak merepresentasikan data anak yang terdaftar oleh pengguna.
 type Anak struct {
-	ID            int32          `json:"id" gorm:"primaryKey;autoIncrement"`
-	KehamilanID   int32          `json:"kehamilan_id" gorm:"not null;index"`
-	Kehamilan     *Kehamilan     `json:"kehamilan,omitempty" gorm:"foreignKey:KehamilanID"`
+	ID            int32          `gorm:"primaryKey;autoIncrement" json:"id"`
+	KehamilanID   int32          `json:"kehamilan_id" gorm:"not null;index;constraint:OnDelete:CASCADE"`
+	Kehamilan     *Kehamilan     `json:"kehamilan,omitempty" gorm:"foreignKey:KehamilanID;constraint:OnDelete:CASCADE"`
 	Nama          string         `json:"nama" gorm:"not null"`
 	TanggalLahir  time.Time      `json:"tanggal_lahir" gorm:"not null"`
-	JenisKelamin  string         `json:"jenis_kelamin" gorm:"not null"` // "laki-laki" | "perempuan"
+	JenisKelamin  string         `json:"jenis_kelamin" gorm:"not null"`
 	BeratLahirKg  *float64       `json:"berat_lahir_kg,omitempty"`
 	GolonganDarah *string        `json:"golongan_darah,omitempty"`
 	CreatedAt     time.Time      `json:"created_at"`
@@ -22,10 +21,3 @@ type Anak struct {
 }
 
 func (Anak) TableName() string { return "anak" }
-
-// func (a *Anak) BeforeCreate(tx *gorm.DB) error {
-// 	if a.ID == "" {
-// 		a.ID = uuid.New().String()
-// 	}
-// 	return nil
-// }

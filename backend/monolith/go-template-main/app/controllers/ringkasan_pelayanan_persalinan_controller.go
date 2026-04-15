@@ -29,11 +29,11 @@ func (c *RingkasanPelayananPersalinanController) Create(ctx echo.Context) error 
 }
 
 func (c *RingkasanPelayananPersalinanController) GetByID(ctx echo.Context) error {
-	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
+	id, err := strconv.ParseInt(ctx.Param("id"), 10, 32)
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, models.Response{StatusCode: 400, Message: "invalid id"})
 	}
-	data, err := c.usecase.GetByID(uint(id))
+	data, err := c.usecase.GetByID(int32(id))
 	if err != nil {
 		return ctx.JSON(http.StatusNotFound, models.Response{StatusCode: 404, Message: err.Error()})
 	}
@@ -41,11 +41,11 @@ func (c *RingkasanPelayananPersalinanController) GetByID(ctx echo.Context) error
 }
 
 func (c *RingkasanPelayananPersalinanController) GetByIbuID(ctx echo.Context) error {
-	ibuID, err := strconv.ParseUint(ctx.QueryParam("ibu_id"), 10, 32)
+	ibuID, err := strconv.ParseInt(ctx.QueryParam("ibu_id"), 10, 32)
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, models.Response{StatusCode: 400, Message: "ibu_id required"})
 	}
-	list, err := c.usecase.GetByIbuID(uint(ibuID))
+	list, err := c.usecase.GetByIbuID(int32(ibuID))
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, models.Response{StatusCode: 500, Message: err.Error()})
 	}
@@ -53,7 +53,7 @@ func (c *RingkasanPelayananPersalinanController) GetByIbuID(ctx echo.Context) er
 }
 
 func (c *RingkasanPelayananPersalinanController) Update(ctx echo.Context) error {
-	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
+	id, err := strconv.ParseInt(ctx.Param("id"), 10, 32)
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, models.Response{StatusCode: 400, Message: "invalid id"})
 	}
@@ -61,7 +61,7 @@ func (c *RingkasanPelayananPersalinanController) Update(ctx echo.Context) error 
 	if err := ctx.Bind(&req); err != nil {
 		return ctx.JSON(http.StatusBadRequest, models.Response{StatusCode: 400, Message: err.Error()})
 	}
-	req.IDRingkasan = uint(id)
+	req.IDRingkasan = int32(id)
 	if err := c.usecase.Update(&req); err != nil {
 		return ctx.JSON(http.StatusInternalServerError, models.Response{StatusCode: 500, Message: err.Error()})
 	}
@@ -69,11 +69,11 @@ func (c *RingkasanPelayananPersalinanController) Update(ctx echo.Context) error 
 }
 
 func (c *RingkasanPelayananPersalinanController) Delete(ctx echo.Context) error {
-	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
+	id, err := strconv.ParseInt(ctx.Param("id"), 10, 32)
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, models.Response{StatusCode: 400, Message: "invalid id"})
 	}
-	if err := c.usecase.Delete(uint(id)); err != nil {
+	if err := c.usecase.Delete(int32(id)); err != nil {
 		return ctx.JSON(http.StatusInternalServerError, models.Response{StatusCode: 500, Message: err.Error()})
 	}
 	return ctx.JSON(http.StatusOK, models.Response{StatusCode: 200, Message: "deleted"})

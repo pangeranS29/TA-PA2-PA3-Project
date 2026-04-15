@@ -15,7 +15,7 @@ type NeonatusController struct {
 	usecase usecases.NeonatusUsecase
 }
 
-func NewPelayananNeonatusController(uc usecases.NeonatusUsecase) *NeonatusController{
+func NewPelayananNeonatusController(uc usecases.NeonatusUsecase) *NeonatusController {
 	return &NeonatusController{usecase: uc}
 }
 
@@ -59,8 +59,6 @@ func (c *NeonatusController) CreatePelayananHandler(ctx echo.Context) error {
 	})
 }
 
-
-
 // GetByAnakID
 func (c *NeonatusController) GetByAnakID(ctx echo.Context) error {
 	anakIDStr := ctx.QueryParam("anak_id")
@@ -75,7 +73,7 @@ func (c *NeonatusController) GetByAnakID(ctx echo.Context) error {
 		return ctx.JSON(http.StatusOK, data)
 	}
 
-	anakID, err := parseInt32(anakIDStr, "anak_id")
+	anakID, err := ParseInt(anakIDStr, "anak_id")
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, map[string]string{
 			"error": err.Error(),
@@ -92,11 +90,9 @@ func (c *NeonatusController) GetByAnakID(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, data)
 }
 
-
-
 // // get by id kunjungan
 func (c *NeonatusController) GetByID(ctx echo.Context) error {
-	id, err := parseInt32(ctx.Param("id"), "id")
+	id, err := ParseInt(ctx.Param("id"), "id")
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, map[string]string{
 			"error": err.Error(),
@@ -119,12 +115,9 @@ func (c *NeonatusController) GetByID(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, data)
 }
 
-
-
-
 // Update
 func (c *NeonatusController) Update(ctx echo.Context) error {
-	id, err := parseInt32(ctx.Param("id"), "id")
+	id, err := ParseInt(ctx.Param("id"), "id")
 
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, map[string]string{
@@ -151,7 +144,7 @@ func (c *NeonatusController) Update(ctx echo.Context) error {
 }
 
 func (c *NeonatusController) Delete(ctx echo.Context) error {
-	id, err := parseInt32(ctx.Param("id"), "id")
+	id, err := ParseInt(ctx.Param("id"), "id")
 
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, map[string]string{

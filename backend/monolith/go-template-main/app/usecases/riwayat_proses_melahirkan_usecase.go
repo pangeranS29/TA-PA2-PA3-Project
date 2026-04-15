@@ -7,10 +7,10 @@ import (
 
 type RiwayatProsesMelahirkanUsecase interface {
 	Create(rp *models.RiwayatProsesMelahirkan) error
-	GetByID(id uint) (*models.RiwayatProsesMelahirkan, error)
-	GetByIbuID(ibuID uint) ([]models.RiwayatProsesMelahirkan, error)
+	GetByID(id int32) (*models.RiwayatProsesMelahirkan, error)
+	GetByIbuID(ibuID int32) ([]models.RiwayatProsesMelahirkan, error)
 	Update(rp *models.RiwayatProsesMelahirkan) error
-	Delete(id uint) error
+	Delete(id int32) error
 }
 
 type riwayatProsesMelahirkanUsecase struct {
@@ -25,11 +25,11 @@ func (u *riwayatProsesMelahirkanUsecase) Create(rp *models.RiwayatProsesMelahirk
 	return u.repo.Create(rp)
 }
 
-func (u *riwayatProsesMelahirkanUsecase) GetByID(id uint) (*models.RiwayatProsesMelahirkan, error) {
+func (u *riwayatProsesMelahirkanUsecase) GetByID(id int32) (*models.RiwayatProsesMelahirkan, error) {
 	return u.repo.FindByID(id)
 }
 
-func (u *riwayatProsesMelahirkanUsecase) GetByIbuID(ibuID uint) ([]models.RiwayatProsesMelahirkan, error) {
+func (u *riwayatProsesMelahirkanUsecase) GetByIbuID(ibuID int32) ([]models.RiwayatProsesMelahirkan, error) {
 	return u.repo.FindByIbuID(ibuID)
 }
 
@@ -37,6 +37,6 @@ func (u *riwayatProsesMelahirkanUsecase) Update(rp *models.RiwayatProsesMelahirk
 	return u.repo.Update(rp)
 }
 
-func (u *riwayatProsesMelahirkanUsecase) Delete(id uint) error {
+func (u *riwayatProsesMelahirkanUsecase) Delete(id int32) error {
 	return u.repo.Delete(id)
 }
