@@ -47,8 +47,6 @@ type Main struct {
 	RiwayatKehamilanLalu          RiwayatKehamilanLaluUsecase
 	RegisterOrangTua              *RegisterOrangTuaUsecase
 	KeteranganLahir               KeteranganLahirUsecase // <-- TAMBAHKAN INI
-
-	Kehamilan KehamilanUsecase
 }
 
 type Options struct {
@@ -106,8 +104,6 @@ func Init(opts Options) *Main {
 		opts.Repository.Ibu,
 	)
 	m.KeteranganLahir = NewKeteranganLahirUsecase(opts.Repository.KeteranganLahir) // <-- TAMBAHKAN INI
-
-	m.Kehamilan = NewKehamilanUsecase(opts.Repository.Kehamilan)
 
 	return m
 }

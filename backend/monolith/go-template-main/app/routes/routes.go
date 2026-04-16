@@ -45,13 +45,6 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	tenaga.PUT("/Neonatus/:id", controller.Neonatus.Update)
 	tenaga.DELETE("/Neonatus/:id", controller.Neonatus.Delete)
 
-	// ===== NEW ROUTES FOR IBU HAMIL & PEMERIKSAAN =====
-	tenaga.POST("/ibu-hamil", controller.IbuHamil.Create)
-	tenaga.GET("/ibu-hamil", controller.IbuHamil.GetAll)
-	tenaga.GET("/ibu-hamil/:id", controller.IbuHamil.GetByID)
-	tenaga.PUT("/ibu-hamil/:id", controller.IbuHamil.Update)
-	tenaga.DELETE("/ibu-hamil/:id", controller.IbuHamil.Delete)
-
 	tenaga.GET("/Pelayanan-Gizi-Anak", controller.PelayananGiziAnak.GetByAnakID)
 	tenaga.GET("/Pelayanan-Gizi-Anak/:id", controller.PelayananGiziAnak.GetByID)
 	tenaga.POST("/Pelayanan-Gizi-Anak", controller.PelayananGiziAnak.Create)
@@ -260,51 +253,4 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	tenaga.GET("/pemeriksaan-lanjutan-t3", controller.PemeriksaanLanjutanTrimester3.GetByKehamilanID)
 	tenaga.PUT("/pemeriksaan-lanjutan-t3/:id", controller.PemeriksaanLanjutanTrimester3.Update)
 	tenaga.DELETE("/pemeriksaan-lanjutan-t3/:id", controller.PemeriksaanLanjutanTrimester3.Delete)
-	//CRUD Pelayanan kunjungan gizi Anak
-	tenaga.GET("/Pelayanan-Gizi-Anak", controller.PelayananGiziAnak.GetByAnakID) //untuk get berdasarkan id anak atau keseluruhan
-	tenaga.GET("/Pelayanan-Gizi-Anak/:id", controller.PelayananGiziAnak.GetByID) //untuk get berasarkan id kunjungan
-	tenaga.POST("/Pelayanan-Gizi-Anak", controller.PelayananGiziAnak.Create)
-	tenaga.PUT("/Pelayanan-Gizi-Anak/:id", controller.PelayananGiziAnak.Update)
-	tenaga.DELETE("/Pelayanan-Gizi-Anak/:id", controller.PelayananGiziAnak.Delete)
-
-	//CRUD Pelayanan kunjungan gizi Anak
-	tenaga.GET("/Pelayanan-Vitamin-ObatCacing", controller.KunjunganVitamin.GetByAnakID) //untuk get berdasarkan id anak atau keseluruhan
-	tenaga.GET("/Pelayanan-Vitamin-ObatCacing/:id", controller.KunjunganVitamin.GetByID) //untuk get berasarkan id kunjungan
-	tenaga.POST("/Pelayanan-Vitamin-ObatCacing", controller.KunjunganVitamin.Create)
-	tenaga.PUT("/Pelayanan-Vitamin-ObatCacing/:id", controller.KunjunganVitamin.Update)
-	tenaga.DELETE("/Pelayanan-Vitamin-ObatCacing/:id", controller.KunjunganVitamin.Delete)
-
-	//CRUD Pelayanan kunjungan gizi Anak
-	tenaga.GET("/Pelayanan-Imunisasi", controller.KunjunganImunisasi.GetByAnakID) //untuk get berdasarkan id anak atau keseluruhan
-	tenaga.GET("/Pelayanan-Imunisasi/:id", controller.KunjunganImunisasi.GetByID) //untuk get berasarkan id kunjungan
-	tenaga.POST("/Pelayanan-Imunisasi", controller.KunjunganImunisasi.Create)
-	tenaga.PUT("/Pelayanan-Imunisasi/:id", controller.KunjunganImunisasi.Update)
-	tenaga.DELETE("/Pelayanan-Imunisasi/:id", controller.KunjunganImunisasi.Delete)
-
-	tenaga.GET("/Pemeriksaan-Gigi", controller.PemeriksaanGigi.GetByAnakID) //untuk get berdasarkan id anak atau keseluruhan
-	tenaga.GET("/Pemeriksaan-Gigi/:id", controller.PemeriksaanGigi.GetByID) //untuk get berasarkan id kunjungan
-	tenaga.POST("/Pemeriksaan-Gigi", controller.PemeriksaanGigi.Create)
-	tenaga.PUT("/Pemeriksaan-Gigi/:id", controller.PemeriksaanGigi.Update)
-	tenaga.DELETE("/Pemeriksaan-Gigi/:id", controller.PemeriksaanGigi.Delete)
-
-	tenaga.GET("/Pemantauan-Pertumbuhan-Anak", controller.PemantauanPertumbuhan.GetByAnakID) //untuk get berdasarkan id anak atau keseluruhan
-	tenaga.GET("/Pemantauan-Pertumbuhan-Anak/:id", controller.PemantauanPertumbuhan.GetByID) //untuk get berasarkan id kunjungan
-	tenaga.POST("/Pemantauan-Pertumbuhan-Anak", controller.PemantauanPertumbuhan.Create)
-	tenaga.PUT("/Pemantauan-Pertumbuhan-Anak/:id", controller.PemantauanPertumbuhan.Update)
-	tenaga.DELETE("/Pemantauan-Pertumbuhan-Anak/:id", controller.PemantauanPertumbuhan.Delete)
-
-	tenaga.GET("/Pengukuran-LilA", controller.PengukuranLilA.GetByAnakID) //untuk get berdasarkan id anak atau keseluruhan
-	tenaga.GET("/Pengukuran-LilA/:id", controller.PengukuranLilA.GetByID) //untuk get berasarkan id kunjungan
-	tenaga.POST("/Pengukuran-LilA", controller.PengukuranLilA.Create)
-	tenaga.PUT("/Pengukuran-LilA/:id", controller.PengukuranLilA.Update)
-	tenaga.DELETE("/Pengukuran-LilA/:id", controller.PengukuranLilA.Delete)
-
-	tenaga.GET("/Catatan-Pelayanan", controller.CatatanPelayanan.GetByAnakID) //untuk get berdasarkan id anak atau keseluruhan
-	tenaga.GET("/Catatan-Pelayanan/:id", controller.CatatanPelayanan.GetByID) //untuk get berasarkan id kunjungan
-	tenaga.POST("/Catatan-Pelayanan", controller.CatatanPelayanan.Create)
-	tenaga.PUT("/Catatan-Pelayanan/:id", controller.CatatanPelayanan.Update)
-	tenaga.DELETE("/Catatan-Pelayanan/:id", controller.CatatanPelayanan.Delete)
-
-	//kehamilan
-	tenaga.GET("/ibu-hamil/active", controller.Kehamilan.GetActive)
 }
