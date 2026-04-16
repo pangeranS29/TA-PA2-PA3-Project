@@ -40,13 +40,19 @@
 	}
 
 	func (r *AnakRepository) FindByID(id int32) (*models.Anak, error) {
-		var anak models.Anak
-		err := r.db.Where("id = ?", id).First(&anak).Error
-		if err != nil {
-			return nil, err
-		}
-		return &anak, nil
+	var anak models.Anak
+
+	err := r.db.
+		Preload("Kehamilan").
+		Preload("Kehamilan.Ibu").
+		First(&anak, id).Error
+
+	if err != nil {
+		return nil, err
 	}
+
+	return &anak, nil
+}
 
 	func (r *AnakRepository) FindByIDAndPenggunaID(id, penggunaID int32) (*models.Anak, error) {
 		var anak models.Anak

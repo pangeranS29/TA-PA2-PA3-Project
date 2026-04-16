@@ -45,6 +45,8 @@ type Main struct {
 	PelayananIbuNifas             *PelayananIbuNifasController
 	CatatanPelayananNifas         *CatatanPelayananNifasController
 	Rujukan                       *RujukanController
+	Kehamilan					  *KehamilanController
+	
 }
 
 type Options struct {
@@ -97,6 +99,7 @@ func Init(opts Options) *Main {
 	m.PemantauanPertumbuhan = NewPemantauanPertumbuhanController(opts.UseCases.PemantauanPertumbuhan)
 	m.PengukuranLilA = NewPengukuranLilAController(opts.UseCases.PengukuranLilA)
 	m.CatatanPelayanan = NewCatatanPelayananController(opts.UseCases.CatatanPelayanan)
+	m.Kehamilan = NewKehamilanController(opts.UseCases.Kehamilan)
 	return m
 }
 

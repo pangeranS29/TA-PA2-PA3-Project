@@ -80,9 +80,7 @@ func (h *AnakController) Create(c echo.Context) error {
 // @Failure      404  {object}  models.Response
 // @Router       /anak/{id} [get]
 func (h *AnakController) Detail(c echo.Context) error {
-	idParam := c.Param("id")
-
-	id64, err := strconv.ParseInt(idParam, 10, 32)
+	id64, err := strconv.ParseInt(c.Param("id"), 10, 32)
 	if err != nil {
 		return helpers.StandardResponse(c, http.StatusBadRequest, "id tidak valid", nil, nil)
 	}

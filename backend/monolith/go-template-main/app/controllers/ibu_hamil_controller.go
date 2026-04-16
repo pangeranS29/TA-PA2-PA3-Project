@@ -74,3 +74,4 @@ func (c *IbuHamilController) Delete(ctx echo.Context) error {
 	}
 	return ctx.JSON(http.StatusOK, models.Response{StatusCode: 200, Message: "deleted"})
 }
+
