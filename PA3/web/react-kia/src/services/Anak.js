@@ -17,6 +17,11 @@ export const updateAnak = async (id, data) => {
   return res.data;
 };
 
+export const getAnakById = async (id) => {
+  const res = await api.get(`${BASE}/${id}`);
+  return res.data;
+};
+
 export const deleteAnak = async (id) => {
   const res = await api.delete(`${BASE}/${id}`);
   return res.data;
