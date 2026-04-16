@@ -45,6 +45,7 @@ type Main struct {
 	PelayananIbuNifas             PelayananIbuNifasUsecase
 	CatatanPelayananNifas         CatatanPelayananNifasUsecase
 	Rujukan                       RujukanUsecase
+	Kehamilan                     KehamilanUsecase
 }
 
 type Options struct {
@@ -94,5 +95,6 @@ func Init(opts Options) *Main {
 	m.PemantauanPertumbuhan = NewPemantauanPertumbuhanUseCase(opts.Repository.PemantauanPertumbuhan)
 	m.PengukuranLilA = NewPengukuranLilAUseCase(opts.Repository.PengukuranLilA)
 	m.CatatanPelayanan = NewCatatanPelayananUseCase(opts.Repository.CatatanPelayanan)
+	m.Kehamilan = NewKehamilanUsecase(opts.Repository.Kehamilan)
 	return m
 }

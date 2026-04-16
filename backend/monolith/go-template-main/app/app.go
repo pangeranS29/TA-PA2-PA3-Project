@@ -62,7 +62,7 @@ func (m *Main) Init() (err error) {
 
 	///comment sementara
 
-	// Migrate Tabel
+	// // Migrate Tabel
 	// err = models.AutoMigrate(m.database.Postgres)
 	// if err != nil {
 	// 	return

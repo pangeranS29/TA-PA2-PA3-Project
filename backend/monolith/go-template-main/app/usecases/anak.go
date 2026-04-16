@@ -7,6 +7,8 @@ import (
 
 	"monitoring-service/app/models"
 	"monitoring-service/app/repositories"
+
+	"gorm.io/gorm"
 )
 
 type AnakUseCase struct {
@@ -23,13 +25,15 @@ func NewAnakUseCase(anakRepo *repositories.AnakRepository) *AnakUseCase {
 func (u *AnakUseCase) GetAnak(id int32) (*models.AnakResponse, error) {
 	anak, err := u.anakRepo.FindByID(id)
 	if err != nil {
-		return nil, errors.New("data anak tidak ditemukan")
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.New("data anak tidak ditemukan")
+		}
+		return nil, err
 	}
 
 	resp := u.toAnakResponse(anak)
 	return &resp, nil
 }
-
 // ====================== CREATE ======================
 func (u *AnakUseCase) CreateAnak(req models.CreateAnakRequest) (*models.AnakResponse, error) {
 	tanggalLahir, err := time.Parse("2006-01-02", req.TanggalLahir)
