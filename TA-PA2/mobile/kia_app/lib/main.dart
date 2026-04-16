@@ -1,23 +1,27 @@
 import 'package:flutter/material.dart';
-import 'package:ta_pa2_pa3_project/features/dashboard/dashboard_screen.dart';
+// Impor Tema Global
+import 'package:ta_pa2_pa3_project/core/themes/app_theme.dart';
+// Impor Dashboard Nakes agar tidak merah lagi
+import 'package:ta_pa2_pa3_project/features/dashboard/screens/nakes_dashboard.dart';
+// import 'package:ta_pa2_pa3_project/features/dashboard/screens/ibu_dashboard.dart';
+
 
 void main() {
-  runApp(SehatiApp());
+  runApp(const KiaApp());
 }
 
-class SehatiApp extends StatelessWidget {
+class KiaApp extends StatelessWidget {
+  const KiaApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'KIA Apps',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        useMaterial3: true,
-        // Pastikan font atau tema konsisten dengan Style Guide
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
-      home: DashboardScreen(), 
+      // Menggunakan tema yang sudah kamu buat di AppTheme
+      theme: AppTheme.lightTheme, 
+      // Mengarahkan langsung ke Dashboard Nakes untuk testing
+      home: const NakesDashboard(), 
     );
   }
 }
