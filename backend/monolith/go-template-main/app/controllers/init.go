@@ -9,7 +9,7 @@ type Main struct {
 	usecases *usecases.Main
 	config   *config.Config
 
-	// Controller yang sudah ada
+	// Controller yang sudah ada (untuk modul lain)
 	Anak                   *AnakController
 	PelayananKesehatanAnak *PelayananKesehatanAnakController
 	Neonatus               *NeonatusController
@@ -21,30 +21,31 @@ type Main struct {
 	PengukuranLilA         *PengukuranLilAController
 	CatatanPelayanan       *CatatanPelayananController
 
-	// Controller baru
-	IbuHamil                      *IbuHamilController
+	// Controller baru untuk struktur kehamilan
+	Ibu                           *IbuController
+	Kehamilan                     *KehamilanController
 	PemeriksaanKehamilan          *PemeriksaanKehamilanController
 	EvaluasiKesehatanIbu          *EvaluasiKesehatanIbuController
-	RiwayatKehamilanLalu          *RiwayatKehamilanLaluController
 	PemeriksaanDokterTrimester1   *PemeriksaanDokterTrimester1Controller
-	PemeriksaanLaboratoriumJiwa   *PemeriksaanLaboratoriumJiwaController
-	CatatanPelayananTrimester1    *CatatanPelayananTrimester1Controller
-	SkriningPreeklampsia          *SkriningPreeklampsiaController
-	SkriningDMGestasional         *SkriningDMGestasionalController
-	CatatanPelayananTrimester2    *CatatanPelayananTrimester2Controller
 	PemeriksaanDokterTrimester3   *PemeriksaanDokterTrimester3Controller
+	PemeriksaanLaboratoriumJiwa   *PemeriksaanLaboratoriumJiwaController
 	PemeriksaanLanjutanTrimester3 *PemeriksaanLanjutanTrimester3Controller
+	CatatanPelayananTrimester1    *CatatanPelayananTrimester1Controller
+	CatatanPelayananTrimester2    *CatatanPelayananTrimester2Controller
 	CatatanPelayananTrimester3    *CatatanPelayananTrimester3Controller
+	CatatanPelayananNifas         *CatatanPelayananNifasController
 	GrafikEvaluasiKehamilan       *GrafikEvaluasiKehamilanController
 	GrafikPeningkatanBB           *GrafikPeningkatanBBController
 	PenjelasanHasilGrafik         *PenjelasanHasilGrafikController
 	RencanaPersalinan             *RencanaPersalinanController
 	RingkasanPelayananPersalinan  *RingkasanPelayananPersalinanController
-	KeteranganLahir               *KeteranganLahirController
 	RiwayatProsesMelahirkan       *RiwayatProsesMelahirkanController
-	PelayananIbuNifas             *PelayananIbuNifasController
-	CatatanPelayananNifas         *CatatanPelayananNifasController
 	Rujukan                       *RujukanController
+	SkriningDMGestasional         *SkriningDMGestasionalController
+	SkriningPreeklampsia          *SkriningPreeklampsiaController
+	PelayananIbuNifas             *PelayananIbuNifasController
+	RiwayatKehamilanLalu          *RiwayatKehamilanLaluController
+	KeteranganLahir               *KeteranganLahirController // <-- TAMBAHKAN INI
 }
 
 type Options struct {
@@ -58,35 +59,7 @@ func Init(opts Options) *Main {
 		config:   opts.Config,
 	}
 
-	// Controller yang sudah ada
-	m.Anak = NewAnakController(opts.UseCases.Anak)
-	m.PelayananKesehatanAnak = NewPelayananKesehatanAnakController(opts.UseCases.PelayananKesehatanAnak)
-
-	// Controller baru (pastikan usecases sudah terisi)
-	m.IbuHamil = NewIbuHamilController(opts.UseCases.IbuHamil)
-	m.PemeriksaanKehamilan = NewPemeriksaanKehamilanController(opts.UseCases.PemeriksaanKehamilan)
-	m.EvaluasiKesehatanIbu = NewEvaluasiKesehatanIbuController(opts.UseCases.EvaluasiKesehatanIbu)
-	m.RiwayatKehamilanLalu = NewRiwayatKehamilanLaluController(opts.UseCases.RiwayatKehamilanLalu)
-	m.PemeriksaanDokterTrimester1 = NewPemeriksaanDokterTrimester1Controller(opts.UseCases.PemeriksaanDokterTrimester1)
-	m.PemeriksaanLaboratoriumJiwa = NewPemeriksaanLaboratoriumJiwaController(opts.UseCases.PemeriksaanLaboratoriumJiwa)
-	m.CatatanPelayananTrimester1 = NewCatatanPelayananTrimester1Controller(opts.UseCases.CatatanPelayananTrimester1)
-	m.SkriningPreeklampsia = NewSkriningPreeklampsiaController(opts.UseCases.SkriningPreeklampsia)
-	m.SkriningDMGestasional = NewSkriningDMGestasionalController(opts.UseCases.SkriningDMGestasional)
-	m.CatatanPelayananTrimester2 = NewCatatanPelayananTrimester2Controller(opts.UseCases.CatatanPelayananTrimester2)
-	m.PemeriksaanDokterTrimester3 = NewPemeriksaanDokterTrimester3Controller(opts.UseCases.PemeriksaanDokterTrimester3)
-	m.PemeriksaanLanjutanTrimester3 = NewPemeriksaanLanjutanTrimester3Controller(opts.UseCases.PemeriksaanLanjutanTrimester3)
-	m.CatatanPelayananTrimester3 = NewCatatanPelayananTrimester3Controller(opts.UseCases.CatatanPelayananTrimester3)
-	m.GrafikEvaluasiKehamilan = NewGrafikEvaluasiKehamilanController(opts.UseCases.GrafikEvaluasiKehamilan)
-	m.GrafikPeningkatanBB = NewGrafikPeningkatanBBController(opts.UseCases.GrafikPeningkatanBB)
-	m.PenjelasanHasilGrafik = NewPenjelasanHasilGrafikController(opts.UseCases.PenjelasanHasilGrafik)
-	m.RencanaPersalinan = NewRencanaPersalinanController(opts.UseCases.RencanaPersalinan)
-	m.RingkasanPelayananPersalinan = NewRingkasanPelayananPersalinanController(opts.UseCases.RingkasanPelayananPersalinan)
-	m.KeteranganLahir = NewKeteranganLahirController(opts.UseCases.KeteranganLahir)
-	m.RiwayatProsesMelahirkan = NewRiwayatProsesMelahirkanController(opts.UseCases.RiwayatProsesMelahirkan)
-	m.PelayananIbuNifas = NewPelayananIbuNifasController(opts.UseCases.PelayananIbuNifas)
-	m.CatatanPelayananNifas = NewCatatanPelayananNifasController(opts.UseCases.CatatanPelayananNifas)
-	m.Rujukan = NewRujukanController(opts.UseCases.Rujukan)
-
+	// Controller yang sudah ada (tidak diubah)
 	m.Anak = NewAnakController(opts.UseCases.Anak)
 	m.PelayananKesehatanAnak = NewPelayananKesehatanAnakController(opts.UseCases.PelayananKesehatanAnak)
 	m.Neonatus = NewPelayananNeonatusController(opts.UseCases.Neonatus)
@@ -97,6 +70,33 @@ func Init(opts Options) *Main {
 	m.PemantauanPertumbuhan = NewPemantauanPertumbuhanController(opts.UseCases.PemantauanPertumbuhan)
 	m.PengukuranLilA = NewPengukuranLilAController(opts.UseCases.PengukuranLilA)
 	m.CatatanPelayanan = NewCatatanPelayananController(opts.UseCases.CatatanPelayanan)
+
+	// Controller baru
+	m.Ibu = NewIbuController(opts.UseCases.Ibu)
+	m.Kehamilan = NewKehamilanController(opts.UseCases.Kehamilan)
+	m.PemeriksaanKehamilan = NewPemeriksaanKehamilanController(opts.UseCases.PemeriksaanKehamilan)
+	m.EvaluasiKesehatanIbu = NewEvaluasiKesehatanIbuController(opts.UseCases.EvaluasiKesehatanIbu)
+	m.PemeriksaanDokterTrimester1 = NewPemeriksaanDokterTrimester1Controller(opts.UseCases.PemeriksaanDokterTrimester1)
+	m.PemeriksaanDokterTrimester3 = NewPemeriksaanDokterTrimester3Controller(opts.UseCases.PemeriksaanDokterTrimester3)
+	m.PemeriksaanLaboratoriumJiwa = NewPemeriksaanLaboratoriumJiwaController(opts.UseCases.PemeriksaanLaboratoriumJiwa)
+	m.PemeriksaanLanjutanTrimester3 = NewPemeriksaanLanjutanTrimester3Controller(opts.UseCases.PemeriksaanLanjutanTrimester3)
+	m.CatatanPelayananTrimester1 = NewCatatanPelayananTrimester1Controller(opts.UseCases.CatatanPelayananTrimester1)
+	m.CatatanPelayananTrimester2 = NewCatatanPelayananTrimester2Controller(opts.UseCases.CatatanPelayananTrimester2)
+	m.CatatanPelayananTrimester3 = NewCatatanPelayananTrimester3Controller(opts.UseCases.CatatanPelayananTrimester3)
+	m.CatatanPelayananNifas = NewCatatanPelayananNifasController(opts.UseCases.CatatanPelayananNifas)
+	m.GrafikEvaluasiKehamilan = NewGrafikEvaluasiKehamilanController(opts.UseCases.GrafikEvaluasiKehamilan)
+	m.GrafikPeningkatanBB = NewGrafikPeningkatanBBController(opts.UseCases.GrafikPeningkatanBB)
+	m.PenjelasanHasilGrafik = NewPenjelasanHasilGrafikController(opts.UseCases.PenjelasanHasilGrafik)
+	m.RencanaPersalinan = NewRencanaPersalinanController(opts.UseCases.RencanaPersalinan)
+	m.RingkasanPelayananPersalinan = NewRingkasanPelayananPersalinanController(opts.UseCases.RingkasanPelayananPersalinan)
+	m.RiwayatProsesMelahirkan = NewRiwayatProsesMelahirkanController(opts.UseCases.RiwayatProsesMelahirkan)
+	m.Rujukan = NewRujukanController(opts.UseCases.Rujukan)
+	m.SkriningDMGestasional = NewSkriningDMGestasionalController(opts.UseCases.SkriningDMGestasional)
+	m.SkriningPreeklampsia = NewSkriningPreeklampsiaController(opts.UseCases.SkriningPreeklampsia)
+	m.PelayananIbuNifas = NewPelayananIbuNifasController(opts.UseCases.PelayananIbuNifas)
+	m.RiwayatKehamilanLalu = NewRiwayatKehamilanLaluController(opts.UseCases.RiwayatKehamilanLalu)
+	m.KeteranganLahir = NewKeteranganLahirController(opts.UseCases.KeteranganLahir) // <-- TAMBAHKAN INI
+
 	return m
 }
 

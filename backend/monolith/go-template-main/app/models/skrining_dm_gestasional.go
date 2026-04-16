@@ -1,9 +1,9 @@
 package models
 
 type SkriningDMGestasional struct {
-	IDSkriningDM int32     `gorm:"primaryKey" json:"id_skrining_dm"`
-	IDIbu        int32     `gorm:"not null;index" json:"id_ibu"`
-	Ibu          *IbuHamil `gorm:"foreignKey:IDIbu;references:ID" json:"ibu,omitempty"`
+	IDSkriningDM int32      `gorm:"primaryKey" json:"id_skrining_dm"`
+	KehamilanID  int32      `gorm:"not null;index" json:"kehamilan_id"`
+	Kehamilan    *Kehamilan `gorm:"foreignKey:KehamilanID;references:ID" json:"kehamilan,omitempty"`
 
 	GulaDarahPuasaHasil              *float64 `gorm:"type:decimal(5,2)" json:"gula_darah_puasa_hasil"`
 	GulaDarahPuasaRencana            string   `json:"gula_darah_puasa_rencana_tindak_lanjut"`

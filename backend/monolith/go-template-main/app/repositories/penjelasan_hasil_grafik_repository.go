@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"errors"
 	"monitoring-service/app/models"
 
 	"gorm.io/gorm"
@@ -20,13 +21,13 @@ func (r *PenjelasanHasilGrafikRepository) Create(p *models.PenjelasanHasilGrafik
 
 func (r *PenjelasanHasilGrafikRepository) FindByID(id int32) (*models.PenjelasanHasilGrafik, error) {
 	var p models.PenjelasanHasilGrafik
-	err := r.db.First(&p, id).Error
+	err := r.db.Preload("Kehamilan.Ibu.Kependudukan").First(&p, id).Error
 	return &p, err
 }
 
-func (r *PenjelasanHasilGrafikRepository) FindByIbuID(ibuID int32) ([]models.PenjelasanHasilGrafik, error) {
+func (r *PenjelasanHasilGrafikRepository) FindByKehamilanID(kehamilanID int32) ([]models.PenjelasanHasilGrafik, error) {
 	var list []models.PenjelasanHasilGrafik
-	err := r.db.Where("id_ibu = ?", ibuID).Find(&list).Error
+	err := r.db.Where("kehamilan_id = ?", kehamilanID).Find(&list).Error
 	return list, err
 }
 
@@ -35,5 +36,12 @@ func (r *PenjelasanHasilGrafikRepository) Update(p *models.PenjelasanHasilGrafik
 }
 
 func (r *PenjelasanHasilGrafikRepository) Delete(id int32) error {
-	return r.db.Delete(&models.PenjelasanHasilGrafik{}, id).Error
+	result := r.db.Delete(&models.PenjelasanHasilGrafik{}, id)
+	if result.Error != nil {
+		return result.Error
+	}
+	if result.RowsAffected == 0 {
+		return errors.New("data penjelasan hasil grafik tidak ditemukan")
+	}
+	return nil
 }

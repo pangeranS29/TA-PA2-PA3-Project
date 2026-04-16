@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"errors"
 	"monitoring-service/app/models"
 
 	"gorm.io/gorm"
@@ -20,13 +21,13 @@ func (r *RencanaPersalinanRepository) Create(rp *models.RencanaPersalinan) error
 
 func (r *RencanaPersalinanRepository) FindByID(id int32) (*models.RencanaPersalinan, error) {
 	var rp models.RencanaPersalinan
-	err := r.db.First(&rp, id).Error
+	err := r.db.Preload("Kehamilan.Ibu.Kependudukan").First(&rp, id).Error
 	return &rp, err
 }
 
-func (r *RencanaPersalinanRepository) FindByIbuID(ibuID int32) ([]models.RencanaPersalinan, error) {
+func (r *RencanaPersalinanRepository) FindByKehamilanID(kehamilanID int32) ([]models.RencanaPersalinan, error) {
 	var list []models.RencanaPersalinan
-	err := r.db.Where("id_ibu = ?", ibuID).Find(&list).Error
+	err := r.db.Where("kehamilan_id = ?", kehamilanID).Find(&list).Error
 	return list, err
 }
 
@@ -35,5 +36,12 @@ func (r *RencanaPersalinanRepository) Update(rp *models.RencanaPersalinan) error
 }
 
 func (r *RencanaPersalinanRepository) Delete(id int32) error {
-	return r.db.Delete(&models.RencanaPersalinan{}, id).Error
+	result := r.db.Delete(&models.RencanaPersalinan{}, id)
+	if result.Error != nil {
+		return result.Error
+	}
+	if result.RowsAffected == 0 {
+		return errors.New("data rencana persalinan tidak ditemukan")
+	}
+	return nil
 }

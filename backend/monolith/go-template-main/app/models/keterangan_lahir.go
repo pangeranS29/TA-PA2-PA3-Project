@@ -3,10 +3,10 @@ package models
 import "time"
 
 type KeteranganLahir struct {
-	IDKeteranganLahir int32     `gorm:"primaryKey" json:"id_keterangan_lahir"`
-	IDIbuRelasi       int32     `gorm:"not null;index" json:"id_ibu_relasi"`
-	Ibu               *IbuHamil `gorm:"foreignKey:IDIbuRelasi;references:ID" json:"ibu,omitempty"`
-	NomorSurat        string    `gorm:"type:varchar(100)" json:"nomor_surat"`
+	IDKeteranganLahir int32  `gorm:"primaryKey" json:"id_keterangan_lahir"`
+	IDIbuRelasi       int32  `gorm:"not null;index" json:"id_ibu_relasi"`
+	Ibu               *Ibu   `gorm:"foreignKey:IDIbuRelasi;references:IDIbu" json:"ibu,omitempty"`
+	NomorSurat        string `gorm:"type:varchar(100)" json:"nomor_surat"`
 
 	HariLahir    string     `gorm:"type:varchar(20)" json:"hari_lahir"`
 	TanggalLahir *time.Time `gorm:"type:date" json:"tanggal_lahir"`

@@ -1,6 +1,7 @@
 package usecases
 
 import (
+	"errors"
 	"monitoring-service/app/models"
 	"monitoring-service/app/repositories"
 )
@@ -8,7 +9,7 @@ import (
 type EvaluasiKesehatanIbuUsecase interface {
 	Create(e *models.EvaluasiKesehatanIbu) error
 	GetByID(id int32) (*models.EvaluasiKesehatanIbu, error)
-	GetByIbuID(ibuID int32) ([]models.EvaluasiKesehatanIbu, error)
+	GetByKehamilanID(kehamilanID int32) ([]models.EvaluasiKesehatanIbu, error)
 	Update(e *models.EvaluasiKesehatanIbu) error
 	Delete(id int32) error
 }
@@ -22,6 +23,9 @@ func NewEvaluasiKesehatanIbuUsecase(repo *repositories.EvaluasiKesehatanIbuRepos
 }
 
 func (u *evaluasiKesehatanIbuUsecase) Create(e *models.EvaluasiKesehatanIbu) error {
+	if e.KehamilanID == 0 {
+		return errors.New("kehamilan_id wajib diisi")
+	}
 	return u.repo.Create(e)
 }
 
@@ -29,11 +33,15 @@ func (u *evaluasiKesehatanIbuUsecase) GetByID(id int32) (*models.EvaluasiKesehat
 	return u.repo.FindByID(id)
 }
 
-func (u *evaluasiKesehatanIbuUsecase) GetByIbuID(ibuID int32) ([]models.EvaluasiKesehatanIbu, error) {
-	return u.repo.FindByIbuID(ibuID)
+func (u *evaluasiKesehatanIbuUsecase) GetByKehamilanID(kehamilanID int32) ([]models.EvaluasiKesehatanIbu, error) {
+	return u.repo.FindByKehamilanID(kehamilanID)
 }
 
 func (u *evaluasiKesehatanIbuUsecase) Update(e *models.EvaluasiKesehatanIbu) error {
+	_, err := u.repo.FindByID(e.IDEvaluasi)
+	if err != nil {
+		return errors.New("data evaluasi kesehatan ibu tidak ditemukan")
+	}
 	return u.repo.Update(e)
 }
 

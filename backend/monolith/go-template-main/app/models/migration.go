@@ -14,8 +14,14 @@ func AutoMigrate(db *gorm.DB) error {
 		&JenisPelayananKategori{},
 
 		// Relasi utama
-		&IbuHamil{},
+		// &ibu
 		&Kehamilan{},
+		&Anak{},
+		&Role{},
+		&User{},
+		&Kebabura{},
+		&Kependudukan{},
+		&Ibu{},
 		&Anak{},
 
 		// Evaluasi & riwayat

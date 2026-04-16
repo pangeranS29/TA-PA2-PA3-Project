@@ -1,6 +1,7 @@
 package usecases
 
 import (
+	"errors"
 	"monitoring-service/app/models"
 	"monitoring-service/app/repositories"
 )
@@ -8,7 +9,7 @@ import (
 type RencanaPersalinanUsecase interface {
 	Create(rp *models.RencanaPersalinan) error
 	GetByID(id int32) (*models.RencanaPersalinan, error)
-	GetByIbuID(ibuID int32) ([]models.RencanaPersalinan, error)
+	GetByKehamilanID(kehamilanID int32) ([]models.RencanaPersalinan, error)
 	Update(rp *models.RencanaPersalinan) error
 	Delete(id int32) error
 }
@@ -22,6 +23,9 @@ func NewRencanaPersalinanUsecase(repo *repositories.RencanaPersalinanRepository)
 }
 
 func (u *rencanaPersalinanUsecase) Create(rp *models.RencanaPersalinan) error {
+	if rp.KehamilanID == 0 {
+		return errors.New("kehamilan_id wajib diisi")
+	}
 	return u.repo.Create(rp)
 }
 
@@ -29,11 +33,15 @@ func (u *rencanaPersalinanUsecase) GetByID(id int32) (*models.RencanaPersalinan,
 	return u.repo.FindByID(id)
 }
 
-func (u *rencanaPersalinanUsecase) GetByIbuID(ibuID int32) ([]models.RencanaPersalinan, error) {
-	return u.repo.FindByIbuID(ibuID)
+func (u *rencanaPersalinanUsecase) GetByKehamilanID(kehamilanID int32) ([]models.RencanaPersalinan, error) {
+	return u.repo.FindByKehamilanID(kehamilanID)
 }
 
 func (u *rencanaPersalinanUsecase) Update(rp *models.RencanaPersalinan) error {
+	_, err := u.repo.FindByID(rp.IDRencanaPersalinan)
+	if err != nil {
+		return errors.New("data rencana persalinan tidak ditemukan")
+	}
 	return u.repo.Update(rp)
 }
 

@@ -1,10 +1,12 @@
 package controllers
 
 import (
-	"monitoring-service/app/models"
-	"monitoring-service/app/usecases"
 	"net/http"
 	"strconv"
+	"time"
+
+	"monitoring-service/app/models"
+	"monitoring-service/app/usecases"
 
 	"github.com/labstack/echo/v4"
 )
@@ -17,64 +19,117 @@ func NewGrafikEvaluasiKehamilanController(u usecases.GrafikEvaluasiKehamilanUsec
 	return &GrafikEvaluasiKehamilanController{usecase: u}
 }
 
+type createGrafikEvaluasiRequest struct {
+	KehamilanID             int32   `json:"kehamilan_id"`
+	TanggalBulanTahun       string  `json:"tanggal_bulan_tahun"`
+	UsiaGestasiMinggu       int     `json:"usia_gestasi_minggu"`
+	TinggiFundusUteriCm     float64 `json:"tinggi_fundus_uteri_cm"`
+	DenyutJantungBayiXMenit int     `json:"denyut_jantung_bayi_x_menit"`
+	TekananDarahSistole     int     `json:"tekanan_darah_sistole"`
+	TekananDarahDiastole    int     `json:"tekanan_darah_diastole"`
+	NadiPerMenit            int     `json:"nadi_per_menit"`
+	GerakanBayi             string  `json:"gerakan_bayi"`
+	UrinProtein             string  `json:"urin_protein"`
+	UrinReduksi             string  `json:"urin_reduksi"`
+	Hemoglobin              float64 `json:"hemoglobin"`
+	TabletTambahDarah       int     `json:"tablet_tambah_darah"`
+	Kalsium                 string  `json:"kalsium"`
+	Aspirin                 string  `json:"aspirin"`
+}
+
 func (c *GrafikEvaluasiKehamilanController) Create(ctx echo.Context) error {
-	var req models.GrafikEvaluasiKehamilan
+	claims, _ := ctx.Get("auth_claims").(*models.AuthClaims)
+	if claims == nil {
+		return ctx.JSON(http.StatusUnauthorized, models.Response{StatusCode: http.StatusUnauthorized, Message: "Unauthorized"})
+	}
+	var req createGrafikEvaluasiRequest
 	if err := ctx.Bind(&req); err != nil {
-		return ctx.JSON(http.StatusBadRequest, models.Response{StatusCode: 400, Message: err.Error()})
+		return ctx.JSON(http.StatusBadRequest, models.Response{StatusCode: http.StatusBadRequest, Message: err.Error()})
 	}
-	if err := c.usecase.Create(&req); err != nil {
-		return ctx.JSON(http.StatusInternalServerError, models.Response{StatusCode: 500, Message: err.Error()})
+	g := &models.GrafikEvaluasiKehamilan{
+		KehamilanID:             req.KehamilanID,
+		UsiaGestasiMinggu:       &req.UsiaGestasiMinggu,
+		TinggiFundusUteriCm:     &req.TinggiFundusUteriCm,
+		DenyutJantungBayiXMenit: &req.DenyutJantungBayiXMenit,
+		TekananDarahSistole:     &req.TekananDarahSistole,
+		TekananDarahDiastole:    &req.TekananDarahDiastole,
+		NadiPerMenit:            &req.NadiPerMenit,
+		GerakanBayi:             req.GerakanBayi,
+		UrinProtein:             req.UrinProtein,
+		UrinReduksi:             req.UrinReduksi,
+		Hemoglobin:              &req.Hemoglobin,
+		TabletTambahDarah:       &req.TabletTambahDarah,
+		Kalsium:                 req.Kalsium,
+		Aspirin:                 req.Aspirin,
 	}
-	return ctx.JSON(http.StatusCreated, models.Response{StatusCode: 201, Data: req})
+	if req.TanggalBulanTahun != "" {
+		if t, err := time.Parse("2006-01-02", req.TanggalBulanTahun); err == nil {
+			g.TanggalBulanTahun = &t
+		}
+	}
+	if err := c.usecase.Create(g); err != nil {
+		return ctx.JSON(http.StatusInternalServerError, models.Response{StatusCode: http.StatusInternalServerError, Message: err.Error()})
+	}
+	return ctx.JSON(http.StatusCreated, models.Response{StatusCode: http.StatusCreated, Data: g})
 }
 
 func (c *GrafikEvaluasiKehamilanController) GetByID(ctx echo.Context) error {
 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 32)
 	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, models.Response{StatusCode: 400, Message: "invalid id"})
+		return ctx.JSON(http.StatusBadRequest, models.Response{StatusCode: http.StatusBadRequest, Message: "invalid id"})
 	}
 	data, err := c.usecase.GetByID(int32(id))
 	if err != nil {
-		return ctx.JSON(http.StatusNotFound, models.Response{StatusCode: 404, Message: err.Error()})
+		return ctx.JSON(http.StatusNotFound, models.Response{StatusCode: http.StatusNotFound, Message: err.Error()})
 	}
-	return ctx.JSON(http.StatusOK, models.Response{StatusCode: 200, Data: data})
+	return ctx.JSON(http.StatusOK, models.Response{StatusCode: http.StatusOK, Data: data})
 }
 
-func (c *GrafikEvaluasiKehamilanController) GetByIbuID(ctx echo.Context) error {
-	ibuID, err := strconv.ParseInt(ctx.QueryParam("ibu_id"), 10, 32)
+func (c *GrafikEvaluasiKehamilanController) GetByKehamilanID(ctx echo.Context) error {
+	kehamilanID, err := strconv.ParseInt(ctx.QueryParam("kehamilan_id"), 10, 32)
 	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, models.Response{StatusCode: 400, Message: "ibu_id required"})
+		return ctx.JSON(http.StatusBadRequest, models.Response{StatusCode: http.StatusBadRequest, Message: "kehamilan_id required"})
 	}
-	list, err := c.usecase.GetByIbuID(int32(ibuID))
+	list, err := c.usecase.GetByKehamilanID(int32(kehamilanID))
 	if err != nil {
-		return ctx.JSON(http.StatusInternalServerError, models.Response{StatusCode: 500, Message: err.Error()})
+		return ctx.JSON(http.StatusInternalServerError, models.Response{StatusCode: http.StatusInternalServerError, Message: err.Error()})
 	}
-	return ctx.JSON(http.StatusOK, models.Response{StatusCode: 200, Data: list})
+	return ctx.JSON(http.StatusOK, models.Response{StatusCode: http.StatusOK, Data: list})
 }
 
 func (c *GrafikEvaluasiKehamilanController) Update(ctx echo.Context) error {
 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 32)
 	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, models.Response{StatusCode: 400, Message: "invalid id"})
+		return ctx.JSON(http.StatusBadRequest, models.Response{StatusCode: http.StatusBadRequest, Message: "invalid id"})
 	}
-	var req models.GrafikEvaluasiKehamilan
+	var req createGrafikEvaluasiRequest
 	if err := ctx.Bind(&req); err != nil {
-		return ctx.JSON(http.StatusBadRequest, models.Response{StatusCode: 400, Message: err.Error()})
+		return ctx.JSON(http.StatusBadRequest, models.Response{StatusCode: http.StatusBadRequest, Message: err.Error()})
 	}
-	req.IDGrafik = int32(id)
-	if err := c.usecase.Update(&req); err != nil {
-		return ctx.JSON(http.StatusInternalServerError, models.Response{StatusCode: 500, Message: err.Error()})
+	existing, err := c.usecase.GetByID(int32(id))
+	if err != nil {
+		return ctx.JSON(http.StatusNotFound, models.Response{StatusCode: http.StatusNotFound, Message: "Data tidak ditemukan"})
 	}
-	return ctx.JSON(http.StatusOK, models.Response{StatusCode: 200, Data: req})
+	if req.UsiaGestasiMinggu != 0 {
+		existing.UsiaGestasiMinggu = &req.UsiaGestasiMinggu
+	}
+	if req.TinggiFundusUteriCm != 0 {
+		existing.TinggiFundusUteriCm = &req.TinggiFundusUteriCm
+	}
+	// ... update semua field
+	if err := c.usecase.Update(existing); err != nil {
+		return ctx.JSON(http.StatusInternalServerError, models.Response{StatusCode: http.StatusInternalServerError, Message: err.Error()})
+	}
+	return ctx.JSON(http.StatusOK, models.Response{StatusCode: http.StatusOK, Data: existing})
 }
 
 func (c *GrafikEvaluasiKehamilanController) Delete(ctx echo.Context) error {
 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 32)
 	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, models.Response{StatusCode: 400, Message: "invalid id"})
+		return ctx.JSON(http.StatusBadRequest, models.Response{StatusCode: http.StatusBadRequest, Message: "invalid id"})
 	}
 	if err := c.usecase.Delete(int32(id)); err != nil {
-		return ctx.JSON(http.StatusInternalServerError, models.Response{StatusCode: 500, Message: err.Error()})
+		return ctx.JSON(http.StatusInternalServerError, models.Response{StatusCode: http.StatusInternalServerError, Message: err.Error()})
 	}
-	return ctx.JSON(http.StatusOK, models.Response{StatusCode: 200, Message: "deleted"})
+	return ctx.JSON(http.StatusOK, models.Response{StatusCode: http.StatusOK, Message: "deleted"})
 }

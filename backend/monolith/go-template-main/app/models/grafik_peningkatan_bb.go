@@ -1,9 +1,9 @@
 package models
 
 type GrafikPeningkatanBB struct {
-	IDGrafikBB int32     `gorm:"primaryKey" json:"id_grafik_bb"`
-	IDIbu      int32     `gorm:"not null;index" json:"id_ibu"`
-	Ibu        *IbuHamil `gorm:"foreignKey:IDIbu;references:ID" json:"ibu,omitempty"`
+	IDGrafikBB  int32      `gorm:"primaryKey" json:"id_grafik_bb"`
+	KehamilanID int32      `gorm:"not null;index" json:"kehamilan_id"`
+	Kehamilan   *Kehamilan `gorm:"foreignKey:KehamilanID;references:ID" json:"kehamilan,omitempty"`
 
 	BBPraKehamilanKg            *float64 `gorm:"type:decimal(5,2)" json:"bb_pra_kehamilan_kg"`
 	IMTPraKehamilan             *float64 `gorm:"type:decimal(4,2)" json:"imt_pra_kehamilan"`

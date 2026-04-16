@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"errors"
 	"monitoring-service/app/models"
 
 	"gorm.io/gorm"
@@ -20,13 +21,13 @@ func (r *CatatanPelayananTrimester2Repository) Create(c *models.CatatanPelayanan
 
 func (r *CatatanPelayananTrimester2Repository) FindByID(id int32) (*models.CatatanPelayananTrimester2, error) {
 	var c models.CatatanPelayananTrimester2
-	err := r.db.First(&c, id).Error
+	err := r.db.Preload("Kehamilan.Ibu.Kependudukan").First(&c, id).Error
 	return &c, err
 }
 
-func (r *CatatanPelayananTrimester2Repository) FindByIbuID(ibuID int32) ([]models.CatatanPelayananTrimester2, error) {
+func (r *CatatanPelayananTrimester2Repository) FindByKehamilanID(kehamilanID int32) ([]models.CatatanPelayananTrimester2, error) {
 	var list []models.CatatanPelayananTrimester2
-	err := r.db.Where("id_ibu = ?", ibuID).Find(&list).Error
+	err := r.db.Where("kehamilan_id = ?", kehamilanID).Order("tanggal_periksa_stamp_paraf DESC").Find(&list).Error
 	return list, err
 }
 
@@ -35,5 +36,12 @@ func (r *CatatanPelayananTrimester2Repository) Update(c *models.CatatanPelayanan
 }
 
 func (r *CatatanPelayananTrimester2Repository) Delete(id int32) error {
-	return r.db.Delete(&models.CatatanPelayananTrimester2{}, id).Error
+	result := r.db.Delete(&models.CatatanPelayananTrimester2{}, id)
+	if result.Error != nil {
+		return result.Error
+	}
+	if result.RowsAffected == 0 {
+		return errors.New("data catatan pelayanan trimester 2 tidak ditemukan")
+	}
+	return nil
 }

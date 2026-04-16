@@ -1,6 +1,7 @@
 package usecases
 
 import (
+	"errors"
 	"monitoring-service/app/models"
 	"monitoring-service/app/repositories"
 )
@@ -8,7 +9,7 @@ import (
 type PemeriksaanDokterTrimester1Usecase interface {
 	Create(p *models.PemeriksaanDokterTrimester1) error
 	GetByID(id int32) (*models.PemeriksaanDokterTrimester1, error)
-	GetByIbuID(ibuID int32) ([]models.PemeriksaanDokterTrimester1, error)
+	GetByKehamilanID(kehamilanID int32) ([]models.PemeriksaanDokterTrimester1, error)
 	Update(p *models.PemeriksaanDokterTrimester1) error
 	Delete(id int32) error
 }
@@ -22,6 +23,9 @@ func NewPemeriksaanDokterTrimester1Usecase(repo *repositories.PemeriksaanDokterT
 }
 
 func (u *pemeriksaanDokterTrimester1Usecase) Create(p *models.PemeriksaanDokterTrimester1) error {
+	if p.KehamilanID == 0 {
+		return errors.New("kehamilan_id wajib diisi")
+	}
 	return u.repo.Create(p)
 }
 
@@ -29,11 +33,15 @@ func (u *pemeriksaanDokterTrimester1Usecase) GetByID(id int32) (*models.Pemeriks
 	return u.repo.FindByID(id)
 }
 
-func (u *pemeriksaanDokterTrimester1Usecase) GetByIbuID(ibuID int32) ([]models.PemeriksaanDokterTrimester1, error) {
-	return u.repo.FindByIbuID(ibuID)
+func (u *pemeriksaanDokterTrimester1Usecase) GetByKehamilanID(kehamilanID int32) ([]models.PemeriksaanDokterTrimester1, error) {
+	return u.repo.FindByKehamilanID(kehamilanID)
 }
 
 func (u *pemeriksaanDokterTrimester1Usecase) Update(p *models.PemeriksaanDokterTrimester1) error {
+	_, err := u.repo.FindByID(p.IDTrimester1)
+	if err != nil {
+		return errors.New("data pemeriksaan dokter trimester 1 tidak ditemukan")
+	}
 	return u.repo.Update(p)
 }
 

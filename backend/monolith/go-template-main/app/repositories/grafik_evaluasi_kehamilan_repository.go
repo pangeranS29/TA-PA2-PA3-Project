@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"errors"
 	"monitoring-service/app/models"
 
 	"gorm.io/gorm"
@@ -20,13 +21,13 @@ func (r *GrafikEvaluasiKehamilanRepository) Create(g *models.GrafikEvaluasiKeham
 
 func (r *GrafikEvaluasiKehamilanRepository) FindByID(id int32) (*models.GrafikEvaluasiKehamilan, error) {
 	var g models.GrafikEvaluasiKehamilan
-	err := r.db.First(&g, id).Error
+	err := r.db.Preload("Kehamilan.Ibu.Kependudukan").First(&g, id).Error
 	return &g, err
 }
 
-func (r *GrafikEvaluasiKehamilanRepository) FindByIbuID(ibuID int32) ([]models.GrafikEvaluasiKehamilan, error) {
+func (r *GrafikEvaluasiKehamilanRepository) FindByKehamilanID(kehamilanID int32) ([]models.GrafikEvaluasiKehamilan, error) {
 	var list []models.GrafikEvaluasiKehamilan
-	err := r.db.Where("id_ibu = ?", ibuID).Find(&list).Error
+	err := r.db.Where("kehamilan_id = ?", kehamilanID).Find(&list).Error
 	return list, err
 }
 
@@ -35,5 +36,12 @@ func (r *GrafikEvaluasiKehamilanRepository) Update(g *models.GrafikEvaluasiKeham
 }
 
 func (r *GrafikEvaluasiKehamilanRepository) Delete(id int32) error {
-	return r.db.Delete(&models.GrafikEvaluasiKehamilan{}, id).Error
+	result := r.db.Delete(&models.GrafikEvaluasiKehamilan{}, id)
+	if result.Error != nil {
+		return result.Error
+	}
+	if result.RowsAffected == 0 {
+		return errors.New("data grafik evaluasi kehamilan tidak ditemukan")
+	}
+	return nil
 }

@@ -1,6 +1,7 @@
 package usecases
 
 import (
+	"errors"
 	"monitoring-service/app/models"
 	"monitoring-service/app/repositories"
 )
@@ -8,35 +9,42 @@ import (
 type RingkasanPelayananPersalinanUsecase interface {
 	Create(rp *models.RingkasanPelayananPersalinan) error
 	GetByID(id int32) (*models.RingkasanPelayananPersalinan, error)
-	GetByIbuID(ibuID int32) ([]models.RingkasanPelayananPersalinan, error)
+	GetByKehamilanID(kehamilanID int32) ([]models.RingkasanPelayananPersalinan, error)
 	Update(rp *models.RingkasanPelayananPersalinan) error
 	Delete(id int32) error
 }
 
-type ringkasanPelayananPersalinanUsecase struct {
+type RingkasanPelayananPersalinan struct {
 	repo *repositories.RingkasanPelayananPersalinanRepository
 }
 
 func NewRingkasanPelayananPersalinanUsecase(repo *repositories.RingkasanPelayananPersalinanRepository) RingkasanPelayananPersalinanUsecase {
-	return &ringkasanPelayananPersalinanUsecase{repo: repo}
+	return &RingkasanPelayananPersalinan{repo: repo}
 }
 
-func (u *ringkasanPelayananPersalinanUsecase) Create(rp *models.RingkasanPelayananPersalinan) error {
+func (u *RingkasanPelayananPersalinan) Create(rp *models.RingkasanPelayananPersalinan) error {
+	if rp.KehamilanID == 0 {
+		return errors.New("kehamilan_id wajib diisi")
+	}
 	return u.repo.Create(rp)
 }
 
-func (u *ringkasanPelayananPersalinanUsecase) GetByID(id int32) (*models.RingkasanPelayananPersalinan, error) {
+func (u *RingkasanPelayananPersalinan) GetByID(id int32) (*models.RingkasanPelayananPersalinan, error) {
 	return u.repo.FindByID(id)
 }
 
-func (u *ringkasanPelayananPersalinanUsecase) GetByIbuID(ibuID int32) ([]models.RingkasanPelayananPersalinan, error) {
-	return u.repo.FindByIbuID(ibuID)
+func (u *RingkasanPelayananPersalinan) GetByKehamilanID(kehamilanID int32) ([]models.RingkasanPelayananPersalinan, error) {
+	return u.repo.FindByKehamilanID(kehamilanID)
 }
 
-func (u *ringkasanPelayananPersalinanUsecase) Update(rp *models.RingkasanPelayananPersalinan) error {
+func (u *RingkasanPelayananPersalinan) Update(rp *models.RingkasanPelayananPersalinan) error {
+	_, err := u.repo.FindByID(rp.IDRingkasan)
+	if err != nil {
+		return errors.New("data ringkasan pelayanan persalinan tidak ditemukan")
+	}
 	return u.repo.Update(rp)
 }
 
-func (u *ringkasanPelayananPersalinanUsecase) Delete(id int32) error {
+func (u *RingkasanPelayananPersalinan) Delete(id int32) error {
 	return u.repo.Delete(id)
 }

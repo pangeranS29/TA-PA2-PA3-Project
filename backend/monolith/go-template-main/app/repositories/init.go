@@ -23,7 +23,12 @@ type Main struct {
 	CatatanPelayanan       CatatanPelayananRepository
 
 	// New repositories (semua pointer, mengikuti pola Anak)
-	IbuHamil                      *IbuHamilRepository
+	User                          *UserRepository
+	Role                          *RoleRepository
+	Kebabura                      *KebaburaRepository
+	Kependudukan                  *KependudukanRepository
+	Ibu                           *IbuRepository
+	Kehamilan                     *KehamilanRepository
 	PemeriksaanKehamilan          *PemeriksaanKehamilanRepository
 	EvaluasiKesehatanIbu          *EvaluasiKesehatanIbuRepository
 	RiwayatKehamilanLalu          *RiwayatKehamilanLaluRepository
@@ -41,7 +46,7 @@ type Main struct {
 	PenjelasanHasilGrafik         *PenjelasanHasilGrafikRepository
 	RencanaPersalinan             *RencanaPersalinanRepository
 	RingkasanPelayananPersalinan  *RingkasanPelayananPersalinanRepository
-	KeteranganLahir               *KeteranganLahirRepository
+	KeteranganLahir               *KeteranganLahirRepository // <-- TAMBAHKAN INI
 	RiwayatProsesMelahirkan       *RiwayatProsesMelahirkanRepository
 	PelayananIbuNifas             *PelayananIbuNifasRepository
 	CatatanPelayananNifas         *CatatanPelayananNifasRepository
@@ -64,7 +69,12 @@ func Init(opts Options) *Main {
 	m.PelayananKesehatanAnak = NewPelayananKesehatanAnakRepository(opts.Postgres)
 
 	// New repositories
-	m.IbuHamil = NewIbuHamilRepository(opts.Postgres)
+	m.User = NewUserRepository(opts.Postgres)
+	m.Ibu = NewIbuRepository(opts.Postgres)
+	m.Role = NewRoleRepository(opts.Postgres)
+	m.Kebabura = NewKebaburaRepository(opts.Postgres)
+	m.Kependudukan = NewKependudukanRepository(opts.Postgres)
+	m.Kehamilan = NewKehamilanRepository(opts.Postgres)
 	m.PemeriksaanKehamilan = NewPemeriksaanKehamilanRepository(opts.Postgres)
 	m.EvaluasiKesehatanIbu = NewEvaluasiKesehatanIbuRepository(opts.Postgres)
 	m.RiwayatKehamilanLalu = NewRiwayatKehamilanLaluRepository(opts.Postgres)
@@ -82,7 +92,7 @@ func Init(opts Options) *Main {
 	m.PenjelasanHasilGrafik = NewPenjelasanHasilGrafikRepository(opts.Postgres)
 	m.RencanaPersalinan = NewRencanaPersalinanRepository(opts.Postgres)
 	m.RingkasanPelayananPersalinan = NewRingkasanPelayananPersalinanRepository(opts.Postgres)
-	m.KeteranganLahir = NewKeteranganLahirRepository(opts.Postgres)
+	m.KeteranganLahir = NewKeteranganLahirRepository(opts.Postgres) // <-- TAMBAHKAN INI
 	m.RiwayatProsesMelahirkan = NewRiwayatProsesMelahirkanRepository(opts.Postgres)
 	m.PelayananIbuNifas = NewPelayananIbuNifasRepository(opts.Postgres)
 	m.CatatanPelayananNifas = NewCatatanPelayananNifasRepository(opts.Postgres)
@@ -96,5 +106,6 @@ func Init(opts Options) *Main {
 	m.PemantauanPertumbuhan = NewPemantauanPertumbuhanRepository(opts.Postgres)
 	m.PengukuranLilA = NewPengukuranLilaRepository(opts.Postgres)
 	m.CatatanPelayanan = NewCatatanPelayananRepository(opts.Postgres)
+
 	return m
 }

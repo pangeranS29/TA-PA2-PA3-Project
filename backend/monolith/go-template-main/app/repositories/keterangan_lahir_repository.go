@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"errors"
 	"monitoring-service/app/models"
 
 	"gorm.io/gorm"
@@ -20,13 +21,16 @@ func (r *KeteranganLahirRepository) Create(k *models.KeteranganLahir) error {
 
 func (r *KeteranganLahirRepository) FindByID(id int32) (*models.KeteranganLahir, error) {
 	var k models.KeteranganLahir
-	err := r.db.First(&k, id).Error
+	err := r.db.Preload("Ibu.Kependudukan").First(&k, id).Error
 	return &k, err
 }
 
 func (r *KeteranganLahirRepository) FindByIbuID(ibuID int32) ([]models.KeteranganLahir, error) {
 	var list []models.KeteranganLahir
-	err := r.db.Where("id_ibu_relasi = ?", ibuID).Find(&list).Error
+	err := r.db.Where("id_ibu_relasi = ?", ibuID).
+		Preload("Ibu.Kependudukan").
+		Order("tanggal_lahir DESC").
+		Find(&list).Error
 	return list, err
 }
 
@@ -35,5 +39,12 @@ func (r *KeteranganLahirRepository) Update(k *models.KeteranganLahir) error {
 }
 
 func (r *KeteranganLahirRepository) Delete(id int32) error {
-	return r.db.Delete(&models.KeteranganLahir{}, id).Error
+	result := r.db.Delete(&models.KeteranganLahir{}, id)
+	if result.Error != nil {
+		return result.Error
+	}
+	if result.RowsAffected == 0 {
+		return errors.New("data keterangan lahir tidak ditemukan")
+	}
+	return nil
 }

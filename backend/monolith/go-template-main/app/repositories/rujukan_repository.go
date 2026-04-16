@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"errors"
 	"monitoring-service/app/models"
 
 	"gorm.io/gorm"
@@ -20,13 +21,13 @@ func (r *RujukanRepository) Create(rj *models.Rujukan) error {
 
 func (r *RujukanRepository) FindByID(id int32) (*models.Rujukan, error) {
 	var rj models.Rujukan
-	err := r.db.First(&rj, id).Error
+	err := r.db.Preload("Kehamilan.Ibu.Kependudukan").First(&rj, id).Error
 	return &rj, err
 }
 
-func (r *RujukanRepository) FindByIbuID(ibuID int32) ([]models.Rujukan, error) {
+func (r *RujukanRepository) FindByKehamilanID(kehamilanID int32) ([]models.Rujukan, error) {
 	var list []models.Rujukan
-	err := r.db.Where("id_ibu = ?", ibuID).Find(&list).Error
+	err := r.db.Where("kehamilan_id = ?", kehamilanID).Find(&list).Error
 	return list, err
 }
 
@@ -35,5 +36,12 @@ func (r *RujukanRepository) Update(rj *models.Rujukan) error {
 }
 
 func (r *RujukanRepository) Delete(id int32) error {
-	return r.db.Delete(&models.Rujukan{}, id).Error
+	result := r.db.Delete(&models.Rujukan{}, id)
+	if result.Error != nil {
+		return result.Error
+	}
+	if result.RowsAffected == 0 {
+		return errors.New("data rujukan tidak ditemukan")
+	}
+	return nil
 }
