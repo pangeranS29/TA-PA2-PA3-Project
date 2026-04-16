@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"errors"
 	"monitoring-service/app/models"
 
 	"gorm.io/gorm"
@@ -20,13 +21,13 @@ func (r *PelayananIbuNifasRepository) Create(p *models.PelayananIbuNifas) error 
 
 func (r *PelayananIbuNifasRepository) FindByID(id int32) (*models.PelayananIbuNifas, error) {
 	var p models.PelayananIbuNifas
-	err := r.db.First(&p, id).Error
+	err := r.db.Preload("Kehamilan.Ibu.Kependudukan").First(&p, id).Error
 	return &p, err
 }
 
-func (r *PelayananIbuNifasRepository) FindByIbuID(ibuID int32) ([]models.PelayananIbuNifas, error) {
+func (r *PelayananIbuNifasRepository) FindByKehamilanID(kehamilanID int32) ([]models.PelayananIbuNifas, error) {
 	var list []models.PelayananIbuNifas
-	err := r.db.Where("id_ibu = ?", ibuID).Find(&list).Error
+	err := r.db.Where("kehamilan_id = ?", kehamilanID).Find(&list).Error
 	return list, err
 }
 
@@ -35,5 +36,12 @@ func (r *PelayananIbuNifasRepository) Update(p *models.PelayananIbuNifas) error 
 }
 
 func (r *PelayananIbuNifasRepository) Delete(id int32) error {
-	return r.db.Delete(&models.PelayananIbuNifas{}, id).Error
+	result := r.db.Delete(&models.PelayananIbuNifas{}, id)
+	if result.Error != nil {
+		return result.Error
+	}
+	if result.RowsAffected == 0 {
+		return errors.New("data pelayanan ibu nifas tidak ditemukan")
+	}
+	return nil
 }

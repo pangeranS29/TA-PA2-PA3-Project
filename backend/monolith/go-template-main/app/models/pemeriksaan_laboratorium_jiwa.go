@@ -3,10 +3,10 @@ package models
 import "time"
 
 type PemeriksaanLaboratoriumJiwa struct {
-	IDLabJiwa  int32      `gorm:"primaryKey" json:"id_lab_jiwa"`
-	IDIbu      int32      `gorm:"not null;index" json:"id_ibu"`
-	Ibu        *IbuHamil  `gorm:"foreignKey:IDIbu;references:ID" json:"ibu,omitempty"`
-	TanggalLab *time.Time `gorm:"type:date" json:"tanggal_lab"`
+	IDLabJiwa   int32      `gorm:"primaryKey" json:"id_lab_jiwa"`
+	KehamilanID int32      `gorm:"not null;index" json:"kehamilan_id"`
+	Kehamilan   *Kehamilan `gorm:"foreignKey:KehamilanID;references:ID" json:"kehamilan,omitempty"`
+	TanggalLab  *time.Time `gorm:"type:date" json:"tanggal_lab"`
 
 	LabHemoglobinHasil               *float64 `gorm:"type:decimal(4,1)" json:"lab_hemoglobin_hasil"`
 	LabHemoglobinRencanaTindakLanjut string   `json:"lab_hemoglobin_rencana_tindak_lanjut"`

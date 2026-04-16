@@ -223,9 +223,9 @@ func (u *AnakUseCase) toAnakResponse(anak *models.Anak) models.AnakResponse {
 			ID: anak.Kehamilan.ID,
 		}
 
-		if anak.Kehamilan.Ibu != nil {
-			resp.Kehamilan.Ibu.NamaIbu = anak.Kehamilan.Ibu.NamaIbu
-		}
+		// if anak.Kehamilan.Ibu != nil {
+		// 	resp.Kehamilan.Ibu.NamaIbu = anak.Kehamilan.Ibu.Kependudukan.NamaLengkap
+		// }
 	}
 
 	return resp

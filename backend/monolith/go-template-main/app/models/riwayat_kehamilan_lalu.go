@@ -1,9 +1,8 @@
 package models
 
 type RiwayatKehamilanLalu struct {
-	IDRiwayat  int32 `gorm:"primaryKey" json:"id_riwayat"`
-	IDEvaluasi int32 `gorm:"not null;index" json:"id_evaluasi"`
-	// Evaluasi                 *EvaluasiKesehatanIbu `gorm:"foreignKey:IDEvaluasi;references:IDEvaluasi" json:"evaluasi,omitempty"`
+	IDRiwayat                int32  `gorm:"primaryKey" json:"id_riwayat"`
+	IDEvaluasi               int32  `gorm:"not null;index" json:"id_evaluasi"`
 	NoUrut                   int    `json:"no_urut"`
 	Tahun                    int    `json:"tahun"`
 	BGGram                   int    `json:"bb_gram"`

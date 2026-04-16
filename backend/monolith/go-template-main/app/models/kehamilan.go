@@ -9,7 +9,7 @@ import (
 type Kehamilan struct {
 	ID                       int32          `gorm:"primaryKey;autoIncrement" json:"id"`
 	IbuID                    int32          `gorm:"not null;index;constraint:OnDelete:CASCADE" json:"ibu_id"`
-	Ibu                      *IbuHamil      `gorm:"foreignKey:IbuID;references:ID;constraint:OnDelete:CASCADE" json:"ibu,omitempty"`
+	Ibu                      *Ibu           `gorm:"foreignKey:IbuID;references:IDIbu;constraint:OnDelete:CASCADE" json:"ibu,omitempty"`
 	Gravida                  int32          `json:"gravida,omitempty"`
 	Paritas                  int32          `json:"paritas,omitempty"`
 	Abortus                  int32          `json:"abortus,omitempty"`

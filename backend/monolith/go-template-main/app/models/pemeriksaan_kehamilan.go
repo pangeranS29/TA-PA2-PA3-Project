@@ -1,15 +1,13 @@
 package models
 
-import (
-	"time"
-)
+import "time"
 
 type PemeriksaanKehamilan struct {
-	IDPeriksa   int32     `gorm:"primaryKey" json:"id_periksa"`
-	IDIbu       int32     `gorm:"not null;index" json:"id_ibu"`
-	Ibu         *IbuHamil `gorm:"foreignKey:IDIbu;references:ID" json:"ibu,omitempty"`
-	Trimester   string    `gorm:"type:varchar(10)" json:"trimester"`
-	KunjunganKe int       `json:"kunjungan_ke"`
+	IDPeriksa   int32      `gorm:"primaryKey" json:"id_periksa"`
+	KehamilanID int32      `gorm:"not null;index" json:"kehamilan_id"`
+	Kehamilan   *Kehamilan `gorm:"foreignKey:KehamilanID;references:ID" json:"kehamilan,omitempty"`
+	Trimester   string     `gorm:"type:varchar(10)" json:"trimester"`
+	KunjunganKe int        `json:"kunjungan_ke"`
 
 	TanggalPeriksa *time.Time `gorm:"type:date" json:"tanggal_periksa"`
 	TempatPeriksa  string     `gorm:"type:varchar(255)" json:"tempat_periksa"`

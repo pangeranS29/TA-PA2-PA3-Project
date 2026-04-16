@@ -1,6 +1,7 @@
 package usecases
 
 import (
+	"errors"
 	"monitoring-service/app/models"
 	"monitoring-service/app/repositories"
 )
@@ -22,6 +23,9 @@ func NewRiwayatKehamilanLaluUsecase(repo *repositories.RiwayatKehamilanLaluRepos
 }
 
 func (u *riwayatKehamilanLaluUsecase) Create(rk *models.RiwayatKehamilanLalu) error {
+	if rk.IDEvaluasi == 0 {
+		return errors.New("id_evaluasi wajib diisi")
+	}
 	return u.repo.Create(rk)
 }
 
@@ -34,6 +38,10 @@ func (u *riwayatKehamilanLaluUsecase) GetByEvaluasiID(evaluasiID int32) ([]model
 }
 
 func (u *riwayatKehamilanLaluUsecase) Update(rk *models.RiwayatKehamilanLalu) error {
+	_, err := u.repo.FindByID(rk.IDRiwayat)
+	if err != nil {
+		return errors.New("data riwayat kehamilan lalu tidak ditemukan")
+	}
 	return u.repo.Update(rk)
 }
 

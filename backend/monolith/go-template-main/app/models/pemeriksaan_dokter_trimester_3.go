@@ -4,8 +4,8 @@ import "time"
 
 type PemeriksaanDokterTrimester3 struct {
 	IDTrimester3              int32      `gorm:"primaryKey" json:"id_trimester_3"`
-	IDIbu                     int32      `gorm:"not null;index" json:"id_ibu"`
-	Ibu                       *IbuHamil  `gorm:"foreignKey:IDIbu;references:ID" json:"ibu,omitempty"`
+	KehamilanID               int32      `gorm:"not null;index" json:"kehamilan_id"`
+	Kehamilan                 *Kehamilan `gorm:"foreignKey:KehamilanID;references:ID" json:"kehamilan,omitempty"`
 	NamaDokter                string     `gorm:"type:varchar(255)" json:"nama_dokter"`
 	TanggalPeriksa            *time.Time `gorm:"type:date" json:"tanggal_periksa"`
 	KonsepAnamnesaPemeriksaan string     `json:"konsep_anamnesa_pemeriksaan"`

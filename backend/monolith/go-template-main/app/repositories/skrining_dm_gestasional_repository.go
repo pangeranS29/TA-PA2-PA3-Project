@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"errors"
 	"monitoring-service/app/models"
 
 	"gorm.io/gorm"
@@ -20,13 +21,13 @@ func (r *SkriningDMGestasionalRepository) Create(s *models.SkriningDMGestasional
 
 func (r *SkriningDMGestasionalRepository) FindByID(id int32) (*models.SkriningDMGestasional, error) {
 	var s models.SkriningDMGestasional
-	err := r.db.First(&s, id).Error
+	err := r.db.Preload("Kehamilan.Ibu.Kependudukan").First(&s, id).Error
 	return &s, err
 }
 
-func (r *SkriningDMGestasionalRepository) FindByIbuID(ibuID int32) ([]models.SkriningDMGestasional, error) {
+func (r *SkriningDMGestasionalRepository) FindByKehamilanID(kehamilanID int32) ([]models.SkriningDMGestasional, error) {
 	var list []models.SkriningDMGestasional
-	err := r.db.Where("id_ibu = ?", ibuID).Find(&list).Error
+	err := r.db.Where("kehamilan_id = ?", kehamilanID).Find(&list).Error
 	return list, err
 }
 
@@ -35,5 +36,12 @@ func (r *SkriningDMGestasionalRepository) Update(s *models.SkriningDMGestasional
 }
 
 func (r *SkriningDMGestasionalRepository) Delete(id int32) error {
-	return r.db.Delete(&models.SkriningDMGestasional{}, id).Error
+	result := r.db.Delete(&models.SkriningDMGestasional{}, id)
+	if result.Error != nil {
+		return result.Error
+	}
+	if result.RowsAffected == 0 {
+		return errors.New("data skrining DM gestasional tidak ditemukan")
+	}
+	return nil
 }

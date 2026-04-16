@@ -1,6 +1,8 @@
+// app/usecases/keterangan_lahir_usecase.go
 package usecases
 
 import (
+	"errors"
 	"monitoring-service/app/models"
 	"monitoring-service/app/repositories"
 )
@@ -22,6 +24,9 @@ func NewKeteranganLahirUsecase(repo *repositories.KeteranganLahirRepository) Ket
 }
 
 func (u *keteranganLahirUsecase) Create(k *models.KeteranganLahir) error {
+	if k.IDIbuRelasi == 0 {
+		return errors.New("id_ibu_relasi wajib diisi")
+	}
 	return u.repo.Create(k)
 }
 
@@ -30,10 +35,17 @@ func (u *keteranganLahirUsecase) GetByID(id int32) (*models.KeteranganLahir, err
 }
 
 func (u *keteranganLahirUsecase) GetByIbuID(ibuID int32) ([]models.KeteranganLahir, error) {
+	if ibuID == 0 {
+		return nil, errors.New("ibu_id wajib diisi")
+	}
 	return u.repo.FindByIbuID(ibuID)
 }
 
 func (u *keteranganLahirUsecase) Update(k *models.KeteranganLahir) error {
+	_, err := u.repo.FindByID(k.IDKeteranganLahir)
+	if err != nil {
+		return errors.New("data keterangan lahir tidak ditemukan")
+	}
 	return u.repo.Update(k)
 }
 
