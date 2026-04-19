@@ -167,6 +167,33 @@ func formatBulanToYM(nilaiSumbuX float64) string {
 	return fmt.Sprintf("%d:%d", totalBulan/12, totalBulan%12)
 }
 
+func extractAnakTanggalLahirDanGender(anak *models.Anak) (string, string, error) {
+	if anak == nil {
+		return "", "", customerror.NewBadRequestError("data anak tidak ditemukan")
+	}
+
+	tanggalLahir := strings.TrimSpace(anak.TanggalLahir)
+	jenisKelamin := strings.TrimSpace(anak.JenisKelamin)
+
+	if anak.Kependudukan != nil {
+		if strings.TrimSpace(anak.Kependudukan.TanggalLahir) != "" {
+			tanggalLahir = strings.TrimSpace(anak.Kependudukan.TanggalLahir)
+		}
+		if strings.TrimSpace(anak.Kependudukan.JenisKelamin) != "" {
+			jenisKelamin = strings.TrimSpace(anak.Kependudukan.JenisKelamin)
+		}
+	}
+
+	if tanggalLahir == "" {
+		return "", "", customerror.NewBadRequestError("tanggal lahir anak belum tersedia")
+	}
+	if jenisKelamin == "" {
+		return "", "", customerror.NewBadRequestError("jenis kelamin anak belum tersedia")
+	}
+
+	return tanggalLahir, jenisKelamin, nil
+}
+
 func getKurvaKMSLabel(usiaBulan int) string {
 	if usiaBulan <= 24 {
 		return "KMS 0-2 Tahun"
@@ -235,9 +262,37 @@ func hitungKMSStatus(current models.CatatanPertumbuhan, prev *models.CatatanPert
 	return statusNaik, statusBGM, kbmMinGram, kenaikanGram, statusInfo
 }
 
-func (m *Main) AddCatatanPertumbuhan(req *models.CreatePertumbuhanRequest) error {
-	if req.AnakID <= 0 {
+func validateCreatePertumbuhanRequest(req *models.CreatePertumbuhanRequest) error {
+	if req == nil {
+		return customerror.NewBadRequestError("request tidak boleh kosong")
+	}
+
+	if req.AnakID == 0 {
 		return customerror.NewBadRequestError("anak_id wajib diisi")
+	}
+
+	if strings.TrimSpace(req.TglUkur) == "" {
+		return customerror.NewBadRequestError("tgl_ukur wajib diisi")
+	}
+
+	if req.BeratBadan <= 0 {
+		return customerror.NewBadRequestError("berat_badan wajib diisi dan harus lebih dari 0")
+	}
+
+	if req.TinggiBadan <= 0 {
+		return customerror.NewBadRequestError("tinggi_badan wajib diisi dan harus lebih dari 0")
+	}
+
+	if req.LingkarKepala < 0 {
+		return customerror.NewBadRequestError("lingkar_kepala tidak boleh bernilai negatif")
+	}
+
+	return nil
+}
+
+func (m *Main) AddCatatanPertumbuhan(req *models.CreatePertumbuhanRequest) error {
+	if err := validateCreatePertumbuhanRequest(req); err != nil {
+		return err
 	}
 
 	dataAnak, err := m.repository.GetAnakByID(req.AnakID)
@@ -250,12 +305,17 @@ func (m *Main) AddCatatanPertumbuhan(req *models.CreatePertumbuhanRequest) error
 		return customerror.NewBadRequestError("format tanggal ukur tidak valid, gunakan YYYY-MM-DD")
 	}
 
-	tanggalLahir, err := parseTanggalLahir(dataAnak.Kependudukan.TanggalLahir)
+	rawTanggalLahir, rawGender, err := extractAnakTanggalLahirDanGender(dataAnak)
 	if err != nil {
 		return err
 	}
 
-	gender := sanitizeGender(dataAnak.Kependudukan.JenisKelamin)
+	tanggalLahir, err := parseTanggalLahir(rawTanggalLahir)
+	if err != nil {
+		return err
+	}
+
+	gender := sanitizeGender(rawGender)
 
 	catatan := &models.CatatanPertumbuhan{
 		AnakID:        req.AnakID,
@@ -319,7 +379,12 @@ func (m *Main) GetRiwayatPertumbuhan(anakID uint) ([]models.CatatanPertumbuhanRe
 		return nil, err
 	}
 
-	gender := sanitizeGender(dataAnak.Kependudukan.JenisKelamin)
+	_, rawGender, err := extractAnakTanggalLahirDanGender(dataAnak)
+	if err != nil {
+		return nil, err
+	}
+
+	gender := sanitizeGender(rawGender)
 
 	var res []models.CatatanPertumbuhanResponse
 	var prev *models.CatatanPertumbuhan
@@ -370,7 +435,12 @@ func (m *Main) GetDetailCatatanPertumbuhan(id uint) (*models.CatatanPertumbuhanR
 		return nil, err
 	}
 
-	gender := sanitizeGender(dataAnak.Kependudukan.JenisKelamin)
+	_, rawGender, err := extractAnakTanggalLahirDanGender(dataAnak)
+	if err != nil {
+		return nil, err
+	}
+
+	gender := sanitizeGender(rawGender)
 
 	dataRiwayat, _ := m.repository.GetRiwayatPertumbuhanByAnakID(data.AnakID)
 	var prev *models.CatatanPertumbuhan
@@ -441,11 +511,16 @@ func (m *Main) UpdateCatatanPertumbuhan(id uint, req *models.UpdatePertumbuhanRe
 		data.CatatanNakes = req.CatatanNakes
 	}
 
-	tanggalLahir, err := parseTanggalLahir(dataAnak.Kependudukan.TanggalLahir)
+	rawTanggalLahir, rawGender, err := extractAnakTanggalLahirDanGender(dataAnak)
 	if err != nil {
 		return err
 	}
-	gender := sanitizeGender(dataAnak.Kependudukan.JenisKelamin)
+
+	tanggalLahir, err := parseTanggalLahir(rawTanggalLahir)
+	if err != nil {
+		return err
+	}
+	gender := sanitizeGender(rawGender)
 
 	data.UsiaUkurBulan = data.HitungUsiaBulan(tanggalLahir)
 	data.IMT = data.HitungIMT()
@@ -485,65 +560,10 @@ func (m *Main) DeleteCatatanPertumbuhan(id uint) error {
 	return m.repository.DeleteCatatanPertumbuhan(id)
 }
 
-func (m *Main) GetMasterStandar(parameter, jenisKelamin string) ([]models.MasterStandarResponse, error) {
-	rows, err := m.repository.GetMasterStandarByFilter(parameter, jenisKelamin)
-	if err != nil {
-		return nil, err
-	}
-
-	result := make([]models.MasterStandarResponse, 0, len(rows))
-	for _, row := range rows {
-		item := models.MasterStandarResponse{
-			ID:           row.ID,
-			Parameter:    row.Parameter,
-			JenisKelamin: string(row.JenisKelamin),
-			NilaiSumbuX:  row.NilaiSumbuX,
-			SD3Neg:       row.SD3Neg,
-			SD2Neg:       row.SD2Neg,
-			SD1Neg:       row.SD1Neg,
-			Median:       row.Median,
-			SD1Pos:       row.SD1Pos,
-			SD2Pos:       row.SD2Pos,
-			SD3Pos:       row.SD3Pos,
-		}
-
-		if row.Parameter == ParamLKU {
-			item.UsiaBulan = int(math.Round(row.NilaiSumbuX))
-			item.UsiaYM = formatBulanToYM(row.NilaiSumbuX)
-		}
-
-		result = append(result, item)
-	}
-
-	return result, nil
+func (m *Main) IsAnakMilikOrangtua(userID, anakID uint) (bool, error) {
+	return m.repository.IsAnakMilikOrangtua(userID, anakID)
 }
 
-func (m *Main) CreateMasterStandar(req *models.CreateMasterStandarRequest) error {
-	if strings.TrimSpace(req.Parameter) == "" {
-		return customerror.NewBadRequestError("parameter wajib diisi")
-	}
-
-	nilaiSumbuX := req.NilaiSumbuX
-	if strings.TrimSpace(req.Parameter) == ParamLKU && strings.TrimSpace(req.UsiaReferensi) != "" {
-		parsed, err := parseUsiaReferensiToBulan(req.UsiaReferensi)
-		if err != nil {
-			return err
-		}
-		nilaiSumbuX = parsed
-	}
-
-	model := &models.MasterStandarAntropometri{
-		Parameter:    req.Parameter,
-		JenisKelamin: models.GenderType(sanitizeGender(req.JenisKelamin)),
-		NilaiSumbuX:  nilaiSumbuX,
-		SD3Neg:       req.SD3Neg,
-		SD2Neg:       req.SD2Neg,
-		SD1Neg:       req.SD1Neg,
-		Median:       req.Median,
-		SD1Pos:       req.SD1Pos,
-		SD2Pos:       req.SD2Pos,
-		SD3Pos:       req.SD3Pos,
-	}
-
-	return m.repository.CreateMasterStandar(model)
+func (m *Main) IsCatatanMilikOrangtua(userID, catatanID uint) (bool, error) {
+	return m.repository.IsCatatanMilikOrangtua(userID, catatanID)
 }

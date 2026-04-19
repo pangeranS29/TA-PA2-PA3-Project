@@ -20,6 +20,12 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	secured.Use(middlewares.JWTAuth(controller.JWTSecret()))
 	secured.GET("/me", controller.Me)
 
+	anak := e.Group("/anak")
+	anak.Use(middlewares.JWTAuth(controller.JWTSecret()))
+	anak.GET("", controller.GetAllAnak)
+	anak.GET("/search", controller.GetAnak)
+	anak.GET("/:anak_id", controller.GetAnakById)
+
 	pertumbuhan := e.Group("/pertumbuhan")
 	pertumbuhan.Use(middlewares.JWTAuth(controller.JWTSecret()))
 	pertumbuhan.POST("", controller.AddCatatanPertumbuhan)

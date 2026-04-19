@@ -12,7 +12,17 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+// CREATE
 func (m *Main) AddCatatanPertumbuhan(c echo.Context) error {
+	claims, ok := getAuthClaims(c)
+	if !ok {
+		return helpers.Response(c, http.StatusUnauthorized, []string{"token tidak valid"})
+	}
+
+	if !isTenagaKesehatanRole(claims.Role) {
+		return helpers.Response(c, http.StatusForbidden, []string{"hanya tenaga-kesehatan yang dapat menambah catatan pertumbuhan"})
+	}
+
 	var req models.CreatePertumbuhanRequest
 	if err := c.Bind(&req); err != nil {
 		return helpers.Response(c, http.StatusBadRequest, []string{"format request tidak valid"})
@@ -27,10 +37,30 @@ func (m *Main) AddCatatanPertumbuhan(c echo.Context) error {
 	}, nil)
 }
 
+// GET
 func (m *Main) GetRiwayatPertumbuhan(c echo.Context) error {
+	claims, ok := getAuthClaims(c)
+	if !ok {
+		return helpers.Response(c, http.StatusUnauthorized, []string{"token tidak valid"})
+	}
+
+	if !isTenagaKesehatanRole(claims.Role) && !isOrangtuaRole(claims.Role) {
+		return helpers.Response(c, http.StatusForbidden, []string{"role anda tidak memiliki akses ke fitur ini"})
+	}
+
 	anakID, err := strconv.ParseUint(c.Param("anak_id"), 10, 64)
 	if err != nil || anakID <= 0 {
 		return helpers.Response(c, http.StatusBadRequest, []string{"anak_id tidak valid"})
+	}
+
+	if isOrangtuaRole(claims.Role) {
+		allowed, allowErr := m.usecases.IsAnakMilikOrangtua(claims.UserID, uint(anakID))
+		if allowErr != nil {
+			return helpers.Response(c, customerror.GetStatusCode(allowErr), []string{allowErr.Error()})
+		}
+		if !allowed {
+			return helpers.Response(c, http.StatusForbidden, []string{"anda tidak memiliki akses ke data anak ini"})
+		}
 	}
 
 	data, usecaseErr := m.usecases.GetRiwayatPertumbuhan(uint(anakID))
@@ -41,10 +71,30 @@ func (m *Main) GetRiwayatPertumbuhan(c echo.Context) error {
 	return helpers.StandardResponse(c, http.StatusOK, []string{constants.SUCCESS_RESPONSE_MESSAGE}, data, nil)
 }
 
+// GET/:id
 func (m *Main) GetDetailCatatanPertumbuhan(c echo.Context) error {
+	claims, ok := getAuthClaims(c)
+	if !ok {
+		return helpers.Response(c, http.StatusUnauthorized, []string{"token tidak valid"})
+	}
+
+	if !isTenagaKesehatanRole(claims.Role) && !isOrangtuaRole(claims.Role) {
+		return helpers.Response(c, http.StatusForbidden, []string{"role anda tidak memiliki akses ke fitur ini"})
+	}
+
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil || id == 0 {
 		return helpers.Response(c, http.StatusBadRequest, []string{"id tidak valid"})
+	}
+
+	if isOrangtuaRole(claims.Role) {
+		allowed, allowErr := m.usecases.IsCatatanMilikOrangtua(claims.UserID, uint(id))
+		if allowErr != nil {
+			return helpers.Response(c, customerror.GetStatusCode(allowErr), []string{allowErr.Error()})
+		}
+		if !allowed {
+			return helpers.Response(c, http.StatusForbidden, []string{"anda tidak memiliki akses ke catatan ini"})
+		}
 	}
 
 	data, usecaseErr := m.usecases.GetDetailCatatanPertumbuhan(uint(id))
@@ -55,7 +105,17 @@ func (m *Main) GetDetailCatatanPertumbuhan(c echo.Context) error {
 	return helpers.StandardResponse(c, http.StatusOK, []string{constants.SUCCESS_RESPONSE_MESSAGE}, data, nil)
 }
 
+// UPDATE
 func (m *Main) UpdateCatatanPertumbuhan(c echo.Context) error {
+	claims, ok := getAuthClaims(c)
+	if !ok {
+		return helpers.Response(c, http.StatusUnauthorized, []string{"token tidak valid"})
+	}
+
+	if !isTenagaKesehatanRole(claims.Role) {
+		return helpers.Response(c, http.StatusForbidden, []string{"hanya tenaga-kesehatan yang dapat mengubah catatan pertumbuhan"})
+	}
+
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil || id == 0 {
 		return helpers.Response(c, http.StatusBadRequest, []string{"id tidak valid"})
@@ -75,7 +135,17 @@ func (m *Main) UpdateCatatanPertumbuhan(c echo.Context) error {
 	}, nil)
 }
 
+// DELETE
 func (m *Main) DeleteCatatanPertumbuhan(c echo.Context) error {
+	claims, ok := getAuthClaims(c)
+	if !ok {
+		return helpers.Response(c, http.StatusUnauthorized, []string{"token tidak valid"})
+	}
+
+	if !isTenagaKesehatanRole(claims.Role) {
+		return helpers.Response(c, http.StatusForbidden, []string{"hanya tenaga-kesehatan yang dapat menghapus catatan pertumbuhan"})
+	}
+
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil || id == 0 {
 		return helpers.Response(c, http.StatusBadRequest, []string{"id tidak valid"})
@@ -87,32 +157,5 @@ func (m *Main) DeleteCatatanPertumbuhan(c echo.Context) error {
 
 	return helpers.StandardResponse(c, http.StatusOK, []string{constants.SUCCESS_RESPONSE_MESSAGE}, map[string]string{
 		"message": "catatan pertumbuhan berhasil dihapus",
-	}, nil)
-}
-
-func (m *Main) GetMasterStandar(c echo.Context) error {
-	parameter := c.QueryParam("parameter")
-	jenisKelamin := c.QueryParam("jenis_kelamin")
-
-	data, err := m.usecases.GetMasterStandar(parameter, jenisKelamin)
-	if err != nil {
-		return helpers.Response(c, customerror.GetStatusCode(err), []string{err.Error()})
-	}
-
-	return helpers.StandardResponse(c, http.StatusOK, []string{constants.SUCCESS_RESPONSE_MESSAGE}, data, nil)
-}
-
-func (m *Main) CreateMasterStandar(c echo.Context) error {
-	var req models.CreateMasterStandarRequest
-	if err := c.Bind(&req); err != nil {
-		return helpers.Response(c, http.StatusBadRequest, []string{"format request tidak valid"})
-	}
-
-	if err := m.usecases.CreateMasterStandar(&req); err != nil {
-		return helpers.Response(c, customerror.GetStatusCode(err), []string{err.Error()})
-	}
-
-	return helpers.StandardResponse(c, http.StatusCreated, []string{constants.SUCCESS_RESPONSE_MESSAGE}, map[string]string{
-		"message": "master standar antropometri berhasil ditambahkan",
 	}, nil)
 }
