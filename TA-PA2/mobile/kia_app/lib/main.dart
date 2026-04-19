@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:ta_pa2_pa3_project/core/utils/auth_session.dart';
-import 'package:ta_pa2_pa3_project/features/dashboard/dashboard_screen.dart';
-import 'package:ta_pa2_pa3_project/features/auth/login_screen.dart';
+import 'package:ta_pa2_pa3_project/core/services/auth_session.dart';
+import 'package:ta_pa2_pa3_project/features/dashboard/presentation/screens/dashboard_screen.dart';
+import 'package:ta_pa2_pa3_project/features/auth/presentation/screens/login_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
