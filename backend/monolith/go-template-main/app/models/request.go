@@ -243,3 +243,5 @@ type UpdateCatatanPelayananRequest struct {
 	TanggalKembali    time.Time `json:"tanggal_kembali"` // "YYYY-MM-DD"
 	CatatanPelayanan  string    `json:"catatan_pelayanan"`
 }
+
+

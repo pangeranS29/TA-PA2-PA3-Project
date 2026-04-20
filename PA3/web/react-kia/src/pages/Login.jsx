@@ -9,23 +9,42 @@ const Login = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-
+  
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
-    try {
-     const res = await login(identifier, password);
-
-    // console.log("LOGIN RESPONSE:", res);
-    // console.log("USER DATA:", res.data);
-     navigate("/dashboard");
-    } catch (err) {
-      setError(err.response?.data?.message || "Login gagal, periksa email/telepon dan password");
-    } finally {
-      setLoading(false);
-    }
-  };
+  e.preventDefault();
+  setLoading(true);
+  setError("");
+  try {
+    // Fungsi login di service sudah otomatis menyimpan ke localStorage
+    await login(identifier, password);
+    navigate("/dashboard");
+  } catch (err) {
+    setError(err.response?.data?.message || "Login gagal");
+  } finally {
+    setLoading(false);
+  }
+};
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   setLoading(true);
+  //   setError("");
+  //   try {
+  //    const res = await login(identifier, password);
+  //   if (res.data) {
+  //       localStorage.setItem("user", JSON.stringify(res.data));
+        
+  //       // Jika API kamu mengirim token, biasanya disimpan juga:
+  //       // localStorage.setItem("token", res.token); 
+  //     }
+  //   // console.log("LOGIN RESPONSE:", res);
+  //   // console.log("USER DATA:", res.data);
+  //    navigate("/dashboard");
+  //   } catch (err) {
+  //     setError(err.response?.data?.message || "Login gagal, periksa email/telepon dan password");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">

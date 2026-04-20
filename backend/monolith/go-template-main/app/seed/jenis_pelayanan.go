@@ -22,7 +22,7 @@ func SeederJenisPelayanan(db *gorm.DB) (map[string]int32, error) {
 		{Nama: "Skrining BBL/SHK", TipeInput: "checkbox", GroupName: "BBL", Section: "pemeriksaan"},
 		{Nama: "KIA", TipeInput: "checkbox", GroupName: "BBL", Section: "pemeriksaan"},
 		{Nama: "Imunisasi Hepatitis B", TipeInput: "checkbox", GroupName: "BBL", Section: "pemeriksaan"},
-		{Nama: "Tripel Eliminasi", TipeInput: "checkbox", GroupName: "BBL", Section: "pemeriksaan"},
+		{Nama: "Tripel Eliminasi", TipeInput: "text", GroupName: "BBL", Section: "pemeriksaan"},
 
 		// ===== ANTROPOMETRI =====
 		{Nama: "BB", TipeInput: "number", GroupName: "antropometri", Section: "pemeriksaan"},
@@ -46,7 +46,7 @@ func SeederJenisPelayanan(db *gorm.DB) (map[string]int32, error) {
 		{Nama: "Dini(IMD)", TipeInput: "checkbox", GroupName: "observasi", Section: "kondisi"},
 		{Nama: "Identifikasi Kuning", TipeInput: "text", GroupName: "observasi", Section: "kondisi"},
 		{Nama: "Masalah", TipeInput: "text", GroupName: "observasi", Section: "kondisi"},
-		{Nama: "Dirujuk", TipeInput: "checkbox", GroupName: "observasi", Section: "kondisi"},
+		{Nama: "Dirujuk", TipeInput: "text", GroupName: "observasi", Section: "kondisi"},
 		{Nama: "Imunisasi HB*", TipeInput: "text", GroupName: "observasi", Section: "kondisi"},
 		{Nama: "Skrining Hipotiroid Kongenital", TipeInput: "text", GroupName: "observasi", Section: "kondisi"},
 		{Nama: "Bagian Kuning", TipeInput: "text", GroupName: "observasi", Section: "kondisi"},
