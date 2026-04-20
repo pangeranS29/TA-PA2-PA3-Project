@@ -6,18 +6,22 @@ import {
   Baby, 
   FileText, 
   Settings,
-  LogOut 
+  LogOut,
+  Activity,
+  BarChart3
 } from "lucide-react";
 import { logout } from "../../services/auth";
 
 const Sidebar = () => {
   const menuItems = [
-    { path: "/dashboard", name: "Dashboard", icon: LayoutDashboard },
-    { path: "/data-ibu", name: "Data Ibu", icon: Users },
-    { path: "/Daftar-Anak", name: "Data Anak", icon: Baby },
-    { path: "/laporan", name: "Laporan", icon: FileText },
-    { path: "/pengaturan", name: "Pengaturan", icon: Settings },
-  ];
+  { path: "/dashboard", name: "Dashboard", icon: LayoutDashboard },
+  { path: "/data-ibu", name: "Data Ibu", icon: Users },
+  { path: "/daftar-anak", name: "Data Anak", icon: Baby },
+  { path: "/kependudukan", name: "Manajemen KK", icon: Users }, // tambahkan ini
+  { path: "/monitoring", name: "Monitoring", icon: Activity },
+  { path: "/laporan", name: "Laporan", icon: BarChart3 },
+  { path: "/pengaturan", name: "Pengaturan", icon: Settings },
+];
 
   return (
     <aside className="w-64 bg-indigo-800 text-white flex flex-col">

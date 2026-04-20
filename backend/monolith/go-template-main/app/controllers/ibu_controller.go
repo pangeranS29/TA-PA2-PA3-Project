@@ -27,39 +27,24 @@ type updateIbuRequest struct {
 	StatusKehamilan string `json:"status_kehamilan"`
 }
 
+// app/controllers/ibu_controller.go (potongan Create)
 func (c *IbuController) Create(ctx echo.Context) error {
-	claims, ok := ctx.Get("auth_claims").(*models.AuthClaims)
-	if !ok || claims == nil {
-		return ctx.JSON(http.StatusUnauthorized, models.Response{
-			StatusCode: http.StatusUnauthorized,
-			Message:    "Unauthorized",
-		})
+	claims, _ := ctx.Get("auth_claims").(*models.AuthClaims)
+	if claims == nil {
+		return ctx.JSON(http.StatusUnauthorized, models.Response{StatusCode: http.StatusUnauthorized, Message: "Unauthorized"})
 	}
-
 	var req createIbuRequest
 	if err := ctx.Bind(&req); err != nil {
-		return ctx.JSON(http.StatusBadRequest, models.Response{
-			StatusCode: http.StatusBadRequest,
-			Message:    err.Error(),
-		})
+		return ctx.JSON(http.StatusBadRequest, models.Response{StatusCode: http.StatusBadRequest, Message: err.Error()})
 	}
-
 	ibu := &models.Ibu{
 		IDKependudukan:  req.IDKependudukan,
 		StatusKehamilan: req.StatusKehamilan,
 	}
-
 	if err := c.usecase.Create(ibu); err != nil {
-		return ctx.JSON(http.StatusInternalServerError, models.Response{
-			StatusCode: http.StatusInternalServerError,
-			Message:    err.Error(),
-		})
+		return ctx.JSON(http.StatusInternalServerError, models.Response{StatusCode: http.StatusInternalServerError, Message: err.Error()})
 	}
-
-	return ctx.JSON(http.StatusCreated, models.Response{
-		StatusCode: http.StatusCreated,
-		Data:       ibu,
-	})
+	return ctx.JSON(http.StatusCreated, models.Response{StatusCode: http.StatusCreated, Data: ibu})
 }
 
 func (c *IbuController) GetByID(ctx echo.Context) error {
