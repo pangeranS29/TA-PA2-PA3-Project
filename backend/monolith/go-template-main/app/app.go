@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"monitoring-service/app/controllers"
 
-	"monitoring-service/app/seed"
+	// "monitoring-service/app/models"
+
+	// "monitoring-service/app/seed"
 
 	"monitoring-service/app/repositories"
 	"monitoring-service/app/routes"
@@ -67,17 +69,11 @@ func (m *Main) Init() (err error) {
 	// 	return
 	// }
 
-	// // Migrate Tabel
-	// err = models.AutoMigrate(m.database.Postgres)
+	// //Seeder
+	// err = seed.RunAllSeed(m.database.Postgres)
 	// if err != nil {
 	// 	return
 	// }
-
-	//Seeder
-	err = seed.RunAllSeed(m.database.Postgres)
-	if err != nil {
-		return
-	}
 
 	m.repo = repositories.Init(repositories.Options{
 		Config:   m.cfg,

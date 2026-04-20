@@ -253,4 +253,10 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	tenaga.GET("/pemeriksaan-lanjutan-t3", controller.PemeriksaanLanjutanTrimester3.GetByKehamilanID)
 	tenaga.PUT("/pemeriksaan-lanjutan-t3/:id", controller.PemeriksaanLanjutanTrimester3.Update)
 	tenaga.DELETE("/pemeriksaan-lanjutan-t3/:id", controller.PemeriksaanLanjutanTrimester3.Delete)
+
+	tenaga.GET("/kependudukan", controller.Kependudukan.GetAll)
+	tenaga.POST("/kependudukan", controller.Kependudukan.Create)
+	tenaga.GET("/kependudukan/:id", controller.Kependudukan.GetByID)
+	tenaga.PUT("/kependudukan/:id", controller.Kependudukan.Update)
+	tenaga.DELETE("/kependudukan/:id", controller.Kependudukan.Delete)
 }
