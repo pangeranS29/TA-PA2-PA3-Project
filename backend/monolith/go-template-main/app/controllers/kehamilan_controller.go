@@ -217,6 +217,22 @@ func (c *KehamilanController) Update(ctx echo.Context) error {
 	})
 }
 
+func (c *KehamilanController) GetKehamilanAktif(ctx echo.Context) error {
+	data, err := c.usecase.GetKehamilanAktif()
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, models.Response{
+			StatusCode: http.StatusInternalServerError,
+			Message:    "Gagal mengambil data kehamilan aktif",
+		})
+	}
+
+	return ctx.JSON(http.StatusOK, models.Response{
+		StatusCode: http.StatusOK,
+		Message:    "Berhasil mengambil data",
+		Data:       data,
+	})
+}
+
 func (c *KehamilanController) Delete(ctx echo.Context) error {
 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 32)
 	if err != nil {
