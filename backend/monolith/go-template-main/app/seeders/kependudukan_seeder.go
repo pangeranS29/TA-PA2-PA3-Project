@@ -67,16 +67,8 @@ func (s *KependudukanSeeder) seedKartuKeluarga() error {
 	}
 
 	for _, item := range list {
-		var existing models.KartuKeluarga
-		err := s.db.Where("no_kartu_keluarga = ?", item.NoKartuKeluarga).First(&existing).Error
-		if err == gorm.ErrRecordNotFound {
-			if createErr := s.db.Create(&item).Error; createErr != nil {
-				log.Printf("Error creating KartuKeluarga (NoKK: %d): %v\n", item.NoKartuKeluarga, createErr)
-				return createErr
-			}
-			continue
-		}
-		if err != nil {
+		if err := s.db.Where("no_kartu_keluarga = ?", item.NoKartuKeluarga).FirstOrCreate(&item).Error; err != nil {
+			log.Printf("Error seeding KartuKeluarga (NoKK: %d): %v\n", item.NoKartuKeluarga, err)
 			return err
 		}
 	}
@@ -238,19 +230,9 @@ func (s *KependudukanSeeder) seedKependudukan() error {
 	}
 
 	for _, k := range kependudukanList {
-		var existing models.Kependudukan
-		err := s.db.Where("nik = ?", k.Nik).First(&existing).Error
-
-		// Jika tidak ditemukan, buat data baru
-		if err != nil {
-			if err == gorm.ErrRecordNotFound {
-				if err := s.db.Create(&k).Error; err != nil {
-					log.Printf("Error creating Kependudukan (NIK: %d): %v\n", k.Nik, err)
-					return err
-				}
-			} else {
-				return err
-			}
+		if err := s.db.Where("nik = ?", k.Nik).FirstOrCreate(&k).Error; err != nil {
+			log.Printf("Error seeding Kependudukan (NIK: %d): %v\n", k.Nik, err)
+			return err
 		}
 	}
 
@@ -273,17 +255,8 @@ func (s *KependudukanSeeder) seedIbu() error {
 		kepID := kepIbu.ID
 		ibu := models.Ibu{KependudukanID: &kepID}
 
-		var existing models.Ibu
-		err := s.db.Where("kependudukan_id = ?", kepID).First(&existing).Error
-		if err == gorm.ErrRecordNotFound {
-			if createErr := s.db.Create(&ibu).Error; createErr != nil {
-				log.Printf("Error creating Ibu (KependudukanID: %d): %v\n", kepID, createErr)
-				return createErr
-			}
-			continue
-		}
-
-		if err != nil {
+		if err := s.db.Where("kependudukan_id = ?", kepID).FirstOrCreate(&ibu).Error; err != nil {
+			log.Printf("Error seeding Ibu (KependudukanID: %d): %v\n", kepID, err)
 			return err
 		}
 	}

@@ -26,6 +26,13 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	anak.GET("/search", controller.GetAnak)
 	anak.GET("/:anak_id", controller.GetAnakById)
 
+	// Master Standar Routes
+	masterStandar := e.Group("/master-standar")
+	masterStandar.Use(middlewares.JWTAuth(controller.JWTSecret()))
+	masterStandar.GET("", controller.GetMasterStandar)
+	masterStandar.POST("", controller.CreateMasterStandar)
+
+	// Pertumbuhan Routes
 	pertumbuhan := e.Group("/pertumbuhan")
 	pertumbuhan.Use(middlewares.JWTAuth(controller.JWTSecret()))
 	pertumbuhan.POST("", controller.AddCatatanPertumbuhan)
@@ -34,8 +41,26 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	pertumbuhan.PUT("/:id", controller.UpdateCatatanPertumbuhan)
 	pertumbuhan.DELETE("/:id", controller.DeleteCatatanPertumbuhan)
 
-	masterStandar := e.Group("/master-standar")
-	masterStandar.Use(middlewares.JWTAuth(controller.JWTSecret()))
-	masterStandar.GET("", controller.GetMasterStandar)
-	masterStandar.POST("", controller.CreateMasterStandar)
+	// Kategori Capaian Routes
+	kategoriCapaian := e.Group("/kategori-capaian")
+	kategoriCapaian.Use(middlewares.JWTAuth(controller.JWTSecret()))
+	kategoriCapaian.GET("", controller.GetAllKategoriCapaian)
+	kategoriCapaian.GET("/:id", controller.GetKategoriCapaianById)
+	kategoriCapaian.GET("/rentang-usia", controller.GetKategoriCapaianByRentangUsia)
+	kategoriCapaian.POST("", controller.CreateKategoriCapaian)
+	kategoriCapaian.PUT("/:id", controller.UpdateKategoriCapaian)
+	kategoriCapaian.DELETE("/:id", controller.DeleteKategoriCapaian)
+
+	// Perkembangan Routes
+	perkembangan := e.Group("/perkembangan")
+	perkembangan.Use(middlewares.JWTAuth(controller.JWTSecret()))
+	perkembangan.GET("", controller.GetAllPerkembangan)
+	perkembangan.GET("/:id", controller.GetPerkembanganById)
+	perkembangan.GET("/anak/:anak_id", controller.GetPerkembanganByAnakId)
+	perkembangan.GET("/anak/:anak_id/kategori/:kategori_capaian_id", controller.GetPerkembanganByAnakIdAndKategoriId)
+	perkembangan.POST("", controller.CreatePerkembangan)
+	perkembangan.PUT("/:id", controller.UpdatePerkembangan)
+	perkembangan.DELETE("/:id", controller.DeletePerkembangan)
+	perkembangan.GET("/search", controller.SearchPerkembangan)
+
 }
