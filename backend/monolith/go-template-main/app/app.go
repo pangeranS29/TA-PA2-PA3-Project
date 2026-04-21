@@ -89,6 +89,10 @@ func (m *Main) Init() (err error) {
 	if err := masterLKUSeeder.Seed(); err != nil {
 		return err
 	}
+	kategoriCapaianSeeder := seeders.NewKategoriCapaianSeeder(m.database.Postgres)
+	if err := kategoriCapaianSeeder.Seed(); err != nil {
+		return err
+	}
 
 	m.repo = repositories.Init(repositories.Options{
 		Config:   m.cfg,

@@ -24,6 +24,8 @@ func AutoMigrateAndSeed(db *gorm.DB) error {
 		&Anak{},
 		&MasterStandarAntropometri{},
 		&CatatanPertumbuhan{},
+		&KategoriCapaian{},
+		&Perkembangan{},
 	); err != nil {
 		return err
 	}
