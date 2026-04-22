@@ -12,11 +12,8 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 		return c.JSON(200, map[string]string{"status": "ok"})
 	})
 
-	auth := e.Group("/auth")
-	auth.POST("/register", controller.Register)
-	auth.POST("/login", controller.Login)
-
-	secured := auth.Group("")
-	secured.Use(middlewares.JWTAuth(controller.JWTSecret()))
-	secured.GET("/me", controller.Me)
+	e.POST("/login", controller.Login)
+	e.POST("/logout", controller.Logout, middlewares.JWTAuth(controller.JWTSecret()))
+	e.GET("/profile/keluarga", controller.ProfileKeluarga, middlewares.JWTAuth(controller.JWTSecret()))
+	e.POST("/keluarga-lengkap", controller.AdminCreateKeluargaLengkap, middlewares.JWTAuth(controller.JWTSecret()))
 }
