@@ -12,7 +12,7 @@ type ImunisasiRequest struct {
 	Petugas      string     `json:"petugas"`
 }
 
-type Imunisasi struct {
+type JadwalImunisasi struct {
 	ID           uint       `gorm:"primaryKey;column:id" db:"id" json:"id"`
 	AnakID       int        `gorm:"column:anak_id" db:"anak_id" json:"anak_id"`
 	ImunisasiID  int        `gorm:"column:imunisasi_id" db:"imunisasi_id" json:"imunisasi_id"`
@@ -26,10 +26,10 @@ type Imunisasi struct {
 	Isdeleted    time.Time  `gorm:"column:is_deleted" db:"is_deleted" json:"is_deleted,omitempty"`
 
 	// Foreign key constraints
-	Anak      *Anak            `gorm:"foreignKey:AnakID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT" json:"-"`
-	Imunisasi *MasterImunisasi `gorm:"foreignKey:ImunisasiID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT" json:"-"`
+	Anak      *Anak              `gorm:"foreignKey:AnakID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT" json:"-"`
+	Imunisasi *KategoriImunisasi `gorm:"foreignKey:ImunisasiID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT" json:"-"`
 }
 
-func (Imunisasi) TableName() string {
-	return "imunisasi"
+func (JadwalImunisasi) TableName() string {
+	return "jadwal_imunisasi"
 }

@@ -15,27 +15,28 @@ var defaultRoles = []string{
 func AutoMigrateAndSeed(db *gorm.DB) error {
 	// auto migrate
 	if err := db.AutoMigrate(
-		&Role{},
-		&KaderPosyandu{},
-		&User{},
-		&KartuKeluarga{},
-		&Kependudukan{},
-		&Ibu{},
-		&Anak{},
-		&MasterStandarAntropometri{},
+		// &Role{},
+		// &KaderPosyandu{},
+		// &User{},
+		// &KartuKeluarga{},
+		// &Kependudukan{},
+		// &Ibu{},
+		// &Anak{},
+		// &MasterStandarAntropometri{},
 		&CatatanPertumbuhan{},
-		&KategoriCapaian{},
-		&Perkembangan{},
+	// &KategoriCapaian{},
+	// &KategoriSuplemen{},
+	// &Perkembangan{},
 	); err != nil {
 		return err
 	}
 
-	for _, roleName := range defaultRoles {
-		role := Role{Name: roleName}
-		if err := db.Where(Role{Name: roleName}).FirstOrCreate(&role).Error; err != nil {
-			return err
-		}
-	}
+	// for _, roleName := range defaultRoles {
+	// 	role := Role{Name: roleName}
+	// 	if err := db.Where(Role{Name: roleName}).FirstOrCreate(&role).Error; err != nil {
+	// 		return err
+	// 	}
+	// }
 
 	// seeder
 	// log.Println("AutoMigrate selesai. Menjalankan Seeder...")

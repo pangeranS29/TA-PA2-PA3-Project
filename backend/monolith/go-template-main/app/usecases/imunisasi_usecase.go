@@ -8,10 +8,10 @@ import (
 )
 
 type ImunisasiUsecase interface {
-	CreateImunisasi(req models.ImunisasiRequest) (*models.Imunisasi, error)
-	GetImunisasiByAnakID(anakID int) ([]models.Imunisasi, error)
-	GetImunisasiByID(id uint) (*models.Imunisasi, error)
-	UpdateImunisasi(id uint, req models.ImunisasiRequest) (*models.Imunisasi, error)
+	CreateImunisasi(req models.ImunisasiRequest) (*models.JadwalImunisasi, error)
+	GetImunisasiByAnakID(anakID int) ([]models.JadwalImunisasi, error)
+	GetImunisasiByID(id uint) (*models.JadwalImunisasi, error)
+	UpdateImunisasi(id uint, req models.ImunisasiRequest) (*models.JadwalImunisasi, error)
 	DeleteImunisasi(id uint) error
 }
 
@@ -25,8 +25,8 @@ func NewImunisasiUsecase(repo repositories.ImunisasiRepository) ImunisasiUsecase
 	}
 }
 
-func (u *imunisasiUsecase) CreateImunisasi(req models.ImunisasiRequest) (*models.Imunisasi, error) {
-	imunisasi := &models.Imunisasi{
+func (u *imunisasiUsecase) CreateImunisasi(req models.ImunisasiRequest) (*models.JadwalImunisasi, error) {
+	jadwalImunisasi := &models.JadwalImunisasi{
 		AnakID:       req.AnakID,
 		ImunisasiID:  req.ImunisasiID,
 		TglRencana:   req.TglRencana,
@@ -38,41 +38,41 @@ func (u *imunisasiUsecase) CreateImunisasi(req models.ImunisasiRequest) (*models
 		UpdatedAt:    time.Now(),
 	}
 
-	err := u.imunisasiRepo.Create(imunisasi)
+	err := u.imunisasiRepo.Create(jadwalImunisasi)
 	if err != nil {
 		return nil, err
 	}
-	return imunisasi, nil
+	return jadwalImunisasi, nil
 }
 
-func (u *imunisasiUsecase) GetImunisasiByAnakID(anakID int) ([]models.Imunisasi, error) {
+func (u *imunisasiUsecase) GetImunisasiByAnakID(anakID int) ([]models.JadwalImunisasi, error) {
 	return u.imunisasiRepo.FindAllByAnakID(anakID)
 }
 
-func (u *imunisasiUsecase) GetImunisasiByID(id uint) (*models.Imunisasi, error) {
+func (u *imunisasiUsecase) GetImunisasiByID(id uint) (*models.JadwalImunisasi, error) {
 	return u.imunisasiRepo.FindByID(id)
 }
 
-func (u *imunisasiUsecase) UpdateImunisasi(id uint, req models.ImunisasiRequest) (*models.Imunisasi, error) {
-	imunisasi, err := u.imunisasiRepo.FindByID(id)
+func (u *imunisasiUsecase) UpdateImunisasi(id uint, req models.ImunisasiRequest) (*models.JadwalImunisasi, error) {
+	jadwalImunisasi, err := u.imunisasiRepo.FindByID(id)
 	if err != nil {
 		return nil, errors.New("data imunisasi tidak ditemukan")
 	}
 
-	imunisasi.AnakID = req.AnakID
-	imunisasi.ImunisasiID = req.ImunisasiID
-	imunisasi.TglRencana = req.TglRencana
-	imunisasi.TglPemberian = req.TglPemberian
-	imunisasi.Status = req.Status
-	imunisasi.Lokasi = req.Lokasi
-	imunisasi.Petugas = req.Petugas
-	imunisasi.UpdatedAt = time.Now()
+	jadwalImunisasi.AnakID = req.AnakID
+	jadwalImunisasi.ImunisasiID = req.ImunisasiID
+	jadwalImunisasi.TglRencana = req.TglRencana
+	jadwalImunisasi.TglPemberian = req.TglPemberian
+	jadwalImunisasi.Status = req.Status
+	jadwalImunisasi.Lokasi = req.Lokasi
+	jadwalImunisasi.Petugas = req.Petugas
+	jadwalImunisasi.UpdatedAt = time.Now()
 
-	err = u.imunisasiRepo.Update(imunisasi)
+	err = u.imunisasiRepo.Update(jadwalImunisasi)
 	if err != nil {
 		return nil, err
 	}
-	return imunisasi, nil
+	return jadwalImunisasi, nil
 }
 
 func (u *imunisasiUsecase) DeleteImunisasi(id uint) error {

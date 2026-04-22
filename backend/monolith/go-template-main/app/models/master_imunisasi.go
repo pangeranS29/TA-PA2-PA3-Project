@@ -2,7 +2,7 @@ package models
 
 import "time"
 
-type MasterImunisasi struct {
+type KategoriImunisasi struct {
 	ID                   uint      `gorm:"primaryKey;column:id" db:"id" json:"id"`
 	NamaVaksin           string    `gorm:"column:nama_vaksin" db:"nama_vaksin" json:"nama_vaksin"`
 	UsiaRekomendasiBulan int       `gorm:"column:usia_rekomendasi_bulan" db:"usia_rekomendasi_bulan" json:"usia_rekomendasi_bulan"`
@@ -12,6 +12,6 @@ type MasterImunisasi struct {
 	Isdeleted            time.Time `gorm:"column:is_deleted" json:"is_deleted,omitempty"`
 }
 
-func (MasterImunisasi) TableName() string {
-	return "master_imunisasi"
+func (KategoriImunisasi) TableName() string {
+	return "kategori_imunisasi"
 }
