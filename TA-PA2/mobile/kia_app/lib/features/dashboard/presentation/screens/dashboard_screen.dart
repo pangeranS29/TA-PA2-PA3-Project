@@ -3,7 +3,10 @@ import 'package:ta_pa2_pa3_project/core/themes/app_theme.dart';
 import 'package:ta_pa2_pa3_project/core/services/auth_session.dart';
 import 'package:ta_pa2_pa3_project/features/auth/presentation/screens/login_screen.dart';
 import 'package:ta_pa2_pa3_project/features/hamil/presentation/screens/journey_screen.dart';
-import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/tumbuh_kembang_screen.dart';
+import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/pilih_anak_screen.dart';
+// import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/tumbuh_kembang_screen.dart';
+import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/input_profil_anak_screen.dart';
+
 
 class DashboardScreen extends StatefulWidget {
   @override
@@ -392,32 +395,180 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          "Menu Tumbuh Kembang",
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87),
-        ),
-        const SizedBox(height: 16),
-        _buildMenuCard(
-          title: "Pemantauan Pertumbuhan Anak",
-          subtitle: "Input data, lihat grafik, dan status tumbuh anak",
-          icon: Icons.monitor_heart_outlined,
-          iconColor: Colors.teal,
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const TumbuhKembangScreen()),
+        // 🔹 REQUEST TAMBAH ANAK
+        GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => InputProfilAnakScreen(),
+              ),
+            );
+          },
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.blue.shade200),
+              borderRadius: BorderRadius.circular(16),
+              color: Colors.blue.shade50,
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.person_add, color: Colors.blue, size: 28),
+                const SizedBox(width: 12),
+
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: const [
+                      Text(
+                        "Request Tambah Profil Anak",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                        ),
+                      ),
+                      SizedBox(height: 4),
+                      Text(
+                        "Mulai pantau tumbuh kembang si kecil",
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.black54,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: const BoxDecoration(
+                    color: Colors.blue,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.add,
+                    size: 16,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
-        _buildMenuCard(
-          title: "Riwayat & Status Gizi",
-          subtitle: "Integrasi endpoint backend /pertumbuhan/:anak_id",
-          icon: Icons.query_stats,
-          iconColor: Colors.indigo,
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const TumbuhKembangScreen()),
+
+        SizedBox(height: 24),
+
+        // 🔹 MENU CEPAT
+        Text(
+          "Menu Cepat",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        SizedBox(height: 12),
+
+        GridView.count(
+          shrinkWrap: true,
+          crossAxisCount: 3,
+          physics: NeverScrollableScrollPhysics(),
+          mainAxisSpacing: 12,
+          crossAxisSpacing: 12,
+          children: [
+
+            // 🔸 TIMBANG
+            _menuItem(Icons.scale, "Pertumbuhan", Colors.orange, () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const PilihAnakScreen(),
+                ),
+              );
+            }),
+
+            // 🔸 IMUNISASI
+            _menuItem(Icons.shield, "Imunisasi", Colors.green, () {
+              // TODO: arahkan ke halaman imunisasi
+            }),
+
+            // 🔸 PERIKSA
+            _menuItem(Icons.favorite, "Periksa", Colors.red, () {
+              
+            }),
+
+            // 🔸 EDUKASI
+            _menuItem(Icons.menu_book, "Edukasi", Colors.orange, () {
+              // TODO: halaman edukasi
+            }),
+
+            // 🔸 CATATAN
+            _menuItem(Icons.note, "Catatan", Colors.red, () {
+              // TODO: halaman catatan
+            }),
+
+            // 🔸 BAHAYA
+            _menuItem(Icons.warning, "Bahaya", Colors.orange, () {
+              // TODO: halaman tanda bahaya
+            }),
+          ],
+        ),
+
+        SizedBox(height: 24),
+
+        // 🔹 WARNING BOX
+        Container(
+          padding: EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: Color(0xFFFFF3E0),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Row(
+            children: [
+              Icon(Icons.warning_amber_rounded, color: Colors.orange),
+              SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  "Kenali Tanda Bahaya — Segera ke faskes jika ada gejala ini",
+                  style: TextStyle(fontSize: 12),
+                ),
+              ),
+              Icon(Icons.chevron_right),
+            ],
           ),
         ),
+
+        SizedBox(height: 40),
       ],
+    );
+  }
+
+  Widget _menuItem(
+    IconData icon,
+    String title,
+    Color color,
+    VoidCallback onTap,
+  ) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 6,
+            )
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, color: color),
+            SizedBox(height: 6),
+            Text(title, style: TextStyle(fontSize: 12)),
+          ],
+        ),
+      ),
     );
   }
 
