@@ -20,6 +20,21 @@ class DetailPertumbuhanScreen extends StatefulWidget {
 }
 
 class _DetailPertumbuhanScreenState extends State<DetailPertumbuhanScreen> {
+
+  String _hitungUmur(String tanggalLahir) {
+    try {
+      final birthDate = DateTime.parse(tanggalLahir);
+      final now = DateTime.now();
+
+      int bulan = (now.year - birthDate.year) * 12 +
+          (now.month - birthDate.month);
+
+      return "$bulan bulan";
+    } catch (e) {
+      return "-";
+    }
+  }
+
   late PertumbuhanRepository _repository;
 
   List<PertumbuhanModel> _riwayatPertumbuhan = [];
@@ -138,7 +153,7 @@ class _DetailPertumbuhanScreenState extends State<DetailPertumbuhanScreen> {
         Navigator.pop(context, _riwayatPertumbuhan.isNotEmpty);
       },
       child: Scaffold(
-        backgroundColor: const Color(0xFFF9FAFB),
+        backgroundColor: const Color(0xFFF1F5F9),
         appBar: AppBar(
           backgroundColor: Colors.white,
           elevation: 0,
@@ -146,14 +161,26 @@ class _DetailPertumbuhanScreenState extends State<DetailPertumbuhanScreen> {
             icon: const Icon(Icons.arrow_back, color: Colors.black87),
             onPressed: () => Navigator.pop(context, _riwayatPertumbuhan.isNotEmpty),
           ),
-          title: const Text(
-            'Hasil Pertumbuhan',
-            style: TextStyle(
-              color: Colors.black87,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
+          title: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  widget.anak.namaAnak,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
+                Text(
+                  '${_hitungUmur(widget.anak.tanggalLahir)} • ${widget.anak.jenisKelamin}',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey,
+                  ),
+                ),
+              ],
             ),
-          ),
           centerTitle: false,
         ),
         body: _isLoading
@@ -202,93 +229,110 @@ class _DetailPertumbuhanScreenState extends State<DetailPertumbuhanScreen> {
     );
   }
 
-  Widget _buildContentState() {
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ChildInfoBanner(anak: widget.anak),
-            const SizedBox(height: 24),
+    Widget _buildContentState() {
+      final latest = _riwayatPertumbuhan.isNotEmpty ? _riwayatPertumbuhan.last : null;
+      final master = _getMasterForTab();
 
-            // Tab Bar horizontal
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: ['BB/U', 'TB/U', 'BB/TB', 'IMT/U', 'LK/U']
-                    .map((tab) => _buildTabButton(tab))
-                    .toList(),
-              ),
-            ),
-            const SizedBox(height: 20),
+      return SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ChildInfoBanner(anak: widget.anak),
+              const SizedBox(height: 24),
 
-            if (_riwayatPertumbuhan.isNotEmpty) ...[
-              _buildMeasurementInfoCard(_riwayatPertumbuhan.last),
-              const SizedBox(height: 16),
-              GrowthChartWidget(
-                riwayatPertumbuhan: _getDataForTab(),
-                masterStandar: _getMasterForTab(),
-                yAxisLabel: _getYAxisLabelFull(),
-                selectedTab: _selectedTab,
-                xAxisLabel: _getXAxisLabel(),
+              // Tab Bar horizontal
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: ['BB/U', 'TB/U', 'BB/TB', 'IMT/U', 'LK/U']
+                      .map((tab) => _buildTabButton(tab))
+                      .toList(),
+                ),
               ),
               const SizedBox(height: 20),
-              ZScoreCardWidget(
-                zScore: _getZScoreForTab(_riwayatPertumbuhan.last),
-                statusText: _getStatusForTab(_riwayatPertumbuhan.last),
-                categoryLabel: _selectedTab,
-              ),
-            ] else ...[
-              _buildEmptyStateData(),
-            ],
-            
-            const SizedBox(height: 20),
-            _buildRiwayatPengukuranCard(),
-            const SizedBox(height: 24),
 
-            // Button Tambah
-            SizedBox(
-              width: double.infinity,
-              height: 56,
-              child: FilledButton.icon(
-                onPressed: () async {
-                  final updated = await Navigator.push<bool?>(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => InputCatatanPertumbuhanScreen(
-                        anak: widget.anak,
-                        repository: _repository,
-                      ),
-                    ),
-                  );
-                  if (updated ?? false) await _loadData();
-                },
-                style: FilledButton.styleFrom(
-                  backgroundColor: const Color(0xFF2563EB),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                ),
-                icon: Container(
-                  width: 24,
-                  height: 24,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 2),
+              if (latest != null && master.isNotEmpty) ...[
+                
+                /// 🔹 INFO TERAKHIR
+                _buildMeasurementInfoCard(latest),
+                const SizedBox(height: 16),
+
+                /// 🔹 GRAFIK (dengan animasi saat ganti tab)
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 300),
+                  child: GrowthChartWidget(
+                    key: ValueKey(_selectedTab),
+                    riwayatPertumbuhan: _getDataForTab(),
+                    masterStandar: master,
+                    yAxisLabel: _getYAxisLabelFull(),
+                    selectedTab: _selectedTab,
+                    xAxisLabel: _getXAxisLabel(),
                   ),
-                  child: const Icon(Icons.add, color: Colors.white, size: 14),
                 ),
-                label: const Text(
-                  'Tambah data pertumbuhan',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
+
+                const SizedBox(height: 20),
+
+                /// 🔹 STATUS GIZI
+                ZScoreCardWidget(
+                  zScore: _getZScoreForTab(latest),
+                  statusText: _getStatusForTab(latest) ?? '-',
+                  categoryLabel: _selectedTab,
+                ),
+
+              ] else ...[
+                _buildEmptyStateData(),
+              ],
+              
+              const SizedBox(height: 20),
+
+              /// 🔹 RIWAYAT (TIDAK DIUBAH)
+              _buildRiwayatPengukuranCard(),
+              const SizedBox(height: 24),
+
+              /// 🔹 BUTTON TAMBAH (TIDAK DIUBAH)
+              SizedBox(
+                width: double.infinity,
+                height: 56,
+                child: FilledButton.icon(
+                  onPressed: () async {
+                    final updated = await Navigator.push<bool?>(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => InputCatatanPertumbuhanScreen(
+                          anak: widget.anak,
+                          repository: _repository,
+                        ),
+                      ),
+                    );
+                    if (updated ?? false) await _loadData();
+                  },
+                  style: FilledButton.styleFrom(
+                    backgroundColor: const Color(0xFF2563EB),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  ),
+                  icon: Container(
+                    width: 24,
+                    height: 24,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 2),
+                    ),
+                    child: const Icon(Icons.add, color: Colors.white, size: 14),
+                  ),
+                  label: const Text(
+                    'Tambah data pertumbuhan',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 24),
-          ],
+              const SizedBox(height: 24),
+            ],
+          ),
         ),
-      ),
-    );
-  }
+      );
+    }
 
   Widget _buildEmptyStateData() {
     return Container(

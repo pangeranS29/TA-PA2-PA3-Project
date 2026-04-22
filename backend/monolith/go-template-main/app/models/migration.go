@@ -15,15 +15,15 @@ var defaultRoles = []string{
 func AutoMigrateAndSeed(db *gorm.DB) error {
 	// auto migrate
 	if err := db.AutoMigrate(
-		&Role{},
-		&KaderPosyandu{},
-		&User{},
-		&KartuKeluarga{},
-		&Kependudukan{},
-		&Ibu{},
-		&Anak{},
-		&MasterStandarAntropometri{},
-		&CatatanPertumbuhan{},
+	// &Role{},
+	// &KaderPosyandu{},
+	// &User{},
+	// &KartuKeluarga{},
+	// &Kependudukan{},
+	// &Ibu{},
+	// &Anak{},
+	// &MasterStandarAntropometri{},
+	// &CatatanPertumbuhan{},
 	); err != nil {
 		return err
 	}
