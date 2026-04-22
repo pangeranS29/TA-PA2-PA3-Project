@@ -12,6 +12,7 @@ type KehamilanUsecase interface {
 	GetByIbuID(ibuID int32) ([]models.Kehamilan, error)
 	GetAll() ([]models.Kehamilan, error)
 	Update(kehamilan *models.Kehamilan) error
+	GetKehamilanAktif() ([]models.Kehamilan, error)
 	Delete(id int32) error
 }
 
@@ -52,4 +53,8 @@ func (u *kehamilanUsecase) Update(kehamilan *models.Kehamilan) error {
 
 func (u *kehamilanUsecase) Delete(id int32) error {
 	return u.repo.Delete(id)
+}
+
+func (u *kehamilanUsecase) GetKehamilanAktif() ([]models.Kehamilan, error) {
+	return u.repo.GetKehamilanAktifWithIbu()
 }

@@ -37,7 +37,8 @@ func SeederMapping(db *gorm.DB, kategori map[string]int32, pelayanan map[string]
 			"Skrining Hipotiroid Kongenital", "Masalah", "Dirujuk", "Tripel Eliminasi",
 		}},
 		{Kategori: "bayi_0_28_hari", Periode: "8-28 hari", Items: []string{
-			"Perawatan Tali Pusat", "KIA", "Tripel Eliminasi",
+			"Perawatan Tali Pusat", "Tripel Eliminasi","Menyusu","Tanda Bahaya","Skrining Hipotiroid Kongenital",
+			"Identifikasi Kuning","Masalah", "Dirujuk",
 		}},
 		{Kategori: "bayi_0_1_tahun", Periode: "0-12 bulan", Items: []string{
 			"BB", "PB", "LK", "Perkembangan", "KIE", "Imunisasi", "Vitamin A", "Tripel Eliminasi",

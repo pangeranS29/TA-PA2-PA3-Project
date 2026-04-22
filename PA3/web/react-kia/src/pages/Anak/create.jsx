@@ -28,7 +28,8 @@ export default function CreateAnak() {
         const data = await getKehamilanList();
         setKehamilanList(data);
       } catch (err) {
-        setGeneralError("Gagal mengambil data ibu hamil.");
+        console.error("Detail Error:", err); 
+      setGeneralError("Gagal mengambil data ibu hamil.");
       }
     };
     fetchKehamilan();
@@ -189,20 +190,22 @@ export default function CreateAnak() {
                 <div>
                   <label className="block text-[12px] font-bold text-gray-500 tracking-wider uppercase mb-2">Nama Ibu</label>
                   <select
-                    name="kehamilan_id"
-                    value={form.kehamilan_id}
-                    onChange={handleChange}
-                    className={`w-full p-4 bg-gray-50 border rounded-xl outline-none transition-all ${
+                      name="kehamilan_id"
+                      value={form.kehamilan_id}
+                      onChange={handleChange}
+                      className={`w-full p-4 bg-gray-50 border rounded-xl outline-none transition-all ${
                         errors.kehamilan_id ? "border-red-500 focus:ring-red-200" : "border-gray-200 focus:ring-blue-500 focus:ring-2"
-                    }`}
-                  >
-                    <option value="">Masukkan nama ibu</option>
-                    {kehamilanList.map((item) => (
-                      <option key={item.id} value={item.id}>
-                        {item.ibu?.nama_ibu}
-                      </option>
-                    ))}
-                  </select>
+                      }`}
+                    >
+                      <option value="">Masukkan nama ibu</option>
+                      {/* Pastikan kehamilanList adalah array sebelum di-map */}
+                      {Array.isArray(kehamilanList) && kehamilanList.map((item) => (
+                        <option key={item.id} value={item.id}>
+                          {/* SESUAIKAN DI SINI: mengikuti struktur JSON baru */}
+                          {item.ibu?.kependudukan?.nama_lengkap || "Nama tidak ditemukan"}
+                        </option>
+                      ))}
+                    </select>
                   {errors.kehamilan_id && <p className="mt-1 text-xs text-red-500 font-medium flex items-center gap-1"><AlertCircle size={12}/> {errors.kehamilan_id}</p>}
                 </div>
               </div>

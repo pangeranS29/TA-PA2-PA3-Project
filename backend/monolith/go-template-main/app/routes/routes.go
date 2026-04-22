@@ -99,6 +99,7 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	tenaga.GET("/kehamilan", controller.Kehamilan.GetByIbuID)
 	tenaga.PUT("/kehamilan/:id", controller.Kehamilan.Update)
 	tenaga.DELETE("/kehamilan/:id", controller.Kehamilan.Delete)
+	tenaga.GET("/ibu-hamil/active", controller.Kehamilan.GetKehamilanAktif)
 
 	// ==================== PEMERIKSAAN KEHAMILAN (RUTIN) ====================
 	tenaga.POST("/pemeriksaan-kehamilan", controller.PemeriksaanKehamilan.Create)
@@ -254,9 +255,13 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	tenaga.PUT("/pemeriksaan-lanjutan-t3/:id", controller.PemeriksaanLanjutanTrimester3.Update)
 	tenaga.DELETE("/pemeriksaan-lanjutan-t3/:id", controller.PemeriksaanLanjutanTrimester3.Delete)
 
+
 	tenaga.GET("/kependudukan", controller.Kependudukan.GetAll)
 	tenaga.POST("/kependudukan", controller.Kependudukan.Create)
 	tenaga.GET("/kependudukan/:id", controller.Kependudukan.GetByID)
 	tenaga.PUT("/kependudukan/:id", controller.Kependudukan.Update)
 	tenaga.DELETE("/kependudukan/:id", controller.Kependudukan.Delete)
+
+	tenaga.GET("/jenis-pelayanan", controller.JenisPelayanan.GetJenisPelayanan)
+
 }

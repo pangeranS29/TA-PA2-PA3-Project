@@ -51,6 +51,7 @@ type Main struct {
 	PelayananIbuNifas             *PelayananIbuNifasRepository
 	CatatanPelayananNifas         *CatatanPelayananNifasRepository
 	Rujukan                       *RujukanRepository
+	JenisPelayanan                JenisPelayananRepository
 }
 
 type Options struct {
@@ -106,6 +107,7 @@ func Init(opts Options) *Main {
 	m.PemantauanPertumbuhan = NewPemantauanPertumbuhanRepository(opts.Postgres)
 	m.PengukuranLilA = NewPengukuranLilaRepository(opts.Postgres)
 	m.CatatanPelayanan = NewCatatanPelayananRepository(opts.Postgres)
+	m.JenisPelayanan = NewJenisPelayananRepository(opts.Postgres)
 
 	return m
 }
