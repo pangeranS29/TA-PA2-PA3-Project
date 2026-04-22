@@ -21,7 +21,6 @@ import AnakListNakes from "./pages/Anak";
 import CreateAnak from "./pages/Anak/create";
 import EditAnak from "./pages/Anak/edit";
 import DetailAnak from "./pages/Anak/detail";
-
 // Monitoring & Laporan
 import Monitoring from "./pages/Monitoring";
 import Laporan from "./pages/Laporan";
@@ -29,6 +28,13 @@ import IbuCreate from "./pages/Ibu/IbuCreate";
 import KependudukanList from "./pages/Kependudukan/KependudukanList";
 import KependudukanCreate from "./pages/Kependudukan/KependudukanCreate";
 import KependudukanEdit from "./pages/Kependudukan/KependudukanEdit";
+
+import AnakDashboard from "./pages/Anak/Dashboard"
+import PelayananGiziIndex from "./pages/Pelayanan-Gizi-Anak/index"
+// import PrivateRoute from "./routes/Private-routes";
+import NeonatusIndex from "./pages/Kesehatan-Neonatus/NeonatusIndex"
+import PelayananGiziCreate from "./pages/Pelayanan-Gizi-Anak/create";
+
 
 function App() {
   return (
@@ -40,10 +46,10 @@ function App() {
         {/* PROTECTED */}
         <Route element={<PrivateRoute />}>
           <Route path="/dashboard" element={<Dashboard />} />
-// tambahkan route
-<Route path="/kependudukan" element={<KependudukanList />} />
-<Route path="/kependudukan/create" element={<KependudukanCreate />} />
-<Route path="/kependudukan/edit/:id" element={<KependudukanEdit />} />
+          {/* // tambahkan route */}
+          <Route path="/kependudukan" element={<KependudukanList />} />
+          <Route path="/kependudukan/create" element={<KependudukanCreate />} />
+          <Route path="/kependudukan/edit/:id" element={<KependudukanEdit />} />
           {/* Data Ibu */}
           <Route path="/data-ibu/create" element={<IbuCreate />} />
           <Route path="/data-ibu" element={<IbuList />} />
@@ -66,6 +72,13 @@ function App() {
           <Route path="/monitoring" element={<Monitoring />} />
           <Route path="/laporan" element={<Laporan />} />
         </Route>
+
+          <Route path="/data-anak/dashboard/:id" element= {<AnakDashboard/>} />
+          <Route path="/data-anak/neonatus/:id" element= {<NeonatusIndex/>} />    
+
+          <Route path="/data-anak/pelayanan-gizi/:id" element= {<PelayananGiziIndex/>}></Route>
+          <Route path="/data-anak/pelayanan-gizi/:id/create" element={<PelayananGiziCreate/>}></Route>
+        
 
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
