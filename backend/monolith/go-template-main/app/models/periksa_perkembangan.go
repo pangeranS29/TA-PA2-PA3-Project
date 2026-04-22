@@ -18,5 +18,5 @@ type Perkembangan struct {
 }
 
 func (Perkembangan) TableName() string {
-	return "perkembangan"
+	return "pemeriksaan_perkembangan"
 }
