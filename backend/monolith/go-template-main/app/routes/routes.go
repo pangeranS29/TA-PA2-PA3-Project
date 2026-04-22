@@ -13,8 +13,12 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	})
 
 	auth := e.Group("/auth")
-	auth.POST("/register", controller.Register)
-	auth.POST("/login", controller.Login)
+	// auth.POST("/register", controller.Register)
+	// auth.POST("/login", controller.Login)
+	e.POST("/login", controller.Login)
+	e.POST("/logout", controller.Logout, middlewares.JWTAuth(controller.JWTSecret()))
+	e.GET("/profile/keluarga", controller.ProfileKeluarga, middlewares.JWTAuth(controller.JWTSecret()))
+	e.POST("/keluarga-lengkap", controller.AdminCreateKeluargaLengkap, middlewares.JWTAuth(controller.JWTSecret()))
 
 	secured := auth.Group("")
 	secured.Use(middlewares.JWTAuth(controller.JWTSecret()))
