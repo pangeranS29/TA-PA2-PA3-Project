@@ -277,7 +277,7 @@ class _DetailPertumbuhanScreenState extends State<DetailPertumbuhanScreen> {
                 /// 🔹 STATUS GIZI
                 ZScoreCardWidget(
                   zScore: _getZScoreForTab(latest),
-                  statusText: _getStatusForTab(latest) ?? '-',
+                  statusText: _getStatusForTab(latest),
                   categoryLabel: _selectedTab,
                 ),
 
