@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import MainLayout from "../../components/Layout/MainLayout";
 import { createAnak } from "../../services/Anak";
-import { getKehamilanList } from "../../services/kehamilan";
+// Tambahkan getkehamilanactive di sini
+import { getkehamilanactive } from "../../services/kehamilan"; 
 import { useNavigate } from "react-router-dom";
 import { UserPlus, CheckCircle2, AlertCircle } from "lucide-react";
 
@@ -25,11 +26,12 @@ export default function CreateAnak() {
   useEffect(() => {
     const fetchKehamilan = async () => {
       try {
-        const data = await getKehamilanList();
+        // Memanggil fungsi kehamilan aktif
+        const data = await getkehamilanactive(); 
         setKehamilanList(data);
       } catch (err) {
-        console.error("Detail Error:", err); 
-      setGeneralError("Gagal mengambil data ibu hamil.");
+        console.error("Detail Error:", err);
+        setGeneralError("Gagal mengambil data ibu hamil aktif.");
       }
     };
     fetchKehamilan();
@@ -38,7 +40,6 @@ export default function CreateAnak() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm({ ...form, [name]: value });
-    // Menghapus error saat user mulai mengetik
     if (errors[name]) {
       setErrors((prev) => {
         const newErrors = { ...prev };
@@ -69,13 +70,14 @@ export default function CreateAnak() {
       const payload = {
         ...form,
         kehamilan_id: Number(form.kehamilan_id),
-        berat_lahir_kg: parseFloat(form.berat_lahir_kg) || 0
+        berat_lahir_kg: parseFloat(form.berat_lahir_kg) || 0,
+        anak_ke: Number(form.anak_ke) || 0
       };
       await createAnak(payload);
       alert("Data anak berhasil disimpan.");
       navigate("/Daftar-Anak");
     } catch (err) {
-      setGeneralError("Terjadi kesalahan sistem. Silakan coba lagi.");
+      setGeneralError("Terjadi kesalahan sistem saat menyimpan data.");
     } finally {
       setLoading(false);
     }
@@ -85,9 +87,7 @@ export default function CreateAnak() {
     <MainLayout>
       <div className="min-h-screen bg-gray-50 flex flex-col items-center py-10 px-4">
         <div className="max-w-5xl w-full grid grid-cols-1 lg:grid-cols-3 gap-8">
-          
           <div className="lg:col-span-2 bg-white rounded-3xl p-8 shadow-sm border border-gray-100">
-            {/* Pesan Error Umum */}
             {generalError && (
               <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-600 rounded-xl flex items-center gap-2">
                 <AlertCircle size={20} />
@@ -96,7 +96,6 @@ export default function CreateAnak() {
             )}
 
             <form onSubmit={handleSubmit} className="space-y-6">
-              
               {/* Nama Anak */}
               <div>
                 <label className="block text-[12px] font-bold text-gray-500 tracking-wider uppercase mb-2">Nama Anak</label>
@@ -197,12 +196,12 @@ export default function CreateAnak() {
                         errors.kehamilan_id ? "border-red-500 focus:ring-red-200" : "border-gray-200 focus:ring-blue-500 focus:ring-2"
                       }`}
                     >
-                      <option value="">Masukkan nama ibu</option>
-                      {/* Pastikan kehamilanList adalah array sebelum di-map */}
+                      <option value="">Pilih nama ibu</option>
                       {Array.isArray(kehamilanList) && kehamilanList.map((item) => (
                         <option key={item.id} value={item.id}>
-                          {/* SESUAIKAN DI SINI: mengikuti struktur JSON baru */}
-                          {item.ibu?.kependudukan?.nama_lengkap || "Nama tidak ditemukan"}
+                          {/* Akses Nested JSON: item -> ibu -> kependudukan -> nama_lengkap */}
+                          {item.ibu?.kependudukan?.nama_lengkap || "Nama tidak ditemukan"} 
+                          {item.ibu?.kependudukan?.nik ? ` - (NIK: ${item.ibu.kependudukan.nik})` : ""}
                         </option>
                       ))}
                     </select>
@@ -210,7 +209,6 @@ export default function CreateAnak() {
                 </div>
               </div>
 
-              {/* Buttons */}
               <div className="flex flex-col md:flex-row gap-4 pt-4">
                 <button
                   type="button"
@@ -231,7 +229,6 @@ export default function CreateAnak() {
             </form>
           </div>
 
-          {/* Kolom Kanan */}
           <div className="space-y-6">
             <div className="bg-blue-50 rounded-3xl p-6 border border-blue-100">
               <p className="text-blue-800 text-sm leading-relaxed">

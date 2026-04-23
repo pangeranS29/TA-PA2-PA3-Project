@@ -4,6 +4,7 @@ import (
 	"errors"
 	"monitoring-service/app/models"
 	"monitoring-service/app/repositories"
+	"monitoring-service/app/utils"
 	"time"
 )
 
@@ -30,32 +31,73 @@ func (u *pemantauanpertumbuhanUseCase) Create(req models.CreatePemantauanPemerik
 		return errors.New("anak_id wajib diisi")
 	}
 
-	now := time.Now()
-
-	pemeriksaan := models.DeteksiDiniPenyimpangan{
-		AnakID:    req.AnakID,
-		BulanKe:   req.Bulanke,
-		Tanggal:   req.Tanggal,
-		TenagaKesehatanID: req.TenagaKesehatanID,
-		BBperU: req.BBperU,
-		BBperTB: req.BBperTB,
-		TBperU: req.TBperU,
-		LKperU: req.LKperU,
-		LILA: req.LILA,
-		KPSP: req.KPSP,
-		TDD: req.TDD,
-		TDL: req.TDL,
-		KMPE: req.KMPE,
-		MCHATRevised: req.MCHATRevised,
-		ACTRS: req.ACTRS,
-		HasilPKAT: req.HasilPKAT,
-		Tindakan: req.Tindakan,
-		KunjunganUlang: req.KunjunganUlang,
-		CreatedAt: now,
-		UpdatedAt: now,
+	if req.Bulanke == 0 {
+		return errors.New("bulan ke wajib diisi")
 	}
 
-	return u.repo.Create(&pemeriksaan)
+	exists, err := u.repo.ExistsByAnakAndBulan(req.AnakID, req.Bulanke)
+	if err != nil {
+		return err
+	}
+
+	if exists {
+		return errors.New("data untuk bulan ini sudah ada")
+	}
+
+	now := time.Now()
+
+	data := models.DeteksiDiniPenyimpangan{
+		AnakID:            req.AnakID,
+		BulanKe:           req.Bulanke,
+		Tanggal:           req.Tanggal,
+		TenagaKesehatanID: req.TenagaKesehatanID,
+
+		BBperU:  req.BBperU,
+		BBperTB: req.BBperTB,
+		TBperU:  req.TBperU,
+		LKperU:  req.LKperU,
+		LILA:    req.LILA,
+
+		KPSP:         req.KPSP,
+		TDD:          req.TDD,
+		TDL:          req.TDL,
+		KMPE:         req.KMPE,
+		MCHATRevised: req.MCHATRevised,
+		ACTRS:        req.ACTRS,
+	}
+
+	// RULE KIA
+	// hasil, tindakan := utils.HasilKIA(data)
+	// kunjungan := utils.HasilKIA(hasil, now)
+	// kategoririsk := utils.HasilKIA(hasil)
+
+	// data.HasilPKAT = hasil
+	// data.Tindakan = tindakan
+	// data.KunjunganUlang = kunjungan
+	// data.TingkatResiko = kategoririsk
+
+	hasilKIA := utils.TentukanHasilKIA(data)
+
+	// ambil field
+	data.HasilPKAT = hasilKIA.PKAT
+	data.Tindakan = hasilKIA.Tindakan
+
+	// kunjungan ulang
+	data.KunjunganUlang = utils.TentukanKunjunganUlang(
+		hasilKIA.PKAT,
+		now,
+	)
+
+	// risk level (optional dashboard)
+	data.TingkatResiko = utils.TentukanRisikoLevel(
+		hasilKIA.PKAT,
+		hasilKIA.Tindakan,
+	)
+
+	data.CreatedAt = now
+	data.UpdatedAt = now
+
+	return u.repo.Create(&data)
 }
 func (u *pemantauanpertumbuhanUseCase) Update(id int32, req models.UpdatePemantauanPemeriksaanRequest) error {
 	now := time.Now()

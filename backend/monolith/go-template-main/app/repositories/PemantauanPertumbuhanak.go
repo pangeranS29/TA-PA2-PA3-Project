@@ -14,6 +14,7 @@ type PemantauanPertumbuhanRepository interface {
 	GetAll() ([]models.DeteksiDiniPenyimpangan, error)
 	Update(id int32, req models.UpdatePemantauanPemeriksaanRequest, now time.Time) error
 	Delete(id int32) error
+	ExistsByAnakAndBulan(anakID int32, bulan int) (bool, error)
 }
 type pemantauanPertumbuhanRepository struct {
 	db *gorm.DB
@@ -158,4 +159,18 @@ func (r *pemantauanPertumbuhanRepository) Delete(id int32) error {
 	return r.withTx(func(tx *gorm.DB) error {
 		return tx.Delete(&models.DeteksiDiniPenyimpangan{}, id).Error
 	})
+}
+
+func (r *pemantauanPertumbuhanRepository) ExistsByAnakAndBulan(anakID int32, bulan int) (bool, error) {
+	var count int64
+
+	err := r.db.Model(&models.DeteksiDiniPenyimpangan{}).
+		Where("anak_id = ? AND bulan_ke = ?", anakID, bulan).
+		Count(&count).Error
+
+	if err != nil {
+		return false, err
+	}
+
+	return count > 0, nil
 }

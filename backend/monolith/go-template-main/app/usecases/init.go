@@ -20,7 +20,7 @@ type Main struct {
 	PemantauanPertumbuhan  PemantauanPertumbuhanAnakUseCase
 	PengukuranLilA         PengukuranLilAUseCase
 	CatatanPelayanan       CatatanPelayananUseCase
-	Kependudukan           KependudukanUsecase
+	// Kependudukan           KependudukanUsecase
 
 	// Usecase baru (terkait kehamilan)
 	Kehamilan                     KehamilanUsecase
@@ -46,7 +46,7 @@ type Main struct {
 	PelayananIbuNifas             PelayananIbuNifasUsecase
 	Ibu                           IbuUsecase
 	RiwayatKehamilanLalu          RiwayatKehamilanLaluUsecase
-	RegisterOrangTua              *RegisterOrangTuaUsecase
+	// RegisterOrangTua              *RegisterOrangTuaUsecase
 	KeteranganLahir               KeteranganLahirUsecase // <-- TAMBAHKAN INI
 	JenisPelayanan                JenisPelayananUsecase
 }
@@ -98,14 +98,14 @@ func Init(opts Options) *Main {
 	m.PelayananIbuNifas = NewPelayananIbuNifasUsecase(opts.Repository.PelayananIbuNifas)
 	m.Ibu = NewIbuUsecase(opts.Repository.Ibu)
 	m.RiwayatKehamilanLalu = NewRiwayatKehamilanLaluUsecase(opts.Repository.RiwayatKehamilanLalu)
-	m.Kependudukan = NewKependudukanUsecase(opts.Repository.Kependudukan)
-	m.RegisterOrangTua = NewRegisterOrangTuaUsecase(
-		opts.Repository.User,
-		opts.Repository.Role,
-		opts.Repository.Kebabura,
-		opts.Repository.Kependudukan,
-		opts.Repository.Ibu,
-	)
+	// m.Kependudukan = NewKependudukanUsecase(opts.Repository.Kependudukan)
+	// m.RegisterOrangTua = NewRegisterOrangTuaUsecase(
+	// 	opts.Repository.User,
+	// 	opts.Repository.Role,
+	// 	opts.Repository.Kebabura,
+	// 	opts.Repository.Kependudukan,
+	// 	opts.Repository.Ibu,
+	// )
 	m.KeteranganLahir = NewKeteranganLahirUsecase(opts.Repository.KeteranganLahir) // <-- TAMBAHKAN INI
 	m.JenisPelayanan = NewJenisPelayananUsecase(opts.Repository.JenisPelayanan)
 

@@ -61,9 +61,6 @@ func (c *KehamilanController) Create(ctx echo.Context) error {
 
 	kehamilan := &models.Kehamilan{
 		IbuID:                    req.IbuID,
-		Gravida:                  req.Gravida,
-		Paritas:                  req.Paritas,
-		Abortus:                  req.Abortus,
 		UKKehamilanSaatIni:       req.UKKehamilanSaatIni,
 		JarakKehamilanSebelumnya: req.JarakKehamilanSebelumnya,
 		StatusKehamilan:          req.StatusKehamilan,
@@ -175,15 +172,6 @@ func (c *KehamilanController) Update(ctx echo.Context) error {
 		})
 	}
 
-	if req.Gravida != 0 {
-		existing.Gravida = req.Gravida
-	}
-	if req.Paritas != 0 {
-		existing.Paritas = req.Paritas
-	}
-	if req.Abortus != 0 {
-		existing.Abortus = req.Abortus
-	}
 	if req.HPHT != "" {
 		if t, err := time.Parse("2006-01-02", req.HPHT); err == nil {
 			existing.HPHT = t

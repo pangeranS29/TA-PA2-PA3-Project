@@ -61,7 +61,7 @@ type DeteksiDiniPenyimpangan struct {
 	Tindakan          string         `json:"tindakan" gorm:"type:text;not null"`
 
 	KunjunganUlang    time.Time      `json:"kunjungan_ulang" gorm:"not null"`
-
+	TingkatResiko 	  string 		`json:"tingkat_resiko" gorm:"not null"`
 	CreatedAt         time.Time
 	UpdatedAt         time.Time
 	DeletedAt         gorm.DeletedAt `gorm:"index"`
