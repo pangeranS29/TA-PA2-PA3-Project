@@ -6,6 +6,7 @@ import 'package:ta_pa2_pa3_project/features/hamil/presentation/screens/journey_s
 import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/pilih_anak_screen.dart';
 // import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/tumbuh_kembang_screen.dart';
 import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/input_profil_anak_screen.dart';
+import 'package:ta_pa2_pa3_project/features/imunisasi/presentation/screens/imunisasi_screen.dart';
 
 
 class DashboardScreen extends StatefulWidget {
@@ -15,34 +16,46 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   String selectedPhase = "Hamil";
+  int _selectedNavIndex = 0;
+
+  Widget _buildHomeBody() {
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          _buildHeader(),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 24),
+                _buildPhaseSelector(),
+                const SizedBox(height: 32),
+                if (selectedPhase == "Hamil") _buildHamilContent(),
+                if (selectedPhase == "Tumbuh") _buildTumbuhContent(),
+                if (selectedPhase != "Hamil" && selectedPhase != "Tumbuh")
+                  _buildPlaceholderContent(),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF1F5F9), // Background abu-abu sangat muda
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            _buildHeader(),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 24),
-                  _buildPhaseSelector(),
-                  const SizedBox(height: 32),
-                  // Menampilkan konten berdasarkan fase yang dipilih
-                  if (selectedPhase == "Hamil") _buildHamilContent(),
-                  if (selectedPhase == "Tumbuh") _buildTumbuhContent(),
-                  if (selectedPhase != "Hamil" && selectedPhase != "Tumbuh")
-                    _buildPlaceholderContent(),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
+      backgroundColor: const Color(0xFFF1F5F9),
+      body: _selectedNavIndex == 0
+          ? _buildHomeBody()
+          : _selectedNavIndex == 2
+              ? const PilihAnakScreen(tujuan: "imunisasi")
+              : _selectedNavIndex == 1
+                  ? const Center(child: Text("Catatan"))
+                  : _selectedNavIndex == 3
+                      ? const Center(child: Text("Edukasi"))
+                      : const Center(child: Text("Profil")),
       bottomNavigationBar: _buildBottomNav(),
     );
   }
@@ -486,7 +499,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
             // 🔸 IMUNISASI
             _menuItem(Icons.shield, "Imunisasi", Colors.green, () {
-              // TODO: arahkan ke halaman imunisasi
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const PilihAnakScreen(tujuan: "imunisasi"),
+                ),
+              );
             }),
 
             // 🔸 PERIKSA
@@ -577,7 +595,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
       type: BottomNavigationBarType.fixed,
       selectedItemColor: TrimesterTheme.t1Primary,
       unselectedItemColor: Colors.grey,
-      currentIndex: 0,
+      currentIndex: _selectedNavIndex,
+      onTap: (index) => setState(() => _selectedNavIndex = index),
       items: const [
         BottomNavigationBarItem(icon: Icon(Icons.home_filled), label: "Beranda"),
         BottomNavigationBarItem(icon: Icon(Icons.assignment_outlined), label: "Catatan"),

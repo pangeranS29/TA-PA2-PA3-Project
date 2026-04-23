@@ -1,8 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:ta_pa2_pa3_project/features/imunisasi/presentation/screens/imunisasi_screen.dart';
 import 'detail_pertumbuhan_dummy_screen.dart';
 
+/// [tujuan] menentukan halaman tujuan setelah anak dipilih.
+/// Gunakan 'pertumbuhan' (default) atau 'imunisasi'.
 class PilihAnakScreen extends StatelessWidget {
-  const PilihAnakScreen({super.key});
+  final String tujuan;
+
+  const PilihAnakScreen({
+    super.key,
+    this.tujuan = 'pertumbuhan',
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -75,14 +83,23 @@ class PilihAnakScreen extends StatelessWidget {
               ? const Icon(Icons.access_time, color: Colors.orange)
               : InkWell(
                   onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => DetailPertumbuhanScreenDummy(
-                          anak: anak,
+                    if (tujuan == 'imunisasi') {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => ImunisasiScreen(anak: anak),
                         ),
-                      ),
-                    );
+                      );
+                    } else {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => DetailPertumbuhanScreenDummy(
+                            anak: anak,
+                          ),
+                        ),
+                      );
+                    }
                   },
                   child: const CircleAvatar(
                     radius: 14,
