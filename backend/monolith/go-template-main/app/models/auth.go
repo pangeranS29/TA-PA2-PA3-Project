@@ -44,17 +44,16 @@ type MeResponse struct {
 }
 
 type AuthClaims struct {
-	IDPengguna      int64  `json:"id_pengguna"`
-	IDRole          int64  `json:"id_role"`
-	IDNoKK          *int64 `json:"id_no_kk,omitempty"`
-	Role            string `json:"role"`
-	NomorTelepon    string `json:"nomor_telepon"`
-	UserID          int64  `json:"user_id"`
-	Email           string `json:"email"`
-	PhoneNumber     string `json:"phone_number"`
-	TargetApp       string `json:"target_app"`
-	RedirectRoute   string `json:"redirect_route"`
-	KartuKeluargaID *int64 `json:"kartu_keluarga_id,omitempty"`
+	IDPengguna    int64  `json:"id_pengguna"`
+	IDRole        int64  `json:"id_role"`
+	IDNoKK        *int64 `json:"id_no_kk,omitempty"`
+	Role          string `json:"role"`
+	NomorTelepon  string `json:"nomor_telepon"`
+	UserID        int64  `json:"user_id"`
+	Email         string `json:"email"`
+	PhoneNumber   string `json:"phone_number"`
+	TargetApp     string `json:"target_app"`
+	RedirectRoute string `json:"redirect_route"`
 	jwt.RegisteredClaims
 }
 
