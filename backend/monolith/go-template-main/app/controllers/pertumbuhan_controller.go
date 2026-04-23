@@ -54,7 +54,7 @@ func (m *Main) GetRiwayatPertumbuhan(c echo.Context) error {
 	}
 
 	if isOrangtuaRole(claims.Role) {
-		allowed, allowErr := m.usecases.IsAnakMilikOrangtua(claims.UserID, uint(anakID))
+		allowed, allowErr := m.usecases.IsAnakMilikOrangtua(uint(claims.UserID), uint(anakID))
 		if allowErr != nil {
 			return helpers.Response(c, customerror.GetStatusCode(allowErr), []string{allowErr.Error()})
 		}
@@ -88,7 +88,7 @@ func (m *Main) GetDetailCatatanPertumbuhan(c echo.Context) error {
 	}
 
 	if isOrangtuaRole(claims.Role) {
-		allowed, allowErr := m.usecases.IsCatatanMilikOrangtua(claims.UserID, uint(id))
+		allowed, allowErr := m.usecases.IsCatatanMilikOrangtua(uint(claims.UserID), uint(id))
 		if allowErr != nil {
 			return helpers.Response(c, customerror.GetStatusCode(allowErr), []string{allowErr.Error()})
 		}

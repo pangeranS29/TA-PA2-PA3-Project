@@ -15,31 +15,32 @@ func (KartuKeluarga) TableName() string {
 }
 
 type Penduduk struct {
-	ID                 int64      `gorm:"column:id;primaryKey" json:"id"`
-	KartuKeluargaID    *int64     `gorm:"column:kartu_keluarga_id" json:"kartu_keluarga_id,omitempty"`
-	NIK                string     `gorm:"column:nik" json:"nik"`
-	NamaLengkap        string     `gorm:"column:nama_lengkap" json:"nama_lengkap"`
-	JenisKelamin       string     `gorm:"column:jenis_kelamin" json:"jenis_kelamin"`
-	TanggalLahir       *time.Time `gorm:"column:tanggal_lahir" json:"tanggal_lahir,omitempty"`
-	TempatLahir        string     `gorm:"column:tempat_lahir" json:"tempat_lahir"`
-	GolonganDarah      string     `gorm:"column:golongan_darah" json:"golongan_darah"`
-	Agama              string     `gorm:"column:agama" json:"agama"`
-	StatusPerkawinan   string     `gorm:"column:status_perkawinan" json:"status_perkawinan"`
-	PendidikanTerakhir string     `gorm:"column:pendidikan_terakhir" json:"pendidikan_terakhir"`
-	Pekerjaan          string     `gorm:"column:pekerjaan" json:"pekerjaan"`
-	BacaHuruf          string     `gorm:"column:baca_huruf" json:"baca_huruf"`
-	KedudukanKeluarga  string     `gorm:"column:kedudukan_keluarga" json:"kedudukan_keluarga"`
-	Dusun              string     `gorm:"column:dusun" json:"dusun"`
-	TanggalPenambahan  *time.Time `gorm:"column:tanggal_penambahan" json:"tanggal_penambahan,omitempty"`
-	AsalPenduduk       string     `gorm:"column:asal_penduduk" json:"asal_penduduk"`
-	TanggalPengurangan *time.Time `gorm:"column:tanggal_pengurangan" json:"tanggal_pengurangan,omitempty"`
-	TujuanPindah       string     `gorm:"column:tujuan_pindah" json:"tujuan_pindah"`
-	TempatMeninggal    string     `gorm:"column:tempat_meninggal" json:"tempat_meninggal"`
-	Keterangan         string     `gorm:"column:keterangan" json:"keterangan"`
-	NomorTelepon       string     `gorm:"column:nomor_telepon" json:"nomor_telepon"`
-	CreatedAt          *time.Time `gorm:"column:created_at" json:"created_at,omitempty"`
-	UpdatedAt          *time.Time `gorm:"column:updated_at" json:"updated_at,omitempty"`
-	DeletedAt          *time.Time `gorm:"column:deleted_at" json:"deleted_at,omitempty"`
+	ID                 int64          `gorm:"column:id;primaryKey" json:"id"`
+	KartuKeluargaID    *int64         `gorm:"column:kartu_keluarga_id" json:"kartu_keluarga_id,omitempty"`
+	NIK                string         `gorm:"column:nik" json:"nik"`
+	NamaLengkap        string         `gorm:"column:nama_lengkap" json:"nama_lengkap"`
+	JenisKelamin       string         `gorm:"column:jenis_kelamin" json:"jenis_kelamin"`
+	TanggalLahir       *time.Time     `gorm:"column:tanggal_lahir" json:"tanggal_lahir,omitempty"`
+	TempatLahir        string         `gorm:"column:tempat_lahir" json:"tempat_lahir"`
+	GolonganDarah      string         `gorm:"column:golongan_darah" json:"golongan_darah"`
+	Agama              string         `gorm:"column:agama" json:"agama"`
+	StatusPerkawinan   string         `gorm:"column:status_perkawinan" json:"status_perkawinan"`
+	PendidikanTerakhir string         `gorm:"column:pendidikan_terakhir" json:"pendidikan_terakhir"`
+	Pekerjaan          string         `gorm:"column:pekerjaan" json:"pekerjaan"`
+	BacaHuruf          string         `gorm:"column:baca_huruf" json:"baca_huruf"`
+	KedudukanKeluarga  string         `gorm:"column:kedudukan_keluarga" json:"kedudukan_keluarga"`
+	Dusun              string         `gorm:"column:dusun" json:"dusun"`
+	TanggalPenambahan  *time.Time     `gorm:"column:tanggal_penambahan" json:"tanggal_penambahan,omitempty"`
+	AsalPenduduk       string         `gorm:"column:asal_penduduk" json:"asal_penduduk"`
+	TanggalPengurangan *time.Time     `gorm:"column:tanggal_pengurangan" json:"tanggal_pengurangan,omitempty"`
+	TujuanPindah       string         `gorm:"column:tujuan_pindah" json:"tujuan_pindah"`
+	TempatMeninggal    string         `gorm:"column:tempat_meninggal" json:"tempat_meninggal"`
+	Keterangan         string         `gorm:"column:keterangan" json:"keterangan"`
+	NomorTelepon       string         `gorm:"column:nomor_telepon" json:"nomor_telepon"`
+	CreatedAt          *time.Time     `gorm:"column:created_at" json:"created_at,omitempty"`
+	UpdatedAt          *time.Time     `gorm:"column:updated_at" json:"updated_at,omitempty"`
+	DeletedAt          *time.Time     `gorm:"column:deleted_at" json:"deleted_at,omitempty"`
+	KartuKeluarga      *KartuKeluarga `gorm:"foreignKey:KartuKeluargaID;references:ID" json:"kartu_keluarga,omitempty"`
 }
 
 func (Penduduk) TableName() string {
@@ -53,6 +54,7 @@ type Ibu struct {
 	CreatedAt  *time.Time `gorm:"column:created_at" json:"created_at,omitempty"`
 	UpdatedAt  *time.Time `gorm:"column:updated_at" json:"updated_at,omitempty"`
 	IsDeleted  *time.Time `gorm:"column:is_deleted" json:"is_deleted,omitempty"`
+	Penduduk   *Penduduk  `gorm:"foreignKey:PendudukID;references:ID" json:"penduduk,omitempty"`
 }
 
 func (Ibu) TableName() string {
@@ -65,6 +67,7 @@ type Kehamilan struct {
 	CreatedAt *time.Time `gorm:"column:created_at" json:"created_at,omitempty"`
 	UpdatedAt *time.Time `gorm:"column:updated_at" json:"updated_at,omitempty"`
 	DeletedAt *time.Time `gorm:"column:deleted_at" json:"deleted_at,omitempty"`
+	Ibu       *Ibu       `gorm:"foreignKey:IbuID;references:ID" json:"ibu,omitempty"`
 }
 
 func (Kehamilan) TableName() string {
@@ -78,6 +81,8 @@ type Anak struct {
 	CreatedAt   *time.Time `gorm:"column:created_at" json:"created_at,omitempty"`
 	UpdatedAt   *time.Time `gorm:"column:updated_at" json:"updated_at,omitempty"`
 	DeletedAt   *time.Time `gorm:"column:deleted_at" json:"deleted_at,omitempty"`
+	Penduduk    *Penduduk  `gorm:"foreignKey:PendudukID;references:ID" json:"penduduk,omitempty"`
+	Kehamilan   *Kehamilan `gorm:"foreignKey:KehamilanID;references:ID" json:"kehamilan,omitempty"`
 }
 
 func (Anak) TableName() string {

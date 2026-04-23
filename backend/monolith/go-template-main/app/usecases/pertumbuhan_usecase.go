@@ -167,22 +167,20 @@ func formatBulanToYM(nilaiSumbuX float64) string {
 	return fmt.Sprintf("%d:%d", totalBulan/12, totalBulan%12)
 }
 
-func extractAnakTanggalLahirDanGender(anak *models.Anak) (string, string, error) {
+// *models.AnakDetailResponse
+func extractAnakTanggalLahirDanGender(anak *models.AnakDetailResponse) (string, string, error) {
 	if anak == nil {
 		return "", "", customerror.NewBadRequestError("data anak tidak ditemukan")
 	}
 
-	tanggalLahir := strings.TrimSpace(anak.TanggalLahir)
-	jenisKelamin := strings.TrimSpace(anak.JenisKelamin)
-
-	if anak.Kependudukan != nil {
-		if strings.TrimSpace(anak.Kependudukan.TanggalLahir) != "" {
-			tanggalLahir = strings.TrimSpace(anak.Kependudukan.TanggalLahir)
-		}
-		if strings.TrimSpace(anak.Kependudukan.JenisKelamin) != "" {
-			jenisKelamin = strings.TrimSpace(anak.Kependudukan.JenisKelamin)
-		}
+	var tanggalLahir string
+	// Langsung ambil dari field DTO yang flat
+	if anak.TanggalLahirAnak != nil {
+		tanggalLahir = anak.TanggalLahirAnak.Format("2006-01-02")
 	}
+
+	// Ambil dari field DTO yang baru saja kita tambahkan
+	jenisKelamin := strings.TrimSpace(anak.JenisKelamin)
 
 	if tanggalLahir == "" {
 		return "", "", customerror.NewBadRequestError("tanggal lahir anak belum tersedia")

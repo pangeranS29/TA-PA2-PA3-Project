@@ -1,5 +1,7 @@
 package models
 
+import "time"
+
 // PERTUMBUHAN ANAK
 // Request
 type CreatePertumbuhanRequest struct {
@@ -90,6 +92,28 @@ type MasterStandarResponse struct {
 }
 
 // ANAK
+type AnakListResponse struct {
+	ID        int64      `json:"id"`
+	NamaAnak  string     `json:"nama_anak"`
+	NamaIbu   string     `json:"nama_ibu"`
+	NoKK      *int64     `json:"no_kk"`
+	CreatedAt *time.Time `json:"created_at"`
+}
+
+// AnakDetailResponse digunakan untuk GetByID (Lebih detail)
+type AnakDetailResponse struct {
+	ID               int64      `json:"id"`
+	NamaAnak         string     `json:"nama_anak"`
+	NIKAnak          string     `json:"nik_anak"`
+	TanggalLahirAnak *time.Time `json:"tanggal_lahir_anak"`
+	NamaIbu          string     `json:"nama_ibu"`
+	NIKIbu           string     `json:"nik_ibu"`
+	NoKK             *int64     `json:"no_kk"`
+	Dusun            string     `json:"dusun"`
+	JenisKelamin     string     `json:"jenis_kelamin"`
+	CreatedAt        *time.Time `json:"created_at"`
+}
+
 type AnakRequest struct {
 	ID              uint    `json:"id"`
 	IbuID           *uint   `json:"ibu_id,omitempty"`
@@ -105,7 +129,7 @@ type AnakRequest struct {
 type AnakResponse struct {
 	ID              uint    `json:"id"`
 	IbuID           *uint   `json:"ibu_id,omitempty"`
-	KependudukanID  *uint   `json:"kependudukan_id,omitempty"`
+	KependudukanID  *int64  `json:"kependudukan_id,omitempty"`
 	NoKartuKeluarga int64   `json:"no_kartu_keluarga,omitempty"`
 	NamaAnak        string  `json:"nama_anak,omitempty"`
 	JenisKelamin    string  `json:"jenis_kelamin,omitempty"`
@@ -113,16 +137,3 @@ type AnakResponse struct {
 	BeratLahir      float64 `json:"berat_lahir"`
 	TinggiLahir     float64 `json:"tinggi_lahir"`
 }
-
-// :"tinggi_lahir"`
-// }
-// :"tinggi_lahir"`
-// }
-// :"tinggi_lahir"`
-// }
-// :"tinggi_lahir"`
-// }
-// hir     float64 `json:"tinggi_lahir"`
-// }
-// :"tinggi_lahir"`
-// }

@@ -152,20 +152,27 @@ type PerkembanganResponse struct {
 	KategoriCapaian   *models.KategoriCapaian `json:"kategori_capaian,omitempty"`
 }
 
+func mapPerkembanganAnakToResponse(data models.Anak) models.AnakResponse {
+	res := models.AnakResponse{
+		ID:             uint(data.ID),
+		KependudukanID: data.PendudukID,
+	}
+
+	if data.Penduduk != nil {
+		res.NamaAnak = data.Penduduk.NamaLengkap
+		res.JenisKelamin = data.Penduduk.JenisKelamin
+		if data.Penduduk.TanggalLahir != nil {
+			res.TanggalLahir = data.Penduduk.TanggalLahir.Format("2006-01-02")
+		}
+	}
+
+	return res
+}
+
 func mapPerkembanganToResponse(data models.Perkembangan) PerkembanganResponse {
 	var anakRes *models.AnakResponse
 	if data.Anak != nil {
-		anakResp := models.AnakResponse{
-			ID:              data.Anak.ID,
-			IbuID:           data.Anak.IbuID,
-			KependudukanID:  data.Anak.KependudukanID,
-			NoKartuKeluarga: data.Anak.NoKartuKeluarga,
-			NamaAnak:        data.Anak.NamaAnak,
-			JenisKelamin:    data.Anak.JenisKelamin,
-			TanggalLahir:    data.Anak.TanggalLahir,
-			BeratLahir:      data.Anak.BeratLahir,
-			TinggiLahir:     data.Anak.TinggiLahir,
-		}
+		anakResp := mapPerkembanganAnakToResponse(*data.Anak)
 		anakRes = &anakResp
 	}
 
