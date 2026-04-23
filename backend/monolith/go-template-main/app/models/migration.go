@@ -3,7 +3,6 @@ package models
 import "gorm.io/gorm"
 
 func AutoMigrate(db *gorm.DB) error {
-	// Semua model dalam satu slice
 	models := []interface{}{
 		// Master
 		&Role{},
@@ -12,6 +11,7 @@ func AutoMigrate(db *gorm.DB) error {
 		&PeriodeKunjungan{},
 		&JenisPelayanan{},
 		&JenisPelayananKategori{},
+		&AturanPelayanan{},
 
 		// Relasi utama
 		// &ibu
@@ -23,14 +23,12 @@ func AutoMigrate(db *gorm.DB) error {
 		// &User{},
 		&Kebabura{},
 		// &Anak{},
-
 		// Evaluasi & riwayat
 		&EvaluasiKesehatanIbu{},
 		&RiwayatKehamilanLalu{},
 
-		// Pelayanan & lainnya
+		// Pelayanan anak
 		&KunjunganAnak{},
-		&AturanPelayanan{},
 		&KunjunganGizi{},
 		&KunjunganVitamin{},
 		&Neonatus{},
@@ -78,10 +76,5 @@ func AutoMigrate(db *gorm.DB) error {
 		&Rujukan{},
 	}
 
-	// Jalankan automigrate sekali saja
-	if err := db.AutoMigrate(models...); err != nil {
-		return err
-	}
-
-	return nil
+	return db.AutoMigrate(models...)
 }

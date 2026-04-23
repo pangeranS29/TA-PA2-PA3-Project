@@ -3,6 +3,7 @@ package app
 import (
 	"fmt"
 	"monitoring-service/app/controllers"
+
 	// "monitoring-service/app/models"
 
 	// "monitoring-service/app/seed"
@@ -14,7 +15,7 @@ import (
 	"monitoring-service/pkg/config"
 	"monitoring-service/pkg/database"
 
-	"github.com/labstack/echo/v4" 
+	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/spf13/viper"
 	"gorm.io/gorm"
@@ -73,7 +74,6 @@ func (m *Main) Init() (err error) {
 	// if err != nil {
 	// 	return
 	// }
-
 
 	m.repo = repositories.Init(repositories.Options{
 		Config:   m.cfg,

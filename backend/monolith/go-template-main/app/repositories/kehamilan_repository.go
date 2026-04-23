@@ -22,7 +22,7 @@ func (r *KehamilanRepository) Create(kehamilan *models.Kehamilan) error {
 
 func (r *KehamilanRepository) FindByID(id int32) (*models.Kehamilan, error) {
 	var kehamilan models.Kehamilan
-	err := r.db.Preload("Ibu.Kependudukan").First(&kehamilan, id).Error
+	err := r.db.Preload("Ibu.Penduduk").First(&kehamilan, id).Error
 	return &kehamilan, err
 }
 
@@ -34,7 +34,7 @@ func (r *KehamilanRepository) FindByIbuID(ibuID int32) ([]models.Kehamilan, erro
 
 func (r *KehamilanRepository) GetAll() ([]models.Kehamilan, error) {
 	var list []models.Kehamilan
-	err := r.db.Preload("Ibu.Kependudukan").Find(&list).Error
+	err := r.db.Preload("Ibu.Penduduk").Find(&list).Error
 	return list, err
 }
 
@@ -52,17 +52,15 @@ func (r *KehamilanRepository) Delete(id int32) error {
 	}
 	return nil
 }
+
 func (r *KehamilanRepository) GetKehamilanAktifWithIbu() ([]models.Kehamilan, error) {
 	var kehamilan []models.Kehamilan
-
 	oneYearAgo := time.Now().AddDate(-1, 0, 0)
-
 	err := r.db.
 		Where("hpht >= ?", oneYearAgo).
 		Where("status_kehamilan = ?", "Aktif").
 		Preload("Ibu").
-		Preload("Ibu.Kependudukan").
+		Preload("Ibu.Penduduk").
 		Find(&kehamilan).Error
-
 	return kehamilan, err
 }

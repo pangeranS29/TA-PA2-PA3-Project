@@ -2,20 +2,20 @@ package models
 
 import "time"
 
-	type CreateAnakRequest struct {
-		KehamilanID int32   `json:"kehamilan_id" validate:"required"`
-		PendudukID  int32   `json:"penduduk_id" validate:"required"`
-		BeratLahir  float64 `json:"berat_lahir" validate:"required,gt=0"`
-		TinggiLahir float64 `json:"tinggi_lahir" validate:"required,gt=0"`
-	}
+type CreateAnakRequest struct {
+	KehamilanID int32   `json:"kehamilan_id" validate:"required"`
+	PendudukID  int32   `json:"penduduk_id" validate:"required"`
+	BeratLahir  float64 `json:"berat_lahir" validate:"required,gt=0"`
+	TinggiLahir float64 `json:"tinggi_lahir" validate:"required,gt=0"`
+}
 
-	// UpdateAnakRequest adalah body request untuk PUT /anak/:id.
-	type UpdateAnakRequest struct {
-		KehamilanID *int32   `json:"kehamilan_id,omitempty"`
-		PendudukID  *int32   `json:"penduduk_id,omitempty"`
-		BeratLahir  *float64 `json:"berat_lahir,omitempty" validate:"omitempty,gt=0"`
-		TinggiLahir *float64 `json:"tinggi_lahir,omitempty" validate:"omitempty,gt=0"`
-	}
+// UpdateAnakRequest adalah body request untuk PUT /anak/:id.
+type UpdateAnakRequest struct {
+	KehamilanID *int32   `json:"kehamilan_id,omitempty"`
+	PendudukID  *int32   `json:"penduduk_id,omitempty"`
+	BeratLahir  *float64 `json:"berat_lahir,omitempty" validate:"omitempty,gt=0"`
+	TinggiLahir *float64 `json:"tinggi_lahir,omitempty" validate:"omitempty,gt=0"`
+}
 
 type DetailPelayananRequest struct {
 	ID               int32  `json:"id,omitempty"`

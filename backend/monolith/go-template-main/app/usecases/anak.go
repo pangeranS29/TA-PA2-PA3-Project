@@ -16,12 +16,9 @@ type AnakUseCase struct {
 }
 
 func NewAnakUseCase(anakRepo *repositories.AnakRepository) *AnakUseCase {
-	return &AnakUseCase{
-		anakRepo: anakRepo,
-	}
+	return &AnakUseCase{anakRepo: anakRepo}
 }
 
-// ====================== GET ======================
 func (u *AnakUseCase) GetAnak(id int32) (*models.AnakResponse, error) {
 	anak, err := u.anakRepo.FindByID(id)
 	if err != nil {
@@ -30,26 +27,23 @@ func (u *AnakUseCase) GetAnak(id int32) (*models.AnakResponse, error) {
 		}
 		return nil, err
 	}
-
 	resp := u.toAnakResponse(anak)
 	return &resp, nil
 }
-// ====================== CREATE ======================
+
 func (u *AnakUseCase) CreateAnak(req models.CreateAnakRequest) (*models.AnakResponse, error) {
+	if req.KehamilanID == 0 {
+		return nil, errors.New("kehamilan_id wajib diisi")
+	}
+	if req.PendudukID == 0 {
+		return nil, errors.New("penduduk_id wajib diisi")
+	}
 
 	anak := &models.Anak{
 		KehamilanID: req.KehamilanID,
-		PendudukID:  req.PendudukID,
-		BeratLahir:  req.BeratLahir,
-		TinggiLahir: req.TinggiLahir,
-	}
-
-	if anak.BeratLahir <= 0 {
-		return nil, errors.New("berat_lahir harus lebih dari 0")
-	}
-
-	if anak.TinggiLahir <= 0 {
-		return nil, errors.New("tinggi_lahir harus lebih dari 0")
+		PendudukID:  &req.PendudukID,
+		BeratLahir:  req.BeratLahirKg,
+		TinggiLahir: req.TinggiLahirCm,
 	}
 
 	if err := u.anakRepo.Create(anak); err != nil {
@@ -66,7 +60,6 @@ func (u *AnakUseCase) CreateAnak(req models.CreateAnakRequest) (*models.AnakResp
 	return &resp, nil
 }
 
-// ====================== UPDATE ======================
 func (u *AnakUseCase) UpdateAnak(id int32, req models.UpdateAnakRequest) (*models.AnakResponse, error) {
 
 	anak, err := u.anakRepo.FindByID(id)
@@ -74,26 +67,14 @@ func (u *AnakUseCase) UpdateAnak(id int32, req models.UpdateAnakRequest) (*model
 		return nil, errors.New("data anak tidak ditemukan")
 	}
 
-	if req.BeratLahir != nil {
-		if *req.BeratLahir <= 0 {
-			return nil, errors.New("berat_lahir harus > 0")
-		}
-		anak.BeratLahir = *req.BeratLahir
-	}
-
-	if req.TinggiLahir != nil {
-		if *req.TinggiLahir <= 0 {
-			return nil, errors.New("tinggi_lahir harus > 0")
-		}
-		anak.TinggiLahir = *req.TinggiLahir
-	}
-
 	if req.PendudukID != nil {
-		anak.PendudukID = *req.PendudukID
+		anak.PendudukID = req.PendudukID
 	}
-
-	if req.KehamilanID != nil {
-		anak.KehamilanID = *req.KehamilanID
+	if req.BeratLahirKg != nil {
+		anak.BeratLahir = req.BeratLahirKg
+	}
+	if req.TinggiLahirCm != nil {
+		anak.TinggiLahir = req.TinggiLahirCm
 	}
 
 	if err := u.anakRepo.Update(anak); err != nil {
@@ -104,14 +85,12 @@ func (u *AnakUseCase) UpdateAnak(id int32, req models.UpdateAnakRequest) (*model
 
 	resp := u.toAnakResponse(anak)
 	return &resp, nil
-}	
+}
 
-// ====================== DELETE ======================
 func (u *AnakUseCase) DeleteAnak(id int32) error {
 	return u.anakRepo.Delete(id)
 }
 
-// ====================== LIST ======================
 func (u *AnakUseCase) AdminListAnak(kehamilanID int32) ([]models.AnakResponse, error) {
 
 	var (
@@ -124,40 +103,32 @@ func (u *AnakUseCase) AdminListAnak(kehamilanID int32) ([]models.AnakResponse, e
 	} else {
 		list, err = u.anakRepo.FindAll()
 	}
-
 	if err != nil {
 		return nil, err
 	}
 
 	result := make([]models.AnakResponse, 0, len(list))
-
-	for _, a := range list {
-		result = append(result, u.toAnakResponse(&a))
+	for _, k := range list {
+		resp := u.toAnakResponse(&k)
+		result = append(result, resp)
 	}
-
 	return result, nil
 }
 
-// ====================== UTIL ======================
 func HitungUsiaBulan(tanggalLahir time.Time) int {
 	now := time.Now()
-
 	if tanggalLahir.After(now) {
 		return 0
 	}
-
 	years := now.Year() - tanggalLahir.Year()
 	months := int(now.Month()) - int(tanggalLahir.Month())
 	total := years*12 + months
-
 	if now.Day() < tanggalLahir.Day() {
 		total--
 	}
-
 	if total < 0 {
 		return 0
 	}
-
 	return total
 }
 
@@ -168,57 +139,35 @@ func FormatUsiaTeks(bulan int) string {
 	if bulan < 12 {
 		return fmt.Sprintf("%d bulan", bulan)
 	}
-
 	tahun := bulan / 12
 	sisa := bulan % 12
-
 	if sisa == 0 {
 		return fmt.Sprintf("%d tahun", tahun)
 	}
-
 	return fmt.Sprintf("%d tahun %d bulan", tahun, sisa)
 }
 
-func FormatLabelUsia(bulan int) string {
-	if bulan == 0 {
-		return "Baru Lahir (0 Bulan)"
-	}
-	if bulan < 12 {
-		return fmt.Sprintf("%d Bulan", bulan)
-	}
-
-	tahun := bulan / 12
-	sisa := bulan % 12
-
-	if sisa == 0 {
-		return fmt.Sprintf("%d Tahun", tahun)
-	}
-
-	return fmt.Sprintf("%d Tahun %d Bulan", tahun, sisa)
-}
-
-// ====================== MAPPER ======================
 func (u *AnakUseCase) toAnakResponse(anak *models.Anak) models.AnakResponse {
-
 	resp := models.AnakResponse{
-		ID:          anak.ID,
-		PendudukID:  anak.PendudukID,
-		KehamilanID: anak.KehamilanID,
-		BeratLahir:  anak.BeratLahir,
-		TinggiLahir: anak.TinggiLahir,
+		ID:           anak.ID,
+		BeratLahirKg: anak.BeratLahir,
 	}
-
-	if anak.Kehamilan != nil {
-		resp.Kehamilan = &models.KehamilanSimple{
-			ID: anak.Kehamilan.ID,
-		}
-	}
-
 	if anak.Penduduk != nil {
-		resp.Penduduk = &models.PendudukSimple{
-			ID: anak.Penduduk.ID,
+		if anak.Penduduk.NamaLengkap != nil {
+			resp.Nama = *anak.Penduduk.NamaLengkap
+		}
+		if anak.Penduduk.TanggalLahir != nil {
+			resp.TanggalLahir = anak.Penduduk.TanggalLahir.Format("2006-01-02")
+			usiaBulan := HitungUsiaBulan(*anak.Penduduk.TanggalLahir)
+			resp.UsiaBulan = usiaBulan
+			resp.UsiaTeks = FormatUsiaTeks(usiaBulan)
+		}
+		if anak.Penduduk.JenisKelamin != nil {
+			resp.JenisKelamin = *anak.Penduduk.JenisKelamin
 		}
 	}
-
+	if anak.Kehamilan != nil {
+		resp.Kehamilan = &models.KehamilanSimple{ID: anak.Kehamilan.ID}
+	}
 	return resp
 }
