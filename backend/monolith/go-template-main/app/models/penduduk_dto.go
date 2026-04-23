@@ -44,3 +44,16 @@ type AdminCreateKeluargaLengkapResponse struct {
 	NomorTeleponAkun      string `json:"nomor_telepon_akun"`
 	PasswordDefault       string `json:"password_default"`
 }
+
+type AdminCreateAkunPendudukRequest struct {
+	NIKPenduduk    string `json:"nik_penduduk"`
+	IDRolePengguna int64  `json:"id_role_pengguna"`
+}
+
+type AdminCreateAkunPendudukResponse struct {
+	IDPengguna      int64  `json:"id_pengguna"`
+	IDPenduduk      int64  `json:"id_penduduk"`
+	NamaPenduduk    string `json:"nama_penduduk"`
+	NomorTelepon    string `json:"nomor_telepon"`
+	PasswordDefault string `json:"password_default"`
+}
