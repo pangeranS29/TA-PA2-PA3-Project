@@ -19,4 +19,10 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	secured := auth.Group("")
 	secured.Use(middlewares.JWTAuth(controller.JWTSecret()))
 	secured.GET("/me", controller.Me)
+
+	vaksinGroup := e.Group("/vaksin", middlewares.JWTAuth(controller.JWTSecret()))
+	vaksinGroup.POST("/create_vaksin", controller.CreateVaksin)
+	vaksinGroup.DELETE("/:id", controller.DeleteVaksin)
+	vaksinGroup.PUT("/:id", controller.UpdateVaksin)
+
 }
