@@ -7,7 +7,6 @@ import (
 	"gorm.io/gorm"
 )
 
-// AnakRepository menangani operasi database untuk entitas Anak.
 type AnakRepository struct {
 	db *gorm.DB
 }
@@ -32,6 +31,7 @@ func (r *AnakRepository) FindByKehamilanID(kehamilanID int32) ([]models.Anak, er
 
 	return list, err
 }
+
 func (r *AnakRepository) FindAll() ([]models.Anak, error) {
 	var list []models.Anak
 

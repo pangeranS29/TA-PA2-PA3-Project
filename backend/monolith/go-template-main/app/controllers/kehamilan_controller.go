@@ -21,9 +21,6 @@ func NewKehamilanController(u usecases.KehamilanUsecase) *KehamilanController {
 
 type createKehamilanRequest struct {
 	IbuID                    int32  `json:"ibu_id"`
-	Gravida                  int32  `json:"gravida,omitempty"`
-	Paritas                  int32  `json:"paritas,omitempty"`
-	Abortus                  int32  `json:"abortus,omitempty"`
 	HPHT                     string `json:"hpht,omitempty"`
 	TaksiranPersalinan       string `json:"taksiran_persalinan,omitempty"`
 	UKKehamilanSaatIni       int32  `json:"uk_kehamilan_saat_ini,omitempty"`
@@ -32,9 +29,6 @@ type createKehamilanRequest struct {
 }
 
 type updateKehamilanRequest struct {
-	Gravida                  int32  `json:"gravida,omitempty"`
-	Paritas                  int32  `json:"paritas,omitempty"`
-	Abortus                  int32  `json:"abortus,omitempty"`
 	HPHT                     string `json:"hpht,omitempty"`
 	TaksiranPersalinan       string `json:"taksiran_persalinan,omitempty"`
 	UKKehamilanSaatIni       int32  `json:"uk_kehamilan_saat_ini,omitempty"`
@@ -59,6 +53,13 @@ func (c *KehamilanController) Create(ctx echo.Context) error {
 		})
 	}
 
+	if req.IbuID == 0 {
+		return ctx.JSON(http.StatusBadRequest, models.Response{
+			StatusCode: http.StatusBadRequest,
+			Message:    "ibu_id wajib diisi",
+		})
+	}
+
 	kehamilan := &models.Kehamilan{
 		IbuID:                    req.IbuID,
 		UKKehamilanSaatIni:       req.UKKehamilanSaatIni,
@@ -68,14 +69,24 @@ func (c *KehamilanController) Create(ctx echo.Context) error {
 
 	// Parse tanggal jika ada
 	if req.HPHT != "" {
-		if t, err := time.Parse("2006-01-02", req.HPHT); err == nil {
-			kehamilan.HPHT = t
+		t, err := time.Parse("2006-01-02", req.HPHT)
+		if err != nil {
+			return ctx.JSON(http.StatusBadRequest, models.Response{
+				StatusCode: http.StatusBadRequest,
+				Message:    "format hpht harus YYYY-MM-DD",
+			})
 		}
+		kehamilan.HPHT = &t
 	}
 	if req.TaksiranPersalinan != "" {
-		if t, err := time.Parse("2006-01-02", req.TaksiranPersalinan); err == nil {
-			kehamilan.TaksiranPersalinan = t
+		t, err := time.Parse("2006-01-02", req.TaksiranPersalinan)
+		if err != nil {
+			return ctx.JSON(http.StatusBadRequest, models.Response{
+				StatusCode: http.StatusBadRequest,
+				Message:    "format taksiran_persalinan harus YYYY-MM-DD",
+			})
 		}
+		kehamilan.TaksiranPersalinan = &t
 	}
 
 	if err := c.usecase.Create(kehamilan); err != nil {
@@ -173,20 +184,30 @@ func (c *KehamilanController) Update(ctx echo.Context) error {
 	}
 
 	if req.HPHT != "" {
-		if t, err := time.Parse("2006-01-02", req.HPHT); err == nil {
-			existing.HPHT = t
+		t, err := time.Parse("2006-01-02", req.HPHT)
+		if err != nil {
+			return ctx.JSON(http.StatusBadRequest, models.Response{
+				StatusCode: http.StatusBadRequest,
+				Message:    "format hpht harus YYYY-MM-DD",
+			})
 		}
+		existing.HPHT = &t
 	}
 	if req.TaksiranPersalinan != "" {
-		if t, err := time.Parse("2006-01-02", req.TaksiranPersalinan); err == nil {
-			existing.TaksiranPersalinan = t
+		t, err := time.Parse("2006-01-02", req.TaksiranPersalinan)
+		if err != nil {
+			return ctx.JSON(http.StatusBadRequest, models.Response{
+				StatusCode: http.StatusBadRequest,
+				Message:    "format taksiran_persalinan harus YYYY-MM-DD",
+			})
 		}
+		existing.TaksiranPersalinan = &t
 	}
 	if req.UKKehamilanSaatIni != 0 {
-		existing.UKKehamilanSaatIni = req.UKKehamilanSaatIni
+		existing.UKKehamilanSaatIni = &req.UKKehamilanSaatIni
 	}
 	if req.JarakKehamilanSebelumnya != 0 {
-		existing.JarakKehamilanSebelumnya = req.JarakKehamilanSebelumnya
+		existing.JarakKehamilanSebelumnya = &req.JarakKehamilanSebelumnya
 	}
 	if req.StatusKehamilan != "" {
 		existing.StatusKehamilan = req.StatusKehamilan
@@ -213,7 +234,6 @@ func (c *KehamilanController) GetKehamilanAktif(ctx echo.Context) error {
 			Message:    "Gagal mengambil data kehamilan aktif",
 		})
 	}
-
 	return ctx.JSON(http.StatusOK, models.Response{
 		StatusCode: http.StatusOK,
 		Message:    "Berhasil mengambil data",

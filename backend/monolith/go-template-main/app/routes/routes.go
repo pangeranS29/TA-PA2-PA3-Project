@@ -255,12 +255,12 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	tenaga.PUT("/pemeriksaan-lanjutan-t3/:id", controller.PemeriksaanLanjutanTrimester3.Update)
 	tenaga.DELETE("/pemeriksaan-lanjutan-t3/:id", controller.PemeriksaanLanjutanTrimester3.Delete)
 
-
-	// tenaga.GET("/kependudukan", controller.Kependudukan.GetAll)
-	// tenaga.POST("/kependudukan", controller.Kependudukan.Create)
-	// tenaga.GET("/kependudukan/:id", controller.Kependudukan.GetByID)
-	// tenaga.PUT("/kependudukan/:id", controller.Kependudukan.Update)
-	// tenaga.DELETE("/kependudukan/:id", controller.Kependudukan.Delete)
+	tenaga.GET("/kependudukan", controller.Penduduk.GetAll)
+	tenaga.POST("/kependudukan", controller.Penduduk.Create)
+	tenaga.GET("/kependudukan/:id", controller.Penduduk.GetByID)
+	tenaga.PUT("/kependudukan/:id", controller.Penduduk.Update)
+	tenaga.DELETE("/kependudukan/:id", controller.Penduduk.Delete)
+	tenaga.POST("/kartu-keluarga", controller.KartuKeluarga.Create)
 
 	tenaga.GET("/jenis-pelayanan", controller.JenisPelayanan.GetJenisPelayanan)
 
