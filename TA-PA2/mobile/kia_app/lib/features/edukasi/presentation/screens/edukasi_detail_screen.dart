@@ -205,7 +205,8 @@ class EdukasiDetailScreen extends StatelessWidget {
           ),
           const _StepCard(
             index: 1,
-            text: 'Siapkan ruang yang aman dan nyaman untuk anak bereksplorasi.',
+            text:
+                'Siapkan ruang yang aman dan nyaman untuk anak bereksplorasi.',
           ),
           const _StepCard(
             index: 2,

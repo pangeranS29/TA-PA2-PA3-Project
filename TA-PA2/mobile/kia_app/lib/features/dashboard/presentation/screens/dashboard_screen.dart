@@ -9,7 +9,6 @@ import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/
 import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/input_profil_anak_screen.dart';
 import 'package:ta_pa2_pa3_project/features/edukasi/presentation/screens/edukasi_screen.dart';
 
-
 class DashboardScreen extends StatefulWidget {
   @override
   _DashboardScreenState createState() => _DashboardScreenState();
@@ -19,13 +18,34 @@ class _DashboardScreenState extends State<DashboardScreen> {
   String selectedPhase = "Hamil";
   int _selectedNavIndex = 0;
 
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _showStartupReminderIfNeeded();
+    });
+  }
+
+  Future<void> _showStartupReminderIfNeeded() async {
+    if (!AuthSession.isLoggedIn || AuthSession.isReminderShown) {
+      return;
+    }
+
+    await ReminderNotificationService.scheduleTumbuhReminders();
+    if (!mounted) return;
+
+    await _showTumbuhReminderPopup();
+    await AuthSession.markReminderShown();
+  }
+
   Future<void> _showTumbuhReminderPopup() async {
     await showDialog<void>(
       context: context,
       barrierDismissible: true,
       builder: (dialogContext) {
         return Dialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
           child: Container(
             decoration: BoxDecoration(
               color: Colors.white,
@@ -78,7 +98,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   icon: Icons.medication,
                   iconColor: const Color(0xFFF59E0B),
                   title: 'Vitamin A',
-                  detail: 'Berikan vitamin A setiap bulan sesuai kebutuhan anak.',
+                  detail:
+                      'Berikan vitamin A setiap bulan sesuai kebutuhan anak.',
                 ),
                 const SizedBox(height: 10),
                 _buildReminderItem(
@@ -180,12 +201,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Future<void> _onPhaseSelected(String phase) async {
     setState(() => selectedPhase = phase);
-
-    if (phase == 'Tumbuh') {
-      await ReminderNotificationService.scheduleTumbuhReminders();
-      if (!mounted) return;
-      await _showTumbuhReminderPopup();
-    }
   }
 
   Widget _buildHomeBody() {
@@ -224,7 +239,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               : _selectedNavIndex == 1
                   ? const Center(child: Text("Catatan"))
                   : _selectedNavIndex == 3
-                ? const EdukasiScreen()
+                      ? const EdukasiScreen()
                       : const Center(child: Text("Profil")),
       bottomNavigationBar: _buildBottomNav(),
     );
@@ -251,21 +266,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text("Selamat Pagi ✨", style: TextStyle(color: Colors.white70, fontSize: 16)),
-              const Text("Halo, Polaroid!", style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
+              const Text("Selamat Pagi ✨",
+                  style: TextStyle(color: Colors.white70, fontSize: 16)),
+              const Text("Halo, Polaroid!",
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               Row(
                 children: const [
                   Icon(Icons.calendar_today, color: Colors.white70, size: 14),
                   SizedBox(width: 4),
-                  Text("Trimester 2 • Bebas keluhan berat", style: TextStyle(color: Colors.white, fontSize: 12)),
+                  Text("Trimester 2 • Bebas keluhan berat",
+                      style: TextStyle(color: Colors.white, fontSize: 12)),
                 ],
               ),
             ],
           ),
           Container(
             padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(color: Colors.white.withOpacity(0.2), shape: BoxShape.circle),
+            decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.2), shape: BoxShape.circle),
             child: PopupMenuButton<String>(
               padding: EdgeInsets.zero,
               icon: const Icon(Icons.notifications_none, color: Colors.white),
@@ -304,7 +326,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text("TAHAP SAAT INI", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey)),
+        const Text("TAHAP SAAT INI",
+            style: TextStyle(
+                fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey)),
         const SizedBox(height: 12),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -315,24 +339,34 @@ class _DashboardScreenState extends State<DashboardScreen> {
               child: Column(
                 children: [
                   Container(
-                    width: 65, height: 65,
+                    width: 65,
+                    height: 65,
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(16),
-                      border: isActive ? Border.all(color: TrimesterTheme.t1Primary, width: 2) : null,
-                      boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10)],
+                      border: isActive
+                          ? Border.all(
+                              color: TrimesterTheme.t1Primary, width: 2)
+                          : null,
+                      boxShadow: [
+                        BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 10)
+                      ],
                     ),
-                    child: Icon(p['icon'], color: isActive ? TrimesterTheme.t1Primary : Colors.grey, size: 28),
+                    child: Icon(p['icon'],
+                        color:
+                            isActive ? TrimesterTheme.t1Primary : Colors.grey,
+                        size: 28),
                   ),
                   const SizedBox(height: 8),
-                  Text(
-                    p['label'],
-                    style: TextStyle(
-                      fontSize: 12, 
-                      color: isActive ? TrimesterTheme.t1Primary : Colors.grey, 
-                      fontWeight: isActive ? FontWeight.bold : FontWeight.normal
-                    )
-                  ),
+                  Text(p['label'],
+                      style: TextStyle(
+                          fontSize: 12,
+                          color:
+                              isActive ? TrimesterTheme.t1Primary : Colors.grey,
+                          fontWeight:
+                              isActive ? FontWeight.bold : FontWeight.normal)),
                 ],
               ),
             );
@@ -355,19 +389,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: const [
-                  Text("Kehamilan 24 Minggu", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  Text("Kehamilan 24 Minggu",
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                   Icon(Icons.chevron_right, color: Colors.grey),
                 ],
               ),
-              const Text("Trimester 2 • HPL: 15 Agt 2026", style: TextStyle(color: Colors.grey, fontSize: 12)),
+              const Text("Trimester 2 • HPL: 15 Agt 2026",
+                  style: TextStyle(color: Colors.grey, fontSize: 12)),
               const SizedBox(height: 16),
-              LinearProgressIndicator(value: 0.6, backgroundColor: Colors.blue.shade50, color: TrimesterTheme.t1Primary, minHeight: 8),
+              LinearProgressIndicator(
+                  value: 0.6,
+                  backgroundColor: Colors.blue.shade50,
+                  color: TrimesterTheme.t1Primary,
+                  minHeight: 8),
               const SizedBox(height: 8),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: const [
-                  Text("Minggu 1", style: TextStyle(fontSize: 10, color: Colors.grey)),
-                  Text("Minggu 40", style: TextStyle(fontSize: 10, color: Colors.grey)),
+                  Text("Minggu 1",
+                      style: TextStyle(fontSize: 10, color: Colors.grey)),
+                  Text("Minggu 40",
+                      style: TextStyle(fontSize: 10, color: Colors.grey)),
                 ],
               ),
             ],
@@ -383,26 +426,36 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: const [
-                    Text("Sebesar Buah Jagung", style: TextStyle(fontWeight: FontWeight.bold)),
-                    Text("Panjang janin sekitar 30 cm dengan berat sekitar 600 gram.", style: TextStyle(fontSize: 12, color: Colors.black54)),
+                    Text("Sebesar Buah Jagung",
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    Text(
+                        "Panjang janin sekitar 30 cm dengan berat sekitar 600 gram.",
+                        style: TextStyle(fontSize: 12, color: Colors.black54)),
                   ],
                 ),
               ),
-              Image.network('https://cdn-icons-png.flaticon.com/512/1141/1141771.png', width: 40),
+              Image.network(
+                  'https://cdn-icons-png.flaticon.com/512/1141/1141771.png',
+                  width: 40),
             ],
           ),
         ),
         const SizedBox(height: 32),
 
         // C. MENU HAMIL - LIST MODE
-        const Text("Menu Hamil", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87)),
+        const Text("Menu Hamil",
+            style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87)),
         const SizedBox(height: 16),
         _buildMenuCard(
           title: "Kehamilan Trimester 1–3",
           subtitle: "Pantau perkembangan kehamilan",
           icon: Icons.favorite_outline,
           iconColor: Colors.pink,
-          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => JourneyScreen())),
+          onTap: () => Navigator.push(context,
+              MaterialPageRoute(builder: (context) => JourneyScreen())),
         ),
         _buildMenuCard(
           title: "Kesehatan Jiwa Ibu Hamil",
@@ -421,7 +474,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
         const SizedBox(height: 32),
 
         // D. MENU CEPAT - GRID MODE
-        const Text("MENU CEPAT", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey)),
+        const Text("MENU CEPAT",
+            style: TextStyle(
+                fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey)),
         const SizedBox(height: 16),
         _buildQuickMenu(),
         const SizedBox(height: 32),
@@ -435,9 +490,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   // --- HELPER: KARTU MENU LIST (GAYA image_e8cb9d.png) ---
   Widget _buildMenuCard({
-    required String title, 
-    required String subtitle, 
-    required IconData icon, 
+    required String title,
+    required String subtitle,
+    required IconData icon,
     required Color iconColor,
     required VoidCallback onTap,
   }) {
@@ -445,9 +500,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(24), // Mengikuti rounded-2xl pada model
+        borderRadius:
+            BorderRadius.circular(24), // Mengikuti rounded-2xl pada model
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 10, offset: const Offset(0, 4)),
+          BoxShadow(
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 10,
+              offset: const Offset(0, 4)),
         ],
       ),
       child: Material(
@@ -460,7 +519,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
             child: Row(
               children: [
                 Container(
-                  width: 56, height: 56,
+                  width: 56,
+                  height: 56,
                   decoration: BoxDecoration(
                     color: iconColor.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(16),
@@ -472,9 +532,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87)),
+                      Text(title,
+                          style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87)),
                       const SizedBox(height: 4),
-                      Text(subtitle, style: TextStyle(fontSize: 13, color: Colors.grey.shade600)),
+                      Text(subtitle,
+                          style: TextStyle(
+                              fontSize: 13, color: Colors.grey.shade600)),
                     ],
                   ),
                 ),
@@ -491,7 +557,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget _buildQuickMenu() {
     final List<Map<String, dynamic>> menus = [
       {'label': 'BB Ibu', 'icon': Icons.scale, 'color': Colors.blue},
-      {'label': 'Periksa', 'icon': Icons.medical_services, 'color': Colors.pink},
+      {
+        'label': 'Periksa',
+        'icon': Icons.medical_services,
+        'color': Colors.pink
+      },
       {'label': 'Nutrisi', 'icon': Icons.apple, 'color': Colors.green},
       {'label': 'Edukasi', 'icon': Icons.book, 'color': Colors.orange},
       {'label': 'Catatan', 'icon': Icons.assignment, 'color': Colors.indigo},
@@ -502,8 +572,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 3, 
-        mainAxisSpacing: 16, 
+        crossAxisCount: 3,
+        mainAxisSpacing: 16,
         crossAxisSpacing: 16,
       ),
       itemCount: menus.length,
@@ -511,20 +581,25 @@ class _DashboardScreenState extends State<DashboardScreen> {
         return InkWell(
           onTap: () {
             if (menus[i]['label'] == 'Periksa') {
-              Navigator.push(context, MaterialPageRoute(builder: (c) => JourneyScreen()));
+              Navigator.push(
+                  context, MaterialPageRoute(builder: (c) => JourneyScreen()));
             }
             if (menus[i]['label'] == 'Edukasi') {
-              Navigator.push(context, MaterialPageRoute(builder: (c) => const EdukasiScreen()));
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (c) => const EdukasiScreen()));
             }
           },
           child: Container(
-            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
+            decoration: BoxDecoration(
+                color: Colors.white, borderRadius: BorderRadius.circular(16)),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(menus[i]['icon'], color: menus[i]['color']),
                 const SizedBox(height: 8),
-                Text(menus[i]['label'], style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
+                Text(menus[i]['label'],
+                    style: const TextStyle(
+                        fontSize: 12, fontWeight: FontWeight.w500)),
               ],
             ),
           ),
@@ -539,9 +614,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white, 
-        borderRadius: BorderRadius.circular(20), 
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10)],
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10)
+        ],
       ),
       child: child,
     );
@@ -552,8 +629,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFFFFF1F2), 
-        borderRadius: BorderRadius.circular(16), 
+        color: const Color(0xFFFFF1F2),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: Colors.red.shade100),
       ),
       child: Row(
@@ -564,8 +641,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: const [
-                Text("Tanda Bahaya Kehamilan", style: TextStyle(fontSize: 12, color: Colors.red, fontWeight: FontWeight.bold)),
-                Text("Pahami gejala yang perlu diwaspadai", style: TextStyle(fontSize: 11, color: Colors.black54)),
+                Text("Tanda Bahaya Kehamilan",
+                    style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.red,
+                        fontWeight: FontWeight.bold)),
+                Text("Pahami gejala yang perlu diwaspadai",
+                    style: TextStyle(fontSize: 11, color: Colors.black54)),
               ],
             ),
           ),
@@ -575,7 +657,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildPlaceholderContent() => const Center(child: Padding(padding: EdgeInsets.all(40), child: Text("Konten fase ini segera hadir!")));
+  Widget _buildPlaceholderContent() => const Center(
+      child: Padding(
+          padding: EdgeInsets.all(40),
+          child: Text("Konten fase ini segera hadir!")));
 
   Widget _buildTumbuhContent() {
     return Column(
@@ -602,7 +687,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
               children: [
                 const Icon(Icons.person_add, color: Colors.blue, size: 28),
                 const SizedBox(width: 12),
-
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -625,7 +709,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ],
                   ),
                 ),
-
                 Container(
                   padding: const EdgeInsets.all(6),
                   decoration: const BoxDecoration(
@@ -659,7 +742,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
           mainAxisSpacing: 12,
           crossAxisSpacing: 12,
           children: [
-
             // 🔸 TIMBANG
             _menuItem(Icons.scale, "Pertumbuhan", Colors.orange, () {
               Navigator.push(
@@ -681,9 +763,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             }),
 
             // 🔸 PERIKSA
-            _menuItem(Icons.favorite, "Periksa", Colors.red, () {
-              
-            }),
+            _menuItem(Icons.favorite, "Periksa", Colors.red, () {}),
 
             // 🔸 EDUKASI
             _menuItem(Icons.menu_book, "Edukasi", Colors.orange, () {
@@ -776,11 +856,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
       currentIndex: _selectedNavIndex,
       onTap: (index) => setState(() => _selectedNavIndex = index),
       items: const [
-        BottomNavigationBarItem(icon: Icon(Icons.home_filled), label: "Beranda"),
-        BottomNavigationBarItem(icon: Icon(Icons.assignment_outlined), label: "Catatan"),
-        BottomNavigationBarItem(icon: Icon(Icons.security_outlined), label: "Imunisasi"),
-        BottomNavigationBarItem(icon: Icon(Icons.book_outlined), label: "Edukasi"),
-        BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: "Profil"),
+        BottomNavigationBarItem(
+            icon: Icon(Icons.home_filled), label: "Beranda"),
+        BottomNavigationBarItem(
+            icon: Icon(Icons.assignment_outlined), label: "Catatan"),
+        BottomNavigationBarItem(
+            icon: Icon(Icons.security_outlined), label: "Imunisasi"),
+        BottomNavigationBarItem(
+            icon: Icon(Icons.book_outlined), label: "Edukasi"),
+        BottomNavigationBarItem(
+            icon: Icon(Icons.person_outline), label: "Profil"),
       ],
     );
   }
