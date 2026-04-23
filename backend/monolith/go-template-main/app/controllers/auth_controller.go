@@ -116,3 +116,38 @@ func (m *Main) AdminCreateKeluargaLengkap(c echo.Context) error {
 
 	return helpers.StandardResponse(c, http.StatusOK, []string{"data keluarga lengkap berhasil dibuat"}, result, nil)
 }
+
+func (m *Main) AdminCreateAkunPenduduk(c echo.Context) error {
+	var req models.AdminCreateAkunPendudukRequest
+	if err := c.Bind(&req); err != nil {
+		return helpers.Response(c, http.StatusBadRequest, []string{"format request tidak valid: " + err.Error()})
+	}
+
+	rawClaims := c.Get("auth_claims")
+	claims, ok := rawClaims.(*models.AuthClaims)
+	if !ok || claims == nil {
+		return helpers.Response(c, http.StatusUnauthorized, []string{"claims token tidak valid"})
+	}
+
+	result, err := m.usecases.AdminCreateAkunPenduduk(*claims, req)
+	if err != nil {
+		errMsg := strings.ToLower(err.Error())
+
+		if strings.Contains(errMsg, "hanya") {
+			return helpers.Response(c, http.StatusForbidden, []string{err.Error()})
+		}
+		if strings.Contains(errMsg, "tidak ditemukan") {
+			return helpers.Response(c, http.StatusNotFound, []string{err.Error()})
+		}
+		if strings.Contains(errMsg, "sudah memiliki") || strings.Contains(errMsg, "sudah digunakan") {
+			return helpers.Response(c, http.StatusConflict, []string{err.Error()})
+		}
+		if strings.Contains(errMsg, "wajib diisi") || strings.Contains(errMsg, "tidak valid") {
+			return helpers.Response(c, http.StatusBadRequest, []string{err.Error()})
+		}
+
+		return helpers.Response(c, http.StatusInternalServerError, []string{"terjadi kesalahan pada server"})
+	}
+
+	return helpers.StandardResponse(c, http.StatusOK, []string{"akun penduduk berhasil dibuat"}, result, nil)
+}

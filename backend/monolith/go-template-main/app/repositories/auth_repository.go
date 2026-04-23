@@ -193,3 +193,14 @@ func (m *Main) IsAnakByPendudukExists(idPenduduk int64) (bool, error) {
 func (m *Main) CreateAnak(anak *models.Anak) error {
 	return m.postgres.Create(anak).Error
 }
+
+func (m *Main) GetUserByPendudukID(pendudukID int64) (*models.User, error) {
+	var user models.User
+	err := m.postgres.
+		Where("penduduk_id = ? AND isdeleted = ?", pendudukID, false).
+		First(&user).Error
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
+}
