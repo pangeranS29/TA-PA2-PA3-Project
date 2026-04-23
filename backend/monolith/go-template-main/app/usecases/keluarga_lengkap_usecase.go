@@ -196,11 +196,10 @@ func (m *Main) adminCreateKeluargaLengkapCore(txRepo *repositories.Main, req mod
 
 	roleID := req.IDRolePengguna
 	pengguna := &models.User{
-		PendudukID:      &idPendudukPemilik,
-		NomorTelepon:    nomorTeleponPemilik,
-		KataSandi:       string(hash),
-		RolesID:         &roleID,
-		KartuKeluargaID: &kk.ID,
+		PendudukID:   &idPendudukPemilik,
+		NomorTelepon: nomorTeleponPemilik,
+		KataSandi:    string(hash),
+		RolesID:      &roleID,
 	}
 	if err := txRepo.CreateUser(pengguna); err != nil {
 		return nil, err

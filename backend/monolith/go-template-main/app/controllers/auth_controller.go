@@ -106,6 +106,11 @@ func (m *Main) AdminCreateKeluargaLengkap(c echo.Context) error {
 			return helpers.Response(c, http.StatusConflict, []string{err.Error()})
 		}
 
+		c.Logger().Errorf("admin create keluarga lengkap error: %v", err)
+		if strings.EqualFold(strings.TrimSpace(m.config.ServiceEnvironment), "development") {
+			return helpers.Response(c, http.StatusInternalServerError, []string{err.Error()})
+		}
+
 		return helpers.Response(c, http.StatusInternalServerError, []string{"terjadi kesalahan pada server"})
 	}
 

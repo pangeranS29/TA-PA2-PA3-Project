@@ -71,7 +71,20 @@ func (m *Main) ProfileKeluarga(actor models.AuthClaims) (*models.ProfileKeluarga
 			}
 			return nil, err
 		}
-		idNoKK = user.KartuKeluargaID
+
+		if user.PendudukID == nil || *user.PendudukID <= 0 {
+			return nil, errors.New("akun ini tidak terhubung ke kartu_keluarga")
+		}
+
+		penduduk, err := m.repository.GetPendudukByID(*user.PendudukID)
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil, errors.New("akun ini tidak terhubung ke kartu_keluarga")
+			}
+			return nil, err
+		}
+
+		idNoKK = penduduk.KartuKeluargaID
 	}
 
 	if idNoKK == nil || *idNoKK <= 0 {
@@ -115,14 +128,12 @@ func (m *Main) generateAccessToken(user *models.User, roleName string) (string, 
 	expiredAt := now.Add(time.Duration(m.config.JWTAccessTokenMins) * time.Minute)
 
 	claims := models.AuthClaims{
-		IDPengguna:      user.ID,
-		IDRole:          derefInt64(user.RolesID),
-		IDNoKK:          user.KartuKeluargaID,
-		Role:            roleName,
-		NomorTelepon:    user.NomorTelepon,
-		UserID:          user.ID,
-		PhoneNumber:     user.NomorTelepon,
-		KartuKeluargaID: user.KartuKeluargaID,
+		IDPengguna:   user.ID,
+		IDRole:       derefInt64(user.RolesID),
+		Role:         roleName,
+		NomorTelepon: user.NomorTelepon,
+		UserID:       user.ID,
+		PhoneNumber:  user.NomorTelepon,
 		RegisteredClaims: jwt.RegisteredClaims{
 			Subject:   strconv.FormatInt(user.ID, 10),
 			Issuer:    "monitoring-service",
