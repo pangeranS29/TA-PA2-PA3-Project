@@ -32,7 +32,7 @@ func (m *Main) FindUserByNomorTelepon(nomorTelepon string) (*models.User, error)
 	var user models.User
 	if err := m.postgres.
 		Preload("Role").
-		Where("nomor_telepon = ? AND isdeleted = ?", strings.TrimSpace(nomorTelepon), false).
+		Where("nomor_telepon = ? AND deleted_at IS NULL", strings.TrimSpace(nomorTelepon)).
 		First(&user).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, gorm.ErrRecordNotFound
@@ -46,7 +46,7 @@ func (m *Main) FindUserByID(id int64) (*models.User, error) {
 	var user models.User
 	if err := m.postgres.
 		Preload("Role").
-		Where("id = ? AND isdeleted = ?", id, false).
+		Where("id = ? AND deleted_at IS NULL", id).
 		First(&user).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, gorm.ErrRecordNotFound
@@ -60,7 +60,8 @@ func (m *Main) CreateUser(user *models.User) error {
 	now := time.Now()
 	user.CreatedAt = &now
 	user.UpdatedAt = &now
-	user.IsDeleted = false
+	// user.IsDeleted = false
+	user.IsDeleted = nil
 
 	if err := m.postgres.Create(user).Error; err != nil {
 		return err
@@ -72,7 +73,7 @@ func (m *Main) IsNomorTeleponUsedInUsers(nomorTelepon string) (bool, error) {
 	var count int64
 	err := m.postgres.
 		Model(&models.User{}).
-		Where("nomor_telepon = ? AND isdeleted = ?", strings.TrimSpace(nomorTelepon), false).
+		Where("nomor_telepon = ? AND deleted_at IS NULL", strings.TrimSpace(nomorTelepon)).
 		Count(&count).Error
 	if err != nil {
 		return false, err
@@ -197,7 +198,7 @@ func (m *Main) CreateAnak(anak *models.Anak) error {
 func (m *Main) GetUserByPendudukID(pendudukID int64) (*models.User, error) {
 	var user models.User
 	err := m.postgres.
-		Where("penduduk_id = ? AND isdeleted = ?", pendudukID, false).
+		Where("penduduk_id = ? AND deleted_at IS NULL", pendudukID).
 		First(&user).Error
 	if err != nil {
 		return nil, err
