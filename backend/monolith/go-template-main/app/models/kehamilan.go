@@ -9,10 +9,7 @@ import (
 type Kehamilan struct {
 	ID                       int32          `gorm:"primaryKey;autoIncrement" json:"id"`
 	IbuID                    int32          `gorm:"not null;index;constraint:OnDelete:CASCADE" json:"ibu_id"`
-	Ibu                      *Ibu           `gorm:"foreignKey:IbuID;references:IDIbu;constraint:OnDelete:CASCADE" json:"ibu,omitempty"`
-	Gravida                  int32          `json:"gravida,omitempty"`
-	Paritas                  int32          `json:"paritas,omitempty"`
-	Abortus                  int32          `json:"abortus,omitempty"`
+	Ibu                      *Ibu           `gorm:"foreignKey:IbuID;references:ID;constraint:OnDelete:CASCADE" json:"ibu,omitempty"`
 	HPHT                     time.Time      `json:"hpht,omitempty"`
 	TaksiranPersalinan       time.Time      `json:"taksiran_persalinan,omitempty"`
 	UKKehamilanSaatIni       int32          `json:"uk_kehamilan_saat_ini,omitempty"`

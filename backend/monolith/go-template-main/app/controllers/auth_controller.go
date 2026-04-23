@@ -6,25 +6,25 @@ import (
 	"monitoring-service/app/constants"
 	"monitoring-service/app/helpers"
 	"monitoring-service/app/models"
-	"monitoring-service/app/usecases"
+	// "monitoring-service/app/usecases"
 	"monitoring-service/pkg/customerror"
 
 	"github.com/labstack/echo/v4"
 )
 
-func (m *Main) RegisterOrangTua(c echo.Context) error {
-	var req usecases.RegisterOrangTuaRequest
-	if err := c.Bind(&req); err != nil {
-		return helpers.Response(c, http.StatusBadRequest, []string{"format request tidak valid"})
-	}
-	if err := m.usecases.RegisterOrangTua.Register(&req); err != nil {
-		statusCode := customerror.GetStatusCode(err)
-		return helpers.Response(c, statusCode, []string{err.Error()})
-	}
-	return helpers.StandardResponse(c, http.StatusCreated, []string{constants.SUCCESS_RESPONSE_MESSAGE}, map[string]string{
-		"message": "registrasi orang tua berhasil",
-	}, nil)
-}
+// func (m *Main) RegisterOrangTua(c echo.Context) error {
+// 	var req usecases.RegisterOrangTuaRequest
+// 	if err := c.Bind(&req); err != nil {
+// 		return helpers.Response(c, http.StatusBadRequest, []string{"format request tidak valid"})
+// 	}
+// 	if err := m.usecases.RegisterOrangTua.Register(&req); err != nil {
+// 		statusCode := customerror.GetStatusCode(err)
+// 		return helpers.Response(c, statusCode, []string{err.Error()})
+// 	}
+// 	return helpers.StandardResponse(c, http.StatusCreated, []string{constants.SUCCESS_RESPONSE_MESSAGE}, map[string]string{
+// 		"message": "registrasi orang tua berhasil",
+// 	}, nil)
+// }
 
 func (m *Main) Register(c echo.Context) error {
 	var req models.RegisterRequest

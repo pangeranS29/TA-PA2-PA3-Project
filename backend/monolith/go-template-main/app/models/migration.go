@@ -15,14 +15,14 @@ func AutoMigrate(db *gorm.DB) error {
 
 		// Relasi utama
 		// &ibu
+		&Penduduk{},
+		&Ibu{},
 		&Kehamilan{},
 		&Anak{},
-		&Role{},
-		&User{},
+		// &Role{},
+		// &User{},
 		&Kebabura{},
-		&Kependudukan{},
-		&Ibu{},
-		&Anak{},
+		// &Anak{},
 
 		// Evaluasi & riwayat
 		&EvaluasiKesehatanIbu{},
@@ -62,6 +62,9 @@ func AutoMigrate(db *gorm.DB) error {
 		&GrafikEvaluasiKehamilan{},
 		&GrafikPeningkatanBB{},
 		&PenjelasanHasilGrafik{},
+		&StandarBBTB{},
+		&StandarBBU{},
+		&StandarIMTU{},
 
 		// Persalinan
 		&RencanaPersalinan{},

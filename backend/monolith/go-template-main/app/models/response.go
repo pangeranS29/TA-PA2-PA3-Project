@@ -29,17 +29,19 @@ type KehamilanSimple struct {
 	Ibu struct {
 		NamaIbu string `json:"nama_ibu"`
 		
-	} `json:"ibu"`
+	} `json:"ibu,omitempty"`
 }
 type AnakResponse struct {
-	ID            int32    `json:"id"`
-	Nama          string   `json:"nama"`
-	TanggalLahir  string   `json:"tanggal_lahir"` // "YYYY-MM-DD"
-	JenisKelamin  string   `json:"jenis_kelamin"`
-	UsiaBulan     int      `json:"usia_bulan"`
-	UsiaTeks      string   `json:"usia_teks"`
-	BeratLahirKg  *float64 `json:"berat_lahir_kg,omitempty"`
-	GolonganDarah *string  `json:"golongan_darah,omitempty"`
-	Kehamilan *KehamilanSimple `json:"kehamilan,omitempty"`
-	// VaksinBerikutnya string   `json:"vaksin_berikutnya"`
+	ID          int32              `json:"id"`
+	KehamilanID int32              `json:"kehamilan_id"`
+	PendudukID  int32              `json:"penduduk_id"`
+	BeratLahir  float64            `json:"berat_lahir"`
+	TinggiLahir float64            `json:"tinggi_lahir"`
+
+	Kehamilan  *KehamilanSimple    `json:"kehamilan,omitempty"`
+	Penduduk   *PendudukSimple     `json:"penduduk,omitempty"`
+}
+type PendudukSimple struct {
+	ID   int32  `json:"id"`
+	Nama string `json:"nama"`
 }

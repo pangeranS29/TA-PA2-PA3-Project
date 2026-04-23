@@ -36,30 +36,29 @@ func (u *AnakUseCase) GetAnak(id int32) (*models.AnakResponse, error) {
 }
 // ====================== CREATE ======================
 func (u *AnakUseCase) CreateAnak(req models.CreateAnakRequest) (*models.AnakResponse, error) {
-	tanggalLahir, err := time.Parse("2006-01-02", req.TanggalLahir)
-	if err != nil {
-		return nil, errors.New("format tanggal_lahir tidak valid, gunakan YYYY-MM-DD")
-	}
-
-	// validasi tambahan
-	if tanggalLahir.After(time.Now()) {
-		return nil, errors.New("tanggal_lahir tidak boleh di masa depan")
-	}
-
-	if req.JenisKelamin != "laki-laki" && req.JenisKelamin != "perempuan" {
-		return nil, errors.New("jenis_kelamin harus 'laki-laki' atau 'perempuan'")
-	}
 
 	anak := &models.Anak{
-		KehamilanID:   req.KehamilanID,
-		Nama:          req.Nama,
-		TanggalLahir:  tanggalLahir,
-		JenisKelamin:  req.JenisKelamin,
-		BeratLahirKg:  req.BeratLahirKg,
-		GolonganDarah: req.GolonganDarah,
+		KehamilanID: req.KehamilanID,
+		PendudukID:  req.PendudukID,
+		BeratLahir:  req.BeratLahir,
+		TinggiLahir: req.TinggiLahir,
+	}
+
+	if anak.BeratLahir <= 0 {
+		return nil, errors.New("berat_lahir harus lebih dari 0")
+	}
+
+	if anak.TinggiLahir <= 0 {
+		return nil, errors.New("tinggi_lahir harus lebih dari 0")
 	}
 
 	if err := u.anakRepo.Create(anak); err != nil {
+		return nil, err
+	}
+
+	// reload relasi (kalau repo support preload)
+	anak, err := u.anakRepo.FindByID(anak.ID)
+	if err != nil {
 		return nil, err
 	}
 
@@ -69,50 +68,43 @@ func (u *AnakUseCase) CreateAnak(req models.CreateAnakRequest) (*models.AnakResp
 
 // ====================== UPDATE ======================
 func (u *AnakUseCase) UpdateAnak(id int32, req models.UpdateAnakRequest) (*models.AnakResponse, error) {
+
 	anak, err := u.anakRepo.FindByID(id)
 	if err != nil {
 		return nil, errors.New("data anak tidak ditemukan")
 	}
 
-	if req.Nama != "" {
-		anak.Nama = req.Nama
-	}
-
-	if req.TanggalLahir != "" {
-		t, err := time.Parse("2006-01-02", req.TanggalLahir)
-		if err != nil {
-			return nil, errors.New("format tanggal_lahir tidak valid, gunakan YYYY-MM-DD")
+	if req.BeratLahir != nil {
+		if *req.BeratLahir <= 0 {
+			return nil, errors.New("berat_lahir harus > 0")
 		}
+		anak.BeratLahir = *req.BeratLahir
+	}
 
-		if t.After(time.Now()) {
-			return nil, errors.New("tanggal_lahir tidak boleh di masa depan")
+	if req.TinggiLahir != nil {
+		if *req.TinggiLahir <= 0 {
+			return nil, errors.New("tinggi_lahir harus > 0")
 		}
-
-		anak.TanggalLahir = t
+		anak.TinggiLahir = *req.TinggiLahir
 	}
 
-	if req.JenisKelamin != "" {
-		if req.JenisKelamin != "laki-laki" && req.JenisKelamin != "perempuan" {
-			return nil, errors.New("jenis_kelamin tidak valid")
-		}
-		anak.JenisKelamin = req.JenisKelamin
+	if req.PendudukID != nil {
+		anak.PendudukID = *req.PendudukID
 	}
 
-	if req.BeratLahirKg != nil {
-		anak.BeratLahirKg = req.BeratLahirKg
-	}
-
-	if req.GolonganDarah != nil {
-		anak.GolonganDarah = req.GolonganDarah
+	if req.KehamilanID != nil {
+		anak.KehamilanID = *req.KehamilanID
 	}
 
 	if err := u.anakRepo.Update(anak); err != nil {
 		return nil, err
 	}
 
+	anak, _ = u.anakRepo.FindByID(id)
+
 	resp := u.toAnakResponse(anak)
 	return &resp, nil
-}
+}	
 
 // ====================== DELETE ======================
 func (u *AnakUseCase) DeleteAnak(id int32) error {
@@ -121,12 +113,12 @@ func (u *AnakUseCase) DeleteAnak(id int32) error {
 
 // ====================== LIST ======================
 func (u *AnakUseCase) AdminListAnak(kehamilanID int32) ([]models.AnakResponse, error) {
+
 	var (
 		list []models.Anak
 		err  error
 	)
 
-	// FIX: harus dibandingkan dengan 0
 	if kehamilanID != 0 {
 		list, err = u.anakRepo.FindByKehamilanID(kehamilanID)
 	} else {
@@ -139,9 +131,8 @@ func (u *AnakUseCase) AdminListAnak(kehamilanID int32) ([]models.AnakResponse, e
 
 	result := make([]models.AnakResponse, 0, len(list))
 
-	for _, k := range list {
-		resp := u.toAnakResponse(&k)
-		result = append(result, resp)
+	for _, a := range list {
+		result = append(result, u.toAnakResponse(&a))
 	}
 
 	return result, nil
@@ -208,28 +199,25 @@ func FormatLabelUsia(bulan int) string {
 
 // ====================== MAPPER ======================
 func (u *AnakUseCase) toAnakResponse(anak *models.Anak) models.AnakResponse {
-	usiaBulan := HitungUsiaBulan(anak.TanggalLahir)
 
 	resp := models.AnakResponse{
-		ID:            anak.ID,
-		Nama:          anak.Nama,
-		TanggalLahir:  anak.TanggalLahir.Format("2006-01-02"),
-		JenisKelamin:  anak.JenisKelamin,
-		UsiaBulan:     usiaBulan,
-		UsiaTeks:      FormatUsiaTeks(usiaBulan),
-		BeratLahirKg:  anak.BeratLahirKg,
-		GolonganDarah: anak.GolonganDarah,
+		ID:          anak.ID,
+		PendudukID:  anak.PendudukID,
+		KehamilanID: anak.KehamilanID,
+		BeratLahir:  anak.BeratLahir,
+		TinggiLahir: anak.TinggiLahir,
 	}
 
-	// 🔥 INI YANG HILANG SELAMA INI
 	if anak.Kehamilan != nil {
 		resp.Kehamilan = &models.KehamilanSimple{
 			ID: anak.Kehamilan.ID,
 		}
+	}
 
-		// if anak.Kehamilan.Ibu != nil {
-		// 	resp.Kehamilan.Ibu.NamaIbu = anak.Kehamilan.Ibu.Kependudukan.NamaLengkap
-		// }
+	if anak.Penduduk != nil {
+		resp.Penduduk = &models.PendudukSimple{
+			ID: anak.Penduduk.ID,
+		}
 	}
 
 	return resp

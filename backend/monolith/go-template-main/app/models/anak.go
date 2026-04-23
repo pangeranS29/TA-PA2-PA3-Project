@@ -7,17 +7,22 @@ import (
 )
 
 type Anak struct {
-	ID            int32          `gorm:"primaryKey;autoIncrement" json:"id"`
-	KehamilanID   int32          `json:"kehamilan_id" gorm:"not null;index;constraint:OnDelete:CASCADE"`
-	Kehamilan     *Kehamilan     `json:"kehamilan,omitempty" gorm:"foreignKey:KehamilanID;constraint:OnDelete:CASCADE"`
-	Nama          string         `json:"nama" gorm:"not null"`
-	TanggalLahir  time.Time      `json:"tanggal_lahir" gorm:"not null"`
-	JenisKelamin  string         `json:"jenis_kelamin" gorm:"not null"`
-	BeratLahirKg  *float64       `json:"berat_lahir_kg,omitempty"`
-	GolonganDarah *string        `json:"golongan_darah,omitempty"`
-	CreatedAt     time.Time      `json:"created_at"`
-	UpdatedAt     time.Time      `json:"updated_at"`
-	DeletedAt     gorm.DeletedAt `json:"-" gorm:"index"`
+	ID int32 `gorm:"primaryKey" json:"id"`
+
+	KehamilanID int32      `gorm:"not null;index" json:"kehamilan_id"`
+	Kehamilan   *Kehamilan `gorm:"constraint:OnDelete:CASCADE;" json:"kehamilan,omitempty"`
+
+	PendudukID int32     `gorm:"not null;index" json:"penduduk_id"`
+	Penduduk   *Penduduk `gorm:"foreignKey:PendudukID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;" json:"penduduk,omitempty"`
+
+	BeratLahir  float64 `gorm:"type:numeric(5,2);not null;check:berat_lahir > 0"`
+	TinggiLahir float64 `gorm:"type:numeric(5,2);not null;check:tinggi_lahir > 0"`
+
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt gorm.DeletedAt `gorm:"index"`
 }
 
-func (Anak) TableName() string { return "anak" }
+func (Anak) TableName() string {
+	return "anak"
+}

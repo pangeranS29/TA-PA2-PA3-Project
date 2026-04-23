@@ -22,7 +22,14 @@ func (r *AnakRepository) Create(anak *models.Anak) error {
 
 func (r *AnakRepository) FindByKehamilanID(kehamilanID int32) ([]models.Anak, error) {
 	var list []models.Anak
-	err := r.db.Where("kehamilan_id = ?", kehamilanID).Order("created_at ASC").Find(&list).Error
+
+	err := r.db.
+		Preload("Kehamilan").
+		Preload("Penduduk").
+		Where("kehamilan_id = ?", kehamilanID).
+		Order("created_at ASC").
+		Find(&list).Error
+
 	return list, err
 }
 func (r *AnakRepository) FindAll() ([]models.Anak, error) {
@@ -30,45 +37,47 @@ func (r *AnakRepository) FindAll() ([]models.Anak, error) {
 
 	err := r.db.
 		Preload("Kehamilan").
-		Preload("Kehamilan.Ibu").
+		Preload("Penduduk").
 		Find(&list).Error
-	if err != nil {
-		return nil, err
-	}
-	return list, nil
 
+	return list, err
 }
 
 func (r *AnakRepository) FindByID(id int32) (*models.Anak, error) {
 	var anak models.Anak
-	err := r.db.Where("id = ?", id).First(&anak).Error
-	if err != nil {
-		return nil, err
-	}
-	return &anak, nil
-}
 
-func (r *AnakRepository) FindByIDAndPenggunaID(id, penggunaID int32) (*models.Anak, error) {
-	var anak models.Anak
-	err := r.db.Where("id = ? AND pengguna_id = ?", id, penggunaID).First(&anak).Error
+	err := r.db.
+		Preload("Kehamilan").
+		Preload("Penduduk").
+		Where("id = ?", id).
+		First(&anak).Error
+
 	if err != nil {
 		return nil, err
 	}
+
 	return &anak, nil
 }
 
 func (r *AnakRepository) Update(anak *models.Anak) error {
-	return r.db.Save(anak).Error
+	return r.db.
+		Model(&models.Anak{}).
+		Where("id = ?", anak.ID).
+		Updates(anak).Error
 }
 
 func (r *AnakRepository) Delete(id int32) error {
-	result := r.db.Where("id = ?", id).Delete(&models.Anak{})
+	result := r.db.
+		Where("id = ?", id).
+		Delete(&models.Anak{})
 
 	if result.Error != nil {
 		return result.Error
 	}
+
 	if result.RowsAffected == 0 {
-		return errors.New("Data Anak tidak ditemukan ")
+		return errors.New("data anak tidak ditemukan")
 	}
+
 	return nil
 }

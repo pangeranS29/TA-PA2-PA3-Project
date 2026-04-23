@@ -34,6 +34,11 @@ import PelayananGiziIndex from "./pages/Pelayanan-Gizi-Anak/index"
 // import PrivateRoute from "./routes/Private-routes";
 import NeonatusIndex from "./pages/Kesehatan-Neonatus/NeonatusIndex"
 import PelayananGiziCreate from "./pages/Pelayanan-Gizi-Anak/create";
+import PelayananVitaminIndex from"./pages/Pelayanan-Vitamin-Anak/index"
+import PelayananVitaminCreate from"./pages/Pelayanan-Vitamin-Anak/create"
+import PelayananImunisasiIndex from"./pages/Pelayanan-Imunisasi-Anak/index"
+import PelayananGigiIndex from"./pages/PelayananGigi/index"
+import TumbuhKembangAnak from"./pages/SDIDTK/index"
 
 
 function App() {
@@ -78,7 +83,15 @@ function App() {
 
           <Route path="/data-anak/pelayanan-gizi/:id" element= {<PelayananGiziIndex/>}></Route>
           <Route path="/data-anak/pelayanan-gizi/:id/create" element={<PelayananGiziCreate/>}></Route>
-        
+          <Route path="/data-anak/pelayanan-vitamin/:id" element={<PelayananVitaminIndex />} />
+          <Route path="/data-anak/pelayanan-vitamin/:id/create" element={<PelayananVitaminCreate />} />
+
+          <Route path="/data-anak/pelayanan-Imunisasi/:id" element={<PelayananImunisasiIndex />} />
+          <Route path="/data-anak/pelayanan-Gigi/:id" element={<PelayananGigiIndex/>}></Route>
+          <Route path="/data-anak/Tumbuh-kembang-Anak/:id" element= {<TumbuhKembangAnak/>}></Route>
+          
+
+
 
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
         <Route path="*" element={<Navigate to="/dashboard" replace />} />

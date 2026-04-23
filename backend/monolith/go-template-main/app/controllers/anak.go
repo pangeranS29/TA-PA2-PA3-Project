@@ -32,8 +32,8 @@ func NewAnakController(anakUC *usecases.AnakUseCase) *AnakController {
 // @Router       /anak [post]
 
 func (h *AnakController) AdminList(c echo.Context) error {
-	kehamilanParam := c.QueryParam("kehamilan_id")
 
+	kehamilanParam := c.QueryParam("kehamilan_id")
 	var kehamilanID int32 = 0
 
 	if kehamilanParam != "" {
@@ -48,9 +48,9 @@ func (h *AnakController) AdminList(c echo.Context) error {
 	if err != nil {
 		return helpers.StandardResponse(c, http.StatusInternalServerError, err.Error(), nil, nil)
 	}
-	return helpers.StandardResponse(c, http.StatusOK, "Berhasil", list, nil)
-}
 
+	return helpers.StandardResponse(c, http.StatusOK, "berhasil", list, nil)
+}
 func (h *AnakController) Create(c echo.Context) error {
 
 	var req models.CreateAnakRequest
@@ -58,8 +58,13 @@ func (h *AnakController) Create(c echo.Context) error {
 		return helpers.StandardResponse(c, http.StatusBadRequest, "request tidak valid: "+err.Error(), nil, nil)
 	}
 
-	if req.Nama == "" || req.TanggalLahir == "" || req.JenisKelamin == "" {
-		return helpers.StandardResponse(c, http.StatusBadRequest, "nama, tanggal_lahir, dan jenis_kelamin wajib diisi", nil, nil)
+	// validasi minimal sesuai model baru
+	if req.KehamilanID == 0 || req.PendudukID == 0 {
+		return helpers.StandardResponse(c, http.StatusBadRequest, "kehamilan_id dan penduduk_id wajib diisi", nil, nil)
+	}
+
+	if req.BeratLahir <= 0 || req.TinggiLahir <= 0 {
+		return helpers.StandardResponse(c, http.StatusBadRequest, "berat_lahir dan tinggi_lahir harus > 0", nil, nil)
 	}
 
 	anak, err := h.anakUC.CreateAnak(req)
@@ -69,7 +74,6 @@ func (h *AnakController) Create(c echo.Context) error {
 
 	return helpers.StandardResponse(c, http.StatusCreated, "data anak berhasil ditambahkan", anak, nil)
 }
-
 // Detail godoc
 // @Summary      Detail anak berdasarkan ID
 // @Tags         anak
@@ -105,9 +109,8 @@ func (h *AnakController) Detail(c echo.Context) error {
 // @Failure      404   {object}  models.Response
 // @Router       /anak/{id} [put]
 func (h *AnakController) Update(c echo.Context) error {
-	idParam := c.Param("id")
 
-	id64, err := strconv.ParseInt(idParam, 10, 32)
+	id64, err := strconv.ParseInt(c.Param("id"), 10, 32)
 	if err != nil {
 		return helpers.StandardResponse(c, http.StatusBadRequest, "id tidak valid", nil, nil)
 	}
@@ -135,9 +138,8 @@ func (h *AnakController) Update(c echo.Context) error {
 // @Failure      404  {object}  models.Response
 // @Router       /anak/{id} [delete]
 func (h *AnakController) Delete(c echo.Context) error {
-	idParam := c.Param("id")
 
-	id64, err := strconv.ParseInt(idParam, 10, 32)
+	id64, err := strconv.ParseInt(c.Param("id"), 10, 32)
 	if err != nil {
 		return helpers.StandardResponse(c, http.StatusBadRequest, "id tidak valid", nil, nil)
 	}

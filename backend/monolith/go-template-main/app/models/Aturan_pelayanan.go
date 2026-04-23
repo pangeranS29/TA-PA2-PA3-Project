@@ -17,3 +17,4 @@ type AturanPelayanan struct {
 	UpdatedAt        time.Time       `json:"updated_at"`
 	DeletedAt        gorm.DeletedAt  `json:"-" gorm:"index"`
 }
+	
