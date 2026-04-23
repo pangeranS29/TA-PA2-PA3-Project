@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:ta_pa2_pa3_project/core/themes/app_theme.dart';
 import 'package:ta_pa2_pa3_project/core/services/auth_session.dart';
+import 'package:ta_pa2_pa3_project/core/services/reminder_notification_service.dart';
 import 'package:ta_pa2_pa3_project/features/auth/presentation/screens/login_screen.dart';
 import 'package:ta_pa2_pa3_project/features/hamil/presentation/screens/journey_screen.dart';
 import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/pilih_anak_screen.dart';
 // import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/tumbuh_kembang_screen.dart';
 import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/input_profil_anak_screen.dart';
-import 'package:ta_pa2_pa3_project/features/imunisasi/presentation/screens/imunisasi_screen.dart';
+import 'package:ta_pa2_pa3_project/features/edukasi/presentation/screens/edukasi_screen.dart';
 
 
 class DashboardScreen extends StatefulWidget {
@@ -17,6 +18,175 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen> {
   String selectedPhase = "Hamil";
   int _selectedNavIndex = 0;
+
+  Future<void> _showTumbuhReminderPopup() async {
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      builder: (dialogContext) {
+        return Dialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(24),
+            ),
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFFFDE68A), Color(0xFFF59E0B)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: const Row(
+                    children: [
+                      Icon(Icons.notifications_active, color: Colors.white),
+                      SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          'Pengingat Suplemen Anak',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  'Agar tumbuh kembang optimal, pastikan jadwal suplemen anak tidak terlewat.',
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Color(0xFF475569),
+                    height: 1.5,
+                  ),
+                ),
+                const SizedBox(height: 14),
+                _buildReminderItem(
+                  icon: Icons.medication,
+                  iconColor: const Color(0xFFF59E0B),
+                  title: 'Vitamin A',
+                  detail: 'Berikan vitamin A setiap bulan sesuai kebutuhan anak.',
+                ),
+                const SizedBox(height: 10),
+                _buildReminderItem(
+                  icon: Icons.health_and_safety,
+                  iconColor: const Color(0xFF16A34A),
+                  title: 'Obat Cacing',
+                  detail: 'Berikan obat cacing setiap 6 bulan sekali.',
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => Navigator.of(dialogContext).pop(),
+                        style: OutlinedButton.styleFrom(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: const Text('Nanti'),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: FilledButton(
+                        onPressed: () => Navigator.of(dialogContext).pop(),
+                        style: FilledButton.styleFrom(
+                          backgroundColor: const Color(0xFF2563EB),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: const Text('Siap, Ingatkan Saya'),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildReminderItem({
+    required IconData icon,
+    required Color iconColor,
+    required String title,
+    required String detail,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 34,
+            height: 34,
+            decoration: BoxDecoration(
+              color: iconColor.withOpacity(0.12),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, color: iconColor, size: 20),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF0F172A),
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  detail,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Color(0xFF475569),
+                    height: 1.4,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _onPhaseSelected(String phase) async {
+    setState(() => selectedPhase = phase);
+
+    if (phase == 'Tumbuh') {
+      await ReminderNotificationService.scheduleTumbuhReminders();
+      if (!mounted) return;
+      await _showTumbuhReminderPopup();
+    }
+  }
 
   Widget _buildHomeBody() {
     return SingleChildScrollView(
@@ -54,7 +224,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               : _selectedNavIndex == 1
                   ? const Center(child: Text("Catatan"))
                   : _selectedNavIndex == 3
-                      ? const Center(child: Text("Edukasi"))
+                ? const EdukasiScreen()
                       : const Center(child: Text("Profil")),
       bottomNavigationBar: _buildBottomNav(),
     );
@@ -141,7 +311,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           children: phases.map((p) {
             bool isActive = selectedPhase == p['label'];
             return GestureDetector(
-              onTap: () => setState(() => selectedPhase = p['label']),
+              onTap: () => _onPhaseSelected(p['label']),
               child: Column(
                 children: [
                   Container(
@@ -343,6 +513,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
             if (menus[i]['label'] == 'Periksa') {
               Navigator.push(context, MaterialPageRoute(builder: (c) => JourneyScreen()));
             }
+            if (menus[i]['label'] == 'Edukasi') {
+              Navigator.push(context, MaterialPageRoute(builder: (c) => const EdukasiScreen()));
+            }
           },
           child: Container(
             decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
@@ -514,7 +687,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
             // 🔸 EDUKASI
             _menuItem(Icons.menu_book, "Edukasi", Colors.orange, () {
-              // TODO: halaman edukasi
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const EdukasiScreen(),
+                ),
+              );
             }),
 
             // 🔸 CATATAN
