@@ -16,4 +16,7 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	e.POST("/logout", controller.Logout, middlewares.JWTAuth(controller.JWTSecret()))
 	e.GET("/profile/keluarga", controller.ProfileKeluarga, middlewares.JWTAuth(controller.JWTSecret()))
 	e.POST("/keluarga-lengkap", controller.AdminCreateKeluargaLengkap, middlewares.JWTAuth(controller.JWTSecret()))
+	// MODUL IBU
+	e.GET("/profile/pemeriksaan-saya", controller.GetRiwayatPemeriksaanIbu, middlewares.JWTAuth(controller.JWTSecret()))
+	e.GET("/profile/data-saya", controller.GetProfileIbu, middlewares.JWTAuth(controller.JWTSecret()))
 }

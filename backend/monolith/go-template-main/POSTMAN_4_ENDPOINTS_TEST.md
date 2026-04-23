@@ -40,7 +40,7 @@ set name = excluded.name,
 -- password plaintext: Aparat123!
 insert into public.users (nomor_telepon, kata_sandi, roles_id, isdeleted, created_at, updated_at)
 values (
-  '081234567890',
+  '081234567890', 
   crypt('Aparat123!', gen_salt('bf', 10)),
   6,
   false,

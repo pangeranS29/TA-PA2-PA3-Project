@@ -46,25 +46,62 @@ func (Penduduk) TableName() string {
 	return "penduduk"
 }
 
+// type Ibu struct {
+// 	ID         int64      `gorm:"column:id;primaryKey" json:"id"`
+// 	PendudukID int64      `gorm:"column:penduduk_id" json:"penduduk_id"`
+// 	Gravida    *int       `gorm:"column:gravida" json:"gravida,omitempty"`
+// 	CreatedAt  *time.Time `gorm:"column:created_at" json:"created_at,omitempty"`
+// 	UpdatedAt  *time.Time `gorm:"column:updated_at" json:"updated_at,omitempty"`
+// 	IsDeleted  *time.Time `gorm:"column:is_deleted" json:"is_deleted,omitempty"`
+// }
+
 type Ibu struct {
 	ID         int64      `gorm:"column:id;primaryKey" json:"id"`
 	PendudukID int64      `gorm:"column:penduduk_id" json:"penduduk_id"`
 	Gravida    *int       `gorm:"column:gravida" json:"gravida,omitempty"`
+	Paritas    *int       `gorm:"column:paritas" json:"paritas,omitempty"`
+	Abortus    *int       `gorm:"column:abortus" json:"abortus,omitempty"`
 	CreatedAt  *time.Time `gorm:"column:created_at" json:"created_at,omitempty"`
 	UpdatedAt  *time.Time `gorm:"column:updated_at" json:"updated_at,omitempty"`
-	IsDeleted  *time.Time `gorm:"column:is_deleted" json:"is_deleted,omitempty"`
+	DeletedAt  *time.Time `gorm:"column:deleted_at" json:"deleted_at,omitempty"`
 }
 
 func (Ibu) TableName() string {
 	return "ibu"
 }
 
+// type Kehamilan struct {
+// 	ID        int64      `gorm:"column:id;primaryKey" json:"id"`
+// 	IbuID     int64      `gorm:"column:ibu_id" json:"ibu_id"`
+// 	CreatedAt *time.Time `gorm:"column:created_at" json:"created_at,omitempty"`
+// 	UpdatedAt *time.Time `gorm:"column:updated_at" json:"updated_at,omitempty"`
+// 	DeletedAt *time.Time `gorm:"column:deleted_at" json:"deleted_at,omitempty"`
+// }
+
+// type Kehamilan struct {
+// 	ID                       int64      `gorm:"column:id;primaryKey" json:"id"`
+// 	IbuID                    int64      `gorm:"column:ibu_id" json:"ibu_id"`
+// 	Hpht                     *time.Time `gorm:"column:hpht" json:"hpht"`
+// 	TaksiranPersalinan       *time.Time `gorm:"column:taksiran_persalinan" json:"taksiran_persalinan"`
+// 	UkKehamilanSaatIni       *int       `gorm:"column:uk_kehamilan_saat_ini" json:"uk_kehamilan_saat_ini"`
+// 	JarakKehamilanSebelumnya *int       `gorm:"column:jarak_kehamilan_sebelumnya" json:"jarak_kehamilan_sebelumnya"`
+// 	StatusKehamilan          *string    `gorm:"column:status_kehamilan" json:"status_kehamilan"`
+// 	CreatedAt                *time.Time `gorm:"column:created_at" json:"created_at,omitempty"`
+// 	UpdatedAt                *time.Time `gorm:"column:updated_at" json:"updated_at,omitempty"`
+// 	DeletedAt                *time.Time `gorm:"column:deleted_at" json:"deleted_at,omitempty"`
+// }
+
 type Kehamilan struct {
-	ID        int64      `gorm:"column:id;primaryKey" json:"id"`
-	IbuID     int64      `gorm:"column:ibu_id" json:"ibu_id"`
-	CreatedAt *time.Time `gorm:"column:created_at" json:"created_at,omitempty"`
-	UpdatedAt *time.Time `gorm:"column:updated_at" json:"updated_at,omitempty"`
-	DeletedAt *time.Time `gorm:"column:deleted_at" json:"deleted_at,omitempty"`
+    ID                       int64      `gorm:"column:id;primaryKey" json:"id"`
+    IbuID                    int64      `gorm:"column:ibu_id" json:"ibu_id"`
+    Hpht                     *time.Time `gorm:"column:hpht" json:"hpht"`
+    TaksiranPersalinan       *time.Time `gorm:"column:taksiran_persalinan" json:"taksiran_persalinan"`
+    UkKehamilanSaatIni       *int       `gorm:"column:uk_kehamilan_saat_ini" json:"uk_kehamilan_saat_ini"`
+    JarakKehamilanSebelumnya *int       `gorm:"column:jarak_kehamilan_sebelumnya" json:"jarak_kehamilan_sebelumnya"`
+    StatusKehamilanID        int64      `gorm:"column:status_kehamilan_id" json:"status_kehamilan_id"` 
+    CreatedAt                *time.Time `gorm:"column:created_at" json:"created_at,omitempty"`
+    UpdatedAt                *time.Time `gorm:"column:updated_at" json:"updated_at,omitempty"`
+    DeletedAt                *time.Time `gorm:"column:deleted_at" json:"deleted_at,omitempty"`
 }
 
 func (Kehamilan) TableName() string {
