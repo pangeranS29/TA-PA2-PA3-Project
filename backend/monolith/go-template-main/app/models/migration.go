@@ -4,7 +4,6 @@ import "gorm.io/gorm"
 
 func AutoMigrate(db *gorm.DB) error {
 	models := []interface{}{
-		// Master
 		&Role{},
 		&User{},
 		&KategoriUmur{},
@@ -13,21 +12,15 @@ func AutoMigrate(db *gorm.DB) error {
 		&JenisPelayananKategori{},
 		&AturanPelayanan{},
 
-		// Relasi utama
-		// &ibu
 		&Penduduk{},
+		&KartuKeluarga{},
 		&Ibu{},
 		&Kehamilan{},
 		&Anak{},
-		// &Role{},
-		// &User{},
-		&Kebabura{},
-		// &Anak{},
-		// Evaluasi & riwayat
+
 		&EvaluasiKesehatanIbu{},
 		&RiwayatKehamilanLalu{},
 
-		// Pelayanan anak
 		&KunjunganAnak{},
 		&KunjunganGizi{},
 		&KunjunganVitamin{},
@@ -44,7 +37,6 @@ func AutoMigrate(db *gorm.DB) error {
 		&PengukuranLila{},
 		&Pertumbuhan{},
 
-		// Kehamilan detail
 		&PemeriksaanKehamilan{},
 		&PemeriksaanDokterTrimester1{},
 		&PemeriksaanLaboratoriumJiwa{},
@@ -56,21 +48,15 @@ func AutoMigrate(db *gorm.DB) error {
 		&PemeriksaanLanjutanTrimester3{},
 		&CatatanPelayananTrimester3{},
 
-		// Grafik & hasil
 		&GrafikEvaluasiKehamilan{},
 		&GrafikPeningkatanBB{},
 		&PenjelasanHasilGrafik{},
-		&StandarBBTB{},
-		&StandarBBU{},
-		&StandarIMTU{},
 
-		// Persalinan
 		&RencanaPersalinan{},
 		&RingkasanPelayananPersalinan{},
 		&KeteranganLahir{},
 		&RiwayatProsesMelahirkan{},
 
-		// Nifas & rujukan
 		&PelayananIbuNifas{},
 		&CatatanPelayananNifas{},
 		&Rujukan{},
