@@ -9,7 +9,7 @@ type Main struct {
 	repository *repositories.Main
 	config     *config.Config
 
-	// Existing
+	// Usecase yang sudah ada
 	Anak                   *AnakUseCase
 	PelayananKesehatanAnak PelayananKesehatanAnakUseCase
 	Neonatus               NeonatusUsecase
@@ -20,8 +20,9 @@ type Main struct {
 	PemantauanPertumbuhan  PemantauanPertumbuhanAnakUseCase
 	PengukuranLilA         PengukuranLilAUseCase
 	CatatanPelayanan       CatatanPelayananUseCase
+	Kependudukan           KependudukanUsecase
 
-	// New
+	// Usecase baru (terkait kehamilan)
 	Kehamilan                     KehamilanUsecase
 	PemeriksaanKehamilan          PemeriksaanKehamilanUsecase
 	EvaluasiKesehatanIbu          EvaluasiKesehatanIbuUsecase
@@ -45,12 +46,8 @@ type Main struct {
 	PelayananIbuNifas             PelayananIbuNifasUsecase
 	Ibu                           IbuUsecase
 	RiwayatKehamilanLalu          RiwayatKehamilanLaluUsecase
-
-	RegisterOrangTua *RegisterOrangTuaUsecase
-	KeteranganLahir  KeteranganLahirUsecase
-	JenisPelayanan   JenisPelayananUsecase
-	Penduduk         PendudukUsecase
-	KartuKeluarga    KartuKeluargaUsecase
+	RegisterOrangTua              *RegisterOrangTuaUsecase
+	KeteranganLahir               KeteranganLahirUsecase // <-- TAMBAHKAN INI
 }
 
 type Options struct {
@@ -64,9 +61,8 @@ func Init(opts Options) *Main {
 		config:     opts.Config,
 	}
 
-	// Existing
+	// Inisialisasi usecase yang sudah ada
 	m.Anak = NewAnakUseCase(opts.Repository.Anak)
-	m.KartuKeluarga = NewKartuKeluargaUsecase(opts.Repository.KartuKeluarga)
 	m.PelayananKesehatanAnak = NewPelayananKesehatanAnakUseCase(opts.Repository.PelayananKesehatanAnak)
 	m.Neonatus = NewPelayananNeonatusUseCase(opts.Repository.Neonatus)
 	m.KunjunganGizi = NewKunjunganGiziUseCase(opts.Repository.KunjunganGizi)
@@ -77,7 +73,7 @@ func Init(opts Options) *Main {
 	m.PengukuranLilA = NewPengukuranLilAUseCase(opts.Repository.PengukuranLilA)
 	m.CatatanPelayanan = NewCatatanPelayananUseCase(opts.Repository.CatatanPelayanan)
 
-	// New
+	// Inisialisasi usecase baru
 	m.Kehamilan = NewKehamilanUsecase(opts.Repository.Kehamilan)
 	m.PemeriksaanKehamilan = NewPemeriksaanKehamilanUsecase(opts.Repository.PemeriksaanKehamilan)
 	m.EvaluasiKesehatanIbu = NewEvaluasiKesehatanIbuUsecase(opts.Repository.EvaluasiKesehatanIbu)
@@ -101,16 +97,15 @@ func Init(opts Options) *Main {
 	m.PelayananIbuNifas = NewPelayananIbuNifasUsecase(opts.Repository.PelayananIbuNifas)
 	m.Ibu = NewIbuUsecase(opts.Repository.Ibu)
 	m.RiwayatKehamilanLalu = NewRiwayatKehamilanLaluUsecase(opts.Repository.RiwayatKehamilanLalu)
+	m.Kependudukan = NewKependudukanUsecase(opts.Repository.Kependudukan)
 	m.RegisterOrangTua = NewRegisterOrangTuaUsecase(
 		opts.Repository.User,
 		opts.Repository.Role,
-		opts.Repository.KartuKeluarga,
-		opts.Repository.Penduduk,
+		opts.Repository.Kebabura,
+		opts.Repository.Kependudukan,
 		opts.Repository.Ibu,
 	)
-	m.KeteranganLahir = NewKeteranganLahirUsecase(opts.Repository.KeteranganLahir)
-	m.JenisPelayanan = NewJenisPelayananUsecase(opts.Repository.JenisPelayanan)
-	m.Penduduk = NewPendudukUsecase(opts.Repository.Penduduk)
+	m.KeteranganLahir = NewKeteranganLahirUsecase(opts.Repository.KeteranganLahir) // <-- TAMBAHKAN INI
 
 	return m
 }

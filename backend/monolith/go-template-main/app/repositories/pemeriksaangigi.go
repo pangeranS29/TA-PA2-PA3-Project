@@ -14,7 +14,6 @@ type PemeriksaanGigiRepository interface {
 	GetAll() ([]models.PeriksaGigi, error)
 	Update(id int32, req models.UpdatePemeriksaanGigiRequest, now time.Time) error
 	Delete(id int32) error
-	ExistsByAnakAndBulan(anakID int32, bulan int) (bool, error)
 }
 type pemeriksaanGigiRepository struct {
 	db *gorm.DB
@@ -83,27 +82,26 @@ func (r *pemeriksaanGigiRepository) Update(id int32, req models.UpdatePemeriksaa
 			"updated_at": now,
 		}
 
-		if req.AnakID != nil {
-			updates["anak_id"] = *req.AnakID
+		if req.AnakID != 0 {
+			updates["anak_id"] = req.AnakID
 		}
-		if req.Bulanke != nil {
-			updates["bulanke"] = *req.Bulanke
+		if req.Bulanke != 0 {
+			updates["bulanke"] = req.Bulanke
 		}
-		if req.Tanggal != nil {
-			updates["tanggal"] = *req.Tanggal
+		if !req.Tanggal.IsZero() {
+			updates["tanggal"] = req.Tanggal
 		}
-		if req.Jumlahgigi != nil {
-			updates["jumlahgigi"] = *req.Jumlahgigi
+		if req.Jumlahgigi != 0 {
+			updates["jumlahgigi"] = req.Jumlahgigi
 		}
-		if req.GigiBerlubang != nil {
-			updates["gigi_berlubang"] = *req.GigiBerlubang
+		if req.GigiBerlubang != 0 {
+			updates["gigi_berlubang"] = req.GigiBerlubang
 		}
-		if req.StatusPlak != nil {
-			updates["status_plak"] = *req.StatusPlak
+		if req.StatusPlak != "" {
+			updates["status_plak"] = req.StatusPlak
 		}
-
-		if req.ResikoGigiBerlubang != nil {
-			updates["resiko_gigi_berlubang"] = *req.ResikoGigiBerlubang
+		if req.ResikoGigiBerlubang != "" {
+			updates["resiko_gigi_berlubang"] = req.ResikoGigiBerlubang
 		}
 
 		return tx.Model(&models.PeriksaGigi{}).
@@ -115,17 +113,4 @@ func (r *pemeriksaanGigiRepository) Delete(id int32) error {
 	return r.withTx(func(tx *gorm.DB) error {
 		return tx.Delete(&models.PeriksaGigi{}, id).Error
 	})
-}
-func (r *pemeriksaanGigiRepository) ExistsByAnakAndBulan(anakID int32, bulan int) (bool, error) {
-	var count int64
-
-	err := r.db.Model(&models.PeriksaGigi{}).
-		Where("anak_id = ? AND bulanke = ?", anakID, bulan).
-		Count(&count).Error
-
-	if err != nil {
-		return false, err
-	}
-
-	return count > 0, nil
 }

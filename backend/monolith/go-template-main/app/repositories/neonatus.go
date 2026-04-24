@@ -10,7 +10,7 @@ import (
 
 type PelayananNeonatusRepository interface {
 	Create(data *models.Neonatus) error
-	GetByAnakID(anakID int32, periodeID int32) ([]models.Neonatus, error)
+	GetByAnakID(anakID int32) ([]models.Neonatus, error)
 	GetByID(id int32) (*models.Neonatus, error)
 	GetAll() ([]models.Neonatus, error)
 	Update(id int32, req models.UpdatePelayananNeonatusRequest, tanggal time.Time, now time.Time) error
@@ -60,19 +60,13 @@ func (r *pelayananNeonatusRepository) GetAll() ([]models.Neonatus, error) {
 }
 
 // GET BY ANAK ID
-func (r *pelayananNeonatusRepository) GetByAnakID(anakID int32, periodeID int32) ([]models.Neonatus, error) {
+func (r *pelayananNeonatusRepository) GetByAnakID(anakID int32) ([]models.Neonatus, error) {
 	var result []models.Neonatus
 
-	query := r.db.
+	err := r.db.
 		Preload("DetailPelayanan").
-		Where("anak_id = ?", anakID)
-
-	// optional filter periode
-	if periodeID != 0 {
-		query = query.Where("periode_id = ?", periodeID) // ✅ FIX
-	}
-
-	err := query.Find(&result).Error
+		Where("anak_id = ?", anakID).
+		Find(&result).Error
 
 	return result, err
 }
@@ -93,12 +87,12 @@ func (r *pelayananNeonatusRepository) GetByID(id int32) (*models.Neonatus, error
 }
 
 // UPDATE (parent + detail)
-func (r *pelayananNeonatusRepository) Update(id int32, req models.UpdatePelayananNeonatusRequest, tanggal time.Time, now time.Time) error {
+func (r *pelayananNeonatusRepository) Update(id int32,req models.UpdatePelayananNeonatusRequest,tanggal time.Time,now time.Time,) error {
 
 	tx := r.db.Begin()
 
 	// UPDATE PARENT
-
+	
 	parent := map[string]interface{}{
 		"updated_at": now,
 	}
@@ -127,8 +121,9 @@ func (r *pelayananNeonatusRepository) Update(id int32, req models.UpdatePelayana
 		return err
 	}
 
+	
 	// AMBIL DATA EXISTING
-
+	
 	var existing []models.DetailPelayananNeonatus
 	if err := tx.Where("neonatus_id = ?", id).Find(&existing).Error; err != nil {
 		tx.Rollback()
@@ -145,12 +140,14 @@ func (r *pelayananNeonatusRepository) Update(id int32, req models.UpdatePelayana
 		existingByJenis[d.JenisPelayananID] = d
 	}
 
+	
 	// LOOP REQUEST
-
+	
 	for _, d := range req.DetailPelayanan {
 
+		
 		// CASE 1: ID ADA → UPDATE BY ID
-
+		
 		if d.ID != 0 {
 
 			existingDetail, ok := existingMap[d.ID]

@@ -23,8 +23,8 @@ func NewIbuUsecase(repo *repositories.IbuRepository) IbuUsecase {
 }
 
 func (u *ibuUsecase) Create(ibu *models.Ibu) error {
-	if ibu.PendudukID == 0 {
-		return errors.New("penduduk_id wajib diisi")
+	if ibu.IDKependudukan == 0 {
+		return errors.New("id_kependudukan wajib diisi")
 	}
 	return u.repo.Create(ibu)
 }
@@ -38,7 +38,7 @@ func (u *ibuUsecase) GetAll() ([]models.Ibu, error) {
 }
 
 func (u *ibuUsecase) Update(ibu *models.Ibu) error {
-	_, err := u.repo.FindByID(ibu.ID)
+	_, err := u.repo.FindByID(ibu.IDIbu)
 	if err != nil {
 		return errors.New("data ibu tidak ditemukan")
 	}

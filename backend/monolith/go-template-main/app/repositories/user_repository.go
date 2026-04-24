@@ -26,13 +26,13 @@ func (r *UserRepository) FindByEmail(email string) (*models.User, error) {
 
 func (r *UserRepository) FindByUsername(username string) (*models.User, error) {
 	var user models.User
-	err := r.db.Preload("Role").Where("nama = ?", username).First(&user).Error
+	err := r.db.Preload("Role").Where("username = ?", username).First(&user).Error
 	return &user, err
 }
 
 func (r *UserRepository) FindByPhoneNumber(phone string) (*models.User, error) {
 	var user models.User
-	err := r.db.Preload("Role").Where("nomor_telepon = ?", phone).First(&user).Error
+	err := r.db.Preload("Role").Where("phone_number = ?", phone).First(&user).Error
 	return &user, err
 }
 

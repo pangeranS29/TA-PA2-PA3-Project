@@ -10,7 +10,7 @@ import (
 
 type NeonatusUsecase interface {
 	Create(req models.CreatePelayananNeonatusRequest) error
-	GetByAnakID(anakID int32,periodeID int32) ([]models.Neonatus, error)
+	GetByAnakID(anakID int32) ([]models.Neonatus, error)
 	GetByID(id int32)(*models.Neonatus, error)
 	GetAll()([]models.Neonatus, error)
 	Update(id int32, req models.UpdatePelayananNeonatusRequest) error 
@@ -79,12 +79,12 @@ func (uc *pelayananNeonatusUseCase)Create(req models.CreatePelayananNeonatusRequ
 
 }
 
-func (uc *pelayananNeonatusUseCase) GetByAnakID(anakID int32, periodeID int32) ([]models.Neonatus, error) {
+func (uc *pelayananNeonatusUseCase) GetByAnakID(anakID int32) ([]models.Neonatus, error) {
 	if anakID == 0 {
 		return nil, errors.New("anak_id wajib diisi")
 	}
 
-	return uc.NeonatusRepo.GetByAnakID(anakID,periodeID )
+	return uc.NeonatusRepo.GetByAnakID(anakID)
 }
 
 func (uc *pelayananNeonatusUseCase) GetByID(id int32) (*models.Neonatus, error) {
