@@ -246,3 +246,22 @@ type UpdateCatatanPelayananRequest struct {
 	TanggalKembali    time.Time `json:"tanggal_kembali"` // "YYYY-MM-DD"
 	CatatanPelayanan  string    `json:"catatan_pelayanan"`
 }
+
+type CreatePenimbanganRequest struct {
+	AnakID        int32     `json:"anak_id" validate:"required"`
+	Tanggal       time.Time `json:"tanggal"`
+	UmurBulan     int       `json:"umur_bulan"`
+	BeratBadan    float64   `json:"berat_badan"`
+	TinggiBadan   float64   `json:"tinggi_badan"`
+	LingkarKepala float64   `json:"lingkar_kepala"`
+	LILA          float64   `json:"lila"`
+}
+
+type UpdatePenimbanganRequest struct {
+	Tanggal       time.Time `json:"tanggal"`
+	UmurBulan     int       `json:"umur_bulan"`
+	BeratBadan    float64   `json:"berat_badan"`
+	TinggiBadan   float64   `json:"tinggi_badan"`
+	LingkarKepala float64   `json:"lingkar_kepala"`
+	LILA          float64   `json:"lila"`
+}

@@ -21,7 +21,7 @@ func AutoMigrate(db *gorm.DB) error {
 		&Anak{},
 		// &Role{},
 		// &User{},
-		&Kebabura{},
+		// &Kebabura{},
 		// &Anak{},
 		// Evaluasi & riwayat
 		&EvaluasiKesehatanIbu{},
@@ -42,7 +42,7 @@ func AutoMigrate(db *gorm.DB) error {
 		&PeriksaGigi{},
 		&DeteksiDiniPenyimpangan{},
 		&PengukuranLila{},
-		&Pertumbuhan{},
+		// &Pertumbuhan{},
 
 		// Kehamilan detail
 		&PemeriksaanKehamilan{},
@@ -63,7 +63,7 @@ func AutoMigrate(db *gorm.DB) error {
 		&StandarBBTB{},
 		&StandarBBU{},
 		&StandarIMTU{},
-
+		&MasterStandarAntropometri{},
 		// Persalinan
 		&RencanaPersalinan{},
 		&RingkasanPelayananPersalinan{},

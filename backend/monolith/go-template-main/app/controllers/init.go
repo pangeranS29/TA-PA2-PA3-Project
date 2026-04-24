@@ -48,7 +48,7 @@ type Main struct {
 	RiwayatKehamilanLalu          *RiwayatKehamilanLaluController
 	KeteranganLahir               *KeteranganLahirController // <-- TAMBAHKAN INI
 	// Kependudukan                  *KependudukanController
-	KeteranganLahir *KeteranganLahirController
+	// KeteranganLahir *KeteranganLahirController
 	JenisPelayanan  *JenisPelayananController
 	Penduduk        *PendudukController
 }

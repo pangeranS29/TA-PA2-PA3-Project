@@ -26,7 +26,7 @@ func NewIbuUsecase(repo *repositories.IbuRepository) IbuUsecase {
 }
 
 // CREATE
-Stashed changes
+
 func (u *ibuUsecase) Create(ibu *models.Ibu) error {
 	if ibu.PendudukID == 0 {
 		return errors.New("penduduk_id wajib diisi")
