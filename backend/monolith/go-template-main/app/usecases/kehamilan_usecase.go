@@ -51,10 +51,10 @@ func (u *kehamilanUsecase) Update(kehamilan *models.Kehamilan) error {
 	return u.repo.Update(kehamilan)
 }
 
-func (u *kehamilanUsecase) GetKehamilanAktif() ([]models.Kehamilan, error) {
-	return u.repo.GetKehamilanAktifWithIbu()
-}
-
 func (u *kehamilanUsecase) Delete(id int32) error {
 	return u.repo.Delete(id)
+}
+
+func (u *kehamilanUsecase) GetKehamilanAktif() ([]models.Kehamilan, error) {
+	return u.repo.GetKehamilanAktifWithIbu()
 }

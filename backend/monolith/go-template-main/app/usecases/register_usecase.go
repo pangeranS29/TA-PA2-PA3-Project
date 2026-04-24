@@ -52,11 +52,11 @@ func NewRegisterOrangTuaUsecase(
 	}
 }
 
-// func (u *RegisterOrangTuaUsecase) Register(req *RegisterOrangTuaRequest) error {
-// 	// Validasi input
-// 	if req.NoKK == "" || req.NIK == "" || req.NamaLengkap == "" || req.Username == "" || req.Email == "" || req.Password == "" {
-// 		return errors.New("semua field wajib diisi")
-// 	}
+func (u *RegisterOrangTuaUsecase) Register(req *RegisterOrangTuaRequest) error {
+	// Validasi input
+	if req.NoKK == "" || req.NIK == "" || req.NamaLengkap == "" || req.Username == "" || req.Email == "" || req.Password == "" {
+		return errors.New("semua field wajib diisi")
+	}
 
 	// Cek username/email/phone sudah terdaftar
 	if _, err := u.userRepo.FindByUsername(req.Username); err == nil {
@@ -78,31 +78,32 @@ func NewRegisterOrangTuaUsecase(
 	if _, err := u.pendudukRepo.FindByNIK(req.NIK); err == nil {
 		return errors.New("NIK sudah terdaftar")
 	}
-// 	// Ambil role "Orangtua"
-// 	role, err := u.roleRepo.FindByName("Orangtua")
-// 	if err != nil {
-// 		return errors.New("role Orangtua tidak ditemukan")
-// 	}
 
-// 	// Hash password
-// 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
-// 	if err != nil {
-// 		return err
-// 	}
+	// Ambil role "Orangtua"
+	role, err := u.roleRepo.FindByName("Orangtua")
+	if err != nil {
+		return errors.New("role Orangtua tidak ditemukan")
+	}
 
-// 	// Buat user
-// 	user := &models.User{
-// 		RoleID:      role.ID,
-// 		Name:        req.Username,
-// 		Email:       req.Email,
-// 		Password:    string(hashedPassword),
-// 		PhoneNumber: req.PhoneNumber,
-// 		CreatedAt:   time.Now(),
-// 		UpdatedAt:   time.Now(),
-// 	}
-// 	if err := u.userRepo.Create(user); err != nil {
-// 		return err
-// 	}
+	// Hash password
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+
+	// Buat user
+	user := &models.User{
+		RoleID:      role.ID,
+		Name:        req.Username,
+		Email:       req.Email,
+		Password:    string(hashedPassword),
+		PhoneNumber: req.PhoneNumber,
+		CreatedAt:   time.Now(),
+		UpdatedAt:   time.Now(),
+	}
+	if err := u.userRepo.Create(user); err != nil {
+		return err
+	}
 
 	// Buat Kartu Keluarga (IDUser sebagai pointer)
 	var tanggalTerbit *time.Time
@@ -114,7 +115,7 @@ func NewRegisterOrangTuaUsecase(
 	}
 	kk := &models.KartuKeluarga{
 		NoKK:          req.NoKK,
-		IDUser:        &user.ID, // perbaikan: ambil alamat user.ID
+		IDUser:        &user.ID,
 		TanggalTerbit: tanggalTerbit,
 		CreatedAt:     time.Now(),
 		UpdatedAt:     time.Now(),
@@ -129,7 +130,7 @@ func NewRegisterOrangTuaUsecase(
 		return errors.New("format tanggal lahir tidak valid")
 	}
 	penduduk := &models.Penduduk{
-		KartuKeluargaID:    &kk.ID, // tautkan ke kartu keluarga yang baru dibuat
+		KartuKeluargaID:    &kk.ID,
 		NIK:                &req.NIK,
 		NamaLengkap:        &req.NamaLengkap,
 		JenisKelamin:       &req.JenisKelamin,
@@ -157,5 +158,5 @@ func NewRegisterOrangTuaUsecase(
 		return err
 	}
 
-// 	return nil
-// }
+	return nil
+}

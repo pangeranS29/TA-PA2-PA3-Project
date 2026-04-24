@@ -3,18 +3,16 @@ package models
 import "time"
 
 type CreateAnakRequest struct {
-	KehamilanID int32   `json:"kehamilan_id" validate:"required"`
-	PendudukID  int32   `json:"penduduk_id" validate:"required"`
-	BeratLahir  float64 `json:"berat_lahir" validate:"required,gt=0"`
-	TinggiLahir float64 `json:"tinggi_lahir" validate:"required,gt=0"`
+	KehamilanID   int32    `json:"kehamilan_id" validate:"required"`
+	PendudukID    int64    `json:"penduduk_id" validate:"required"`
+	BeratLahirKg  *float64 `json:"berat_lahir_kg,omitempty"`
+	TinggiLahirCm *float64 `json:"tinggi_lahir_cm,omitempty"`
 }
 
-// UpdateAnakRequest adalah body request untuk PUT /anak/:id.
 type UpdateAnakRequest struct {
-	KehamilanID *int32   `json:"kehamilan_id,omitempty"`
-	PendudukID  *int32   `json:"penduduk_id,omitempty"`
-	BeratLahir  *float64 `json:"berat_lahir,omitempty" validate:"omitempty,gt=0"`
-	TinggiLahir *float64 `json:"tinggi_lahir,omitempty" validate:"omitempty,gt=0"`
+	PendudukID    *int64   `json:"penduduk_id,omitempty"`
+	BeratLahirKg  *float64 `json:"berat_lahir_kg,omitempty"`
+	TinggiLahirCm *float64 `json:"tinggi_lahir_cm,omitempty"`
 }
 
 type DetailPelayananRequest struct {

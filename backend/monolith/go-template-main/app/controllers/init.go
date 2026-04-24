@@ -46,9 +46,8 @@ type Main struct {
 	SkriningPreeklampsia          *SkriningPreeklampsiaController
 	PelayananIbuNifas             *PelayananIbuNifasController
 	RiwayatKehamilanLalu          *RiwayatKehamilanLaluController
-	KeteranganLahir               *KeteranganLahirController // <-- TAMBAHKAN INI
-	// Kependudukan                  *KependudukanController
-	// KeteranganLahir *KeteranganLahirController
+
+	KeteranganLahir *KeteranganLahirController
 	JenisPelayanan  *JenisPelayananController
 	Penduduk        *PendudukController
 }
@@ -101,12 +100,10 @@ func Init(opts Options) *Main {
 	m.SkriningPreeklampsia = NewSkriningPreeklampsiaController(opts.UseCases.SkriningPreeklampsia)
 	m.PelayananIbuNifas = NewPelayananIbuNifasController(opts.UseCases.PelayananIbuNifas)
 	m.RiwayatKehamilanLalu = NewRiwayatKehamilanLaluController(opts.UseCases.RiwayatKehamilanLalu)
-	m.KeteranganLahir = NewKeteranganLahirController(opts.UseCases.KeteranganLahir) // <-- TAMBAHKAN INI
-	// m.Kependudukan = NewKependudukanController(opts.UseCases.Kependudukan)
-
 	m.KeteranganLahir = NewKeteranganLahirController(opts.UseCases.KeteranganLahir)
 	m.JenisPelayanan = NewJenisPelayananController(opts.UseCases.JenisPelayanan)
 	m.Penduduk = NewPendudukController(opts.UseCases.Penduduk)
+
 	return m
 }
 

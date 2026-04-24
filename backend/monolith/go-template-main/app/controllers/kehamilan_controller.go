@@ -61,10 +61,8 @@ func (c *KehamilanController) Create(ctx echo.Context) error {
 	}
 
 	kehamilan := &models.Kehamilan{
-		IbuID:                    req.IbuID,
-		UKKehamilanSaatIni:       req.UKKehamilanSaatIni,
-		JarakKehamilanSebelumnya: req.JarakKehamilanSebelumnya,
-		StatusKehamilan:          req.StatusKehamilan,
+		IbuID:           req.IbuID,
+		StatusKehamilan: req.StatusKehamilan,
 	}
 
 	// Parse tanggal jika ada
@@ -87,6 +85,12 @@ func (c *KehamilanController) Create(ctx echo.Context) error {
 			})
 		}
 		kehamilan.TaksiranPersalinan = &t
+	}
+	if req.UKKehamilanSaatIni != 0 {
+		kehamilan.UKKehamilanSaatIni = &req.UKKehamilanSaatIni
+	}
+	if req.JarakKehamilanSebelumnya != 0 {
+		kehamilan.JarakKehamilanSebelumnya = &req.JarakKehamilanSebelumnya
 	}
 
 	if err := c.usecase.Create(kehamilan); err != nil {
