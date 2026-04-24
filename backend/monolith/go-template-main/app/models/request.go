@@ -4,15 +4,20 @@ import "time"
 
 type CreateAnakRequest struct {
 	KehamilanID   int32    `json:"kehamilan_id" validate:"required"`
-	PendudukID    int64    `json:"penduduk_id" validate:"required"`
+	Nama          string   `json:"nama" validate:"required"`
+	TanggalLahir  string   `json:"tanggal_lahir" validate:"required"` // "YYYY-MM-DD"
+	JenisKelamin  string   `json:"jenis_kelamin" validate:"required,oneof=laki-laki perempuan"`
 	BeratLahirKg  *float64 `json:"berat_lahir_kg,omitempty"`
-	TinggiLahirCm *float64 `json:"tinggi_lahir_cm,omitempty"`
+	GolonganDarah *string  `json:"golongan_darah,omitempty"`
 }
 
+// UpdateAnakRequest adalah body request untuk PUT /anak/:id.
 type UpdateAnakRequest struct {
-	PendudukID    *int64   `json:"penduduk_id,omitempty"`
+	Nama          string   `json:"nama"`
+	TanggalLahir  string   `json:"tanggal_lahir"` // "YYYY-MM-DD"
+	JenisKelamin  string   `json:"jenis_kelamin"`
 	BeratLahirKg  *float64 `json:"berat_lahir_kg,omitempty"`
-	TinggiLahirCm *float64 `json:"tinggi_lahir_cm,omitempty"`
+	GolonganDarah *string  `json:"golongan_darah,omitempty"`
 }
 
 type DetailPelayananRequest struct {
@@ -153,14 +158,14 @@ type CreatePemeriksaanGigiRequest struct {
 }
 
 type UpdatePemeriksaanGigiRequest struct {
-	ID                  *int32     `json:"id"`
-	AnakID              *int32     `json:"anak_id"`
-	Bulanke             *int       `json:"bulan_ke"`
-	Tanggal             *time.Time `json:"tanggal"` // "YYYY-MM-DD"
-	Jumlahgigi          *int       `json:"jumlah_gigi"`
-	GigiBerlubang       *int       `json:"gigi_berlubang"`
-	StatusPlak          *string    `json:"status_plak"`
-	ResikoGigiBerlubang *string    `json:"resiko_gigi_berlubang"`
+	ID                  int32     `json:"id"`
+	AnakID              int32     `json:"anak_id"`
+	Bulanke             int       `json:"bulan_ke"`
+	Tanggal             time.Time `json:"tanggal"` // "YYYY-MM-DD"
+	Jumlahgigi          int       `json:"jumlah_gigi"`
+	GigiBerlubang       int       `json:"gigi_berlubang"`
+	StatusPlak          string    `json:"status_plak"`
+	ResikoGigiBerlubang string    `json:"resiko_gigi_berlubang"`
 }
 type CreatePemantauanPemeriksaanRequest struct {
 	AnakID            int32     `json:"anak_id"`
@@ -178,17 +183,11 @@ type CreatePemantauanPemeriksaanRequest struct {
 	KMPE              string    `json:"kmpe"`
 	MCHATRevised      string    `json:"m_chat_revised"`
 	ACTRS             string    `json:"actrs"`
-	// HasilPKAT         string    `json:"hasil_pkat"`
-	// Tindakan          string    `json:"tindakan"`
-	// KunjunganUlang    time.Time `json:"kunjungan_ulang"`
+	HasilPKAT         string    `json:"hasil_pkat"`
+	Tindakan          string    `json:"tindakan"`
+	KunjunganUlang    time.Time `json:"kunjungan_ulang"`
 }
-type HasilPemantauanResponse struct {
-	HasilPKAT      string    `json:"hasil_pkat"`
-	Tindakan       string    `json:"tindakan"`
-	Score          int       `json:"score"`
-	Rekomendasi    string    `json:"rekomendasi"`
-	KunjunganUlang time.Time `json:"kunjungan_ulang"`
-}
+
 type UpdatePemantauanPemeriksaanRequest struct {
 	ID                int32     `json:"id"`
 	AnakID            int32     `json:"anak_id"`
@@ -243,23 +242,4 @@ type UpdateCatatanPelayananRequest struct {
 	TanggalPeriksa    time.Time `json:"tanggal_periksa"` // "YYYY-MM-DD"
 	TanggalKembali    time.Time `json:"tanggal_kembali"` // "YYYY-MM-DD"
 	CatatanPelayanan  string    `json:"catatan_pelayanan"`
-}
-
-type CreatePenimbanganRequest struct {
-	AnakID        int32     `json:"anak_id" validate:"required"`
-	Tanggal       time.Time `json:"tanggal"`
-	UmurBulan     int       `json:"umur_bulan"`
-	BeratBadan    float64   `json:"berat_badan"`
-	TinggiBadan   float64   `json:"tinggi_badan"`
-	LingkarKepala float64   `json:"lingkar_kepala"`
-	LILA          float64   `json:"lila"`
-}
-
-type UpdatePenimbanganRequest struct {
-	Tanggal       time.Time `json:"tanggal"`
-	UmurBulan     int       `json:"umur_bulan"`
-	BeratBadan    float64   `json:"berat_badan"`
-	TinggiBadan   float64   `json:"tinggi_badan"`
-	LingkarKepala float64   `json:"lingkar_kepala"`
-	LILA          float64   `json:"lila"`
 }

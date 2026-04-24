@@ -9,7 +9,7 @@ type Main struct {
 	usecases *usecases.Main
 	config   *config.Config
 
-	// Controller yang sudah ada
+	// Controller yang sudah ada (untuk modul lain)
 	Anak                   *AnakController
 	PelayananKesehatanAnak *PelayananKesehatanAnakController
 	Neonatus               *NeonatusController
@@ -21,7 +21,7 @@ type Main struct {
 	PengukuranLilA         *PengukuranLilAController
 	CatatanPelayanan       *CatatanPelayananController
 
-	// Controller baru
+	// Controller baru untuk struktur kehamilan
 	Ibu                           *IbuController
 	Kehamilan                     *KehamilanController
 	PemeriksaanKehamilan          *PemeriksaanKehamilanController
@@ -37,7 +37,6 @@ type Main struct {
 	GrafikEvaluasiKehamilan       *GrafikEvaluasiKehamilanController
 	GrafikPeningkatanBB           *GrafikPeningkatanBBController
 	PenjelasanHasilGrafik         *PenjelasanHasilGrafikController
-	KartuKeluarga                 *KartuKeluargaController
 	RencanaPersalinan             *RencanaPersalinanController
 	RingkasanPelayananPersalinan  *RingkasanPelayananPersalinanController
 	RiwayatProsesMelahirkan       *RiwayatProsesMelahirkanController
@@ -46,10 +45,8 @@ type Main struct {
 	SkriningPreeklampsia          *SkriningPreeklampsiaController
 	PelayananIbuNifas             *PelayananIbuNifasController
 	RiwayatKehamilanLalu          *RiwayatKehamilanLaluController
-
-	KeteranganLahir *KeteranganLahirController
-	JenisPelayanan  *JenisPelayananController
-	Penduduk        *PendudukController
+	KeteranganLahir               *KeteranganLahirController // <-- TAMBAHKAN INI
+	Kependudukan                  *KependudukanController
 }
 
 type Options struct {
@@ -63,7 +60,7 @@ func Init(opts Options) *Main {
 		config:   opts.Config,
 	}
 
-	// Controller yang sudah ada
+	// Controller yang sudah ada (tidak diubah)
 	m.Anak = NewAnakController(opts.UseCases.Anak)
 	m.PelayananKesehatanAnak = NewPelayananKesehatanAnakController(opts.UseCases.PelayananKesehatanAnak)
 	m.Neonatus = NewPelayananNeonatusController(opts.UseCases.Neonatus)
@@ -74,7 +71,6 @@ func Init(opts Options) *Main {
 	m.PemantauanPertumbuhan = NewPemantauanPertumbuhanController(opts.UseCases.PemantauanPertumbuhan)
 	m.PengukuranLilA = NewPengukuranLilAController(opts.UseCases.PengukuranLilA)
 	m.CatatanPelayanan = NewCatatanPelayananController(opts.UseCases.CatatanPelayanan)
-	m.KartuKeluarga = NewKartuKeluargaController(opts.UseCases.KartuKeluarga)
 
 	// Controller baru
 	m.Ibu = NewIbuController(opts.UseCases.Ibu)
@@ -100,9 +96,8 @@ func Init(opts Options) *Main {
 	m.SkriningPreeklampsia = NewSkriningPreeklampsiaController(opts.UseCases.SkriningPreeklampsia)
 	m.PelayananIbuNifas = NewPelayananIbuNifasController(opts.UseCases.PelayananIbuNifas)
 	m.RiwayatKehamilanLalu = NewRiwayatKehamilanLaluController(opts.UseCases.RiwayatKehamilanLalu)
-	m.KeteranganLahir = NewKeteranganLahirController(opts.UseCases.KeteranganLahir)
-	m.JenisPelayanan = NewJenisPelayananController(opts.UseCases.JenisPelayanan)
-	m.Penduduk = NewPendudukController(opts.UseCases.Penduduk)
+	m.KeteranganLahir = NewKeteranganLahirController(opts.UseCases.KeteranganLahir) // <-- TAMBAHKAN INI
+	m.Kependudukan = NewKependudukanController(opts.UseCases.Kependudukan)
 
 	return m
 }

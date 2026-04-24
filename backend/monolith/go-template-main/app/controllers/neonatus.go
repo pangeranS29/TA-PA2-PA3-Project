@@ -62,9 +62,7 @@ func (c *NeonatusController) CreatePelayananHandler(ctx echo.Context) error {
 // GetByAnakID
 func (c *NeonatusController) GetByAnakID(ctx echo.Context) error {
 	anakIDStr := ctx.QueryParam("anak_id")
-	periodeIDStr := ctx.QueryParam("periode_id")
 
-	// kalau tidak ada anak_id → ambil semua
 	if anakIDStr == "" {
 		data, err := c.usecase.GetAll()
 		if err != nil {
@@ -82,18 +80,7 @@ func (c *NeonatusController) GetByAnakID(ctx echo.Context) error {
 		})
 	}
 
-	var periodeID int32 = 0
-	if periodeIDStr != "" {
-		p, err := ParseInt(periodeIDStr, "periode_id")
-		if err != nil {
-			return ctx.JSON(http.StatusBadRequest, map[string]string{
-				"error": err.Error(),
-			})
-		}
-		periodeID = p
-	}
-
-	data, err := c.usecase.GetByAnakID(anakID, periodeID)
+	data, err := c.usecase.GetByAnakID(anakID)
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
 			"error": err.Error(),
@@ -102,6 +89,7 @@ func (c *NeonatusController) GetByAnakID(ctx echo.Context) error {
 
 	return ctx.JSON(http.StatusOK, data)
 }
+
 // // get by id kunjungan
 func (c *NeonatusController) GetByID(ctx echo.Context) error {
 	id, err := ParseInt(ctx.Param("id"), "id")

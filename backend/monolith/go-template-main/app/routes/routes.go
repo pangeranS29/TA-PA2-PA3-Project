@@ -14,9 +14,9 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 
 	// Auth routes
 	auth := e.Group("/auth")
-	// auth.POST("/register", controller.Register)
+	auth.POST("/register", controller.Register)
 	auth.POST("/login", controller.Login)
-	// auth.POST("/register/ortu", controller.RegisterOrangTua) // registrasi khusus orang tua
+	auth.POST("/register/ortu", controller.RegisterOrangTua) // registrasi khusus orang tua
 	secured := auth.Group("")
 	secured.Use(middlewares.JWTAuth(controller.JWTSecret()))
 	secured.GET("/me", controller.Me)
@@ -88,18 +88,17 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	tenaga.DELETE("/Catatan-Pelayanan/:id", controller.CatatanPelayanan.Delete)
 
 	// ==================== MODUL IBU & KEHAMILAN ====================
-	// tenaga.POST("/ibu", controller.Ibu.Create)
-	// tenaga.GET("/ibu", controller.Ibu.GetAll)
-	// tenaga.GET("/ibu/:id", controller.Ibu.GetByID)
-	// tenaga.PUT("/ibu/:id", controller.Ibu.Update)
-	// tenaga.DELETE("/ibu/:id", controller.Ibu.Delete)
+	tenaga.POST("/ibu", controller.Ibu.Create)
+	tenaga.GET("/ibu", controller.Ibu.GetAll)
+	tenaga.GET("/ibu/:id", controller.Ibu.GetByID)
+	tenaga.PUT("/ibu/:id", controller.Ibu.Update)
+	tenaga.DELETE("/ibu/:id", controller.Ibu.Delete)
 
 	tenaga.POST("/kehamilan", controller.Kehamilan.Create)
 	tenaga.GET("/kehamilan/:id", controller.Kehamilan.GetByID)
 	tenaga.GET("/kehamilan", controller.Kehamilan.GetByIbuID)
 	tenaga.PUT("/kehamilan/:id", controller.Kehamilan.Update)
 	tenaga.DELETE("/kehamilan/:id", controller.Kehamilan.Delete)
-	tenaga.GET("/ibu-hamil/active", controller.Kehamilan.GetKehamilanAktif)
 
 	// ==================== PEMERIKSAAN KEHAMILAN (RUTIN) ====================
 	tenaga.POST("/pemeriksaan-kehamilan", controller.PemeriksaanKehamilan.Create)
@@ -255,13 +254,9 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	tenaga.PUT("/pemeriksaan-lanjutan-t3/:id", controller.PemeriksaanLanjutanTrimester3.Update)
 	tenaga.DELETE("/pemeriksaan-lanjutan-t3/:id", controller.PemeriksaanLanjutanTrimester3.Delete)
 
-	tenaga.POST("/penduduk", controller.Penduduk.Create)
-	tenaga.GET("/penduduk", controller.Penduduk.GetAll)
-	tenaga.GET("/penduduk/:id", controller.Penduduk.GetByID)
-	tenaga.PUT("/penduduk/:id", controller.Penduduk.Update)
-	tenaga.DELETE("/penduduk/:id", controller.Penduduk.Delete)
-	tenaga.POST("/kartu-keluarga", controller.KartuKeluarga.Create)
-
-	tenaga.GET("/jenis-pelayanan", controller.JenisPelayanan.GetJenisPelayanan)
-
+	tenaga.GET("/kependudukan", controller.Kependudukan.GetAll)
+	tenaga.POST("/kependudukan", controller.Kependudukan.Create)
+	tenaga.GET("/kependudukan/:id", controller.Kependudukan.GetByID)
+	tenaga.PUT("/kependudukan/:id", controller.Kependudukan.Update)
+	tenaga.DELETE("/kependudukan/:id", controller.Kependudukan.Delete)
 }

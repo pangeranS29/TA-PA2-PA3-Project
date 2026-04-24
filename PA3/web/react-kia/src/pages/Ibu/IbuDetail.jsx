@@ -81,6 +81,87 @@ export default function IbuDetail() {
                 <div className="md:col-span-2"><span className="text-gray-500 text-sm">Nomor Telepon</span><p className="font-medium">{kependudukan.telepon_suami || "-"}</p></div>
               </div>
             </div>
+
+            {/* Patient Journey Timeline - Moved from sidebar */}
+            <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-6 border border-gray-100">
+              <h2 className="text-xl font-bold mb-6 text-gray-800 border-b pb-4">Jalur Pelayanan KIA</h2>
+              
+              <div className="relative border-l-2 border-indigo-100 ml-3 space-y-8 pb-4">
+                
+                {/* Step 1: Evaluasi Awal */}
+                <div className="relative pl-8">
+                  <div className="absolute -left-[11px] top-1 h-5 w-5 rounded-full bg-indigo-600 border-4 border-white shadow-sm flex items-center justify-center"></div>
+                  <h3 className="font-bold text-indigo-900 text-lg">1. Evaluasi & Skrining Awal</h3>
+                  <p className="text-sm text-gray-500 mb-3 mt-1">Lakukan pemeriksaan dasar dan skrining risiko.</p>
+                  <div className="flex flex-wrap gap-2">
+                    <Link to={`/data-ibu/${id}/evaluasi-kesehatan`} className="group flex items-center justify-between p-3 rounded-xl bg-gray-50 hover:bg-indigo-50 border border-transparent hover:border-indigo-100 transition-all min-w-[240px] flex-1">
+                      <span className="text-sm font-medium text-gray-700 group-hover:text-indigo-700">📋 Evaluasi Kesehatan Ibu</span>
+                      <span className="text-xs bg-white px-2 py-1 rounded text-gray-500 shadow-sm group-hover:bg-indigo-600 group-hover:text-white transition-colors">Buka Form</span>
+                    </Link>
+                    <Link to={`/data-ibu/${id}/skrining-preeklampsia`} className="group flex items-center justify-between p-3 rounded-xl bg-gray-50 hover:bg-indigo-50 border border-transparent hover:border-indigo-100 transition-all min-w-[200px] flex-1">
+                      <span className="text-sm font-medium text-gray-700 group-hover:text-indigo-700">🔍 Skrining Preeklampsia</span>
+                    </Link>
+                    <Link to={`/data-ibu/${id}/skrining-dm-gestasional`} className="group flex items-center justify-between p-3 rounded-xl bg-gray-50 hover:bg-indigo-50 border border-transparent hover:border-indigo-100 transition-all min-w-[200px] flex-1">
+                      <span className="text-sm font-medium text-gray-700 group-hover:text-indigo-700">🩸 Skrining DM Gestasional</span>
+                    </Link>
+                  </div>
+                </div>
+
+                {/* Step 2: Pemeriksaan Rutin (ANC) */}
+                <div className="relative pl-8">
+                  <div className="absolute -left-[11px] top-1 h-5 w-5 rounded-full bg-blue-400 border-4 border-white shadow-sm"></div>
+                  <h3 className="font-bold text-gray-800 text-lg">2. Pemantauan & ANC</h3>
+                  <p className="text-sm text-gray-500 mb-3 mt-1">Pemeriksaan rutin K1-K6 dan pemantauan dokter.</p>
+                  <div className="flex flex-col gap-2">
+                    <Link to={`/data-ibu/${id}/pemeriksaan-rutin`} className="group flex items-center justify-between p-3 rounded-xl bg-blue-50/50 hover:bg-blue-100/50 border border-transparent hover:border-blue-200 transition-all">
+                      <span className="text-sm font-medium text-blue-800">🩺 Input Pemeriksaan ANC Rutin</span>
+                    </Link>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-1">
+                      <Link to={`/data-ibu/${id}/pemeriksaan-dokter-t1`} className="text-xs p-2 rounded-lg bg-gray-50 hover:bg-gray-100 text-gray-600 border flex items-center gap-1 justify-center">👩‍⚕️ Dokter T1</Link>
+                      <Link to={`/data-ibu/${id}/pemeriksaan-dokter-t3`} className="text-xs p-2 rounded-lg bg-gray-50 hover:bg-gray-100 text-gray-600 border flex items-center gap-1 justify-center">👩‍⚕️ Dokter T3</Link>
+                      <Link to={`/data-ibu/${id}/pemeriksaan-lab-jiwa`} className="text-xs p-2 rounded-lg bg-gray-50 hover:bg-gray-100 text-gray-600 border flex items-center gap-1 justify-center">🧪 Lab & Jiwa</Link>
+                      <Link to={`/data-ibu/${id}/pemeriksaan-lanjutan-t3`} className="text-xs p-2 rounded-lg bg-gray-50 hover:bg-gray-100 text-gray-600 border flex items-center gap-1 justify-center">🔬 Lanjut T3</Link>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Step 3: Grafik & Evaluasi */}
+                <div className="relative pl-8">
+                  <div className="absolute -left-[11px] top-1 h-5 w-5 rounded-full bg-emerald-400 border-4 border-white shadow-sm"></div>
+                  <h3 className="font-bold text-gray-800 text-lg">3. Analisis Grafik</h3>
+                  <div className="flex flex-col gap-2 mt-3">
+                    <Link to={`/data-ibu/${id}/grafik-evaluasi`} className="group flex items-center justify-between p-3 rounded-xl bg-emerald-50/50 hover:bg-emerald-100/50 border border-transparent hover:border-emerald-200 transition-all">
+                      <span className="text-sm font-medium text-emerald-800">📊 Lihat Grafik Evaluasi & BB</span>
+                    </Link>
+                  </div>
+                </div>
+
+                {/* Step 4: Persalinan & Nifas */}
+                <div className="relative pl-8">
+                  <div className="absolute -left-[11px] top-1 h-5 w-5 rounded-full bg-rose-400 border-4 border-white shadow-sm"></div>
+                  <h3 className="font-bold text-gray-800 text-lg">4. Persalinan & Nifas</h3>
+                  <p className="text-sm text-gray-500 mb-3 mt-1">Pencatatan proses persalinan hingga bayi lahir.</p>
+                  <div className="flex flex-wrap gap-2">
+                    <Link to={`/data-ibu/${id}/rencana-persalinan`} className="text-sm p-3 rounded-xl bg-gray-50 hover:bg-rose-50 border border-transparent hover:border-rose-100 text-gray-700 hover:text-rose-700 transition-all flex-1 min-w-[200px] text-center">🏥 Rencana Persalinan</Link>
+                    <Link to={`/data-ibu/${id}/pelayanan-persalinan`} className="text-sm p-3 rounded-xl bg-gray-50 hover:bg-rose-50 border border-transparent hover:border-rose-100 text-gray-700 hover:text-rose-700 transition-all flex-1 min-w-[200px] text-center">👶 Proses & Riwayat Melahirkan</Link>
+                    <Link to={`/data-ibu/${id}/pelayanan-nifas`} className="text-sm p-3 rounded-xl bg-gray-50 hover:bg-rose-50 border border-transparent hover:border-rose-100 text-gray-700 hover:text-rose-700 transition-all flex-1 min-w-[200px] text-center">🤱 Pelayanan Nifas</Link>
+                  </div>
+                </div>
+
+                {/* Extra: Rujukan */}
+                <div className="relative pl-8 mt-6">
+                  <div className="absolute -left-[11px] top-1 h-5 w-5 rounded-full bg-amber-400 border-4 border-white shadow-sm"></div>
+                  <h3 className="font-bold text-gray-800 text-lg">⚠️ Rujukan Medis</h3>
+                  <div className="flex flex-col gap-2 mt-3">
+                    <Link to={`/data-ibu/${id}/rujukan`} className="group flex items-center justify-between p-3 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-200 transition-all">
+                      <span className="text-sm font-semibold text-amber-800">Buat Proposal Rujukan</span>
+                    </Link>
+                    <Link to="/daftar-rujukan" className="text-xs text-center text-amber-700 hover:underline mt-1">Lihat Dashboard Semua Rujukan</Link>
+                  </div>
+                </div>
+
+              </div>
+            </div>
           </div>
 
           {/* Right Column */}
@@ -104,15 +185,6 @@ export default function IbuDetail() {
               </div>
             </div>
 
-            {/* Navigasi Cepat */}
-            <div className="bg-gray-50 rounded-xl p-4 space-y-2">
-              <p className="font-semibold">Menu Terkait:</p>
-              <Link to={`/data-ibu/${id}/skrining-preeklampsia`} className="block text-indigo-600 hover:underline">Skrining Preeklampsia</Link>
-              <Link to={`/data-ibu/${id}/pemeriksaan-fisik`} className="block text-indigo-600 hover:underline">Pemeriksaan Fisik / ANC</Link>
-              <Link to={`/data-ibu/${id}/grafik-evaluasi`} className="block text-indigo-600 hover:underline">Grafik Evaluasi</Link>
-              <Link to={`/data-ibu/${id}/rencana-persalinan`} className="block text-indigo-600 hover:underline">Rencana Persalinan</Link>
-              <Link to={`/data-ibu/${id}/pelayanan-nifas`} className="block text-indigo-600 hover:underline">Pelayanan Nifas</Link>
-            </div>
           </div>
         </div>
       </div>

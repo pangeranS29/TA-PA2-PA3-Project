@@ -4,8 +4,8 @@ import "time"
 
 type Role struct {
 	ID          int32      `gorm:"primaryKey;autoIncrement" json:"id"`
-	Name        string     `gorm:"column:name;type:varchar(50);not null;uniqueIndex" json:"name"`
-	Description string     `gorm:"column:description;type:text" json:"description"`
+	Name        string     `gorm:"type:varchar(50);not null;uniqueIndex" json:"name"`
+	Description string     `gorm:"type:text" json:"description"`
 	CreatedAt   time.Time  `json:"created_at"`
 	UpdatedAt   time.Time  `json:"updated_at"`
 	IsDeleted   *time.Time `json:"is_deleted,omitempty"`

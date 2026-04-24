@@ -22,12 +22,11 @@ type Main struct {
 	PengukuranLilA         PengukuranLilaRepository
 	CatatanPelayanan       CatatanPelayananRepository
 
-	// New
-	User *UserRepository
-	Role *RoleRepository
-
-	KartuKeluarga                 *KartuKeluargaRepository
-	Penduduk                      *PendudukRepository
+	// New repositories (semua pointer, mengikuti pola Anak)
+	User                          *UserRepository
+	Role                          *RoleRepository
+	Kebabura                      *KebaburaRepository
+	Kependudukan                  *KependudukanRepository
 	Ibu                           *IbuRepository
 	Kehamilan                     *KehamilanRepository
 	PemeriksaanKehamilan          *PemeriksaanKehamilanRepository
@@ -47,12 +46,11 @@ type Main struct {
 	PenjelasanHasilGrafik         *PenjelasanHasilGrafikRepository
 	RencanaPersalinan             *RencanaPersalinanRepository
 	RingkasanPelayananPersalinan  *RingkasanPelayananPersalinanRepository
-	KeteranganLahir               *KeteranganLahirRepository
+	KeteranganLahir               *KeteranganLahirRepository // <-- TAMBAHKAN INI
 	RiwayatProsesMelahirkan       *RiwayatProsesMelahirkanRepository
 	PelayananIbuNifas             *PelayananIbuNifasRepository
 	CatatanPelayananNifas         *CatatanPelayananNifasRepository
 	Rujukan                       *RujukanRepository
-	JenisPelayanan                JenisPelayananRepository
 }
 
 type Options struct {
@@ -69,21 +67,13 @@ func Init(opts Options) *Main {
 	// Existing
 	m.Anak = NewAnakRepository(opts.Postgres)
 	m.PelayananKesehatanAnak = NewPelayananKesehatanAnakRepository(opts.Postgres)
-	m.Neonatus = NewPelayananNeonatusRepository(opts.Postgres)
-	m.KunjunganGizi = NewKunjunganGiziRepository(opts.Postgres)
-	m.KunjunganVitamin = NewKunjunganVitaminRepository(opts.Postgres)
-	m.KunjunganImunisasi = NewKunjunganImunisasiRepository(opts.Postgres)
-	m.PemeriksaanGigi = NewPemeriksaanGigiRepository(opts.Postgres)
-	m.PemantauanPertumbuhan = NewPemantauanPertumbuhanRepository(opts.Postgres)
-	m.PengukuranLilA = NewPengukuranLilaRepository(opts.Postgres)
-	m.CatatanPelayanan = NewCatatanPelayananRepository(opts.Postgres)
 
-	// New
+	// New repositories
 	m.User = NewUserRepository(opts.Postgres)
-	m.Role = NewRoleRepository(opts.Postgres)
-	m.KartuKeluarga = NewKartuKeluargaRepository(opts.Postgres)
-	m.Penduduk = NewPendudukRepository(opts.Postgres)
 	m.Ibu = NewIbuRepository(opts.Postgres)
+	m.Role = NewRoleRepository(opts.Postgres)
+	m.Kebabura = NewKebaburaRepository(opts.Postgres)
+	m.Kependudukan = NewKependudukanRepository(opts.Postgres)
 	m.Kehamilan = NewKehamilanRepository(opts.Postgres)
 	m.PemeriksaanKehamilan = NewPemeriksaanKehamilanRepository(opts.Postgres)
 	m.EvaluasiKesehatanIbu = NewEvaluasiKesehatanIbuRepository(opts.Postgres)
@@ -102,12 +92,20 @@ func Init(opts Options) *Main {
 	m.PenjelasanHasilGrafik = NewPenjelasanHasilGrafikRepository(opts.Postgres)
 	m.RencanaPersalinan = NewRencanaPersalinanRepository(opts.Postgres)
 	m.RingkasanPelayananPersalinan = NewRingkasanPelayananPersalinanRepository(opts.Postgres)
-	m.KeteranganLahir = NewKeteranganLahirRepository(opts.Postgres)
+	m.KeteranganLahir = NewKeteranganLahirRepository(opts.Postgres) // <-- TAMBAHKAN INI
 	m.RiwayatProsesMelahirkan = NewRiwayatProsesMelahirkanRepository(opts.Postgres)
 	m.PelayananIbuNifas = NewPelayananIbuNifasRepository(opts.Postgres)
 	m.CatatanPelayananNifas = NewCatatanPelayananNifasRepository(opts.Postgres)
 	m.Rujukan = NewRujukanRepository(opts.Postgres)
-	m.JenisPelayanan = NewJenisPelayananRepository(opts.Postgres)
+
+	m.Neonatus = NewPelayananNeonatusRepository(opts.Postgres)
+	m.KunjunganGizi = NewKunjunganGiziRepository(opts.Postgres)
+	m.KunjunganVitamin = NewKunjunganVitaminRepository(opts.Postgres)
+	m.KunjunganImunisasi = NewKunjunganImunisasiRepository(opts.Postgres)
+	m.PemeriksaanGigi = NewPemeriksaanGigiRepository(opts.Postgres)
+	m.PemantauanPertumbuhan = NewPemantauanPertumbuhanRepository(opts.Postgres)
+	m.PengukuranLilA = NewPengukuranLilaRepository(opts.Postgres)
+	m.CatatanPelayanan = NewCatatanPelayananRepository(opts.Postgres)
 
 	return m
 }

@@ -11,7 +11,7 @@ export default function PemeriksaanFisik() {
   const [kehamilan, setKehamilan] = useState(null);
   const [pemeriksaan, setPemeriksaan] = useState(null);
   const [form, setForm] = useState({
-    trimester: "TRIMESTER 2",
+    trimester: "T2",
     kunjungan_ke: 1,
     tanggal_periksa: "",
     tempat_periksa: "Puskesmas",
@@ -112,7 +112,7 @@ export default function PemeriksaanFisik() {
         <h1 className="text-2xl font-bold mb-2">Pemeriksaan Fisik & Antenatal Care (ANC)</h1>
         <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm p-6 space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div><label>Trimester</label><select name="trimester" value={form.trimester} onChange={handleChange} className="w-full border rounded px-3 py-2"><option>TRIMESTER 1</option><option>TRIMESTER 2</option><option>TRIMESTER 3</option></select></div>
+            <div><label>Trimester</label><select name="trimester" value={form.trimester} onChange={handleChange} className="w-full border rounded px-3 py-2"><option value="T1">TRIMESTER 1</option><option value="T2">TRIMESTER 2</option><option value="T3">TRIMESTER 3</option></select></div>
             <div><label>Kunjungan ke-</label><input type="number" name="kunjungan_ke" value={form.kunjungan_ke} onChange={handleChange} className="w-full border rounded px-3 py-2" /></div>
             <div><label>Tanggal Periksa</label><input type="date" name="tanggal_periksa" value={form.tanggal_periksa} onChange={handleChange} className="w-full border rounded px-3 py-2" /></div>
             <div><label>Tempat Periksa</label><input name="tempat_periksa" value={form.tempat_periksa} onChange={handleChange} className="w-full border rounded px-3 py-2" /></div>
@@ -127,11 +127,11 @@ export default function PemeriksaanFisik() {
             <div><label>Skrining Dokter</label><textarea name="skrining_dokter" value={form.skrining_dokter} onChange={handleChange} className="w-full border rounded px-3 py-2" rows="2" /></div>
             <div><label>Tablet Tambah Darah (jumlah)</label><input type="number" name="tablet_tambah_darah" value={form.tablet_tambah_darah} onChange={handleChange} className="w-full border rounded px-3 py-2" /></div>
             <div><label>Hemoglobin (g/dL)</label><input type="number" step="0.1" name="tes_lab_hb" value={form.tes_lab_hb} onChange={handleChange} className="w-full border rounded px-3 py-2" /></div>
-            <div><label>Golongan Darah</label><input name="tes_golongan_darah" value={form.tes_golongan_darah} onChange={handleChange} className="w-full border rounded px-3 py-2" /></div>
-            <div><label>Protein Urine</label><input name="tes_lab_protein_urine" value={form.tes_lab_protein_urine} onChange={handleChange} className="w-full border rounded px-3 py-2" /></div>
+            <div><label>Golongan Darah</label><input name="tes_golongan_darah" value={form.tes_golongan_darah} onChange={handleChange} className="w-full border rounded px-3 py-2" maxLength={5} /></div>
+            <div><label>Protein Urine</label><input name="tes_lab_protein_urine" value={form.tes_lab_protein_urine} onChange={handleChange} className="w-full border rounded px-3 py-2" maxLength={10} /></div>
             <div><label>Gula Darah Sewaktu (mg/dL)</label><input type="number" name="tes_lab_gula_darah" value={form.tes_lab_gula_darah} onChange={handleChange} className="w-full border rounded px-3 py-2" /></div>
             <div className="md:col-span-2"><label>USG</label><textarea name="usg" value={form.usg} onChange={handleChange} className="w-full border rounded px-3 py-2" rows="2" /></div>
-            <div><label>Tripel Eliminasi</label><input name="tripel_eliminasi" value={form.tripel_eliminasi} onChange={handleChange} className="w-full border rounded px-3 py-2" /></div>
+            <div><label>Tripel Eliminasi</label><input name="tripel_eliminasi" value={form.tripel_eliminasi} onChange={handleChange} className="w-full border rounded px-3 py-2" maxLength={10} /></div>
             <div className="md:col-span-2"><label>Tata Laksana Kasus</label><textarea name="tata_laksana_kasus" value={form.tata_laksana_kasus} onChange={handleChange} className="w-full border rounded px-3 py-2" rows="2" /></div>
           </div>
           <button type="submit" disabled={saving} className="bg-indigo-600 text-white px-4 py-2 rounded-lg flex items-center gap-2"><Save size={18} /> Simpan Pemeriksaan</button>
