@@ -20,10 +20,6 @@ type Main struct {
 	PemantauanPertumbuhan  PemantauanPertumbuhanAnakUseCase
 	PengukuranLilA         PengukuranLilAUseCase
 	CatatanPelayanan       CatatanPelayananUseCase
-<<<<<<< Updated upstream
-	// Kependudukan           KependudukanUsecase
-=======
->>>>>>> Stashed changes
 
 	// New
 	Kehamilan                     KehamilanUsecase
@@ -50,11 +46,11 @@ type Main struct {
 	Ibu                           IbuUsecase
 	RiwayatKehamilanLalu          RiwayatKehamilanLaluUsecase
 
-	RegisterOrangTua              *RegisterOrangTuaUsecase
-	KeteranganLahir               KeteranganLahirUsecase
-	JenisPelayanan                JenisPelayananUsecase
-	Penduduk                      PendudukUsecase
-	KartuKeluarga                 KartuKeluargaUsecase
+	RegisterOrangTua *RegisterOrangTuaUsecase
+	KeteranganLahir  KeteranganLahirUsecase
+	JenisPelayanan   JenisPelayananUsecase
+	Penduduk         PendudukUsecase
+	KartuKeluarga    KartuKeluargaUsecase
 }
 
 type Options struct {

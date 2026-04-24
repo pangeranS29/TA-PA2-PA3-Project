@@ -19,6 +19,7 @@ func NewAnakUseCase(anakRepo *repositories.AnakRepository) *AnakUseCase {
 	return &AnakUseCase{anakRepo: anakRepo}
 }
 
+// GetAnak retrieves a child by ID
 func (u *AnakUseCase) GetAnak(id int32) (*models.AnakResponse, error) {
 	anak, err := u.anakRepo.FindByID(id)
 	if err != nil {
@@ -31,6 +32,7 @@ func (u *AnakUseCase) GetAnak(id int32) (*models.AnakResponse, error) {
 	return &resp, nil
 }
 
+// CreateAnak creates a new child record
 func (u *AnakUseCase) CreateAnak(req models.CreateAnakRequest) (*models.AnakResponse, error) {
 	if req.KehamilanID == 0 {
 		return nil, errors.New("kehamilan_id wajib diisi")
@@ -50,7 +52,7 @@ func (u *AnakUseCase) CreateAnak(req models.CreateAnakRequest) (*models.AnakResp
 		return nil, err
 	}
 
-	// reload relasi (kalau repo support preload)
+	// Reload to get associations (Penduduk, Kehamilan)
 	anak, err := u.anakRepo.FindByID(anak.ID)
 	if err != nil {
 		return nil, err
@@ -60,8 +62,8 @@ func (u *AnakUseCase) CreateAnak(req models.CreateAnakRequest) (*models.AnakResp
 	return &resp, nil
 }
 
+// UpdateAnak updates an existing child
 func (u *AnakUseCase) UpdateAnak(id int32, req models.UpdateAnakRequest) (*models.AnakResponse, error) {
-
 	anak, err := u.anakRepo.FindByID(id)
 	if err != nil {
 		return nil, errors.New("data anak tidak ditemukan")
@@ -81,23 +83,23 @@ func (u *AnakUseCase) UpdateAnak(id int32, req models.UpdateAnakRequest) (*model
 		return nil, err
 	}
 
+	// Reload to get updated associations
 	anak, _ = u.anakRepo.FindByID(id)
-
 	resp := u.toAnakResponse(anak)
 	return &resp, nil
 }
 
+// DeleteAnak deletes a child by ID
 func (u *AnakUseCase) DeleteAnak(id int32) error {
 	return u.anakRepo.Delete(id)
 }
 
+// AdminListAnak lists children, optionally filtered by kehamilanID
 func (u *AnakUseCase) AdminListAnak(kehamilanID int32) ([]models.AnakResponse, error) {
-
 	var (
 		list []models.Anak
 		err  error
 	)
-
 	if kehamilanID != 0 {
 		list, err = u.anakRepo.FindByKehamilanID(kehamilanID)
 	} else {
@@ -108,13 +110,14 @@ func (u *AnakUseCase) AdminListAnak(kehamilanID int32) ([]models.AnakResponse, e
 	}
 
 	result := make([]models.AnakResponse, 0, len(list))
-	for _, k := range list {
-		resp := u.toAnakResponse(&k)
+	for i := range list {
+		resp := u.toAnakResponse(&list[i])
 		result = append(result, resp)
 	}
 	return result, nil
 }
 
+// Helper: HitungUsiaBulan calculates age in months
 func HitungUsiaBulan(tanggalLahir time.Time) int {
 	now := time.Now()
 	if tanggalLahir.After(now) {
@@ -132,6 +135,7 @@ func HitungUsiaBulan(tanggalLahir time.Time) int {
 	return total
 }
 
+// Helper: FormatUsiaTeks formats age in months to human-readable string
 func FormatUsiaTeks(bulan int) string {
 	if bulan == 0 {
 		return "0 bulan"
@@ -147,6 +151,7 @@ func FormatUsiaTeks(bulan int) string {
 	return fmt.Sprintf("%d tahun %d bulan", tahun, sisa)
 }
 
+// toAnakResponse converts model.Anak to model.AnakResponse (ONLY ONE DEFINITION)
 func (u *AnakUseCase) toAnakResponse(anak *models.Anak) models.AnakResponse {
 	resp := models.AnakResponse{
 		ID:           anak.ID,
