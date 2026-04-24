@@ -33,24 +33,29 @@ func (h *AnakController) AdminList(c echo.Context) error {
 	if err != nil {
 		return helpers.StandardResponse(c, http.StatusInternalServerError, err.Error(), nil, nil)
 	}
-
 	return helpers.StandardResponse(c, http.StatusOK, "berhasil", list, nil)
 }
+
 func (h *AnakController) Create(c echo.Context) error {
 	var req models.CreateAnakRequest
 	if err := c.Bind(&req); err != nil {
 		return helpers.StandardResponse(c, http.StatusBadRequest, "request tidak valid: "+err.Error(), nil, nil)
 	}
 
-	// validasi minimal sesuai model baru
+	// Validasi field wajib
 	if req.KehamilanID == 0 || req.PendudukID == 0 {
 		return helpers.StandardResponse(c, http.StatusBadRequest, "kehamilan_id dan penduduk_id wajib diisi", nil, nil)
 	}
 
-	if req.BeratLahir <= 0 || req.TinggiLahir <= 0 {
-		return helpers.StandardResponse(c, http.StatusBadRequest, "berat_lahir dan tinggi_lahir harus > 0", nil, nil)
-
+	// Validasi berat lahir (pointer)
+	if req.BeratLahirKg == nil || *req.BeratLahirKg <= 0 {
+		return helpers.StandardResponse(c, http.StatusBadRequest, "berat_lahir_kg harus diisi dan > 0", nil, nil)
 	}
+	// Validasi tinggi lahir (pointer)
+	if req.TinggiLahirCm == nil || *req.TinggiLahirCm <= 0 {
+		return helpers.StandardResponse(c, http.StatusBadRequest, "tinggi_lahir_cm harus diisi dan > 0", nil, nil)
+	}
+
 	anak, err := h.anakUC.CreateAnak(req)
 	if err != nil {
 		return helpers.StandardResponse(c, http.StatusBadRequest, err.Error(), nil, nil)

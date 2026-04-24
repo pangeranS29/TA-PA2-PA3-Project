@@ -18,10 +18,8 @@ func NewIbuController(u usecases.IbuUsecase) *IbuController {
 	return &IbuController{usecase: u}
 }
 
-// ================= REQUEST DTO =================
-
 type createIbuRequest struct {
-	PendudukID int32 `json:"penduduk_id"`
+	PendudukID int64 `json:"penduduk_id"` // ubah ke int64
 	Gravida    int32 `json:"gravida"`
 	Paritas    int32 `json:"paritas"`
 	Abortus    int32 `json:"abortus"`
@@ -32,8 +30,6 @@ type updateIbuRequest struct {
 	Paritas int32 `json:"paritas"`
 	Abortus int32 `json:"abortus"`
 }
-
-// ================= CREATE =================
 
 func (c *IbuController) Create(ctx echo.Context) error {
 	claims, _ := ctx.Get("auth_claims").(*models.AuthClaims)
@@ -61,9 +57,9 @@ func (c *IbuController) Create(ctx echo.Context) error {
 
 	ibu := &models.Ibu{
 		PendudukID: req.PendudukID,
-		Gravida:    req.Gravida,
-		Paritas:    req.Paritas,
-		Abortus:    req.Abortus,
+		Gravida:    &req.Gravida,
+		Paritas:    &req.Paritas,
+		Abortus:    &req.Abortus,
 	}
 
 	if err := c.usecase.Create(ibu); err != nil {
@@ -79,7 +75,6 @@ func (c *IbuController) Create(ctx echo.Context) error {
 	})
 }
 
-// ================= GET BY ID =================
 func (c *IbuController) GetByID(ctx echo.Context) error {
 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 32)
 	if err != nil {
@@ -95,11 +90,8 @@ func (c *IbuController) GetByID(ctx echo.Context) error {
 		StatusCode: http.StatusOK,
 		Data:       data,
 	})
-
-	return ctx.JSON(http.StatusOK, models.Response{StatusCode: http.StatusOK, Data: data})
 }
 
-// ================= GET ALL =================
 func (c *IbuController) GetAll(ctx echo.Context) error {
 	list, err := c.usecase.GetAll()
 	if err != nil {
@@ -110,10 +102,8 @@ func (c *IbuController) GetAll(ctx echo.Context) error {
 		StatusCode: http.StatusOK,
 		Data:       list,
 	})
-	return ctx.JSON(http.StatusOK, models.Response{StatusCode: http.StatusOK, Data: list})
 }
 
-// ================= UPDATE =================
 func (c *IbuController) Update(ctx echo.Context) error {
 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 32)
 	if err != nil {
@@ -132,10 +122,6 @@ func (c *IbuController) Update(ctx echo.Context) error {
 		return ctx.JSON(http.StatusNotFound, models.Response{StatusCode: http.StatusNotFound, Message: "Data tidak ditemukan"})
 	}
 
-	existing.Gravida = req.Gravida
-	existing.Paritas = req.Paritas
-	existing.Abortus = req.Abortus
-
 	if req.Gravida != nil {
 		existing.Gravida = req.Gravida
 	}
@@ -151,17 +137,14 @@ func (c *IbuController) Update(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, models.Response{StatusCode: http.StatusOK, Data: existing})
 }
 
-// ================= DELETE =================
 func (c *IbuController) Delete(ctx echo.Context) error {
 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 32)
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, models.Response{StatusCode: http.StatusBadRequest, Message: "invalid id"})
 	}
-
 	if err := c.usecase.Delete(int32(id)); err != nil {
 		return ctx.JSON(http.StatusInternalServerError, models.Response{StatusCode: http.StatusInternalServerError, Message: err.Error()})
 	}
-
 	return ctx.JSON(http.StatusOK, models.Response{
 		StatusCode: http.StatusOK,
 		Message:    "deleted",
