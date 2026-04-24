@@ -1,281 +1,166 @@
 package usecases
 
 import (
-	"fmt"
-	"net/mail"
-	"regexp"
+	"errors"
+	"strconv"
 	"strings"
 	"time"
 
 	"monitoring-service/app/models"
-	"monitoring-service/pkg/customerror"
 
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 )
 
-type roleDestination struct {
-	TargetApp     string
-	RedirectRoute string
-}
+func (m *Main) Login(req models.LoginRequest) (*models.LoginResponse, error) {
+	req.NomorTelepon = strings.TrimSpace(req.NomorTelepon)
+	req.KataSandi = strings.TrimSpace(req.KataSandi)
 
-var roleDestinations = map[string]roleDestination{
-	"Dokter":           {TargetApp: "website", RedirectRoute: "/dashboard/dokter"},
-	"Tenaga-kesehatan": {TargetApp: "website", RedirectRoute: "/dashboard/tenaga-kesehatan"},
-	"Kader":            {TargetApp: "mobile", RedirectRoute: "/mobile/home-kader"},
-	"Bidan":            {TargetApp: "mobile", RedirectRoute: "/mobile/home-bidan"},
-	"Orangtua":         {TargetApp: "mobile", RedirectRoute: "/mobile/home-orangtua"},
-}
-
-var roleAliases = map[string]string{
-	"dokter":           "Dokter",
-	"tenagakesehatan":  "Tenaga-kesehatan",
-	"tenaga-kesehatan": "Tenaga-kesehatan",
-	"tenaga kesehatan": "Tenaga-kesehatan",
-	"kader":            "Kader",
-	"bidan":            "Bidan",
-	"orangtua":         "Orangtua",
-	"orang tua":        "Orangtua",
-	"orang-tua":        "Orangtua",
-}
-
-var phonePattern = regexp.MustCompile(`^\+62[0-9]{8,13}$`)
-
-func normalizeKey(raw string) string {
-	raw = strings.TrimSpace(strings.ToLower(raw))
-	raw = strings.ReplaceAll(raw, "-", "")
-	raw = strings.ReplaceAll(raw, "_", "")
-	raw = strings.ReplaceAll(raw, " ", "")
-	return raw
-}
-
-func normalizeRoleName(roleName string) string {
-	roleName = strings.TrimSpace(roleName)
-	if roleName == "" {
-		return ""
+	if req.NomorTelepon == "" || req.KataSandi == "" {
+		return nil, errors.New("nomor_telepon dan kata_sandi wajib diisi")
+	}
+	if err := validateNomorTeleponIndonesia(req.NomorTelepon); err != nil {
+		return nil, err
 	}
 
-	if canonical, ok := roleAliases[normalizeKey(roleName)]; ok {
-		return canonical
-	}
-
-	return roleName
-}
-
-func roleRedirect(roleName string) (roleDestination, bool) {
-	destination, ok := roleDestinations[roleName]
-	return destination, ok
-}
-
-func isEmail(input string) bool {
-	_, err := mail.ParseAddress(input)
-	return err == nil
-}
-
-func normalizePhoneNumber(input string) (string, error) {
-	phone := strings.TrimSpace(input)
-	if phone == "" {
-		return "", customerror.NewBadRequestError("nomor hp wajib diisi")
-	}
-
-	phone = strings.ReplaceAll(phone, " ", "")
-	phone = strings.ReplaceAll(phone, "-", "")
-	phone = strings.ReplaceAll(phone, "(", "")
-	phone = strings.ReplaceAll(phone, ")", "")
-
-	switch {
-	case strings.HasPrefix(phone, "+62"):
-		// already normalized
-	case strings.HasPrefix(phone, "62"):
-		phone = "+" + phone
-	case strings.HasPrefix(phone, "08"):
-		phone = "+62" + phone[1:]
-	case strings.HasPrefix(phone, "8"):
-		phone = "+62" + phone
-	default:
-		return "", customerror.NewBadRequestError("format nomor hp tidak valid")
-	}
-
-	if !phonePattern.MatchString(phone) {
-		return "", customerror.NewBadRequestError("format nomor hp tidak valid")
-	}
-
-	return phone, nil
-}
-
-func validateRegisterInput(req *models.RegisterRequest) error {
-	if req.Name == "" || req.Email == "" || req.PhoneNumber == "" || req.Password == "" || req.RoleName == "" {
-		return customerror.NewBadRequestError("name, email, phone_number, password, dan role_name wajib diisi")
-	}
-
-	if len(req.Name) < 3 {
-		return customerror.NewBadRequestError("name minimal 3 karakter")
-	}
-
-	if _, err := mail.ParseAddress(req.Email); err != nil {
-		return customerror.NewBadRequestError("format email tidak valid")
-	}
-
-	if len(req.Password) < 8 {
-		return customerror.NewBadRequestError("password minimal 8 karakter")
-	}
-
-	return nil
-}
-
-func (m *Main) buildAccessToken(user *models.User, destination roleDestination) (tokenString string, expiresIn int64, err error) {
-	now := time.Now()
-	expiry := now.Add(time.Duration(m.config.JWTAccessTokenMins) * time.Minute)
-
-	claims := models.AuthClaims{
-		UserID:        user.ID,
-		Email:         user.Email,
-		PhoneNumber:   user.PhoneNumber,
-		Role:          user.Role.Name,
-		TargetApp:     destination.TargetApp,
-		RedirectRoute: destination.RedirectRoute,
-		RegisteredClaims: jwt.RegisteredClaims{
-			Subject:   fmt.Sprintf("%d", user.ID),
-			IssuedAt:  jwt.NewNumericDate(now),
-			ExpiresAt: jwt.NewNumericDate(expiry),
-		},
-	}
-
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err = token.SignedString([]byte(m.config.JWTSecret))
+	pengguna, err := m.repository.FindUserByNomorTelepon(req.NomorTelepon)
 	if err != nil {
-		return "", 0, err
-	}
-
-	return tokenString, int64(time.Until(expiry).Seconds()), nil
-}
-
-func (m *Main) Register(req *models.RegisterRequest) error {
-	if req == nil {
-		return customerror.NewBadRequestError("request tidak valid")
-	}
-
-	req.Name = strings.TrimSpace(req.Name)
-	req.Email = strings.TrimSpace(strings.ToLower(req.Email))
-	req.PhoneNumber = strings.TrimSpace(req.PhoneNumber)
-	req.RoleName = normalizeRoleName(req.RoleName)
-
-	if err := validateRegisterInput(req); err != nil {
-		return err
-	}
-
-	normalizedPhoneNumber, err := normalizePhoneNumber(req.PhoneNumber)
-	if err != nil {
-		return err
-	}
-	req.PhoneNumber = normalizedPhoneNumber
-
-	if _, err := m.repository.GetUserByEmail(req.Email); err == nil {
-		return customerror.NewBadRequestError("email sudah terdaftar")
-	} else {
-		if _, ok := err.(customerror.NotFoundError); !ok {
-			return err
-		}
-	}
-
-	if _, err := m.repository.GetUserByPhoneNumber(req.PhoneNumber); err == nil {
-		return customerror.NewBadRequestError("nomor hp sudah terdaftar")
-	} else {
-		if _, ok := err.(customerror.NotFoundError); !ok {
-			return err
-		}
-	}
-
-	role, err := m.repository.GetRoleByName(req.RoleName)
-	if err != nil {
-		return err
-	}
-
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
-	if err != nil {
-		return customerror.NewInternalServiceError("gagal memproses password")
-	}
-
-	user := &models.User{
-		Name:        req.Name,
-		Email:       req.Email,
-		PhoneNumber: req.PhoneNumber,
-		Password:    string(hashedPassword),
-		RoleID:      role.ID,
-	}
-
-	if err := m.repository.CreateUser(user); err != nil {
-		if strings.Contains(strings.ToLower(err.Error()), "duplicate") || strings.Contains(strings.ToLower(err.Error()), "unique") {
-			if strings.Contains(strings.ToLower(err.Error()), "phone") {
-				return customerror.NewBadRequestError("nomor hp sudah terdaftar")
-			}
-			return customerror.NewBadRequestError("email sudah terdaftar")
-		}
-		return err
-	}
-
-	return nil
-}
-
-func (m *Main) Login(req *models.LoginRequest) (*models.LoginResponse, error) {
-	if req == nil {
-		return nil, customerror.NewBadRequestError("request tidak valid")
-	}
-
-	identifier := strings.TrimSpace(req.Identifier)
-	if identifier == "" {
-		identifier = strings.TrimSpace(req.Email)
-	}
-
-	if identifier == "" || req.Password == "" {
-		return nil, customerror.NewBadRequestError("identifier/email dan password wajib diisi")
-	}
-
-	var user *models.User
-	var err error
-	if isEmail(identifier) {
-		user, err = m.repository.GetUserByEmail(strings.ToLower(identifier))
-	} else {
-		normalizedPhoneNumber, nErr := normalizePhoneNumber(identifier)
-		if nErr != nil {
-			return nil, customerror.NewBadRequestError("identifier harus email atau nomor hp valid")
-		}
-		user, err = m.repository.GetUserByPhoneNumber(normalizedPhoneNumber)
-	}
-
-	if err != nil {
-		if _, ok := err.(customerror.NotFoundError); ok {
-			return nil, customerror.NewBadRequestError("email/nomor hp atau password salah")
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.New("nomor telepon atau kata sandi salah")
 		}
 		return nil, err
 	}
 
-	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password)); err != nil {
-		return nil, customerror.NewBadRequestError("email/nomor hp atau password salah")
+	if err := bcrypt.CompareHashAndPassword([]byte(pengguna.KataSandi), []byte(req.KataSandi)); err != nil {
+		return nil, errors.New("nomor telepon atau kata sandi salah")
 	}
 
-	destination, ok := roleRedirect(user.Role.Name)
-	if !ok {
-		return nil, customerror.NewInternalServiceError("role belum memiliki mapping target aplikasi")
+	roleName := pengguna.Role.Name
+	if roleName == "" {
+		roleName = "unknown"
 	}
 
-	accessToken, expiresIn, err := m.buildAccessToken(user, destination)
+	token, err := m.generateAccessToken(pengguna, roleName)
 	if err != nil {
-		return nil, customerror.NewInternalServiceError("gagal membuat access token")
+		return nil, err
 	}
 
-	res := &models.LoginResponse{
-		AccessToken:   accessToken,
-		TokenType:     "Bearer",
-		ExpiresIn:     expiresIn,
-		UserID:        user.ID,
-		Name:          user.Name,
-		Email:         user.Email,
-		PhoneNumber:   user.PhoneNumber,
-		Role:          user.Role.Name,
-		TargetApp:     destination.TargetApp,
-		RedirectRoute: destination.RedirectRoute,
+	return &models.LoginResponse{
+		Token:               token,
+		Role:                roleName,
+		WajibGantiKataSandi: req.KataSandi == m.generateDefaultPassword(),
+	}, nil
+}
+
+func (m *Main) Logout(actor models.AuthClaims) error {
+	if actor.IDPengguna <= 0 {
+		return errors.New("id_pengguna tidak valid")
 	}
 
-	return res, nil
+	return nil
+}
+
+func (m *Main) ProfileKeluarga(actor models.AuthClaims) (*models.ProfileKeluargaResponse, error) {
+	idNoKK := actor.IDNoKK
+	if idNoKK == nil || *idNoKK <= 0 {
+		user, err := m.repository.FindUserByID(actor.IDPengguna)
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil, errors.New("pengguna tidak ditemukan")
+			}
+			return nil, err
+		}
+
+		if user.PendudukID == nil || *user.PendudukID <= 0 {
+			return nil, errors.New("akun ini tidak terhubung ke kartu_keluarga")
+		}
+
+		penduduk, err := m.repository.GetPendudukByID(*user.PendudukID)
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil, errors.New("akun ini tidak terhubung ke kartu_keluarga")
+			}
+			return nil, err
+		}
+
+		idNoKK = penduduk.KartuKeluargaID
+	}
+
+	if idNoKK == nil || *idNoKK <= 0 {
+		return nil, errors.New("akun ini tidak terhubung ke kartu_keluarga")
+	}
+
+	anggota, err := m.repository.GetAnggotaKeluargaByKK(*idNoKK)
+	if err != nil {
+		return nil, err
+	}
+
+	items := make([]models.KeluargaAnggotaResponse, 0, len(anggota))
+	for _, v := range anggota {
+		tanggalLahir := formatTanggalLahir(v.TanggalLahir)
+		items = append(items, models.KeluargaAnggotaResponse{
+			IDPenduduk:        v.ID,
+			NIK:               v.NIK,
+			NamaLengkap:       v.NamaLengkap,
+			JenisKelamin:      v.JenisKelamin,
+			TanggalLahir:      tanggalLahir,
+			KedudukanKeluarga: v.KedudukanKeluarga,
+		})
+	}
+
+	return &models.ProfileKeluargaResponse{
+		IDPengguna:      actor.IDPengguna,
+		IDNoKK:          *idNoKK,
+		NomorTelepon:    actor.NomorTelepon,
+		Role:            actor.Role,
+		AnggotaKeluarga: items,
+	}, nil
+}
+
+func (m *Main) generateAccessToken(user *models.User, roleName string) (string, error) {
+	secret := strings.TrimSpace(m.config.JWTSecret)
+	if secret == "" {
+		return "", errors.New("jwt secret belum dikonfigurasi")
+	}
+
+	now := time.Now()
+	expiredAt := now.Add(time.Duration(m.config.JWTAccessTokenMins) * time.Minute)
+
+	claims := models.AuthClaims{
+		IDPengguna:   user.ID,
+		IDRole:       derefInt64(user.RolesID),
+		Role:         roleName,
+		NomorTelepon: user.NomorTelepon,
+		UserID:       user.ID,
+		PhoneNumber:  user.NomorTelepon,
+		RegisteredClaims: jwt.RegisteredClaims{
+			Subject:   strconv.FormatInt(user.ID, 10),
+			Issuer:    "monitoring-service",
+			IssuedAt:  jwt.NewNumericDate(now),
+			NotBefore: jwt.NewNumericDate(now),
+			ExpiresAt: jwt.NewNumericDate(expiredAt),
+		},
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	return token.SignedString([]byte(secret))
+}
+
+func (m *Main) generateDefaultPassword() string {
+	return "huta_mejan123"
+}
+
+func formatTanggalLahir(tanggal *time.Time) string {
+	if tanggal == nil {
+		return ""
+	}
+	return tanggal.Format("02-01-2006")
+}
+
+func derefInt64(v *int64) int64 {
+	if v == nil {
+		return 0
+	}
+	return *v
 }

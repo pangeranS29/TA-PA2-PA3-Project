@@ -26,16 +26,15 @@ func (m *Main) CreateVaksin(req *models.CreateVaksinRequest) error {
 func (m *Main) DeleteVaksin(id uint) error {
 	_, err := m.repository.GetVaksinByID(id)
 	if err != nil {
-        return errors.New("Data vaksin tidak ditemukan, gagal menghapus")
+		return errors.New("Data vaksin tidak ditemukan")
 	}
 
 	if err := m.repository.DeleteVaksinByID(id); err != nil {
-        return errors.New("Terjadi kesalahan saat menghapus data")
+		return errors.New("Terjadi kesalahan saat menghapus data")
 	}
 
 	return nil
 }
-
 
 func (m *Main) UpdateVaksin(id uint, req *models.UpdateVaksinRequest) error {
 	vaksin, err := m.repository.GetVaksinByID(id)

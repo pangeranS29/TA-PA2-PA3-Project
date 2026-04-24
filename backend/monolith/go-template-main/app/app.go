@@ -2,7 +2,7 @@ package app
 
 import (
 	"monitoring-service/app/controllers"
-	"monitoring-service/app/models"
+	// "monitoring-service/app/models"
 	"monitoring-service/app/repositories"
 	"monitoring-service/app/routes"
 	"monitoring-service/app/usecases"
@@ -54,10 +54,10 @@ func (m *Main) Init() (err error) {
 		return
 	}
 
-	err = models.AutoMigrateAndSeed(m.database.Postgres)
-	if err != nil {
-		return
-	}
+	// err = models.AutoMigrateAndSeed(m.database.Postgres)
+	// if err != nil {
+	// 	return
+	// }
 
 	m.repo = repositories.Init(repositories.Options{
 		Config:   m.cfg,

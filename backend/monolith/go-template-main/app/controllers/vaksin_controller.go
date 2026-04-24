@@ -33,14 +33,11 @@ func (m *Main) DeleteVaksin(c echo.Context) error {
 		return helpers.Response(c, http.StatusBadRequest, []string{"ID Vaksin harus dicantumkan"})
 	}
 
-	//  Ubah String menjadi Integer biasa (int) menggunakan Atoi (ASCII to Integer)
 	idInt, err := strconv.Atoi(id)
 	if err != nil {
-		// Jika user salah memasukkan huruf di URL (misal: /vaksin/abc), Atoi akan error
 		return helpers.Response(c, http.StatusBadRequest, []string{"Format ID Vaksin tidak valid, harus berupa angka"})
 	}
 
-	// ubah tipe (casting) dari int menjadi uint agar sesuai dengan Model
 	idUint := uint(idInt)
 	if err := m.usecases.DeleteVaksin(idUint); err != nil {
 		statusCode := http.StatusInternalServerError

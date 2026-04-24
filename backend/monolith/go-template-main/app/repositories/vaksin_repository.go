@@ -31,7 +31,6 @@ func (m *Main) DeleteVaksinByID(id uint) error {
 	return nil
 }
 
-
 func (m *Main) UpdateVaksin(vaksin *models.Vaksin) error {
 	if err := m.postgres.Save(vaksin).Error; err != nil {
 		return err
