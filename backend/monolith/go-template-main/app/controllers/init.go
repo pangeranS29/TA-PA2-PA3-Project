@@ -47,6 +47,7 @@ type Main struct {
 	RiwayatKehamilanLalu          *RiwayatKehamilanLaluController
 	KeteranganLahir               *KeteranganLahirController // <-- TAMBAHKAN INI
 	Kependudukan                  *KependudukanController
+	JenisPelayanan                *JenisPelayananController
 }
 
 type Options struct {
@@ -98,6 +99,7 @@ func Init(opts Options) *Main {
 	m.RiwayatKehamilanLalu = NewRiwayatKehamilanLaluController(opts.UseCases.RiwayatKehamilanLalu)
 	m.KeteranganLahir = NewKeteranganLahirController(opts.UseCases.KeteranganLahir) // <-- TAMBAHKAN INI
 	m.Kependudukan = NewKependudukanController(opts.UseCases.Kependudukan)
+	m.JenisPelayanan = NewJenisPelayananController(opts.UseCases.JenisPelayanan)
 
 	return m
 }
