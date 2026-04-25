@@ -4,37 +4,82 @@ import (
 	"gorm.io/gorm"
 )
 
-var defaultRoles = []string{
-	"Tenaga-kesehatan",
-	"Dokter",
-	"Kader",
-	"Bidan",
-	"Orangtua",
-}
+func AutoMigrate(db *gorm.DB) error {
+	// Semua model dalam satu slice
+	models := []interface{}{
+		// Master
+		// &Role{},
+		// &User{},
+		// &KategoriUmur{},
+		// &PeriodeKunjungan{},
+		// &JenisPelayanan{},
+		// &JenisPelayananKategori{},
 
-func AutoMigrateAndSeed(db *gorm.DB) error {
-	// auto migrate
-	if err := db.AutoMigrate(
-		&Role{},
-		&KaderPosyandu{},
-		&User{},
-		&KartuKeluarga{},
-		&Kependudukan{},
-		&Ibu{},
-		&Anak{},
-		&MasterStandarAntropometri{},
-		&CatatanPertumbuhan{},
-		&KategoriCapaian{},
-		&Perkembangan{},
-	); err != nil {
-		return err
+		// // Relasi utama
+		// // &ibu
+		// &Kehamilan{},
+		// &Anak{},
+		// &Role{},
+		// &User{},
+		// &Kebabura{},
+		// &Kependudukan{},
+		// &Ibu{},
+		// &Anak{},
+
+		// // Evaluasi & riwayat
+		// &EvaluasiKesehatanIbu{},
+		// &RiwayatKehamilanLalu{},
+
+		// // Pelayanan & lainnya
+		// &KunjunganAnak{},
+		// &AturanPelayanan{},
+		// &KunjunganGizi{},
+		// &KunjunganVitamin{},
+		// &Neonatus{},
+		// &DetailPelayananNeonatus{},
+		// &DetailPelayananVitamin{},
+		// &ASI{},
+		// &MPASI{},
+		// &CatatanPelayanan{},
+		// &KehadiranImunisasi{},
+		// &DetailPelayananImunisasi{},
+		// &PeriksaGigi{},
+		// &DeteksiDiniPenyimpangan{},
+		// &PengukuranLila{},
+		// &Pertumbuhan{},
+
+		// // Kehamilan detail
+		// &PemeriksaanKehamilan{},
+		// &PemeriksaanDokterTrimester1{},
+		// &PemeriksaanLaboratoriumJiwa{},
+		// &CatatanPelayananTrimester1{},
+		// &SkriningPreeklampsia{},
+		// &SkriningDMGestasional{},
+		// &CatatanPelayananTrimester2{},
+		// &PemeriksaanDokterTrimester3{},
+		// &PemeriksaanLanjutanTrimester3{},
+		// &CatatanPelayananTrimester3{},
+
+		// // Grafik & hasil
+		// &GrafikEvaluasiKehamilan{},
+		// &GrafikPeningkatanBB{},
+		// &PenjelasanHasilGrafik{},
+
+		// // Persalinan
+		// &RencanaPersalinan{},
+		// &RingkasanPelayananPersalinan{},
+		// &KeteranganLahir{},
+		// &RiwayatProsesMelahirkan{},
+
+		// // Nifas & rujukan
+		// &PelayananIbuNifas{},
+		// &CatatanPelayananNifas{},
+		// &Rujukan{},
 	}
 
-	for _, roleName := range defaultRoles {
-		role := Role{Name: roleName}
-		if err := db.Where(Role{Name: roleName}).FirstOrCreate(&role).Error; err != nil {
-			return err
-		}
+	// Jalankan automigrate sekali saja
+	if err := db.AutoMigrate(models...); err != nil {
+		return err
 	}
 
 	// seeder
