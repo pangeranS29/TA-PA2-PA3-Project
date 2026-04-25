@@ -3,9 +3,9 @@ package models
 import "time"
 
 type RiwayatProsesMelahirkan struct {
-	IDRiwayatMelahirkan int32      `gorm:"primaryKey" json:"id_riwayat_melahirkan"`
-	KehamilanID         int32      `gorm:"not null;index" json:"kehamilan_id"`
-	Kehamilan           *Kehamilan `gorm:"foreignKey:KehamilanID;references:ID" json:"kehamilan,omitempty"`
+	ID          int32      `gorm:"primaryKey" json:"id"`
+	KehamilanID int32      `gorm:"not null;index" json:"kehamilan_id"`
+	Kehamilan   *Kehamilan `gorm:"foreignKey:KehamilanID;references:ID" json:"kehamilan,omitempty"`
 
 	GGravida int `json:"g_gravida"`
 	PPartus  int `json:"p_partus"`
@@ -30,7 +30,7 @@ type RiwayatProsesMelahirkan struct {
 	RujukanKeterangan             string `json:"rujukan_keterangan"`
 	InisiasiMenyusuDiniKeterangan string `json:"inisiasi_menyusu_dini_keterangan"`
 
-	CapKakiBayiImageURL string `json:"cap_kaki_bayi_image_url"`
+	CapKakiBayiImageURL []byte `json:"cap_kaki_bayi_image_url"`
 
 	CreatedAt time.Time `json:"created_at"`
 }

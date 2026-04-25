@@ -3,7 +3,7 @@ package models
 import "time"
 
 type GrafikEvaluasiKehamilan struct {
-	IDGrafik    int32      `gorm:"primaryKey" json:"id_grafik"`
+	ID          int32      `gorm:"primaryKey" json:"id"`
 	KehamilanID int32      `gorm:"not null;index" json:"kehamilan_id"`
 	Kehamilan   *Kehamilan `gorm:"foreignKey:KehamilanID;references:ID" json:"kehamilan,omitempty"`
 
@@ -17,13 +17,14 @@ type GrafikEvaluasiKehamilan struct {
 	TekananDarahDiastole *int `json:"tekanan_darah_diastole"`
 	NadiPerMenit         *int `json:"nadi_per_menit"`
 
-	GerakanBayi       string   `gorm:"type:varchar(50)" json:"gerakan_bayi"`
-	UrinProtein       string   `gorm:"type:varchar(50)" json:"urin_protein"`
-	UrinReduksi       string   `gorm:"type:varchar(50)" json:"urin_reduksi"`
-	Hemoglobin        *float64 `gorm:"type:decimal(4,1)" json:"hemoglobin"`
-	TabletTambahDarah *int     `json:"tablet_tambah_darah"`
-	Kalsium           string   `gorm:"type:varchar(50)" json:"kalsium"`
-	Aspirin           string   `gorm:"type:varchar(50)" json:"aspirin"`
+	GerakanBayi           string   `gorm:"type:varchar(50)" json:"gerakan_bayi"`
+	UrinProtein           string   `gorm:"type:varchar(50)" json:"urin_protein"`
+	UrinReduksi           string   `gorm:"type:varchar(50)" json:"urin_reduksi"`
+	Hemoglobin            *float64 `gorm:"type:decimal(4,1)" json:"hemoglobin"`
+	TabletTambahDarah     *int     `json:"tablet_tambah_darah"`
+	Kalsium               string   `gorm:"type:varchar(50)" json:"kalsium"`
+	Aspirin               string   `gorm:"type:varchar(50)" json:"aspirin"`
+	PenjelasanHasilGrafik string   `json:"penjelasan_hasil_grafik"`
 
 	CreatedAt time.Time `json:"created_at"`
 }

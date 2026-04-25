@@ -38,7 +38,7 @@ func (u *riwayatProsesMelahirkanUsecase) GetByKehamilanID(kehamilanID int32) ([]
 }
 
 func (u *riwayatProsesMelahirkanUsecase) Update(rp *models.RiwayatProsesMelahirkan) error {
-	_, err := u.repo.FindByID(rp.IDRiwayatMelahirkan)
+	_, err := u.repo.FindByID(rp.ID)
 	if err != nil {
 		return errors.New("data riwayat proses melahirkan tidak ditemukan")
 	}
