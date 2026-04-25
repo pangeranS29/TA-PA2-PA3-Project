@@ -20,7 +20,7 @@ type LoginResponse struct {
 	AccessToken   string `json:"access_token"`
 	TokenType     string `json:"token_type"`
 	ExpiresIn     int64  `json:"expires_in"`
-	UserID        uint   `json:"user_id"`
+	UserID        int32  `json:"user_id"`
 	Name          string `json:"name"`
 	Email         string `json:"email"`
 	PhoneNumber   string `json:"phone_number"`
@@ -30,7 +30,7 @@ type LoginResponse struct {
 }
 
 type MeResponse struct {
-	UserID        uint   `json:"user_id"`
+	UserID        int32  `json:"user_id"`
 	Email         string `json:"email"`
 	PhoneNumber   string `json:"phone_number"`
 	Role          string `json:"role"`
@@ -39,7 +39,7 @@ type MeResponse struct {
 }
 
 type AuthClaims struct {
-	UserID        uint   `json:"user_id"`
+	UserID        int32  `json:"user_id"`
 	Email         string `json:"email"`
 	PhoneNumber   string `json:"phone_number"`
 	Role          string `json:"role"`
