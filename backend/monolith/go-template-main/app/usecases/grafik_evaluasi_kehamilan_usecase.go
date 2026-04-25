@@ -38,7 +38,7 @@ func (u *grafikEvaluasiKehamilanUsecase) GetByKehamilanID(kehamilanID int32) ([]
 }
 
 func (u *grafikEvaluasiKehamilanUsecase) Update(g *models.GrafikEvaluasiKehamilan) error {
-	_, err := u.repo.FindByID(g.IDGrafik)
+	_, err := u.repo.FindByID(g.ID)
 	if err != nil {
 		return errors.New("data grafik evaluasi kehamilan tidak ditemukan")
 	}

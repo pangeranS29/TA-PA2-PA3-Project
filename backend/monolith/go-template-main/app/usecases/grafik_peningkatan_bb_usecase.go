@@ -38,7 +38,7 @@ func (u *grafikPeningkatanBBUsecase) GetByKehamilanID(kehamilanID int32) ([]mode
 }
 
 func (u *grafikPeningkatanBBUsecase) Update(g *models.GrafikPeningkatanBB) error {
-	_, err := u.repo.FindByID(g.IDGrafikBB)
+	_, err := u.repo.FindByID(g.ID)
 	if err != nil {
 		return errors.New("data grafik peningkatan berat badan tidak ditemukan")
 	}

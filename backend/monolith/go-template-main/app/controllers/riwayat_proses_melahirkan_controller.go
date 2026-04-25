@@ -39,7 +39,7 @@ type createRiwayatProsesRequest struct {
 	FasyankesTempatMelahirkan     string `json:"fasyankes_tempat_melahirkan"`
 	RujukanKeterangan             string `json:"rujukan_keterangan"`
 	InisiasiMenyusuDiniKeterangan string `json:"inisiasi_menyusu_dini_keterangan"`
-	CapKakiBayiImageURL           string `json:"cap_kaki_bayi_image_url"`
+	CapKakiBayiImageURL           []byte `json:"cap_kaki_bayi_image_url"`
 }
 
 func (c *RiwayatProsesMelahirkanController) Create(ctx echo.Context) error {
@@ -166,7 +166,7 @@ func (c *RiwayatProsesMelahirkanController) Update(ctx echo.Context) error {
 	if req.InisiasiMenyusuDiniKeterangan != "" {
 		existing.InisiasiMenyusuDiniKeterangan = req.InisiasiMenyusuDiniKeterangan
 	}
-	if req.CapKakiBayiImageURL != "" {
+	if req.CapKakiBayiImageURL != nil {
 		existing.CapKakiBayiImageURL = req.CapKakiBayiImageURL
 	}
 	if err := c.usecase.Update(existing); err != nil {

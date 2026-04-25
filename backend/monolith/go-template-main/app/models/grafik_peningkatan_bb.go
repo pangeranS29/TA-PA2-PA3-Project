@@ -1,7 +1,7 @@
 package models
 
 type GrafikPeningkatanBB struct {
-	IDGrafikBB  int32      `gorm:"primaryKey" json:"id_grafik_bb"`
+	ID          int32      `gorm:"primaryKey" json:"id"`
 	KehamilanID int32      `gorm:"not null;index" json:"kehamilan_id"`
 	Kehamilan   *Kehamilan `gorm:"foreignKey:KehamilanID;references:ID" json:"kehamilan,omitempty"`
 
@@ -11,8 +11,9 @@ type GrafikPeningkatanBB struct {
 	RekomendasiPeningkatanBBMin *float64 `gorm:"type:decimal(4,1)" json:"rekomendasi_peningkatan_bb_min"`
 	RekomendasiPeningkatanBBMax *float64 `gorm:"type:decimal(4,1)" json:"rekomendasi_peningkatan_bb_max"`
 
-	MingguKehamilan *int     `json:"minggu_kehamilan"`
-	PeningkatanBBKg *float64 `gorm:"type:decimal(4,2)" json:"peningkatan_bb_kg"`
+	MingguKehamilan       *int     `json:"minggu_kehamilan"`
+	PeningkatanBBKg       *float64 `gorm:"type:decimal(4,2)" json:"peningkatan_bb_kg"`
+	PenjelasanHasilGrafik string   `json:"penjelasan_hasil_grafik"`
 }
 
 func (GrafikPeningkatanBB) TableName() string {

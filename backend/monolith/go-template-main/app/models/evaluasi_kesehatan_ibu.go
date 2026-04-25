@@ -3,7 +3,7 @@ package models
 import "time"
 
 type EvaluasiKesehatanIbu struct {
-	IDEvaluasi         int32      `gorm:"primaryKey" json:"id_evaluasi"`
+	ID                 int32      `gorm:"primaryKey" json:"id"`
 	KehamilanID        int32      `gorm:"not null;index" json:"kehamilan_id"`
 	Kehamilan          *Kehamilan `gorm:"foreignKey:KehamilanID;references:ID" json:"kehamilan,omitempty"`
 	NamaDokter         string     `gorm:"type:varchar(255)" json:"nama_dokter"`

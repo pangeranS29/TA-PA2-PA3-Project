@@ -38,7 +38,7 @@ func (u *RingkasanPelayananPersalinan) GetByKehamilanID(kehamilanID int32) ([]mo
 }
 
 func (u *RingkasanPelayananPersalinan) Update(rp *models.RingkasanPelayananPersalinan) error {
-	_, err := u.repo.FindByID(rp.IDRingkasan)
+	_, err := u.repo.FindByID(rp.ID)
 	if err != nil {
 		return errors.New("data ringkasan pelayanan persalinan tidak ditemukan")
 	}
