@@ -155,18 +155,18 @@ type PerkembanganResponse struct {
 func mapPerkembanganToResponse(data models.Perkembangan) PerkembanganResponse {
 	var anakRes *models.AnakResponse
 	if data.Anak != nil {
-		anakResp := models.AnakResponse{
-			ID:              data.Anak.ID,
-			IbuID:           data.Anak.IbuID,
-			KependudukanID:  data.Anak.KependudukanID,
-			NoKartuKeluarga: data.Anak.NoKartuKeluarga,
-			NamaAnak:        data.Anak.NamaAnak,
-			JenisKelamin:    data.Anak.JenisKelamin,
-			TanggalLahir:    data.Anak.TanggalLahir,
-			BeratLahir:      data.Anak.BeratLahir,
-			TinggiLahir:     data.Anak.TinggiLahir,
-		}
-		anakRes = &anakResp
+		// anakResp := models.AnakResponse{
+		// 	ID:              data.Anak.ID,
+		// 	IbuID:           data.Anak.IbuID,
+		// 	KependudukanID:  data.Anak.KependudukanID,
+		// 	NoKartuKeluarga: data.Anak.NoKartuKeluarga,
+		// 	NamaAnak:        data.Anak.NamaAnak,
+		// 	JenisKelamin:    data.Anak.JenisKelamin,
+		// 	TanggalLahir:    data.Anak.TanggalLahir,
+		// 	BeratLahir:      data.Anak.BeratLahir,
+		// 	TinggiLahir:     data.Anak.TinggiLahir,
+		// }
+		// anakRes = &anakResp
 	}
 
 	var tanggalPeriksa *string

@@ -325,6 +325,19 @@ type MasterStandarResponse struct {
 	SD3Pos       float64 `json:"sd_3_pos"`
 }
 
+// ANAK
+type AnakRequest struct {
+	ID              uint    `json:"id"`
+	IbuID           *uint   `json:"ibu_id,omitempty"`
+	KependudukanID  *uint   `json:"kependudukan_id,omitempty"`
+	NoKartuKeluarga int64   `json:"no_kartu_keluarga,omitempty"`
+	NamaAnak        string  `json:"nama_anak,omitempty"`
+	JenisKelamin    string  `json:"jenis_kelamin,omitempty"`
+	TanggalLahir    string  `json:"tanggal_lahir,omitempty"`
+	BeratLahir      float64 `json:"berat_lahir"`
+	TinggiLahir     float64 `json:"tinggi_lahir"`
+}
+
 type GenderType string
 
 const (

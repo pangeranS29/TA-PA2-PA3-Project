@@ -1,12 +1,5 @@
 package models
 
-type GenderType string
-
-const (
-	GenderMale   GenderType = "M"
-	GenderFemale GenderType = "F"
-)
-
 type TipeLembar string
 
 const (

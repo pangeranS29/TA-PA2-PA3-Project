@@ -7,6 +7,8 @@ import (
 func AutoMigrate(db *gorm.DB) error {
 	// Semua model dalam satu slice
 	models := []interface{}{
+		// &KategoriTandaBahaya{},
+		&SkriningPemantauan{},
 		// Master
 		// &Role{},
 		// &User{},
