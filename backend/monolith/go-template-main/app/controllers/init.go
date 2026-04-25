@@ -43,6 +43,8 @@ type Main struct {
 	Rujukan                       *RujukanController
 	SkriningDMGestasional         *SkriningDMGestasionalController
 	SkriningPreeklampsia          *SkriningPreeklampsiaController
+	SkriningPemantauan            *SkriningPemantauanController
+	KategoriTandaBahaya           *KategoriTandaBahayaController
 	PelayananIbuNifas             *PelayananIbuNifasController
 	RiwayatKehamilanLalu          *RiwayatKehamilanLaluController
 	KeteranganLahir               *KeteranganLahirController // <-- TAMBAHKAN INI
@@ -95,6 +97,8 @@ func Init(opts Options) *Main {
 	m.Rujukan = NewRujukanController(opts.UseCases.Rujukan)
 	m.SkriningDMGestasional = NewSkriningDMGestasionalController(opts.UseCases.SkriningDMGestasional)
 	m.SkriningPreeklampsia = NewSkriningPreeklampsiaController(opts.UseCases.SkriningPreeklampsia)
+	m.SkriningPemantauan = NewSkriningPemantauanController(opts.UseCases.SkriningPemantauan)
+	m.KategoriTandaBahaya = NewKategoriTandaBahayaController(opts.UseCases.KategoriTandaBahaya)
 	m.PelayananIbuNifas = NewPelayananIbuNifasController(opts.UseCases.PelayananIbuNifas)
 	m.RiwayatKehamilanLalu = NewRiwayatKehamilanLaluController(opts.UseCases.RiwayatKehamilanLalu)
 	m.KeteranganLahir = NewKeteranganLahirController(opts.UseCases.KeteranganLahir) // <-- TAMBAHKAN INI
