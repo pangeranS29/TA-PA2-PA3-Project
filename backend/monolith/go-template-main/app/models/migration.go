@@ -31,6 +31,8 @@ func AutoMigrate(db *gorm.DB) error {
 		&RiwayatKehamilanLalu{},
 
 		// Pelayanan & lainnya
+		&JenisPelayanan{},
+		&JenisPelayananKategori{},
 		&KunjunganAnak{},
 		&AturanPelayanan{},
 		&KunjunganGizi{},
