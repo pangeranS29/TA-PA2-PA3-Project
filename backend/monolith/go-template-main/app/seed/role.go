@@ -17,7 +17,7 @@ func SeederRole(db *gorm.DB) error {
 		"Dokter",
 		"Kader",
 		"Bidan",
-		"Orangtua",
+		"Ibu",
 	}
 
 	for _, roleName := range defaultRoles {

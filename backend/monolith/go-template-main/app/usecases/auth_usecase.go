@@ -25,7 +25,7 @@ var roleDestinations = map[string]roleDestination{
 	"Tenaga-kesehatan": {TargetApp: "website", RedirectRoute: "/dashboard/tenaga-kesehatan"},
 	"Kader":            {TargetApp: "mobile", RedirectRoute: "/mobile/home-kader"},
 	"Bidan":            {TargetApp: "mobile", RedirectRoute: "/mobile/home-bidan"},
-	"Orangtua":         {TargetApp: "mobile", RedirectRoute: "/mobile/home-orangtua"},
+	"Ibu":              {TargetApp: "mobile", RedirectRoute: "/mobile/home-orangtua"},
 }
 
 var roleAliases = map[string]string{
@@ -39,7 +39,7 @@ var roleAliases = map[string]string{
 	"orangtua":         "Orangtua",
 	"orang tua":        "Orangtua",
 	"orang-tua":        "Orangtua",
-	"ibu":              "Orangtua",
+	"Ibu":              "Orangtua",
 }
 
 var phonePattern = regexp.MustCompile(`^\+62[0-9]{8,13}$`)
