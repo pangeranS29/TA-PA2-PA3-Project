@@ -15,6 +15,30 @@ class _EdukasiScreenState extends State<EdukasiScreen>
 
   final List<Map<String, dynamic>> _allContent = [
     {
+      'type': 'ARTIKEL',
+      'ageText': 'Orang Tua',
+      'durationText': '6 Menit Baca',
+      'title': 'Menjaga Kesehatan Mental Orang Tua dalam Pengasuhan Anak',
+    },
+    {
+      'type': 'ARTIKEL',
+      'ageText': 'Semua Umur',
+      'durationText': '4 Menit Baca',
+      'title': 'Informasi Umum Cuci Tangan Pakai Sabun',
+    },
+    {
+      'type': 'ARTIKEL',
+      'ageText': '0-18 Tahun',
+      'durationText': '5 Menit Baca',
+      'title': 'Informasi Umum Perawatan Gigi Anak',
+    },
+    {
+      'type': 'ARTIKEL',
+      'ageText': 'Semua Umur',
+      'durationText': '7 Menit Baca',
+      'title': 'Informasi Umum Perawatan Anak Sakit',
+    },
+    {
       'type': 'VIDEO',
       'ageText': '6-9 Bulan',
       'durationText': '5 Menit',
@@ -147,7 +171,7 @@ class _EdukasiScreenState extends State<EdukasiScreen>
               ),
               const SizedBox(height: 32),
               const Text(
-                'Rekomendasi untuk Usia Budi',
+                'Rekomendasi Edukasi KIA',
                 style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.bold,
