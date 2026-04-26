@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ta_pa2_pa3_project/features/imunisasi/presentation/screens/imunisasi_screen.dart';
+import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/skrining_bahaya.dart';
 import 'detail_pertumbuhan_dummy_screen.dart';
 
 /// [tujuan] menentukan halaman tujuan setelah anak dipilih.
@@ -88,6 +89,13 @@ class PilihAnakScreen extends StatelessWidget {
                         context,
                         MaterialPageRoute(
                           builder: (_) => ImunisasiScreen(anak: anak),
+                        ),
+                      );
+                    } else if (tujuan == 'bahaya') {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => SkriningBahayaScreen(anak: anak),
                         ),
                       );
                     } else {
