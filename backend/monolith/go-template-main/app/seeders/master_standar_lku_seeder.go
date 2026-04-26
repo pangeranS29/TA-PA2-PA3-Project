@@ -207,23 +207,13 @@ func (s *MasterStandarLKUSeeder) Seed() error {
 			UpdatedAt:    now,
 		}
 
-		var existing models.MasterStandarAntropometri
-		err = s.db.Where(
+		if err = s.db.Where(
 			"parameter = ? AND jenis_kelamin = ? AND nilai_sumbu_x = ?",
 			item.Parameter,
 			item.JenisKelamin,
 			item.NilaiSumbuX,
-		).First(&existing).Error
-
-		if err == gorm.ErrRecordNotFound {
-			if createErr := s.db.Create(&item).Error; createErr != nil {
-				log.Printf("Error creating MasterStandarAntropometri (%s-%s-%s): %v\n", item.Parameter, item.JenisKelamin, row.UsiaReferensi, createErr)
-				return createErr
-			}
-			continue
-		}
-
-		if err != nil {
+		).FirstOrCreate(&item).Error; err != nil {
+			log.Printf("Error seeding MasterStandarAntropometri (%s-%s-%s): %v\n", item.Parameter, item.JenisKelamin, row.UsiaReferensi, err)
 			return err
 		}
 	}

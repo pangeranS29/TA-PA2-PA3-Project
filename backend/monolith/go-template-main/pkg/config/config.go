@@ -14,6 +14,7 @@ type Config struct {
 	ServicePort        string           `mapstructure:"service_port" json:"service_port"`
 	JWTSecret          string           `mapstructure:"jwt_secret" json:"jwt_secret"`
 	JWTAccessTokenMins int              `mapstructure:"jwt_access_token_mins" json:"jwt_access_token_mins"`
+	TenagaKesehatanRole string 			`mapstructure:"tenaga_kesehatan_role" json:"tenaga_kesehatan_role"`
 	Database           DatabasePlatform `mapstructure:"database" json:"database"`
 }
 
@@ -26,6 +27,10 @@ func NewConfig() *Config {
 	jwtAccessTokenMins := viper.GetInt("JWT_ACCESS_TOKEN_MINS")
 	if jwtAccessTokenMins <= 0 {
 		jwtAccessTokenMins = 60
+	}
+	tenagaRole := viper.GetString("TENAGA_KESEHATAN_ROLE")
+	if tenagaRole == "" {
+		tenagaRole = "Dokter" // default
 	}
 
 	return &Config{
