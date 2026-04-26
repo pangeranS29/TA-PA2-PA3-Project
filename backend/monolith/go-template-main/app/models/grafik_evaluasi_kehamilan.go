@@ -17,16 +17,21 @@ type GrafikEvaluasiKehamilan struct {
 	TekananDarahDiastole *int `json:"tekanan_darah_diastole"`
 	NadiPerMenit         *int `json:"nadi_per_menit"`
 
-	GerakanBayi           string   `gorm:"type:varchar(50)" json:"gerakan_bayi"`
-	UrinProtein           string   `gorm:"type:varchar(50)" json:"urin_protein"`
-	UrinReduksi           string   `gorm:"type:varchar(50)" json:"urin_reduksi"`
-	Hemoglobin            *float64 `gorm:"type:decimal(4,1)" json:"hemoglobin"`
-	TabletTambahDarah     *int     `json:"tablet_tambah_darah"`
-	Kalsium               string   `gorm:"type:varchar(50)" json:"kalsium"`
-	Aspirin               string   `gorm:"type:varchar(50)" json:"aspirin"`
-	PenjelasanHasilGrafik string   `json:"penjelasan_hasil_grafik"`
+	GerakanBayi *string `gorm:"type:varchar(50)" json:"gerakan_bayi"`
+	UrinProtein *string `gorm:"type:varchar(50)" json:"urin_protein"`
+	UrinReduksi *string `gorm:"type:varchar(50)" json:"urin_reduksi"`
 
-	CreatedAt time.Time `json:"created_at"`
+	Hemoglobin        *float64 `gorm:"type:decimal(4,1)" json:"hemoglobin"`
+	TabletTambahDarah *int     `json:"tablet_tambah_darah"`
+
+	Kalsium *string `gorm:"type:varchar(50)" json:"kalsium"`
+	Aspirin *string `gorm:"type:varchar(50)" json:"aspirin"`
+
+	PenjelasanHasilGrafik *string `json:"penjelasan_hasil_grafik"`
+	KategoriRisiko        *string `gorm:"type:varchar(20)" json:"kategori_risiko"`
+
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 func (GrafikEvaluasiKehamilan) TableName() string {

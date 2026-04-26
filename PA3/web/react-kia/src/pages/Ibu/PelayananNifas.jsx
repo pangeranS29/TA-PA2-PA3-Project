@@ -1,13 +1,14 @@
 // src/pages/Ibu/PelayananNifas.jsx
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import MainLayout from "../../components/Layout/MainLayout";
 import { getKehamilanByIbuId } from "../../services/kehamilan";
 import { getNifasByKehamilanId, createNifas, updateNifas } from "../../services/nifas";
-import { Save } from "lucide-react";
+import { Save, ArrowLeft } from "lucide-react";
 
 export default function PelayananNifas() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [kehamilan, setKehamilan] = useState(null);
   const [nifas, setNifas] = useState([]);
   const [form, setForm] = useState({
@@ -43,7 +44,7 @@ export default function PelayananNifas() {
           setKehamilan(aktif);
           const data = await getNifasByKehamilanId(aktif.id);
           setNifas(data);
-          const existing = data.find(n => n.kunjungan_ke === selectedKunjungan);
+          const existing = data.find((n) => n.kunjungan_ke === selectedKunjungan);
           if (existing) {
             setForm({
               kunjungan_ke: existing.kunjungan_ke,
@@ -112,7 +113,7 @@ export default function PelayananNifas() {
     setSaving(true);
     try {
       const payload = { ...form, kehamilan_id: kehamilan.id };
-      const existing = nifas.find(n => n.kunjungan_ke === selectedKunjungan);
+      const existing = nifas.find((n) => n.kunjungan_ke === selectedKunjungan);
       if (existing) {
         await updateNifas(existing.id, payload);
       } else {
@@ -126,14 +127,27 @@ export default function PelayananNifas() {
     }
   };
 
-  if (loading) return <MainLayout><div className="p-6">Memuat...</div></MainLayout>;
+  if (loading)
+    return (
+      <MainLayout>
+        <div className="p-6">Memuat...</div>
+      </MainLayout>
+    );
 
   return (
     <MainLayout>
       <div className="p-6 max-w-5xl mx-auto">
-        <h1 className="text-2xl font-bold mb-2">Pelayanan Nifas</h1>
+        <div className="flex items-center gap-4 mb-6">
+          <button onClick={() => navigate(-1)} className="p-2 rounded-full hover:bg-gray-100 transition-colors">
+            <ArrowLeft size={20} />
+          </button>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Pelayanan Nifas</h1>
+            <p className="text-gray-500">Pencatatan proses persalinan hingga bayi lahir.</p>
+          </div>
+        </div>
         <div className="flex gap-2 mb-6">
-          {["KF1", "KF2", "KF3", "KF4"].map(k => (
+          {["KF1", "KF2", "KF3", "KF4"].map((k) => (
             <button key={k} onClick={() => setSelectedKunjungan(k)} className={`px-4 py-2 rounded-lg ${selectedKunjungan === k ? "bg-indigo-600 text-white" : "bg-gray-100"}`}>
               {k === "KF1" ? "6-48 Jam" : k === "KF2" ? "3-7 Hari" : k === "KF3" ? "8-28 Hari" : "29-42 Hari"}
             </button>
@@ -141,25 +155,77 @@ export default function PelayananNifas() {
         </div>
         <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm p-6 space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div><label>Tanggal Periksa</label><input type="date" name="tanggal_periksa" value={form.tanggal_periksa} onChange={handleChange} className="w-full border rounded px-3 py-2" /></div>
-            <div><label>Tekanan Darah</label><input name="tanda_vital_tekanan_darah" value={form.tanda_vital_tekanan_darah} onChange={handleChange} className="w-full border rounded px-3 py-2" /></div>
-            <div><label>Suhu Tubuh</label><input type="number" step="0.1" name="tanda_vital_suhu_tubuh" value={form.tanda_vital_suhu_tubuh} onChange={handleChange} className="w-full border rounded px-3 py-2" /></div>
-            <div><label>Involusi Uteri</label><input name="pelayanan_involusi_uteri" value={form.pelayanan_involusi_uteri} onChange={handleChange} className="w-full border rounded px-3 py-2" /></div>
-            <div><label>Cairan Pervaginam</label><input name="pelayanan_cairan_pervaginam" value={form.pelayanan_cairan_pervaginam} onChange={handleChange} className="w-full border rounded px-3 py-2" /></div>
-            <div><label>Periksa Jalan Lahir</label><input name="pelayanan_periksa_jalan_lahir" value={form.pelayanan_periksa_jalan_lahir} onChange={handleChange} className="w-full border rounded px-3 py-2" /></div>
-            <div><label>Periksa Payudara</label><input name="pelayanan_periksa_payudara" value={form.pelayanan_periksa_payudara} onChange={handleChange} className="w-full border rounded px-3 py-2" /></div>
-            <div><label>ASI Eksklusif</label><input name="pelayanan_asi_eksklusif" value={form.pelayanan_asi_eksklusif} onChange={handleChange} className="w-full border rounded px-3 py-2" /></div>
-            <label className="flex items-center gap-2"><input type="checkbox" name="pemberian_kapsul_vitamin_a" checked={form.pemberian_kapsul_vitamin_a} onChange={handleChange} /> Vitamin A</label>
-            <div><label>Tablet Tambah Darah</label><input type="number" name="pemberian_tablet_tambah_darah_jumlah" value={form.pemberian_tablet_tambah_darah_jumlah} onChange={handleChange} className="w-full border rounded px-3 py-2" /></div>
-            <div><label>Skrining Depresi Nifas</label><input name="pelayanan_skrining_depresi_nifas" value={form.pelayanan_skrining_depresi_nifas} onChange={handleChange} className="w-full border rounded px-3 py-2" /></div>
-            <div><label>Kontrasepsi Pasca Persalinan</label><input name="pelayanan_kontrasepsi_pasca_persalinan" value={form.pelayanan_kontrasepsi_pasca_persalinan} onChange={handleChange} className="w-full border rounded px-3 py-2" /></div>
-            <div><label>Penanganan Risiko Malaria</label><input name="pelayanan_penanganan_risiko_malaria" value={form.pelayanan_penanganan_risiko_malaria} onChange={handleChange} className="w-full border rounded px-3 py-2" /></div>
-            <div><label>Komplikasi Nifas</label><textarea name="komplikasi_nifas" value={form.komplikasi_nifas} onChange={handleChange} className="w-full border rounded px-3 py-2" rows="2" /></div>
-            <div><label>Tindakan/Saran</label><textarea name="tindakan_saran" value={form.tindakan_saran} onChange={handleChange} className="w-full border rounded px-3 py-2" rows="2" /></div>
-            <div><label>Nama Pemeriksa/Paraf</label><input name="nama_pemeriksa_paraf" value={form.nama_pemeriksa_paraf} onChange={handleChange} className="w-full border rounded px-3 py-2" /></div>
-            <div><label>Tanggal Kembali</label><input type="date" name="tanggal_kembali" value={form.tanggal_kembali} onChange={handleChange} className="w-full border rounded px-3 py-2" /></div>
+            <div>
+              <label>Tanggal Periksa</label>
+              <input type="date" name="tanggal_periksa" value={form.tanggal_periksa} onChange={handleChange} className="w-full border rounded px-3 py-2" />
+            </div>
+            <div>
+              <label>Tekanan Darah</label>
+              <input name="tanda_vital_tekanan_darah" value={form.tanda_vital_tekanan_darah} onChange={handleChange} className="w-full border rounded px-3 py-2" />
+            </div>
+            <div>
+              <label>Suhu Tubuh</label>
+              <input type="number" step="0.1" name="tanda_vital_suhu_tubuh" value={form.tanda_vital_suhu_tubuh} onChange={handleChange} className="w-full border rounded px-3 py-2" />
+            </div>
+            <div>
+              <label>Involusi Uteri</label>
+              <input name="pelayanan_involusi_uteri" value={form.pelayanan_involusi_uteri} onChange={handleChange} className="w-full border rounded px-3 py-2" />
+            </div>
+            <div>
+              <label>Cairan Pervaginam</label>
+              <input name="pelayanan_cairan_pervaginam" value={form.pelayanan_cairan_pervaginam} onChange={handleChange} className="w-full border rounded px-3 py-2" />
+            </div>
+            <div>
+              <label>Periksa Jalan Lahir</label>
+              <input name="pelayanan_periksa_jalan_lahir" value={form.pelayanan_periksa_jalan_lahir} onChange={handleChange} className="w-full border rounded px-3 py-2" />
+            </div>
+            <div>
+              <label>Periksa Payudara</label>
+              <input name="pelayanan_periksa_payudara" value={form.pelayanan_periksa_payudara} onChange={handleChange} className="w-full border rounded px-3 py-2" />
+            </div>
+            <div>
+              <label>ASI Eksklusif</label>
+              <input name="pelayanan_asi_eksklusif" value={form.pelayanan_asi_eksklusif} onChange={handleChange} className="w-full border rounded px-3 py-2" />
+            </div>
+            <label className="flex items-center gap-2">
+              <input type="checkbox" name="pemberian_kapsul_vitamin_a" checked={form.pemberian_kapsul_vitamin_a} onChange={handleChange} /> Vitamin A
+            </label>
+            <div>
+              <label>Tablet Tambah Darah</label>
+              <input type="number" name="pemberian_tablet_tambah_darah_jumlah" value={form.pemberian_tablet_tambah_darah_jumlah} onChange={handleChange} className="w-full border rounded px-3 py-2" />
+            </div>
+            <div>
+              <label>Skrining Depresi Nifas</label>
+              <input name="pelayanan_skrining_depresi_nifas" value={form.pelayanan_skrining_depresi_nifas} onChange={handleChange} className="w-full border rounded px-3 py-2" />
+            </div>
+            <div>
+              <label>Kontrasepsi Pasca Persalinan</label>
+              <input name="pelayanan_kontrasepsi_pasca_persalinan" value={form.pelayanan_kontrasepsi_pasca_persalinan} onChange={handleChange} className="w-full border rounded px-3 py-2" />
+            </div>
+            <div>
+              <label>Penanganan Risiko Malaria</label>
+              <input name="pelayanan_penanganan_risiko_malaria" value={form.pelayanan_penanganan_risiko_malaria} onChange={handleChange} className="w-full border rounded px-3 py-2" />
+            </div>
+            <div>
+              <label>Komplikasi Nifas</label>
+              <textarea name="komplikasi_nifas" value={form.komplikasi_nifas} onChange={handleChange} className="w-full border rounded px-3 py-2" rows="2" />
+            </div>
+            <div>
+              <label>Tindakan/Saran</label>
+              <textarea name="tindakan_saran" value={form.tindakan_saran} onChange={handleChange} className="w-full border rounded px-3 py-2" rows="2" />
+            </div>
+            <div>
+              <label>Nama Pemeriksa/Paraf</label>
+              <input name="nama_pemeriksa_paraf" value={form.nama_pemeriksa_paraf} onChange={handleChange} className="w-full border rounded px-3 py-2" />
+            </div>
+            <div>
+              <label>Tanggal Kembali</label>
+              <input type="date" name="tanggal_kembali" value={form.tanggal_kembali} onChange={handleChange} className="w-full border rounded px-3 py-2" />
+            </div>
           </div>
-          <button type="submit" disabled={saving} className="bg-indigo-600 text-white px-4 py-2 rounded-lg flex items-center gap-2"><Save size={18} /> Simpan Nifas</button>
+          <button type="submit" disabled={saving} className="bg-indigo-600 text-white px-4 py-2 rounded-lg flex items-center gap-2">
+            <Save size={18} /> Simpan Nifas
+          </button>
         </form>
       </div>
     </MainLayout>
