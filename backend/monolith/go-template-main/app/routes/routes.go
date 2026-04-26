@@ -317,9 +317,19 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	tenaga.PUT("/skrining-pemantauan/:id", controller.SkriningPemantauan.Update)
 	tenaga.DELETE("/skrining-pemantauan/:id", controller.SkriningPemantauan.Delete)
 
+	// ==================== KARTU KELUARGA ====================
+	tenaga.GET("/kartu-keluarga", controller.KartuKeluarga.GetAll)
+	tenaga.POST("/kartu-keluarga", controller.KartuKeluarga.Create)
+	tenaga.GET("/kartu-keluarga/:id", controller.KartuKeluarga.GetByID)
+	tenaga.GET("/kartu-keluarga/no-kk/:no_kk", controller.KartuKeluarga.GetByNoKartuKeluarga)
+	tenaga.PUT("/kartu-keluarga/:id", controller.KartuKeluarga.Update)
+	tenaga.DELETE("/kartu-keluarga/:id", controller.KartuKeluarga.Delete)
+
+	// ==================== KEPENDUDUKAN ====================
 	tenaga.GET("/kependudukan", controller.Kependudukan.GetAll)
 	tenaga.POST("/kependudukan", controller.Kependudukan.Create)
 	tenaga.GET("/kependudukan/:id", controller.Kependudukan.GetByID)
+	tenaga.GET("/kependudukan/kartu-keluarga/:kartu_keluarga_id", controller.Kependudukan.GetByKartuKeluargaID)
 	tenaga.PUT("/kependudukan/:id", controller.Kependudukan.Update)
 	tenaga.DELETE("/kependudukan/:id", controller.Kependudukan.Delete)
 

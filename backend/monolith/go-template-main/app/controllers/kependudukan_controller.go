@@ -20,7 +20,7 @@ func NewKependudukanController(u usecases.KependudukanUsecase) *KependudukanCont
 }
 
 type createKependudukanRequest struct {
-	NoKK               string `json:"no_kk"`
+	KartuKeluargaID    int32  `json:"kartu_keluarga_id"`
 	NIK                string `json:"nik"`
 	Dusun              string `json:"dusun"`
 	NamaLengkap        string `json:"nama_lengkap"`
@@ -45,8 +45,8 @@ func (c *KependudukanController) Create(ctx echo.Context) error {
 	}
 
 	// Validasi field wajib
-	if req.NamaLengkap == "" || req.NIK == "" || req.TanggalLahir == "" {
-		return ctx.JSON(http.StatusBadRequest, models.Response{StatusCode: http.StatusBadRequest, Message: "nama_lengkap, nik, dan tanggal_lahir wajib diisi"})
+	if req.NamaLengkap == "" || req.NIK == "" || req.TanggalLahir == "" || req.KartuKeluargaID == 0 {
+		return ctx.JSON(http.StatusBadRequest, models.Response{StatusCode: http.StatusBadRequest, Message: "nama_lengkap, nik, tanggal_lahir, dan kartu_keluarga_id wajib diisi"})
 	}
 
 	// Parse tanggal lahir
@@ -56,7 +56,7 @@ func (c *KependudukanController) Create(ctx echo.Context) error {
 	}
 
 	k := &models.Kependudukan{
-		NoKK:               req.NoKK,
+		KartuKeluargaID:    req.KartuKeluargaID,
 		NIK:                req.NIK,
 		Dusun:              req.Dusun,
 		NamaLengkap:        req.NamaLengkap,
@@ -97,6 +97,18 @@ func (c *KependudukanController) GetByID(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, models.Response{StatusCode: http.StatusOK, Data: data})
 }
 
+func (c *KependudukanController) GetByKartuKeluargaID(ctx echo.Context) error {
+	kkID, err := strconv.ParseInt(ctx.Param("kartu_keluarga_id"), 10, 32)
+	if err != nil {
+		return ctx.JSON(http.StatusBadRequest, models.Response{StatusCode: http.StatusBadRequest, Message: "invalid kartu_keluarga_id"})
+	}
+	data, err := c.usecase.GetByKartuKeluargaID(int32(kkID))
+	if err != nil {
+		return ctx.JSON(http.StatusNotFound, models.Response{StatusCode: http.StatusNotFound, Message: err.Error()})
+	}
+	return ctx.JSON(http.StatusOK, models.Response{StatusCode: http.StatusOK, Data: data})
+}
+
 func (c *KependudukanController) Update(ctx echo.Context) error {
 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 32)
 	if err != nil {
@@ -111,8 +123,8 @@ func (c *KependudukanController) Update(ctx echo.Context) error {
 		return ctx.JSON(http.StatusNotFound, models.Response{StatusCode: http.StatusNotFound, Message: "Data tidak ditemukan"})
 	}
 	// Update field yang diisi
-	if req.NoKK != "" {
-		existing.NoKK = req.NoKK
+	if req.KartuKeluargaID != 0 {
+		existing.KartuKeluargaID = req.KartuKeluargaID
 	}
 	if req.NIK != "" {
 		existing.NIK = req.NIK
