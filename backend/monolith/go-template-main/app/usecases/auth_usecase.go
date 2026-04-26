@@ -236,11 +236,29 @@ func (m *Main) Login(req *models.LoginRequest) (*models.LoginResponse, error) {
 	if isEmail(identifier) {
 		user, err = m.repository.GetUserByEmail(strings.ToLower(identifier))
 	} else {
+		// 1) Coba sebagai nomor HP format normalisasi (+62...)
 		normalizedPhoneNumber, nErr := normalizePhoneNumber(identifier)
-		if nErr != nil {
-			return nil, customerror.NewBadRequestError("identifier harus email atau nomor hp valid")
+		if nErr == nil {
+			user, err = m.repository.GetUserByPhoneNumber(normalizedPhoneNumber)
+			if err == nil {
+				goto LOGIN_FOUND
+			}
+			if _, ok := err.(customerror.NotFoundError); !ok {
+				return nil, err
+			}
 		}
-		user, err = m.repository.GetUserByPhoneNumber(normalizedPhoneNumber)
+
+		// 2) Fallback akun lama: coba nomor HP raw apa adanya
+		user, err = m.repository.GetUserByPhoneNumber(identifier)
+		if err == nil {
+			goto LOGIN_FOUND
+		}
+		if _, ok := err.(customerror.NotFoundError); !ok {
+			return nil, err
+		}
+
+		// 3) Fallback akun lama: coba nama/username (kolom nama)
+		user, err = m.repository.GetUserByName(identifier)
 	}
 
 	if err != nil {
@@ -249,6 +267,8 @@ func (m *Main) Login(req *models.LoginRequest) (*models.LoginResponse, error) {
 		}
 		return nil, err
 	}
+
+LOGIN_FOUND:
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password)); err != nil {
 		return nil, customerror.NewBadRequestError("email/nomor hp atau password salah")

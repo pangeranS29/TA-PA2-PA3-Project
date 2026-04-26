@@ -21,10 +21,28 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	secured.Use(middlewares.JWTAuth(controller.JWTSecret()))
 	secured.GET("/me", controller.Me)
 
+	// Alias auth untuk kompatibilitas frontend yang menggunakan prefix /api/v1
+	authV1 := e.Group("/api/v1/auth")
+	authV1.POST("/register", controller.Register)
+	authV1.POST("/login", controller.Login)
+	authV1.POST("/register/ortu", controller.RegisterOrangTua)
+	securedV1 := authV1.Group("")
+	securedV1.Use(middlewares.JWTAuth(controller.JWTSecret()))
+	securedV1.GET("/me", controller.Me)
+
 	// Group untuk tenaga kesehatan (termasuk bidan, dokter, tenaga-kesehatan)
 	tenaga := e.Group("/tenaga-kesehatan")
 	tenaga.Use(middlewares.JWTAuth(controller.JWTSecret()))
 	tenaga.Use(middlewares.TenagaKesehatan())
+
+	// Alias route untuk kompatibilitas frontend yang memakai prefix /api/v1
+	tenagaV1 := e.Group("/api/v1/tenaga-kesehatan")
+	tenagaV1.Use(middlewares.JWTAuth(controller.JWTSecret()))
+	tenagaV1.Use(middlewares.TenagaKesehatan())
+	tenagaV1.GET("/pemantauan-indikator", controller.PemantauanIndikator.GetAll)
+	tenagaV1.POST("/pemantauan-indikator", controller.PemantauanIndikator.Create)
+	tenagaV1.PUT("/pemantauan-indikator/:id", controller.PemantauanIndikator.Update)
+	tenagaV1.DELETE("/pemantauan-indikator/:id", controller.PemantauanIndikator.Delete)
 
 	// ==================== MODUL ANAK & PELAYANAN ANAK (yang sudah ada) ====================
 	tenaga.GET("/anak", controller.Anak.AdminList)
@@ -259,6 +277,12 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	tenaga.GET("/kependudukan/:id", controller.Kependudukan.GetByID)
 	tenaga.PUT("/kependudukan/:id", controller.Kependudukan.Update)
 	tenaga.DELETE("/kependudukan/:id", controller.Kependudukan.Delete)
+
+	// indikator pemantauan admin
+	tenaga.GET("/pemantauan-indikator", controller.PemantauanIndikator.GetAll)
+	tenaga.POST("/pemantauan-indikator", controller.PemantauanIndikator.Create)
+	tenaga.PUT("/pemantauan-indikator/:id", controller.PemantauanIndikator.Update)
+	tenaga.DELETE("/pemantauan-indikator/:id", controller.PemantauanIndikator.Delete)
 
 	//jenis pelayanan neonatus
 	tenaga.GET("/jenis-pelayanan", controller.JenisPelayanan.GetJenisPelayanan)
