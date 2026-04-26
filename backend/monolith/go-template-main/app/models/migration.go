@@ -1,17 +1,17 @@
 package models
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/gorm"
+)
 
 func AutoMigrate(db *gorm.DB) error {
 	// Semua model dalam satu slice
 	models := []interface{}{
 		// Master
-		&Role{},
-		&User{},
-		&KategoriUmur{},
-		&PeriodeKunjungan{},
-		&JenisPelayanan{},
-		&JenisPelayananKategori{},
+		// &KategoriTandaBahaya{},
+		&SkriningPemantauan{},
+		// &KartuKeluarga{},
+		// &Kependudukan{},
 
 		// Relasi utama
 		// &ibu
@@ -81,6 +81,13 @@ func AutoMigrate(db *gorm.DB) error {
 	if err := db.AutoMigrate(models...); err != nil {
 		return err
 	}
+
+	// seeder
+	// log.Println("AutoMigrate selesai. Menjalankan Seeder...")
+	// seeder := seeders.NewSeeder(db)
+	// if err := seeder.Run(); err != nil {
+	// 	println("Error: seeder gagal dijalankan:", err.Error())
+	// }
 
 	return nil
 }

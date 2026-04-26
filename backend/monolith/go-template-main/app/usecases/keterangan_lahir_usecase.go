@@ -42,7 +42,7 @@ func (u *keteranganLahirUsecase) GetByIbuID(ibuID int32) ([]models.KeteranganLah
 }
 
 func (u *keteranganLahirUsecase) Update(k *models.KeteranganLahir) error {
-	_, err := u.repo.FindByID(k.IDKeteranganLahir)
+	_, err := u.repo.FindByID(k.ID)
 	if err != nil {
 		return errors.New("data keterangan lahir tidak ditemukan")
 	}

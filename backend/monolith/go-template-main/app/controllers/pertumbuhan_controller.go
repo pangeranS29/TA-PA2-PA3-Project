@@ -82,7 +82,7 @@ package controllers
 
 // // DELETE
 // func (m *Main) DeleteCatatanPertumbuhan(c echo.Context) error {
-	
+
 // 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
 // 	if err != nil || id == 0 {
 // 		return helpers.Response(c, http.StatusBadRequest, []string{"id tidak valid"})

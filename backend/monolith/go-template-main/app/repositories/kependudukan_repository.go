@@ -50,6 +50,12 @@ func (r *KependudukanRepository) FindByNIK(nik string) (*models.Kependudukan, er
 	return &k, err
 }
 
+func (r *KependudukanRepository) FindByKartuKeluargaID(kkID int32) ([]models.Kependudukan, error) {
+	var list []models.Kependudukan
+	err := r.db.Preload("KartuKeluarga").Where("kartu_keluarga_id = ?", kkID).Find(&list).Error
+	return list, err
+}
+
 func (r *KependudukanRepository) GetAll() ([]models.Kependudukan, error) {
 	var list []models.Kependudukan
 	err := r.db.Where("deleted_at IS NULL").Find(&list).Error

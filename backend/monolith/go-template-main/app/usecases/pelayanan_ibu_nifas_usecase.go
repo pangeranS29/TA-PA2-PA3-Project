@@ -38,7 +38,7 @@ func (u *pelayananIbuNifasUsecase) GetByKehamilanID(kehamilanID int32) ([]models
 }
 
 func (u *pelayananIbuNifasUsecase) Update(p *models.PelayananIbuNifas) error {
-	_, err := u.repo.FindByID(p.IDNifas)
+	_, err := u.repo.FindByID(p.ID)
 	if err != nil {
 		return errors.New("data pelayanan ibu nifas tidak ditemukan")
 	}
