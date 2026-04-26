@@ -4,14 +4,16 @@ const BASE = "/tenaga-kesehatan/kehamilan";
 
 // Ambil semua data kehamilan (untuk keperluan tertentu)
 export const getKehamilanList = async () => {
-  const res = await api.get(BASE);
-  return res.data.data;
+  const response = await api.get('/tenaga-kesehatan/kehamilan');
+  return response.data.data;
 };
 
 // Ambil kehamilan berdasarkan ID ibu
 export const getKehamilanByIbuId = async (ibuId) => {
-  const res = await api.get(`${BASE}?ibu_id=${ibuId}`);
-  return res.data.data;
+  const response = await api.get('/tenaga-kesehatan/kehamilan', {
+    params: { ibu_id: ibuId }
+  });
+  return response.data.data;
 };
 
 // Ambil kehamilan berdasarkan ID
@@ -22,14 +24,14 @@ export const getKehamilanById = async (id) => {
 
 // Buat kehamilan baru
 export const createKehamilan = async (data) => {
-  const res = await api.post(BASE, data);
-  return res.data.data;
+  const response = await api.post('/tenaga-kesehatan/kehamilan', data);
+  return response;
 };
 
 // Update kehamilan
 export const updateKehamilan = async (id, data) => {
-  const res = await api.put(`${BASE}/${id}`, data);
-  return res.data.data;
+  const response = await api.put(`/tenaga-kesehatan/kehamilan/${id}`, data);
+  return response;
 };
 
 // Hapus kehamilan

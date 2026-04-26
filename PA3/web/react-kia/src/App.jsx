@@ -5,7 +5,9 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import PrivateRoute from "./routes/Private-routes";
-
+import RencanaPersalinanForm from './pages/Ibu/RencanaPersalinanForm';
+import RencanaPersalinanDetail from './pages/Ibu/RencanaPersalinanDetail';
+import RencanaPersalinanRedirect from './pages/Ibu/RencanaPersalinanRedirect';
 // Data Ibu
 import IbuList from "./pages/Ibu/IbuList";
 import IbuDetail from "./pages/Ibu/IbuDetail";
@@ -68,6 +70,9 @@ function App() {
           <Route path="/data-ibu" element={<IbuList />} />
           <Route path="/data-ibu/:id" element={<IbuDetail />} />
           <Route path="/data-ibu/:id/edit" element={<IbuEdit />} />
+          <Route path="/data-ibu/:id/rencana-persalinan" element={<RencanaPersalinanRedirect />} />
+<Route path="/data-ibu/:id/rencana-persalinan/form" element={<RencanaPersalinanForm />} />
+<Route path="/data-ibu/:id/rencana-persalinan/detail" element={<RencanaPersalinanDetail />} />
           <Route path="/data-ibu/:id/skrining-preeklampsia" element={<SkriningPreeklampsia />} />
           <Route path="/data-ibu/:id/pemeriksaan-fisik" element={<PemeriksaanFisik />} />
           <Route path="/data-ibu/:id/grafik-evaluasi" element={<GrafikEvaluasiKehamilan />} />

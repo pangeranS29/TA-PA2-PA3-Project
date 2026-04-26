@@ -19,6 +19,6 @@ type Kependudukan struct {
 	CreatedAt          time.Time  `json:"created_at"`
 	UpdatedAt          time.Time  `json:"updated_at"`
 	IsDeleted          *time.Time `json:"is_deleted,omitempty"`
-} 
+}
 
 func (Kependudukan) TableName() string { return "penduduk" }
