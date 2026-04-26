@@ -20,6 +20,7 @@ type roleDestination struct {
 }
 
 var roleDestinations = map[string]roleDestination{
+	"Admin":            {TargetApp: "website", RedirectRoute: "/dashboard/admin"},
 	"Dokter":           {TargetApp: "website", RedirectRoute: "/dashboard/dokter"},
 	"Tenaga-kesehatan": {TargetApp: "website", RedirectRoute: "/dashboard/tenaga-kesehatan"},
 	"Kader":            {TargetApp: "mobile", RedirectRoute: "/mobile/home-kader"},
@@ -28,6 +29,7 @@ var roleDestinations = map[string]roleDestination{
 }
 
 var roleAliases = map[string]string{
+	"admin":            "Admin",
 	"dokter":           "Dokter",
 	"tenagakesehatan":  "Tenaga-kesehatan",
 	"tenaga-kesehatan": "Tenaga-kesehatan",
@@ -254,10 +256,27 @@ func (m *Main) Login(req *models.LoginRequest) (*models.LoginResponse, error) {
 		return nil, customerror.NewBadRequestError("email/nomor hp atau password salah")
 	}
 
-	destination, ok := roleRedirect(user.Role.Name)
+	canonicalRoleName := normalizeRoleName(user.Role.Name)
+	if user.PendudukID != nil {
+		switch canonicalRoleName {
+		case "Bidan":
+			bidan, bErr := m.repository.Bidan.FindByPendudukID(int32(*user.PendudukID))
+			if bErr != nil || strings.ToLower(strings.TrimSpace(bidan.Status)) != "aktif" {
+				return nil, customerror.NewBadRequestError("akun bidan nonaktif")
+			}
+		case "Kader":
+			kader, kErr := m.repository.Kader.FindByPendudukID(int32(*user.PendudukID))
+			if kErr != nil || strings.ToLower(strings.TrimSpace(kader.Status)) != "aktif" {
+				return nil, customerror.NewBadRequestError("akun kader nonaktif")
+			}
+		}
+	}
+
+	destination, ok := roleRedirect(canonicalRoleName)
 	if !ok {
 		return nil, customerror.NewInternalServiceError("role belum memiliki mapping target aplikasi")
 	}
+	user.Role.Name = canonicalRoleName
 
 	accessToken, expiresIn, err := m.buildAccessToken(user, destination)
 	if err != nil {

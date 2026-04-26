@@ -31,7 +31,7 @@ type RegisterOrangTuaRequest struct {
 type RegisterOrangTuaUsecase struct {
 	userRepo         *repositories.UserRepository
 	roleRepo         *repositories.RoleRepository // perlu dibuat
-	kkRepo           *repositories.KebaburaRepository
+	kkRepo           *repositories.KartuKeluargaRepository
 	kependudukanRepo *repositories.KependudukanRepository
 	ibuRepo          *repositories.IbuRepository
 }
@@ -39,7 +39,7 @@ type RegisterOrangTuaUsecase struct {
 func NewRegisterOrangTuaUsecase(
 	userRepo *repositories.UserRepository,
 	roleRepo *repositories.RoleRepository,
-	kkRepo *repositories.KebaburaRepository,
+	kkRepo *repositories.KartuKeluargaRepository,
 	kependudukanRepo *repositories.KependudukanRepository,
 	ibuRepo *repositories.IbuRepository,
 ) *RegisterOrangTuaUsecase {
@@ -101,15 +101,11 @@ func (u *RegisterOrangTuaUsecase) Register(req *RegisterOrangTuaRequest) error {
 		CreatedAt:   time.Now(),
 		UpdatedAt:   time.Now(),
 	}
-	if err := u.userRepo.Create(user); err != nil {
-		return err
-	}
 
 	// Buat KK
 	tanggalTerbit, _ := time.Parse("2006-01-02", req.TanggalTerbit)
-	kk := &models.Kebabura{
+	kk := &models.KartuKeluarga{
 		NoKK:          req.NoKK,
-		IDUser:        user.ID,
 		TanggalTerbit: &tanggalTerbit,
 		CreatedAt:     time.Now(),
 		UpdatedAt:     time.Now(),
@@ -121,7 +117,7 @@ func (u *RegisterOrangTuaUsecase) Register(req *RegisterOrangTuaRequest) error {
 	// Buat data kependudukan
 	tanggalLahir, _ := time.Parse("2006-01-02", req.TanggalLahir)
 	kependudukan := &models.Kependudukan{
-		NoKK:               req.NoKK,
+		KartuKeluargaID:    &kk.ID,
 		NIK:                req.NIK,
 		Dusun:              req.Dusun,
 		NamaLengkap:        req.NamaLengkap,
@@ -131,10 +127,18 @@ func (u *RegisterOrangTuaUsecase) Register(req *RegisterOrangTuaRequest) error {
 		TanggalLahir:       tanggalLahir,
 		Pekerjaan:          req.Pekerjaan,
 		PendidikanTerakhir: req.PendidikanTerakhir,
+		NomorTelepon:       req.PhoneNumber,
+		KedudukanKeluarga:  "Kepala Keluarga",
 		CreatedAt:          time.Now(),
 		UpdatedAt:          time.Now(),
 	}
 	if err := u.kependudukanRepo.Create(kependudukan); err != nil {
+		return err
+	}
+
+	pendudukID := int64(kependudukan.IDKependudukan)
+	user.PendudukID = &pendudukID
+	if err := u.userRepo.Create(user); err != nil {
 		return err
 	}
 

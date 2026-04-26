@@ -47,6 +47,8 @@ type Main struct {
 	Ibu                           IbuUsecase
 	RiwayatKehamilanLalu          RiwayatKehamilanLaluUsecase
 	RegisterOrangTua              *RegisterOrangTuaUsecase
+	AdminAkunKeluarga             *AdminAkunKeluargaUsecase
+	AdminTenagaKesehatan          *AdminTenagaKesehatanUsecase
 	KeteranganLahir               KeteranganLahirUsecase // <-- TAMBAHKAN INI
 	JenisPelayanan                JenisPelayananUsecase
 }
@@ -102,9 +104,22 @@ func Init(opts Options) *Main {
 	m.RegisterOrangTua = NewRegisterOrangTuaUsecase(
 		opts.Repository.User,
 		opts.Repository.Role,
-		opts.Repository.Kebabura,
+		opts.Repository.KartuKeluarga,
 		opts.Repository.Kependudukan,
 		opts.Repository.Ibu,
+	)
+	m.AdminAkunKeluarga = NewAdminAkunKeluargaUsecase(
+		opts.Repository.User,
+		opts.Repository.Role,
+		opts.Repository.KartuKeluarga,
+		opts.Repository.Kependudukan,
+	)
+	m.AdminTenagaKesehatan = NewAdminTenagaKesehatanUsecase(
+		opts.Repository.Bidan,
+		opts.Repository.Kader,
+		opts.Repository.Kependudukan,
+		opts.Repository.User,
+		opts.Repository.Role,
 	)
 	m.KeteranganLahir = NewKeteranganLahirUsecase(opts.Repository.KeteranganLahir) // <-- TAMBAHKAN INI
 	m.JenisPelayanan = NewJenisPelayananUsecase(opts.Repository.JenisPelayanan)
