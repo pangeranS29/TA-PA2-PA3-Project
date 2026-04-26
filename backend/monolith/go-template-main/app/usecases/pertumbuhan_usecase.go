@@ -167,32 +167,32 @@ package usecases
 // 	return fmt.Sprintf("%d:%d", totalBulan/12, totalBulan%12)
 // }
 
-// // func extractAnakTanggalLahirDanGender(anak *models.Anak) (string, string, error) {
-// // 	if anak == nil {
-// // 		return "", "", customerror.NewBadRequestError("data anak tidak ditemukan")
-// // 	}
+// func extractAnakTanggalLahirDanGender(anak *models.Anak) (string, string, error) {
+// 	if anak == nil {
+// 		return "", "", customerror.NewBadRequestError("data anak tidak ditemukan")
+// 	}
 
-// // 	tanggalLahir := strings.TrimSpace(anak.TanggalLahir)
-// // 	jenisKelamin := strings.TrimSpace(anak.JenisKelamin)
+// 	tanggalLahir := strings.TrimSpace(anak.TanggalLahir)
+// 	jenisKelamin := strings.TrimSpace(anak.JenisKelamin)
 
-// // 	if anak.Kependudukan != nil {
-// // 		if strings.TrimSpace(anak.Kependudukan.TanggalLahir) != "" {
-// // 			tanggalLahir = strings.TrimSpace(anak.Kependudukan.TanggalLahir)
-// // 		}
-// // 		if strings.TrimSpace(anak.Kependudukan.JenisKelamin) != "" {
-// // 			jenisKelamin = strings.TrimSpace(anak.Kependudukan.JenisKelamin)
-// // 		}
-// // 	}
+// 	if anak.Kependudukan != nil {
+// 		if strings.TrimSpace(anak.Kependudukan.TanggalLahir) != "" {
+// 			tanggalLahir = strings.TrimSpace(anak.Kependudukan.TanggalLahir)
+// 		}
+// 		if strings.TrimSpace(anak.Kependudukan.JenisKelamin) != "" {
+// 			jenisKelamin = strings.TrimSpace(anak.Kependudukan.JenisKelamin)
+// 		}
+// 	}
 
-// // 	if tanggalLahir == "" {
-// // 		return "", "", customerror.NewBadRequestError("tanggal lahir anak belum tersedia")
-// // 	}
-// // 	if jenisKelamin == "" {
-// // 		return "", "", customerror.NewBadRequestError("jenis kelamin anak belum tersedia")
-// // 	}
+// 	if tanggalLahir == "" {
+// 		return "", "", customerror.NewBadRequestError("tanggal lahir anak belum tersedia")
+// 	}
+// 	if jenisKelamin == "" {
+// 		return "", "", customerror.NewBadRequestError("jenis kelamin anak belum tersedia")
+// 	}
 
-// // 	return tanggalLahir, jenisKelamin, nil
-// // }
+// 	return tanggalLahir, jenisKelamin, nil
+// }
 
 // func getKurvaKMSLabel(usiaBulan int) string {
 // 	if usiaBulan <= 24 {
@@ -558,4 +558,12 @@ package usecases
 
 // func (m *Main) DeleteCatatanPertumbuhan(id uint) error {
 // 	return m.repository.DeleteCatatanPertumbuhan(id)
+// }
+
+// func (m *Main) IsAnakMilikOrangtua(userID, anakID uint) (bool, error) {
+// 	return m.repository.IsAnakMilikOrangtua(userID, anakID)
+// }
+
+// func (m *Main) IsCatatanMilikOrangtua(userID, catatanID uint) (bool, error) {
+// 	return m.repository.IsCatatanMilikOrangtua(userID, catatanID)
 // }

@@ -8,6 +8,13 @@ import PrivateRoute from "./routes/Private-routes";
 import RencanaPersalinanForm from './pages/Ibu/RencanaPersalinanForm';
 import RencanaPersalinanDetail from './pages/Ibu/RencanaPersalinanDetail';
 import RencanaPersalinanRedirect from './pages/Ibu/RencanaPersalinanRedirect';
+import AdminRoute from "./routes/AdminRoute";
+import AdminAkunKeluargaCreate from "./pages/Admin/AkunKeluargaCreate";
+import AkunKeluargaManagement from "./pages/Admin/AkunKeluargaManagement";
+import TenagaKesehatanManagement from "./pages/Admin/TenagaKesehatanManagement";
+import JadwalLayanan from "./pages/Admin/JadwalLayanan";
+import { getPostLoginRoute, isAuthenticated } from "./services/auth";
+
 // Data Ibu
 import IbuList from "./pages/Ibu/IbuList";
 import IbuDetail from "./pages/Ibu/IbuDetail";
@@ -50,6 +57,14 @@ import PelayananGiziIndex from "./pages/Pelayanan-Gizi-Anak/index"
 import NeonatusIndex from "./pages/Kesehatan-Neonatus/NeonatusIndex"
 import PelayananGiziCreate from "./pages/Pelayanan-Gizi-Anak/create";
 
+
+const HomeRedirect = () => {
+  if (!isAuthenticated()) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return <Navigate to={getPostLoginRoute()} replace />;
+};
 
 function App() {
   return (
@@ -104,6 +119,14 @@ function App() {
           <Route path="/laporan" element={<Laporan />} />
         </Route>
 
+        <Route element={<AdminRoute />}>
+          <Route path="/dashboard/admin" element={<Dashboard />} />
+          <Route path="/dashboard/admin/akun-keluarga" element={<AdminAkunKeluargaCreate />} />
+          <Route path="/dashboard/admin/manajemen-keluarga" element={<AkunKeluargaManagement />} />
+          <Route path="/dashboard/admin/tenaga-kesehatan" element={<TenagaKesehatanManagement />} />
+          <Route path="/dashboard/admin/jadwal-layanan" element={<JadwalLayanan />} />
+        </Route>
+
           <Route path="/data-anak/dashboard/:id" element= {<AnakDashboard/>} />
           <Route path="/data-anak/neonatus/:id" element= {<NeonatusIndex/>} />    
 
@@ -111,8 +134,8 @@ function App() {
           <Route path="/data-anak/pelayanan-gizi/:id/create" element={<PelayananGiziCreate/>}></Route>
         
 
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
-        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/" element={<HomeRedirect />} />
+        <Route path="*" element={<HomeRedirect />} />
       </Routes>
     </BrowserRouter>
   );

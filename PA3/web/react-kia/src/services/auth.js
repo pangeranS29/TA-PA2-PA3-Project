@@ -1,6 +1,25 @@
 // src/services/auth.js
 import api from "./api";
 
+const ADMIN_ROLE = "admin";
+const BIDAN_ROLE = "bidan";
+
+const normalizeRole = (role) => (role || "").toString().trim().toLowerCase();
+
+export const isAdminUser = (user) => normalizeRole(user?.role) === ADMIN_ROLE;
+
+export const getUserRedirectRoute = (user) => {
+  if (isAdminUser(user)) {
+    return "/dashboard/admin";
+  }
+
+  if (normalizeRole(user?.role) === BIDAN_ROLE) {
+    return "/dashboard";
+  }
+
+  return "/dashboard";
+};
+
 /**
  * Fungsi Login
  * Menyimpan token dan data user ke localStorage
@@ -49,4 +68,12 @@ export const getCurrentUser = () => {
 export const isAuthenticated = () => {
   const token = localStorage.getItem("access_token");
   return !!token; // Mengembalikan true jika token ada, false jika tidak ada
+};
+
+/**
+ * Ambil route tujuan default setelah login sesuai role user
+ */
+export const getPostLoginRoute = () => {
+  const user = getCurrentUser();
+  return getUserRedirectRoute(user);
 };
