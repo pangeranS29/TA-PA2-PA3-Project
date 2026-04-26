@@ -10,6 +10,8 @@ const api = axios.create({
   },
 });
 
+let isRedirectingToLogin = false;
+
 // Interceptor untuk menambahkan token JWT
 api.interceptors.request.use(
   (config) => {
@@ -20,6 +22,31 @@ api.interceptors.request.use(
     return config;
   },
   (error) => Promise.reject(error)
+);
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    const status = error?.response?.status;
+    const rawMessage = error?.response?.data?.message;
+    const message = Array.isArray(rawMessage) ? rawMessage.join(" ") : String(rawMessage || "");
+
+    const isAuthError =
+      status === 401 ||
+      /token tidak valid|expired|authorization/i.test(message);
+
+    if (isAuthError) {
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("user");
+
+      if (!isRedirectingToLogin && window.location.pathname !== "/login") {
+        isRedirectingToLogin = true;
+        window.location.href = "/login";
+      }
+    }
+
+    return Promise.reject(error);
+  }
 );
 
 export default api;

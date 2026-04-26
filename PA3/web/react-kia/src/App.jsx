@@ -60,6 +60,7 @@ import TumbuhKembangAnak from"./pages/SDIDTK/index"
 import PelayananLilaIndex from "./pages/Pelayanan-LILA-Anak/index";
 import PelayananLilaCreate from "./pages/Pelayanan-LILA-Anak/create";
 import PelayananLilaEdit from "./pages/Pelayanan-LILA-Anak/edit";
+import KesehatanLingkunganCatatanPage from "./pages/Pencatatan/KesehatanLingkunganCatatan";
 
 function App() {
   return (
@@ -75,6 +76,7 @@ function App() {
           <Route path="/kependudukan" element={<KependudukanList />} />
           <Route path="/kependudukan/create" element={<KependudukanCreate />} />
           <Route path="/kependudukan/edit/:id" element={<KependudukanEdit />} />
+          <Route path="/pencatatan/kesehatan-lingkungan" element={<KesehatanLingkunganCatatanPage />} />
           {/* Data Ibu */}
           <Route path="/data-ibu/create" element={<IbuCreate />} />
           <Route path="/data-ibu" element={<IbuList />} />
