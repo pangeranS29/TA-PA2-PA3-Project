@@ -18,6 +18,9 @@ type Kehamilan struct {
 	UKKehamilanSaatIni       int32          `json:"uk_kehamilan_saat_ini,omitempty"`
 	JarakKehamilanSebelumnya int32          `json:"jarak_kehamilan_sebelumnya,omitempty"`
 	StatusKehamilan          string         `json:"status_kehamilan,omitempty"`
+	BB_Awal                  float64        `json:"bb_awal,omitempty"`
+	TB                       float64        `json:"tb,omitempty"`
+	IMT_Awal                 float64        `json:"imt_awal,omitempty"`
 	CreatedAt                time.Time      `json:"created_at"`
 	UpdatedAt                time.Time      `json:"updated_at"`
 	DeletedAt                gorm.DeletedAt `json:"-" gorm:"index"`
