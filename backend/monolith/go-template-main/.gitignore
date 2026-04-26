@@ -1,6 +1,6 @@
 # Local environment files (do not commit)
 .env
-.env.example
+
 
 # Build binaries and temporary files
 *.exe

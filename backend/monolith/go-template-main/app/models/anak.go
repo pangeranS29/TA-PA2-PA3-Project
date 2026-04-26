@@ -10,11 +10,10 @@ type Anak struct {
 	ID            int32          `gorm:"primaryKey;autoIncrement" json:"id"`
 	KehamilanID   int32          `json:"kehamilan_id" gorm:"not null;index;constraint:OnDelete:CASCADE"`
 	Kehamilan     *Kehamilan     `json:"kehamilan,omitempty" gorm:"foreignKey:KehamilanID;constraint:OnDelete:CASCADE"`
-	Nama          string         `json:"nama" gorm:"not null"`
-	TanggalLahir  time.Time      `json:"tanggal_lahir" gorm:"not null"`
-	JenisKelamin  string         `json:"jenis_kelamin" gorm:"not null"`
+	PendudukID    int32          `json:"penduduk_id" gorm:"not null;index;constraint:OnDelete:CASCADE"`
+	Penduduk      *Kependudukan  `json:"penduduk,omitempty" gorm:"foreignKey:PendudukID;constraint:OnDelete:CASCADE"`
 	BeratLahirKg  *float64       `json:"berat_lahir_kg,omitempty"`
-	GolonganDarah *string        `json:"golongan_darah,omitempty"`
+	TinggiLahirCm *float64       `json:"tinggi_lahir_cm,omitempty"`
 	CreatedAt     time.Time      `json:"created_at"`
 	UpdatedAt     time.Time      `json:"updated_at"`
 	DeletedAt     gorm.DeletedAt `json:"-" gorm:"index"`

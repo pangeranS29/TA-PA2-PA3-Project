@@ -25,8 +25,10 @@ type Main struct {
 	// New repositories (semua pointer, mengikuti pola Anak)
 	User                          *UserRepository
 	Role                          *RoleRepository
-	Kebabura                      *KebaburaRepository
+	KartuKeluarga                 *KartuKeluargaRepository
 	Kependudukan                  *KependudukanRepository
+	Bidan                         *BidanRepository
+	Kader                         *KaderRepository
 	Ibu                           *IbuRepository
 	Kehamilan                     *KehamilanRepository
 	PemeriksaanKehamilan          *PemeriksaanKehamilanRepository
@@ -37,6 +39,8 @@ type Main struct {
 	CatatanPelayananTrimester1    *CatatanPelayananTrimester1Repository
 	SkriningPreeklampsia          *SkriningPreeklampsiaRepository
 	SkriningDMGestasional         *SkriningDMGestasionalRepository
+	SkriningPemantauan            *SkriningPemantauanRepository
+	KategoriTandaBahaya           *KategoriTandaBahayaRepository
 	CatatanPelayananTrimester2    *CatatanPelayananTrimester2Repository
 	PemeriksaanDokterTrimester3   *PemeriksaanDokterTrimester3Repository
 	PemeriksaanLanjutanTrimester3 *PemeriksaanLanjutanTrimester3Repository
@@ -73,8 +77,10 @@ func Init(opts Options) *Main {
 	m.User = NewUserRepository(opts.Postgres)
 	m.Ibu = NewIbuRepository(opts.Postgres)
 	m.Role = NewRoleRepository(opts.Postgres)
-	m.Kebabura = NewKebaburaRepository(opts.Postgres)
+	m.KartuKeluarga = NewKartuKeluargaRepository(opts.Postgres)
 	m.Kependudukan = NewKependudukanRepository(opts.Postgres)
+	m.Bidan = NewBidanRepository(opts.Postgres)
+	m.Kader = NewKaderRepository(opts.Postgres)
 	m.Kehamilan = NewKehamilanRepository(opts.Postgres)
 	m.PemeriksaanKehamilan = NewPemeriksaanKehamilanRepository(opts.Postgres)
 	m.EvaluasiKesehatanIbu = NewEvaluasiKesehatanIbuRepository(opts.Postgres)
@@ -84,6 +90,8 @@ func Init(opts Options) *Main {
 	m.CatatanPelayananTrimester1 = NewCatatanPelayananTrimester1Repository(opts.Postgres)
 	m.SkriningPreeklampsia = NewSkriningPreeklampsiaRepository(opts.Postgres)
 	m.SkriningDMGestasional = NewSkriningDMGestasionalRepository(opts.Postgres)
+	m.SkriningPemantauan = NewSkriningPemantauanRepository(opts.Postgres)
+	m.KategoriTandaBahaya = NewKategoriTandaBahayaRepository(opts.Postgres)
 	m.CatatanPelayananTrimester2 = NewCatatanPelayananTrimester2Repository(opts.Postgres)
 	m.PemeriksaanDokterTrimester3 = NewPemeriksaanDokterTrimester3Repository(opts.Postgres)
 	m.PemeriksaanLanjutanTrimester3 = NewPemeriksaanLanjutanTrimester3Repository(opts.Postgres)
