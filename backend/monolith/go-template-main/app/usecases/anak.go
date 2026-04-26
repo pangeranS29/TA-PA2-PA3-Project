@@ -199,7 +199,7 @@ func (u *AnakUseCase) toAnakResponse(anak *models.Anak) models.AnakResponse {
 		resp.GolonganDarah = anak.Penduduk.GolonganDarah
 
 		// Hitung usia dari tanggal lahir penduduk
-		usiaBulan := HitungUsiaBulan(anak.Penduduk.TanggalLahir)
+		usiaBulan := HitungUsiaBulan(*anak.Penduduk.TanggalLahir)
 		resp.UsiaBulan = usiaBulan
 		resp.UsiaTeks = FormatUsiaTeks(usiaBulan)
 	}

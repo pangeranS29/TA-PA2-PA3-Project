@@ -329,7 +329,7 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	tenaga.GET("/kependudukan", controller.Kependudukan.GetAll)
 	tenaga.POST("/kependudukan", controller.Kependudukan.Create)
 	tenaga.GET("/kependudukan/:id", controller.Kependudukan.GetByID)
-	tenaga.GET("/kependudukan/kartu-keluarga/:kartu_keluarga_id", controller.Kependudukan.GetByKartuKeluargaID)
+	// tenaga.GET("/kependudukan/kartu-keluarga/:kartu_keluarga_id", controller.Kependudukan.GetByKartuKeluargaID)
 	tenaga.PUT("/kependudukan/:id", controller.Kependudukan.Update)
 	tenaga.DELETE("/kependudukan/:id", controller.Kependudukan.Delete)
 

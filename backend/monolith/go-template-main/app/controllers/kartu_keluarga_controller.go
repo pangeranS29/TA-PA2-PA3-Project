@@ -38,7 +38,7 @@ func (c *KartuKeluargaController) Create(ctx echo.Context) error {
 	}
 
 	kk := &models.KartuKeluarga{
-		NoKartuKeluarga: req.NoKartuKeluarga,
+		NoKK: req.NoKartuKeluarga,
 	}
 
 	data, err := c.usecase.Create(kk)
@@ -92,7 +92,7 @@ func (c *KartuKeluargaController) Update(ctx echo.Context) error {
 	}
 	// Update field yang diisi
 	if req.NoKartuKeluarga != "" {
-		existing.NoKartuKeluarga = req.NoKartuKeluarga
+		existing.NoKK = req.NoKartuKeluarga
 	}
 	if err := c.usecase.Update(existing); err != nil {
 		return ctx.JSON(http.StatusInternalServerError, models.Response{StatusCode: http.StatusInternalServerError, Message: err.Error()})

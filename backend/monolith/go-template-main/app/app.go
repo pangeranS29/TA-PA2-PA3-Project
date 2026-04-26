@@ -3,7 +3,6 @@ package app
 import (
 	"fmt"
 	"monitoring-service/app/controllers"
-	"monitoring-service/app/models"
 	"monitoring-service/app/repositories"
 	"monitoring-service/app/routes"
 	"monitoring-service/app/usecases"
@@ -59,10 +58,10 @@ func (m *Main) Init() (err error) {
 	///comment sementara
 
 	// Migrate Tabel
-	err = models.AutoMigrate(m.database.Postgres)
-	if err != nil {
-		return
-	}
+	// err = models.AutoMigrate(m.database.Postgres)
+	// if err != nil {
+	// 	return
+	// }
 
 	// //Seeder
 	// err = seed.RunAllSeed(m.database.Postgres)

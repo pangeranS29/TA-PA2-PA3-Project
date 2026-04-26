@@ -20,7 +20,7 @@ func NewKependudukanController(u usecases.KependudukanUsecase) *KependudukanCont
 }
 
 type createKependudukanRequest struct {
-	KartuKeluargaID    int32  `json:"kartu_keluarga_id"`
+	IDNoKK             int32  `json:"id_no_kk"`
 	NIK                string `json:"nik"`
 	Dusun              string `json:"dusun"`
 	NamaLengkap        string `json:"nama_lengkap"`
@@ -45,8 +45,8 @@ func (c *KependudukanController) Create(ctx echo.Context) error {
 	}
 
 	// Validasi field wajib
-	if req.NamaLengkap == "" || req.NIK == "" || req.TanggalLahir == "" || req.KartuKeluargaID == 0 {
-		return ctx.JSON(http.StatusBadRequest, models.Response{StatusCode: http.StatusBadRequest, Message: "nama_lengkap, nik, tanggal_lahir, dan kartu_keluarga_id wajib diisi"})
+	if req.NamaLengkap == "" || req.NIK == "" || req.TanggalLahir == "" {
+		return ctx.JSON(http.StatusBadRequest, models.Response{StatusCode: http.StatusBadRequest, Message: "nama_lengkap, nik, dan tanggal_lahir wajib diisi"})
 	}
 
 	// Parse tanggal lahir
@@ -56,18 +56,18 @@ func (c *KependudukanController) Create(ctx echo.Context) error {
 	}
 
 	k := &models.Kependudukan{
-		KartuKeluargaID:    req.KartuKeluargaID,
+		KartuKeluargaID:    &req.IDNoKK,
 		NIK:                req.NIK,
 		Dusun:              req.Dusun,
 		NamaLengkap:        req.NamaLengkap,
 		GolonganDarah:      req.GolonganDarah,
 		JenisKelamin:       req.JenisKelamin,
 		TempatLahir:        req.TempatLahir,
-		TanggalLahir:       tanggalLahir,
+		TanggalLahir:       &tanggalLahir,
 		Pekerjaan:          req.Pekerjaan,
 		PendidikanTerakhir: req.PendidikanTerakhir,
-		Alamat:             req.Alamat,
-		Telepon:            req.Telepon,
+		// Alamat:             req.Alamat,
+		// Telepon:            req.Telepon,
 	}
 
 	data, err := c.usecase.Create(k)
@@ -97,18 +97,6 @@ func (c *KependudukanController) GetByID(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, models.Response{StatusCode: http.StatusOK, Data: data})
 }
 
-func (c *KependudukanController) GetByKartuKeluargaID(ctx echo.Context) error {
-	kkID, err := strconv.ParseInt(ctx.Param("kartu_keluarga_id"), 10, 32)
-	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, models.Response{StatusCode: http.StatusBadRequest, Message: "invalid kartu_keluarga_id"})
-	}
-	data, err := c.usecase.GetByKartuKeluargaID(int32(kkID))
-	if err != nil {
-		return ctx.JSON(http.StatusNotFound, models.Response{StatusCode: http.StatusNotFound, Message: err.Error()})
-	}
-	return ctx.JSON(http.StatusOK, models.Response{StatusCode: http.StatusOK, Data: data})
-}
-
 func (c *KependudukanController) Update(ctx echo.Context) error {
 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 32)
 	if err != nil {
@@ -123,8 +111,8 @@ func (c *KependudukanController) Update(ctx echo.Context) error {
 		return ctx.JSON(http.StatusNotFound, models.Response{StatusCode: http.StatusNotFound, Message: "Data tidak ditemukan"})
 	}
 	// Update field yang diisi
-	if req.KartuKeluargaID != 0 {
-		existing.KartuKeluargaID = req.KartuKeluargaID
+	if req.IDNoKK != 0 {
+		existing.KartuKeluarga.ID = req.IDNoKK
 	}
 	if req.NIK != "" {
 		existing.NIK = req.NIK
@@ -146,7 +134,7 @@ func (c *KependudukanController) Update(ctx echo.Context) error {
 	}
 	if req.TanggalLahir != "" {
 		if t, err := time.Parse("2006-01-02", req.TanggalLahir); err == nil {
-			existing.TanggalLahir = t
+			existing.TanggalLahir = &t
 		}
 	}
 	if req.Pekerjaan != "" {
@@ -155,12 +143,12 @@ func (c *KependudukanController) Update(ctx echo.Context) error {
 	if req.PendidikanTerakhir != "" {
 		existing.PendidikanTerakhir = req.PendidikanTerakhir
 	}
-	if req.Alamat != "" {
-		existing.Alamat = req.Alamat
-	}
-	if req.Telepon != "" {
-		existing.Telepon = req.Telepon
-	}
+	// if req.Alamat != "" {
+	// 	existing.Alamat = req.Alamat
+	// }
+	// if req.Telepon != "" {
+	// 	existing.Telepon = req.Telepon
+	// }
 	if err := c.usecase.Update(existing); err != nil {
 		return ctx.JSON(http.StatusInternalServerError, models.Response{StatusCode: http.StatusInternalServerError, Message: err.Error()})
 	}
