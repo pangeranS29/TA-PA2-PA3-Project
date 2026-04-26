@@ -1,8 +1,8 @@
 package app
 
 import (
+	"fmt"
 	"monitoring-service/app/controllers"
-	"monitoring-service/app/models"
 	"monitoring-service/app/repositories"
 	"monitoring-service/app/routes"
 	"monitoring-service/app/usecases"
@@ -51,14 +51,23 @@ func (m *Main) Init() (err error) {
 	m.database.Postgres, err = database.GetConnection(m.cfg.Postgres().Read.ToArgs(database.Postgres, database.ReadConn, nil))
 
 	if err != nil {
-		return
+		panic("❌ Gagal konek ke database: " + err.Error())
 	}
+	fmt.Println("✅ BERHASIL KONEK KE DATABASE")
 
-	// auto migrate
-	err = models.AutoMigrateAndSeed(m.database.Postgres)
-	if err != nil {
-		return
-	}
+	///comment sementara
+
+	// Migrate Tabel
+	// err = models.AutoMigrate(m.database.Postgres)
+	// if err != nil {
+	// 	return
+	// }
+
+	// //Seeder
+	// err = seed.RunAllSeed(m.database.Postgres)
+	// if err != nil {
+	// 	return
+	// }
 
 	// SEEDER setelah migrate
 	// seeder kependudukan + anak
@@ -86,6 +95,10 @@ func (m *Main) Init() (err error) {
 	// }
 	// masterLKUSeeder := seeders.NewMasterStandarLKUSeeder(m.database.Postgres)
 	// if err := masterLKUSeeder.Seed(); err != nil {
+	// 	return err
+	// }
+	// kategoriCapaianSeeder := seeders.NewKategoriCapaianSeeder(m.database.Postgres)
+	// if err := kategoriCapaianSeeder.Seed(); err != nil {
 	// 	return err
 	// }
 
