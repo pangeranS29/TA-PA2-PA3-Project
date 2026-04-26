@@ -28,16 +28,19 @@ type updateIbuRequest struct {
 	StatusKehamilan string `json:"status_kehamilan"`
 }
 
-// Create - Membuat data ibu baru
+// Create - Membuat data ibu baru dengan validasi lengkap
+// Returns: Created Ibu object on success, error message on failure
 func (c *IbuController) Create(ctx echo.Context) error {
+	// Authenticate user
 	claims, _ := ctx.Get("auth_claims").(*models.AuthClaims)
 	if claims == nil {
 		return ctx.JSON(http.StatusUnauthorized, models.Response{
 			StatusCode: http.StatusUnauthorized,
-			Message:    "Unauthorized",
+			Message:    "Unauthorized - Silakan login terlebih dahulu",
 		})
 	}
 
+	// Parse request body
 	var req createIbuRequest
 	if err := ctx.Bind(&req); err != nil {
 		return ctx.JSON(http.StatusBadRequest, models.Response{
@@ -46,7 +49,7 @@ func (c *IbuController) Create(ctx echo.Context) error {
 		})
 	}
 
-	// Validasi input
+	// Validate: IDKependudukan must be provided and > 0
 	if req.IDKependudukan == 0 {
 		return ctx.JSON(http.StatusBadRequest, models.Response{
 			StatusCode: http.StatusBadRequest,
@@ -54,6 +57,7 @@ func (c *IbuController) Create(ctx echo.Context) error {
 		})
 	}
 
+	// Validate: StatusKehamilan must be provided
 	if req.StatusKehamilan == "" {
 		return ctx.JSON(http.StatusBadRequest, models.Response{
 			StatusCode: http.StatusBadRequest,
@@ -61,18 +65,25 @@ func (c *IbuController) Create(ctx echo.Context) error {
 		})
 	}
 
+	// Create ibu object
 	ibu := &models.Ibu{
 		IDKependudukan:  req.IDKependudukan,
 		StatusKehamilan: req.StatusKehamilan,
 	}
 
+	// Log for debugging
+	fmt.Printf("[IBU_CONTROLLER] Creating Ibu with IDKependudukan=%d, StatusKehamilan=%s\n", req.IDKependudukan, req.StatusKehamilan)
+
+	// Execute create operation
 	if err := c.usecase.Create(ibu); err != nil {
-		fmt.Println("Error creating ibu:", err.Error())
+		fmt.Printf("[IBU_CONTROLLER] Error creating ibu: %v\n", err)
 		return ctx.JSON(http.StatusInternalServerError, models.Response{
 			StatusCode: http.StatusInternalServerError,
 			Message:    "Gagal membuat data ibu: " + err.Error(),
 		})
 	}
+
+	fmt.Printf("[IBU_CONTROLLER] Successfully created Ibu with ID=%d\n", ibu.IDIbu)
 
 	return ctx.JSON(http.StatusCreated, models.Response{
 		StatusCode: http.StatusCreated,
@@ -87,7 +98,7 @@ func (c *IbuController) GetByID(ctx echo.Context) error {
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, models.Response{
 			StatusCode: http.StatusBadRequest,
-			Message:    "ID tidak valid",
+			Message:    "ID tidak valid - pastikan ID berupa angka",
 		})
 	}
 
@@ -95,7 +106,7 @@ func (c *IbuController) GetByID(ctx echo.Context) error {
 	if err != nil {
 		return ctx.JSON(http.StatusNotFound, models.Response{
 			StatusCode: http.StatusNotFound,
-			Message:    "Data ibu tidak ditemukan: " + err.Error(),
+			Message:    "Data ibu dengan ID " + ctx.Param("id") + " tidak ditemukan",
 		})
 	}
 
@@ -110,6 +121,7 @@ func (c *IbuController) GetByID(ctx echo.Context) error {
 func (c *IbuController) GetAll(ctx echo.Context) error {
 	list, err := c.usecase.GetAll()
 	if err != nil {
+		fmt.Printf("[IBU_CONTROLLER] Error getting all ibu: %v\n", err)
 		return ctx.JSON(http.StatusInternalServerError, models.Response{
 			StatusCode: http.StatusInternalServerError,
 			Message:    "Gagal mengambil data ibu: " + err.Error(),
@@ -123,13 +135,13 @@ func (c *IbuController) GetAll(ctx echo.Context) error {
 	})
 }
 
-// Update - Memperbarui data ibu
+// Update - Memperbarui data ibu berdasarkan ID
 func (c *IbuController) Update(ctx echo.Context) error {
 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 32)
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, models.Response{
 			StatusCode: http.StatusBadRequest,
-			Message:    "ID tidak valid",
+			Message:    "ID tidak valid - pastikan ID berupa angka",
 		})
 	}
 
@@ -141,19 +153,23 @@ func (c *IbuController) Update(ctx echo.Context) error {
 		})
 	}
 
+	// Check if ibu exists
 	existing, err := c.usecase.GetByID(int32(id))
 	if err != nil {
 		return ctx.JSON(http.StatusNotFound, models.Response{
 			StatusCode: http.StatusNotFound,
-			Message:    "Data ibu tidak ditemukan",
+			Message:    "Data ibu dengan ID " + ctx.Param("id") + " tidak ditemukan",
 		})
 	}
 
+	// Update status kehamilan if provided
 	if req.StatusKehamilan != "" {
 		existing.StatusKehamilan = req.StatusKehamilan
 	}
 
+	// Execute update
 	if err := c.usecase.Update(existing); err != nil {
+		fmt.Printf("[IBU_CONTROLLER] Error updating ibu: %v\n", err)
 		return ctx.JSON(http.StatusInternalServerError, models.Response{
 			StatusCode: http.StatusInternalServerError,
 			Message:    "Gagal memperbarui data ibu: " + err.Error(),
@@ -167,17 +183,18 @@ func (c *IbuController) Update(ctx echo.Context) error {
 	})
 }
 
-// Delete - Menghapus data ibu
+// Delete - Menghapus data ibu berdasarkan ID
 func (c *IbuController) Delete(ctx echo.Context) error {
 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 32)
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, models.Response{
 			StatusCode: http.StatusBadRequest,
-			Message:    "ID tidak valid",
+			Message:    "ID tidak valid - pastikan ID berupa angka",
 		})
 	}
 
 	if err := c.usecase.Delete(int32(id)); err != nil {
+		fmt.Printf("[IBU_CONTROLLER] Error deleting ibu: %v\n", err)
 		return ctx.JSON(http.StatusInternalServerError, models.Response{
 			StatusCode: http.StatusInternalServerError,
 			Message:    "Gagal menghapus data ibu: " + err.Error(),

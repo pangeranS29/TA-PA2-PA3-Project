@@ -2,6 +2,9 @@ package models
 
 import "time"
 
+// Ibu represents mother/pregnant woman data in the system
+// IMPORTANT: Removed uniqueIndex from IDKependudukan to allow multiple pregnancies per person
+// (One person can have multiple pregnancies in different years)
 type Ibu struct {
 	IDIbu           int32         `gorm:"primaryKey;column:id;autoIncrement" json:"id_ibu"`
 	IDKependudukan  int32         `gorm:"column:penduduk_id;not null;index:idx_ibu_penduduk" json:"id_kependudukan"`

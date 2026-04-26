@@ -352,12 +352,12 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	// tenaga.DELETE("/kartu-keluarga/:id", controller.KartuKeluarga.Delete)
 
 	// ==================== KEPENDUDUKAN ====================
-	// tenaga.GET("/kependudukan", controller.Kependudukan.GetAll)
-	// tenaga.POST("/kependudukan", controller.Kependudukan.Create)
-	// tenaga.GET("/kependudukan/:id", controller.Kependudukan.GetByID)
-	// // tenaga.GET("/kependudukan/kartu-keluarga/:kartu_keluarga_id", controller.Kependudukan.GetByKartuKeluargaID)
-	// tenaga.PUT("/kependudukan/:id", controller.Kependudukan.Update)
-	// tenaga.DELETE("/kependudukan/:id", controller.Kependudukan.Delete)
+	tenaga.GET("/kependudukan", controller.Kependudukan.GetAll)
+	tenaga.POST("/kependudukan", controller.Kependudukan.Create)
+	tenaga.GET("/kependudukan/:id", controller.Kependudukan.GetByID)
+	// tenaga.GET("/kependudukan/kartu-keluarga/:kartu_keluarga_id", controller.Kependudukan.GetByKartuKeluargaID)
+	tenaga.PUT("/kependudukan/:id", controller.Kependudukan.Update)
+	tenaga.DELETE("/kependudukan/:id", controller.Kependudukan.Delete)
 
 	//jenis pelayanan neonatus
 	tenaga.GET("/jenis-pelayanan", controller.JenisPelayanan.GetJenisPelayanan)

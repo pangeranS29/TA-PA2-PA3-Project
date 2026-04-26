@@ -14,9 +14,8 @@ export const getIbuById = async (id) => {
 };
 
 export const createIbu = async (data) => {
-  // data.id_kependudukan harus number, sudah di-convert di komponen
-  const res = await api.post(BASE, data);
-  return res.data.data;
+  const response = await api.post('/tenaga-kesehatan/ibu', data);
+  return response.data.data;
 };
 
 export const updateIbu = async (id, data) => {
