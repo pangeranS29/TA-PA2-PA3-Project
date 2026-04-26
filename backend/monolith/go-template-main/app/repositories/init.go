@@ -39,6 +39,8 @@ type Main struct {
 	CatatanPelayananTrimester1    *CatatanPelayananTrimester1Repository
 	SkriningPreeklampsia          *SkriningPreeklampsiaRepository
 	SkriningDMGestasional         *SkriningDMGestasionalRepository
+	SkriningPemantauan            *SkriningPemantauanRepository
+	KategoriTandaBahaya           *KategoriTandaBahayaRepository
 	CatatanPelayananTrimester2    *CatatanPelayananTrimester2Repository
 	PemeriksaanDokterTrimester3   *PemeriksaanDokterTrimester3Repository
 	PemeriksaanLanjutanTrimester3 *PemeriksaanLanjutanTrimester3Repository
@@ -88,6 +90,8 @@ func Init(opts Options) *Main {
 	m.CatatanPelayananTrimester1 = NewCatatanPelayananTrimester1Repository(opts.Postgres)
 	m.SkriningPreeklampsia = NewSkriningPreeklampsiaRepository(opts.Postgres)
 	m.SkriningDMGestasional = NewSkriningDMGestasionalRepository(opts.Postgres)
+	m.SkriningPemantauan = NewSkriningPemantauanRepository(opts.Postgres)
+	m.KategoriTandaBahaya = NewKategoriTandaBahayaRepository(opts.Postgres)
 	m.CatatanPelayananTrimester2 = NewCatatanPelayananTrimester2Repository(opts.Postgres)
 	m.PemeriksaanDokterTrimester3 = NewPemeriksaanDokterTrimester3Repository(opts.Postgres)
 	m.PemeriksaanLanjutanTrimester3 = NewPemeriksaanLanjutanTrimester3Repository(opts.Postgres)

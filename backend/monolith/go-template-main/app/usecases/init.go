@@ -23,6 +23,7 @@ type Main struct {
 	Kependudukan           KependudukanUsecase
 
 	// Usecase baru (terkait kehamilan)
+	// KartuKeluarga                 KartuKeluargaUsecase
 	Kehamilan                     KehamilanUsecase
 	PemeriksaanKehamilan          PemeriksaanKehamilanUsecase
 	EvaluasiKesehatanIbu          EvaluasiKesehatanIbuUsecase
@@ -43,14 +44,16 @@ type Main struct {
 	Rujukan                       RujukanUsecase
 	SkriningDMGestasional         SkriningDMGestasionalUsecase
 	SkriningPreeklampsia          SkriningPreeklampsiaUsecase
+	SkriningPemantauan            SkriningPemantauanUsecase
+	KategoriTandaBahaya           KategoriTandaBahayaUsecase
 	PelayananIbuNifas             PelayananIbuNifasUsecase
 	Ibu                           IbuUsecase
 	RiwayatKehamilanLalu          RiwayatKehamilanLaluUsecase
-	RegisterOrangTua              *RegisterOrangTuaUsecase
-	AdminAkunKeluarga             *AdminAkunKeluargaUsecase
-	AdminTenagaKesehatan          *AdminTenagaKesehatanUsecase
-	KeteranganLahir               KeteranganLahirUsecase // <-- TAMBAHKAN INI
-	JenisPelayanan                JenisPelayananUsecase
+	// RegisterOrangTua              *RegisterOrangTuaUsecase
+	AdminAkunKeluarga    *AdminAkunKeluargaUsecase
+	AdminTenagaKesehatan *AdminTenagaKesehatanUsecase
+	KeteranganLahir      KeteranganLahirUsecase // <-- TAMBAHKAN INI
+	JenisPelayanan       JenisPelayananUsecase
 }
 
 type Options struct {
@@ -77,6 +80,7 @@ func Init(opts Options) *Main {
 	m.CatatanPelayanan = NewCatatanPelayananUseCase(opts.Repository.CatatanPelayanan)
 
 	// Inisialisasi usecase baru
+	// m.KartuKeluarga = NewKartuKeluargaUsecase(opts.Repository.KartuKeluarga)
 	m.Kehamilan = NewKehamilanUsecase(opts.Repository.Kehamilan)
 	m.PemeriksaanKehamilan = NewPemeriksaanKehamilanUsecase(opts.Repository.PemeriksaanKehamilan)
 	m.EvaluasiKesehatanIbu = NewEvaluasiKesehatanIbuUsecase(opts.Repository.EvaluasiKesehatanIbu)
@@ -89,7 +93,7 @@ func Init(opts Options) *Main {
 	m.CatatanPelayananTrimester3 = NewCatatanPelayananTrimester3Usecase(opts.Repository.CatatanPelayananTrimester3)
 	m.CatatanPelayananNifas = NewCatatanPelayananNifasUsecase(opts.Repository.CatatanPelayananNifas)
 	m.GrafikEvaluasiKehamilan = NewGrafikEvaluasiKehamilanUsecase(opts.Repository.GrafikEvaluasiKehamilan)
-	m.GrafikPeningkatanBB = NewGrafikPeningkatanBBUsecase(opts.Repository.GrafikPeningkatanBB)
+	m.GrafikPeningkatanBB = NewGrafikPeningkatanBBUsecase(opts.Repository.GrafikPeningkatanBB, opts.Repository.Kehamilan)
 	m.PenjelasanHasilGrafik = NewPenjelasanHasilGrafikUsecase(opts.Repository.PenjelasanHasilGrafik)
 	m.RencanaPersalinan = NewRencanaPersalinanUsecase(opts.Repository.RencanaPersalinan)
 	m.RingkasanPelayananPersalinan = NewRingkasanPelayananPersalinanUsecase(opts.Repository.RingkasanPelayananPersalinan)
@@ -97,17 +101,19 @@ func Init(opts Options) *Main {
 	m.Rujukan = NewRujukanUsecase(opts.Repository.Rujukan)
 	m.SkriningDMGestasional = NewSkriningDMGestasionalUsecase(opts.Repository.SkriningDMGestasional)
 	m.SkriningPreeklampsia = NewSkriningPreeklampsiaUsecase(opts.Repository.SkriningPreeklampsia)
+	m.SkriningPemantauan = NewSkriningPemantauanUsecase(opts.Repository.SkriningPemantauan)
+	m.KategoriTandaBahaya = NewKategoriTandaBahayaUsecase(opts.Repository.KategoriTandaBahaya)
 	m.PelayananIbuNifas = NewPelayananIbuNifasUsecase(opts.Repository.PelayananIbuNifas)
 	m.Ibu = NewIbuUsecase(opts.Repository.Ibu)
 	m.RiwayatKehamilanLalu = NewRiwayatKehamilanLaluUsecase(opts.Repository.RiwayatKehamilanLalu)
 	m.Kependudukan = NewKependudukanUsecase(opts.Repository.Kependudukan)
-	m.RegisterOrangTua = NewRegisterOrangTuaUsecase(
-		opts.Repository.User,
-		opts.Repository.Role,
-		opts.Repository.KartuKeluarga,
-		opts.Repository.Kependudukan,
-		opts.Repository.Ibu,
-	)
+	// m.RegisterOrangTua = NewRegisterOrangTuaUsecase(
+	// 	opts.Repository.User,
+	// 	opts.Repository.Role,
+	// 	opts.Repository.KartuKeluarga,
+	// 	opts.Repository.Kependudukan,
+	// 	opts.Repository.Ibu,
+	// )
 	m.AdminAkunKeluarga = NewAdminAkunKeluargaUsecase(
 		opts.Repository.User,
 		opts.Repository.Role,

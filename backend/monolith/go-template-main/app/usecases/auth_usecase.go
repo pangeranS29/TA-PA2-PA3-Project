@@ -39,6 +39,7 @@ var roleAliases = map[string]string{
 	"orangtua":         "Orangtua",
 	"orang tua":        "Orangtua",
 	"orang-tua":        "Orangtua",
+	"ibu":              "Orangtua",
 }
 
 var phonePattern = regexp.MustCompile(`^\+62[0-9]{8,13}$`)
