@@ -45,3 +45,19 @@ func (r *RujukanRepository) Delete(id int32) error {
 	}
 	return nil
 }
+
+// MODUL IBU
+func (r *RujukanRepository) IsOwnedByUser(rujukanID int32, userID int32) (bool, error) {
+	var count int64
+
+	err := r.db.
+		Table("rujukan rj").
+		Joins("JOIN kehamilan k ON k.id = rj.kehamilan_id").
+		Joins("JOIN ibu i ON i.id = k.ibu_id").
+		Joins("JOIN penduduk p ON p.id = i.penduduk_id").
+		Joins("JOIN pengguna u ON u.penduduk_id = p.id").
+		Where("rj.id = ? AND u.id = ?", rujukanID, userID).
+		Count(&count).Error
+
+	return count > 0, err
+}

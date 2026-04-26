@@ -45,3 +45,20 @@ func (r *PemeriksaanDokterTrimester1Repository) Delete(id int32) error {
 	}
 	return nil
 }
+
+// MODUL IBU
+func (r *PemeriksaanDokterTrimester1Repository) FindMineByUserID(userID int32) (*models.PemeriksaanDokterTrimester1, error) {
+	var data models.PemeriksaanDokterTrimester1
+
+	err := r.db.
+		Table("pemeriksaan_dokter_trimester_1 p").
+		Joins("JOIN kehamilan k ON k.id = p.kehamilan_id").
+		Joins("JOIN ibu i ON i.id = k.ibu_id").
+		Joins("JOIN penduduk pd ON pd.id = i.penduduk_id").
+		Joins("JOIN pengguna u ON u.penduduk_id = pd.id").
+		Where("u.id = ?", userID).
+		Order("p.tanggal_periksa DESC").
+		First(&data).Error
+
+	return &data, err
+}

@@ -262,4 +262,35 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 
 	//jenis pelayanan neonatus
 	tenaga.GET("/jenis-pelayanan", controller.JenisPelayanan.GetJenisPelayanan)
+
+	// ========================================= MODUL IBU - KIA- Kel-3 =========================================
+
+	ibu := e.Group("/modul-ibu")
+	ibu.Use(middlewares.JWTAuth(controller.JWTSecret()))
+	ibu.Use(middlewares.Orangtua())
+
+	// Data Ibu
+	ibu.GET("/kehamilan-aktif", controller.Kehamilan.GetAktifForOrangtua)
+
+	// Evaluasi Kehamilan Ibu
+	ibu.GET("/evaluasi-kesehatan-ibu/:id", controller.EvaluasiKesehatanIbu.GetByIDForOrangtua)
+	ibu.GET("/evaluasi-kesehatan-ibu/me", controller.EvaluasiKesehatanIbu.GetMine)
+
+	// Pemeriksaan Kehamilan
+	ibu.GET("/pemeriksaan-kehamilan/me", controller.PemeriksaanKehamilan.GetMine)
+	ibu.GET("/pemeriksaan-kehamilan/:id", controller.PemeriksaanKehamilan.GetByIDForOrangtua)
+
+	// Skrining Preeklampsia
+	ibu.GET("/skrining-preeklampsia/:id", controller.SkriningPreeklampsia.GetByIDForOrangtua)
+	ibu.GET("/skrining-preeklampsia/me", controller.SkriningPreeklampsia.GetMine)
+
+	ibu.GET("/rujukan/:id", controller.Rujukan.GetByIDForOrangtua)
+
+	// Pemeriksaan Dokter Trimester 1 & 3
+	ibu.GET("/pemeriksaan-dokter-trimester-1/me", controller.PemeriksaanDokterTrimester1.GetMine)
+	ibu.GET("/pemeriksaan-dokter-trimester-3/me", controller.PemeriksaanDokterTrimester3.GetMine)
+
+	// Log TTD MMS
+	ibu.GET("/log-ttd-mms/me", controller.LogTTDMMS.GetMine)
+	ibu.POST("/log-ttd-mms", controller.LogTTDMMS.SaveMine)
 }

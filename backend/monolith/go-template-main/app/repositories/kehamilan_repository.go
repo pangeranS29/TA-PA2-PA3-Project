@@ -51,3 +51,36 @@ func (r *KehamilanRepository) Delete(id int32) error {
 	}
 	return nil
 }
+
+// MODUL IBU
+// func (r *KehamilanRepository) FindAktifByPhoneNumber(phoneNumber string) (*models.Kehamilan, error) {
+// 	var kehamilan models.Kehamilan
+
+// 	err := r.db.
+// 		Joins("JOIN ibu ON ibu.id = kehamilan.ibu_id").
+// 		Joins("JOIN penduduk ON penduduk.id = ibu.penduduk_id").
+// 		Where("penduduk.telepon = ?", phoneNumber).
+// 		Where("kehamilan.status_kehamilan IN ?", []string{"TRIMESTER 1", "TRIMESTER 2", "TRIMESTER 3"}).
+// 		Where("kehamilan.deleted_at IS NULL").
+// 		Order("kehamilan.created_at DESC").
+// 		First(&kehamilan).Error
+
+// 	return &kehamilan, err
+// }
+
+func (r *KehamilanRepository) FindAktifByUserID(userID int32) (*models.Kehamilan, error) {
+	var kehamilan models.Kehamilan
+
+	err := r.db.
+		Table("kehamilan k").
+		Select("k.*").
+		Joins("JOIN ibu i ON i.id = k.ibu_id").
+		Joins("JOIN penduduk p ON p.id = i.penduduk_id").
+		Joins("JOIN pengguna u ON u.penduduk_id = p.id").
+		Where("u.id = ?", userID).
+		Where("k.status_kehamilan IN ?", []string{"TRIMESTER 1", "TRIMESTER 2", "TRIMESTER 3"}).
+		Order("k.created_at DESC").
+		First(&kehamilan).Error
+
+	return &kehamilan, err
+}

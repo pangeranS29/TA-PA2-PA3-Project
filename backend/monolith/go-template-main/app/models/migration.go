@@ -73,6 +73,13 @@ func AutoMigrate(db *gorm.DB) error {
 		&PelayananIbuNifas{},
 		&CatatanPelayananNifas{},
 		&Rujukan{},
+
+		// MODUL IBU
+		&LogTTDMMS{},
+		&PersiapanMelahirkan{},
+		&ProsesMelahirkan{},
+		&PemantauanIbuHamil{},
+		&PemantauanIbuNifas{},
 	}
 
 	// Jalankan automigrate sekali saja

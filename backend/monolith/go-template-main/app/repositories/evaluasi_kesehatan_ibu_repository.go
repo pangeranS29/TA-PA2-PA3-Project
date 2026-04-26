@@ -45,3 +45,36 @@ func (r *EvaluasiKesehatanIbuRepository) Delete(id int32) error {
 	}
 	return nil
 }
+
+// MODUL IBU
+func (r *EvaluasiKesehatanIbuRepository) IsOwnedByUser(evaluasiID int32, userID int32) (bool, error) {
+	var count int64
+
+	err := r.db.
+		Table("evaluasi_kesehatan_ibu e").
+		Joins("JOIN kehamilan k ON k.id = e.kehamilan_id").
+		Joins("JOIN ibu i ON i.id = k.ibu_id").
+		Joins("JOIN penduduk p ON p.id = i.penduduk_id").
+		Joins("JOIN pengguna u ON u.penduduk_id = p.id").
+		Where("e.id = ? AND u.id = ?", evaluasiID, userID).
+		Count(&count).Error
+
+	return count > 0, err
+}
+
+// MODUL IBU
+func (r *EvaluasiKesehatanIbuRepository) FindMineByUserID(userID int32) (*models.EvaluasiKesehatanIbu, error) {
+	var e models.EvaluasiKesehatanIbu
+
+	err := r.db.
+		Table("evaluasi_kesehatan_ibu e").
+		Joins("JOIN kehamilan k ON k.id = e.kehamilan_id").
+		Joins("JOIN ibu i ON i.id = k.ibu_id").
+		Joins("JOIN penduduk p ON p.id = i.penduduk_id").
+		Joins("JOIN pengguna u ON u.penduduk_id = p.id").
+		Where("u.id = ?", userID).
+		Order("e.created_at DESC").
+		First(&e).Error
+
+	return &e, err
+}

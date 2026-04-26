@@ -52,6 +52,8 @@ type Main struct {
 	CatatanPelayananNifas         *CatatanPelayananNifasRepository
 	Rujukan                       *RujukanRepository
 	JenisPelayanan                JenisPelayananRepository
+	// MODUL IBU
+	LogTTDMMS                     *LogTTDMMSRepository
 }
 
 type Options struct {
@@ -108,6 +110,9 @@ func Init(opts Options) *Main {
 	m.PengukuranLilA = NewPengukuranLilaRepository(opts.Postgres)
 	m.CatatanPelayanan = NewCatatanPelayananRepository(opts.Postgres)
 	m.JenisPelayanan = NewJenisPelayananRepository(opts.Postgres)
+	m.LogTTDMMS = NewLogTTDMMSRepository(opts.Postgres)
+
+	// MODUL IBU
 
 	return m
 }
