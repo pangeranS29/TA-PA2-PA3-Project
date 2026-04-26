@@ -7,6 +7,7 @@ import 'package:ta_pa2_pa3_project/features/hamil/presentation/screens/journey_s
 import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/pilih_anak_screen.dart';
 // import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/tumbuh_kembang_screen.dart';
 import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/input_profil_anak_screen.dart';
+import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/skrining_bahaya.dart';
 import 'package:ta_pa2_pa3_project/features/edukasi/presentation/screens/edukasi_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -782,7 +783,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
             // 🔸 BAHAYA
             _menuItem(Icons.warning, "Bahaya", Colors.orange, () {
-              // TODO: halaman tanda bahaya
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const PilihAnakScreen(tujuan: "bahaya"),
+                ),
+              );
             }),
           ],
         ),
