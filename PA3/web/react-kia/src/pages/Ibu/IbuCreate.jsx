@@ -140,9 +140,7 @@ export default function IbuCreate() {
   ];
 
   // Get selected penduduk info
-  const selectedPenduduk = kkList.find(
-    (kk) => String(kk.id_kependudukan) === String(formIbu.id_kependudukan)
-  );
+  const selectedPenduduk = kkList.find((kk) => String(kk.id_kependudukan) === String(formIbu.id_kependudukan));
 
   return (
     <MainLayout>
@@ -169,30 +167,14 @@ export default function IbuCreate() {
                 <div className="flex flex-col items-center">
                   <div
                     className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${
-                      isDone
-                        ? "bg-green-500 text-white shadow-lg shadow-green-200"
-                        : isActive
-                        ? "bg-indigo-600 text-white shadow-lg shadow-indigo-200 scale-110"
-                        : "bg-gray-100 text-gray-400"
+                      isDone ? "bg-green-500 text-white shadow-lg shadow-green-200" : isActive ? "bg-indigo-600 text-white shadow-lg shadow-indigo-200 scale-110" : "bg-gray-100 text-gray-400"
                     }`}
                   >
                     {isDone ? <CheckCircle2 size={22} /> : <Icon size={20} />}
                   </div>
-                  <span
-                    className={`text-xs mt-2 font-medium ${
-                      isActive ? "text-indigo-600" : isDone ? "text-green-600" : "text-gray-400"
-                    }`}
-                  >
-                    {s.label}
-                  </span>
+                  <span className={`text-xs mt-2 font-medium ${isActive ? "text-indigo-600" : isDone ? "text-green-600" : "text-gray-400"}`}>{s.label}</span>
                 </div>
-                {idx < steps.length - 1 && (
-                  <div
-                    className={`flex-1 h-1 mx-3 rounded-full transition-all duration-500 ${
-                      step > s.num ? "bg-green-400" : "bg-gray-200"
-                    }`}
-                  />
-                )}
+                {idx < steps.length - 1 && <div className={`flex-1 h-1 mx-3 rounded-full transition-all duration-500 ${step > s.num ? "bg-green-400" : "bg-gray-200"}`} />}
               </React.Fragment>
             );
           })}
@@ -238,12 +220,24 @@ export default function IbuCreate() {
                   <div className="bg-indigo-50/50 rounded-xl p-5 border border-indigo-100 mt-4">
                     <h4 className="text-sm font-semibold text-indigo-800 mb-3">Data Penduduk Terpilih</h4>
                     <div className="grid grid-cols-2 gap-3 text-sm">
-                      <div><span className="text-gray-500">Nama:</span> <span className="font-medium">{selectedPenduduk.nama_lengkap}</span></div>
-                      <div><span className="text-gray-500">NIK:</span> <span className="font-medium">{selectedPenduduk.nik}</span></div>
-                      <div><span className="text-gray-500">No KK:</span> <span className="font-medium">{selectedPenduduk.no_kk}</span></div>
-                      <div><span className="text-gray-500">Dusun:</span> <span className="font-medium">{selectedPenduduk.dusun || "-"}</span></div>
-                      <div><span className="text-gray-500">Gol. Darah:</span> <span className="font-medium">{selectedPenduduk.golongan_darah || "-"}</span></div>
-                      <div><span className="text-gray-500">Telepon:</span> <span className="font-medium">{selectedPenduduk.telepon || "-"}</span></div>
+                      <div>
+                        <span className="text-gray-500">Nama:</span> <span className="font-medium">{selectedPenduduk.nama_lengkap}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-500">NIK:</span> <span className="font-medium">{selectedPenduduk.nik}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-500">No KK:</span> <span className="font-medium">{selectedPenduduk.no_kk}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-500">Dusun:</span> <span className="font-medium">{selectedPenduduk.dusun || "-"}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-500">Gol. Darah:</span> <span className="font-medium">{selectedPenduduk.golongan_darah || "-"}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-500">Telepon:</span> <span className="font-medium">{selectedPenduduk.telepon || "-"}</span>
+                      </div>
                     </div>
                   </div>
                 )}
@@ -339,13 +333,7 @@ export default function IbuCreate() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div>
                   <label className="block text-sm font-medium mb-2 text-gray-700">HPHT (Hari Pertama Haid Terakhir)</label>
-                  <input
-                    type="date"
-                    name="hpht"
-                    value={formKehamilan.hpht}
-                    onChange={handleChangeKehamilan}
-                    className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 outline-none"
-                  />
+                  <input type="date" name="hpht" value={formKehamilan.hpht} onChange={handleChangeKehamilan} className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 outline-none" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-2 text-gray-700">Taksiran Persalinan (HPL)</label>
@@ -387,11 +375,7 @@ export default function IbuCreate() {
             </div>
 
             <div className="flex justify-between">
-              <button
-                type="button"
-                onClick={handleSkipKehamilan}
-                className="text-gray-500 hover:text-gray-700 px-6 py-3 rounded-xl font-medium transition-colors"
-              >
+              <button type="button" onClick={handleSkipKehamilan} className="text-gray-500 hover:text-gray-700 px-6 py-3 rounded-xl font-medium transition-colors">
                 Lewati, isi nanti →
               </button>
               <button

@@ -1,17 +1,9 @@
-// src/pages/Ibu/EvaluasiKesehatanIbu.jsx
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import MainLayout from "../../components/Layout/MainLayout";
 import { getKehamilanByIbuId } from "../../services/kehamilan";
-import {
-  getEvaluasiByKehamilanId,
-  createEvaluasi,
-  updateEvaluasi,
-  getRiwayatKehamilanByEvaluasiId,
-  createRiwayatKehamilan,
-} from "../../services/evaluasiKesehatan";
-import { Save, Plus, ArrowRight } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { getEvaluasiByKehamilanId, createEvaluasi, updateEvaluasi, getRiwayatKehamilanByEvaluasiId, createRiwayatKehamilan } from "../../services/evaluasiKesehatan";
+import { Save, Plus, ArrowRight, ArrowLeft } from "lucide-react";
 
 export default function EvaluasiKesehatanIbu() {
   const { id } = useParams();
@@ -92,14 +84,15 @@ export default function EvaluasiKesehatanIbu() {
           if (evalData && evalData.length > 0) {
             const e = evalData[0];
             setEvaluasi(e);
-            setForm({
+            setForm((prev) => ({
+              ...prev,
               nama_dokter: e.nama_dokter || "",
-              tanggal_periksa: e.tanggal_periksa ? new Date(e.tanggal_periksa).toISOString().split("T")[0] : "",
+              tanggal_periksa: e.tanggal_periksa ? e.tanggal_periksa.split("T")[0] : "",
               fasilitas_kesehatan: e.fasilitas_kesehatan || "",
-              tb_cm: e.tb_cm || "",
-              bb_kg: e.bb_kg || "",
+              tb_cm: e.tb_cm ?? "",
+              bb_kg: e.bb_kg ?? "",
               imt_kategori: e.imt_kategori || "",
-              lila_cm: e.lila_cm || "",
+              lila_cm: e.lila_cm ?? "",
               status_tt_1: e.status_tt_1 || false,
               status_tt_2: e.status_tt_2 || false,
               status_tt_3: e.status_tt_3 || false,
@@ -141,7 +134,7 @@ export default function EvaluasiKesehatanIbu() {
               inspeksi_vulva: e.inspeksi_vulva || "",
               inspeksi_fluksus: e.inspeksi_fluksus || "",
               inspeksi_fluor: e.inspeksi_fluor || "",
-            });
+            }));
             // Load riwayat kehamilan lalu
             try {
               const riwayat = await getRiwayatKehamilanByEvaluasiId(e.id_evaluasi);
@@ -228,10 +221,9 @@ export default function EvaluasiKesehatanIbu() {
           return (
             <label
               key={item.name}
-              className={`cursor-pointer select-none flex items-center gap-2 text-sm px-4 py-2 rounded-full border transition-all duration-300 ${isChecked
-                  ? "bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-200"
-                  : "bg-white text-gray-600 border-gray-200 hover:border-indigo-300 hover:bg-indigo-50"
-                }`}
+              className={`cursor-pointer select-none flex items-center gap-2 text-sm px-4 py-2 rounded-full border transition-all duration-300 ${
+                isChecked ? "bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-200" : "bg-white text-gray-600 border-gray-200 hover:border-indigo-300 hover:bg-indigo-50"
+              }`}
             >
               <input type="checkbox" name={item.name} checked={isChecked} onChange={handleChange} className="hidden" />
               {item.label}
@@ -242,23 +234,34 @@ export default function EvaluasiKesehatanIbu() {
     </div>
   );
 
-  if (loading) return <MainLayout><div className="p-6">Memuat...</div></MainLayout>;
+  if (loading)
+    return (
+      <MainLayout>
+        <div className="p-6">Memuat...</div>
+      </MainLayout>
+    );
 
   return (
     <MainLayout>
-      <div className="p-6 max-w-6xl mx-auto">
-        <h1 className="text-3xl font-extrabold mb-2 text-gray-900 tracking-tight">Evaluasi Kesehatan Ibu</h1>
-        <p className="text-gray-500 mb-8 text-lg">Evaluasi komprehensif kesehatan ibu hamil meliputi antropometri, imunisasi, riwayat kesehatan, dan inspeksi awal.</p>
+      <div className="p-6 max-w-5xl mx-auto">
+        <div className="flex items-center gap-4 mb-6">
+          <button onClick={() => navigate(-1)} className="p-2 rounded-full hover:bg-gray-100 transition-colors">
+            <ArrowLeft size={20} />
+          </button>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Evaluasi Kesehatan Ibu</h1>
+            <p className="text-gray-500">Lakukan pemeriksaan dasar dan skrining risiko.</p>
+          </div>
+        </div>
 
         <div className="flex gap-4 mb-8">
           {["evaluasi", "riwayat"].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`px-6 py-3 rounded-xl font-semibold transition-all duration-300 ${activeTab === tab
-                  ? "bg-indigo-600 text-white shadow-lg shadow-indigo-200 transform scale-105"
-                  : "bg-white text-gray-500 hover:bg-indigo-50 hover:text-indigo-600 border border-gray-200"
-                }`}
+              className={`px-6 py-3 rounded-xl font-semibold transition-all duration-300 ${
+                activeTab === tab ? "bg-indigo-600 text-white shadow-lg shadow-indigo-200 transform scale-105" : "bg-white text-gray-500 hover:bg-indigo-50 hover:text-indigo-600 border border-gray-200"
+              }`}
             >
               {tab === "evaluasi" ? "📋 Form Evaluasi Kesehatan" : "⏳ Riwayat Kehamilan Lalu"}
             </button>
@@ -271,9 +274,18 @@ export default function EvaluasiKesehatanIbu() {
             <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 p-8 transition-all hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
               <h3 className="font-semibold mb-3 text-indigo-700">Data Pemeriksaan</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div><label className="block text-sm font-medium mb-1">Nama Dokter</label><input name="nama_dokter" value={form.nama_dokter} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" /></div>
-                <div><label className="block text-sm font-medium mb-1">Tanggal Periksa</label><input type="date" name="tanggal_periksa" value={form.tanggal_periksa} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" /></div>
-                <div><label className="block text-sm font-medium mb-1">Fasilitas Kesehatan</label><input name="fasilitas_kesehatan" value={form.fasilitas_kesehatan} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" /></div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Nama Dokter</label>
+                  <input name="nama_dokter" value={form.nama_dokter} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Tanggal Periksa</label>
+                  <input type="date" name="tanggal_periksa" value={form.tanggal_periksa} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Fasilitas Kesehatan</label>
+                  <input name="fasilitas_kesehatan" value={form.fasilitas_kesehatan} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" />
+                </div>
               </div>
             </div>
 
@@ -281,15 +293,28 @@ export default function EvaluasiKesehatanIbu() {
             <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 p-8 transition-all hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
               <h3 className="font-semibold mb-3 text-indigo-700">Antropometri</h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div><label className="block text-sm font-medium mb-1">TB (cm)</label><input type="number" step="0.1" name="tb_cm" value={form.tb_cm} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" /></div>
-                <div><label className="block text-sm font-medium mb-1">BB (kg)</label><input type="number" step="0.1" name="bb_kg" value={form.bb_kg} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" /></div>
-                <div><label className="block text-sm font-medium mb-1">IMT Kategori</label>
+                <div>
+                  <label className="block text-sm font-medium mb-1">TB (cm)</label>
+                  <input type="number" step="0.1" name="tb_cm" value={form.tb_cm} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">BB (kg)</label>
+                  <input type="number" step="0.1" name="bb_kg" value={form.bb_kg} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">IMT Kategori</label>
                   <select name="imt_kategori" value={form.imt_kategori} onChange={handleChange} className="w-full border rounded-lg px-3 py-2">
                     <option value="">-- Pilih --</option>
-                    <option>Kurus</option><option>Normal</option><option>Gemuk</option><option>Obesitas</option>
+                    <option>Kurus</option>
+                    <option>Normal</option>
+                    <option>Gemuk</option>
+                    <option>Obesitas</option>
                   </select>
                 </div>
-                <div><label className="block text-sm font-medium mb-1">LILA (cm)</label><input type="number" step="0.1" name="lila_cm" value={form.lila_cm} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" /></div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">LILA (cm)</label>
+                  <input type="number" step="0.1" name="lila_cm" value={form.lila_cm} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" />
+                </div>
               </div>
             </div>
 
@@ -304,48 +329,69 @@ export default function EvaluasiKesehatanIbu() {
                   </label>
                 ))}
               </div>
-              <div className="mt-2"><label className="block text-sm font-medium mb-1">Imunisasi Lainnya (Covid-19, dll)</label><input name="imunisasi_lainnya_covid19" value={form.imunisasi_lainnya_covid19} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" /></div>
+              <div className="mt-2">
+                <label className="block text-sm font-medium mb-1">Imunisasi Lainnya (Covid-19, dll)</label>
+                <input name="imunisasi_lainnya_covid19" value={form.imunisasi_lainnya_covid19} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" />
+              </div>
             </div>
 
             {/* Riwayat Kesehatan & Perilaku */}
             <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 p-8 transition-all hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] space-y-6">
-              <CheckboxGroup title="Riwayat Kesehatan Ibu" items={[
-                { name: "riwayat_alergi", label: "Alergi" },
-                { name: "riwayat_asma", label: "Asma" },
-                { name: "riwayat_autoimun", label: "Autoimun" },
-                { name: "riwayat_diabetes", label: "Diabetes" },
-                { name: "riwayat_hepatitis_b", label: "Hepatitis B" },
-                { name: "riwayat_hipertensi", label: "Hipertensi" },
-                { name: "riwayat_jantung", label: "Jantung" },
-                { name: "riwayat_jiwa", label: "Jiwa" },
-                { name: "riwayat_sifilis", label: "Sifilis" },
-                { name: "riwayat_tb", label: "TB" },
-              ]} />
-              <div><label className="block text-sm font-medium mb-1">Riwayat Kesehatan Lainnya</label><input name="riwayat_kesehatan_lainnya" value={form.riwayat_kesehatan_lainnya} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" /></div>
+              <CheckboxGroup
+                title="Riwayat Kesehatan Ibu"
+                items={[
+                  { name: "riwayat_alergi", label: "Alergi" },
+                  { name: "riwayat_asma", label: "Asma" },
+                  { name: "riwayat_autoimun", label: "Autoimun" },
+                  { name: "riwayat_diabetes", label: "Diabetes" },
+                  { name: "riwayat_hepatitis_b", label: "Hepatitis B" },
+                  { name: "riwayat_hipertensi", label: "Hipertensi" },
+                  { name: "riwayat_jantung", label: "Jantung" },
+                  { name: "riwayat_jiwa", label: "Jiwa" },
+                  { name: "riwayat_sifilis", label: "Sifilis" },
+                  { name: "riwayat_tb", label: "TB" },
+                ]}
+              />
+              <div>
+                <label className="block text-sm font-medium mb-1">Riwayat Kesehatan Lainnya</label>
+                <input name="riwayat_kesehatan_lainnya" value={form.riwayat_kesehatan_lainnya} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" />
+              </div>
 
-              <CheckboxGroup title="Perilaku Berisiko" items={[
-                { name: "perilaku_aktivitas_fisik_kurang", label: "Aktivitas Fisik Kurang" },
-                { name: "perilaku_alkohol", label: "Alkohol" },
-                { name: "perilaku_kosmetik_berbahaya", label: "Kosmetik Berbahaya" },
-                { name: "perilaku_merokok", label: "Merokok" },
-                { name: "perilaku_obat_teratogenik", label: "Obat Teratogenik" },
-                { name: "perilaku_pola_makan_berisiko", label: "Pola Makan Berisiko" },
-              ]} />
-              <div><label className="block text-sm font-medium mb-1">Perilaku Lainnya</label><input name="perilaku_lainnya" value={form.perilaku_lainnya} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" /></div>
+              <CheckboxGroup
+                title="Perilaku Berisiko"
+                items={[
+                  { name: "perilaku_aktivitas_fisik_kurang", label: "Aktivitas Fisik Kurang" },
+                  { name: "perilaku_alkohol", label: "Alkohol" },
+                  { name: "perilaku_kosmetik_berbahaya", label: "Kosmetik Berbahaya" },
+                  { name: "perilaku_merokok", label: "Merokok" },
+                  { name: "perilaku_obat_teratogenik", label: "Obat Teratogenik" },
+                  { name: "perilaku_pola_makan_berisiko", label: "Pola Makan Berisiko" },
+                ]}
+              />
+              <div>
+                <label className="block text-sm font-medium mb-1">Perilaku Lainnya</label>
+                <input name="perilaku_lainnya" value={form.perilaku_lainnya} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" />
+              </div>
 
-              <CheckboxGroup title="Riwayat Kesehatan Keluarga" items={[
-                { name: "keluarga_alergi", label: "Alergi" },
-                { name: "keluarga_asma", label: "Asma" },
-                { name: "keluarga_autoimun", label: "Autoimun" },
-                { name: "keluarga_diabetes", label: "Diabetes" },
-                { name: "keluarga_hepatitis_b", label: "Hepatitis B" },
-                { name: "keluarga_hipertensi", label: "Hipertensi" },
-                { name: "keluarga_jantung", label: "Jantung" },
-                { name: "keluarga_jiwa", label: "Jiwa" },
-                { name: "keluarga_sifilis", label: "Sifilis" },
-                { name: "keluarga_tb", label: "TB" },
-              ]} />
-              <div><label className="block text-sm font-medium mb-1">Riwayat Keluarga Lainnya</label><input name="keluarga_lainnya" value={form.keluarga_lainnya} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" /></div>
+              <CheckboxGroup
+                title="Riwayat Kesehatan Keluarga"
+                items={[
+                  { name: "keluarga_alergi", label: "Alergi" },
+                  { name: "keluarga_asma", label: "Asma" },
+                  { name: "keluarga_autoimun", label: "Autoimun" },
+                  { name: "keluarga_diabetes", label: "Diabetes" },
+                  { name: "keluarga_hepatitis_b", label: "Hepatitis B" },
+                  { name: "keluarga_hipertensi", label: "Hipertensi" },
+                  { name: "keluarga_jantung", label: "Jantung" },
+                  { name: "keluarga_jiwa", label: "Jiwa" },
+                  { name: "keluarga_sifilis", label: "Sifilis" },
+                  { name: "keluarga_tb", label: "TB" },
+                ]}
+              />
+              <div>
+                <label className="block text-sm font-medium mb-1">Riwayat Keluarga Lainnya</label>
+                <input name="keluarga_lainnya" value={form.keluarga_lainnya} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" />
+              </div>
             </div>
 
             {/* Inspeksi */}
@@ -364,7 +410,8 @@ export default function EvaluasiKesehatanIbu() {
                     <label className="block text-sm font-semibold mb-2 text-gray-700">{item.label}</label>
                     <select name={item.name} value={form[item.name]} onChange={handleChange} className="w-full border-gray-300 rounded-lg shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-3 py-2">
                       <option value="">-- Pilih Status --</option>
-                      <option>Normal</option><option>Abnormal</option>
+                      <option>Normal</option>
+                      <option>Abnormal</option>
                     </select>
                   </div>
                 ))}
@@ -372,7 +419,11 @@ export default function EvaluasiKesehatanIbu() {
             </div>
 
             <div className="flex justify-end pt-4 pb-12">
-              <button type="submit" disabled={saving} className="bg-gradient-to-r from-indigo-600 to-indigo-700 text-white px-8 py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-indigo-500/30 transform transition-all hover:-translate-y-1 flex items-center gap-3">
+              <button
+                type="submit"
+                disabled={saving}
+                className="bg-gradient-to-r from-indigo-600 to-indigo-700 text-white px-8 py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-indigo-500/30 transform transition-all hover:-translate-y-1 flex items-center gap-3"
+              >
                 {saving ? "Menyimpan..." : "Simpan & Lanjut ke Skrining"} <ArrowRight size={20} />
               </button>
             </div>
@@ -421,12 +472,30 @@ export default function EvaluasiKesehatanIbu() {
               <h3 className="font-semibold mb-4">Tambah Riwayat Kehamilan Lalu</h3>
               {!evaluasi && <p className="text-red-500 text-sm mb-4">⚠️ Simpan evaluasi terlebih dahulu sebelum menambah riwayat.</p>}
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                <div><label className="block text-sm font-medium mb-1">No Urut</label><input type="number" value={formRiwayat.no_urut} onChange={(e) => setFormRiwayat({ ...formRiwayat, no_urut: e.target.value })} className="w-full border rounded-lg px-3 py-2" /></div>
-                <div><label className="block text-sm font-medium mb-1">Tahun</label><input type="number" value={formRiwayat.tahun} onChange={(e) => setFormRiwayat({ ...formRiwayat, tahun: e.target.value })} className="w-full border rounded-lg px-3 py-2" /></div>
-                <div><label className="block text-sm font-medium mb-1">BB (gram)</label><input type="number" value={formRiwayat.bb_gram} onChange={(e) => setFormRiwayat({ ...formRiwayat, bb_gram: e.target.value })} className="w-full border rounded-lg px-3 py-2" /></div>
-                <div><label className="block text-sm font-medium mb-1">Proses Melahirkan</label><input value={formRiwayat.proses_melahirkan} onChange={(e) => setFormRiwayat({ ...formRiwayat, proses_melahirkan: e.target.value })} className="w-full border rounded-lg px-3 py-2" /></div>
-                <div><label className="block text-sm font-medium mb-1">Penolong</label><input value={formRiwayat.penolong_proses_melahirkan} onChange={(e) => setFormRiwayat({ ...formRiwayat, penolong_proses_melahirkan: e.target.value })} className="w-full border rounded-lg px-3 py-2" /></div>
-                <div><label className="block text-sm font-medium mb-1">Masalah</label><input value={formRiwayat.masalah} onChange={(e) => setFormRiwayat({ ...formRiwayat, masalah: e.target.value })} className="w-full border rounded-lg px-3 py-2" /></div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">No Urut</label>
+                  <input type="number" value={formRiwayat.no_urut} onChange={(e) => setFormRiwayat({ ...formRiwayat, no_urut: e.target.value })} className="w-full border rounded-lg px-3 py-2" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Tahun</label>
+                  <input type="number" value={formRiwayat.tahun} onChange={(e) => setFormRiwayat({ ...formRiwayat, tahun: e.target.value })} className="w-full border rounded-lg px-3 py-2" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">BB (gram)</label>
+                  <input type="number" value={formRiwayat.bb_gram} onChange={(e) => setFormRiwayat({ ...formRiwayat, bb_gram: e.target.value })} className="w-full border rounded-lg px-3 py-2" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Proses Melahirkan</label>
+                  <input value={formRiwayat.proses_melahirkan} onChange={(e) => setFormRiwayat({ ...formRiwayat, proses_melahirkan: e.target.value })} className="w-full border rounded-lg px-3 py-2" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Penolong</label>
+                  <input value={formRiwayat.penolong_proses_melahirkan} onChange={(e) => setFormRiwayat({ ...formRiwayat, penolong_proses_melahirkan: e.target.value })} className="w-full border rounded-lg px-3 py-2" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Masalah</label>
+                  <input value={formRiwayat.masalah} onChange={(e) => setFormRiwayat({ ...formRiwayat, masalah: e.target.value })} className="w-full border rounded-lg px-3 py-2" />
+                </div>
               </div>
               <button type="button" onClick={handleAddRiwayat} disabled={!evaluasi} className="mt-4 bg-green-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 disabled:opacity-50">
                 <Plus size={18} /> Tambah Riwayat
