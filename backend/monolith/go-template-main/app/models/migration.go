@@ -4,35 +4,22 @@ import (
 	"gorm.io/gorm"
 )
 
-var defaultRoles = []string{
-	"Tenaga-kesehatan",
-	"Dokter",
-	"Kader",
-	"Bidan",
-	"Orangtua",
-}
+func AutoMigrate(db *gorm.DB) error {
+	// Semua model dalam satu slice
+	models := []interface{}{
+		// Master
+		// &KategoriTandaBahaya{},
+		&SkriningPemantauan{},
+		// &KartuKeluarga{},
+		// &Kependudukan{},
 
-func AutoMigrateAndSeed(db *gorm.DB) error {
-	// auto migrate
-	if err := db.AutoMigrate(
-	// &Role{},
-	// &KaderPosyandu{},
-	// &User{},
-	// &KartuKeluarga{},
-	// &Kependudukan{},
-	// &Ibu{},
-	// &Anak{},
-	// &MasterStandarAntropometri{},
-	// &CatatanPertumbuhan{},
-	); err != nil {
-		return err
+		// // Monitoring
+		// &SkriningPemantauan{},
 	}
 
-	for _, roleName := range defaultRoles {
-		role := Role{Name: roleName}
-		if err := db.Where(Role{Name: roleName}).FirstOrCreate(&role).Error; err != nil {
-			return err
-		}
+	// Jalankan automigrate sekali saja
+	if err := db.AutoMigrate(models...); err != nil {
+		return err
 	}
 
 	// seeder
