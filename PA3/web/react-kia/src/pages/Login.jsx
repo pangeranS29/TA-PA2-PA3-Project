@@ -1,7 +1,7 @@
 // src/pages/Login.jsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { login } from "../services/auth";
+import { getUserRedirectRoute, login } from "../services/auth";
 
 const Login = () => {
   const [identifier, setIdentifier] = useState("");
@@ -16,8 +16,9 @@ const Login = () => {
   setError("");
   try {
     // Fungsi login di service sudah otomatis menyimpan ke localStorage
-    await login(identifier, password);
-    navigate("/dashboard");
+    const response = await login(identifier, password);
+    const targetRoute = getUserRedirectRoute(response?.data);
+    navigate(targetRoute, { replace: true });
   } catch (err) {
     setError(err.response?.data?.message || "Login gagal");
   } finally {

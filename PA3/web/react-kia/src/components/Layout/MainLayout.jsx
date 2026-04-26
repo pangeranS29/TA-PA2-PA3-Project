@@ -20,7 +20,7 @@ export default function MainLayout({ children }) {
         <Header />
 
         {/* Main Content - Hanya area ini yang bisa scroll kebawah */}
-        <main className="flex-1 overflow-y-auto p-4 md:p-8 custom-scrollbar">
+        <main className="flex-1 overflow-y-auto px-4 pb-4 pt-2 md:px-8 md:pb-8 md:pt-3 custom-scrollbar">
           {/* Container agar konten tidak terlalu lebar di layar ultra-wide */}
           <div className="max-w-7xl mx-auto">
             {children}

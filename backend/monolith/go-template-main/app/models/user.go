@@ -9,6 +9,7 @@ type User struct {
 	PhoneNumber string    `gorm:"column:nomor_telepon;type:varchar(20);uniqueIndex" json:"phone_number"`
 	Password    string    `gorm:"column:kata_sandi;type:text;not null" json:"-"`
 	RoleID      int32     `gorm:"not null;index" json:"role_id"`
+	PendudukID  *int64    `gorm:"column:penduduk_id" json:"penduduk_id,omitempty"`
 	Role        Role      `gorm:"foreignKey:RoleID;references:ID" json:"role"`
 	CreatedAt   time.Time `gorm:"column:created_at" json:"created_at"`
 	UpdatedAt   time.Time `gorm:"column:updated_at" json:"updated_at"`

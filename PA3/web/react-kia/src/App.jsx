@@ -5,6 +5,12 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import PrivateRoute from "./routes/Private-routes";
+import AdminRoute from "./routes/AdminRoute";
+import AdminAkunKeluargaCreate from "./pages/Admin/AkunKeluargaCreate";
+import AkunKeluargaManagement from "./pages/Admin/AkunKeluargaManagement";
+import TenagaKesehatanManagement from "./pages/Admin/TenagaKesehatanManagement";
+import JadwalLayanan from "./pages/Admin/JadwalLayanan";
+import { getPostLoginRoute, isAuthenticated } from "./services/auth";
 
 // Data Ibu
 import IbuList from "./pages/Ibu/IbuList";
@@ -61,6 +67,14 @@ import PelayananLilaIndex from "./pages/Pelayanan-LILA-Anak/index";
 import PelayananLilaCreate from "./pages/Pelayanan-LILA-Anak/create";
 import PelayananLilaEdit from "./pages/Pelayanan-LILA-Anak/edit";
 
+const HomeRedirect = () => {
+  if (!isAuthenticated()) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return <Navigate to={getPostLoginRoute()} replace />;
+};
+
 function App() {
   return (
     <BrowserRouter>
@@ -109,6 +123,15 @@ function App() {
           <Route path="/monitoring" element={<Monitoring />} />
           <Route path="/laporan" element={<Laporan />} />
         </Route>
+
+        <Route element={<AdminRoute />}>
+          <Route path="/dashboard/admin" element={<Dashboard />} />
+          <Route path="/dashboard/admin/akun-keluarga" element={<AdminAkunKeluargaCreate />} />
+          <Route path="/dashboard/admin/manajemen-keluarga" element={<AkunKeluargaManagement />} />
+          <Route path="/dashboard/admin/tenaga-kesehatan" element={<TenagaKesehatanManagement />} />
+          <Route path="/dashboard/admin/jadwal-layanan" element={<JadwalLayanan />} />
+        </Route>
+
           <Route path="/data-anak/dashboard/:id" element= {<AnakDashboard/>} />
           <Route path="/data-anak/neonatus/:id" element= {<NeonatusIndex/>} />    
           <Route path="/data-anak/pelayanan-gizi/:id" element= {<PelayananGiziIndex/>}></Route>
@@ -122,8 +145,8 @@ function App() {
           <Route path="/data-anak/lila/:id/create" element={<PelayananLilaCreate/>}></Route>
           <Route path="/data-anak/lila/:id/edit/:lilaId" element={<PelayananLilaEdit/>}></Route>
 
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
-        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/" element={<HomeRedirect />} />
+        <Route path="*" element={<HomeRedirect />} />
       </Routes>
     </BrowserRouter>
   );
