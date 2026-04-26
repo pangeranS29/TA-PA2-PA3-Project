@@ -49,6 +49,9 @@ type Main struct {
 	RegisterOrangTua              *RegisterOrangTuaUsecase
 	KeteranganLahir               KeteranganLahirUsecase // <-- TAMBAHKAN INI
 	JenisPelayanan                JenisPelayananUsecase
+
+	// MODUL IBU
+	LogTTDMMS LogTTDMMSUsecase
 }
 
 type Options struct {
@@ -108,6 +111,9 @@ func Init(opts Options) *Main {
 	)
 	m.KeteranganLahir = NewKeteranganLahirUsecase(opts.Repository.KeteranganLahir) // <-- TAMBAHKAN INI
 	m.JenisPelayanan = NewJenisPelayananUsecase(opts.Repository.JenisPelayanan)
+
+	// MODUL IBU
+	m.LogTTDMMS = NewLogTTDMMSUsecase(opts.Repository.LogTTDMMS)
 
 	return m
 }

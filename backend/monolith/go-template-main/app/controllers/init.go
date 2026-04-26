@@ -48,6 +48,10 @@ type Main struct {
 	KeteranganLahir               *KeteranganLahirController // <-- TAMBAHKAN INI
 	Kependudukan                  *KependudukanController
 	JenisPelayanan                *JenisPelayananController
+	LogTTDMMS                     *LogTTDMMSController
+
+	// MODUL IBU
+	
 }
 
 type Options struct {
@@ -101,6 +105,9 @@ func Init(opts Options) *Main {
 	m.Kependudukan = NewKependudukanController(opts.UseCases.Kependudukan)
 	m.JenisPelayanan = NewJenisPelayananController(opts.UseCases.JenisPelayanan)
 
+
+	// MODEL IBU
+	m.LogTTDMMS = NewLogTTDMMSController(opts.UseCases.LogTTDMMS)
 	return m
 }
 

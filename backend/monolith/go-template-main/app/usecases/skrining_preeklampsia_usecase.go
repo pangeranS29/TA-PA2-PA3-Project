@@ -9,6 +9,8 @@ import (
 type SkriningPreeklampsiaUsecase interface {
 	Create(s *models.SkriningPreeklampsia) error
 	GetByID(id int32) (*models.SkriningPreeklampsia, error)
+	GetMine(userID int32) (*models.SkriningPreeklampsia, error) // MODUL IBU
+	GetByIDForOrangtua(id int32, userID int32) (*models.SkriningPreeklampsia, error) // MODUL IBU
 	GetByKehamilanID(kehamilanID int32) ([]models.SkriningPreeklampsia, error)
 	Update(s *models.SkriningPreeklampsia) error
 	Delete(id int32) error
@@ -47,4 +49,22 @@ func (u *skriningPreeklampsiaUsecase) Update(s *models.SkriningPreeklampsia) err
 
 func (u *skriningPreeklampsiaUsecase) Delete(id int32) error {
 	return u.repo.Delete(id)
+}
+
+// MODUL IBU
+func (u *skriningPreeklampsiaUsecase) GetByIDForOrangtua(id int32, userID int32) (*models.SkriningPreeklampsia, error) {
+	allowed, err := u.repo.IsOwnedByUser(id, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	if !allowed {
+		return nil, errors.New("Anda tidak dapat mengakses data ini ... ")
+	}
+
+	return u.repo.FindByID(id)
+}
+
+func (u *skriningPreeklampsiaUsecase) GetMine(userID int32) (*models.SkriningPreeklampsia, error) {
+	return u.repo.FindMineByUserID(userID)
 }
