@@ -8,7 +8,8 @@ import {
   BarChart3, 
   Settings, 
   ShieldPlus,
-  UserCheck // Ikon tambahan untuk Manajemen KK agar beda dengan Data Ibu
+  UserCheck,
+  ClipboardList
 } from "lucide-react";
 
 const Sidebar = () => {
@@ -17,6 +18,7 @@ const Sidebar = () => {
     { path: "/data-ibu", name: "Data Ibu", icon: Users },
     { path: "/daftar-anak", name: "Data Anak", icon: Baby },
     { path: "/kependudukan", name: "Manajemen KK", icon: UserCheck },
+    { path: "/pencatatan/kesehatan-lingkungan", name: "Kesehatan dan Keselamatan Lingkungan", icon: ClipboardList },
     { path: "/monitoring", name: "Monitoring", icon: Activity },
     { path: "/laporan", name: "Laporan", icon: BarChart3 },
     { path: "/pengaturan", name: "Pengaturan", icon: Settings },

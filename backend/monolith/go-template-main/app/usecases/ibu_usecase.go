@@ -10,6 +10,7 @@ type IbuUsecase interface {
 	Create(ibu *models.Ibu) error
 	GetByID(id int32) (*models.Ibu, error)
 	GetAll() ([]models.Ibu, error)
+	GetByUserID(userID int32) (*models.Ibu, error)
 	Update(ibu *models.Ibu) error
 	Delete(id int32) error
 }
@@ -35,6 +36,10 @@ func (u *ibuUsecase) GetByID(id int32) (*models.Ibu, error) {
 
 func (u *ibuUsecase) GetAll() ([]models.Ibu, error) {
 	return u.repo.FindAll()
+}
+
+func (u *ibuUsecase) GetByUserID(userID int32) (*models.Ibu, error) {
+	return u.repo.FindByUserID(userID)
 }
 
 func (u *ibuUsecase) Update(ibu *models.Ibu) error {
