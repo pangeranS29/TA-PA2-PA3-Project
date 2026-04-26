@@ -48,11 +48,8 @@ type Main struct {
 	RiwayatKehamilanLalu          RiwayatKehamilanLaluUsecase
 	RegisterOrangTua              *RegisterOrangTuaUsecase
 	KeteranganLahir               KeteranganLahirUsecase // <-- TAMBAHKAN INI
-<<<<<<< HEAD
 	PemantauanIndikator           PemantauanIndikatorUsecase
-=======
 	KesehatanLingkunganDanCatatanKader KesehatanLingkunganDanCatatanKaderUsecase
->>>>>>> 20b64713948b5a24f97b88317ffccbce55ba6633
 	JenisPelayanan                JenisPelayananUsecase
 }
 
@@ -112,11 +109,8 @@ func Init(opts Options) *Main {
 		opts.Repository.Ibu,
 	)
 	m.KeteranganLahir = NewKeteranganLahirUsecase(opts.Repository.KeteranganLahir) // <-- TAMBAHKAN INI
-<<<<<<< HEAD
 	m.PemantauanIndikator = NewPemantauanIndikatorUsecase(opts.Repository.PemantauanIndikator)
-=======
 	m.KesehatanLingkunganDanCatatanKader = NewKesehatanLingkunganDanCatatanKaderUsecase(opts.Repository.KesehatanLingkunganDanCatatanKader)
->>>>>>> 20b64713948b5a24f97b88317ffccbce55ba6633
 	m.JenisPelayanan = NewJenisPelayananUsecase(opts.Repository.JenisPelayanan)
 
 	return m

@@ -304,6 +304,6 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 
 	ibu.GET("/kesehatan-lingkungan", controller.KesehatanLingkunganDanCatatanKader.GetAll) // forms sent to this ibu
 	ibu.GET("/kesehatan-lingkungan/:id", controller.KesehatanLingkunganDanCatatanKader.GetByID)
-	ibu.PUT("/kesehatan-lingkungan/:id", controller.KesehatanLingkunganDanCatatanKader.Update) // ibu fills the form
+	ibu.PUT("/kesehatan-lingkungan/:id", controller.KesehatanLingkunganDanCatatanKader.Update)                   // ibu fills the form
 	ibu.GET("/kesehatan-lingkungan/:id/catatan-kader", controller.KesehatanLingkunganDanCatatanKader.GetCatatan) // ibu view catatan from bidan
-	}
+}

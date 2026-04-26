@@ -22,33 +22,33 @@ type Main struct {
 	CatatanPelayanan       *CatatanPelayananController
 
 	// Controller baru untuk struktur kehamilan
-	Ibu                           *IbuController
-	Kehamilan                     *KehamilanController
-	PemeriksaanKehamilan          *PemeriksaanKehamilanController
-	EvaluasiKesehatanIbu          *EvaluasiKesehatanIbuController
-	PemeriksaanDokterTrimester1   *PemeriksaanDokterTrimester1Controller
-	PemeriksaanDokterTrimester3   *PemeriksaanDokterTrimester3Controller
-	PemeriksaanLaboratoriumJiwa   *PemeriksaanLaboratoriumJiwaController
-	PemeriksaanLanjutanTrimester3 *PemeriksaanLanjutanTrimester3Controller
-	CatatanPelayananTrimester1    *CatatanPelayananTrimester1Controller
-	CatatanPelayananTrimester2    *CatatanPelayananTrimester2Controller
-	CatatanPelayananTrimester3    *CatatanPelayananTrimester3Controller
-	CatatanPelayananNifas         *CatatanPelayananNifasController
-	GrafikEvaluasiKehamilan       *GrafikEvaluasiKehamilanController
-	GrafikPeningkatanBB           *GrafikPeningkatanBBController
-	PenjelasanHasilGrafik         *PenjelasanHasilGrafikController
-	RencanaPersalinan             *RencanaPersalinanController
-	RingkasanPelayananPersalinan  *RingkasanPelayananPersalinanController
-	RiwayatProsesMelahirkan       *RiwayatProsesMelahirkanController
-	Rujukan                       *RujukanController
-	SkriningDMGestasional         *SkriningDMGestasionalController
-	SkriningPreeklampsia          *SkriningPreeklampsiaController
-	PelayananIbuNifas             *PelayananIbuNifasController
-	RiwayatKehamilanLalu          *RiwayatKehamilanLaluController
-	KeteranganLahir               *KeteranganLahirController // <-- TAMBAHKAN INI
-	PemantauanIndikator           *PemantauanIndikatorController
-	Kependudukan                  *KependudukanController
-	JenisPelayanan                *JenisPelayananController
+	Ibu                                *IbuController
+	Kehamilan                          *KehamilanController
+	PemeriksaanKehamilan               *PemeriksaanKehamilanController
+	EvaluasiKesehatanIbu               *EvaluasiKesehatanIbuController
+	PemeriksaanDokterTrimester1        *PemeriksaanDokterTrimester1Controller
+	PemeriksaanDokterTrimester3        *PemeriksaanDokterTrimester3Controller
+	PemeriksaanLaboratoriumJiwa        *PemeriksaanLaboratoriumJiwaController
+	PemeriksaanLanjutanTrimester3      *PemeriksaanLanjutanTrimester3Controller
+	CatatanPelayananTrimester1         *CatatanPelayananTrimester1Controller
+	CatatanPelayananTrimester2         *CatatanPelayananTrimester2Controller
+	CatatanPelayananTrimester3         *CatatanPelayananTrimester3Controller
+	CatatanPelayananNifas              *CatatanPelayananNifasController
+	GrafikEvaluasiKehamilan            *GrafikEvaluasiKehamilanController
+	GrafikPeningkatanBB                *GrafikPeningkatanBBController
+	PenjelasanHasilGrafik              *PenjelasanHasilGrafikController
+	RencanaPersalinan                  *RencanaPersalinanController
+	RingkasanPelayananPersalinan       *RingkasanPelayananPersalinanController
+	RiwayatProsesMelahirkan            *RiwayatProsesMelahirkanController
+	Rujukan                            *RujukanController
+	SkriningDMGestasional              *SkriningDMGestasionalController
+	SkriningPreeklampsia               *SkriningPreeklampsiaController
+	PelayananIbuNifas                  *PelayananIbuNifasController
+	RiwayatKehamilanLalu               *RiwayatKehamilanLaluController
+	KeteranganLahir                    *KeteranganLahirController // <-- TAMBAHKAN INI
+	PemantauanIndikator                *PemantauanIndikatorController
+	Kependudukan                       *KependudukanController
+	JenisPelayanan                     *JenisPelayananController
 	KesehatanLingkunganDanCatatanKader *KesehatanLingkunganDanCatatanKaderController
 }
 
