@@ -180,6 +180,43 @@ class _EdukasiDetailScreenState extends State<EdukasiDetailScreen> {
             'Kenali tanda bahaya dan segera ke fasilitas kesehatan bila muncul.',
           ],
         );
+      case 'Melihat Informasi Umum Perlindungan Anak':
+        return const _EdukasiArticle(
+          ringkasan:
+              'Buku KIA menekankan bahwa setiap anak berhak mendapatkan perlindungan, pengasuhan penuh kasih, dan lingkungan yang aman. Orang tua perlu mengenali risiko kekerasan, penelantaran, serta langkah pelaporan bila anak terancam.',
+          tutorialLangkah: [
+            'Bangun komunikasi harian dengan anak agar ia merasa aman bercerita.',
+            'Ajarkan anak mengenali bagian tubuh pribadi dan batas sentuhan yang tidak boleh dilanggar.',
+            'Pastikan anak selalu dalam pengawasan orang dewasa tepercaya di rumah, sekolah, dan lingkungan bermain.',
+            'Pantau perubahan perilaku anak seperti takut berlebihan, murung, atau menolak bertemu orang tertentu.',
+            'Jika ada dugaan kekerasan atau penelantaran, segera cari bantuan ke puskesmas, guru, kader, atau layanan perlindungan anak setempat.',
+          ],
+          bagian: [
+            _ArticleSection(
+              judul: 'Prinsip perlindungan anak di rumah',
+              poin: [
+                'Gunakan pengasuhan tanpa kekerasan fisik maupun verbal.',
+                'Buat aturan rumah yang jelas, konsisten, dan sesuai usia anak.',
+                'Dengarkan pendapat anak dan validasi perasaannya.',
+                'Jaga identitas serta privasi anak, termasuk saat memakai media sosial.',
+              ],
+            ),
+            _ArticleSection(
+              judul: 'Tanda anak perlu perlindungan segera',
+              poin: [
+                'Ada luka berulang dengan penjelasan yang tidak jelas.',
+                'Anak tampak ketakutan, menarik diri, atau terjadi perubahan perilaku mendadak.',
+                'Anak mengeluh nyeri pada area sensitif atau mengungkap pengalaman tidak nyaman.',
+                'Segera laporkan ke fasilitas kesehatan/otoritas perlindungan anak agar mendapat penanganan cepat.',
+              ],
+            ),
+          ],
+          yangPerluDiingat: [
+            'Perlindungan anak dimulai dari rumah: aman, hangat, dan bebas kekerasan.',
+            'Komunikasi terbuka membantu anak berani melapor saat merasa tidak aman.',
+            'Jangan menunda mencari bantuan profesional jika ada tanda kekerasan atau penelantaran.',
+          ],
+        );
       default:
         return const _EdukasiArticle(
           ringkasan:

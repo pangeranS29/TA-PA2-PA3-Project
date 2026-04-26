@@ -39,6 +39,12 @@ class _EdukasiScreenState extends State<EdukasiScreen>
       'title': 'Informasi Umum Perawatan Anak Sakit',
     },
     {
+      'type': 'ARTIKEL',
+      'ageText': '0-18 Tahun',
+      'durationText': '6 Menit Baca',
+      'title': 'Melihat Informasi Umum Perlindungan Anak',
+    },
+    {
       'type': 'VIDEO',
       'ageText': '6-9 Bulan',
       'durationText': '5 Menit',
