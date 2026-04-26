@@ -60,6 +60,8 @@ import TumbuhKembangAnak from"./pages/SDIDTK/index"
 import PelayananLilaIndex from "./pages/Pelayanan-LILA-Anak/index";
 import PelayananLilaCreate from "./pages/Pelayanan-LILA-Anak/create";
 import PelayananLilaEdit from "./pages/Pelayanan-LILA-Anak/edit";
+import KelolaPemantauan from "./pages/Pemantauan/KelolaPemantauan";
+import LihatDataPemantauan from "./pages/Pemantauan/LihatDataPemantauan";
 
 function App() {
   return (
@@ -107,6 +109,8 @@ function App() {
 
           {/* Monitoring & Laporan */}
           <Route path="/monitoring" element={<Monitoring />} />
+          <Route path="/pemantauan/kelola" element={<KelolaPemantauan />} />
+          <Route path="/pemantauan/lihat" element={<LihatDataPemantauan />} />
           <Route path="/laporan" element={<Laporan />} />
         </Route>
           <Route path="/data-anak/dashboard/:id" element= {<AnakDashboard/>} />

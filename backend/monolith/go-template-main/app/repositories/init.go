@@ -51,6 +51,7 @@ type Main struct {
 	PelayananIbuNifas             *PelayananIbuNifasRepository
 	CatatanPelayananNifas         *CatatanPelayananNifasRepository
 	Rujukan                       *RujukanRepository
+	PemantauanIndikator           *PemantauanIndikatorRepository
 	JenisPelayanan                JenisPelayananRepository
 }
 
@@ -98,6 +99,7 @@ func Init(opts Options) *Main {
 	m.PelayananIbuNifas = NewPelayananIbuNifasRepository(opts.Postgres)
 	m.CatatanPelayananNifas = NewCatatanPelayananNifasRepository(opts.Postgres)
 	m.Rujukan = NewRujukanRepository(opts.Postgres)
+	m.PemantauanIndikator = NewPemantauanIndikatorRepository(opts.Postgres)
 
 	m.Neonatus = NewPelayananNeonatusRepository(opts.Postgres)
 	m.KunjunganGizi = NewKunjunganGiziRepository(opts.Postgres)

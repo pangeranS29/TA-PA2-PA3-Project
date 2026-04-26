@@ -1,12 +1,49 @@
 // src/services/auth.js
 import api from "./api";
 
+const buildLoginUrls = () => {
+  const base = String(api.defaults.baseURL || "").replace(/\/+$/, "");
+
+  if (!base) {
+    return ["/api/v1/auth/login", "/auth/login"];
+  }
+
+  const origin = base.replace(/\/api\/v1$/, "");
+  return Array.from(
+    new Set([
+      `${base}/auth/login`,
+      `${origin}/auth/login`,
+    ])
+  );
+};
+
 /**
  * Fungsi Login
  * Menyimpan token dan data user ke localStorage
  */
 export const login = async (identifier, password) => {
-  const response = await api.post("/auth/login", { identifier, password });
+  const payload = { identifier, password };
+  const candidates = buildLoginUrls();
+  let lastError;
+  let response;
+
+  for (const url of candidates) {
+    try {
+      response = await api.post(url, payload);
+      break;
+    } catch (err) {
+      lastError = err;
+      const status = err?.response?.status;
+      // Coba endpoint kandidat lain hanya jika route tidak ditemukan.
+      if (status !== 404) {
+        throw err;
+      }
+    }
+  }
+
+  if (!response) {
+    throw lastError;
+  }
   
   // Ambil data dari response.data.data (sesuaikan dengan struktur API Laravel/Go kamu)
   const result = response.data.data;
