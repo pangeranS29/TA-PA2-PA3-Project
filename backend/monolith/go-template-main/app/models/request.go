@@ -4,20 +4,15 @@ import "time"
 
 type CreateAnakRequest struct {
 	KehamilanID   int32    `json:"kehamilan_id" validate:"required"`
-	Nama          string   `json:"nama" validate:"required"`
-	TanggalLahir  string   `json:"tanggal_lahir" validate:"required"` // "YYYY-MM-DD"
-	JenisKelamin  string   `json:"jenis_kelamin" validate:"required,oneof=laki-laki perempuan"`
+	PendudukID    int32    `json:"penduduk_id" validate:"required"`
 	BeratLahirKg  *float64 `json:"berat_lahir_kg,omitempty"`
-	GolonganDarah *string  `json:"golongan_darah,omitempty"`
+	TinggiLahirCm *float64 `json:"tinggi_lahir_cm,omitempty"`
 }
 
 // UpdateAnakRequest adalah body request untuk PUT /anak/:id.
 type UpdateAnakRequest struct {
-	Nama          string   `json:"nama"`
-	TanggalLahir  string   `json:"tanggal_lahir"` // "YYYY-MM-DD"
-	JenisKelamin  string   `json:"jenis_kelamin"`
 	BeratLahirKg  *float64 `json:"berat_lahir_kg,omitempty"`
-	GolonganDarah *string  `json:"golongan_darah,omitempty"`
+	TinggiLahirCm *float64 `json:"tinggi_lahir_cm,omitempty"`
 }
 
 type DetailPelayananRequest struct {
@@ -330,7 +325,7 @@ type AnakRequest struct {
 	ID              uint    `json:"id"`
 	IbuID           *uint   `json:"ibu_id,omitempty"`
 	KependudukanID  *uint   `json:"kependudukan_id,omitempty"`
-	NoKartuKeluarga int64   `json:"no_kartu_keluarga,omitempty"`
+	NoKartuKeluarga int64   `json:"no_kk,omitempty"`
 	NamaAnak        string  `json:"nama_anak,omitempty"`
 	JenisKelamin    string  `json:"jenis_kelamin,omitempty"`
 	TanggalLahir    string  `json:"tanggal_lahir,omitempty"`

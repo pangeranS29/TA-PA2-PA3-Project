@@ -121,7 +121,7 @@ func (u *RegisterOrangTuaUsecase) Register(req *RegisterOrangTuaRequest) error {
 	// Buat data kependudukan
 	tanggalLahir, _ := time.Parse("2006-01-02", req.TanggalLahir)
 	kependudukan := &models.Kependudukan{
-		NoKK:               req.NoKK,
+		KartuKeluargaID:    kk.KartuKeluarga.ID, // Asumsikan KK langsung dibuat saat KK dibuat
 		NIK:                req.NIK,
 		Dusun:              req.Dusun,
 		NamaLengkap:        req.NamaLengkap,

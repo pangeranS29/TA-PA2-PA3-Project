@@ -26,6 +26,7 @@ type Main struct {
 	User                          *UserRepository
 	Role                          *RoleRepository
 	Kebabura                      *KebaburaRepository
+	KartuKeluarga                 *KartuKeluargaRepository
 	Kependudukan                  *KependudukanRepository
 	Ibu                           *IbuRepository
 	Kehamilan                     *KehamilanRepository
@@ -76,6 +77,7 @@ func Init(opts Options) *Main {
 	m.Ibu = NewIbuRepository(opts.Postgres)
 	m.Role = NewRoleRepository(opts.Postgres)
 	m.Kebabura = NewKebaburaRepository(opts.Postgres)
+	m.KartuKeluarga = NewKartuKeluargaRepository(opts.Postgres)
 	m.Kependudukan = NewKependudukanRepository(opts.Postgres)
 	m.Kehamilan = NewKehamilanRepository(opts.Postgres)
 	m.PemeriksaanKehamilan = NewPemeriksaanKehamilanRepository(opts.Postgres)

@@ -22,13 +22,19 @@ func (r *AnakRepository) Create(anak *models.Anak) error {
 
 func (r *AnakRepository) FindByKehamilanID(kehamilanID int32) ([]models.Anak, error) {
 	var list []models.Anak
-	err := r.db.Where("kehamilan_id = ?", kehamilanID).Order("created_at ASC").Find(&list).Error
+	err := r.db.
+		Preload("Penduduk").
+		Preload("Kehamilan").
+		Where("kehamilan_id = ?", kehamilanID).
+		Order("created_at ASC").
+		Find(&list).Error
 	return list, err
 }
 func (r *AnakRepository) FindAll() ([]models.Anak, error) {
 	var list []models.Anak
 
 	err := r.db.
+		Preload("Penduduk").
 		Preload("Kehamilan").
 		Preload("Kehamilan.Ibu").
 		Find(&list).Error
@@ -41,7 +47,11 @@ func (r *AnakRepository) FindAll() ([]models.Anak, error) {
 
 func (r *AnakRepository) FindByID(id int32) (*models.Anak, error) {
 	var anak models.Anak
-	err := r.db.Where("id = ?", id).First(&anak).Error
+	err := r.db.
+		Preload("Penduduk").
+		Preload("Kehamilan").
+		Where("id = ?", id).
+		First(&anak).Error
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +60,11 @@ func (r *AnakRepository) FindByID(id int32) (*models.Anak, error) {
 
 func (r *AnakRepository) FindByIDAndPenggunaID(id, penggunaID int32) (*models.Anak, error) {
 	var anak models.Anak
-	err := r.db.Where("id = ? AND pengguna_id = ?", id, penggunaID).First(&anak).Error
+	err := r.db.
+		Preload("Penduduk").
+		Preload("Kehamilan").
+		Where("id = ? AND pengguna_id = ?", id, penggunaID).
+		First(&anak).Error
 	if err != nil {
 		return nil, err
 	}
