@@ -27,12 +27,12 @@ func NewKartuKeluargaUsecase(repo *repositories.KartuKeluargaRepository) KartuKe
 
 func (u *kartuKeluargaUsecase) Create(kk *models.KartuKeluarga) (*models.KartuKeluarga, error) {
 	// Validasi no_kk
-	if kk.NoKartuKeluarga == "" {
+	if kk.NoKK == "" {
 		return nil, errors.New("no_kk wajib diisi")
 	}
 
 	// Cek apakah no_kk sudah ada
-	existing, err := u.repo.FindByNoKartuKeluarga(kk.NoKartuKeluarga)
+	existing, err := u.repo.FindByNoKartuKeluarga(kk.NoKK)
 	if err == nil && existing != nil {
 		return nil, errors.New("no_kk sudah terdaftar")
 	}
