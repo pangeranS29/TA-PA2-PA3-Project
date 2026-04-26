@@ -8,6 +8,7 @@ import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/
 // import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/tumbuh_kembang_screen.dart';
 import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/input_profil_anak_screen.dart';
 import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/skrining_bahaya.dart';
+import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/halaman_utama_mpasi.dart';
 import 'package:ta_pa2_pa3_project/features/edukasi/presentation/screens/edukasi_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -759,6 +760,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 context,
                 MaterialPageRoute(
                   builder: (_) => const PilihAnakScreen(tujuan: "imunisasi"),
+                ),
+              );
+            }),
+
+            // 🔸 MPASI
+            _menuItem(Icons.restaurant_menu, "MPASI", Colors.blue, () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const PilihAnakScreen(tujuan: "mpasi"),
                 ),
               );
             }),
