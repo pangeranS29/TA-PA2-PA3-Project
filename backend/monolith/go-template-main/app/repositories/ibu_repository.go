@@ -45,3 +45,18 @@ func (r *IbuRepository) Delete(id int32) error {
 	}
 	return nil
 }
+
+// FindByUserID mencari data ibu berdasarkan ID user (pengguna)
+// Relasi: ibu -> penduduk (id) -> kebabura (no_kk) -> user (id_user)
+func (r *IbuRepository) FindByUserID(userID int32) (*models.Ibu, error) {
+	var ibu models.Ibu
+
+	err := r.db.Joins("JOIN penduduk ON penduduk.id = ibu.penduduk_id").
+		Joins("JOIN kebabura ON kebabura.no_kk = penduduk.no_kk AND kebabura.id_user = ?", userID).
+		First(&ibu).Error
+
+	if err != nil {
+		return nil, err
+	}
+	return &ibu, nil
+}

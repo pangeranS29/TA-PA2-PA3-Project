@@ -49,6 +49,7 @@ type Main struct {
 	PemantauanIndikator           *PemantauanIndikatorController
 	Kependudukan                  *KependudukanController
 	JenisPelayanan                *JenisPelayananController
+	KesehatanLingkunganDanCatatanKader *KesehatanLingkunganDanCatatanKaderController
 }
 
 type Options struct {
@@ -102,6 +103,7 @@ func Init(opts Options) *Main {
 	m.PemantauanIndikator = NewPemantauanIndikatorController(opts.UseCases.PemantauanIndikator)
 	m.Kependudukan = NewKependudukanController(opts.UseCases.Kependudukan)
 	m.JenisPelayanan = NewJenisPelayananController(opts.UseCases.JenisPelayanan)
+	m.KesehatanLingkunganDanCatatanKader = NewKesehatanLingkunganDanCatatanKaderController(opts.UseCases.KesehatanLingkunganDanCatatanKader, opts.UseCases.Ibu)
 
 	return m
 }

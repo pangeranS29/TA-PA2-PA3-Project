@@ -73,6 +73,10 @@ func AutoMigrate(db *gorm.DB) error {
 		&PelayananIbuNifas{},
 		&CatatanPelayananNifas{},
 		&Rujukan{},
+
+		// Kesehatan Lingkungan & Catatan Kader
+		&KesehatanLingkunganDanCatatanKader{},
+		&CatatanKaderKesehatanLingkungan{},
 	}
 
 	// Jalankan automigrate sekali saja
