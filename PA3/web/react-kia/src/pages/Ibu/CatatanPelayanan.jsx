@@ -34,8 +34,11 @@ export default function CatatanPelayanan() {
           const data = await svc.getByKehamilanId(aktif.id);
           setRecords(data || []);
         }
-      } catch (err) { console.error(err); }
-      finally { setLoading(false); }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
     };
     fetchData();
   }, [id, activeTab]);
@@ -53,8 +56,12 @@ export default function CatatanPelayanan() {
       setRecords([...records, created]);
       setForm({ tanggal_periksa_stamp_paraf: "", keluhan_pemeriksaan_tindakan_saran: "", tanggal_kembali: "" });
       alert("Catatan pelayanan berhasil ditambahkan");
-    } catch (err) { alert("Gagal menyimpan catatan"); console.error(err); }
-    finally { setSaving(false); }
+    } catch (err) {
+      alert("Gagal menyimpan catatan");
+      console.error(err);
+    } finally {
+      setSaving(false);
+    }
   };
 
   const idKey = activeTab === "Nifas" ? "id_catatan_nifas" : "id_catatan";
@@ -110,10 +117,19 @@ export default function CatatanPelayanan() {
         <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm p-6 space-y-4">
           <h3 className="font-semibold">Tambah Catatan Baru - {tabLabels[activeTab]}</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div><label className="block text-sm font-medium mb-1">Tanggal Periksa / Stempel / Paraf</label><input type="date" name="tanggal_periksa_stamp_paraf" value={form.tanggal_periksa_stamp_paraf} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" required /></div>
-            <div><label className="block text-sm font-medium mb-1">Tanggal Kembali</label><input type="date" name="tanggal_kembali" value={form.tanggal_kembali} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" /></div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Tanggal Periksa / Stempel / Paraf</label>
+              <input type="date" name="tanggal_periksa_stamp_paraf" value={form.tanggal_periksa_stamp_paraf} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" required />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Tanggal Kembali</label>
+              <input type="date" name="tanggal_kembali" value={form.tanggal_kembali} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" />
+            </div>
           </div>
-          <div><label className="block text-sm font-medium mb-1">Keluhan / Pemeriksaan / Tindakan / Saran</label><textarea name="keluhan_pemeriksaan_tindakan_saran" value={form.keluhan_pemeriksaan_tindakan_saran} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" rows="4" required /></div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Keluhan / Pemeriksaan / Tindakan / Saran</label>
+            <textarea name="keluhan_pemeriksaan_tindakan_saran" value={form.keluhan_pemeriksaan_tindakan_saran} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" rows="4" required />
+          </div>
           <button type="submit" disabled={saving} className="bg-indigo-600 text-white px-6 py-2 rounded-lg flex items-center gap-2">
             <Plus size={18} /> {saving ? "Menyimpan..." : "Tambah Catatan"}
           </button>

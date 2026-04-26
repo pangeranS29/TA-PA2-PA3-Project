@@ -3,18 +3,18 @@ import { useParams, useNavigate } from "react-router-dom";
 import MainLayout from "../../components/Layout/MainLayout";
 import { getKehamilanByIbuId } from "../../services/kehamilan";
 import { getGrafikByKehamilanId, createGrafik, updateGrafik } from "../../services/grafik";
-import { getGrafikBBByKehamilanId, createGrafikBB, updateGrafikBB, getPenjelasanByKehamilanId, createPenjelasan, updatePenjelasan } from "../../services/grafikBB";
+import { getPenjelasanByKehamilanId, createPenjelasan, updatePenjelasan } from "../../services/grafikBB";
 import { Line } from "react-chartjs-2";
-import { Save, Loader2, ArrowLeft } from "lucide-react";
+import { Save, ArrowLeft } from "lucide-react";
 
-export default function GrafikEvaluasi() {
+export default function GrafikEvaluasiKehamilan() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [kehamilan, setKehamilan] = useState(null);
 
   // Data State
   const [grafik, setGrafik] = useState(null);
-  const [grafikBB, setGrafikBB] = useState(null);
+  const [grafikList, setGrafikList] = useState([]);
   const [penjelasan, setPenjelasan] = useState(null);
 
   const [form, setForm] = useState({
@@ -34,16 +34,6 @@ export default function GrafikEvaluasi() {
     aspirin: "",
   });
 
-  const [formBB, setFormBB] = useState({
-    bb_pra_kehamilan_kg: "",
-    imt_pra_kehamilan: "",
-    kategori_imt_pra_kehamilan: "",
-    rekomendasi_peningkatan_bb_min: "",
-    rekomendasi_peningkatan_bb_max: "",
-    minggu_kehamilan: "",
-    peningkatan_bb_kg: "",
-  });
-
   const [formPenjelasan, setFormPenjelasan] = useState({
     catatan_penjelasan_grafik: "",
   });
@@ -52,16 +42,17 @@ export default function GrafikEvaluasi() {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    const fetchAllData = async () => {
+    const fetchData = async () => {
       try {
         const kehamilanList = await getKehamilanByIbuId(id);
         if (kehamilanList.length > 0) {
           const aktif = kehamilanList[0];
           setKehamilan(aktif);
 
-          // 1. Fetch TFU & Detak Jantung
+          // Fetch semua data grafik evaluasi kehamilan
           const dataTfu = await getGrafikByKehamilanId(aktif.id);
           if (dataTfu && dataTfu.length > 0) {
+            setGrafikList(dataTfu);
             const g = dataTfu[0];
             setGrafik(g);
             setForm({
@@ -82,23 +73,7 @@ export default function GrafikEvaluasi() {
             });
           }
 
-          // 2. Fetch Grafik Peningkatan BB
-          const dataBB = await getGrafikBBByKehamilanId(aktif.id);
-          if (dataBB && dataBB.length > 0) {
-            const bb = dataBB[0];
-            setGrafikBB(bb);
-            setFormBB({
-              bb_pra_kehamilan_kg: bb.bb_pra_kehamilan_kg || "",
-              imt_pra_kehamilan: bb.imt_pra_kehamilan || "",
-              kategori_imt_pra_kehamilan: bb.kategori_imt_pra_kehamilan || "",
-              rekomendasi_peningkatan_bb_min: bb.rekomendasi_peningkatan_bb_min || "",
-              rekomendasi_peningkatan_bb_max: bb.rekomendasi_peningkatan_bb_max || "",
-              minggu_kehamilan: bb.minggu_kehamilan || "",
-              peningkatan_bb_kg: bb.peningkatan_bb_kg || "",
-            });
-          }
-
-          // 3. Fetch Penjelasan Grafik
+          // Fetch Penjelasan Grafik
           const dataPenjelasan = await getPenjelasanByKehamilanId(aktif.id);
           if (dataPenjelasan && dataPenjelasan.length > 0) {
             const pen = dataPenjelasan[0];
@@ -114,11 +89,10 @@ export default function GrafikEvaluasi() {
         setLoading(false);
       }
     };
-    fetchAllData();
+    fetchData();
   }, [id]);
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
-  const handleChangeBB = (e) => setFormBB({ ...formBB, [e.target.name]: e.target.value });
   const handleChangePenjelasan = (e) => setFormPenjelasan({ ...formPenjelasan, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
@@ -126,46 +100,79 @@ export default function GrafikEvaluasi() {
     if (!kehamilan) return;
     setSaving(true);
     try {
-      // 1. Grafik Indikator TFU/Detak
-      const payloadTfu = { ...form, kehamilan_id: kehamilan.id };
-      if (grafik) await updateGrafik(grafik.id, payloadTfu);
+      // 1. Grafik Indikator TFU/Detak — convert to proper types
+      const payloadTfu = {
+        kehamilan_id: kehamilan.id,
+        tanggal_bulan_tahun: form.tanggal_bulan_tahun || null,
+        usia_gestasi_minggu: form.usia_gestasi_minggu ? parseInt(form.usia_gestasi_minggu) : null,
+        tinggi_fundus_uteri_cm: form.tinggi_fundus_uteri_cm ? parseFloat(form.tinggi_fundus_uteri_cm) : null,
+        denyut_jantung_bayi_x_menit: form.denyut_jantung_bayi_x_menit ? parseInt(form.denyut_jantung_bayi_x_menit) : null,
+        tekanan_darah_sistole: form.tekanan_darah_sistole ? parseInt(form.tekanan_darah_sistole) : null,
+        tekanan_darah_diastole: form.tekanan_darah_diastole ? parseInt(form.tekanan_darah_diastole) : null,
+        nadi_per_menit: form.nadi_per_menit ? parseInt(form.nadi_per_menit) : null,
+        gerakan_bayi: form.gerakan_bayi || "",
+        urin_protein: form.urin_protein || "",
+        urin_reduksi: form.urin_reduksi || "",
+        hemoglobin: form.hemoglobin ? parseFloat(form.hemoglobin) : null,
+        tablet_tambah_darah: form.tablet_tambah_darah ? parseInt(form.tablet_tambah_darah) : null,
+        kalsium: form.kalsium || "",
+        aspirin: form.aspirin || "",
+      };
+      if (grafik) await updateGrafik(grafik.id_grafik, payloadTfu);
       else await createGrafik(payloadTfu);
 
-      // 2. Grafik Peningkatan BB
-      const payloadBB = {
-        ...formBB,
-        kehamilan_id: kehamilan.id,
-        bb_pra_kehamilan_kg: parseFloat(formBB.bb_pra_kehamilan_kg) || null,
-        imt_pra_kehamilan: parseFloat(formBB.imt_pra_kehamilan) || null,
-        rekomendasi_peningkatan_bb_min: parseFloat(formBB.rekomendasi_peningkatan_bb_min) || null,
-        rekomendasi_peningkatan_bb_max: parseFloat(formBB.rekomendasi_peningkatan_bb_max) || null,
-        minggu_kehamilan: parseInt(formBB.minggu_kehamilan) || null,
-        peningkatan_bb_kg: parseFloat(formBB.peningkatan_bb_kg) || null,
-      };
-      if (grafikBB) await updateGrafikBB(grafikBB.id_grafik_bb, payloadBB);
-      else await createGrafikBB(payloadBB);
-
-      // 3. Penjelasan Hasil Grafik
+      // 2. Penjelasan Hasil Grafik
       const payloadPenjelasan = { ...formPenjelasan, kehamilan_id: kehamilan.id };
       if (penjelasan) await updatePenjelasan(penjelasan.id_penjelasan, payloadPenjelasan);
       else await createPenjelasan(payloadPenjelasan);
 
-      alert("Data grafik dan penjelasan berhasil disimpan");
+      alert("Data grafik evaluasi kehamilan berhasil disimpan");
     } catch (err) {
       console.error(err);
-      alert("Gagal menyimpan data grafik");
+      alert("Gagal menyimpan data grafik evaluasi kehamilan");
     } finally {
       setSaving(false);
     }
   };
 
-  // Chart data example
-  const chartData = {
-    labels: [8, 12, 16, 20, 24, 28, 32, 36, 40],
-    datasets: [
-      { label: "TFU (cm)", data: [10, 14, 18, 22, 26, 30, 32, 34, 36], borderColor: "blue", fill: false },
-      { label: "DJJ (bpm)", data: [140, 145, 148, 150, 152, 155, 158, 160, 158], borderColor: "red", fill: false },
-    ],
+  // Build chart data from actual data
+  const buildChartData = () => {
+    if (grafikList.length > 0) {
+      const sorted = [...grafikList].sort((a, b) => (a.usia_gestasi_minggu || 0) - (b.usia_gestasi_minggu || 0));
+      return {
+        labels: sorted.map((g) => g.usia_gestasi_minggu || 0),
+        datasets: [
+          {
+            label: "TFU (cm)",
+            data: sorted.map((g) => g.tinggi_fundus_uteri_cm || null),
+            borderColor: "#6366f1",
+            backgroundColor: "rgba(99, 102, 241, 0.1)",
+            fill: true,
+            tension: 0.3,
+            pointRadius: 5,
+            pointBackgroundColor: "#6366f1",
+          },
+          {
+            label: "DJJ (x/menit)",
+            data: sorted.map((g) => g.denyut_jantung_bayi_x_menit || null),
+            borderColor: "#ef4444",
+            backgroundColor: "rgba(239, 68, 68, 0.1)",
+            fill: true,
+            tension: 0.3,
+            pointRadius: 5,
+            pointBackgroundColor: "#ef4444",
+          },
+        ],
+      };
+    }
+    // Fallback jika belum ada data
+    return {
+      labels: [8, 12, 16, 20, 24, 28, 32, 36, 40],
+      datasets: [
+        { label: "TFU (cm)", data: [], borderColor: "#6366f1", fill: false },
+        { label: "DJJ (x/menit)", data: [], borderColor: "#ef4444", fill: false },
+      ],
+    };
   };
 
   if (loading)
@@ -177,60 +184,43 @@ export default function GrafikEvaluasi() {
 
   return (
     <MainLayout>
-      <div className="p-6 max-w-6xl mx-auto">
-        <h1 className="text-2xl font-bold mb-2">Evaluasi Grafik Klinis</h1>
-        <p className="text-gray-500 mb-6">Pemantauan parameter kesehatan ibu dan janin secara berkala.</p>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-          <div className="bg-white rounded-xl shadow-sm p-4">
-            <h3 className="font-semibold mb-2">Grafik Peningkatan Berat Badan Ibu</h3>
-            <div className="h-64">{/* Placeholder untuk chart BB */}</div>
-          </div>
-          <div className="bg-white rounded-xl shadow-sm p-4">
-            <h3 className="font-semibold mb-2">Tren TFU & Denyut Jantung Janin</h3>
-            <div className="h-64">
-              <Line data={chartData} options={{ responsive: true, maintainAspectRatio: false }} />
-            </div>
+      <div className="p-6 max-w-5xl mx-auto">
+        <div className="flex items-center gap-4 mb-6">
+          <button onClick={() => navigate(-1)} className="p-2 rounded-full hover:bg-gray-100 transition-colors">
+            <ArrowLeft size={20} />
+          </button>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Grafik Evaluasi Kehamilan</h1>
+            <p className="text-gray-500">Grafik Evaluasi Kehamilan (TFU & DJJ)</p>
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="bg-white rounded-xl shadow-sm p-6">
-            <h3 className="font-semibold mb-4 text-indigo-700">1. Data Peningkatan Berat Badan</h3>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">BB Pra-Kehamilan (kg)</label>
-                <input type="number" step="0.1" name="bb_pra_kehamilan_kg" value={formBB.bb_pra_kehamilan_kg} onChange={handleChangeBB} className="w-full border rounded px-3 py-2" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">IMT</label>
-                <input type="number" step="0.1" name="imt_pra_kehamilan" value={formBB.imt_pra_kehamilan} onChange={handleChangeBB} className="w-full border rounded px-3 py-2" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Kategori IMT</label>
-                <input name="kategori_imt_pra_kehamilan" value={formBB.kategori_imt_pra_kehamilan} onChange={handleChangeBB} className="w-full border rounded px-3 py-2" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Minggu Kehamilan</label>
-                <input type="number" name="minggu_kehamilan" value={formBB.minggu_kehamilan} onChange={handleChangeBB} className="w-full border rounded px-3 py-2" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Peningkatan BB (kg)</label>
-                <input type="number" step="0.1" name="peningkatan_bb_kg" value={formBB.peningkatan_bb_kg} onChange={handleChangeBB} className="w-full border rounded px-3 py-2" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Rekomendasi Min (kg)</label>
-                <input type="number" step="0.1" name="rekomendasi_peningkatan_bb_min" value={formBB.rekomendasi_peningkatan_bb_min} onChange={handleChangeBB} className="w-full border rounded px-3 py-2" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Rekomendasi Max (kg)</label>
-                <input type="number" step="0.1" name="rekomendasi_peningkatan_bb_max" value={formBB.rekomendasi_peningkatan_bb_max} onChange={handleChangeBB} className="w-full border rounded px-3 py-2" />
-              </div>
-            </div>
+        {/* Grafik TFU & DJJ */}
+        <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
+          <h3 className="font-semibold mb-4 text-indigo-700">Tren TFU & Denyut Jantung Janin</h3>
+          <div className="h-72">
+            <Line
+              data={buildChartData()}
+              options={{
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                  legend: { position: "top" },
+                },
+                scales: {
+                  x: { title: { display: true, text: "Usia Gestasi (Minggu)" } },
+                  y: { title: { display: true, text: "Nilai" } },
+                },
+              }}
+            />
           </div>
+          {grafikList.length === 0 && <p className="text-center text-gray-400 text-sm mt-2">Belum ada data. Isi form di bawah untuk menampilkan grafik.</p>}
+        </div>
 
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Data Evaluasi Klinis */}
           <div className="bg-white rounded-xl shadow-sm p-6">
-            <h3 className="font-semibold mb-4 text-indigo-700">2. Data Evaluasi Klinis (TFU & DJJ)</h3>
+            <h3 className="font-semibold mb-4 text-indigo-700">Data Evaluasi Klinis (TFU & DJJ)</h3>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div>
                 <label className="block text-sm font-medium mb-1">Tanggal</label>
@@ -290,19 +280,22 @@ export default function GrafikEvaluasi() {
               </div>
             </div>
           </div>
+
+          {/* Penjelasan Hasil Grafik */}
           <div className="bg-white rounded-xl shadow-sm p-6">
-            <h3 className="font-semibold mb-2 text-indigo-700">3. Penjelasan Hasil Grafik / Ringkasan Klinis</h3>
+            <h3 className="font-semibold mb-2 text-indigo-700">Penjelasan Hasil Grafik / Ringkasan Klinis</h3>
             <textarea
               name="catatan_penjelasan_grafik"
               value={formPenjelasan.catatan_penjelasan_grafik}
               onChange={handleChangePenjelasan}
               className="w-full border rounded px-3 py-2 mt-2"
               rows="3"
-              placeholder="Catatan observasi keseluruhan evaluasi di atas..."
+              placeholder="Catatan observasi evaluasi kehamilan..."
             ></textarea>
           </div>
-          <button type="submit" disabled={saving} className="bg-indigo-600 text-white px-4 py-2 rounded-lg flex items-center gap-2">
-            <Save size={18} /> Simpan Data Grafik
+
+          <button type="submit" disabled={saving} className="bg-indigo-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-indigo-700 transition-colors">
+            <Save size={18} /> {saving ? "Menyimpan..." : "Simpan Data Evaluasi Kehamilan"}
           </button>
         </form>
       </div>
