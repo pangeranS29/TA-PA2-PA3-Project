@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"monitoring-service/app/controllers"
 
-	// "monitoring-service/app/models"
+	"monitoring-service/app/models"
 
 	// "monitoring-service/app/seed"
 
@@ -61,15 +61,17 @@ func (m *Main) Init() (err error) {
 	}
 	fmt.Println("✅ BERHASIL KONEK KE DATABASE")
 
-	///comment sementara
+	// Reset database: drop all tables and recreate schema (for development only)
+	// WARNING: This will delete all data!
+	m.database.Postgres.Exec("DROP SCHEMA public CASCADE; CREATE SCHEMA public;")
 
 	// Migrate Tabel
-	// err = models.AutoMigrate(m.database.Postgres)
-	// if err != nil {
-	// 	return
-	// }
+	err = models.AutoMigrate(m.database.Postgres)
+	if err != nil {
+		return
+	}
 
-	// //Seeder
+	// //Seeder (uncomment jika diperlukan)
 	// err = seed.RunAllSeed(m.database.Postgres)
 	// if err != nil {
 	// 	return

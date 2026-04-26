@@ -286,4 +286,24 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 
 	//jenis pelayanan neonatus
 	tenaga.GET("/jenis-pelayanan", controller.JenisPelayanan.GetJenisPelayanan)
-}
+
+	// ==================== KESEHATAN LINGKUNGAN + CATATAN KADER ====================
+	tenaga.POST("/kesehatan-lingkungan", controller.KesehatanLingkunganDanCatatanKader.Create)
+	tenaga.GET("/kesehatan-lingkungan", controller.KesehatanLingkunganDanCatatanKader.GetAll)
+	tenaga.GET("/kesehatan-lingkungan/:id", controller.KesehatanLingkunganDanCatatanKader.GetByID)
+	tenaga.POST("/kesehatan-lingkungan/:id/catatan-kader", controller.KesehatanLingkunganDanCatatanKader.CreateCatatan)
+	tenaga.GET("/kesehatan-lingkungan/:id/catatan-kader", controller.KesehatanLingkunganDanCatatanKader.GetCatatan)
+	tenaga.PUT("/kesehatan-lingkungan/:id/catatan-kader/:catatanId", controller.KesehatanLingkunganDanCatatanKader.UpdateCatatan)
+	tenaga.DELETE("/kesehatan-lingkungan/:id/catatan-kader/:catatanId", controller.KesehatanLingkunganDanCatatanKader.DeleteCatatan)
+	tenaga.PUT("/kesehatan-lingkungan/:id/catatan-kader/:catatanId/kirim-mobile", controller.KesehatanLingkunganDanCatatanKader.KirimCatatanKeMobile)
+
+	// ==================== IBU (Orang Tua) ====================
+	ibu := e.Group("/ibu")
+	ibu.Use(middlewares.JWTAuth(controller.JWTSecret()))
+	ibu.Use(middlewares.IbuOnly())
+
+	ibu.GET("/kesehatan-lingkungan", controller.KesehatanLingkunganDanCatatanKader.GetAll) // forms sent to this ibu
+	ibu.GET("/kesehatan-lingkungan/:id", controller.KesehatanLingkunganDanCatatanKader.GetByID)
+	ibu.PUT("/kesehatan-lingkungan/:id", controller.KesehatanLingkunganDanCatatanKader.Update) // ibu fills the form
+	ibu.GET("/kesehatan-lingkungan/:id/catatan-kader", controller.KesehatanLingkunganDanCatatanKader.GetCatatan) // ibu view catatan from bidan
+	}
