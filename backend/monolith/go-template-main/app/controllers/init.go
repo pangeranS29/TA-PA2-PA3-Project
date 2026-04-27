@@ -51,10 +51,13 @@ type Main struct {
 	KeteranganLahir               *KeteranganLahirController // <-- TAMBAHKAN INI
 	Kependudukan                  *KependudukanController
 	JenisPelayanan                *JenisPelayananController
-	LogTTDMMS                     *LogTTDMMSController
 
 	// MODUL IBU
-	
+	PemantauanIbuHamil   *PemantauanIbuHamilController
+	LogTTDMMS            *LogTTDMMSController
+	PersiapanMelahirkan  *PersiapanMelahirkanController
+	ProsesMelahirkan     *ProsesMelahirkanController
+	AbsensiKelasIbuHamil *AbsensiKelasIbuHamilController
 }
 
 type Options struct {
@@ -111,9 +114,12 @@ func Init(opts Options) *Main {
 	m.Kependudukan = NewKependudukanController(opts.UseCases.Kependudukan)
 	m.JenisPelayanan = NewJenisPelayananController(opts.UseCases.JenisPelayanan)
 
-
 	// MODEL IBU
 	m.LogTTDMMS = NewLogTTDMMSController(opts.UseCases.LogTTDMMS)
+	m.PemantauanIbuHamil = NewPemantauanIbuHamilController(opts.UseCases.PemantauanIbuHamil)
+	m.PersiapanMelahirkan = NewPersiapanMelahirkanController(opts.UseCases.PersiapanMelahirkan)
+	m.ProsesMelahirkan = NewProsesMelahirkanController(opts.UseCases.ProsesMelahirkan)
+	m.AbsensiKelasIbuHamil = NewAbsensiKelasIbuHamilController(opts.UseCases.AbsensiKelasIbuHamil)
 	return m
 }
 
