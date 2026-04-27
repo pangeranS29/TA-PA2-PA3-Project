@@ -1,9 +1,26 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import MainLayout from "../../components/Layout/MainLayout";
 import { Line } from "react-chartjs-2";
 import { Save, X } from "lucide-react";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Tooltip,
+  Legend,
+} from "chart.js";
 
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Tooltip,
+  Legend
+);
 import { getKehamilanByIbuId } from "../../services/kehamilan";
 import { createGrafik, getGrafikChart } from "../../services/grafik";
 
@@ -11,7 +28,6 @@ export default function GrafikEvaluasi() {
   const { id } = useParams();
 
   const [kehamilan, setKehamilan] = useState(null);
-
   const [grafikTFU, setGrafikTFU] = useState([]);
   const [grafikDJJ, setGrafikDJJ] = useState([]);
 
@@ -38,11 +54,12 @@ export default function GrafikEvaluasi() {
           const aktif = kehamilanList[0];
           setKehamilan(aktif);
 
-          const chart = await getGrafikChart(aktif.id);
+          const res = await getGrafikChart(aktif.id);
 
-          //  FIX UTAMA DI SINI
-          setGrafikTFU(chart?.grafik_tfu || []);
-          setGrafikDJJ(chart?.grafik_djj || []);
+          const data = res?.data || res;
+
+          setGrafikTFU(data?.grafik_tfu || []);
+          setGrafikDJJ(data?.grafik_djj || []);
         } else {
           setGrafikTFU([]);
           setGrafikDJJ([]);
@@ -57,6 +74,9 @@ export default function GrafikEvaluasi() {
     fetchData();
   }, [id]);
 
+  // =========================
+  // HANDLE FORM
+  // =========================
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
 
@@ -79,11 +99,12 @@ export default function GrafikEvaluasi() {
 
       setOpenModal(false);
 
-      const chart = await getGrafikChart(kehamilan.id);
+      // reload chart
+      const res = await getGrafikChart(kehamilan.id);
+      const data = res?.data || res;
 
-      // 🔥 FIX JUGA DI SINI
-      setGrafikTFU(chart?.data?.grafik_tfu || []);
-      setGrafikDJJ(chart?.data?.grafik_djj || []);
+      setGrafikTFU(data?.grafik_tfu || []);
+      setGrafikDJJ(data?.grafik_djj || []);
     } catch (err) {
       console.error(err);
       alert("Gagal menyimpan data");
@@ -93,83 +114,95 @@ export default function GrafikEvaluasi() {
   };
 
   // =========================
-  // TFU CHART (KIA)
+  // CHART DATA (ANTI RE-RENDER)
   // =========================
-  const chartTFUData = {
-    labels: grafikTFU.map((d) => `Usia ${d.usia} minggu`),
-
-    datasets: [
-      {
-        label: "TFU (cm)",
-        data: grafikTFU.map((d) => d.tfu),
-        borderColor: "#2563eb",
-        borderWidth: 3,
-        pointRadius: 6,
-        fill: false,
-      },
-      {
-        label: "Normal",
-        data: grafikTFU.map((d) => d.normal),
-        borderColor: "#16a34a",
-        borderWidth: 2,
-        pointRadius: 0,
-      },
-      {
-        label: "Upper",
-        data: grafikTFU.map((d) => d.upper),
-        borderColor: "#f59e0b",
-        borderDash: [6, 4],
-        pointRadius: 0,
-      },
-      {
-        label: "Lower",
-        data: grafikTFU.map((d) => d.lower),
-        borderColor: "#ef4444",
-        borderDash: [6, 4],
-        pointRadius: 0,
-      },
-    ],
-  };
+const chartTFUData = useMemo(() => ({
+  labels: grafikTFU.map((d) => `Usia ${d.usia} minggu`),
+  datasets: [
+    {
+      label: "TFU Aktual",
+      data: grafikTFU.map((d) => d.tfu ?? 0),
+      borderColor: "#4f46e5", // indigo
+      backgroundColor: "#4f46e5",
+      borderWidth: 3,
+      pointRadius: 6,
+      tension: 0.3,
+    },
+    {
+      label: "Median",
+      data: grafikTFU.map((d) => d.normal ?? 0),
+      borderColor: "#16a34a", // hijau
+      borderWidth: 2,
+      tension: 0.3,
+    },
+    {
+      label: "Batas Atas",
+      data: grafikTFU.map((d) => d.upper ?? 0),
+      borderColor: "#dc2626", // merah
+      borderDash: [6, 4],
+      borderWidth: 2,
+      tension: 0.3,
+    },
+    {
+      label: "Batas Bawah",
+      data: grafikTFU.map((d) => d.lower ?? 0),
+      borderColor: "#dc2626",
+      borderDash: [6, 4],
+      borderWidth: 2,
+      fill: "-1", // isi area ke dataset sebelumnya
+      backgroundColor: "rgba(220,38,38,0.1)",
+      tension: 0.3,
+    },
+  ],
+}), [grafikTFU]);
+  
+const chartDJJData = useMemo(() => ({
+  labels: grafikDJJ.map((d) => `Usia ${d.usia} minggu`),
+  datasets: [
+    {
+      label: "DJJ Aktual",
+      data: grafikDJJ.map((d) => d.djj ?? 0),
+      borderColor: "#2563eb", // biru
+      backgroundColor: "#2563eb",
+      borderWidth: 3,
+      pointRadius: 6,
+      tension: 0.3,
+    },
+    {
+      label: "Batas Bawah (110)",
+      data: grafikDJJ.map(() => 110),
+      borderColor: "#dc2626",
+      borderDash: [6, 4],
+      borderWidth: 2,
+      tension: 0.3,
+    },
+    {
+      label: "Batas Atas (160)",
+      data: grafikDJJ.map(() => 160),
+      borderColor: "#dc2626",
+      borderDash: [6, 4],
+      borderWidth: 2,
+      fill: "-1",
+      backgroundColor: "rgba(34,197,94,0.15)", // hijau transparan
+      tension: 0.3,
+    },
+  ],
+}), [grafikDJJ]);
 
   // =========================
-  // DJJ CHART (KIA)
+  // LOADING
   // =========================
-  const chartDJJData = {
-    labels: grafikDJJ.map((d) => `Usia ${d.usia} minggu`),
-
-    datasets: [
-      {
-        label: "DJJ (bpm)",
-        data: grafikDJJ.map((d) => d.djj),
-        borderColor: "#dc2626",
-        borderWidth: 3,
-        pointRadius: 6,
-        fill: false,
-      },
-      {
-        label: "Batas Bawah (110)",
-        data: grafikDJJ.map(() => 110),
-        borderColor: "#ef4444",
-        borderDash: [6, 4],
-        pointRadius: 0,
-      },
-      {
-        label: "Batas Atas (160)",
-        data: grafikDJJ.map(() => 160),
-        borderColor: "#f59e0b",
-        borderDash: [6, 4],
-        pointRadius: 0,
-      },
-    ],
-  };
-
-  if (loading)
+  if (loading) {
     return (
       <MainLayout>
         <div className="p-6">Memuat data...</div>
       </MainLayout>
     );
+  }
 
+  // =========================
+  // UI
+  // =========================
   return (
     <MainLayout>
       <div className="p-6 max-w-6xl mx-auto">
@@ -194,17 +227,39 @@ export default function GrafikEvaluasi() {
 
         {/* TFU */}
         <div className="bg-white p-4 rounded-xl shadow mb-6">
-          <h2 className="font-semibold mb-2">📊 TFU</h2>
+          <h2 className="font-semibold mb-2">📊 Tinggi Fundus Uteri (TFU)</h2>
           <div className="h-80">
-            <Line data={chartTFUData} />
+            {grafikTFU.length === 0 ? (
+              <p className="text-gray-400">Belum ada data</p>
+            ) : (
+              <Line
+                redraw={true}
+                data={chartTFUData}
+                options={{
+                  responsive: true,
+                  maintainAspectRatio: false,
+                }}
+              />
+            )}
           </div>
         </div>
 
         {/* DJJ */}
         <div className="bg-white p-4 rounded-xl shadow">
-          <h2 className="font-semibold mb-2">❤️ DJJ</h2>
+          <h2 className="font-semibold mb-2">📊 Denyut Jantung Bayi (DJJ)</h2>
           <div className="h-80">
-            <Line data={chartDJJData} />
+            {grafikDJJ.length === 0 ? (
+              <p className="text-gray-400">Belum ada data</p>
+            ) : (
+              <Line
+                redraw={true}
+                data={chartDJJData}
+                options={{
+                  responsive: true,
+                  maintainAspectRatio: false,
+                }}
+              />
+            )}
           </div>
         </div>
 
@@ -224,25 +279,33 @@ export default function GrafikEvaluasi() {
 
             <form onSubmit={handleSubmit} className="space-y-3">
 
-              <input type="date" name="tanggal_bulan_tahun"
+              <input
+                type="date"
+                name="tanggal_bulan_tahun"
                 value={form.tanggal_bulan_tahun}
                 onChange={handleChange}
                 className="border p-2 w-full rounded"
               />
 
-              <input type="number" name="usia_gestasi_minggu"
+              <input
+                type="number"
+                name="usia_gestasi_minggu"
                 placeholder="Usia"
                 onChange={handleChange}
                 className="border p-2 w-full rounded"
               />
 
-              <input type="number" name="tinggi_fundus_uteri_cm"
+              <input
+                type="number"
+                name="tinggi_fundus_uteri_cm"
                 placeholder="TFU"
                 onChange={handleChange}
                 className="border p-2 w-full rounded"
               />
 
-              <input type="number" name="denyut_jantung_bayi_x_menit"
+              <input
+                type="number"
+                name="denyut_jantung_bayi_x_menit"
                 placeholder="DJJ"
                 onChange={handleChange}
                 className="border p-2 w-full rounded"
@@ -256,11 +319,11 @@ export default function GrafikEvaluasi() {
                 <Save size={18} />
                 {saving ? "Menyimpan..." : "Simpan"}
               </button>
+
             </form>
           </div>
         </div>
       )}
-
     </MainLayout>
   );
 }
