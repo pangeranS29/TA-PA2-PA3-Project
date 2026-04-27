@@ -16,10 +16,35 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	auth := e.Group("/auth")
 	auth.POST("/register", controller.Register)
 	auth.POST("/login", controller.Login)
-	auth.POST("/register/ortu", controller.RegisterOrangTua) // registrasi khusus orang tua
+	// auth.POST("/register/ortu", controller.RegisterOrangTua) // registrasi khusus orang tua
 	secured := auth.Group("")
 	secured.Use(middlewares.JWTAuth(controller.JWTSecret()))
 	secured.GET("/me", controller.Me)
+
+	// ==================== MODUL ADMIN  ====================
+
+	admin := e.Group("/admin")
+	admin.Use(middlewares.JWTAuth(controller.JWTSecret()))
+	admin.Use(middlewares.AdminOnly())
+	admin.POST("/akun-keluarga", controller.AdminCreateAkunKeluarga)
+	admin.GET("/kartu-keluarga", controller.AdminListKartuKeluarga)
+	admin.GET("/kartu-keluarga/:kartu_keluarga_id", controller.AdminDetailKartuKeluarga)
+	admin.PUT("/kartu-keluarga/:kartu_keluarga_id", controller.AdminUpdateKartuKeluarga)
+	admin.PUT("/kartu-keluarga/:kartu_keluarga_id/anggota/:penduduk_id", controller.AdminUpdateAnggotaKeluarga)
+	admin.POST("/kartu-keluarga/:kartu_keluarga_id/anggota", controller.AdminAddAnggotaKeluarga)
+	admin.DELETE("/kartu-keluarga/:kartu_keluarga_id/anggota/:penduduk_id", controller.AdminDeleteAnggotaKeluarga)
+	admin.DELETE("/kartu-keluarga/:kartu_keluarga_id", controller.AdminDeleteKartuKeluarga)
+	admin.GET("/penduduk/eligible", controller.AdminListEligiblePenduduk)
+	admin.POST("/posyandu", controller.AdminTambahPosyandu)
+	admin.GET("/posyandu", controller.AdminListPosyandu)
+	admin.POST("/bidan", controller.AdminTambahBidan)
+	admin.GET("/bidan", controller.AdminListBidan)
+	admin.PUT("/bidan/:id", controller.AdminUpdateBidan)
+	admin.PATCH("/bidan/:id/status", controller.AdminUpdateStatusBidan)
+	admin.POST("/kader", controller.AdminTambahKader)
+	admin.GET("/kader", controller.AdminListKader)
+	admin.PUT("/kader/:id", controller.AdminUpdateKader)
+	admin.PATCH("/kader/:id/status", controller.AdminUpdateStatusKader)
 
 	// ==================== Branch Andika ====================
 
@@ -212,6 +237,7 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 
 	// ==================== GRAFIK EVALUASI KEHAMILAN ====================
 	tenaga.POST("/grafik-evaluasi-kehamilan", controller.GrafikEvaluasiKehamilan.Create)
+	tenaga.GET("/grafik-evaluasi-kehamilan/grafik", controller.GrafikEvaluasiKehamilan.GetGrafik)
 	tenaga.GET("/grafik-evaluasi-kehamilan/:id", controller.GrafikEvaluasiKehamilan.GetByID)
 	tenaga.GET("/grafik-evaluasi-kehamilan", controller.GrafikEvaluasiKehamilan.GetByKehamilanID)
 	tenaga.PUT("/grafik-evaluasi-kehamilan/:id", controller.GrafikEvaluasiKehamilan.Update)
@@ -318,21 +344,27 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	tenaga.DELETE("/skrining-pemantauan/:id", controller.SkriningPemantauan.Delete)
 
 	// ==================== KARTU KELUARGA ====================
-	tenaga.GET("/kartu-keluarga", controller.KartuKeluarga.GetAll)
-	tenaga.POST("/kartu-keluarga", controller.KartuKeluarga.Create)
-	tenaga.GET("/kartu-keluarga/:id", controller.KartuKeluarga.GetByID)
-	tenaga.GET("/kartu-keluarga/no-kk/:no_kk", controller.KartuKeluarga.GetByNoKartuKeluarga)
-	tenaga.PUT("/kartu-keluarga/:id", controller.KartuKeluarga.Update)
-	tenaga.DELETE("/kartu-keluarga/:id", controller.KartuKeluarga.Delete)
+	// tenaga.GET("/kartu-keluarga", controller.KartuKeluarga.GetAll)
+	// tenaga.POST("/kartu-keluarga", controller.KartuKeluarga.Create)
+	// tenaga.GET("/kartu-keluarga/:id", controller.KartuKeluarga.GetByID)
+	// tenaga.GET("/kartu-keluarga/no-kk/:no_kk", controller.KartuKeluarga.GetByNoKartuKeluarga)
+	// tenaga.PUT("/kartu-keluarga/:id", controller.KartuKeluarga.Update)
+	// tenaga.DELETE("/kartu-keluarga/:id", controller.KartuKeluarga.Delete)
 
 	// ==================== KEPENDUDUKAN ====================
-	tenaga.GET("/kependudukan", controller.Kependudukan.GetAll)
-	tenaga.POST("/kependudukan", controller.Kependudukan.Create)
-	tenaga.GET("/kependudukan/:id", controller.Kependudukan.GetByID)
-	// tenaga.GET("/kependudukan/kartu-keluarga/:kartu_keluarga_id", controller.Kependudukan.GetByKartuKeluargaID)
-	tenaga.PUT("/kependudukan/:id", controller.Kependudukan.Update)
-	tenaga.DELETE("/kependudukan/:id", controller.Kependudukan.Delete)
+	// tenaga.GET("/kependudukan", controller.Kependudukan.GetAll)
+	// tenaga.POST("/kependudukan", controller.Kependudukan.Create)
+	// tenaga.GET("/kependudukan/:id", controller.Kependudukan.GetByID)
+	// // tenaga.GET("/kependudukan/kartu-keluarga/:kartu_keluarga_id", controller.Kependudukan.GetByKartuKeluargaID)
+	// tenaga.PUT("/kependudukan/:id", controller.Kependudukan.Update)
+	// tenaga.DELETE("/kependudukan/:id", controller.Kependudukan.Delete)
 
 	//jenis pelayanan neonatus
 	tenaga.GET("/jenis-pelayanan", controller.JenisPelayanan.GetJenisPelayanan)
+
+	ibu := e.Group("/ibu")
+	ibu.Use(middlewares.JWTAuth(controller.JWTSecret()))
+	ibu.Use(middlewares.Ibu())
+	ibu.GET("/skrining-pemantauan/anak/:anak_id", controller.SkriningPemantauan.GetByAnakID)
+
 }

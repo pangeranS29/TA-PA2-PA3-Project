@@ -10,6 +10,7 @@ import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/
 import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/skrining_bahaya.dart';
 import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/halaman_utama_mpasi.dart';
 import 'package:ta_pa2_pa3_project/features/edukasi/presentation/screens/edukasi_screen.dart';
+import 'package:ta_pa2_pa3_project/features/perawatan_bayi/presentation/screens/pilih_perawatan_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   @override
@@ -562,8 +563,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final List<Map<String, dynamic>> menus = [
       {'label': 'BB Ibu', 'icon': Icons.scale, 'color': Colors.blue},
       {
-        'label': 'Periksa',
-        'icon': Icons.medical_services,
+        'label': 'Perawatan',
+        'icon': Icons.health_and_safety,
         'color': Colors.pink
       },
       {'label': 'Nutrisi', 'icon': Icons.apple, 'color': Colors.green},
@@ -584,9 +585,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
       itemBuilder: (context, i) {
         return InkWell(
           onTap: () {
-            if (menus[i]['label'] == 'Periksa') {
+            if (menus[i]['label'] == 'Perawatan') {
               Navigator.push(
-                  context, MaterialPageRoute(builder: (c) => JourneyScreen()));
+                  context, MaterialPageRoute(builder: (c) => const PilihPerawatanScreen()));
             }
             if (menus[i]['label'] == 'Edukasi') {
               Navigator.push(context,
@@ -779,8 +780,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
               );
             }),
 
-            // 🔸 PERIKSA
-            _menuItem(Icons.favorite, "Periksa", Colors.red, () {}),
+            // 🔸 PERAWATAN
+            _menuItem(Icons.health_and_safety, "Perawatan", Colors.red, () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const PilihPerawatanScreen(),
+                ),
+              );
+            }),
 
             // 🔸 EDUKASI
             _menuItem(Icons.menu_book, "Edukasi", Colors.orange, () {

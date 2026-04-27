@@ -25,9 +25,10 @@ type Main struct {
 	// New repositories (semua pointer, mengikuti pola Anak)
 	User                          *UserRepository
 	Role                          *RoleRepository
-	Kebabura                      *KebaburaRepository
 	KartuKeluarga                 *KartuKeluargaRepository
 	Kependudukan                  *KependudukanRepository
+	Bidan                         *BidanRepository
+	Kader                         *KaderRepository
 	Ibu                           *IbuRepository
 	Kehamilan                     *KehamilanRepository
 	PemeriksaanKehamilan          *PemeriksaanKehamilanRepository
@@ -76,9 +77,10 @@ func Init(opts Options) *Main {
 	m.User = NewUserRepository(opts.Postgres)
 	m.Ibu = NewIbuRepository(opts.Postgres)
 	m.Role = NewRoleRepository(opts.Postgres)
-	m.Kebabura = NewKebaburaRepository(opts.Postgres)
 	m.KartuKeluarga = NewKartuKeluargaRepository(opts.Postgres)
 	m.Kependudukan = NewKependudukanRepository(opts.Postgres)
+	m.Bidan = NewBidanRepository(opts.Postgres)
+	m.Kader = NewKaderRepository(opts.Postgres)
 	m.Kehamilan = NewKehamilanRepository(opts.Postgres)
 	m.PemeriksaanKehamilan = NewPemeriksaanKehamilanRepository(opts.Postgres)
 	m.EvaluasiKesehatanIbu = NewEvaluasiKesehatanIbuRepository(opts.Postgres)
