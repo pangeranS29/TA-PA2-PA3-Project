@@ -121,3 +121,14 @@ func (r *KesehatanLingkunganDanCatatanKaderRepository) Update(id uint, req *mode
 	}
 	return &item, nil
 }
+
+func (r *KesehatanLingkunganDanCatatanKaderRepository) Delete(id uint) error {
+	result := r.db.Delete(&models.KesehatanLingkunganDanCatatanKader{}, id)
+	if result.Error != nil {
+		return result.Error
+	}
+	if result.RowsAffected == 0 {
+		return errors.New("data kesehatan lingkungan tidak ditemukan")
+	}
+	return nil
+}

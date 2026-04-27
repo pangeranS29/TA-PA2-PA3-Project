@@ -207,3 +207,16 @@ func (c *KesehatanLingkunganDanCatatanKaderController) Update(ctx echo.Context) 
 
 	return ctx.JSON(http.StatusOK, models.Response{StatusCode: http.StatusOK, Data: data})
 }
+
+func (c *KesehatanLingkunganDanCatatanKaderController) Delete(ctx echo.Context) error {
+	id, err := strconv.ParseUint(ctx.Param("id"), 10, 64)
+	if err != nil {
+		return ctx.JSON(http.StatusBadRequest, models.Response{StatusCode: http.StatusBadRequest, Message: "id tidak valid"})
+	}
+
+	if err := c.usecase.Delete(uint(id)); err != nil {
+		return ctx.JSON(http.StatusBadRequest, models.Response{StatusCode: http.StatusBadRequest, Message: err.Error()})
+	}
+
+	return ctx.JSON(http.StatusOK, models.Response{StatusCode: http.StatusOK, Message: "data kesehatan lingkungan berhasil dihapus"})
+}

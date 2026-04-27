@@ -11,6 +11,7 @@ type KesehatanLingkunganDanCatatanKaderUsecase interface {
 	GetAll(ibuID *int32) ([]models.KesehatanLingkunganDanCatatanKader, error)
 	GetByID(id uint) (*models.KesehatanLingkunganDanCatatanKader, error)
 	Update(id uint, req models.CreateKesehatanLingkunganDanCatatanKaderRequest) (*models.KesehatanLingkunganDanCatatanKader, error)
+	Delete(id uint) error
 	CreateCatatan(kesehatanID uint, req models.CreateCatatanKaderKesehatanLingkunganRequest) (*models.CatatanKaderKesehatanLingkungan, error)
 	GetCatatanByKesehatanID(id uint) ([]models.CatatanKaderKesehatanLingkungan, error)
 	UpdateCatatan(kesehatanID uint, catatanID uint, req models.CreateCatatanKaderKesehatanLingkunganRequest) (*models.CatatanKaderKesehatanLingkungan, error)
@@ -68,6 +69,13 @@ func (u *kesehatanLingkunganDanCatatanKaderUsecase) Update(id uint, req models.C
 		return nil, errors.New("id tidak valid")
 	}
 	return u.repo.Update(id, &req)
+}
+
+func (u *kesehatanLingkunganDanCatatanKaderUsecase) Delete(id uint) error {
+	if id == 0 {
+		return errors.New("id tidak valid")
+	}
+	return u.repo.Delete(id)
 }
 
 func (u *kesehatanLingkunganDanCatatanKaderUsecase) CreateCatatan(kesehatanID uint, req models.CreateCatatanKaderKesehatanLingkunganRequest) (*models.CatatanKaderKesehatanLingkungan, error) {

@@ -56,9 +56,9 @@ type Main struct {
 	EdukasiInformasiUmum          EdukasiInformasiUmumUsecase
 	EdukasiTandaBahayaTrimester   EdukasiTandaBahayaTrimesterUsecase
 	EdukasiTandaMelahirkan        EdukasiTandaMelahirkanUsecase
-	EdukasiImd                    EdukasiImdUsecase
+	EdukasiImd                    EdukasiIMDUsecase
 	EdukasiSetelahMelahirkan      EdukasiSetelahMelahirkanUsecase
-	EdukasiMenyusuiAsi            EdukasiMenyusuiAsiUsecase
+	EdukasiMenyusuiAsi            EdukasiMenyusuiASIUsecase
 	EdukasiPolaAsuh               EdukasiPolaAsuhUsecase
 	EdukasiKesehatanMental        EdukasiKesehatanMentalUsecase
 	KesehatanLingkunganDanCatatanKader KesehatanLingkunganDanCatatanKaderUsecase
@@ -118,7 +118,7 @@ func Init(opts Options) *Main {
 	m.EdukasiInformasiUmum = NewEdukasiInformasiUmumUsecase(opts.Repository.EdukasiInformasiUmum)
 	m.EdukasiTandaBahayaTrimester = NewEdukasiTandaBahayaTrimesterUsecase(opts.Repository.EdukasiTandaBahayaTrimester)
 	m.EdukasiTandaMelahirkan = NewEdukasiTandaMelahirkanUsecase(opts.Repository.EdukasiTandaMelahirkan)
-	m.EdukasiImd = NewEdukasiImdUsecase(opts.Repository.EdukasiImd)
+	m.EdukasiImd = NewEdukasiIMDUsecase(opts.Repository.EdukasiImd)
 	m.EdukasiSetelahMelahirkan = NewEdukasiSetelahMelahirkanUsecase(opts.Repository.EdukasiSetelahMelahirkan)
 	m.EdukasiMenyusuiAsi = NewEdukasiMenyusuiASIUsecase(opts.Repository.EdukasiMenyusuiAsi)
 	m.EdukasiPolaAsuh = NewEdukasiPolaAsuhUsecase(opts.Repository.EdukasiPolaAsuh)

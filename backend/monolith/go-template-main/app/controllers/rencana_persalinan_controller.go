@@ -165,7 +165,7 @@ func (c *RencanaPersalinanController) Update(ctx echo.Context) error {
 	}
 
 	// Gunakan usecase untuk mengambil data tanpa preload
-	existing, err := c.usecase.FindByIDWithoutPreload(int32(id))
+	existing, err := c.usecase.GetByID(int32(id))
 	if err != nil {
 		return ctx.JSON(http.StatusNotFound, models.Response{
 			StatusCode: http.StatusNotFound,
@@ -241,3 +241,4 @@ func (c *RencanaPersalinanController) Delete(ctx echo.Context) error {
 	}
 	return ctx.JSON(http.StatusOK, models.Response{StatusCode: http.StatusOK, Message: "deleted"})
 }
+

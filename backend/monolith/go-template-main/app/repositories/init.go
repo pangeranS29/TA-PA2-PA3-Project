@@ -54,9 +54,9 @@ type Main struct {
 	EdukasiInformasiUmum          EdukasiInformasiUmumRepository
 	EdukasiTandaBahayaTrimester   EdukasiTandaBahayaTrimesterRepository
 	EdukasiTandaMelahirkan        EdukasiTandaMelahirkanRepository
-	EdukasiImd                    EdukasiImdRepository
+	EdukasiImd                    EdukasiIMDRepository
 	EdukasiSetelahMelahirkan      EdukasiSetelahMelahirkanRepository
-	EdukasiMenyusuiAsi            EdukasiMenyusuiAsiRepository
+	EdukasiMenyusuiAsi            EdukasiMenyusuiASIRepository
 	EdukasiPolaAsuh               EdukasiPolaAsuhRepository
 	EdukasiKesehatanMental        EdukasiKesehatanMentalRepository
 	KesehatanLingkunganDanCatatanKader *KesehatanLingkunganDanCatatanKaderRepository
@@ -114,9 +114,9 @@ func Init(opts Options) *Main {
 	m.EdukasiInformasiUmum = NewEdukasiInformasiUmumRepository(opts.Postgres)
 	m.EdukasiTandaBahayaTrimester = NewEdukasiTandaBahayaTrimesterRepository(opts.Postgres)
 	m.EdukasiTandaMelahirkan = NewEdukasiTandaMelahirkanRepository(opts.Postgres)
-	m.EdukasiImd = NewEdukasiImdRepository(opts.Postgres)
+	m.EdukasiImd = NewEdukasiIMDRepository(opts.Postgres)
 	m.EdukasiSetelahMelahirkan = NewEdukasiSetelahMelahirkanRepository(opts.Postgres)
-	m.EdukasiMenyusuiAsi = NewEdukasiMenyusuiAsiRepository(opts.Postgres)
+	m.EdukasiMenyusuiAsi = NewEdukasiMenyusuiASIRepository(opts.Postgres)
 	m.EdukasiPolaAsuh = NewEdukasiPolaAsuhRepository(opts.Postgres)
 	m.EdukasiKesehatanMental = NewEdukasiKesehatanMentalRepository(opts.Postgres)
 	m.KesehatanLingkunganDanCatatanKader = NewKesehatanLingkunganDanCatatanKaderRepository(opts.Postgres)
