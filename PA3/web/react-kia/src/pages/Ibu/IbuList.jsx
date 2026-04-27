@@ -50,14 +50,9 @@ export default function IbuList() {
     fetch();
   }, []);
 
-  const filtered = ibuList.filter((ibu) =>
-    ibu.kependudukan?.nama_lengkap?.toLowerCase().includes(search.toLowerCase())
-  );
+  const filtered = ibuList.filter((ibu) => ibu.kependudukan?.nama_lengkap?.toLowerCase().includes(search.toLowerCase()));
   const totalPages = Math.ceil(filtered.length / itemsPerPage);
-  const currentItems = filtered.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
+  const currentItems = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   const totalIbu = ibuList.length;
   const totalHamil = ibuList.filter((i) => i.status_kehamilan?.startsWith("TRIMESTER")).length;
@@ -86,18 +81,9 @@ export default function IbuList() {
         <div className="flex flex-wrap justify-between items-center gap-4 mb-6">
           <div className="relative w-full max-w-md">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-            <input
-              type="text"
-              placeholder="Cari Nama Ibu..."
-              className="pl-10 pr-4 py-2 border border-gray-200 rounded-xl w-full focus:ring-2 focus:ring-indigo-500 outline-none"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
+            <input type="text" placeholder="Cari Nama Ibu..." className="pl-10 pr-4 py-2 border border-gray-200 rounded-xl w-full focus:ring-2 focus:ring-indigo-500 outline-none" value={search} onChange={(e) => setSearch(e.target.value)} />
           </div>
-          <Link
-            to="/data-ibu/create"
-            className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-xl flex items-center gap-2 font-bold"
-          >
+          <Link to="/data-ibu/create" className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-xl flex items-center gap-2 font-bold">
             <Plus size={20} /> Tambah Data Ibu Baru
           </Link>
         </div>
@@ -121,29 +107,31 @@ export default function IbuList() {
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {loading ? (
-                  <tr><td colSpan="9" className="p-6 text-center">Memuat...</td></tr>
+                  <tr>
+                    <td colSpan="9" className="p-6 text-center">
+                      Memuat...
+                    </td>
+                  </tr>
                 ) : currentItems.length === 0 ? (
-                  <tr><td colSpan="9" className="p-6 text-center">Tidak ada data</td></tr>
+                  <tr>
+                    <td colSpan="9" className="p-6 text-center">
+                      Tidak ada data
+                    </td>
+                  </tr>
                 ) : (
                   currentItems.map((ibu) => (
                     <tr key={ibu.id_ibu} className="hover:bg-gray-50">
                       <td className="px-6 py-4">
                         <div className="font-medium text-gray-900">{ibu.kependudukan?.nama_lengkap || "-"}</div>
                         <div className="text-xs text-gray-500">ID: {ibu.id_ibu}</div>
-                       </td>
+                      </td>
                       <td className="px-6 py-4">
-                        <span className={`px-2 py-1 text-xs rounded-full ${statusBadge(ibu.status_kehamilan)}`}>
-                          {ibu.status_kehamilan || "-"}
-                        </span>
-                       </td>
+                        <span className={`px-2 py-1 text-xs rounded-full ${statusBadge(ibu.status_kehamilan)}`}>{ibu.status_kehamilan || "-"}</span>
+                      </td>
                       <td className="px-6 py-4">
-                        <span className={`px-2 py-1 text-xs rounded-full ${riskBadge(ibu.risiko_tinggi ? "TINGGI" : "RENDAH")}`}>
-                          {ibu.risiko_tinggi ? "TINGGI" : "RENDAH"}
-                        </span>
-                       </td>
-                      <td className="px-6 py-4 text-sm">
-                        {ibu.kependudukan?.tanggal_lahir ? hitungUsia(ibu.kependudukan.tanggal_lahir) + " Tahun" : "-"}
-                       </td>
+                        <span className={`px-2 py-1 text-xs rounded-full ${riskBadge(ibu.risiko_tinggi ? "TINGGI" : "RENDAH")}`}>{ibu.risiko_tinggi ? "TINGGI" : "RENDAH"}</span>
+                      </td>
+                      <td className="px-6 py-4 text-sm">{ibu.kependudukan?.tanggal_lahir ? hitungUsia(ibu.kependudukan.tanggal_lahir) + " Tahun" : "-"}</td>
                       <td className="px-6 py-4 text-sm">{ibu.status_kehamilan || "-"}</td>
                       <td className="px-6 py-4 text-sm">-</td>
                       <td className="px-6 py-4 text-sm">{ibu.kependudukan?.dusun || "-"}</td>
@@ -155,8 +143,8 @@ export default function IbuList() {
                         <Link to={`/data-ibu/${ibu.id_ibu}/edit`} className="text-amber-600 hover:text-amber-800 text-sm font-medium">
                           Edit
                         </Link>
-                       </td>
-                     </tr>
+                      </td>
+                    </tr>
                   ))
                 )}
               </tbody>
@@ -169,19 +157,13 @@ export default function IbuList() {
               Menampilkan {currentItems.length} dari {filtered.length} data
             </span>
             <div className="flex gap-2">
-              <button
-                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                disabled={currentPage === 1}
-                className="p-2 rounded-lg border disabled:opacity-50"
-              >
+              <button onClick={() => setCurrentPage((p) => Math.max(1, p - 1))} disabled={currentPage === 1} className="p-2 rounded-lg border disabled:opacity-50">
                 <ChevronLeft size={16} />
               </button>
-              <span className="px-2">Halaman {currentPage} dari {totalPages || 1}</span>
-              <button
-                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                disabled={currentPage === totalPages}
-                className="p-2 rounded-lg border disabled:opacity-50"
-              >
+              <span className="px-2">
+                Halaman {currentPage} dari {totalPages || 1}
+              </span>
+              <button onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages} className="p-2 rounded-lg border disabled:opacity-50">
                 <ChevronRight size={16} />
               </button>
             </div>

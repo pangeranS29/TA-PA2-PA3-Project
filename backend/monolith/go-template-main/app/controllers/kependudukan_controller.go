@@ -20,9 +20,11 @@ func NewKependudukanController(u usecases.KependudukanUsecase) *KependudukanCont
 }
 
 type createKependudukanRequest struct {
-	IDNoKK             int32  `json:"id_no_kk"`
+	KartuKeluargaID    *int64 `json:"kartu_keluarga_id"`
 	NIK                string `json:"nik"`
 	Dusun              string `json:"dusun"`
+	Kecamatan          string `json:"kecamatan"`
+	Desa               string `json:"desa"`
 	NamaLengkap        string `json:"nama_lengkap"`
 	GolonganDarah      string `json:"golongan_darah"`
 	JenisKelamin       string `json:"jenis_kelamin"`
@@ -30,8 +32,15 @@ type createKependudukanRequest struct {
 	TanggalLahir       string `json:"tanggal_lahir"`
 	Pekerjaan          string `json:"pekerjaan"`
 	PendidikanTerakhir string `json:"pendidikan_terakhir"`
-	Alamat             string `json:"alamat"`
-	Telepon            string `json:"telepon"`
+	Agama              string `json:"agama"`
+	StatusPerkawinan   string `json:"status_perkawinan"`
+	BacaHuruf          string `json:"baca_huruf"`
+	KedudukanKeluarga  string `json:"kedudukan_keluarga"`
+	AsalPenduduk       string `json:"asal_penduduk"`
+	TujuanPindah       string `json:"tujuan_pindah"`
+	TempatMeninggal    string `json:"tempat_meninggal"`
+	Keterangan         string `json:"keterangan"`
+	NomorTelepon       string `json:"nomor_telepon"`
 }
 
 func (c *KependudukanController) Create(ctx echo.Context) error {
@@ -56,18 +65,27 @@ func (c *KependudukanController) Create(ctx echo.Context) error {
 	}
 
 	k := &models.Kependudukan{
-		KartuKeluargaID:    &req.IDNoKK,
+		KartuKeluargaID:    req.KartuKeluargaID,
 		NIK:                req.NIK,
 		Dusun:              req.Dusun,
+		Kecamatan:          req.Kecamatan,
+		Desa:               req.Desa,
 		NamaLengkap:        req.NamaLengkap,
 		GolonganDarah:      req.GolonganDarah,
 		JenisKelamin:       req.JenisKelamin,
 		TempatLahir:        req.TempatLahir,
-		TanggalLahir:       &tanggalLahir,
+		TanggalLahir:       tanggalLahir,
 		Pekerjaan:          req.Pekerjaan,
 		PendidikanTerakhir: req.PendidikanTerakhir,
-		// Alamat:             req.Alamat,
-		// Telepon:            req.Telepon,
+		Agama:              req.Agama,
+		StatusPerkawinan:   req.StatusPerkawinan,
+		BacaHuruf:          req.BacaHuruf,
+		KedudukanKeluarga:  req.KedudukanKeluarga,
+		AsalPenduduk:       req.AsalPenduduk,
+		TujuanPindah:       req.TujuanPindah,
+		TempatMeninggal:    req.TempatMeninggal,
+		Keterangan:         req.Keterangan,
+		NomorTelepon:       req.NomorTelepon,
 	}
 
 	data, err := c.usecase.Create(k)
@@ -111,14 +129,20 @@ func (c *KependudukanController) Update(ctx echo.Context) error {
 		return ctx.JSON(http.StatusNotFound, models.Response{StatusCode: http.StatusNotFound, Message: "Data tidak ditemukan"})
 	}
 	// Update field yang diisi
-	if req.IDNoKK != 0 {
-		existing.KartuKeluarga.ID = req.IDNoKK
+	if req.KartuKeluargaID != nil {
+		existing.KartuKeluargaID = req.KartuKeluargaID
 	}
 	if req.NIK != "" {
 		existing.NIK = req.NIK
 	}
 	if req.Dusun != "" {
 		existing.Dusun = req.Dusun
+	}
+	if req.Kecamatan != "" {
+		existing.Kecamatan = req.Kecamatan
+	}
+	if req.Desa != "" {
+		existing.Desa = req.Desa
 	}
 	if req.NamaLengkap != "" {
 		existing.NamaLengkap = req.NamaLengkap
@@ -134,7 +158,7 @@ func (c *KependudukanController) Update(ctx echo.Context) error {
 	}
 	if req.TanggalLahir != "" {
 		if t, err := time.Parse("2006-01-02", req.TanggalLahir); err == nil {
-			existing.TanggalLahir = &t
+			existing.TanggalLahir = t
 		}
 	}
 	if req.Pekerjaan != "" {
@@ -143,12 +167,33 @@ func (c *KependudukanController) Update(ctx echo.Context) error {
 	if req.PendidikanTerakhir != "" {
 		existing.PendidikanTerakhir = req.PendidikanTerakhir
 	}
-	// if req.Alamat != "" {
-	// 	existing.Alamat = req.Alamat
-	// }
-	// if req.Telepon != "" {
-	// 	existing.Telepon = req.Telepon
-	// }
+	if req.Agama != "" {
+		existing.Agama = req.Agama
+	}
+	if req.StatusPerkawinan != "" {
+		existing.StatusPerkawinan = req.StatusPerkawinan
+	}
+	if req.BacaHuruf != "" {
+		existing.BacaHuruf = req.BacaHuruf
+	}
+	if req.KedudukanKeluarga != "" {
+		existing.KedudukanKeluarga = req.KedudukanKeluarga
+	}
+	if req.AsalPenduduk != "" {
+		existing.AsalPenduduk = req.AsalPenduduk
+	}
+	if req.TujuanPindah != "" {
+		existing.TujuanPindah = req.TujuanPindah
+	}
+	if req.TempatMeninggal != "" {
+		existing.TempatMeninggal = req.TempatMeninggal
+	}
+	if req.Keterangan != "" {
+		existing.Keterangan = req.Keterangan
+	}
+	if req.NomorTelepon != "" {
+		existing.NomorTelepon = req.NomorTelepon
+	}
 	if err := c.usecase.Update(existing); err != nil {
 		return ctx.JSON(http.StatusInternalServerError, models.Response{StatusCode: http.StatusInternalServerError, Message: err.Error()})
 	}

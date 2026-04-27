@@ -13,7 +13,7 @@ type SkriningPemantauan struct {
 	Anak                  *Anak                `gorm:"foreignKey:AnakID;references:ID" json:"anak,omitempty"`
 	KategoriTandaBahaya   *KategoriTandaBahaya `gorm:"foreignKey:KategoriTandaBahayaID;references:ID" json:"kategori_tanda_bahaya,omitempty"`
 	PeriodeWaktu          int                  `gorm:"not null" json:"periode_waktu"`                                           // Angkanya: 5, 2, atau 3
-	SatuanWaktu           string               `gorm:"type:enum('Hari','Minggu','Bulan','Tahun');not null" json:"satuan_waktu"` // Enum/String: "HARI", "MINGGU", "BULAN", "TAHUN"
+	SatuanWaktu           string               `gorm:"not null" json:"satuan_waktu"` // Enum/String: "HARI", "MINGGU", "BULAN", "TAHUN"
 	DitemukanGejala       bool                 `gorm:"not null" json:"ditemukan_gejala"`
 	TglSkrining           string               `gorm:"type:date;not null" json:"tgl_skrining"`
 	CreatedAt             time.Time            `json:"created_at"`
