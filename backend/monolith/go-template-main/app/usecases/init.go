@@ -21,6 +21,14 @@ type Main struct {
 	PengukuranLilA         PengukuranLilAUseCase
 	CatatanPelayanan       CatatanPelayananUseCase
 	Kependudukan           KependudukanUsecase
+	EdukasiInformasiUmum   EdukasiInformasiUmumUsecase
+	EdukasiTandaBahayaTrimester EdukasiTandaBahayaTrimesterUsecase
+	EdukasiTandaMelahirkan      EdukasiTandaMelahirkanUsecase
+	EdukasiIMD                  EdukasiIMDUsecase
+	EdukasiSetelahMelahirkan    EdukasiSetelahMelahirkanUsecase
+	EdukasiMenyusuiASI          EdukasiMenyusuiASIUsecase
+	EdukasiPolaAsuh             EdukasiPolaAsuhUsecase
+	EdukasiKesehatanMental      EdukasiKesehatanMentalUsecase
 
 	// Usecase baru (terkait kehamilan)
 	Kehamilan                     KehamilanUsecase
@@ -75,6 +83,14 @@ func Init(opts Options) *Main {
 	m.PemantauanPertumbuhan = NewPemantauanPertumbuhanUseCase(opts.Repository.PemantauanPertumbuhan)
 	m.PengukuranLilA = NewPengukuranLilAUseCase(opts.Repository.PengukuranLilA)
 	m.CatatanPelayanan = NewCatatanPelayananUseCase(opts.Repository.CatatanPelayanan)
+	m.EdukasiInformasiUmum = NewEdukasiInformasiUmumUsecase(opts.Repository.EdukasiInformasiUmum)
+	m.EdukasiTandaBahayaTrimester = NewEdukasiTandaBahayaTrimesterUsecase(opts.Repository.EdukasiTandaBahayaTrimester)
+	m.EdukasiTandaMelahirkan = NewEdukasiTandaMelahirkanUsecase(opts.Repository.EdukasiTandaMelahirkan)
+	m.EdukasiIMD = NewEdukasiIMDUsecase(opts.Repository.EdukasiIMD)
+	m.EdukasiSetelahMelahirkan = NewEdukasiSetelahMelahirkanUsecase(opts.Repository.EdukasiSetelahMelahirkan)
+	m.EdukasiMenyusuiASI = NewEdukasiMenyusuiASIUsecase(opts.Repository.EdukasiMenyusuiASI)
+	m.EdukasiPolaAsuh = NewEdukasiPolaAsuhUsecase(opts.Repository.EdukasiPolaAsuh)
+	m.EdukasiKesehatanMental = NewEdukasiKesehatanMentalUsecase(opts.Repository.EdukasiKesehatanMental)
 
 	// Inisialisasi usecase baru
 	m.Kehamilan = NewKehamilanUsecase(opts.Repository.Kehamilan)
