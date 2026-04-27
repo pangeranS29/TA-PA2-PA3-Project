@@ -16,8 +16,8 @@ type AnakController struct {
 	anakUC *usecases.AnakUseCase
 }
 
-func NewAnakController(anakUC *usecases.AnakUseCase) *AnakController {
-	return &AnakController{anakUC: anakUC}
+func NewAnakController(uc *usecases.AnakUseCase) *AnakController {
+	return &AnakController{anakUC: uc}
 }
 
 // Create godoc
