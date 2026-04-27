@@ -359,6 +359,11 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	// tenaga.PUT("/kependudukan/:id", controller.Kependudukan.Update)
 	// tenaga.DELETE("/kependudukan/:id", controller.Kependudukan.Delete)
 
+
 	//jenis pelayanan neonatus
 	tenaga.GET("/jenis-pelayanan", controller.JenisPelayanan.GetJenisPelayanan)
+
+	// ==================== Vaksin ====================
+
+	
 }

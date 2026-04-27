@@ -333,9 +333,25 @@ type AnakRequest struct {
 	TinggiLahir     float64 `json:"tinggi_lahir"`
 }
 
+
 type GenderType string
 
 const (
 	GenderMale   GenderType = "M"
 	GenderFemale GenderType = "F"
 )
+
+// Vaksin
+
+
+type CreateVaksinRequest struct {
+	Name        string `json:"nama"`
+	Deskripsi   string `json:"deskripsi"`
+	EfekSamping string `json:"efek_samping"`
+}
+
+type UpdateVaksinRequest struct {
+	Nama        string `json:"nama"`
+	Deskripsi   string `json:"deskripsi"`
+	EfekSamping string `json:"efek_samping"`
+}
