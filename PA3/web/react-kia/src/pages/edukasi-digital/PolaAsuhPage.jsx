@@ -6,6 +6,8 @@ export default function PolaAsuhPage() {
     <EdukasiDigitalCrudPage
       title="Edukasi Pola Asuh"
       resourcePath="edukasi-pola-asuh"
+      view="list"
+      createPath="/edukasi-digital/pola-asuh/form"
     />
   );
 }
