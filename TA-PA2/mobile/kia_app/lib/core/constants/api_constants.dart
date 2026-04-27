@@ -27,6 +27,9 @@ class ApiConstants {
   // Skrining Preeklampsia
   static const String skriningPreeklampsia = '/modul-ibu/skrining-preeklampsia/me';
 
+  // Proses Melahirkan
+  static const String prosesMelahirkan = '/modul-ibu/proses-melahirkan/me';
+
   // Pemeriksaan Dokter Trim 1 & 3
   static const String pemeriksaanDokterTrimester1 = '/modul-ibu/pemeriksaan-dokter-trimester-1/me';
   static const String pemeriksaanDokterTrimester3 = '/modul-ibu/pemeriksaan-dokter-trimester-3/me';
