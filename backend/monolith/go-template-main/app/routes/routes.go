@@ -361,4 +361,10 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 
 	//jenis pelayanan neonatus
 	tenaga.GET("/jenis-pelayanan", controller.JenisPelayanan.GetJenisPelayanan)
+
+	ibu := e.Group("/ibu")
+	ibu.Use(middlewares.JWTAuth(controller.JWTSecret()))
+	ibu.Use(middlewares.Ibu())
+	ibu.GET("/skrining-pemantauan/anak/:anak_id", controller.SkriningPemantauan.GetByAnakID)
+
 }
