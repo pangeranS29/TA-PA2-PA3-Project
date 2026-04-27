@@ -241,7 +241,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
               : _selectedNavIndex == 1
                   ? const Center(child: Text("Catatan"))
                   : _selectedNavIndex == 3
-                      ? const EdukasiScreen()
+                      ? const EdukasiScreen(
+                          entryPoint: EdukasiEntryPoint.mainNavigation,
+                        )
                       : const Center(child: Text("Profil")),
       bottomNavigationBar: _buildBottomNav(),
     );
@@ -588,7 +590,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
             }
             if (menus[i]['label'] == 'Edukasi') {
               Navigator.push(context,
-                  MaterialPageRoute(builder: (c) => const EdukasiScreen()));
+                  MaterialPageRoute(
+                      builder: (c) => const EdukasiScreen(
+                            entryPoint: EdukasiEntryPoint.quickMenu,
+                          )));
             }
           },
           child: Container(
@@ -782,7 +787,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => const EdukasiScreen(),
+                  builder: (_) => const EdukasiScreen(
+                    entryPoint: EdukasiEntryPoint.quickMenu,
+                  ),
                 ),
               );
             }),
@@ -880,7 +887,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         BottomNavigationBarItem(
             icon: Icon(Icons.security_outlined), label: "Imunisasi"),
         BottomNavigationBarItem(
-            icon: Icon(Icons.book_outlined), label: "Edukasi"),
+          icon: Icon(Icons.book_outlined), label: "Informasi Umum"),
         BottomNavigationBarItem(
             icon: Icon(Icons.person_outline), label: "Profil"),
       ],
