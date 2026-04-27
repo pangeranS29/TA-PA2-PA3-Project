@@ -58,10 +58,6 @@ func (h *AnakController) Create(c echo.Context) error {
 		return helpers.StandardResponse(c, http.StatusBadRequest, "request tidak valid: "+err.Error(), nil, nil)
 	}
 
-	if req.Nama == "" || req.TanggalLahir == "" || req.JenisKelamin == "" {
-		return helpers.StandardResponse(c, http.StatusBadRequest, "nama, tanggal_lahir, dan jenis_kelamin wajib diisi", nil, nil)
-	}
-
 	anak, err := h.anakUC.CreateAnak(req)
 	if err != nil {
 		return helpers.StandardResponse(c, http.StatusBadRequest, err.Error(), nil, nil)

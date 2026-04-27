@@ -38,7 +38,7 @@ func (u *rujukanUsecase) GetByKehamilanID(kehamilanID int32) ([]models.Rujukan, 
 }
 
 func (u *rujukanUsecase) Update(rj *models.Rujukan) error {
-	_, err := u.repo.FindByID(rj.IDRujukan)
+	_, err := u.repo.FindByID(rj.ID)
 	if err != nil {
 		return errors.New("data rujukan tidak ditemukan")
 	}

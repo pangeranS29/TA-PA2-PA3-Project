@@ -24,7 +24,7 @@ type createRencanaPersalinanRequest struct {
 	NamaIbuPernyataan        string `json:"nama_ibu_pernyataan"`
 	AlamatIbuPernyataan      string `json:"alamat_ibu_pernyataan"`
 	PerkiraanBulanPersalinan string `json:"perkiraan_bulan_persalinan"`
-	PerkiraanTahunPersalinan int    `json:"perkiraan_tahun_persalinan"`
+	PerkiraanTahunPersalinan *int   `json:"perkiraan_tahun_persalinan"`
 	Fasyankes1NamaTenaga     string `json:"fasyankes_1_nama_tenaga"`
 	Fasyankes1NamaFasilitas  string `json:"fasyankes_1_nama_fasilitas"`
 	Fasyankes2NamaTenaga     string `json:"fasyankes_2_nama_tenaga"`
@@ -60,14 +60,25 @@ func (c *RencanaPersalinanController) Create(ctx echo.Context) error {
 	}
 	var req createRencanaPersalinanRequest
 	if err := ctx.Bind(&req); err != nil {
-		return ctx.JSON(http.StatusBadRequest, models.Response{StatusCode: http.StatusBadRequest, Message: err.Error()})
+		// Kirim pesan error binding yang detail
+		return ctx.JSON(http.StatusBadRequest, models.Response{
+			StatusCode: http.StatusBadRequest,
+			Message:    "Binding request gagal: " + err.Error(),
+		})
+	}
+	// Validasi kehamilan_id wajib
+	if req.KehamilanID == 0 {
+		return ctx.JSON(http.StatusBadRequest, models.Response{
+			StatusCode: http.StatusBadRequest,
+			Message:    "kehamilan_id wajib diisi",
+		})
 	}
 	rp := &models.RencanaPersalinan{
 		KehamilanID:              req.KehamilanID,
 		NamaIbuPernyataan:        req.NamaIbuPernyataan,
 		AlamatIbuPernyataan:      req.AlamatIbuPernyataan,
 		PerkiraanBulanPersalinan: req.PerkiraanBulanPersalinan,
-		PerkiraanTahunPersalinan: &req.PerkiraanTahunPersalinan,
+		PerkiraanTahunPersalinan: req.PerkiraanTahunPersalinan,
 		Fasyankes1NamaTenaga:     req.Fasyankes1NamaTenaga,
 		Fasyankes1NamaFasilitas:  req.Fasyankes1NamaFasilitas,
 		Fasyankes2NamaTenaga:     req.Fasyankes2NamaTenaga,
@@ -100,9 +111,15 @@ func (c *RencanaPersalinanController) Create(ctx echo.Context) error {
 		}
 	}
 	if err := c.usecase.Create(rp); err != nil {
-		return ctx.JSON(http.StatusInternalServerError, models.Response{StatusCode: http.StatusInternalServerError, Message: err.Error()})
+		return ctx.JSON(http.StatusInternalServerError, models.Response{
+			StatusCode: http.StatusInternalServerError,
+			Message:    err.Error(),
+		})
 	}
-	return ctx.JSON(http.StatusCreated, models.Response{StatusCode: http.StatusCreated, Data: rp})
+	return ctx.JSON(http.StatusCreated, models.Response{
+		StatusCode: http.StatusCreated,
+		Data:       rp,
+	})
 }
 
 // GetByID, GetByKehamilanID, Update, Delete (sama seperti pola sebelumnya)
@@ -131,27 +148,87 @@ func (c *RencanaPersalinanController) GetByKehamilanID(ctx echo.Context) error {
 }
 
 func (c *RencanaPersalinanController) Update(ctx echo.Context) error {
-	// mirip create, update field
 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 32)
 	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, models.Response{StatusCode: http.StatusBadRequest, Message: "invalid id"})
+		return ctx.JSON(http.StatusBadRequest, models.Response{
+			StatusCode: http.StatusBadRequest,
+			Message:    "invalid id",
+		})
 	}
+
 	var req createRencanaPersalinanRequest
 	if err := ctx.Bind(&req); err != nil {
-		return ctx.JSON(http.StatusBadRequest, models.Response{StatusCode: http.StatusBadRequest, Message: err.Error()})
+		return ctx.JSON(http.StatusBadRequest, models.Response{
+			StatusCode: http.StatusBadRequest,
+			Message:    err.Error(),
+		})
 	}
-	existing, err := c.usecase.GetByID(int32(id))
+
+	// Gunakan usecase untuk mengambil data tanpa preload
+	existing, err := c.usecase.FindByIDWithoutPreload(int32(id))
 	if err != nil {
-		return ctx.JSON(http.StatusNotFound, models.Response{StatusCode: http.StatusNotFound, Message: "Data tidak ditemukan"})
+		return ctx.JSON(http.StatusNotFound, models.Response{
+			StatusCode: http.StatusNotFound,
+			Message:    "Data tidak ditemukan",
+		})
 	}
+
+	// Update field
 	if req.NamaIbuPernyataan != "" {
 		existing.NamaIbuPernyataan = req.NamaIbuPernyataan
 	}
-	// ... update semua field yang dikirim
-	if err := c.usecase.Update(existing); err != nil {
-		return ctx.JSON(http.StatusInternalServerError, models.Response{StatusCode: http.StatusInternalServerError, Message: err.Error()})
+	if req.AlamatIbuPernyataan != "" {
+		existing.AlamatIbuPernyataan = req.AlamatIbuPernyataan
 	}
-	return ctx.JSON(http.StatusOK, models.Response{StatusCode: http.StatusOK, Data: existing})
+	if req.PerkiraanBulanPersalinan != "" {
+		existing.PerkiraanBulanPersalinan = req.PerkiraanBulanPersalinan
+	}
+	if req.PerkiraanTahunPersalinan != nil {
+		existing.PerkiraanTahunPersalinan = req.PerkiraanTahunPersalinan
+	}
+	if req.Fasyankes1NamaTenaga != "" {
+		existing.Fasyankes1NamaTenaga = req.Fasyankes1NamaTenaga
+	}
+	if req.Fasyankes1NamaFasilitas != "" {
+		existing.Fasyankes1NamaFasilitas = req.Fasyankes1NamaFasilitas
+	}
+	if req.Fasyankes2NamaTenaga != "" {
+		existing.Fasyankes2NamaTenaga = req.Fasyankes2NamaTenaga
+	}
+	if req.Fasyankes2NamaFasilitas != "" {
+		existing.Fasyankes2NamaFasilitas = req.Fasyankes2NamaFasilitas
+	}
+	if req.SumberDanaPersalinan != "" {
+		existing.SumberDanaPersalinan = req.SumberDanaPersalinan
+	}
+	if req.Kendaraan1Nama != "" {
+		existing.Kendaraan1Nama = req.Kendaraan1Nama
+	}
+	if req.Kendaraan1HP != "" {
+		existing.Kendaraan1HP = req.Kendaraan1HP
+	}
+	if req.MetodeKontrasepsiPilihan != "" {
+		existing.MetodeKontrasepsiPilihan = req.MetodeKontrasepsiPilihan
+	}
+	if req.DonorGolonganDarah != "" {
+		existing.DonorGolonganDarah = req.DonorGolonganDarah
+	}
+	if req.DonorRhesus != "" {
+		existing.DonorRhesus = req.DonorRhesus
+	}
+
+	// Panggil usecase.Update (yang menerima model lengkap)
+	if err := c.usecase.Update(existing); err != nil {
+		return ctx.JSON(http.StatusInternalServerError, models.Response{
+			StatusCode: http.StatusInternalServerError,
+			Message:    err.Error(),
+		})
+	}
+
+	return ctx.JSON(http.StatusOK, models.Response{
+		StatusCode: http.StatusOK,
+		Data:       existing,
+	})
 }
 
 func (c *RencanaPersalinanController) Delete(ctx echo.Context) error {

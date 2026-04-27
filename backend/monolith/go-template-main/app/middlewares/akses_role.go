@@ -2,7 +2,6 @@ package middlewares
 
 import (
 	"net/http"
-	"strings"
 
 	"github.com/labstack/echo/v4"
 )
@@ -17,8 +16,6 @@ func TenagaKesehatan() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			role, _ := c.Get("role").(string)
-			normalized := strings.ToLower(strings.TrimSpace(role))
-			normalized = strings.ReplaceAll(normalized, "_", "-")
 
 			if role == "" {
 				return c.JSON(http.StatusUnauthorized, map[string]interface{}{
@@ -27,7 +24,7 @@ func TenagaKesehatan() echo.MiddlewareFunc {
 				})
 			}
 
-			if normalized != "bidan" && normalized != "dokter" && normalized != "tenaga-kesehatan" && normalized != "tenaga kesehatan" {
+			if role != "Bidan" && role != "Dokter" && role != "Tenaga-kesehatan" {
 				return c.JSON(http.StatusForbidden, map[string]interface{}{
 					"status_code": http.StatusForbidden,
 					"message":     "Anda Tidak Memiliki Akses",
@@ -39,7 +36,7 @@ func TenagaKesehatan() echo.MiddlewareFunc {
 	}
 }
 
-func IbuOnly() echo.MiddlewareFunc {
+func AdminOnly() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			role, _ := c.Get("role").(string)
@@ -51,10 +48,10 @@ func IbuOnly() echo.MiddlewareFunc {
 				})
 			}
 
-			if role != "Orangtua" {
+			if role != "Admin" {
 				return c.JSON(http.StatusForbidden, map[string]interface{}{
 					"status_code": http.StatusForbidden,
-					"message":     "Hanya ibu yang dapat mengakses endpoint ini",
+					"message":     "Anda Tidak Memiliki Akses",
 				})
 			}
 

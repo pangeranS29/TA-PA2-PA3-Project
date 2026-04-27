@@ -8,8 +8,8 @@ import (
 
 // CatatanPertumbuhan menyimpan data pengukuran anak
 type CatatanPertumbuhan struct {
-	ID            int32      `gorm:"primaryKey;column:id" db:"id" json:"id"`
-	AnakID        int32      `gorm:"column:anak_id;type:int;not null;index" db:"anak_id" json:"anak_id"`
+	ID            int32     `gorm:"primaryKey;column:id" db:"id" json:"id"`
+	AnakID        int32     `gorm:"column:anak_id;type:int;not null;index" db:"anak_id" json:"anak_id"`
 	TglUkur       time.Time `gorm:"column:tgl_ukur;type:date;not null;index" db:"tgl_ukur" json:"tgl_ukur"`
 	BeratBadan    float64   `gorm:"column:berat_badan;type:decimal(5,2)" db:"berat_badan" json:"berat_badan"`
 	TinggiBadan   float64   `gorm:"column:tinggi_badan;type:decimal(5,2)" db:"tinggi_badan" json:"tinggi_badan"`

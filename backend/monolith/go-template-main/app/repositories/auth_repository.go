@@ -41,17 +41,6 @@ func (m *Main) GetUserByPhoneNumber(phoneNumber string) (*models.User, error) {
 	return &user, nil
 }
 
-func (m *Main) GetUserByName(name string) (*models.User, error) {
-	var user models.User
-	if err := m.postgres.Preload("Role").Where("LOWER(nama) = LOWER(?)", name).First(&user).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, customerror.NewNotFoundError("nama pengguna belum terdaftar")
-		}
-		return nil, err
-	}
-	return &user, nil
-}
-
 func (m *Main) CreateUser(user *models.User) error {
 	if err := m.postgres.Create(user).Error; err != nil {
 		return err

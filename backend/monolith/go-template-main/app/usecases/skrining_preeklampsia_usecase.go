@@ -38,7 +38,7 @@ func (u *skriningPreeklampsiaUsecase) GetByKehamilanID(kehamilanID int32) ([]mod
 }
 
 func (u *skriningPreeklampsiaUsecase) Update(s *models.SkriningPreeklampsia) error {
-	_, err := u.repo.FindByID(s.IDSkriningPreeklampsia)
+	_, err := u.repo.FindByID(s.ID)
 	if err != nil {
 		return errors.New("data skrining preeklampsia tidak ditemukan")
 	}
