@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/themes/app_theme.dart';
 import '../widgets/edukasi_card.dart';
+import 'edukasi_detail_screen.dart';
 
 class EdukasiExploreScreen extends StatefulWidget {
   const EdukasiExploreScreen({Key? key}) : super(key: key);
@@ -19,7 +20,6 @@ class _EdukasiExploreScreenState extends State<EdukasiExploreScreen> {
     'Kehamilan Trimester 2',
     'Kehamilan Trimester 3',
     'Kesehatan Jiwa Ibu Hamil',
-    'Tanda Bahaya Melahirkan',
     'Inisiasi Menyusu Dini',
     'Setelah Melahirkan',
     'Menyusui dan ASI',
@@ -34,21 +34,21 @@ class _EdukasiExploreScreenState extends State<EdukasiExploreScreen> {
     'Kehamilan Trimester 2': [
       {'title':'Nutrisi pada Trimester 2','excerpt':'Asupan zat besi, protein, dan sayur.'},
       {'title':'Aktivitas Fisik Aman','excerpt':'Latihan ringan yang dianjurkan.'},
+      {'title':'Tanda Bahaya Trimester 2','excerpt':'Tanda bahaya yang mungkin muncul di trimester kedua.'},
     ],
     'Kehamilan Trimester 3': [
       {'title':'Persiapan Persalinan','excerpt':'Tanda-tanda dan persiapan.'},
+      {'title':'Tanda Bahaya Trimester 3','excerpt':'Gejala yang mengindikasikan risiko pada trimester akhir.'},
     ],
     'Kesehatan Jiwa Ibu Hamil': [
       {'title':'Mengenali Gangguan Mood','excerpt':'Cara deteksi dini dan rujukan.'},
-    ],
-    'Tanda Bahaya Melahirkan': [
-      {'title':'Tanda Bahaya Persalinan','excerpt':'Gejala yang memerlukan tindakan cepat.'},
     ],
     'Inisiasi Menyusu Dini': [
       {'title':'IMD: Manfaat dan Teknik','excerpt':'Langkah-langkah praktis IMD.'},
     ],
     'Setelah Melahirkan': [
       {'title':'Pemulihan Pasca Persalinan','excerpt':'Perawatan diri dan bayi.'},
+      {'title':'Tanda Bahaya Persalinan / Nifas','excerpt':'Tanda bahaya persalinan dan nifas yang memerlukan tindakan cepat.'},
     ],
     'Menyusui dan ASI': [
       {'title':'Teknik Menyusui Efektif','excerpt':'Posisi dan frekuensi menyusui.'},
@@ -139,9 +139,31 @@ class _EdukasiExploreScreenState extends State<EdukasiExploreScreen> {
                         tag: _sub,
                         primaryColor: _primary,
                         onTap: () {
-                          // hanya demo; tim lain yang handle detail data
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Buka: ${item['title']} (mock)')),
+                          final String title = item['title']!;
+                          final String type = 'ARTIKEL';
+                          final String ageText = 'Ibu Hamil';
+                          final String durationText = '5 Menit Baca';
+                          final bool isVideo = false;
+                          final String heroTag = 'edukasi-article-${title.toLowerCase().replaceAll(' ', '-') }';
+                          final Color topBgColor = _primary.withOpacity(0.12);
+                          final Color typeColor = _primary;
+                          final Color typeBgColor = _primary.withOpacity(0.12);
+
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => EdukasiDetailScreen(
+                                type: type,
+                                ageText: ageText,
+                                durationText: durationText,
+                                title: title,
+                                heroTag: heroTag,
+                                isVideo: isVideo,
+                                topBgColor: topBgColor,
+                                typeColor: typeColor,
+                                typeBgColor: typeBgColor,
+                              ),
+                            ),
                           );
                         },
                       );
