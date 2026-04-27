@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ta_pa2_pa3_project/features/imunisasi/presentation/screens/imunisasi_screen.dart';
-import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/skrining_bahaya.dart';
+import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/lembar_pemantauan_screen.dart';
 import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/halaman_utama_mpasi.dart';
 import 'detail_pertumbuhan_dummy_screen.dart';
 
@@ -96,7 +96,7 @@ class PilihAnakScreen extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => SkriningBahayaScreen(anak: anak),
+                          builder: (_) => LembarPemantauanScreen(),
                         ),
                       );
                     } else if (tujuan == 'mpasi') {
