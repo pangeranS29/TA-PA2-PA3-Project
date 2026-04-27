@@ -63,6 +63,14 @@ import PelayananLilaEdit from "./pages/Pelayanan-LILA-Anak/edit";
 import KelolaPemantauan from "./pages/Pemantauan/KelolaPemantauan";
 import LihatDataPemantauan from "./pages/Pemantauan/LihatDataPemantauan";
 import KesehatanLingkunganCatatanPage from "./pages/Pencatatan/KesehatanLingkunganCatatan";
+import InformasiUmumPage from "./pages/edukasi-digital/InformasiUmumPage";
+import TandaBahayaTrimesterPage from "./pages/edukasi-digital/TandaBahayaTrimesterPage";
+import TandaMelahirkanPage from "./pages/edukasi-digital/TandaMelahirkanPage";
+import ImdPage from "./pages/edukasi-digital/ImdPage";
+import SetelahMelahirkanPage from "./pages/edukasi-digital/SetelahMelahirkanPage";
+import MenyusuiAsiPage from "./pages/edukasi-digital/MenyusuiAsiPage";
+import PolaAsuhPage from "./pages/edukasi-digital/PolaAsuhPage";
+import KesehatanMentalPage from "./pages/edukasi-digital/KesehatanMentalPage";
 
 function App() {
   return (
@@ -113,6 +121,14 @@ function App() {
           <Route path="/monitoring" element={<Monitoring />} />
           <Route path="/pemantauan/kelola" element={<KelolaPemantauan />} />
           <Route path="/pemantauan/lihat" element={<LihatDataPemantauan />} />
+           <Route path="/edukasi-digital/informasi-umum" element={<InformasiUmumPage />} />
+           <Route path="/edukasi-digital/tanda-bahaya-trimester" element={<TandaBahayaTrimesterPage />} />
+           <Route path="/edukasi-digital/tanda-melahirkan" element={<TandaMelahirkanPage />} />
+           <Route path="/edukasi-digital/imd" element={<ImdPage />} />
+           <Route path="/edukasi-digital/setelah-melahirkan" element={<SetelahMelahirkanPage />} />
+           <Route path="/edukasi-digital/menyusui-asi" element={<MenyusuiAsiPage />} />
+           <Route path="/edukasi-digital/pola-asuh" element={<PolaAsuhPage />} />
+           <Route path="/edukasi-digital/kesehatan-mental" element={<KesehatanMentalPage />} />
           <Route path="/laporan" element={<Laporan />} />
         </Route>
           <Route path="/data-anak/dashboard/:id" element= {<AnakDashboard/>} />

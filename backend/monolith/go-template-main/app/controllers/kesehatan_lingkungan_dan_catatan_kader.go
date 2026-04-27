@@ -42,15 +42,7 @@ func (c *KesehatanLingkunganDanCatatanKaderController) GetAll(ctx echo.Context) 
 
 	// Jika user adalah Ibu, hanya tampilkan data miliknya sendiri
 	if role == "Orangtua" {
-		ibu, err := c.ibuUsecase.GetByUserID(claims.UserID)
-		if err != nil {
-			return ctx.JSON(http.StatusNotFound, models.Response{StatusCode: http.StatusNotFound, Message: "Data ibu tidak ditemukan"})
-		}
-		data, err := c.usecase.GetAll(&ibu.IDIbu)
-		if err != nil {
-			return ctx.JSON(http.StatusInternalServerError, models.Response{StatusCode: http.StatusInternalServerError, Message: err.Error()})
-		}
-		return ctx.JSON(http.StatusOK, models.Response{StatusCode: http.StatusOK, Data: data})
+		return ctx.JSON(http.StatusForbidden, models.Response{StatusCode: http.StatusForbidden, Message: "akses orangtua belum didukung untuk endpoint ini"})
 	}
 
 	// Untuk tenaga kesehatan: bisa filter by ibu_id atau ambil semua
@@ -85,13 +77,7 @@ func (c *KesehatanLingkunganDanCatatanKaderController) GetByID(ctx echo.Context)
 	// Role-based access: Ibu hanya bisa melihat data milik sendiri
 	claims, _ := ctx.Get("auth_claims").(*models.AuthClaims)
 	if claims != nil && (claims.Role == "Orangtua") {
-		ibu, err := c.ibuUsecase.GetByUserID(claims.UserID)
-		if err != nil {
-			return ctx.JSON(http.StatusNotFound, models.Response{StatusCode: http.StatusNotFound, Message: "Data ibu tidak ditemukan"})
-		}
-		if data.IbuID != ibu.IDIbu {
-			return ctx.JSON(http.StatusForbidden, models.Response{StatusCode: http.StatusForbidden, Message: "Anda tidak memiliki akses ke data ini"})
-		}
+		return ctx.JSON(http.StatusForbidden, models.Response{StatusCode: http.StatusForbidden, Message: "akses orangtua belum didukung untuk endpoint ini"})
 	}
 
 	return ctx.JSON(http.StatusOK, models.Response{StatusCode: http.StatusOK, Data: data})
@@ -125,18 +111,7 @@ func (c *KesehatanLingkunganDanCatatanKaderController) GetCatatan(ctx echo.Conte
 	// Jika user adalah Ibu, pastikan form ini belong to them
 	claims, _ := ctx.Get("auth_claims").(*models.AuthClaims)
 	if claims != nil && (claims.Role == "Orangtua") {
-		// Cek kepemilikan form
-		kesehatan, err := c.usecase.GetByID(uint(id))
-		if err != nil {
-			return ctx.JSON(http.StatusNotFound, models.Response{StatusCode: http.StatusNotFound, Message: "Data tidak ditemukan"})
-		}
-		ibu, err := c.ibuUsecase.GetByUserID(claims.UserID)
-		if err != nil {
-			return ctx.JSON(http.StatusNotFound, models.Response{StatusCode: http.StatusNotFound, Message: "Data ibu tidak ditemukan"})
-		}
-		if kesehatan.IbuID != ibu.IDIbu {
-			return ctx.JSON(http.StatusForbidden, models.Response{StatusCode: http.StatusForbidden, Message: "Anda tidak memiliki akses ke data ini"})
-		}
+		return ctx.JSON(http.StatusForbidden, models.Response{StatusCode: http.StatusForbidden, Message: "akses orangtua belum didukung untuk endpoint ini"})
 	}
 
 	data, err := c.usecase.GetCatatanByKesehatanID(uint(id))
@@ -222,19 +197,7 @@ func (c *KesehatanLingkunganDanCatatanKaderController) Update(ctx echo.Context) 
 	// Cek apakah data milik ibu yang sedang login (jika user adalah ibu)
 	claims, _ := ctx.Get("auth_claims").(*models.AuthClaims)
 	if claims != nil && claims.Role == "Orangtua" {
-		// Dapatkan data ibu berdasarkan user ID
-		ibu, err := c.ibuUsecase.GetByUserID(claims.UserID)
-		if err != nil {
-			return ctx.JSON(http.StatusNotFound, models.Response{StatusCode: http.StatusNotFound, Message: "data ibu tidak ditemukan"})
-		}
-		// Cek apakah form ini milik ibu tersebut
-		existing, err := c.usecase.GetByID(uint(id))
-		if err != nil {
-			return ctx.JSON(http.StatusNotFound, models.Response{StatusCode: http.StatusNotFound, Message: "data tidak ditemukan"})
-		}
-		if existing.IbuID != ibu.IDIbu {
-			return ctx.JSON(http.StatusForbidden, models.Response{StatusCode: http.StatusForbidden, Message: "Anda tidak memiliki akses ke data ini"})
-		}
+		return ctx.JSON(http.StatusForbidden, models.Response{StatusCode: http.StatusForbidden, Message: "akses orangtua belum didukung untuk endpoint ini"})
 	}
 
 	data, err := c.usecase.Update(uint(id), req)

@@ -13,14 +13,21 @@ import {
   ChevronDown, // Ikon tambahan untuk panah dropdown
   ClipboardEdit, // Ikon untuk Kelola
   TableProperties, // Ikon untuk Lihat Data
-  ClipboardList
+  ClipboardList,
+  Database,
+  BookOpenCheck
 } from "lucide-react";
 
 const Sidebar = () => {
   const location = useLocation();
-  const [isPemantauanOpen, setIsPemantauanOpen] = useState(() =>
-    location.pathname.startsWith("/pemantauan")
-  );
+  const [dropdownOpen, setDropdownOpen] = useState(() => ({
+    pemantauan: location.pathname.startsWith("/pemantauan"),
+    edukasiDigital: location.pathname.startsWith("/edukasi-digital"),
+  }));
+
+  const toggleDropdown = (key) => {
+    setDropdownOpen((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
 
   const menuItems = [
     { path: "/dashboard", name: "Dashboard", icon: LayoutGrid },
@@ -29,15 +36,31 @@ const Sidebar = () => {
     { path: "/kependudukan", name: "Manajemen KK", icon: UserCheck },
     { path: "/pencatatan/kesehatan-lingkungan", name: "Kesehatan dan Keselamatan Lingkungan", icon: ClipboardList },
     { path: "/monitoring", name: "Monitoring", icon: Activity },
-    // Menu Pemantauan diubah menjadi objek dengan children
-    { 
-      name: "Pemantauan", 
+    {
+      name: "Edukasi Digital",
+      icon: BookOpenCheck,
+      isDropdown: true,
+      dropdownKey: "edukasiDigital",
+      children: [
+        { path: "/edukasi-digital/informasi-umum", name: "Informasi Umum", icon: ClipboardList },
+        { path: "/edukasi-digital/tanda-bahaya-trimester", name: "Tanda Bahaya Trimester", icon: ClipboardList },
+        { path: "/edukasi-digital/tanda-melahirkan", name: "Tanda Melahirkan", icon: ClipboardList },
+        { path: "/edukasi-digital/imd", name: "Edukasi IMD", icon: ClipboardList },
+        { path: "/edukasi-digital/setelah-melahirkan", name: "Setelah Melahirkan", icon: ClipboardList },
+        { path: "/edukasi-digital/menyusui-asi", name: "Menyusui ASI", icon: ClipboardList },
+        { path: "/edukasi-digital/pola-asuh", name: "Pola Asuh", icon: ClipboardList },
+        { path: "/edukasi-digital/kesehatan-mental", name: "Kesehatan Mental", icon: ClipboardList },
+      ],
+    },
+    {
+      name: "Pemantauan",
       icon: Activity,
       isDropdown: true,
+      dropdownKey: "pemantauan",
       children: [
         { path: "/pemantauan/kelola", name: "Kelola Pemantauan", icon: ClipboardEdit },
         { path: "/pemantauan/lihat", name: "Lihat Data Pemantauan", icon: TableProperties },
-      ]
+      ],
     },
     { path: "/laporan", name: "Laporan", icon: BarChart3 },
     { path: "/pengaturan", name: "Pengaturan", icon: Settings },
@@ -90,31 +113,32 @@ const Sidebar = () => {
             );
           }
 
-          // Logika untuk Menu Dropdown (Pemantauan)
+          // Logika untuk Menu Dropdown
           const isChildActive = item.children.some((child) => location.pathname.startsWith(child.path));
+          const isOpen = dropdownOpen[item.dropdownKey] || false;
           
           return (
             <div key={item.name} className="space-y-1">
               <button
-                onClick={() => setIsPemantauanOpen(!isPemantauanOpen)}
+                onClick={() => toggleDropdown(item.dropdownKey)}
                 className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 group ${
-                  isPemantauanOpen || isChildActive
+                  isOpen || isChildActive
                     ? "text-slate-700 font-medium" 
                     : "text-slate-500 hover:bg-gray-50 hover:text-slate-700"
                 }`}
               >
                 <div className="flex items-center gap-3">
-                  <item.icon size={20} className={(isPemantauanOpen || isChildActive) ? "text-blue-600" : "text-slate-400"} />
+                  <item.icon size={20} className={(isOpen || isChildActive) ? "text-blue-600" : "text-slate-400"} />
                   <span>{item.name}</span>
                 </div>
                 <ChevronDown 
                   size={16} 
-                  className={`transition-transform duration-200 ${isPemantauanOpen ? "rotate-180" : ""}`} 
+                  className={`transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} 
                 />
               </button>
 
               {/* Sub Menu */}
-              {isPemantauanOpen && (
+              {isOpen && (
                 <div className="ml-9 space-y-1 animate-in fade-in slide-in-from-top-1 duration-200">
                   {item.children.map((child) => (
                     <NavLink

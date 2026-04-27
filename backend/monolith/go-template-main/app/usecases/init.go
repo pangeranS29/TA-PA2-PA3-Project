@@ -52,8 +52,17 @@ type Main struct {
 	// RegisterOrangTua              *RegisterOrangTuaUsecase
 	AdminAkunKeluarga    *AdminAkunKeluargaUsecase
 	AdminTenagaKesehatan *AdminTenagaKesehatanUsecase
-	KeteranganLahir      KeteranganLahirUsecase // <-- TAMBAHKAN INI
-	JenisPelayanan       JenisPelayananUsecase
+	KeteranganLahir               KeteranganLahirUsecase // <-- TAMBAHKAN INI
+	EdukasiInformasiUmum          EdukasiInformasiUmumUsecase
+	EdukasiTandaBahayaTrimester   EdukasiTandaBahayaTrimesterUsecase
+	EdukasiTandaMelahirkan        EdukasiTandaMelahirkanUsecase
+	EdukasiImd                    EdukasiImdUsecase
+	EdukasiSetelahMelahirkan      EdukasiSetelahMelahirkanUsecase
+	EdukasiMenyusuiAsi            EdukasiMenyusuiAsiUsecase
+	EdukasiPolaAsuh               EdukasiPolaAsuhUsecase
+	EdukasiKesehatanMental        EdukasiKesehatanMentalUsecase
+	KesehatanLingkunganDanCatatanKader KesehatanLingkunganDanCatatanKaderUsecase
+	JenisPelayanan                JenisPelayananUsecase
 }
 
 type Options struct {
@@ -106,6 +115,15 @@ func Init(opts Options) *Main {
 	m.PelayananIbuNifas = NewPelayananIbuNifasUsecase(opts.Repository.PelayananIbuNifas)
 	m.Ibu = NewIbuUsecase(opts.Repository.Ibu)
 	m.RiwayatKehamilanLalu = NewRiwayatKehamilanLaluUsecase(opts.Repository.RiwayatKehamilanLalu)
+	m.EdukasiInformasiUmum = NewEdukasiInformasiUmumUsecase(opts.Repository.EdukasiInformasiUmum)
+	m.EdukasiTandaBahayaTrimester = NewEdukasiTandaBahayaTrimesterUsecase(opts.Repository.EdukasiTandaBahayaTrimester)
+	m.EdukasiTandaMelahirkan = NewEdukasiTandaMelahirkanUsecase(opts.Repository.EdukasiTandaMelahirkan)
+	m.EdukasiImd = NewEdukasiImdUsecase(opts.Repository.EdukasiImd)
+	m.EdukasiSetelahMelahirkan = NewEdukasiSetelahMelahirkanUsecase(opts.Repository.EdukasiSetelahMelahirkan)
+	m.EdukasiMenyusuiAsi = NewEdukasiMenyusuiASIUsecase(opts.Repository.EdukasiMenyusuiAsi)
+	m.EdukasiPolaAsuh = NewEdukasiPolaAsuhUsecase(opts.Repository.EdukasiPolaAsuh)
+	m.EdukasiKesehatanMental = NewEdukasiKesehatanMentalUsecase(opts.Repository.EdukasiKesehatanMental)
+	m.KesehatanLingkunganDanCatatanKader = NewKesehatanLingkunganDanCatatanKaderUsecase(opts.Repository.KesehatanLingkunganDanCatatanKader)
 	m.Kependudukan = NewKependudukanUsecase(opts.Repository.Kependudukan)
 	// m.RegisterOrangTua = NewRegisterOrangTuaUsecase(
 	// 	opts.Repository.User,

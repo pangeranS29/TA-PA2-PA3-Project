@@ -51,6 +51,15 @@ type Main struct {
 	RencanaPersalinan             *RencanaPersalinanRepository
 	RingkasanPelayananPersalinan  *RingkasanPelayananPersalinanRepository
 	KeteranganLahir               *KeteranganLahirRepository // <-- TAMBAHKAN INI
+	EdukasiInformasiUmum          EdukasiInformasiUmumRepository
+	EdukasiTandaBahayaTrimester   EdukasiTandaBahayaTrimesterRepository
+	EdukasiTandaMelahirkan        EdukasiTandaMelahirkanRepository
+	EdukasiImd                    EdukasiImdRepository
+	EdukasiSetelahMelahirkan      EdukasiSetelahMelahirkanRepository
+	EdukasiMenyusuiAsi            EdukasiMenyusuiAsiRepository
+	EdukasiPolaAsuh               EdukasiPolaAsuhRepository
+	EdukasiKesehatanMental        EdukasiKesehatanMentalRepository
+	KesehatanLingkunganDanCatatanKader *KesehatanLingkunganDanCatatanKaderRepository
 	RiwayatProsesMelahirkan       *RiwayatProsesMelahirkanRepository
 	PelayananIbuNifas             *PelayananIbuNifasRepository
 	CatatanPelayananNifas         *CatatanPelayananNifasRepository
@@ -102,6 +111,15 @@ func Init(opts Options) *Main {
 	m.RencanaPersalinan = NewRencanaPersalinanRepository(opts.Postgres)
 	m.RingkasanPelayananPersalinan = NewRingkasanPelayananPersalinanRepository(opts.Postgres)
 	m.KeteranganLahir = NewKeteranganLahirRepository(opts.Postgres) // <-- TAMBAHKAN INI
+	m.EdukasiInformasiUmum = NewEdukasiInformasiUmumRepository(opts.Postgres)
+	m.EdukasiTandaBahayaTrimester = NewEdukasiTandaBahayaTrimesterRepository(opts.Postgres)
+	m.EdukasiTandaMelahirkan = NewEdukasiTandaMelahirkanRepository(opts.Postgres)
+	m.EdukasiImd = NewEdukasiImdRepository(opts.Postgres)
+	m.EdukasiSetelahMelahirkan = NewEdukasiSetelahMelahirkanRepository(opts.Postgres)
+	m.EdukasiMenyusuiAsi = NewEdukasiMenyusuiAsiRepository(opts.Postgres)
+	m.EdukasiPolaAsuh = NewEdukasiPolaAsuhRepository(opts.Postgres)
+	m.EdukasiKesehatanMental = NewEdukasiKesehatanMentalRepository(opts.Postgres)
+	m.KesehatanLingkunganDanCatatanKader = NewKesehatanLingkunganDanCatatanKaderRepository(opts.Postgres)
 	m.RiwayatProsesMelahirkan = NewRiwayatProsesMelahirkanRepository(opts.Postgres)
 	m.PelayananIbuNifas = NewPelayananIbuNifasRepository(opts.Postgres)
 	m.CatatanPelayananNifas = NewCatatanPelayananNifasRepository(opts.Postgres)
