@@ -71,7 +71,7 @@ func (r *PemeriksaanKehamilanRepository) FindMineByUserID(userID int32) ([]model
 		Joins("JOIN kehamilan k ON k.id = p.kehamilan_id").
 		Joins("JOIN ibu i ON i.id = k.ibu_id").
 		Joins("JOIN penduduk pd ON pd.id = i.penduduk_id").
-		Joins("JOIN pengguna u ON u.penduduk_id = pd.id").
+		Joins("JOIN pengguna u ON u.id = pd.id").
 		Where("u.id = ?", userID).
 		Order("p.tanggal_periksa DESC").
 		Find(&list).Error
