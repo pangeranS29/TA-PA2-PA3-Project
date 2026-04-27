@@ -8,7 +8,7 @@ import (
 
 type PersiapanMelahirkan struct {
 	ID                    int32          `gorm:"primaryKey;autoIncrement" json:"id"`
-	KehamilanID           int32          `gorm:"not null;index" json:"kehamilan_id"`
+	KehamilanID           int32          `gorm:"not null;index;uniqueIndex" json:"kehamilan_id"`
 	Kehamilan             *Kehamilan     `gorm:"foreignKey:KehamilanID;references:ID;constraint:OnDelete:CASCADE" json:"kehamilan,omitempty"`
 
 	PerkiraanPersalinan   bool `gorm:"not null;default:false" json:"perkiraan_persalinan"`

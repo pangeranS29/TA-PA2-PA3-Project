@@ -55,11 +55,15 @@ type Main struct {
 	// KeteranganLahir      KeteranganLahirUsecase // <-- TAMBAHKAN INI
 	// JenisPelayanan       JenisPelayananUsecase
 	// RegisterOrangTua              *RegisterOrangTuaUsecase
-	KeteranganLahir               KeteranganLahirUsecase // <-- TAMBAHKAN INI
-	JenisPelayanan                JenisPelayananUsecase
+	KeteranganLahir KeteranganLahirUsecase // <-- TAMBAHKAN INI
+	JenisPelayanan  JenisPelayananUsecase
 
 	// MODUL IBU
-	LogTTDMMS LogTTDMMSUsecase
+	LogTTDMMS            LogTTDMMSUsecase
+	PemantauanIbuHamil   PemantauanIbuHamilUsecase
+	PersiapanMelahirkan  PersiapanMelahirkanUsecase
+	ProsesMelahirkan     ProsesMelahirkanUsecase
+	AbsensiKelasIbuHamil AbsensiKelasIbuHamilUsecase
 }
 
 type Options struct {
@@ -138,6 +142,10 @@ func Init(opts Options) *Main {
 
 	// MODUL IBU
 	m.LogTTDMMS = NewLogTTDMMSUsecase(opts.Repository.LogTTDMMS)
+	m.PemantauanIbuHamil = NewPemantauanIbuHamilUsecase(opts.Repository.PemantauanIbuHamil)
+	m.PersiapanMelahirkan = NewPersiapanMelahirkanUsecase(opts.Repository.PersiapanMelahirkan)
+	m.ProsesMelahirkan = NewProsesMelahirkanUsecase(opts.Repository.ProsesMelahirkan)
+	m.AbsensiKelasIbuHamil = NewAbsensiKelasIbuHamilUsecase(opts.Repository.AbsensiKelasIbuHamil)
 
 	return m
 }

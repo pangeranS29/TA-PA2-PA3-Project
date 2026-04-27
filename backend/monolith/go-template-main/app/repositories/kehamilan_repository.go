@@ -78,15 +78,32 @@ func (r *KehamilanRepository) Delete(id int32) error {
 // }
 
 // MODUL IBU (INTERNAL BACKUP ONLY)
+// func (r *KehamilanRepository) FindAktifByUserID(userID int32) (*models.Kehamilan, error) {
+// 	var kehamilan models.Kehamilan
+
+// 	err := r.db.
+// 		Table("kehamilan k").
+// 		Select("k.*").
+// 		Joins("JOIN ibu i ON i.id = k.ibu_id").
+// 		Joins("JOIN penduduk p ON p.id = i.id").
+// 		Joins("JOIN pengguna u ON u.id = p.id").
+// 		Where("u.id = ?", userID).
+// 		Where("k.status_kehamilan IN ?", []string{"TRIMESTER 1", "TRIMESTER 2", "TRIMESTER 3"}).
+// 		Order("k.created_at DESC").
+// 		First(&kehamilan).Error
+
+// 	return &kehamilan, err
+// }
+
 func (r *KehamilanRepository) FindAktifByUserID(userID int32) (*models.Kehamilan, error) {
 	var kehamilan models.Kehamilan
 
 	err := r.db.
-		Table("kehamilan k").
+		Table("kehamilan AS k").
 		Select("k.*").
-		Joins("JOIN ibu i ON i.id = k.ibu_id").
-		Joins("JOIN penduduk p ON p.id = i.id").
-		Joins("JOIN pengguna u ON u.id = p.id").
+		Joins("JOIN ibu AS i ON i.id = k.ibu_id").
+		Joins("JOIN penduduk AS p ON p.id = i.penduduk_id").
+		Joins("JOIN pengguna AS u ON u.penduduk_id = p.id").
 		Where("u.id = ?", userID).
 		Where("k.status_kehamilan IN ?", []string{"TRIMESTER 1", "TRIMESTER 2", "TRIMESTER 3"}).
 		Order("k.created_at DESC").
