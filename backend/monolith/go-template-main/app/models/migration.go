@@ -8,6 +8,9 @@ func AutoMigrate(db *gorm.DB) error {
 	// Semua model dalam satu slice
 	models := []interface{}{
 		// Master
+		&KartuKeluarga{},
+		&Kependudukan{},
+		&Ibu{},
 		// &KategoriTandaBahaya{},
 		&SkriningPemantauan{},
 		// &KartuKeluarga{},
@@ -21,9 +24,7 @@ func AutoMigrate(db *gorm.DB) error {
 		&User{},
 		&Bidan{},
 		&Kader{},
-		&KartuKeluarga{},
-		&Kependudukan{},
-		&Ibu{},
+
 		&Anak{},
 
 		// Evaluasi & riwayat
