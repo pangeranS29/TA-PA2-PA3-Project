@@ -21,8 +21,15 @@ func (r *KehamilanRepository) Create(kehamilan *models.Kehamilan) error {
 
 func (r *KehamilanRepository) FindByID(id int32) (*models.Kehamilan, error) {
 	var kehamilan models.Kehamilan
-	err := r.db.Preload("Ibu.Kependudukan").First(&kehamilan, id).Error
-	return &kehamilan, err
+	err := r.db.Preload("Ibu.Kependudukan").
+	Preload("Anak").
+	First(&kehamilan, id).Error
+	
+	if err != nil {
+		return nil, err
+	}
+
+	return &kehamilan, nil
 }
 
 func (r *KehamilanRepository) FindByIbuID(ibuID int32) ([]models.Kehamilan, error) {
@@ -33,7 +40,9 @@ func (r *KehamilanRepository) FindByIbuID(ibuID int32) ([]models.Kehamilan, erro
 
 func (r *KehamilanRepository) GetAll() ([]models.Kehamilan, error) {
 	var list []models.Kehamilan
-	err := r.db.Preload("Ibu.Kependudukan").Find(&list).Error
+	err := r.db.Preload("Ibu.Kependudukan").
+	Preload("Anak"). 
+	Find(&list).Error
 	return list, err
 }
 
@@ -68,6 +77,7 @@ func (r *KehamilanRepository) Delete(id int32) error {
 // 	return &kehamilan, err
 // }
 
+// MODUL IBU (INTERNAL BACKUP ONLY)
 func (r *KehamilanRepository) FindAktifByUserID(userID int32) (*models.Kehamilan, error) {
 	var kehamilan models.Kehamilan
 
@@ -75,8 +85,8 @@ func (r *KehamilanRepository) FindAktifByUserID(userID int32) (*models.Kehamilan
 		Table("kehamilan k").
 		Select("k.*").
 		Joins("JOIN ibu i ON i.id = k.ibu_id").
-		Joins("JOIN penduduk p ON p.id = i.penduduk_id").
-		Joins("JOIN pengguna u ON u.penduduk_id = p.id").
+		Joins("JOIN penduduk p ON p.id = i.id").
+		Joins("JOIN pengguna u ON u.id = p.id").
 		Where("u.id = ?", userID).
 		Where("k.status_kehamilan IN ?", []string{"TRIMESTER 1", "TRIMESTER 2", "TRIMESTER 3"}).
 		Order("k.created_at DESC").

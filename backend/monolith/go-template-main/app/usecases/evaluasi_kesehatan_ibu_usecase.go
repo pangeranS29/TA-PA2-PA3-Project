@@ -40,7 +40,7 @@ func (u *evaluasiKesehatanIbuUsecase) GetByKehamilanID(kehamilanID int32) ([]mod
 }
 
 func (u *evaluasiKesehatanIbuUsecase) Update(e *models.EvaluasiKesehatanIbu) error {
-	_, err := u.repo.FindByID(e.IDEvaluasi)
+	_, err := u.repo.FindByID(e.ID)
 	if err != nil {
 		return errors.New("data evaluasi kesehatan ibu tidak ditemukan")
 	}

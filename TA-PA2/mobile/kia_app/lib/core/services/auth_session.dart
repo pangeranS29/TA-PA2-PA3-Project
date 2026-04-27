@@ -6,10 +6,12 @@ class AuthSession {
   static const String _tokenKey = 'auth_access_token';
   static const String _nameKey = 'auth_user_name';
   static const String _roleKey = 'auth_user_role';
+  static const String _reminderShownKey = 'auth_tumbuh_reminder_shown';
 
   static String? token;
   static String? userName;
   static String? role;
+  static bool isReminderShown = false;
 
   static bool get isLoggedIn => token != null && token!.isNotEmpty;
 
@@ -18,6 +20,7 @@ class AuthSession {
     token = prefs.getString(_tokenKey);
     userName = prefs.getString(_nameKey);
     role = prefs.getString(_roleKey);
+    isReminderShown = prefs.getBool(_reminderShownKey) ?? false;
   }
 
   static Future<void> save({
@@ -31,6 +34,8 @@ class AuthSession {
 
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_tokenKey, accessToken);
+    isReminderShown = false;
+    await prefs.setBool(_reminderShownKey, false);
     if (name != null) {
       await prefs.setString(_nameKey, name);
     }
@@ -43,10 +48,18 @@ class AuthSession {
     token = null;
     userName = null;
     role = null;
+    isReminderShown = false;
 
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_tokenKey);
     await prefs.remove(_nameKey);
     await prefs.remove(_roleKey);
+    await prefs.remove(_reminderShownKey);
+  }
+
+  static Future<void> markReminderShown() async {
+    isReminderShown = true;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_reminderShownKey, true);
   }
 }

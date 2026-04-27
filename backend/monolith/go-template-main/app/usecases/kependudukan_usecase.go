@@ -12,6 +12,7 @@ type KependudukanUsecase interface {
 	GetByID(id int32) (*models.Kependudukan, error)
 	GetByNIK(nik string) (*models.Kependudukan, error)
 	GetAll() ([]models.Kependudukan, error)
+	ListEligibleForRole(role, search, kecamatan, desa string) ([]repositories.EligiblePendudukItem, error)
 	Update(k *models.Kependudukan) error
 	Delete(id int32) error
 }
@@ -54,6 +55,10 @@ func (u *kependudukanUsecase) GetByNIK(nik string) (*models.Kependudukan, error)
 
 func (u *kependudukanUsecase) GetAll() ([]models.Kependudukan, error) {
 	return u.repo.GetAll()
+}
+
+func (u *kependudukanUsecase) ListEligibleForRole(role, search, kecamatan, desa string) ([]repositories.EligiblePendudukItem, error) {
+	return u.repo.ListEligibleForRole(role, search, kecamatan, desa)
 }
 
 func (u *kependudukanUsecase) Update(k *models.Kependudukan) error {

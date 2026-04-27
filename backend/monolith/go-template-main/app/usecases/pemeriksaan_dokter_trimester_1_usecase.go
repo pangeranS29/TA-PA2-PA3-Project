@@ -39,7 +39,7 @@ func (u *pemeriksaanDokterTrimester1Usecase) GetByKehamilanID(kehamilanID int32)
 }
 
 func (u *pemeriksaanDokterTrimester1Usecase) Update(p *models.PemeriksaanDokterTrimester1) error {
-	_, err := u.repo.FindByID(p.IDTrimester1)
+	_, err := u.repo.FindByID(p.ID)
 	if err != nil {
 		return errors.New("data pemeriksaan dokter trimester 1 tidak ditemukan")
 	}

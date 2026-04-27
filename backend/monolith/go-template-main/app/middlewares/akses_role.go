@@ -36,6 +36,30 @@ func TenagaKesehatan() echo.MiddlewareFunc {
 	}
 }
 
+func AdminOnly() echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			role, _ := c.Get("role").(string)
+
+			if role == "" {
+				return c.JSON(http.StatusUnauthorized, map[string]interface{}{
+					"status_code": http.StatusUnauthorized,
+					"message":     "role tidak ditemukan",
+				})
+			}
+
+			if role != "Admin" {
+				return c.JSON(http.StatusForbidden, map[string]interface{}{
+					"status_code": http.StatusForbidden,
+					"message":     "Anda Tidak Memiliki Akses",
+				})
+			}
+
+			return next(c)
+		}
+	}
+}
+
 func Orangtua() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
@@ -48,7 +72,7 @@ func Orangtua() echo.MiddlewareFunc {
 				})
 			}
 
-			if role != "Orangtua" {
+			if role != "Ibu" {
 				return c.JSON(http.StatusForbidden, map[string]interface{}{
 					"status_code": http.StatusForbidden,
 					"message":     "Anda Tidak Memiliki Akses",
