@@ -3,9 +3,11 @@ package app
 import (
 	"fmt"
 	"monitoring-service/app/controllers"
-	"monitoring-service/app/models"
+
+	// "monitoring-service/app/models"
 	"monitoring-service/app/repositories"
 	"monitoring-service/app/routes"
+
 	// "monitoring-service/app/seed"
 	"monitoring-service/app/usecases"
 	"monitoring-service/pkg/config"
@@ -35,33 +37,9 @@ func New() *Main {
 	return new(Main)
 }
 
-func readEnvConfig() error {
-	configCandidates := []string{
-		".env",
-		"../.env",
-		".env-prod",
-		"cmd/.env-prod",
-	}
-
-	var lastErr error
-	for _, path := range configCandidates {
-		viper.SetConfigFile(path)
-		if err := viper.ReadInConfig(); err == nil {
-			return nil
-		} else {
-			lastErr = err
-		}
-	}
-
-	if lastErr == nil {
-		return fmt.Errorf("configuration file not found")
-	}
-
-	return lastErr
-}
-
 func (m *Main) Init() (err error) {
-	err = readEnvConfig()
+	viper.SetConfigFile(".env")
+	err = viper.ReadInConfig()
 	if err != nil {
 		return
 	}
@@ -84,10 +62,10 @@ func (m *Main) Init() (err error) {
 	//comment sementara
 
 	// // Migrate Tabel
-	err = models.AutoMigrate(m.database.Postgres)
-	if err != nil {
-		return
-	}
+	// err = models.AutoMigrate(m.database.Postgres)
+	// if err != nil {
+	// 	return
+	// }
 
 	// // Seeder
 	// err = seed.RunAllSeed(m.database.Postgres)
