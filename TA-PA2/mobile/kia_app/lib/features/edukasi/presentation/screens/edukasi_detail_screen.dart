@@ -29,192 +29,312 @@ class EdukasiDetailScreen extends StatefulWidget {
 }
 
 class _EdukasiDetailScreenState extends State<EdukasiDetailScreen> {
-  int _currentStep = 0;
+  final Map<String, bool> _questionnaireAnswers = {};
+  static const String _kesehatanSectionKey = 'kesehatan_lingkungan';
+  static const String _keselamatanSectionKey = 'keselamatan_lingkungan';
+
+  bool get _isProtectionArticle =>
+      widget.title == 'Melihat Informasi Umum Perlindungan Anak';
+
+  int _checkedAnswersCountBySection(String sectionKey) {
+    return _questionnaireAnswers.entries
+        .where((entry) => entry.key.startsWith('$sectionKey-') && entry.value)
+        .length;
+  }
+
+  void _handleSaveAndSubmitSection({
+    required String sectionTitle,
+    required String sectionKey,
+  }) {
+    final int checkedCount = _checkedAnswersCountBySection(sectionKey);
+
+    if (checkedCount == 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Pilih minimal satu jawaban pada $sectionTitle sebelum kirim.',
+          ),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: Text('Simpan dan Kirim $sectionTitle'),
+          content: Text(
+            'Simpan dan kirim $checkedCount jawaban yang sudah dicentang?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('Batal'),
+            ),
+            FilledButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      '$sectionTitle berhasil disimpan dan dikirim.',
+                    ),
+                    behavior: SnackBarBehavior.floating,
+                  ),
+                );
+              },
+              child: const Text('Simpan dan Kirim'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   _EdukasiArticle _buildArticleByTitle(String title) {
     switch (title) {
-      case 'Menjaga Kesehatan Mental Orang Tua dalam Pengasuhan Anak':
+      case 'Melihat Informasi Umum Cuci Tangan Pakai Sabun':
         return const _EdukasiArticle(
           ringkasan:
-              'Buku KIA menekankan bahwa pengasuhan yang baik dimulai dari orang tua yang sehat fisik dan mental. Saat orang tua mampu mengelola stres, anak lebih mudah merasa aman, dekat, dan berkembang optimal.',
+              'Kuman penyakit sangat mudah ditularkan melalui tangan. Tangan yang terlihat bersih belum tentu bebas kuman, sehingga cuci tangan pakai sabun dengan air mengalir perlu dibiasakan setiap hari.',
           tutorialLangkah: [
-            'Kenali sinyal lelah: mudah marah, sulit fokus, atau sering cemas.',
-            'Tarik napas dalam 3-5 kali dan ambil jeda 10 menit sebelum merespons anak.',
-            'Bagi tugas pengasuhan dengan pasangan/keluarga agar beban tidak menumpuk.',
-            'Sisihkan waktu harian untuk tidur cukup, makan teratur, dan aktivitas yang menenangkan.',
-            'Jika gejala emosi berat menetap lebih dari 2 minggu, konsultasi ke puskesmas atau psikolog.',
+            'Basahi seluruh tangan dengan air bersih mengalir.',
+            'Gosok sabun secara merata ke telapak, punggung tangan, dan sela-sela jari.',
+            'Bersihkan bagian bawah kuku dan ujung jari dengan saksama.',
+            'Posisikan telapak kanan di atas punggung tangan kiri dan sebaliknya, lalu gosok merata.',
+            'Bilas tangan dengan air bersih mengalir dan keringkan dengan handuk/tisu atau diangin-anginkan.',
           ],
           bagian: [
             _ArticleSection(
-              judul: 'Langkah menjaga kesehatan mental',
+              judul: 'Kapan Saja Harus Mencuci Tangan',
               poin: [
-                'Kenali tanda stres: mudah marah, sulit tidur, sering cemas, atau merasa putus asa.',
-                'Bagi peran pengasuhan agar satu orang tidak menanggung semua beban.',
-                'Tetapkan harapan yang realistis: anak belajar bertahap, tidak harus selalu sempurna.',
-                'Tetap lakukan aktivitas yang membuat orang tua merasa senang dan berdaya.',
+                'Setelah buang air.',
+                'Sebelum memegang dan menyusui bayi.',
+                'Setelah menceboki bayi atau anak.',
+                'Sebelum makan dan menyuapi anak.',
+                'Sebelum memegang makanan dan setelah makan.',
+                'Setelah bersin atau batuk.',
+                'Setiap kali tangan kotor: mengetik, memegang uang, hewan, dan berkebun.',
               ],
             ),
             _ArticleSection(
-              judul: 'Kapan perlu mencari bantuan',
+              judul: 'Pentingnya Mencuci Tangan Dengan Air Bersih Dan Sabun',
               poin: [
-                'Sedih atau cemas berat lebih dari 2 minggu.',
-                'Sulit menjalani aktivitas sehari-hari karena tekanan emosi.',
-                'Muncul keinginan menyakiti diri sendiri atau orang lain.',
-                'Segera konsultasi ke puskesmas, psikolog, atau tenaga kesehatan terdekat.',
+                'Kuman penyakit sangat mudah ditularkan melalui tangan dan dapat masuk ke tubuh saat makan.',
+                'Tangan kadang terlihat bersih secara kasat mata namun tetap mengandung kuman.',
+                'Sabun membersihkan kotoran dan merontokkan kuman. Tanpa sabun, kotoran dan kuman bisa tertinggal di tangan.',
+              ],
+            ),
+            _ArticleSection(
+              judul: 'Cara Cuci Tangan Yang Benar',
+              poin: [
+                'Biasakan cuci tangan pakai sabun dengan air mengalir.',
+                'Basahi seluruh tangan dengan air bersih mengalir.',
+                'Gosok sabun secara merata pada telapak dan punggung tangan.',
+                'Bersihkan sela-sela jari dan bagian bawah kuku.',
+                'Bilas tangan dengan air bersih mengalir hingga tidak ada sisa sabun.',
+                'Keringkan dengan handuk/tisu bersih atau diangin-anginkan.',
               ],
             ),
           ],
           yangPerluDiingat: [
-            'Orang tua yang tenang lebih mudah membangun kedekatan aman dengan anak.',
-            'Meminta bantuan bukan tanda gagal, tetapi bagian dari pengasuhan sehat.',
-            'Segera cari pertolongan profesional bila keluhan emosi berat menetap.',
+            'Cuci tangan pakai sabun adalah langkah sederhana untuk mencegah penyakit.',
+            'Lakukan pada waktu penting dan setiap tangan terasa/terlihat kotor.',
+            'Pastikan membersihkan seluruh bagian tangan sampai kuku.',
           ],
         );
-      case 'Informasi Umum Cuci Tangan Pakai Sabun':
+      case 'Melihat Informasi Umum Perawatan Gigi Anak':
         return const _EdukasiArticle(
           ringkasan:
-              'Menurut pesan kesehatan ibu dan anak, cuci tangan pakai sabun adalah cara sederhana mencegah diare, cacingan, dan infeksi saluran napas. Kebiasaan ini perlu dicontohkan orang tua setiap hari.',
+              'Perawatan gigi anak perlu dimulai sejak dini. Kebiasaan seperti minum susu botol saat tidur, sering ngemil manis, tidak menyikat gigi sebelum tidur, dan mengemut makanan meningkatkan risiko gigi berlubang.',
           tutorialLangkah: [
-            'Basahi tangan dengan air mengalir, lalu beri sabun secukupnya.',
-            'Gosok telapak dan punggung tangan secara merata.',
-            'Bersihkan sela-sela jari, ujung jari, kuku, dan ibu jari selama minimal 20 detik.',
-            'Bilas hingga bersih dengan air mengalir lalu keringkan dengan kain bersih/tisu.',
-            'Ulangi pada 5 waktu penting: sebelum makan, sebelum menyiapkan makanan, setelah BAB/BAK, setelah ganti popok, setelah memegang benda kotor.',
+            'Usia 0-4 bulan: gendong/pangku anak dengan satu tangan saat membersihkan mulut.',
+            'Bersihkan gusi anak perlahan dengan kain/lap basah yang dilingkarkan pada jari telunjuk ibu.',
+            'Usia 6-12 bulan: bersihkan gusi setelah diberi makan menggunakan kain/lap basah.',
+            'Saat gigi susu mulai muncul, bersihkan dengan sikat gigi berbulu halus.',
+            'Gunakan pasta gigi sangat tipis pada permukaan bulu sikat bila diperlukan sesuai anjuran usia.',
           ],
           bagian: [
             _ArticleSection(
-              judul: 'Langkah cuci tangan yang benar',
+              judul: 'Faktor Risiko Gigi Berlubang',
               poin: [
-                'Basahi tangan dengan air mengalir, lalu gunakan sabun.',
-                'Gosok telapak, punggung tangan, sela jari, ujung jari, kuku, dan ibu jari.',
-                'Lakukan minimal 20 detik agar kuman terangkat.',
-                'Bilas dengan air mengalir lalu keringkan dengan kain bersih/tisu.',
+                'Meminum susu botol saat tidur malam.',
+                'Mengemil makanan manis di antara waktu makan.',
+                'Tidak menyikat gigi sebelum tidur.',
+                'Mengemut makanan.',
               ],
             ),
             _ArticleSection(
-              judul: 'Tips membiasakan anak',
+              judul: 'Cara Membersihkan Gigi Anak Usia 0-4 Bulan',
               poin: [
-                'Buat lagu singkat 20 detik saat anak mencuci tangan.',
-                'Sediakan sabun di tempat yang mudah dijangkau anak.',
-                'Orang tua memberi contoh sebelum meminta anak melakukannya.',
+                'Gendong atau pangku anak dengan satu tangan.',
+                'Bersihkan gusi anak perlahan menggunakan kain/lap basah yang dilingkarkan pada jari telunjuk ibu.',
+              ],
+            ),
+            _ArticleSection(
+              judul: 'Cara Membersihkan Gigi Anak Usia 6-12 Bulan',
+              poin: [
+                'Bersihkan gusi anak setelah diberi makan menggunakan kain/lap basah.',
+                'Bila gigi susu mulai muncul, bersihkan gigi dengan sikat gigi anak berbulu halus tanpa pasta gigi atau pasta gigi selapis tipis.',
               ],
             ),
           ],
           yangPerluDiingat: [
-            'Cuci tangan pakai sabun adalah cara murah dan efektif mencegah infeksi.',
-            'Lakukan minimal 20 detik dengan membersihkan seluruh bagian tangan.',
-            'Biasakan cuci tangan pada waktu penting setiap hari.',
+            'Kebersihan mulut anak dimulai sebelum gigi tumbuh penuh.',
+            'Hindari kebiasaan yang meningkatkan risiko gigi berlubang.',
+            'Periksa gigi secara berkala agar masalah ditemukan lebih awal.',
           ],
         );
-      case 'Informasi Umum Perawatan Gigi Anak':
+      case 'Melihat Informasi Umum Perawatan Anak Sakit':
         return const _EdukasiArticle(
           ringkasan:
-              'Perawatan gigi anak dimulai sejak gigi pertama tumbuh. Buku KIA menekankan kebersihan mulut, pembatasan gula, dan pemeriksaan gigi berkala agar anak terhindar dari gigi berlubang dan nyeri.',
+              'Saat anak sakit, orang tua perlu tetap tenang dan memastikan kebutuhan gizi anak terpenuhi. Daya tahan tubuh anak melemah saat sakit sehingga memerlukan asupan gizi lebih banyak dan lebih sering.',
           tutorialLangkah: [
-            'Sikat gigi anak 2 kali sehari: sesudah sarapan dan sebelum tidur.',
-            'Gunakan pasta gigi berfluor sesuai usia (butir beras untuk <3 tahun, kacang polong untuk 3-6 tahun).',
-            'Dampingi anak saat menyikat gigi agar tekniknya benar dan menyeluruh.',
-            'Batasi makanan/minuman manis lengket, terutama di malam hari.',
-            'Jadwalkan pemeriksaan gigi rutin setiap 6 bulan di fasilitas kesehatan.',
+            'Beri asupan gizi lebih banyak, misalnya menambah porsi ASI atau makanan/minuman.',
+            'Beri asupan gizi lebih sering, tambahkan frekuensi makan 1-2 kali dari biasanya dengan porsi kecil.',
+            'Pantau gejala utama seperti demam, batuk, diare, luka, muntah, dan nafsu makan anak.',
+            'Tetap berikan cairan cukup untuk mencegah dehidrasi.',
+            'Segera ke fasilitas pelayanan kesehatan bila muncul tanda bahaya.',
           ],
           bagian: [
             _ArticleSection(
-              judul: 'Panduan sesuai usia',
+              judul: 'Demam',
               poin: [
-                'Usia <3 tahun: pasta gigi berfluor seukuran butir beras.',
-                'Usia 3-6 tahun: pasta gigi berfluor seukuran kacang polong.',
-                'Orang tua tetap mendampingi sikat gigi sampai anak terampil.',
-                'Periksa gigi ke fasilitas kesehatan setiap 6 bulan.',
+                'Jika masih menyusu, berikan ASI lebih sering.',
+                'Beri minum lebih sering dan lebih banyak.',
+                'Jangan diselimuti atau diberi baju tebal.',
+                'Kompres dengan air biasa/air hangat, jangan dengan air dingin.',
+                'Jika demam tinggi, beri obat penurun panas sesuai dosis.',
+                'Segera ke fasilitas kesehatan jika demam disertai kejang, tidak turun dalam 2 hari, atau disertai bintik merah/perdarahan.',
               ],
             ),
             _ArticleSection(
-              judul: 'Waspadai tanda masalah gigi',
+              judul: 'Luka dan Koreng',
               poin: [
-                'Anak mengeluh ngilu saat makan/minum.',
-                'Terlihat bercak coklat/hitam pada gigi.',
-                'Gusi bengkak atau mudah berdarah.',
-                'Segera periksa bila keluhan tidak membaik.',
+                'Luka: cuci bersih luka dengan air bersih mengalir.',
+                'Koreng: periksakan ke puskesmas.',
+                'Segera ke fasilitas kesehatan jika luka bernanah atau berbau.',
+              ],
+            ),
+            _ArticleSection(
+              judul: 'Batuk',
+              poin: [
+                'Berikan ASI lebih sering.',
+                'Beri minum air matang lebih banyak.',
+                'Usia di atas 1 tahun bisa diberikan madu/kecap manis dengan air jeruk nipis sebagai pelega tenggorokan.',
+                'Jauhkan dari asap rokok, asap dapur, asap sampah, polusi kendaraan, dan debu.',
+                'Segera ke fasilitas kesehatan jika batuk tidak sembuh dalam 2 hari, anak sesak napas, atau disertai demam.',
+              ],
+            ),
+            _ArticleSection(
+              judul: 'Diare/Mencret',
+              poin: [
+                'Jika anak masih menyusu, terus berikan ASI sesering mungkin.',
+                'Berikan oralit 1/2-1 gelas setiap kali buang air besar. Jika tidak ada, berikan air matang/kuah sayur bening/air tajin.',
+                'Pemberian zinc 10 hari berturut-turut: usia <6 bulan 1/2 tablet, usia 6 bulan-5 tahun 1 tablet.',
+                'Tetap beri MP-ASI atau makan seperti biasa.',
+                'Jangan beri obat apapun kecuali dari petugas kesehatan.',
+                'Segera ke fasilitas kesehatan jika timbul demam, ada darah dalam tinja, diare makin parah, muntah terus, anak sangat haus, atau tidak mau makan/minum.',
               ],
             ),
           ],
           yangPerluDiingat: [
-            'Kebiasaan sikat gigi yang benar harus dimulai sejak dini.',
-            'Gunakan pasta gigi berfluor sesuai usia dan tetap dampingi anak.',
-            'Kontrol gigi tiap 6 bulan membantu mencegah masalah yang lebih berat.',
+            'Saat anak sakit, tetap utamakan cairan, nutrisi, dan pemantauan gejala.',
+            'Jangan memberi obat sembarangan tanpa arahan petugas kesehatan.',
+            'Bawa ke fasilitas kesehatan segera jika ada tanda bahaya.',
           ],
         );
-      case 'Informasi Umum Perawatan Anak Sakit':
+      case 'Melihat Informasi Umum Anak dengan Disabilitas':
         return const _EdukasiArticle(
           ringkasan:
-              'Saat anak sakit, perawatan rumah berfokus pada cairan, nutrisi, istirahat, dan pemantauan tanda bahaya. Buku KIA menekankan agar orang tua tidak menunda mencari pertolongan bila gejala berat muncul.',
+              'Anak dengan disabilitas rentan terhadap masalah kesehatan dan kekerasan. Keluarga perlu memberi perlindungan, pemenuhan gizi, pendampingan kebersihan diri, serta pemantauan tumbuh kembang secara teratur.',
           tutorialLangkah: [
-            'Pastikan anak cukup istirahat dan tetap minum/ASI lebih sering untuk mencegah dehidrasi.',
-            'Berikan makanan lunak bergizi dalam porsi kecil tetapi sering.',
-            'Pantau suhu tubuh, napas, muntah, diare, dan aktivitas anak setiap beberapa jam.',
-            'Berikan obat hanya sesuai anjuran tenaga kesehatan, jangan memberi antibiotik sembarangan.',
-            'Segera ke fasilitas kesehatan bila muncul tanda bahaya seperti sesak, kejang, tidak mau minum, atau sangat lemas.',
+            'Bangun penguatan mental keluarga untuk menerima kondisi anak dengan penuh kasih.',
+            'Lindungi anak dan berikan rasa aman melalui dukungan, semangat, serta motivasi.',
+            'Latih kemandirian anak secara bertahap dalam aktivitas sehari-hari.',
+            'Sediakan makanan bergizi seimbang dan periksakan kesehatan anak secara rutin.',
+            'Kontrol teratur untuk terapi, pemantauan status gizi, perkembangan, dan imunisasi di puskesmas terdekat.',
+            'Pada anak dengan hambatan bicara/bahasa, latih pelafalan huruf, suku kata, kata, kalimat, dan kemampuan mendengar.',
           ],
           bagian: [
             _ArticleSection(
-              judul: 'Perawatan dasar di rumah',
+              judul: 'Dukungan Keluarga Sehari-hari',
               poin: [
-                'Pastikan anak cukup istirahat dan lingkungan tetap nyaman.',
-                'Bersihkan hidung bila pilek, pakaikan pakaian tipis saat demam.',
-                'Catat gejala dan waktu munculnya untuk memudahkan evaluasi tenaga kesehatan.',
-                'Hindari memberi antibiotik tanpa resep.',
+                'Menerima kondisi anak dengan segala kebutuhannya.',
+                'Melindungi anak dari kekerasan dan perlakuan tidak aman.',
+                'Membantu pemenuhan gizi, kebersihan perorangan, dan aktivitas harian.',
+                'Memantau tumbuh kembang dan status kesehatan secara teratur.',
+                'Melengkapi imunisasi serta kontrol terapi sesuai kebutuhan anak.',
               ],
             ),
             _ArticleSection(
-              judul: 'Tanda bahaya, segera ke fasilitas kesehatan',
+              judul: 'Komunitas Pendukung Anak Dengan Disabilitas',
               poin: [
-                'Anak tidak mau minum, muntah terus, atau tampak sangat lemas.',
-                'Napas cepat/sesak, tarikan dinding dada, atau bibir kebiruan.',
-                'Kejang, penurunan kesadaran, atau demam tinggi menetap.',
-                'Diare dengan mata cekung, sangat haus, atau kencing berkurang.',
+                'Forum Komunikasi Keluarga Anak Dengan Kecacatan (FKKADK).',
+                'Persatuan Orang Tua Anak Dengan Down Syndrome (POTADS).',
+                'Ikatan Sindrome Down Indonesia (ISDI).',
+                'Komunitas Peduli Tuna Daksa (KOPETUNDA).',
+                'Persatuan Tuna Netra Indonesia (PERTUNI).',
+                'Himpunan Wanita Disabilitas Indonesia (HWDI).',
+                'Gerakan untuk Kesejahteraan Tuna Rungu Indonesia (GERKATIN).',
+                'Federasi Kesejahteraan Penyandang Cacat Tubuh Indonesia (FKPCTI).',
+                'Yayasan Autis Indonesia (YAI), YPAC, dan Yayasan Sayap Ibu.',
+                'Jika jauh dari komunitas, libatkan keluarga di Posyandu, PAUD, PKK, RBM, Polindes/Poskesdes, dan Puskesmas terdekat.',
               ],
             ),
           ],
           yangPerluDiingat: [
-            'Utamakan cairan, nutrisi, istirahat, dan pemantauan gejala secara berkala.',
-            'Jangan memberikan antibiotik tanpa resep tenaga kesehatan.',
-            'Kenali tanda bahaya dan segera ke fasilitas kesehatan bila muncul.',
+            'Anak dengan disabilitas berhak atas perlindungan, kesehatan, gizi, dan pendidikan.',
+            'Dukungan keluarga yang konsisten sangat menentukan perkembangan anak.',
+            'Manfaatkan jejaring komunitas dan layanan kesehatan terdekat untuk pendampingan jangka panjang.',
           ],
         );
       case 'Melihat Informasi Umum Perlindungan Anak':
         return const _EdukasiArticle(
           ringkasan:
-              'Buku KIA menekankan bahwa setiap anak berhak mendapatkan perlindungan, pengasuhan penuh kasih, dan lingkungan yang aman. Orang tua perlu mengenali risiko kekerasan, penelantaran, serta langkah pelaporan bila anak terancam.',
+              'Lindungi anak dari kekerasan fisik, psikis, seksual, dan penelantaran. Orang tua perlu membangun komunikasi, memahami hak anak, dan mengenali tanda-tanda kekerasan sejak dini.',
           tutorialLangkah: [
-            'Bangun komunikasi harian dengan anak agar ia merasa aman bercerita.',
-            'Ajarkan anak mengenali bagian tubuh pribadi dan batas sentuhan yang tidak boleh dilanggar.',
-            'Pastikan anak selalu dalam pengawasan orang dewasa tepercaya di rumah, sekolah, dan lingkungan bermain.',
-            'Pantau perubahan perilaku anak seperti takut berlebihan, murung, atau menolak bertemu orang tertentu.',
-            'Jika ada dugaan kekerasan atau penelantaran, segera cari bantuan ke puskesmas, guru, kader, atau layanan perlindungan anak setempat.',
+            'Bangun komunikasi rutin: dengarkan cerita anak dengan penuh perhatian.',
+            'Ajarkan anak bahwa bagian pribadi (kelamin, paha, dada, pantat, kaki) tidak boleh disentuh orang lain.',
+            'Kelola stres keluarga dan pastikan keberadaan anak selalu diketahui.',
+            'Pastikan pengasuh anak dapat dipercaya.',
+            'Segera cari bantuan jika ada dugaan kekerasan atau penelantaran.',
           ],
           bagian: [
             _ArticleSection(
-              judul: 'Prinsip perlindungan anak di rumah',
+              judul: 'Contoh Bentuk Kekerasan Pada Anak',
               poin: [
-                'Gunakan pengasuhan tanpa kekerasan fisik maupun verbal.',
-                'Buat aturan rumah yang jelas, konsisten, dan sesuai usia anak.',
-                'Dengarkan pendapat anak dan validasi perasaannya.',
-                'Jaga identitas serta privasi anak, termasuk saat memakai media sosial.',
+                'Mencubit, memukul (kekerasan fisik).',
+                'Mengejek, mengancam (kekerasan psikis).',
+                'Perbuatan cabul atau mempertontonkan aktivitas seksual pada anak (kekerasan seksual).',
+                'Tidak memenuhi kebutuhan gizi, kesehatan, dan pendidikan (penelantaran).',
               ],
             ),
             _ArticleSection(
-              judul: 'Tanda anak perlu perlindungan segera',
+              judul: 'Bangun Komunikasi Dengan Anak',
               poin: [
-                'Ada luka berulang dengan penjelasan yang tidak jelas.',
-                'Anak tampak ketakutan, menarik diri, atau terjadi perubahan perilaku mendadak.',
-                'Anak mengeluh nyeri pada area sensitif atau mengungkap pengalaman tidak nyaman.',
-                'Segera laporkan ke fasilitas kesehatan/otoritas perlindungan anak agar mendapat penanganan cepat.',
+                'Dengarkan cerita anak dengan penuh perhatian.',
+                'Orang tua belajar melihat dari sudut pandang anak tanpa cepat mengkritik.',
+                'Hargai pendapat dan selera anak walau berbeda dengan orang tua.',
+                'Jika anak bercerita hal berbahaya, bantu anak menyusun cara menghindarinya.',
+              ],
+            ),
+            _ArticleSection(
+              judul: 'Perhatikan Tanda Kekerasan Pada Anak',
+              poin: [
+                'Memar atau luka yang tidak dapat dijelaskan.',
+                'Gangguan makan dan tidur.',
+                'Perubahan perilaku mendadak.',
+                'Adanya infeksi menular seksual.',
               ],
             ),
           ],
           yangPerluDiingat: [
-            'Perlindungan anak dimulai dari rumah: aman, hangat, dan bebas kekerasan.',
-            'Komunikasi terbuka membantu anak berani melapor saat merasa tidak aman.',
-            'Jangan menunda mencari bantuan profesional jika ada tanda kekerasan atau penelantaran.',
+            'Banyak pelaku kekerasan fisik dan kejahatan seksual adalah orang yang dikenal anak.',
+            'Lindungi anak dengan komunikasi terbuka, pengawasan, dan pengasuhan tanpa kekerasan.',
+            'Segera minta bantuan tenaga kesehatan/otoritas terkait bila ada tanda kekerasan.',
           ],
         );
       default:
@@ -249,12 +369,6 @@ class _EdukasiDetailScreenState extends State<EdukasiDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final _EdukasiArticle article = _buildArticleByTitle(widget.title);
-    final int totalSteps = article.tutorialLangkah.length;
-    final int currentStep = totalSteps == 0
-        ? 0
-        : _currentStep.clamp(0, totalSteps - 1);
-    final bool isLastStep = totalSteps == 0 ? true : currentStep == totalSteps - 1;
-    final double progress = totalSteps == 0 ? 0 : (currentStep + 1) / totalSteps;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
@@ -368,25 +482,6 @@ class _EdukasiDetailScreenState extends State<EdukasiDetailScreen> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-              decoration: BoxDecoration(
-                color: widget.typeBgColor,
-                borderRadius: BorderRadius.circular(6),
-              ),
-              child: Text(
-                widget.type,
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w800,
-                  color: widget.typeColor,
-                  letterSpacing: 0.5,
-                ),
-              ),
-            ),
-          ),
-          Padding(
             padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
             child: Text(
               widget.title,
@@ -420,94 +515,348 @@ class _EdukasiDetailScreenState extends State<EdukasiDetailScreen> {
               ),
             ),
           ),
-          const Padding(
-            padding: EdgeInsets.fromLTRB(20, 18, 20, 0),
-            child: Text(
-              'Tutorial Edukasi',
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w700,
-                color: Color(0xFF1E293B),
+          if (article.tutorialLangkah.isNotEmpty) ...[
+            const Padding(
+              padding: EdgeInsets.fromLTRB(20, 18, 20, 0),
+              child: Text(
+                'Tutorial Edukasi',
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF1E293B),
+                ),
               ),
             ),
-          ),
-          Container(
-            margin: const EdgeInsets.fromLTRB(20, 10, 20, 0),
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: Colors.grey.shade200),
+            ...article.tutorialLangkah.asMap().entries.map(
+              (entry) => _TutorialStepCard(
+                index: entry.key + 1,
+                text: entry.value,
+              ),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Langkah ${currentStep + 1} dari $totalSteps',
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: Color(0xFF1E293B),
-                  ),
+          ],
+          if (_isProtectionArticle) ...[
+            const Padding(
+              padding: EdgeInsets.fromLTRB(20, 20, 20, 0),
+              child: Text(
+                'Kuisioner Kesehatan Lingkungan (Diisi Oleh Keluarga)',
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF1E293B),
                 ),
-                const SizedBox(height: 8),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: LinearProgressIndicator(
-                    value: progress,
-                    minHeight: 9,
-                    backgroundColor: const Color(0xFFE2E8F0),
-                    valueColor: const AlwaysStoppedAnimation<Color>(
-                      Color(0xFF2563EB),
-                    ),
-                  ),
+              ),
+            ),
+            const Padding(
+              padding: EdgeInsets.fromLTRB(20, 8, 20, 0),
+              child: Text(
+                'Baca dan pahami hal-hal di bawah ini. Jika ada yang tidak dimengerti, tanyakan pada kader.',
+                style: TextStyle(
+                  fontSize: 13,
+                  color: Color(0xFF475569),
+                  height: 1.45,
                 ),
-                const SizedBox(height: 12),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton.icon(
-                    onPressed: totalSteps == 0
-                        ? null
-                        : () {
-                            setState(() {
-                              if (isLastStep) {
-                                _currentStep = 0;
-                              } else {
-                                _currentStep = currentStep + 1;
-                              }
-                            });
-                          },
-                    icon: Icon(
-                      isLastStep ? Icons.refresh : Icons.arrow_forward_rounded,
-                      size: 18,
-                    ),
-                    label: Text(
-                      isLastStep
-                          ? 'Mulai Ulang dari Langkah 1'
-                          : 'Lanjut ke Langkah Berikutnya',
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      elevation: 0,
-                      backgroundColor: const Color(0xFF2563EB),
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                  ),
+              ),
+            ),
+            _QuestionnaireCard(
+              sectionKey: _kesehatanSectionKey,
+              title: 'Sarana Sanitasi',
+              questions: [
+                _QuestionnaireQuestion(
+                  prompt: 'Di mana ibu dan keluarga buang air besar? (pilih salah satu)',
+                  options: [
+                    'Sembarangan (kebun, sungai, dan sejenisnya).',
+                    'Jamban milik sendiri.',
+                  ],
+                ),
+                _QuestionnaireQuestion(
+                  prompt:
+                      'Jika jamban milik sendiri, bagian bawah/bak penampung tinja berupa apa?',
+                  options: [
+                    'Tangki septik yang disedot 3-5 tahun terakhir atau disalurkan ke sistem pengolahan.',
+                    'Cubluk/lubang tanah.',
+                    'Dibuang langsung ke drainase/kolam/sawah/sungai/danau/laut/pantai/tanah lapang/kebun.',
+                  ],
+                ),
+                _QuestionnaireQuestion(
+                  prompt: 'Bagaimana bentuk kloset jambannya?',
+                  options: [
+                    'Kloset leher angsa/lainnya yang mencegah binatang pembawa penyakit masuk.',
+                  ],
                 ),
               ],
+              answers: _questionnaireAnswers,
+              onChanged: (key, value) {
+                setState(() {
+                  _questionnaireAnswers[key] = value;
+                });
+              },
             ),
-          ),
-          ...article.tutorialLangkah.asMap().entries.map(
-            (entry) => _TutorialStepCard(
-              index: entry.key + 1,
-              text: entry.value,
-              isActive: entry.key == currentStep,
-              isPassed: entry.key < currentStep,
+            _QuestionnaireCard(
+              sectionKey: _kesehatanSectionKey,
+              title: 'Cuci Tangan Pakai Sabun',
+              questions: [
+                _QuestionnaireQuestion(
+                  prompt: 'Seperti apa sarana cuci tangan di rumah ibu?',
+                  options: [
+                    'Memiliki sarana/tempat cuci tangan.',
+                    'Memiliki air mengalir.',
+                    'Memiliki sabun.',
+                  ],
+                ),
+                _QuestionnaireQuestion(
+                  prompt: 'Apakah ibu melakukan cuci tangan pakai sabun?',
+                  options: [
+                    'Ya, rutin dilakukan.',
+                    'Belum rutin dilakukan.',
+                  ],
+                ),
+                _QuestionnaireQuestion(
+                  prompt: 'Apakah ibu mengetahui waktu-waktu kritis cuci tangan pakai sabun?',
+                  options: [
+                    'Sebelum makan.',
+                    'Sebelum mengolah dan menghidangkan makanan.',
+                    'Sebelum menyusui anak dan sebelum memberi makan bayi/balita.',
+                    'Setelah buang air besar/kecil.',
+                  ],
+                ),
+              ],
+              answers: _questionnaireAnswers,
+              onChanged: (key, value) {
+                setState(() {
+                  _questionnaireAnswers[key] = value;
+                });
+              },
             ),
-          ),
+            _QuestionnaireCard(
+              sectionKey: _kesehatanSectionKey,
+              title: 'Pengelolaan Makanan dan Air Minum',
+              questions: [
+                _QuestionnaireQuestion(
+                  prompt: 'Apa sumber air minum di rumah ibu?',
+                  options: [
+                    'Pipa.',
+                    'Kran umum.',
+                    'Sumur bor/pompa/sumur gali terlindungi.',
+                    'Mata air terlindungi.',
+                    'Sungai/mata air tidak terlindungi.',
+                    'Danau/kolam/sumur gali tidak terlindungi.',
+                    'Air hujan.',
+                    'Waduk.',
+                    'Kolam.',
+                    'Irigasi.',
+                  ],
+                ),
+                _QuestionnaireQuestion(
+                  prompt: 'Bagaimana ibu mengelola air minum di rumah tangga?',
+                  options: [
+                    'Melalui proses pengolahan (misalnya direbus).',
+                    'Jika air keruh dilakukan pengolahan (pengendapan/penyaringan).',
+                    'Disimpan dalam wadah tertutup rapat, kuat, dan diambil dengan cara aman.',
+                  ],
+                ),
+                _QuestionnaireQuestion(
+                  prompt: 'Bagaimana ibu mengelola makanan di dalam keluarga?',
+                  options: [
+                    'Makanan tertutup baik dengan penutup bersih.',
+                    'Makanan tidak berdekatan dengan bahan berbahaya/beracun.',
+                    'Menjaga kebersihan, memisahkan mentah-matang, memasak sampai matang, tidak membiarkan makanan matang >4 jam, serta memakai air aman.',
+                  ],
+                ),
+              ],
+              answers: _questionnaireAnswers,
+              onChanged: (key, value) {
+                setState(() {
+                  _questionnaireAnswers[key] = value;
+                });
+              },
+            ),
+            _QuestionnaireCard(
+              sectionKey: _kesehatanSectionKey,
+              title: 'Pengelolaan Sampah',
+              questions: [
+                _QuestionnaireQuestion(
+                  prompt: 'Bagaimana ibu mengelola sampah?',
+                  options: [
+                    'Tidak ada sampah berserakan di lingkungan sekitar rumah.',
+                    'Ada tempat sampah tertutup, kuat, dan mudah dibersihkan.',
+                    'Telah melakukan pemilahan sampah.',
+                    'Sampah tidak dibakar.',
+                    'Sampah tidak dibuang ke sungai/kebun/saluran drainase/tempat terbuka.',
+                  ],
+                ),
+              ],
+              answers: _questionnaireAnswers,
+              onChanged: (key, value) {
+                setState(() {
+                  _questionnaireAnswers[key] = value;
+                });
+              },
+            ),
+            _QuestionnaireCard(
+              sectionKey: _kesehatanSectionKey,
+              title: 'Pengelolaan Limbah Cair (air bekas cuci baju, piring, mandi)',
+              questions: [
+                _QuestionnaireQuestion(
+                  prompt: 'Bagaimana ibu mengelola limbah cair di rumah?',
+                  options: [
+                    'Tidak terlihat genangan air di sekitar rumah.',
+                    'Ada saluran pembuangan limbah cair rumah tangga (non kakus) yang kedap dan tertutup.',
+                    'Terhubung dengan sumur resapan dan/atau sistem pengolahan limbah.',
+                  ],
+                ),
+              ],
+              answers: _questionnaireAnswers,
+              onChanged: (key, value) {
+                setState(() {
+                  _questionnaireAnswers[key] = value;
+                });
+              },
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 14, 20, 0),
+              child: FilledButton.icon(
+                onPressed: () => _handleSaveAndSubmitSection(
+                  sectionTitle: 'Kuisioner Kesehatan Lingkungan',
+                  sectionKey: _kesehatanSectionKey,
+                ),
+                icon: const Icon(Icons.save_as_outlined),
+                label: const Text('Simpan dan Kirim'),
+                style: FilledButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ),
+            const Padding(
+              padding: EdgeInsets.fromLTRB(20, 22, 20, 0),
+              child: Text(
+                'Kuisioner Keselamatan Lingkungan (Diisi Oleh Keluarga)',
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF1E293B),
+                ),
+              ),
+            ),
+            const Padding(
+              padding: EdgeInsets.fromLTRB(20, 8, 20, 0),
+              child: Text(
+                'Baca dan pahami hal-hal di bawah ini. Jika ada yang tidak dimengerti, tanyakan pada kader.',
+                style: TextStyle(
+                  fontSize: 13,
+                  color: Color(0xFF475569),
+                  height: 1.45,
+                ),
+              ),
+            ),
+            _QuestionnaireCard(
+              sectionKey: _keselamatanSectionKey,
+              title: 'Hindarkan Anak dari Risiko Jatuh',
+              questions: [
+                _QuestionnaireQuestion(
+                  prompt: 'Checklist keselamatan di rumah:',
+                  options: [
+                    'TV, meja, lemari, dan rak yang bisa dipanjat bayi diikat/menempel di dinding.',
+                    'Sudut tajam perabot diberi bantalan.',
+                    'Tidak menggunakan baby walker.',
+                    'Jendela minimal 1 meter dari lantai untuk mencegah bayi memanjat.',
+                    'Gerbang/pagar rumah rutin diperiksa.',
+                    'Bayi tidak ditinggal sendirian di tempat tinggi.',
+                    'Tangga dan balkon dipasang pagar, jarak antar pagar <= 9 cm.',
+                    'Tempat tidur anak dipasang pengaman agar anak tidak jatuh.',
+                  ],
+                ),
+              ],
+              answers: _questionnaireAnswers,
+              onChanged: (key, value) {
+                setState(() {
+                  _questionnaireAnswers[key] = value;
+                });
+              },
+            ),
+            _QuestionnaireCard(
+              sectionKey: _keselamatanSectionKey,
+              title: 'Hindarkan Anak dari Luka Bakar dan Bahaya Listrik',
+              questions: [
+                _QuestionnaireQuestion(
+                  prompt: 'Checklist keselamatan listrik dan panas:',
+                  options: [
+                    'Anak dijauhkan dari kabel listrik dan panci panas.',
+                    'Soket listrik dipasang jauh dari jangkauan anak atau diberi penutup.',
+                    'Tidak memegang barang panas saat memegang/memangku bayi.',
+                  ],
+                ),
+              ],
+              answers: _questionnaireAnswers,
+              onChanged: (key, value) {
+                setState(() {
+                  _questionnaireAnswers[key] = value;
+                });
+              },
+            ),
+            _QuestionnaireCard(
+              sectionKey: _keselamatanSectionKey,
+              title: 'Mencegah Bayi Kekurangan Napas',
+              questions: [
+                _QuestionnaireQuestion(
+                  prompt: 'Checklist pencegahan tersedak/tercekik:',
+                  options: [
+                    'Tidak memberi makanan keras dan sulit dikunyah.',
+                    'Anak tidak bermain dengan benda berisiko terjerat/tercekik (tali panjang, kantong plastik, mainan kecil, dll).',
+                    'Tidak menidurkan bayi telungkup tanpa pengawasan.',
+                  ],
+                ),
+              ],
+              answers: _questionnaireAnswers,
+              onChanged: (key, value) {
+                setState(() {
+                  _questionnaireAnswers[key] = value;
+                });
+              },
+            ),
+            _QuestionnaireCard(
+              sectionKey: _keselamatanSectionKey,
+              title: 'Hindarkan Anak dari Bahaya Tenggelam',
+              questions: [
+                _QuestionnaireQuestion(
+                  prompt: 'Checklist pencegahan tenggelam:',
+                  options: [
+                    'Anak tidak dibiarkan sendiri di bak mandi atau ember.',
+                    'Ada pembatas aman agar anak tidak leluasa menjangkau sumber air sendiri.',
+                    'Anak tidak bermain di tepi kolam renang tanpa pengawasan.',
+                    'Anak usia 1 tahun 6 bulan mulai diajari bahaya air.',
+                    'Anak usia 2 tahun diajari melayang saat jatuh di air dan berenang jarak pendek.',
+                    'Anak usia 6 tahun diajari keterampilan berenang untuk bertahan di air.',
+                  ],
+                ),
+              ],
+              answers: _questionnaireAnswers,
+              onChanged: (key, value) {
+                setState(() {
+                  _questionnaireAnswers[key] = value;
+                });
+              },
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 14, 20, 0),
+              child: FilledButton.icon(
+                onPressed: () => _handleSaveAndSubmitSection(
+                  sectionTitle: 'Kuisioner Keselamatan Lingkungan',
+                  sectionKey: _keselamatanSectionKey,
+                ),
+                icon: const Icon(Icons.save_as_outlined),
+                label: const Text('Simpan dan Kirim'),
+                style: FilledButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ),
+          ],
           const Padding(
             padding: EdgeInsets.fromLTRB(20, 16, 20, 0),
             child: Text(
@@ -584,31 +933,21 @@ class _EdukasiDetailScreenState extends State<EdukasiDetailScreen> {
 class _TutorialStepCard extends StatelessWidget {
   final int index;
   final String text;
-  final bool isActive;
-  final bool isPassed;
 
   const _TutorialStepCard({
     required this.index,
     required this.text,
-    required this.isActive,
-    required this.isPassed,
   });
 
   @override
   Widget build(BuildContext context) {
-    final Color borderColor = isActive
-        ? const Color(0xFF93C5FD)
-        : isPassed
-            ? const Color(0xFFBFDBFE)
-            : Colors.grey.shade200;
-
     return Container(
       margin: const EdgeInsets.fromLTRB(20, 10, 20, 0),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: isActive ? const Color(0xFFEFF6FF) : Colors.white,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: borderColor),
+        border: Border.all(color: Colors.grey.shade200),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -618,17 +957,15 @@ class _TutorialStepCard extends StatelessWidget {
             height: 26,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: isActive
-                  ? const Color(0xFF2563EB)
-                  : const Color(0xFFDBEAFE),
+              color: const Color(0xFFDBEAFE),
               shape: BoxShape.circle,
             ),
             child: Text(
               '$index',
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
-                color: isActive ? Colors.white : const Color(0xFF1D4ED8),
+                color: Color(0xFF1D4ED8),
               ),
             ),
           ),
@@ -734,4 +1071,122 @@ class _ArticleSection {
   final List<String> poin;
 
   const _ArticleSection({required this.judul, required this.poin});
+}
+
+class _QuestionnaireCard extends StatelessWidget {
+  final String sectionKey;
+  final String title;
+  final List<_QuestionnaireQuestion> questions;
+  final Map<String, bool> answers;
+  final void Function(String key, bool value) onChanged;
+
+  const _QuestionnaireCard({
+    required this.sectionKey,
+    required this.title,
+    required this.questions,
+    required this.answers,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(20, 10, 20, 0),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF1E293B),
+            ),
+          ),
+          const SizedBox(height: 10),
+          ...questions.asMap().entries.map((entry) {
+            final int qIndex = entry.key;
+            final _QuestionnaireQuestion question = entry.value;
+
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '${qIndex + 1}. ${question.prompt}',
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF334155),
+                      height: 1.45,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  ...question.options.asMap().entries.map((optionEntry) {
+                    final int optIndex = optionEntry.key;
+                    final String optionText = optionEntry.value;
+                    final String key = '$sectionKey-$title-$qIndex-$optIndex';
+                    final bool checked = answers[key] ?? false;
+
+                    return InkWell(
+                      onTap: () => onChanged(key, !checked),
+                      borderRadius: BorderRadius.circular(8),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 6,
+                          horizontal: 2,
+                        ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Icon(
+                              checked
+                                  ? Icons.check_box
+                                  : Icons.check_box_outline_blank,
+                              size: 19,
+                              color: checked
+                                  ? const Color(0xFF2563EB)
+                                  : const Color(0xFF94A3B8),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                optionText,
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  color: Color(0xFF334155),
+                                  height: 1.4,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }),
+                ],
+              ),
+            );
+          }),
+        ],
+      ),
+    );
+  }
+}
+
+class _QuestionnaireQuestion {
+  final String prompt;
+  final List<String> options;
+
+  const _QuestionnaireQuestion({
+    required this.prompt,
+    required this.options,
+  });
 }

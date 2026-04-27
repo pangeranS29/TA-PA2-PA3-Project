@@ -1,8 +1,18 @@
 import 'package:flutter/material.dart';
 import 'edukasi_detail_screen.dart';
 
+enum EdukasiEntryPoint {
+  mainNavigation,
+  quickMenu,
+}
+
 class EdukasiScreen extends StatefulWidget {
-  const EdukasiScreen({Key? key}) : super(key: key);
+  final EdukasiEntryPoint entryPoint;
+
+  const EdukasiScreen({
+    Key? key,
+    this.entryPoint = EdukasiEntryPoint.mainNavigation,
+  }) : super(key: key);
 
   @override
   State<EdukasiScreen> createState() => _EdukasiScreenState();
@@ -13,62 +23,51 @@ class _EdukasiScreenState extends State<EdukasiScreen>
   String _selectedFilter = 'Semua';
   late final AnimationController _listAnimationController;
 
-  final List<Map<String, dynamic>> _allContent = [
-    {
-      'type': 'ARTIKEL',
-      'ageText': 'Orang Tua',
-      'durationText': '6 Menit Baca',
-      'title': 'Menjaga Kesehatan Mental Orang Tua dalam Pengasuhan Anak',
-    },
+  bool get _isQuickMenuEntry =>
+      widget.entryPoint == EdukasiEntryPoint.quickMenu;
+
+  final List<Map<String, dynamic>> _mainNavigationContent = [
     {
       'type': 'ARTIKEL',
       'ageText': 'Semua Umur',
       'durationText': '4 Menit Baca',
-      'title': 'Informasi Umum Cuci Tangan Pakai Sabun',
+      'title': 'Melihat Informasi Umum Cuci Tangan Pakai Sabun',
     },
     {
       'type': 'ARTIKEL',
       'ageText': '0-18 Tahun',
       'durationText': '5 Menit Baca',
-      'title': 'Informasi Umum Perawatan Gigi Anak',
+      'title': 'Melihat Informasi Umum Perawatan Gigi Anak',
     },
     {
       'type': 'ARTIKEL',
       'ageText': 'Semua Umur',
       'durationText': '7 Menit Baca',
-      'title': 'Informasi Umum Perawatan Anak Sakit',
+      'title': 'Melihat Informasi Umum Perawatan Anak Sakit',
     },
     {
       'type': 'ARTIKEL',
-      'ageText': '0-18 Tahun',
+      'ageText': 'Semua Umur',
       'durationText': '6 Menit Baca',
-      'title': 'Melihat Informasi Umum Perlindungan Anak',
-    },
-    {
-      'type': 'VIDEO',
-      'ageText': '6-9 Bulan',
-      'durationText': '5 Menit',
-      'title': 'Stimulasi Merangkak Anak',
-    },
-    {
-      'type': 'ARTIKEL',
-      'ageText': '6 Bulan',
-      'durationText': '3 Menit Baca',
-      'title': 'Mengenalkan Makanan Pendamping ASI',
-    },
-    {
-      'type': 'VIDEO',
-      'ageText': '12-18 Bulan',
-      'durationText': '8 Menit',
-      'title': 'Bermain Sambil Belajar Berbicara',
+      'title': 'Melihat Informasi Umum Anak dengan Disabilitas',
     },
     {
       'type': 'ARTIKEL',
       'ageText': 'Semua Umur',
       'durationText': '5 Menit Baca',
-      'title': 'Tips Mengatasi Anak Susah Makan',
+      'title': 'Melihat Informasi Umum Perlindungan Anak',
     },
   ];
+
+  final List<Map<String, dynamic>> _quickMenuContent = [];
+
+  List<Map<String, dynamic>> get _baseContent =>
+      _isQuickMenuEntry ? _quickMenuContent : _mainNavigationContent;
+
+  List<String> get _activeFilters =>
+      _isQuickMenuEntry
+        ? ['Semua', 'Video', 'Artikel', 'Resep']
+        : ['Semua', 'Video', 'Artikel'];
 
   @override
   void initState() {
@@ -87,9 +86,9 @@ class _EdukasiScreenState extends State<EdukasiScreen>
 
   @override
   Widget build(BuildContext context) {
-    List<Map<String, dynamic>> filteredContent = _allContent;
+    List<Map<String, dynamic>> filteredContent = _baseContent;
     if (_selectedFilter != 'Semua') {
-      filteredContent = _allContent
+      filteredContent = _baseContent
           .where((item) => item['type'] == _selectedFilter.toUpperCase())
           .toList();
     }
@@ -100,17 +99,20 @@ class _EdukasiScreenState extends State<EdukasiScreen>
         backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_ios_new,
-            color: Color(0xFF1E293B),
-            size: 20,
-          ),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: const Text(
-          'Konten Edukasi',
-          style: TextStyle(
+        automaticallyImplyLeading: _isQuickMenuEntry,
+        leading: _isQuickMenuEntry
+            ? IconButton(
+                icon: const Icon(
+                  Icons.arrow_back_ios_new,
+                  color: Color(0xFF1E293B),
+                  size: 20,
+                ),
+                onPressed: () => Navigator.pop(context),
+              )
+            : null,
+        title: Text(
+          _isQuickMenuEntry ? 'Edukasi Cepat' : 'Informasi Umum',
+          style: const TextStyle(
             color: Color(0xFF1E293B),
             fontSize: 16,
             fontWeight: FontWeight.w700,
@@ -130,6 +132,8 @@ class _EdukasiScreenState extends State<EdukasiScreen>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              _buildEntryBanner(),
+              const SizedBox(height: 16),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 decoration: BoxDecoration(
@@ -137,14 +141,16 @@ class _EdukasiScreenState extends State<EdukasiScreen>
                   borderRadius: BorderRadius.circular(24),
                   border: Border.all(color: Colors.grey.shade300),
                 ),
-                child: const Row(
+                child: Row(
                   children: [
                     Icon(Icons.search, color: Color(0xFF94A3B8), size: 20),
                     SizedBox(width: 12),
                     Expanded(
                       child: TextField(
                         decoration: InputDecoration(
-                          hintText: 'Cari stimulasi atau tips...',
+                          hintText: _isQuickMenuEntry
+                              ? 'Cari edukasi singkat...'
+                              : 'Cari stimulasi atau tips...',
                           hintStyle: TextStyle(
                             color: Color(0xFF94A3B8),
                             fontSize: 13,
@@ -163,22 +169,23 @@ class _EdukasiScreenState extends State<EdukasiScreen>
                   ],
                 ),
               ),
-              const SizedBox(height: 24),
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: [
-                    _buildFilterChip('Semua'),
-                    _buildFilterChip('Video'),
-                    _buildFilterChip('Artikel'),
-                    _buildFilterChip('Resep'),
-                  ],
+              if (_isQuickMenuEntry) ...[
+                const SizedBox(height: 24),
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: _activeFilters
+                        .map((label) => _buildFilterChip(label))
+                        .toList(),
+                  ),
                 ),
-              ),
+              ],
               const SizedBox(height: 32),
-              const Text(
-                'Rekomendasi Edukasi KIA',
-                style: TextStyle(
+              Text(
+                _isQuickMenuEntry
+                    ? 'Rekomendasi Cepat Untuk Anda'
+                    : 'Rekomendasi Edukasi KIA',
+                style: const TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.bold,
                   color: Color(0xFF1E293B),
@@ -212,6 +219,54 @@ class _EdukasiScreenState extends State<EdukasiScreen>
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildEntryBanner() {
+    final Color bgColor =
+        _isQuickMenuEntry ? const Color(0xFFFFF7ED) : const Color(0xFFEFF6FF);
+    final Color iconBgColor =
+        _isQuickMenuEntry ? const Color(0xFFFFEDD5) : const Color(0xFFDBEAFE);
+    final Color iconColor =
+        _isQuickMenuEntry ? const Color(0xFFEA580C) : const Color(0xFF2563EB);
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 34,
+            height: 34,
+            decoration: BoxDecoration(
+              color: iconBgColor,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(
+              _isQuickMenuEntry ? Icons.flash_on : Icons.menu_book,
+              color: iconColor,
+              size: 18,
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              _isQuickMenuEntry
+                  ? 'Akses dari Menu Cepat: fokus ke konten ringkas dan praktis.'
+                  : 'Akses dari Navigasi Utama: eksplorasi semua konten edukasi.',
+              style: TextStyle(
+                color: iconColor,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -497,26 +552,6 @@ class _AnimatedContentCardState extends State<AnimatedContentCard> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: widget.typeBgColor,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          widget.type,
-                          style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w800,
-                            color: widget.typeColor,
-                            letterSpacing: 0.5,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
                       Text(
                         widget.title,
                         style: const TextStyle(
