@@ -6,6 +6,8 @@ export default function SetelahMelahirkanPage() {
     <EdukasiDigitalCrudPage
       title="Edukasi Setelah Melahirkan"
       resourcePath="edukasi-setelah-melahirkan"
+      view="list"
+      createPath="/edukasi-digital/setelah-melahirkan/form"
     />
   );
 }

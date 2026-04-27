@@ -6,6 +6,8 @@ export default function MenyusuiAsiPage() {
     <EdukasiDigitalCrudPage
       title="Edukasi Menyusui ASI"
       resourcePath="edukasi-menyusui-asi"
+      view="list"
+      createPath="/edukasi-digital/menyusui-asi/form"
     />
   );
 }

@@ -6,6 +6,8 @@ export default function TandaMelahirkanPage() {
     <EdukasiDigitalCrudPage
       title="Edukasi Tanda Melahirkan"
       resourcePath="edukasi-tanda-melahirkan"
+      view="list"
+      createPath="/edukasi-digital/tanda-melahirkan/form"
     />
   );
 }

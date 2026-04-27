@@ -6,6 +6,8 @@ export default function InformasiUmumPage() {
     <EdukasiDigitalCrudPage
       title="Edukasi Informasi Umum"
       resourcePath="edukasi-informasi-umum"
+      view="list"
+      createPath="/edukasi-digital/informasi-umum/form"
     />
   );
 }

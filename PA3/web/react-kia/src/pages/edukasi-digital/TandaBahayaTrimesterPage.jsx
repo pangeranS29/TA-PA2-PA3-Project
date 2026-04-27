@@ -6,6 +6,8 @@ export default function TandaBahayaTrimesterPage() {
     <EdukasiDigitalCrudPage
       title="Edukasi Tanda Bahaya Trimester"
       resourcePath="edukasi-tanda-bahaya-trimester"
+      view="list"
+      createPath="/edukasi-digital/tanda-bahaya-trimester/form"
     />
   );
 }

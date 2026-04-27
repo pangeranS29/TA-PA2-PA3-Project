@@ -64,6 +64,7 @@ import KelolaPemantauan from "./pages/Pemantauan/KelolaPemantauan";
 import LihatDataPemantauan from "./pages/Pemantauan/LihatDataPemantauan";
 import KesehatanLingkunganCatatanPage from "./pages/Pencatatan/KesehatanLingkunganCatatan";
 import InformasiUmumPage from "./pages/edukasi-digital/InformasiUmumPage";
+import InformasiUmumFormPage from "./pages/edukasi-digital/InformasiUmumFormPage";
 import TandaBahayaTrimesterPage from "./pages/edukasi-digital/TandaBahayaTrimesterPage";
 import TandaMelahirkanPage from "./pages/edukasi-digital/TandaMelahirkanPage";
 import ImdPage from "./pages/edukasi-digital/ImdPage";
@@ -71,6 +72,13 @@ import SetelahMelahirkanPage from "./pages/edukasi-digital/SetelahMelahirkanPage
 import MenyusuiAsiPage from "./pages/edukasi-digital/MenyusuiAsiPage";
 import PolaAsuhPage from "./pages/edukasi-digital/PolaAsuhPage";
 import KesehatanMentalPage from "./pages/edukasi-digital/KesehatanMentalPage";
+import ImdFormPage from "./pages/edukasi-digital/ImdFormPage";
+import KesehatanMentalFormPage from "./pages/edukasi-digital/KesehatanMentalFormPage";
+import MenyusuiAsiFormPage from "./pages/edukasi-digital/MenyusuiAsiFormPage";
+import PolaAsuhFormPage from "./pages/edukasi-digital/PolaAsuhFormPage";
+import SetelahMelahirkanFormPage from "./pages/edukasi-digital/SetelahMelahirkanFormPage";
+import TandaBahayaTrimesterFormPage from "./pages/edukasi-digital/TandaBahayaTrimesterFormPage";
+import TandaMelahirkanFormPage from "./pages/edukasi-digital/TandaMelahirkanFormPage";
 
 function App() {
   return (
@@ -122,6 +130,21 @@ function App() {
           <Route path="/pemantauan/kelola" element={<KelolaPemantauan />} />
           <Route path="/pemantauan/lihat" element={<LihatDataPemantauan />} />
            <Route path="/edukasi-digital/informasi-umum" element={<InformasiUmumPage />} />
+           <Route path="/edukasi-digital/informasi-umum/form" element={<InformasiUmumFormPage />} />
+           <Route path="/edukasi-digital/imd" element={<ImdPage />} />
+           <Route path="/edukasi-digital/imd/form" element={<ImdFormPage />} />
+           <Route path="/edukasi-digital/kesehatan-mental" element={<KesehatanMentalPage />} />
+           <Route path="/edukasi-digital/kesehatan-mental/form" element={<KesehatanMentalFormPage />} />
+           <Route path="/edukasi-digital/menyusui-asi" element={<MenyusuiAsiPage />} />
+           <Route path="/edukasi-digital/menyusui-asi/form" element={<MenyusuiAsiFormPage />} />
+           <Route path="/edukasi-digital/pola-asuh" element={<PolaAsuhPage />} />
+           <Route path="/edukasi-digital/pola-asuh/form" element={<PolaAsuhFormPage />} />
+           <Route path="/edukasi-digital/setelah-melahirkan" element={<SetelahMelahirkanPage />} />
+           <Route path="/edukasi-digital/setelah-melahirkan/form" element={<SetelahMelahirkanFormPage />} />
+           <Route path="/edukasi-digital/tanda-bahaya-trimester" element={<TandaBahayaTrimesterPage />} />
+           <Route path="/edukasi-digital/tanda-bahaya-trimester/form" element={<TandaBahayaTrimesterFormPage />} />
+           <Route path="/edukasi-digital/tanda-melahirkan" element={<TandaMelahirkanPage />} />
+           <Route path="/edukasi-digital/tanda-melahirkan/form" element={<TandaMelahirkanFormPage />} />
            <Route path="/edukasi-digital/tanda-bahaya-trimester" element={<TandaBahayaTrimesterPage />} />
            <Route path="/edukasi-digital/tanda-melahirkan" element={<TandaMelahirkanPage />} />
            <Route path="/edukasi-digital/imd" element={<ImdPage />} />

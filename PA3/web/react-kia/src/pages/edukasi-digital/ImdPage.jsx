@@ -6,6 +6,8 @@ export default function ImdPage() {
     <EdukasiDigitalCrudPage
       title="Edukasi IMD"
       resourcePath="edukasi-imd"
+      view="list"
+      createPath="/edukasi-digital/imd/form"
     />
   );
 }
