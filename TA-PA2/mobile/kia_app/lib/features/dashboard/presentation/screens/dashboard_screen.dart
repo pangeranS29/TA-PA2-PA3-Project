@@ -8,7 +8,7 @@ import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/
 import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/input_profil_anak_screen.dart';
 import 'package:ta_pa2_pa3_project/features/imunisasi/presentation/screens/imunisasi_screen.dart';
 import 'package:ta_pa2_pa3_project/features/hamil/data/models/kehamilan_api_service.dart';
-
+import 'package:ta_pa2_pa3_project/features/edukasi/presentation/screens/edukasi_explore_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   @override
@@ -85,12 +85,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
       backgroundColor: const Color(0xFFF1F5F9),
       body: _selectedNavIndex == 0
           ? _buildHomeBody()
-          : _selectedNavIndex == 2
+            : _selectedNavIndex == 2
               ? const PilihAnakScreen(tujuan: "imunisasi")
               : _selectedNavIndex == 1
                   ? const Center(child: Text("Catatan"))
                   : _selectedNavIndex == 3
-                      ? const Center(child: Text("Edukasi"))
+                  ? const EdukasiExploreScreen()
                       : const Center(child: Text("Profil")),
       bottomNavigationBar: _buildBottomNav(),
     );
@@ -383,12 +383,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
       itemBuilder: (context, i) {
         return InkWell(
           onTap: () {
-            // if (menus[i]['label'] == 'Periksa') {
-            //   Navigator.push(context, MaterialPageRoute(builder: (c) => JourneyScreen()));
-            // }
-
             if (menus[i]['label'] == 'Periksa') {
               _openHamilJourney();
+              return;
+            }
+
+            if (menus[i]['label'] == 'Edukasi') {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const EdukasiExploreScreen()),
+              );
+              return;
             }
           },
           child: Container(

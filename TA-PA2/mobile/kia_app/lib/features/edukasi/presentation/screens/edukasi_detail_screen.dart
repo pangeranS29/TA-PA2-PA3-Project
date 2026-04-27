@@ -33,6 +33,173 @@ class _EdukasiDetailScreenState extends State<EdukasiDetailScreen> {
 
   _EdukasiArticle _buildArticleByTitle(String title) {
     switch (title) {
+      case 'Pengenalan Trimester 1':
+        return const _EdukasiArticle(
+          ringkasan: 'Trimester 1 adalah periode awal kehamilan (minggu 1-12) yang penting untuk perkembangan embrio. Pada fase ini, ibu perlu memperhatikan nutrisi, pemeriksaan awal, dan tanda bahaya.' ,
+          tutorialLangkah: [
+            'Konsultasi ke tenaga kesehatan setelah tes positif.',
+            'Mulai konsumsi asam folat sesuai anjuran.',
+            'Hindari alkohol, rokok, dan obat tanpa resep.',
+          ],
+          bagian: [
+            _ArticleSection(judul: 'Nutrisi Awal', poin: [
+              'Konsumsi makanan kaya folat, zat besi, dan protein.',
+              'Makan dalam porsi kecil namun sering bila mual.',
+            ]),
+            _ArticleSection(judul: 'Pemeriksaan Awal', poin: [
+              'Lakukan pemeriksaan kehamilan pertama di fasilitas kesehatan.',
+              'Periksa tekanan darah, hemoglobin, dan skrining dasar.',
+            ]),
+          ],
+          yangPerluDiingat: [
+            'Trimester 1 sangat krusial untuk perkembangan organ janin.',
+            'Segera konsultasi bila ada perdarahan atau nyeri hebat.',
+          ],
+        );
+
+      case 'Nutrisi Awal Kehamilan':
+        return const _EdukasiArticle(
+          ringkasan: 'Nutrisi awal kehamilan fokus pada asupan asam folat, zat besi, dan protein untuk mendukung perkembangan janin dan mencegah anemia pada ibu.',
+          tutorialLangkah: [
+            'Konsumsi makanan sumber zat besi: daging, kacang-kacangan, sayuran hijau.',
+            'Lengkapi asupan dengan suplemen sesuai anjuran tenaga kesehatan.',
+          ],
+          bagian: [
+            _ArticleSection(judul: 'Suplemen Penting', poin: [
+              'Asam folat 400 mcg sejak pra-kehamilan hingga trimester pertama.',
+              'Suplemen zat besi bila hemoglobin rendah.',
+            ]),
+          ],
+          yangPerluDiingat: [
+            'Konsultasikan suplemen dengan tenaga kesehatan.',
+          ],
+        );
+
+      case 'Nutrisi pada Trimester 2':
+        return const _EdukasiArticle(
+          ringkasan: 'Pada trimester 2 kebutuhan energi meningkat; fokus pada protein, zat besi, kalsium, dan sayuran berwarna.',
+          tutorialLangkah: [
+            'Tambahkan protein pada setiap kali makan.',
+            'Perbanyak sayur dan buah berwarna.',
+          ],
+          bagian: [
+            _ArticleSection(judul: 'Asupan Harian', poin: [
+              'Protein: ikan, ayam, telur, tahu/tempe.',
+              'Zat besi: daging merah, sayur hijau; konsumsi bersama vitamin C untuk penyerapan.',
+            ]),
+          ],
+          yangPerluDiingat: [
+            'Cukup istirahat dan hidrasi juga mendukung kebutuhan nutrisi.',
+          ],
+        );
+
+      case 'Aktivitas Fisik Aman':
+        return const _EdukasiArticle(
+          ringkasan: 'Olahraga ringan seperti jalan cepat, senam ringan, dan peregangan aman selama kehamilan bila tidak ada kontraindikasi.',
+          tutorialLangkah: [
+            'Konsultasikan dulu dengan tenaga kesehatan.',
+            'Lakukan 20-30 menit aktivitas ringan 3-5 kali/minggu.',
+          ],
+          bagian: [
+            _ArticleSection(judul: 'Jenis Latihan Aman', poin: [
+              'Jalan cepat, berenang, yoga hamil, dan peregangan ringan.',
+            ]),
+          ],
+          yangPerluDiingat: [
+            'Hentikan aktivtas bila terasa nyeri, pusing, atau perdarahan.',
+          ],
+        );
+
+      case 'Persiapan Persalinan':
+        return const _EdukasiArticle(
+          ringkasan: 'Persiapan persalinan mencakup rencana persalinan, pengecekan fasilitas tujuan, dan pengenalan tanda persalinan.',
+          tutorialLangkah: [
+            'Buat rencana persalinan bersama tenaga kesehatan.',
+            'Kenali tanda awal persalinan: kontraksi teratur, pecah ketuban, perdarahan.'
+          ],
+          bagian: [
+            _ArticleSection(judul: 'Pemeriksaan Pra-persalinan', poin: [
+              'Pastikan imunisasi dan pemeriksaan terakhir lengkap.',
+              'Siapkan kontak faskes dan transportasi.',
+            ]),
+          ],
+          yangPerluDiingat: [
+            'Segera menuju faskes bila pecah ketuban atau perdarahan hebat.',
+          ],
+        );
+
+      case 'Tanda Bahaya Trimester 1':
+      case 'Tanda Bahaya Trimester 2':
+      case 'Tanda Bahaya Trimester 3':
+        return const _EdukasiArticle(
+          ringkasan: 'Tanda bahaya pada kehamilan dapat muncul di tiap trimester. Kenali tanda seperti perdarahan, nyeri perut hebat, pusing berat, atau penurunan gerak janin.',
+          tutorialLangkah: [
+            'Segera hubungi faskes terdekat bila muncul perdarahan atau nyeri hebat.',
+            'Catat gejala dan waktu muncul untuk laporan ke tenaga kesehatan.',
+          ],
+          bagian: [
+            _ArticleSection(judul: 'Tanda Bahaya Umum', poin: [
+              'Perdarahan vagina yang tidak normal.',
+              'Nyeri perut hebat atau kontraksi teratur sebelum waktunya.',
+              'Pusing berat, penglihatan terganggu, atau sesak napas.',
+            ]),
+          ],
+          yangPerluDiingat: [
+            'Jangan menunda, segera cari pertolongan bila ada tanda bahaya.'
+          ],
+        );
+
+      case 'Tanda Bahaya Persalinan / Nifas':
+        return const _EdukasiArticle(
+          ringkasan: 'Tanda bahaya pasca persalinan (nifas) meliputi perdarahan berat, demam tinggi, nyeri hebat, atau bau tidak sedap pada lochia.',
+          tutorialLangkah: [
+            'Segera bawa ibu ke fasilitas kesehatan jika ada perdarahan yang banyak atau demam tinggi.',
+          ],
+          bagian: [
+            _ArticleSection(judul: 'Tanda Bahaya Nifas', poin: [
+              'Perdarahan banyak (lebih dari pembalut per jam).',
+              'Demam >38°C atau bau lochia tidak sedap.',
+            ]),
+          ],
+          yangPerluDiingat: [
+            'Nifas memerlukan pantauan rutin; segera ke faskes bila muncul tanda bahaya.'
+          ],
+        );
+
+      case 'IMD: Manfaat dan Teknik':
+        return const _EdukasiArticle(
+          ringkasan: 'Inisiasi Menyusu Dini (IMD) membantu ikatan ibu-anak dan meningkatkan keberhasilan menyusui. Dilakukan segera setelah lahir jika kondisi memungkinkan.',
+          tutorialLangkah: [
+            'Letakkan bayi di dada ibu segera setelah lahir dan biarkan mencari puting sendiri.',
+            'Bantu posisi dan dukung bila diperlukan oleh tenaga kesehatan.',
+          ],
+          bagian: [
+            _ArticleSection(judul: 'Manfaat IMD', poin: [
+              'Meningkatkan ikatan, membantu refleks menyusu, dan memberi ASI pertama kaya antibodi.',
+            ]),
+          ],
+          yangPerluDiingat: [
+            'IMD bila terganggu, diskusikan dengan tenaga kesehatan untuk alternatif dukungan menyusui.'
+          ],
+        );
+
+      case 'Teknik Menyusui Efektif':
+        return const _EdukasiArticle(
+          ringkasan: 'Teknik menyusui yang benar membantu mencegah nyeri puting dan memastikan bayi mendapat ASI yang cukup.',
+          tutorialLangkah: [
+            'Pastikan posisi nyaman dan bayi menganga lebar sebelum menempel.',
+            'Dukung kepala dan badan bayi sehingga perut bayi menghadap perut ibu.',
+          ],
+          bagian: [
+            _ArticleSection(judul: 'Posisi Menyusui', poin: [
+              'Cradle hold, cross-cradle, football hold sesuai kenyamanan ibu dan kondisi bayi.',
+            ]),
+          ],
+          yangPerluDiingat: [
+            'Minta bantuan konselor laktasi bila mengalami masalah menyusui.'
+          ],
+        );
+
       case 'Menjaga Kesehatan Mental Orang Tua dalam Pengasuhan Anak':
         return const _EdukasiArticle(
           ringkasan:
