@@ -8,6 +8,8 @@ import 'package:ta_pa2_pa3_project/core/themes/app_theme.dart';
 import 'package:ta_pa2_pa3_project/features/hamil/data/models/kehamilan_aktif_model.dart';
 import 'hasil_evaluasi_kesehatan_screen.dart';
 import 'package:ta_pa2_pa3_project/features/hamil/presentation/screens/trimester_menu_screen.dart';
+import 'package:ta_pa2_pa3_project/features/hamil/presentation/screens/proses_melahirkan_screens.dart';
+import 'package:ta_pa2_pa3_project/features/hamil/presentation/screens/absensi_kelas_ibu_hamil_screen.dart';
 
 // class JourneyScreen extends StatefulWidget {
 //   @override
@@ -180,6 +182,78 @@ class _JourneyScreenState extends State<JourneyScreen> {
                   ),
                 ),
 
+
+                _buildBirthFeatureCard(
+                  icon: Icons.summarize_outlined,
+                  iconColor: const Color(0xFFE0A300),
+                  iconBackground: const Color(0xFFFFF5D6),
+                  title: "Ringkasan Pelayanan Proses Melahirkan",
+                  subtitle: "Lihat ringkasan ibu bersalin, nifas, dan bayi saat lahir",
+                  borderColor: const Color(0xFFFFE3A3),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const RingkasanPelayananProsesMelahirkanScreen(),
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 14),
+
+                _buildBirthFeatureCard(
+                  icon: Icons.fact_check_outlined,
+                  iconColor: const Color(0xFFE0A300),
+                  iconBackground: const Color(0xFFFFF5D6),
+                  title: "Absensi Kelas Ibu Hamil",
+                  subtitle: "Isi tanggal hadir sampai 9 sesi dan paraf kader",
+                  borderColor: const Color(0xFFFFE3A3),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const AbsensiKelasIbuHamilScreen(),
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 14),
+
+                _buildBirthFeatureCard(
+                  icon: Icons.history_edu_outlined,
+                  iconColor: const Color(0xFF8B5CF6),
+                  iconBackground: const Color(0xFFF3E8FF),
+                  title: "Riwayat Proses Melahirkan",
+                  subtitle: "Lihat cara melahirkan, tindakan, penolong, dan catatan pemeriksaan",
+                  borderColor: const Color(0xFFE9D5FF),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const RiwayatProsesMelahirkanScreen(),
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 14),
+                _buildBirthFeatureCard(
+                  icon: Icons.child_friendly_outlined,
+                  iconColor: const Color(0xFF10B981),
+                  iconBackground: const Color(0xFFDFFBF0),
+                  title: "Keterangan Lahir",
+                  subtitle: "Lihat keterangan lahir bayi, data orang tua, dan tanda tangan",
+                  borderColor: const Color(0xFFC7F2E0),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const KeteranganLahirScreen(),
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 24),
+
                 // _buildJourneyStep(
                 //   trimester: 1,
                 //   title: "Trimester I · ${completedTrimester >= 1 ? 'Selesai' : 'Sedang Berjalan'}",
@@ -233,6 +307,75 @@ class _JourneyScreenState extends State<JourneyScreen> {
         ],
       ),
       bottomNavigationBar: _buildBottomNav(),
+    );
+  }
+
+
+  Widget _buildBirthFeatureCard({
+    required IconData icon,
+    required Color iconColor,
+    required Color iconBackground,
+    required String title,
+    required String subtitle,
+    required Color borderColor,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(18),
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: borderColor, width: 1.2),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 12,
+              offset: const Offset(0, 6),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 52,
+              height: 52,
+              decoration: BoxDecoration(
+                color: iconBackground,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: iconColor, size: 28),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey.shade700,
+                      height: 1.35,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(Icons.chevron_right),
+          ],
+        ),
+      ),
     );
   }
 
