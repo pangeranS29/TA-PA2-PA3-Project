@@ -22,34 +22,35 @@ type Main struct {
 	CatatanPelayanan       *CatatanPelayananController
 
 	// Controller baru untuk struktur kehamilan
-	Ibu                                *IbuController
-	Kehamilan                          *KehamilanController
-	PemeriksaanKehamilan               *PemeriksaanKehamilanController
-	EvaluasiKesehatanIbu               *EvaluasiKesehatanIbuController
-	PemeriksaanDokterTrimester1        *PemeriksaanDokterTrimester1Controller
-	PemeriksaanDokterTrimester3        *PemeriksaanDokterTrimester3Controller
-	PemeriksaanLaboratoriumJiwa        *PemeriksaanLaboratoriumJiwaController
-	PemeriksaanLanjutanTrimester3      *PemeriksaanLanjutanTrimester3Controller
-	CatatanPelayananTrimester1         *CatatanPelayananTrimester1Controller
-	CatatanPelayananTrimester2         *CatatanPelayananTrimester2Controller
-	CatatanPelayananTrimester3         *CatatanPelayananTrimester3Controller
-	CatatanPelayananNifas              *CatatanPelayananNifasController
-	GrafikEvaluasiKehamilan            *GrafikEvaluasiKehamilanController
-	GrafikPeningkatanBB                *GrafikPeningkatanBBController
-	PenjelasanHasilGrafik              *PenjelasanHasilGrafikController
-	RencanaPersalinan                  *RencanaPersalinanController
-	RingkasanPelayananPersalinan       *RingkasanPelayananPersalinanController
-	RiwayatProsesMelahirkan            *RiwayatProsesMelahirkanController
-	Rujukan                            *RujukanController
-	SkriningDMGestasional              *SkriningDMGestasionalController
-	SkriningPreeklampsia               *SkriningPreeklampsiaController
-	PelayananIbuNifas                  *PelayananIbuNifasController
-	RiwayatKehamilanLalu               *RiwayatKehamilanLaluController
-	KeteranganLahir                    *KeteranganLahirController // <-- TAMBAHKAN INI
-	PemantauanIndikator                *PemantauanIndikatorController
-	Kependudukan                       *KependudukanController
-	JenisPelayanan                     *JenisPelayananController
-	KesehatanLingkunganDanCatatanKader *KesehatanLingkunganDanCatatanKaderController
+	Ibu *IbuController
+	// KartuKeluarga                 *KartuKeluargaController
+	Kehamilan                     *KehamilanController
+	PemeriksaanKehamilan          *PemeriksaanKehamilanController
+	EvaluasiKesehatanIbu          *EvaluasiKesehatanIbuController
+	PemeriksaanDokterTrimester1   *PemeriksaanDokterTrimester1Controller
+	PemeriksaanDokterTrimester3   *PemeriksaanDokterTrimester3Controller
+	PemeriksaanLaboratoriumJiwa   *PemeriksaanLaboratoriumJiwaController
+	PemeriksaanLanjutanTrimester3 *PemeriksaanLanjutanTrimester3Controller
+	CatatanPelayananTrimester1    *CatatanPelayananTrimester1Controller
+	CatatanPelayananTrimester2    *CatatanPelayananTrimester2Controller
+	CatatanPelayananTrimester3    *CatatanPelayananTrimester3Controller
+	CatatanPelayananNifas         *CatatanPelayananNifasController
+	GrafikEvaluasiKehamilan       *GrafikEvaluasiKehamilanController
+	GrafikPeningkatanBB           *GrafikPeningkatanBBController
+	PenjelasanHasilGrafik         *PenjelasanHasilGrafikController
+	RencanaPersalinan             *RencanaPersalinanController
+	RingkasanPelayananPersalinan  *RingkasanPelayananPersalinanController
+	RiwayatProsesMelahirkan       *RiwayatProsesMelahirkanController
+	Rujukan                       *RujukanController
+	SkriningDMGestasional         *SkriningDMGestasionalController
+	SkriningPreeklampsia          *SkriningPreeklampsiaController
+	SkriningPemantauan            *SkriningPemantauanController
+	KategoriTandaBahaya           *KategoriTandaBahayaController
+	PelayananIbuNifas             *PelayananIbuNifasController
+	RiwayatKehamilanLalu          *RiwayatKehamilanLaluController
+	KeteranganLahir               *KeteranganLahirController // <-- TAMBAHKAN INI
+	Kependudukan                  *KependudukanController
+	JenisPelayanan                *JenisPelayananController
 }
 
 type Options struct {
@@ -77,6 +78,7 @@ func Init(opts Options) *Main {
 
 	// Controller baru
 	m.Ibu = NewIbuController(opts.UseCases.Ibu)
+	// m.KartuKeluarga = NewKartuKeluargaController(opts.UseCases.KartuKeluarga)
 	m.Kehamilan = NewKehamilanController(opts.UseCases.Kehamilan)
 	m.PemeriksaanKehamilan = NewPemeriksaanKehamilanController(opts.UseCases.PemeriksaanKehamilan)
 	m.EvaluasiKesehatanIbu = NewEvaluasiKesehatanIbuController(opts.UseCases.EvaluasiKesehatanIbu)
@@ -97,13 +99,13 @@ func Init(opts Options) *Main {
 	m.Rujukan = NewRujukanController(opts.UseCases.Rujukan)
 	m.SkriningDMGestasional = NewSkriningDMGestasionalController(opts.UseCases.SkriningDMGestasional)
 	m.SkriningPreeklampsia = NewSkriningPreeklampsiaController(opts.UseCases.SkriningPreeklampsia)
+	m.SkriningPemantauan = NewSkriningPemantauanController(opts.UseCases.SkriningPemantauan)
+	m.KategoriTandaBahaya = NewKategoriTandaBahayaController(opts.UseCases.KategoriTandaBahaya)
 	m.PelayananIbuNifas = NewPelayananIbuNifasController(opts.UseCases.PelayananIbuNifas)
 	m.RiwayatKehamilanLalu = NewRiwayatKehamilanLaluController(opts.UseCases.RiwayatKehamilanLalu)
 	m.KeteranganLahir = NewKeteranganLahirController(opts.UseCases.KeteranganLahir) // <-- TAMBAHKAN INI
-	m.PemantauanIndikator = NewPemantauanIndikatorController(opts.UseCases.PemantauanIndikator)
 	m.Kependudukan = NewKependudukanController(opts.UseCases.Kependudukan)
 	m.JenisPelayanan = NewJenisPelayananController(opts.UseCases.JenisPelayanan)
-	m.KesehatanLingkunganDanCatatanKader = NewKesehatanLingkunganDanCatatanKaderController(opts.UseCases.KesehatanLingkunganDanCatatanKader, opts.UseCases.Ibu)
 
 	return m
 }

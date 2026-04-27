@@ -1,9 +1,9 @@
 package models
 
 type SkriningPreeklampsia struct {
-	IDSkriningPreeklampsia int32      `gorm:"primaryKey" json:"id_skrining_preeklampsia"`
-	KehamilanID            int32      `gorm:"not null;index" json:"kehamilan_id"`
-	Kehamilan              *Kehamilan `gorm:"foreignKey:KehamilanID;references:ID" json:"kehamilan,omitempty"`
+	ID          int32      `gorm:"primaryKey" json:"id"`
+	KehamilanID int32      `gorm:"not null;index" json:"kehamilan_id"`
+	Kehamilan   *Kehamilan `gorm:"foreignKey:KehamilanID;references:ID" json:"kehamilan,omitempty"`
 
 	AnamnesisMultiparaPasanganBaruSedang       bool `json:"anamnesis_multipara_pasangan_baru_sedang"`
 	AnamnesisTeknologiReproduksiBerbantuSedang bool `json:"anamnesis_teknologi_reproduksi_berbantu_sedang"`

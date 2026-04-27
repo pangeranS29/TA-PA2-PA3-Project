@@ -20,26 +20,32 @@ func NewKehamilanController(u usecases.KehamilanUsecase) *KehamilanController {
 }
 
 type createKehamilanRequest struct {
-	IbuID                    int32  `json:"ibu_id"`
-	Gravida                  int32  `json:"gravida,omitempty"`
-	Paritas                  int32  `json:"paritas,omitempty"`
-	Abortus                  int32  `json:"abortus,omitempty"`
-	HPHT                     string `json:"hpht,omitempty"`
-	TaksiranPersalinan       string `json:"taksiran_persalinan,omitempty"`
-	UKKehamilanSaatIni       int32  `json:"uk_kehamilan_saat_ini,omitempty"`
-	JarakKehamilanSebelumnya int32  `json:"jarak_kehamilan_sebelumnya,omitempty"`
-	StatusKehamilan          string `json:"status_kehamilan,omitempty"`
+	IbuID                    int32   `json:"ibu_id"`
+	Gravida                  int32   `json:"gravida,omitempty"`
+	Paritas                  int32   `json:"paritas,omitempty"`
+	Abortus                  int32   `json:"abortus,omitempty"`
+	HPHT                     string  `json:"hpht,omitempty"`
+	TaksiranPersalinan       string  `json:"taksiran_persalinan,omitempty"`
+	UKKehamilanSaatIni       int32   `json:"uk_kehamilan_saat_ini,omitempty"`
+	BB_Awal                  float64 `json:"bb_awal,omitempty"`
+	TB                       float64 `json:"tb,omitempty"`
+	IMT_Awal                 float64 `json:"imt_awal,omitempty"`
+	JarakKehamilanSebelumnya int32   `json:"jarak_kehamilan_sebelumnya,omitempty"`
+	StatusKehamilan          string  `json:"status_kehamilan,omitempty"`
 }
 
 type updateKehamilanRequest struct {
-	Gravida                  int32  `json:"gravida,omitempty"`
-	Paritas                  int32  `json:"paritas,omitempty"`
-	Abortus                  int32  `json:"abortus,omitempty"`
-	HPHT                     string `json:"hpht,omitempty"`
-	TaksiranPersalinan       string `json:"taksiran_persalinan,omitempty"`
-	UKKehamilanSaatIni       int32  `json:"uk_kehamilan_saat_ini,omitempty"`
-	JarakKehamilanSebelumnya int32  `json:"jarak_kehamilan_sebelumnya,omitempty"`
-	StatusKehamilan          string `json:"status_kehamilan,omitempty"`
+	Gravida                  int32   `json:"gravida,omitempty"`
+	Paritas                  int32   `json:"paritas,omitempty"`
+	Abortus                  int32   `json:"abortus,omitempty"`
+	HPHT                     string  `json:"hpht,omitempty"`
+	TaksiranPersalinan       string  `json:"taksiran_persalinan,omitempty"`
+	UKKehamilanSaatIni       int32   `json:"uk_kehamilan_saat_ini,omitempty"`
+	BB_Awal                  float64 `json:"bb_awal,omitempty"`
+	TB                       float64 `json:"tb,omitempty"`
+	IMT_Awal                 float64 `json:"imt_awal,omitempty"`
+	JarakKehamilanSebelumnya int32   `json:"jarak_kehamilan_sebelumnya,omitempty"`
+	StatusKehamilan          string  `json:"status_kehamilan,omitempty"`
 }
 
 func (c *KehamilanController) Create(ctx echo.Context) error {
@@ -67,6 +73,8 @@ func (c *KehamilanController) Create(ctx echo.Context) error {
 		UKKehamilanSaatIni:       req.UKKehamilanSaatIni,
 		JarakKehamilanSebelumnya: req.JarakKehamilanSebelumnya,
 		StatusKehamilan:          req.StatusKehamilan,
+		BB_Awal:                  req.BB_Awal,
+		TB:                       req.TB,
 	}
 
 	// Parse tanggal jika ada
@@ -174,7 +182,12 @@ func (c *KehamilanController) Update(ctx echo.Context) error {
 			Message:    "Data tidak ditemukan",
 		})
 	}
-
+	if req.BB_Awal > 0 {
+		existing.BB_Awal = req.BB_Awal
+	}
+	if req.TB > 0 {
+		existing.TB = req.TB
+	}
 	if req.Gravida != 0 {
 		existing.Gravida = req.Gravida
 	}

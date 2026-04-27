@@ -1,25 +1,27 @@
 package models
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/gorm"
+)
 
 func AutoMigrate(db *gorm.DB) error {
 	// Semua model dalam satu slice
 	models := []interface{}{
 		// Master
-		// &Role{},
-		// &User{},
-		// &KategoriUmur{},
-		// &PeriodeKunjungan{},
-		// &JenisPelayanan{},
-		// &JenisPelayananKategori{},
+		// &KategoriTandaBahaya{},
+		// &SkriningPemantauan{},
+		// &KartuKeluarga{},
+		// &Kependudukan{},
 
-		// // Relasi utama
-		// // &ibu
+		// Relasi utama
+		// &ibu
 		// &Kehamilan{},
 		// &Anak{},
 		// &Role{},
 		// &User{},
-		// &Kebabura{},
+		// &Bidan{},
+		// &Kader{},
+		// &KartuKeluarga{},
 		// &Kependudukan{},
 		// &Ibu{},
 		// &Anak{},
@@ -29,6 +31,8 @@ func AutoMigrate(db *gorm.DB) error {
 		// &RiwayatKehamilanLalu{},
 
 		// // Pelayanan & lainnya
+		// &JenisPelayanan{},
+		// &JenisPelayananKategori{},
 		// &KunjunganAnak{},
 		// &AturanPelayanan{},
 		// &KunjunganGizi{},
@@ -39,14 +43,6 @@ func AutoMigrate(db *gorm.DB) error {
 		// &ASI{},
 		// &MPASI{},
 		// &CatatanPelayanan{},
-		&EdukasiInformasiUmum{},
-		&EdukasiTandaBahayaTrimester{},
-		&EdukasiTandaMelahirkan{},
-		&EdukasiIMD{},
-		&EdukasiSetelahMelahirkan{},
-		&EdukasiMenyusuiASI{},
-		&EdukasiPolaAsuh{},
-		&EdukasiKesehatanMental{},
 		// &KehadiranImunisasi{},
 		// &DetailPelayananImunisasi{},
 		// &PeriksaGigi{},
@@ -54,7 +50,7 @@ func AutoMigrate(db *gorm.DB) error {
 		// &PengukuranLila{},
 		// &Pertumbuhan{},
 
-		// Kehamilan detail
+		// // Kehamilan detail
 		// &PemeriksaanKehamilan{},
 		// &PemeriksaanDokterTrimester1{},
 		// &PemeriksaanLaboratoriumJiwa{},
@@ -66,25 +62,32 @@ func AutoMigrate(db *gorm.DB) error {
 		// &PemeriksaanLanjutanTrimester3{},
 		// &CatatanPelayananTrimester3{},
 
-		// Grafik & hasil
+		// // Grafik & hasil
 		// &GrafikEvaluasiKehamilan{},
 		// &GrafikPeningkatanBB{},
 		// &PenjelasanHasilGrafik{},
 
-		// Persalinan
+		// // Persalinan
 		// &RencanaPersalinan{},
 		// &RingkasanPelayananPersalinan{},
 		// &KeteranganLahir{},
 		// &RiwayatProsesMelahirkan{},
 
-		// Nifas & rujukan
+		// // Nifas & rujukan
 		// &PelayananIbuNifas{},
 		// &CatatanPelayananNifas{},
 		// &Rujukan{},
 
-		// Kesehatan Lingkungan & Catatan Kader
+		// edukasi
+		&EdukasiIMD{},
+		&EdukasiInformasiUmum{},
+		&EdukasiKesehatanMental{},
+		&EdukasiPolaAsuh{},
+		&EdukasiSetelahMelahirkan{},
+		&EdukasiTandaBahayaTrimester{},
+		&EdukasiTandaMelahirkan{},
+		&EdukasiMenyusuiASI{},
 		&KesehatanLingkunganDanCatatanKader{},
-		// &CatatanKaderKesehatanLingkungan{},
 		&PemantauanIndikator{},
 	}
 
@@ -92,6 +95,13 @@ func AutoMigrate(db *gorm.DB) error {
 	if err := db.AutoMigrate(models...); err != nil {
 		return err
 	}
+
+	// seeder
+	// log.Println("AutoMigrate selesai. Menjalankan Seeder...")
+	// seeder := seeders.NewSeeder(db)
+	// if err := seeder.Run(); err != nil {
+	// 	println("Error: seeder gagal dijalankan:", err.Error())
+	// }
 
 	return nil
 }

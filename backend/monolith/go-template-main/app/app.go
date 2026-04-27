@@ -3,14 +3,10 @@ package app
 import (
 	"fmt"
 	"monitoring-service/app/controllers"
-
 	"monitoring-service/app/models"
-
-	// "monitoring-service/app/seed"
-
 	"monitoring-service/app/repositories"
 	"monitoring-service/app/routes"
-
+	// "monitoring-service/app/seed"
 	"monitoring-service/app/usecases"
 	"monitoring-service/pkg/config"
 	"monitoring-service/pkg/database"
@@ -39,9 +35,33 @@ func New() *Main {
 	return new(Main)
 }
 
+func readEnvConfig() error {
+	configCandidates := []string{
+		".env",
+		"../.env",
+		".env-prod",
+		"cmd/.env-prod",
+	}
+
+	var lastErr error
+	for _, path := range configCandidates {
+		viper.SetConfigFile(path)
+		if err := viper.ReadInConfig(); err == nil {
+			return nil
+		} else {
+			lastErr = err
+		}
+	}
+
+	if lastErr == nil {
+		return fmt.Errorf("configuration file not found")
+	}
+
+	return lastErr
+}
+
 func (m *Main) Init() (err error) {
-	viper.SetConfigFile(".env")
-	err = viper.ReadInConfig()
+	err = readEnvConfig()
 	if err != nil {
 		return
 	}
@@ -61,20 +81,51 @@ func (m *Main) Init() (err error) {
 	}
 	fmt.Println("✅ BERHASIL KONEK KE DATABASE")
 
-	// Reset database: drop all tables and recreate schema (for development only)
-	// WARNING: This will delete all data!
-	m.database.Postgres.Exec("DROP SCHEMA public CASCADE; CREATE SCHEMA public;")
+	//comment sementara
 
-	// Migrate Tabel
+	// // Migrate Tabel
 	err = models.AutoMigrate(m.database.Postgres)
 	if err != nil {
 		return
 	}
 
-	// //Seeder (uncomment jika diperlukan)
+	// // Seeder
 	// err = seed.RunAllSeed(m.database.Postgres)
 	// if err != nil {
 	// 	return
+	// }
+
+	// SEEDER setelah migrate
+	// seeder kependudukan + anak
+	// kependudukanSeeder := seeders.NewKependudukanSeeder(m.database.Postgres)
+	// if err := kependudukanSeeder.Seed(); err != nil {
+	// 	return err
+	// }
+
+	// // seeder master standar TBU
+	// masterTBUSeeder := seeders.NewMasterStandarTBUSeeder(m.database.Postgres)
+	// if err := masterTBUSeeder.Seed(); err != nil {
+	// 	return err
+	// }
+	// masterBBTBSeeder := seeders.NewMasterStandarBBTBSeeder(m.database.Postgres)
+	// if err := masterBBTBSeeder.Seed(); err != nil {
+	// 	return err
+	// }
+	// masterBBUSeeder := seeders.NewMasterStandarBBUSeeder(m.database.Postgres)
+	// if err := masterBBUSeeder.Seed(); err != nil {
+	// 	return err
+	// }
+	// masterIMTUSeeder := seeders.NewMasterStandarIMTUSeeder(m.database.Postgres)
+	// if err := masterIMTUSeeder.Seed(); err != nil {
+	// 	return err
+	// }
+	// masterLKUSeeder := seeders.NewMasterStandarLKUSeeder(m.database.Postgres)
+	// if err := masterLKUSeeder.Seed(); err != nil {
+	// 	return err
+	// }
+	// kategoriCapaianSeeder := seeders.NewKategoriCapaianSeeder(m.database.Postgres)
+	// if err := kategoriCapaianSeeder.Seed(); err != nil {
+	// 	return err
 	// }
 
 	m.repo = repositories.Init(repositories.Options{
