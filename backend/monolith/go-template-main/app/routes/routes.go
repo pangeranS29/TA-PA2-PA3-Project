@@ -392,4 +392,20 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	// Log TTD MMS
 	ibu.GET("/log-ttd-mms/me", controller.LogTTDMMS.GetMine)
 	ibu.POST("/log-ttd-mms", controller.LogTTDMMS.SaveMine)
+
+	// Pemantauan Ibu Hamil
+	ibu.GET("/pemantauan-ibu-hamil/me", controller.PemantauanIbuHamil.GetMine)
+	ibu.POST("/pemantauan-ibu-hamil", controller.PemantauanIbuHamil.SaveMine)
+
+	// Persiapan Melahirkan
+	ibu.GET("/persiapan-melahirkan/me", controller.PersiapanMelahirkan.GetMine)
+	ibu.POST("/persiapan-melahirkan", controller.PersiapanMelahirkan.SaveMine)
+
+	// Proses Melahirkan
+	ibu.GET("/proses-melahirkan/me", controller.ProsesMelahirkan.GetMine)
+	ibu.POST("/proses-melahirkan", controller.ProsesMelahirkan.SaveMine)
+
+	// Absensi Kelas Ibu Hamil
+	ibu.GET("/absensi-kelas-ibu-hamil/me", controller.AbsensiKelasIbuHamil.GetMine)
+	ibu.POST("/absensi-kelas-ibu-hamil", controller.AbsensiKelasIbuHamil.SaveMine)
 }
