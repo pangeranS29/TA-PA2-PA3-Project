@@ -10,6 +10,7 @@ import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/
 import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/skrining_bahaya.dart';
 import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/halaman_utama_mpasi.dart';
 import 'package:ta_pa2_pa3_project/features/edukasi/presentation/screens/edukasi_screen.dart';
+import 'package:ta_pa2_pa3_project/features/informasi_umum/presentation/screens/informasi_umum_screen.dart';
 import 'package:ta_pa2_pa3_project/features/perawatan_bayi/presentation/screens/pilih_perawatan_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -242,9 +243,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               : _selectedNavIndex == 1
                   ? const Center(child: Text("Catatan"))
                   : _selectedNavIndex == 3
-                      ? const EdukasiScreen(
-                          entryPoint: EdukasiEntryPoint.mainNavigation,
-                        )
+                      ? const InformasiUmumScreen()
                       : const Center(child: Text("Profil")),
       bottomNavigationBar: _buildBottomNav(),
     );
@@ -587,14 +586,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
           onTap: () {
             if (menus[i]['label'] == 'Perawatan') {
               Navigator.push(
-                  context, MaterialPageRoute(builder: (c) => const PilihPerawatanScreen()));
+                  context,
+                  MaterialPageRoute(
+                      builder: (c) => const PilihPerawatanScreen()));
             }
             if (menus[i]['label'] == 'Edukasi') {
               Navigator.push(context,
-                  MaterialPageRoute(
-                      builder: (c) => const EdukasiScreen(
-                            entryPoint: EdukasiEntryPoint.quickMenu,
-                          )));
+                  MaterialPageRoute(builder: (c) => const EdukasiScreen()));
             }
           },
           child: Container(
@@ -795,9 +793,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => const EdukasiScreen(
-                    entryPoint: EdukasiEntryPoint.quickMenu,
-                  ),
+                  builder: (_) => const EdukasiScreen(),
                 ),
               );
             }),
@@ -895,7 +891,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         BottomNavigationBarItem(
             icon: Icon(Icons.security_outlined), label: "Imunisasi"),
         BottomNavigationBarItem(
-          icon: Icon(Icons.book_outlined), label: "Informasi Umum"),
+            icon: Icon(Icons.book_outlined), label: "Informasi Umum"),
         BottomNavigationBarItem(
             icon: Icon(Icons.person_outline), label: "Profil"),
       ],
