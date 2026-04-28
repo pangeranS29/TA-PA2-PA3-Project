@@ -104,7 +104,7 @@ func (c *RujukanController) Update(ctx echo.Context) error {
 	existing.RujukanBalikDiagnosisAkhir = req.RujukanBalikDiagnosisAkhir
 	existing.RujukanBalikResumePemeriksaanTatalaksana = req.RujukanBalikResumePemeriksaanTatalaksana
 	existing.AnjuranRekomendasiTempatMelahirkan = req.AnjuranRekomendasiTempatMelahirkan
-	
+
 	// Update tanggal rujukan balik jika ada
 	if req.RujukanBalikTanggal != "" {
 		if t, err := time.Parse("2006-01-02", req.RujukanBalikTanggal); err == nil {
@@ -113,7 +113,7 @@ func (c *RujukanController) Update(ctx echo.Context) error {
 	} else {
 		existing.RujukanBalikTanggal = nil
 	}
-	
+
 	if err := c.usecase.Update(existing); err != nil {
 		return ctx.JSON(http.StatusInternalServerError, models.Response{StatusCode: http.StatusInternalServerError, Message: err.Error()})
 	}
