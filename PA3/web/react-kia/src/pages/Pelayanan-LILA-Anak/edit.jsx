@@ -28,7 +28,7 @@ const PelayananLilaEdit = () => {
     bulan_ke: 1,
     tanggal: new Date().toISOString().split('T')[0],
     hasil_lila: "",
-    kategori_risiko: "normal"
+    kategori_risiko: ""
   });
 
   useEffect(() => {
@@ -58,6 +58,20 @@ const PelayananLilaEdit = () => {
       ...prev,
       [name]: name === 'bulan_ke' ? parseInt(value) || 1 : value
     }));
+
+    if (name === 'bulan_ke' && formData.hasil_lila !== "") {
+      const bulan = parseInt(value) || 0;
+      const hasil = parseFloat(formData.hasil_lila) || 0;
+      let kategori = "";
+      if (bulan < 6) {
+        kategori = hasil < 10.0 ? "gizi_buruk" : hasil >= 11.0 ? "baik" : "gizi_buruk";
+      } else {
+        if (hasil < 11.5) kategori = "gizi_buruk";
+        else if (hasil < 12.5) kategori = "gizi_kurang";
+        else kategori = "baik";
+      }
+      setFormData(prev => ({ ...prev, kategori_risiko: kategori }));
+    }
   };
 
   const handleLilaChange = (e) => {
@@ -68,13 +82,16 @@ const PelayananLilaEdit = () => {
     }));
 
     if (value) {
-      let kategori = "normal";
-      if (value < 11.5) {
-        kategori = "risiko_tinggi";
-      } else if (value >= 11.5 && value <= 12.5) {
-        kategori = "normal";
+      const bulan = formData.bulan_ke || 0;
+      let kategori = "";
+      if (bulan < 6) {
+        if (value < 10.0) kategori = "gizi_buruk";
+        else if (value >= 11.0) kategori = "baik";
+        else kategori = "gizi_buruk";
       } else {
-        kategori = "risiko_rendah";
+        if (value < 11.5) kategori = "gizi_buruk";
+        else if (value >= 11.5 && value < 12.5) kategori = "gizi_kurang";
+        else kategori = "baik";
       }
       setFormData(prev => ({
         ...prev,
@@ -117,7 +134,7 @@ const PelayananLilaEdit = () => {
       }, 1500);
     } catch (err) {
       console.error("Gagal update:", err);
-      const errMsg = err.response?.data?.message || JSON.stringify(err.response?.data) || err.message;
+      const errMsg = err.response?.data?.error || err.response?.data?.message || JSON.stringify(err.response?.data) || err.message;
       setError("Gagal Update: " + errMsg);
     } finally {
       setSubmitting(false);
@@ -126,10 +143,12 @@ const PelayananLilaEdit = () => {
 
   const getRisikoBadge = (kategori) => {
     switch(kategori?.toLowerCase()) {
-      case "risiko_tinggi":
-        return { bg: "bg-red-50", text: "text-red-700", label: "Risiko Tinggi", icon: "🔴" };
-      case "risiko_rendah":
-        return { bg: "bg-green-50", text: "text-green-700", label: "Risiko Rendah", icon: "🟢" };
+      case "gizi_buruk":
+        return { bg: "bg-red-50", text: "text-red-700", label: "Gizi Buruk / Risiko", icon: "🔴" };
+      case "gizi_kurang":
+        return { bg: "bg-yellow-50", text: "text-yellow-700", label: "Gizi Kurang", icon: "🟠" };
+      case "baik":
+        return { bg: "bg-green-50", text: "text-green-700", label: "Baik", icon: "🟢" };
       case "normal":
       default:
         return { bg: "bg-blue-50", text: "text-blue-700", label: "Normal", icon: "🟦" };
@@ -252,9 +271,9 @@ const PelayananLilaEdit = () => {
                   onChange={handleInputChange}
                   className="w-full px-5 py-4 border-2 border-slate-200 rounded-2xl focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 font-semibold"
                 >
-                  <option value="risiko_tinggi">🔴 Risiko Tinggi</option>
-                  <option value="normal">🟦 Normal</option>
-                  <option value="risiko_rendah">🟢 Risiko Rendah</option>
+                  <option value="gizi_buruk">🔴 Gizi Buruk / Risiko</option>
+                  <option value="gizi_kurang">🟠 Gizi Kurang</option>
+                  <option value="baik">🟢 Baik</option>
                 </select>
                 <p className="text-xs text-slate-500 mt-2">Kategori akan otomatis terisi berdasarkan hasil LILA</p>
               </div>
@@ -284,16 +303,16 @@ const PelayananLilaEdit = () => {
               <p className="text-xs font-black text-slate-600 uppercase mb-4 tracking-wider">Referensi LILA</p>
               <div className="space-y-3">
                 <div className="p-3 bg-red-50 rounded-xl border-l-4 border-red-600">
-                  <p className="text-[10px] font-black text-red-600 uppercase">LILA &lt; 11.5 cm</p>
-                  <p className="text-xs text-red-700 font-semibold mt-1">Risiko Tinggi (Gizi Buruk/Kurang)</p>
+                  <p className="text-[10px] font-black text-red-600 uppercase">&lt; 6 bulan: &lt; 10 cm</p>
+                  <p className="text-xs text-red-700 font-semibold mt-1">Risiko / Gizi Buruk</p>
                 </div>
-                <div className="p-3 bg-blue-50 rounded-xl border-l-4 border-blue-600">
-                  <p className="text-[10px] font-black text-blue-600 uppercase">LILA 11.5 - 12.5 cm</p>
-                  <p className="text-xs text-blue-700 font-semibold mt-1">Normal</p>
+                <div className="p-3 bg-yellow-50 rounded-xl border-l-4 border-yellow-600">
+                  <p className="text-[10px] font-black text-yellow-700 uppercase">&gt;= 6 bulan: 11.5 - 12.4 cm</p>
+                  <p className="text-xs text-yellow-800 font-semibold mt-1">Gizi Kurang</p>
                 </div>
                 <div className="p-3 bg-green-50 rounded-xl border-l-4 border-green-600">
-                  <p className="text-[10px] font-black text-green-600 uppercase">LILA &gt; 12.5 cm</p>
-                  <p className="text-xs text-green-700 font-semibold mt-1">Risiko Rendah (Gizi Lebih)</p>
+                  <p className="text-[10px] font-black text-green-600 uppercase">&lt; 6 bulan: &ge; 11 cm / &gt;= 6 bulan: &ge; 12.5 cm</p>
+                  <p className="text-xs text-green-700 font-semibold mt-1">Baik</p>
                 </div>
               </div>
             </div>
