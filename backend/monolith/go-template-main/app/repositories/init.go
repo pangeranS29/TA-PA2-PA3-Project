@@ -29,6 +29,7 @@ type Main struct {
 	Kependudukan                  *KependudukanRepository
 	Bidan                         *BidanRepository
 	Kader                         *KaderRepository
+	Puskesmas                     *PuskesmasRepository
 	Ibu                           *IbuRepository
 	Kehamilan                     *KehamilanRepository
 	PemeriksaanKehamilan          *PemeriksaanKehamilanRepository
@@ -81,6 +82,7 @@ func Init(opts Options) *Main {
 	m.Kependudukan = NewKependudukanRepository(opts.Postgres)
 	m.Bidan = NewBidanRepository(opts.Postgres)
 	m.Kader = NewKaderRepository(opts.Postgres)
+	m.Puskesmas = NewPuskesmasRepository(opts.Postgres)
 	m.Kehamilan = NewKehamilanRepository(opts.Postgres)
 	m.PemeriksaanKehamilan = NewPemeriksaanKehamilanRepository(opts.Postgres)
 	m.EvaluasiKesehatanIbu = NewEvaluasiKesehatanIbuRepository(opts.Postgres)

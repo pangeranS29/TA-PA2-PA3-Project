@@ -44,7 +44,8 @@ class ReminderNotificationService {
     final androidPlatform =
         _notificationsPlugin.resolvePlatformSpecificImplementation<
             AndroidFlutterLocalNotificationsPlugin>();
-    await androidPlatform?.requestPermission();
+    await androidPlatform?.requestNotificationsPermission();
+    await androidPlatform?.requestExactAlarmsPermission();
 
     final iosPlatform =
         _notificationsPlugin.resolvePlatformSpecificImplementation<

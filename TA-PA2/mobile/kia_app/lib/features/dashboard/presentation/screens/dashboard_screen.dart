@@ -10,6 +10,7 @@ import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/
 import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/skrining_bahaya.dart';
 import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/halaman_utama_mpasi.dart';
 import 'package:ta_pa2_pa3_project/features/edukasi/presentation/screens/edukasi_screen.dart';
+import 'package:ta_pa2_pa3_project/features/profil/presentation/screens/profil_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   @override
@@ -33,119 +34,119 @@ class _DashboardScreenState extends State<DashboardScreen> {
       return;
     }
 
-    await ReminderNotificationService.scheduleTumbuhReminders();
-    if (!mounted) return;
+    // await ReminderNotificationService.scheduleTumbuhReminders();
+    // if (!mounted) return;
 
-    await _showTumbuhReminderPopup();
+    // await _showTumbuhReminderPopup();
     await AuthSession.markReminderShown();
   }
 
-  Future<void> _showTumbuhReminderPopup() async {
-    await showDialog<void>(
-      context: context,
-      barrierDismissible: true,
-      builder: (dialogContext) {
-        return Dialog(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(24),
-            ),
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFFFDE68A), Color(0xFFF59E0B)],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: const Row(
-                    children: [
-                      Icon(Icons.notifications_active, color: Colors.white),
-                      SizedBox(width: 10),
-                      Expanded(
-                        child: Text(
-                          'Pengingat Suplemen Anak',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w700,
-                            fontSize: 16,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
-                const Text(
-                  'Agar tumbuh kembang optimal, pastikan jadwal suplemen anak tidak terlewat.',
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: Color(0xFF475569),
-                    height: 1.5,
-                  ),
-                ),
-                const SizedBox(height: 14),
-                _buildReminderItem(
-                  icon: Icons.medication,
-                  iconColor: const Color(0xFFF59E0B),
-                  title: 'Vitamin A',
-                  detail:
-                      'Berikan vitamin A setiap bulan sesuai kebutuhan anak.',
-                ),
-                const SizedBox(height: 10),
-                _buildReminderItem(
-                  icon: Icons.health_and_safety,
-                  iconColor: const Color(0xFF16A34A),
-                  title: 'Obat Cacing',
-                  detail: 'Berikan obat cacing setiap 6 bulan sekali.',
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () => Navigator.of(dialogContext).pop(),
-                        style: OutlinedButton.styleFrom(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        child: const Text('Nanti'),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: FilledButton(
-                        onPressed: () => Navigator.of(dialogContext).pop(),
-                        style: FilledButton.styleFrom(
-                          backgroundColor: const Color(0xFF2563EB),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        child: const Text('Siap, Ingatkan Saya'),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
+  // Future<void> _showTumbuhReminderPopup() async {
+  //   await showDialog<void>(
+  //     context: context,
+  //     barrierDismissible: true,
+  //     builder: (dialogContext) {
+  //       return Dialog(
+  //         shape:
+  //             RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+  //         child: Container(
+  //           decoration: BoxDecoration(
+  //             color: Colors.white,
+  //             borderRadius: BorderRadius.circular(24),
+  //           ),
+  //           padding: const EdgeInsets.all(20),
+  //           child: Column(
+  //             mainAxisSize: MainAxisSize.min,
+  //             crossAxisAlignment: CrossAxisAlignment.start,
+  //             children: [
+  //               Container(
+  //                 width: double.infinity,
+  //                 padding: const EdgeInsets.all(14),
+  //                 decoration: BoxDecoration(
+  //                   gradient: const LinearGradient(
+  //                     colors: [Color(0xFFFDE68A), Color(0xFFF59E0B)],
+  //                     begin: Alignment.topLeft,
+  //                     end: Alignment.bottomRight,
+  //                   ),
+  //                   borderRadius: BorderRadius.circular(16),
+  //                 ),
+  //                 child: const Row(
+  //                   children: [
+  //                     Icon(Icons.notifications_active, color: Colors.white),
+  //                     SizedBox(width: 10),
+  //                     Expanded(
+  //                       child: Text(
+  //                         'Pengingat Suplemen Anak',
+  //                         style: TextStyle(
+  //                           color: Colors.white,
+  //                           fontWeight: FontWeight.w700,
+  //                           fontSize: 16,
+  //                         ),
+  //                       ),
+  //                     ),
+  //                   ],
+  //                 ),
+  //               ),
+  //               const SizedBox(height: 16),
+  //               const Text(
+  //                 'Agar tumbuh kembang optimal, pastikan jadwal suplemen anak tidak terlewat.',
+  //                 style: TextStyle(
+  //                   fontSize: 13,
+  //                   color: Color(0xFF475569),
+  //                   height: 1.5,
+  //                 ),
+  //               ),
+  //               const SizedBox(height: 14),
+  //               _buildReminderItem(
+  //                 icon: Icons.medication,
+  //                 iconColor: const Color(0xFFF59E0B),
+  //                 title: 'Vitamin A',
+  //                 detail:
+  //                     'Berikan vitamin A setiap bulan sesuai kebutuhan anak.',
+  //               ),
+  //               const SizedBox(height: 10),
+  //               _buildReminderItem(
+  //                 icon: Icons.health_and_safety,
+  //                 iconColor: const Color(0xFF16A34A),
+  //                 title: 'Obat Cacing',
+  //                 detail: 'Berikan obat cacing setiap 6 bulan sekali.',
+  //               ),
+  //               const SizedBox(height: 16),
+  //               Row(
+  //                 children: [
+  //                   Expanded(
+  //                     child: OutlinedButton(
+  //                       onPressed: () => Navigator.of(dialogContext).pop(),
+  //                       style: OutlinedButton.styleFrom(
+  //                         shape: RoundedRectangleBorder(
+  //                           borderRadius: BorderRadius.circular(12),
+  //                         ),
+  //                       ),
+  //                       child: const Text('Nanti'),
+  //                     ),
+  //                   ),
+  //                   const SizedBox(width: 10),
+  //                   Expanded(
+  //                     child: FilledButton(
+  //                       onPressed: () => Navigator.of(dialogContext).pop(),
+  //                       style: FilledButton.styleFrom(
+  //                         backgroundColor: const Color(0xFF2563EB),
+  //                         shape: RoundedRectangleBorder(
+  //                           borderRadius: BorderRadius.circular(12),
+  //                         ),
+  //                       ),
+  //                       child: const Text('Siap, Ingatkan Saya'),
+  //                     ),
+  //                   ),
+  //                 ],
+  //               ),
+  //             ],
+  //           ),
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
 
   Widget _buildReminderItem({
     required IconData icon,
@@ -242,7 +243,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ? const Center(child: Text("Catatan"))
                   : _selectedNavIndex == 3
                       ? const EdukasiScreen()
-                      : const Center(child: Text("Profil")),
+                      : const ProfilScreen(),
       bottomNavigationBar: _buildBottomNav(),
     );
   }

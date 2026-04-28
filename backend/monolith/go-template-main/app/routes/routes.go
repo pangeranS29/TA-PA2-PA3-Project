@@ -365,5 +365,10 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 
 	// ==================== Vaksin ====================
 
+	// ==================== Puskesmas ====================
+
+	puskes := e.Group("/puskesmas")
+	puskes.Use(middlewares.JWTAuth(controller.JWTSecret()))
+	puskes.Use(middlewares.Puskesmas())
 	
 }

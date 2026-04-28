@@ -355,3 +355,14 @@ type UpdateVaksinRequest struct {
 	Deskripsi   string `json:"deskripsi"`
 	EfekSamping string `json:"efek_samping"`
 }
+
+// Perangkat
+type CreatePerangkatRequest struct {
+	PenggunaID uint `json:"id_pengguna"`
+	FcmToken   string `json:"fcm_token"`
+}
+
+type UpdatePerangkatRequest struct {
+	PenggunaID uint `json:"id_pengguna"`
+	FcmToken   string `json:"fcm_token"`
+}

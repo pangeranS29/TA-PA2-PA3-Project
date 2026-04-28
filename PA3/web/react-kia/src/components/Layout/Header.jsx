@@ -97,6 +97,7 @@ const formatRole = (role) => {
   const normalized = (role || "").toString().trim().toLowerCase();
   if (normalized === "admin") return "Admin";
   if (normalized === "bidan") return "Bidan";
+  if (normalized === "puskesmas") return "Puskesmas";
   return "Petugas Medis";
 };
 
