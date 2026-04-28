@@ -19,11 +19,11 @@ func NewSkriningDMGestasionalController(u usecases.SkriningDMGestasionalUsecase)
 }
 
 type createSkriningDMRequest struct {
-	KehamilanID                      int32   `json:"kehamilan_id"`
-	GulaDarahPuasaHasil              float64 `json:"gula_darah_puasa_hasil"`
-	GulaDarahPuasaRencana            string  `json:"gula_darah_puasa_rencana_tindak_lanjut"`
-	GulaDarah2JamPostPrandialHasil   float64 `json:"gula_darah_2_jam_post_prandial_hasil"`
-	GulaDarah2JamPostPrandialRencana string  `json:"gula_darah_2_jam_post_prandial_rencana_tindak_lanjut"`
+	KehamilanID                      int32  `json:"kehamilan_id"`
+	GulaDarahPuasaHasil              string `json:"gula_darah_puasa_hasil"`
+	GulaDarahPuasaRencana            string `json:"gula_darah_puasa_rencana_tindak_lanjut"`
+	GulaDarah2JamPostPrandialHasil   string `json:"gula_darah_2_jam_post_prandial_hasil"`
+	GulaDarah2JamPostPrandialRencana string `json:"gula_darah_2_jam_post_prandial_rencana_tindak_lanjut"`
 }
 
 func (c *SkriningDMGestasionalController) Create(ctx echo.Context) error {
@@ -37,9 +37,9 @@ func (c *SkriningDMGestasionalController) Create(ctx echo.Context) error {
 	}
 	s := &models.SkriningDMGestasional{
 		KehamilanID:                      req.KehamilanID,
-		GulaDarahPuasaHasil:              &req.GulaDarahPuasaHasil,
+		GulaDarahPuasaHasil:              req.GulaDarahPuasaHasil,
 		GulaDarahPuasaRencana:            req.GulaDarahPuasaRencana,
-		GulaDarah2JamPostPrandialHasil:   &req.GulaDarah2JamPostPrandialHasil,
+		GulaDarah2JamPostPrandialHasil:   req.GulaDarah2JamPostPrandialHasil,
 		GulaDarah2JamPostPrandialRencana: req.GulaDarah2JamPostPrandialRencana,
 	}
 	if err := c.usecase.Create(s); err != nil {
@@ -86,13 +86,18 @@ func (c *SkriningDMGestasionalController) Update(ctx echo.Context) error {
 	if err != nil {
 		return ctx.JSON(http.StatusNotFound, models.Response{StatusCode: http.StatusNotFound, Message: "Data tidak ditemukan"})
 	}
-	if req.GulaDarahPuasaHasil != 0 {
-		existing.GulaDarahPuasaHasil = &req.GulaDarahPuasaHasil
+	if req.GulaDarahPuasaHasil != "" {
+		existing.GulaDarahPuasaHasil = req.GulaDarahPuasaHasil
 	}
 	if req.GulaDarahPuasaRencana != "" {
 		existing.GulaDarahPuasaRencana = req.GulaDarahPuasaRencana
 	}
-	// ... update field lainnya
+	if req.GulaDarah2JamPostPrandialHasil != "" {
+		existing.GulaDarah2JamPostPrandialHasil = req.GulaDarah2JamPostPrandialHasil
+	}
+	if req.GulaDarah2JamPostPrandialRencana != "" {
+		existing.GulaDarah2JamPostPrandialRencana = req.GulaDarah2JamPostPrandialRencana
+	}
 	if err := c.usecase.Update(existing); err != nil {
 		return ctx.JSON(http.StatusInternalServerError, models.Response{StatusCode: http.StatusInternalServerError, Message: err.Error()})
 	}

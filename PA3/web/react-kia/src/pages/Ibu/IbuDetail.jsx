@@ -167,12 +167,7 @@ export default function IbuDetail() {
                     >
                       <span className="text-sm font-medium text-gray-700 group-hover:text-indigo-700">🔍 Skrining Preeklampsia</span>
                     </Link>
-                    <Link
-                      to={`/data-ibu/${id}/skrining-dm-gestasional`}
-                      className="group flex items-center justify-between p-3 rounded-xl bg-gray-50 hover:bg-indigo-50 border border-transparent hover:border-indigo-100 transition-all min-w-[200px] flex-1"
-                    >
-                      <span className="text-sm font-medium text-gray-700 group-hover:text-indigo-700">🩸 Skrining DM Gestasional</span>
-                    </Link>
+                    
                   </div>
                 </div>
 

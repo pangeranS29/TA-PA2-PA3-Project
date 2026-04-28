@@ -97,10 +97,23 @@ func (c *RujukanController) Update(ctx echo.Context) error {
 	if err != nil {
 		return ctx.JSON(http.StatusNotFound, models.Response{StatusCode: http.StatusNotFound, Message: "Data tidak ditemukan"})
 	}
-	if req.RujukanResumePemeriksaanTatalaksana != "" {
-		existing.RujukanResumePemeriksaanTatalaksana = req.RujukanResumePemeriksaanTatalaksana
+	// Update semua field
+	existing.RujukanResumePemeriksaanTatalaksana = req.RujukanResumePemeriksaanTatalaksana
+	existing.RujukanDiagnosisAkhir = req.RujukanDiagnosisAkhir
+	existing.RujukanAlasanDirujukKeFKRTL = req.RujukanAlasanDirujukKeFKRTL
+	existing.RujukanBalikDiagnosisAkhir = req.RujukanBalikDiagnosisAkhir
+	existing.RujukanBalikResumePemeriksaanTatalaksana = req.RujukanBalikResumePemeriksaanTatalaksana
+	existing.AnjuranRekomendasiTempatMelahirkan = req.AnjuranRekomendasiTempatMelahirkan
+	
+	// Update tanggal rujukan balik jika ada
+	if req.RujukanBalikTanggal != "" {
+		if t, err := time.Parse("2006-01-02", req.RujukanBalikTanggal); err == nil {
+			existing.RujukanBalikTanggal = &t
+		}
+	} else {
+		existing.RujukanBalikTanggal = nil
 	}
-	// ... update semua field
+	
 	if err := c.usecase.Update(existing); err != nil {
 		return ctx.JSON(http.StatusInternalServerError, models.Response{StatusCode: http.StatusInternalServerError, Message: err.Error()})
 	}
