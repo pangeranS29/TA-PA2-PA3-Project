@@ -21,9 +21,16 @@ export default function IbuCreate() {
   });
 
   const [formKehamilan, setFormKehamilan] = useState({
-    gravida: "", paritas: "", abortus: "", hpht: "",
-    taksiran_persalinan: "", uk_kehamilan_saat_ini: "",
-    jarak_kehamilan_sebelumnya: "", status_kehamilan: "TRIMESTER 1",
+    gravida: "",
+    paritas: "",
+    abortus: "",
+    hpht: "",
+    taksiran_persalinan: "",
+    uk_kehamilan_saat_ini: "",
+    jarak_kehamilan_sebelumnya: "",
+    status_kehamilan: "TRIMESTER 1",
+    bb_awal: "",      // <-- tambahan
+    tb: "",           // <-- tambahan
   });
 
   useEffect(() => {
@@ -105,6 +112,8 @@ export default function IbuCreate() {
         uk_kehamilan_saat_ini: parseInt(formKehamilan.uk_kehamilan_saat_ini) || 0,
         jarak_kehamilan_sebelumnya: parseInt(formKehamilan.jarak_kehamilan_sebelumnya) || 0,
         status_kehamilan: formKehamilan.status_kehamilan,
+        bb_awal: parseFloat(formKehamilan.bb_awal) || 0,
+        tb: parseFloat(formKehamilan.tb) || 0,
       });
       setStep(3);
       setTimeout(() => navigate(`/data-ibu/${ibuId}`), 2000);
@@ -201,19 +210,29 @@ export default function IbuCreate() {
 
         {step === 2 && (
           <form onSubmit={handleSubmitStep2}>
-            {/* Sama seperti sebelumnya – tidak perlu diubah detailnya */}
             <div className="bg-white rounded-2xl p-6 shadow-sm space-y-4">
               <h3 className="font-semibold">Data Kehamilan</h3>
               <div className="grid grid-cols-3 gap-4">
-                <input name="gravida" placeholder="Gravida" value={formKehamilan.gravida} onChange={handleChangeKehamilan} className="border rounded p-2" />
-                <input name="paritas" placeholder="Paritas" value={formKehamilan.paritas} onChange={handleChangeKehamilan} className="border rounded p-2" />
-                <input name="abortus" placeholder="Abortus" value={formKehamilan.abortus} onChange={handleChangeKehamilan} className="border rounded p-2" />
+                <input name="gravida" placeholder="Gravida" value={formKehamilan.gravida} onChange={handleChangeKehamilan} className="border rounded p-2" type="number" />
+                <input name="paritas" placeholder="Paritas" value={formKehamilan.paritas} onChange={handleChangeKehamilan} className="border rounded p-2" type="number" />
+                <input name="abortus" placeholder="Abortus" value={formKehamilan.abortus} onChange={handleChangeKehamilan} className="border rounded p-2" type="number" />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <input type="date" name="hpht" value={formKehamilan.hpht} onChange={handleChangeKehamilan} className="border rounded p-2" />
                 <input type="date" name="taksiran_persalinan" value={formKehamilan.taksiran_persalinan} readOnly className="border rounded p-2 bg-gray-100" />
-                <input name="uk_kehamilan_saat_ini" placeholder="Usia Kehamilan (minggu)" value={formKehamilan.uk_kehamilan_saat_ini} onChange={handleChangeKehamilan} className="border rounded p-2" />
-                <input name="jarak_kehamilan_sebelumnya" placeholder="Jarak (bulan)" value={formKehamilan.jarak_kehamilan_sebelumnya} onChange={handleChangeKehamilan} className="border rounded p-2" />
+                <input name="uk_kehamilan_saat_ini" placeholder="Usia Kehamilan (minggu)" value={formKehamilan.uk_kehamilan_saat_ini} onChange={handleChangeKehamilan} className="border rounded p-2" type="number" />
+                <input name="jarak_kehamilan_sebelumnya" placeholder="Jarak (bulan)" value={formKehamilan.jarak_kehamilan_sebelumnya} onChange={handleChangeKehamilan} className="border rounded p-2" type="number" />
+              </div>
+              {/* BARIS BARU untuk BB Awal dan TB */}
+              <div className="grid grid-cols-2 gap-4 mt-2">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Berat Badan Awal (kg)</label>
+                  <input name="bb_awal" type="number" step="0.1" placeholder="Contoh: 50.5" value={formKehamilan.bb_awal} onChange={handleChangeKehamilan} className="w-full border rounded p-2 mt-1" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Tinggi Badan (cm)</label>
+                  <input name="tb" type="number" step="0.1" placeholder="Contoh: 160" value={formKehamilan.tb} onChange={handleChangeKehamilan} className="w-full border rounded p-2 mt-1" />
+                </div>
               </div>
             </div>
             <div className="flex justify-between mt-6">

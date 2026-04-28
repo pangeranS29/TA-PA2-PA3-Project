@@ -15,8 +15,50 @@ func NewPemeriksaanDokterTrimester3Repository(db *gorm.DB) *PemeriksaanDokterTri
 	return &PemeriksaanDokterTrimester3Repository{db: db}
 }
 
-func (r *PemeriksaanDokterTrimester3Repository) Create(p *models.PemeriksaanDokterTrimester3) error {
-	return r.db.Create(p).Error
+func (r *PemeriksaanDokterTrimester3Repository) Create(dokter *models.PemeriksaanDokterTrimester3) error {
+	return r.db.Create(dokter).Error
+}
+
+func (r *PemeriksaanDokterTrimester3Repository) CreateWithLab(dokter *models.PemeriksaanDokterTrimester3, lab *models.PemeriksaanLaboratoriumJiwa) error {
+	return r.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Create(dokter).Error; err != nil {
+			return err
+		}
+		if lab != nil {
+			lab.KehamilanID = dokter.KehamilanID
+			lab.Trimester = 3
+			if err := tx.Create(lab).Error; err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+}
+
+func (r *PemeriksaanDokterTrimester3Repository) UpdateWithLab(dokterID int32, dokter *models.PemeriksaanDokterTrimester3, lab *models.PemeriksaanLaboratoriumJiwa) error {
+	return r.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Model(&models.PemeriksaanDokterTrimester3{}).Where("id = ?", dokterID).Updates(dokter).Error; err != nil {
+			return err
+		}
+		if lab != nil {
+			var existingLab models.PemeriksaanLaboratoriumJiwa
+			err := tx.Where("kehamilan_id = ? AND trimester = ?", dokter.KehamilanID, 3).First(&existingLab).Error
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				lab.KehamilanID = dokter.KehamilanID
+				lab.Trimester = 3
+				if err := tx.Create(lab).Error; err != nil {
+					return err
+				}
+			} else if err != nil {
+				return err
+			} else {
+				if err := tx.Model(&existingLab).Updates(lab).Error; err != nil {
+					return err
+				}
+			}
+		}
+		return nil
+	})
 }
 
 func (r *PemeriksaanDokterTrimester3Repository) FindByID(id int32) (*models.PemeriksaanDokterTrimester3, error) {
@@ -31,8 +73,8 @@ func (r *PemeriksaanDokterTrimester3Repository) FindByKehamilanID(kehamilanID in
 	return list, err
 }
 
-func (r *PemeriksaanDokterTrimester3Repository) Update(p *models.PemeriksaanDokterTrimester3) error {
-	return r.db.Save(p).Error
+func (r *PemeriksaanDokterTrimester3Repository) Update(dokter *models.PemeriksaanDokterTrimester3) error {
+	return r.db.Save(dokter).Error
 }
 
 func (r *PemeriksaanDokterTrimester3Repository) Delete(id int32) error {

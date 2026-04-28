@@ -186,17 +186,11 @@ export default function IbuDetail() {
                       <span className="text-sm font-medium text-blue-800">🩺 Input Pemeriksaan ANC Rutin</span>
                     </Link>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-1">
-                      <Link to={`/data-ibu/${id}/pemeriksaan-dokter-t1`} className="text-xs p-2 rounded-lg bg-gray-50 hover:bg-gray-100 text-gray-600 border flex items-center gap-1 justify-center">
+                      <Link to={`/data-ibu/${id}/pemeriksaan-dokter-t1-complete`} className="text-xs p-2 rounded-lg bg-gray-50 hover:bg-gray-100 text-gray-600 border flex items-center gap-1 justify-center">
                         👩‍⚕️ Dokter T1
                       </Link>
-                      <Link to={`/data-ibu/${id}/pemeriksaan-dokter-t3`} className="text-xs p-2 rounded-lg bg-gray-50 hover:bg-gray-100 text-gray-600 border flex items-center gap-1 justify-center">
+                      <Link to={`/data-ibu/${id}/pemeriksaan-dokter-t3-complete`} className="text-xs p-2 rounded-lg bg-gray-50 hover:bg-gray-100 text-gray-600 border flex items-center gap-1 justify-center">
                         👩‍⚕️ Dokter T3
-                      </Link>
-                      <Link to={`/data-ibu/${id}/pemeriksaan-lab-jiwa`} className="text-xs p-2 rounded-lg bg-gray-50 hover:bg-gray-100 text-gray-600 border flex items-center gap-1 justify-center">
-                        🧪 Lab & Jiwa
-                      </Link>
-                      <Link to={`/data-ibu/${id}/pemeriksaan-lanjutan-t3`} className="text-xs p-2 rounded-lg bg-gray-50 hover:bg-gray-100 text-gray-600 border flex items-center gap-1 justify-center">
-                        🔬 Lanjut T3
                       </Link>
                     </div>
                   </div>
