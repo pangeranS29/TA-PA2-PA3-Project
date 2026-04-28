@@ -58,6 +58,7 @@ type Main struct {
 	PersiapanMelahirkan  *PersiapanMelahirkanController
 	ProsesMelahirkan     *ProsesMelahirkanController
 	AbsensiKelasIbuHamil *AbsensiKelasIbuHamilController
+	ChecklistPemantauanIbuNifas *ChecklistPemantauanIbuNifasController
 }
 
 type Options struct {
@@ -120,6 +121,8 @@ func Init(opts Options) *Main {
 	m.PersiapanMelahirkan = NewPersiapanMelahirkanController(opts.UseCases.PersiapanMelahirkan)
 	m.ProsesMelahirkan = NewProsesMelahirkanController(opts.UseCases.ProsesMelahirkan)
 	m.AbsensiKelasIbuHamil = NewAbsensiKelasIbuHamilController(opts.UseCases.AbsensiKelasIbuHamil)
+	m.ChecklistPemantauanIbuNifas = NewChecklistPemantauanIbuNifasController(
+	opts.UseCases.ChecklistPemantauanIbuNifas,)
 	return m
 }
 

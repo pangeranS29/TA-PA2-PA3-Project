@@ -22,8 +22,7 @@ type Main struct {
 	CatatanPelayanan       CatatanPelayananUseCase
 	Kependudukan           KependudukanUsecase
 
-	// Usecase baru (terkait kehamilan)
-	// KartuKeluarga                 KartuKeluargaUsecase
+	// Usecase baru terkait kehamilan
 	Kehamilan                     KehamilanUsecase
 	PemeriksaanKehamilan          PemeriksaanKehamilanUsecase
 	EvaluasiKesehatanIbu          EvaluasiKesehatanIbuUsecase
@@ -49,21 +48,19 @@ type Main struct {
 	PelayananIbuNifas             PelayananIbuNifasUsecase
 	Ibu                           IbuUsecase
 	RiwayatKehamilanLalu          RiwayatKehamilanLaluUsecase
-	// RegisterOrangTua              *RegisterOrangTuaUsecase
+	KeteranganLahir               KeteranganLahirUsecase
+	JenisPelayanan                JenisPelayananUsecase
+
 	AdminAkunKeluarga    *AdminAkunKeluargaUsecase
 	AdminTenagaKesehatan *AdminTenagaKesehatanUsecase
-	// KeteranganLahir      KeteranganLahirUsecase // <-- TAMBAHKAN INI
-	// JenisPelayanan       JenisPelayananUsecase
-	// RegisterOrangTua              *RegisterOrangTuaUsecase
-	KeteranganLahir KeteranganLahirUsecase // <-- TAMBAHKAN INI
-	JenisPelayanan  JenisPelayananUsecase
 
 	// MODUL IBU
-	LogTTDMMS            LogTTDMMSUsecase
-	PemantauanIbuHamil   PemantauanIbuHamilUsecase
-	PersiapanMelahirkan  PersiapanMelahirkanUsecase
-	ProsesMelahirkan     ProsesMelahirkanUsecase
-	AbsensiKelasIbuHamil AbsensiKelasIbuHamilUsecase
+	LogTTDMMS                    LogTTDMMSUsecase
+	PemantauanIbuHamil          PemantauanIbuHamilUsecase
+	PersiapanMelahirkan         PersiapanMelahirkanUsecase
+	ProsesMelahirkan            ProsesMelahirkanUsecase
+	AbsensiKelasIbuHamil        AbsensiKelasIbuHamilUsecase
+	ChecklistPemantauanIbuNifas *ChecklistPemantauanIbuNifasUsecase
 }
 
 type Options struct {
@@ -89,8 +86,7 @@ func Init(opts Options) *Main {
 	m.PengukuranLilA = NewPengukuranLilAUseCase(opts.Repository.PengukuranLilA)
 	m.CatatanPelayanan = NewCatatanPelayananUseCase(opts.Repository.CatatanPelayanan)
 
-	// Inisialisasi usecase baru
-	// m.KartuKeluarga = NewKartuKeluargaUsecase(opts.Repository.KartuKeluarga)
+	// Inisialisasi usecase terkait kehamilan
 	m.Kehamilan = NewKehamilanUsecase(opts.Repository.Kehamilan)
 	m.PemeriksaanKehamilan = NewPemeriksaanKehamilanUsecase(opts.Repository.PemeriksaanKehamilan)
 	m.EvaluasiKesehatanIbu = NewEvaluasiKesehatanIbuUsecase(opts.Repository.EvaluasiKesehatanIbu)
@@ -117,19 +113,16 @@ func Init(opts Options) *Main {
 	m.Ibu = NewIbuUsecase(opts.Repository.Ibu)
 	m.RiwayatKehamilanLalu = NewRiwayatKehamilanLaluUsecase(opts.Repository.RiwayatKehamilanLalu)
 	m.Kependudukan = NewKependudukanUsecase(opts.Repository.Kependudukan)
-	// m.RegisterOrangTua = NewRegisterOrangTuaUsecase(
-	// 	opts.Repository.User,
-	// 	opts.Repository.Role,
-	// 	opts.Repository.KartuKeluarga,
-	// 	opts.Repository.Kependudukan,
-	// 	opts.Repository.Ibu,
-	// )
+	m.KeteranganLahir = NewKeteranganLahirUsecase(opts.Repository.KeteranganLahir)
+	m.JenisPelayanan = NewJenisPelayananUsecase(opts.Repository.JenisPelayanan)
+
 	m.AdminAkunKeluarga = NewAdminAkunKeluargaUsecase(
 		opts.Repository.User,
 		opts.Repository.Role,
 		opts.Repository.KartuKeluarga,
 		opts.Repository.Kependudukan,
 	)
+
 	m.AdminTenagaKesehatan = NewAdminTenagaKesehatanUsecase(
 		opts.Repository.Bidan,
 		opts.Repository.Kader,
@@ -137,8 +130,6 @@ func Init(opts Options) *Main {
 		opts.Repository.User,
 		opts.Repository.Role,
 	)
-	m.KeteranganLahir = NewKeteranganLahirUsecase(opts.Repository.KeteranganLahir) // <-- TAMBAHKAN INI
-	m.JenisPelayanan = NewJenisPelayananUsecase(opts.Repository.JenisPelayanan)
 
 	// MODUL IBU
 	m.LogTTDMMS = NewLogTTDMMSUsecase(opts.Repository.LogTTDMMS)
@@ -146,6 +137,9 @@ func Init(opts Options) *Main {
 	m.PersiapanMelahirkan = NewPersiapanMelahirkanUsecase(opts.Repository.PersiapanMelahirkan)
 	m.ProsesMelahirkan = NewProsesMelahirkanUsecase(opts.Repository.ProsesMelahirkan)
 	m.AbsensiKelasIbuHamil = NewAbsensiKelasIbuHamilUsecase(opts.Repository.AbsensiKelasIbuHamil)
-
+	m.ChecklistPemantauanIbuNifas = NewChecklistPemantauanIbuNifasUsecase(
+		opts.Repository.ChecklistPemantauanIbuNifas,
+		opts.Repository.Kehamilan,
+	)
 	return m
 }

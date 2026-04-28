@@ -4,55 +4,57 @@ import 'package:ta_pa2_pa3_project/core/services/auth_session.dart';
 import 'package:ta_pa2_pa3_project/features/auth/presentation/screens/login_screen.dart';
 import 'package:ta_pa2_pa3_project/features/hamil/presentation/screens/journey_screen.dart';
 import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/pilih_anak_screen.dart';
-// import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/tumbuh_kembang_screen.dart';
 import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/input_profil_anak_screen.dart';
-import 'package:ta_pa2_pa3_project/features/imunisasi/presentation/screens/imunisasi_screen.dart';
 import 'package:ta_pa2_pa3_project/features/hamil/data/models/kehamilan_api_service.dart';
 import 'package:ta_pa2_pa3_project/features/edukasi/presentation/screens/edukasi_explore_screen.dart';
+import 'package:ta_pa2_pa3_project/features/nifas/presentation/screens/nifas_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
+  const DashboardScreen({super.key});
+
   @override
-  _DashboardScreenState createState() => _DashboardScreenState();
+  State<DashboardScreen> createState() => _DashboardScreenState();
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
   String selectedPhase = "Hamil";
   int _selectedNavIndex = 0;
+
   final _kehamilanService = KehamilanApiService();
   bool _loadingKehamilan = false;
 
-    Future<void> _openHamilJourney() async {
-      if (_loadingKehamilan) return;
+  Future<void> _openHamilJourney() async {
+    if (_loadingKehamilan) return;
 
-      setState(() {
-        _loadingKehamilan = true;
-      });
+    setState(() {
+      _loadingKehamilan = true;
+    });
 
-      try {
-        final kehamilan = await _kehamilanService.getKehamilanAktif();
+    try {
+      final kehamilan = await _kehamilanService.getKehamilanAktif();
 
-        if (!mounted) return;
+      if (!mounted) return;
 
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => JourneyScreen(kehamilan: kehamilan),
-          ),
-        );
-      } catch (e) {
-        if (!mounted) return;
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => JourneyScreen(kehamilan: kehamilan),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString())),
-        );
-      } finally {
-        if (mounted) {
-          setState(() {
-            _loadingKehamilan = false;
-          });
-        }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString())),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _loadingKehamilan = false;
+        });
       }
     }
+  }
 
   Widget _buildHomeBody() {
     return SingleChildScrollView(
@@ -67,9 +69,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 const SizedBox(height: 24),
                 _buildPhaseSelector(),
                 const SizedBox(height: 32),
+
                 if (selectedPhase == "Hamil") _buildHamilContent(),
+                if (selectedPhase == "Nifas") const NifasScreen(),
                 if (selectedPhase == "Tumbuh") _buildTumbuhContent(),
-                if (selectedPhase != "Hamil" && selectedPhase != "Tumbuh")
+
+                if (selectedPhase != "Hamil" &&
+                    selectedPhase != "Nifas" &&
+                    selectedPhase != "Tumbuh")
                   _buildPlaceholderContent(),
               ],
             ),
@@ -81,22 +88,27 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    Widget body;
+
+    if (_selectedNavIndex == 0) {
+      body = _buildHomeBody();
+    } else if (_selectedNavIndex == 1) {
+      body = const Center(child: Text("Catatan"));
+    } else if (_selectedNavIndex == 2) {
+      body = const PilihAnakScreen(tujuan: "imunisasi");
+    } else if (_selectedNavIndex == 3) {
+      body = const EdukasiExploreScreen();
+    } else {
+      body = const Center(child: Text("Profil"));
+    }
+
     return Scaffold(
       backgroundColor: const Color(0xFFF1F5F9),
-      body: _selectedNavIndex == 0
-          ? _buildHomeBody()
-            : _selectedNavIndex == 2
-              ? const PilihAnakScreen(tujuan: "imunisasi")
-              : _selectedNavIndex == 1
-                  ? const Center(child: Text("Catatan"))
-                  : _selectedNavIndex == 3
-                  ? const EdukasiExploreScreen()
-                      : const Center(child: Text("Profil")),
+      body: body,
       bottomNavigationBar: _buildBottomNav(),
     );
   }
 
-  // --- 1. HEADER BIRU GRADASI ---
   Widget _buildHeader() {
     return Container(
       padding: const EdgeInsets.only(top: 60, left: 24, right: 24, bottom: 32),
@@ -114,31 +126,49 @@ class _DashboardScreenState extends State<DashboardScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Column(
+          const Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text("Selamat Pagi ✨", style: TextStyle(color: Colors.white70, fontSize: 16)),
-              const Text("Halo, Polaroid!", style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
+              Text(
+                "Selamat Pagi ✨",
+                style: TextStyle(color: Colors.white70, fontSize: 16),
+              ),
+              Text(
+                "Halo, Polaroid!",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: 8),
               Row(
-                children: const [
+                children: [
                   Icon(Icons.calendar_today, color: Colors.white70, size: 14),
                   SizedBox(width: 4),
-                  Text("Trimester 2 • Bebas keluhan berat", style: TextStyle(color: Colors.white, fontSize: 12)),
+                  Text(
+                    "Trimester 2 • Bebas keluhan berat",
+                    style: TextStyle(color: Colors.white, fontSize: 12),
+                  ),
                 ],
               ),
             ],
           ),
           Container(
             padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(color: Colors.white.withOpacity(0.2), shape: BoxShape.circle),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.2),
+              shape: BoxShape.circle,
+            ),
             child: PopupMenuButton<String>(
               padding: EdgeInsets.zero,
               icon: const Icon(Icons.notifications_none, color: Colors.white),
               onSelected: (value) async {
                 if (value == 'logout') {
                   await AuthSession.clear();
+
                   if (!mounted) return;
+
                   Navigator.of(context).pushAndRemoveUntil(
                     MaterialPageRoute(builder: (_) => const LoginScreen()),
                     (route) => false,
@@ -152,13 +182,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
               ],
             ),
-          )
+          ),
         ],
       ),
     );
   }
 
-  // --- 2. PHASE SELECTOR (TAB NAVIGASI) ---
   Widget _buildPhaseSelector() {
     final List<Map<String, dynamic>> phases = [
       {'label': 'Hamil', 'icon': Icons.favorite_border},
@@ -170,34 +199,62 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text("TAHAP SAAT INI", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey)),
+        const Text(
+          "TAHAP SAAT INI",
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+            color: Colors.grey,
+          ),
+        ),
         const SizedBox(height: 12),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: phases.map((p) {
-            bool isActive = selectedPhase == p['label'];
+            final bool isActive = selectedPhase == p['label'];
+
             return GestureDetector(
-              onTap: () => setState(() => selectedPhase = p['label']),
+              onTap: () {
+                setState(() {
+                  selectedPhase = p['label'] as String;
+                });
+              },
               child: Column(
                 children: [
                   Container(
-                    width: 65, height: 65,
+                    width: 65,
+                    height: 65,
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(16),
-                      border: isActive ? Border.all(color: TrimesterTheme.t1Primary, width: 2) : null,
-                      boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10)],
+                      border: isActive
+                          ? Border.all(
+                              color: TrimesterTheme.t1Primary,
+                              width: 2,
+                            )
+                          : null,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 10,
+                        ),
+                      ],
                     ),
-                    child: Icon(p['icon'], color: isActive ? TrimesterTheme.t1Primary : Colors.grey, size: 28),
+                    child: Icon(
+                      p['icon'] as IconData,
+                      color: isActive ? TrimesterTheme.t1Primary : Colors.grey,
+                      size: 28,
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    p['label'],
+                    p['label'] as String,
                     style: TextStyle(
-                      fontSize: 12, 
-                      color: isActive ? TrimesterTheme.t1Primary : Colors.grey, 
-                      fontWeight: isActive ? FontWeight.bold : FontWeight.normal
-                    )
+                      fontSize: 12,
+                      color: isActive ? TrimesterTheme.t1Primary : Colors.grey,
+                      fontWeight:
+                          isActive ? FontWeight.bold : FontWeight.normal,
+                    ),
                   ),
                 ],
               ),
@@ -208,30 +265,42 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  // --- 3. KONTEN KHUSUS HAMIL (INTEGRASI LENGKAP) ---
-  Widget _buildHamilContent() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // A. PROGRESS KEHAMILAN
-        _buildInfoCard(
+Widget _buildHamilContent() {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      InkWell(
+        borderRadius: BorderRadius.circular(20),
+        onTap: _openHamilJourney,
+        child: _buildInfoCard(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
+              const Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: const [
-                  Text("Kehamilan 24 Minggu", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                children: [
+                  Text(
+                    "Kehamilan 24 Minggu",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
                   Icon(Icons.chevron_right, color: Colors.grey),
                 ],
               ),
-              const Text("Trimester 2 • HPL: 15 Agt 2026", style: TextStyle(color: Colors.grey, fontSize: 12)),
+              const Text(
+                "Trimester 2 • HPL: 15 Agt 2026",
+                style: TextStyle(color: Colors.grey, fontSize: 12),
+              ),
               const SizedBox(height: 16),
-              LinearProgressIndicator(value: 0.6, backgroundColor: Colors.blue.shade50, color: TrimesterTheme.t1Primary, minHeight: 8),
+              LinearProgressIndicator(
+                value: 0.6,
+                backgroundColor: Colors.blue.shade50,
+                color: TrimesterTheme.t1Primary,
+                minHeight: 8,
+              ),
               const SizedBox(height: 8),
-              Row(
+              const Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: const [
+                children: [
                   Text("Minggu 1", style: TextStyle(fontSize: 10, color: Colors.grey)),
                   Text("Minggu 40", style: TextStyle(fontSize: 10, color: Colors.grey)),
                 ],
@@ -239,78 +308,75 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ],
           ),
         ),
-        const SizedBox(height: 16),
+      ),
+      const SizedBox(height: 16),
 
-        // B. INSIGHT BUAH
-        _buildInfoCard(
-          child: Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
-                    Text("Sebesar Buah Jagung", style: TextStyle(fontWeight: FontWeight.bold)),
-                    Text("Panjang janin sekitar 30 cm dengan berat sekitar 600 gram.", style: TextStyle(fontSize: 12, color: Colors.black54)),
-                  ],
-                ),
+      _buildInfoCard(
+        child: Row(
+          children: [
+            const Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text("Sebesar Buah Jagung", style: TextStyle(fontWeight: FontWeight.bold)),
+                  Text(
+                    "Panjang janin sekitar 30 cm dengan berat sekitar 600 gram.",
+                    style: TextStyle(fontSize: 12, color: Colors.black54),
+                  ),
+                ],
               ),
-              Image.network('https://cdn-icons-png.flaticon.com/512/1141/1141771.png', width: 40),
-            ],
-          ),
+            ),
+            Image.network(
+              'https://cdn-icons-png.flaticon.com/512/1141/1141771.png',
+              width: 40,
+            ),
+          ],
         ),
-        const SizedBox(height: 32),
+      ),
+      const SizedBox(height: 32),
 
-        // C. MENU HAMIL - LIST MODE
-        const Text("Menu Hamil", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87)),
-        const SizedBox(height: 16),
-        // _buildMenuCard(
-        //   title: "Kehamilan Trimester 1–3",
-        //   subtitle: "Pantau perkembangan kehamilan",
-        //   icon: Icons.favorite_outline,
-        //   iconColor: Colors.pink,
-        //   onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => JourneyScreen())),
-        // ),
-        _buildMenuCard(
-          title: "Kehamilan Trimester 1–3",
-          subtitle: "Pantau perkembangan kehamilan",
-          icon: Icons.favorite_outline,
-          iconColor: Colors.pink,
-          onTap: _openHamilJourney,
-        ),
-        _buildMenuCard(
-          title: "Kesehatan Jiwa Ibu Hamil",
-          subtitle: "Kesehatan mental selama hamil",
-          icon: Icons.psychology_outlined,
-          iconColor: Colors.purple,
-          onTap: () {},
-        ),
-        _buildMenuCard(
-          title: "Persalinan",
-          subtitle: "Persiapan & proses persalinan",
-          icon: Icons.child_care_outlined,
-          iconColor: Colors.blue,
-          onTap: () {},
-        ),
-        const SizedBox(height: 32),
+      const Text(
+        "Menu Hamil",
+        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87),
+      ),
+      const SizedBox(height: 16),
 
-        // D. MENU CEPAT - GRID MODE
-        const Text("MENU CEPAT", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey)),
-        const SizedBox(height: 16),
-        _buildQuickMenu(),
-        const SizedBox(height: 32),
+      _buildMenuCard(
+        title: "Kehamilan Trimester 1–3",
+        subtitle: "Pantau perkembangan kehamilan",
+        icon: Icons.favorite_outline,
+        iconColor: Colors.pink,
+        onTap: _openHamilJourney,
+      ),
 
-        // E. TANDA BAHAYA
-        _buildDangerAlert(),
-        const SizedBox(height: 40),
-      ],
-    );
-  }
+      _buildMenuCard(
+        title: "Persalinan",
+        subtitle: "Persiapan & proses persalinan",
+        icon: Icons.child_care_outlined,
+        iconColor: Colors.blue,
+        onTap: () {},
+      ),
 
-  // --- HELPER: KARTU MENU LIST (GAYA image_e8cb9d.png) ---
+      const SizedBox(height: 32),
+
+      const Text(
+        "MENU CEPAT",
+        style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey),
+      ),
+      const SizedBox(height: 16),
+      _buildQuickMenu(),
+      const SizedBox(height: 32),
+
+      _buildDangerAlert(),
+      const SizedBox(height: 40),
+    ],
+  );
+}
+
   Widget _buildMenuCard({
-    required String title, 
-    required String subtitle, 
-    required IconData icon, 
+    required String title,
+    required String subtitle,
+    required IconData icon,
     required Color iconColor,
     required VoidCallback onTap,
   }) {
@@ -318,9 +384,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(24), // Mengikuti rounded-2xl pada model
+        borderRadius: BorderRadius.circular(24),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 10, offset: const Offset(0, 4)),
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
         ],
       ),
       child: Material(
@@ -333,7 +403,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
             child: Row(
               children: [
                 Container(
-                  width: 56, height: 56,
+                  width: 56,
+                  height: 56,
                   decoration: BoxDecoration(
                     color: iconColor.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(16),
@@ -345,9 +416,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87)),
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                      ),
                       const SizedBox(height: 4),
-                      Text(subtitle, style: TextStyle(fontSize: 13, color: Colors.grey.shade600)),
+                      Text(
+                        subtitle,
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -360,107 +444,151 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  // --- HELPER: GRID MENU CEPAT ---
-  Widget _buildQuickMenu() {
-    final List<Map<String, dynamic>> menus = [
-      {'label': 'BB Ibu', 'icon': Icons.scale, 'color': Colors.blue},
-      {'label': 'Periksa', 'icon': Icons.medical_services, 'color': Colors.pink},
-      {'label': 'Nutrisi', 'icon': Icons.apple, 'color': Colors.green},
-      {'label': 'Edukasi', 'icon': Icons.book, 'color': Colors.orange},
-      {'label': 'Catatan', 'icon': Icons.assignment, 'color': Colors.indigo},
-      {'label': 'Keluhan', 'icon': Icons.coronavirus, 'color': Colors.red},
-    ];
+Widget _buildQuickMenu() {
+  final List<Map<String, dynamic>> menus = [
+    {
+      'label': 'Grafik BB Ibu',
+      'icon': Icons.show_chart,
+      'color': Colors.blue,
+    },
+    {
+      'label': 'Grafik DJJ & TFU',
+      'icon': Icons.monitor_heart_outlined,
+      'color': Colors.purple,
+    },
+    {
+      'label': 'Absensi Kelas',
+      'icon': Icons.event_available_outlined,
+      'color': Colors.green,
+    },
+    {
+      'label': 'Catatan',
+      'icon': Icons.assignment_outlined,
+      'color': Colors.indigo,
+    },
+  ];
 
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 3, 
-        mainAxisSpacing: 16, 
-        crossAxisSpacing: 16,
-      ),
-      itemCount: menus.length,
-      itemBuilder: (context, i) {
-        return InkWell(
-          onTap: () {
-            if (menus[i]['label'] == 'Periksa') {
-              _openHamilJourney();
-              return;
-            }
-
-            if (menus[i]['label'] == 'Edukasi') {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const EdukasiExploreScreen()),
-              );
-              return;
-            }
-          },
-          child: Container(
-            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(menus[i]['icon'], color: menus[i]['color']),
-                const SizedBox(height: 8),
-                Text(menus[i]['label'], style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
-              ],
-            ),
+  return GridView.builder(
+    shrinkWrap: true,
+    physics: const NeverScrollableScrollPhysics(),
+    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+      crossAxisCount: 2,
+      mainAxisSpacing: 16,
+      crossAxisSpacing: 16,
+      childAspectRatio: 1.35,
+    ),
+    itemCount: menus.length,
+    itemBuilder: (context, i) {
+      return InkWell(
+        borderRadius: BorderRadius.circular(18),
+        onTap: () {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("${menus[i]['label']} belum tersedia")),
+          );
+        },
+        child: Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(18),
+            boxShadow: [
+              BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8),
+            ],
           ),
-        );
-      },
-    );
-  }
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                menus[i]['icon'] as IconData,
+                color: menus[i]['color'] as Color,
+                size: 30,
+              ),
+              const SizedBox(height: 10),
+              Text(
+                menus[i]['label'] as String,
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
+}
 
-  // --- HELPER: WIDGET REUSABLE (PROGRESS & BUAH) ---
   Widget _buildInfoCard({required Widget child}) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white, 
-        borderRadius: BorderRadius.circular(20), 
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10)],
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10),
+        ],
       ),
       child: child,
     );
   }
 
-  // --- HELPER: ALERT TANDA BAHAYA ---
-  Widget _buildDangerAlert() {
-    return Container(
+Widget _buildDangerAlert() {
+  return InkWell(
+    borderRadius: BorderRadius.circular(16),
+    onTap: () {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Belum ada surat rekomendasi rujukan")),
+      );
+    },
+    child: Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFFFFF1F2), 
-        borderRadius: BorderRadius.circular(16), 
-        border: Border.all(color: Colors.red.shade100),
+        color: const Color(0xFFEFF6FF),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.blue.shade100),
       ),
       child: Row(
         children: [
-          const Icon(Icons.warning_amber_rounded, color: Colors.red),
+          Icon(Icons.description_outlined, color: Colors.blue.shade700),
           const SizedBox(width: 12),
-          Expanded(
+          const Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
-                Text("Tanda Bahaya Kehamilan", style: TextStyle(fontSize: 12, color: Colors.red, fontWeight: FontWeight.bold)),
-                Text("Pahami gejala yang perlu diwaspadai", style: TextStyle(fontSize: 11, color: Colors.black54)),
+              children: [
+                Text(
+                  "Surat Rekomendasi Rujukan",
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.blue,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  "Belum ada surat rekomendasi rujukan saat ini",
+                  style: TextStyle(fontSize: 11, color: Colors.black54),
+                ),
               ],
             ),
           ),
-          const Icon(Icons.chevron_right, color: Colors.red),
+          Icon(Icons.chevron_right, color: Colors.blue),
         ],
+      ),
+    ),
+  );
+}
+  Widget _buildPlaceholderContent() {
+    return const Center(
+      child: Padding(
+        padding: EdgeInsets.all(40),
+        child: Text("Konten fase ini segera hadir!"),
       ),
     );
   }
-
-  Widget _buildPlaceholderContent() => const Center(child: Padding(padding: EdgeInsets.all(40), child: Text("Konten fase ini segera hadir!")));
 
   Widget _buildTumbuhContent() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // 🔹 REQUEST TAMBAH ANAK
         GestureDetector(
           onTap: () {
             Navigator.push(
@@ -481,11 +609,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
               children: [
                 const Icon(Icons.person_add, color: Colors.blue, size: 28),
                 const SizedBox(width: 12),
-
-                Expanded(
+                const Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
+                    children: [
                       Text(
                         "Request Tambah Profil Anak",
                         style: TextStyle(
@@ -496,50 +623,36 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       SizedBox(height: 4),
                       Text(
                         "Mulai pantau tumbuh kembang si kecil",
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.black54,
-                        ),
+                        style: TextStyle(fontSize: 12, color: Colors.black54),
                       ),
                     ],
                   ),
                 ),
-
                 Container(
                   padding: const EdgeInsets.all(6),
                   decoration: const BoxDecoration(
                     color: Colors.blue,
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(
-                    Icons.add,
-                    size: 16,
-                    color: Colors.white,
-                  ),
+                  child: const Icon(Icons.add, size: 16, color: Colors.white),
                 ),
               ],
             ),
           ),
         ),
-
-        SizedBox(height: 24),
-
-        // 🔹 MENU CEPAT
-        Text(
+        const SizedBox(height: 24),
+        const Text(
           "Menu Cepat",
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        SizedBox(height: 12),
-
+        const SizedBox(height: 12),
         GridView.count(
           shrinkWrap: true,
           crossAxisCount: 3,
-          physics: NeverScrollableScrollPhysics(),
+          physics: const NeverScrollableScrollPhysics(),
           mainAxisSpacing: 12,
           crossAxisSpacing: 12,
           children: [
-
-            // 🔸 TIMBANG
             _menuItem(Icons.scale, "Pertumbuhan", Colors.orange, () {
               Navigator.push(
                 context,
@@ -548,8 +661,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
               );
             }),
-
-            // 🔸 IMUNISASI
             _menuItem(Icons.shield, "Imunisasi", Colors.green, () {
               Navigator.push(
                 context,
@@ -558,39 +669,25 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
               );
             }),
-
-            // 🔸 PERIKSA
-            _menuItem(Icons.favorite, "Periksa", Colors.red, () {
-              
-            }),
-
-            // 🔸 EDUKASI
+            _menuItem(Icons.favorite, "Periksa", Colors.red, () {}),
             _menuItem(Icons.menu_book, "Edukasi", Colors.orange, () {
-              // TODO: halaman edukasi
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const EdukasiExploreScreen()),
+              );
             }),
-
-            // 🔸 CATATAN
-            _menuItem(Icons.note, "Catatan", Colors.red, () {
-              // TODO: halaman catatan
-            }),
-
-            // 🔸 BAHAYA
-            _menuItem(Icons.warning, "Bahaya", Colors.orange, () {
-              // TODO: halaman tanda bahaya
-            }),
+            _menuItem(Icons.note, "Catatan", Colors.red, () {}),
+            _menuItem(Icons.warning, "Bahaya", Colors.orange, () {}),
           ],
         ),
-
-        SizedBox(height: 24),
-
-        // 🔹 WARNING BOX
+        const SizedBox(height: 24),
         Container(
-          padding: EdgeInsets.all(14),
+          padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            color: Color(0xFFFFF3E0),
+            color: const Color(0xFFFFF3E0),
             borderRadius: BorderRadius.circular(16),
           ),
-          child: Row(
+          child: const Row(
             children: [
               Icon(Icons.warning_amber_rounded, color: Colors.orange),
               SizedBox(width: 10),
@@ -604,8 +701,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ],
           ),
         ),
-
-        SizedBox(height: 40),
+        const SizedBox(height: 40),
       ],
     );
   }
@@ -624,18 +720,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 6,
-            )
+            BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 6),
           ],
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(icon, color: color),
-            SizedBox(height: 6),
-            Text(title, style: TextStyle(fontSize: 12)),
+            const SizedBox(height: 6),
+            Text(title, style: const TextStyle(fontSize: 12)),
           ],
         ),
       ),
@@ -648,7 +741,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
       selectedItemColor: TrimesterTheme.t1Primary,
       unselectedItemColor: Colors.grey,
       currentIndex: _selectedNavIndex,
-      onTap: (index) => setState(() => _selectedNavIndex = index),
+      onTap: (index) {
+        setState(() {
+          _selectedNavIndex = index;
+        });
+      },
       items: const [
         BottomNavigationBarItem(icon: Icon(Icons.home_filled), label: "Beranda"),
         BottomNavigationBarItem(icon: Icon(Icons.assignment_outlined), label: "Catatan"),
