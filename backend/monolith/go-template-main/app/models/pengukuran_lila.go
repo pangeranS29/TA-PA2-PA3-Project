@@ -10,7 +10,7 @@ type PengukuranLila struct {
 	ID             int32          `json:"id" gorm:"primaryKey;autoIncrement"`
 	AnakID         int32          `json:"anak_id" gorm:"not null;index"`
 	Anak           *Anak          `json:"anak,omitempty" gorm:"foreignKey:AnakID"`
-	Bulanke        int            `json:"bulan" gorm:"not null"`
+	Bulanke        int            `json:"bulan_ke" gorm:"column:bulanke;not null"`
 	Tanggal        time.Time      `json:"tanggal" gorm:"not null;"`
 	HasilLila      float64        `json:"hasil_lila" gorm:"type:decimal(5,2);not null"`
 	KategoriRisiko string         `json:"kategori_risiko" gorm:"type:varchar(20);not null"`

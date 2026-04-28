@@ -1,9 +1,10 @@
 import React, { useEffect, useMemo, useState } from "react";
 import MainLayout from "../../components/Layout/MainLayout";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import {
   createEdukasi,
   deleteEdukasi,
+  getEdukasiById,
   listEdukasi,
   updateEdukasi,
 } from "../../services/edukasiDigital";
@@ -30,6 +31,7 @@ export default function EdukasiDigitalCrudPage({
 }) {
   const navigate = useNavigate();
   const location = useLocation();
+  const params = useParams();
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -87,23 +89,67 @@ export default function EdukasiDigitalCrudPage({
   useEffect(() => {
     if (view !== "form") return;
 
-    const item = location.state?.item;
-    if (!item) {
-      setEditingId(null);
-      setForm(emptyForm);
-      return;
-    }
+    const loadFormData = async () => {
+      setLoading(true);
+      setError("");
 
-    setEditingId(String(guessId(item)));
-    setForm({
-      judul: item.judul || "",
-      gambar_url: item.gambar_url || "",
-      deskripsi: item.deskripsi || "",
-      isi_konten: item.isi_konten || item.isi || "",
-      materi_inti: item.materi_inti || "",
-      hal_penting: item.hal_penting || "",
-    });
-  }, [location.state, view]);
+      try {
+        // Try to get from URL params (direct edit link)
+        if (params.id) {
+          const item = await getEdukasiById(resourcePath, params.id);
+          if (item) {
+            setEditingId(String(guessId(item)));
+            if (fields && Array.isArray(fields)) {
+              const f = {};
+              fields.forEach((it) => {
+                f[it.key] = item[it.key] ?? item[it.alt] ?? "";
+              });
+              setForm(f);
+            } else {
+              setForm({
+                judul: item.judul || "",
+                gambar_url: item.gambar_url || "",
+                deskripsi: item.deskripsi || "",
+                isi_konten: item.isi_konten || item.isi || "",
+                isi: item.isi || "",
+                materi_inti: item.materi_inti || "",
+                hal_penting: item.hal_penting || "",
+                ringkasan: item.ringkasan || "",
+              });
+            }
+          } else {
+            setError("Data tidak ditemukan");
+          }
+          return;
+        }
+
+        // Try to get from location state (navigate from list)
+        const item = location.state?.item;
+        if (!item) {
+          setEditingId(null);
+          setForm(emptyForm);
+          return;
+        }
+
+        setEditingId(String(guessId(item)));
+        setForm({
+          judul: item.judul || "",
+          gambar_url: item.gambar_url || "",
+          deskripsi: item.deskripsi || "",
+          isi_konten: item.isi_konten || item.isi || "",
+          materi_inti: item.materi_inti || "",
+          hal_penting: item.hal_penting || "",
+        });
+      } catch (err) {
+        setError(err?.response?.data?.message || "Gagal memuat data");
+        setForm(emptyForm);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadFormData();
+  }, [location.state, view, params.id, resourcePath, fields]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -171,31 +217,19 @@ export default function EdukasiDigitalCrudPage({
   };
 
   const handleEdit = (item) => {
+    const id = guessId(item);
+    if (!id) {
+      setError("ID data tidak ditemukan");
+      return;
+    }
+    
     if (createPath) {
       navigate(createPath, { state: { item } });
       return;
     }
-    setEditingId(String(guessId(item)));
-    if (fields && Array.isArray(fields)) {
-      const f = {};
-      fields.forEach((it) => {
-        f[it.key] = item[it.key] ?? item[it.alt] ?? "";
-      });
-      setForm(f);
-    } else {
-      setForm({
-        judul: item.judul || "",
-        gambar_url: item.gambar_url || "",
-        deskripsi: item.deskripsi || "",
-        isi_konten: item.isi_konten || item.isi || "",
-        isi: item.isi || "",
-        materi_inti: item.materi_inti || "",
-        hal_penting: item.hal_penting || "",
-        ringkasan: item.ringkasan || "",
-      });
-    }
-    setShowForm(true);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+
+    // Navigate to edit form with ID in URL
+    navigate(`${location.pathname.replace(/\/[^/]*$/, "")}/form/${id}`, { state: { item } });
   };
 
   const handleDelete = async (item) => {
@@ -316,6 +350,11 @@ export default function EdukasiDigitalCrudPage({
               ) : null}
             </div>
 
+            {view === "form" && loading ? (
+              <div className="py-8 text-center">
+                <p className="text-slate-600">Memuat data...</p>
+              </div>
+            ) : (
             <form onSubmit={handleSubmit} className="space-y-3">
               {(fields && Array.isArray(fields) ? fields : [
                 { key: "judul", label: "Judul", type: "text" },
@@ -377,6 +416,7 @@ export default function EdukasiDigitalCrudPage({
                 </button>
               </div>
             </form>
+            )}
           </section>
         )}
       </div>
