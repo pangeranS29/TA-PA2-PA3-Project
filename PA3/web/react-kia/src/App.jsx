@@ -30,11 +30,13 @@ import EvaluasiKesehatanIbu from "./pages/Ibu/EvaluasiKesehatanIbu";
 import CatatanPelayanan from "./pages/Ibu/CatatanPelayanan";
 // import PemeriksaanDokterT3 dari file lama sudah dihapus
 import RujukanPage from "./pages/Ibu/Rujukan";
-import SkriningDMGestasional from "./pages/Ibu/SkriningDMGestasional";
 import PelayananPersalinan from "./pages/Ibu/PelayananPersalinan";
 import PemeriksaanKehamilanList from "./pages/Ibu/PemeriksaanKehamilanList";
 import PemeriksaanKehamilanForm from "./pages/Ibu/PemeriksaanKehamilanForm";
 import RujukanDashboard from "./pages/Ibu/RujukanDashboard";
+import SkriningDashboard from "./pages/Ibu/SkriningDashboard";
+import SkriningDashboardList from "./pages/Ibu/SkriningDashboardList";
+import RujukanDisplay from "./pages/Ibu/RujukanDisplay";
 
 // Data Anak
 import AnakListNakes from "./pages/Anak";
@@ -98,6 +100,7 @@ function App() {
           <Route path="/data-ibu/:id/pemeriksaan-dokter-t3-complete" element={<PemeriksaanDokterT3Complete />} />
 
           <Route path="/data-ibu/:id/skrining-preeklampsia" element={<SkriningPreeklampsia />} />
+          <Route path="/data-ibu/:id/skrining-dashboard" element={<SkriningDashboard />} />
           <Route path="/data-ibu/:id/pemeriksaan-fisik" element={<PemeriksaanFisik />} />
           <Route path="/data-ibu/:id/grafik-evaluasi" element={<GrafikEvaluasiKehamilan />} />
           <Route path="/data-ibu/:id/grafik-bb" element={<GrafikPeningkatanBB />} />
@@ -106,13 +109,14 @@ function App() {
           <Route path="/data-ibu/:id/evaluasi-kesehatan" element={<EvaluasiKesehatanIbu />} />
           <Route path="/data-ibu/:id/catatan-pelayanan" element={<CatatanPelayanan />} />
           <Route path="/data-ibu/:id/rujukan" element={<RujukanPage />} />
-          <Route path="/data-ibu/:id/skrining-dm-gestasional" element={<SkriningDMGestasional />} />
+          <Route path="/data-ibu/:id/rujukan-display" element={<RujukanDisplay />} />
           <Route path="/data-ibu/:id/pelayanan-persalinan" element={<PelayananPersalinan />} />
           <Route path="/data-ibu/:id/pemeriksaan-rutin" element={<PemeriksaanKehamilanList />} />
           <Route path="/data-ibu/:id/pemeriksaan-rutin/:periksaId" element={<PemeriksaanKehamilanForm />} />
           <Route path="/daftar-rujukan" element={<RujukanDashboard />} />
-
-          {/* Data Anak */}
+<Route path="/daftar-skrining" element={<SkriningDashboardList />} />
+          
+{/* Data Anak */}
           <Route path="/daftar-anak" element={<AnakListNakes />} />
           <Route path="/data-anak/create" element={<CreateAnak />} />
           <Route path="/data-anak/edit/:id" element={<EditAnak />} />
