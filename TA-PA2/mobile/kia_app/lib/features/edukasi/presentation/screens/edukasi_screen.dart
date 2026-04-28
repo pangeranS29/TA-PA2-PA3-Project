@@ -1,284 +1,251 @@
 import 'package:flutter/material.dart';
+import 'pola_asuh_screen.dart';   // Pastikan file ini ada
 
-class EdukasiScreen extends StatefulWidget {
+class EdukasiScreen extends StatelessWidget {
   const EdukasiScreen({Key? key}) : super(key: key);
 
   @override
-  State<EdukasiScreen> createState() => _EdukasiScreenState();
-}
-
-class _EdukasiScreenState extends State<EdukasiScreen>
-    with SingleTickerProviderStateMixin {
-  String _selectedFilter = 'Semua';
-  late final AnimationController _listAnimationController;
-
-  final List<Map<String, dynamic>> _edukasiContent = [
-    {
-      'type': 'VIDEO',
-      'durationText': '3 Menit Tonton',
-      'title': 'Latihan Motorik Halus Untuk Balita',
-      'subtitle': 'Aktivitas sederhana menggunakan benda di rumah.',
-    },
-    {
-      'type': 'ARTIKEL',
-      'durationText': '4 Menit Baca',
-      'title': 'Stimulasi Bahasa Sejak Usia Dini',
-      'subtitle': 'Tips membangun kebiasaan komunikasi yang positif.',
-    },
-    {
-      'type': 'VIDEO',
-      'durationText': '5 Menit Tonton',
-      'title': 'Rutinitas Tidur Anak Yang Sehat',
-      'subtitle': 'Langkah praktis agar anak tidur lebih teratur.',
-    },
-  ];
-
-  List<String> get _activeFilters => ['Semua', 'Video', 'Artikel'];
-
-  @override
-  void initState() {
-    super.initState();
-    _listAnimationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 650),
-    )..forward();
-  }
-
-  @override
-  void dispose() {
-    _listAnimationController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    List<Map<String, dynamic>> filteredContent = _edukasiContent;
-    if (_selectedFilter != 'Semua') {
-      filteredContent = _edukasiContent
-          .where((item) => item['type'] == _selectedFilter.toUpperCase())
-          .toList();
-    }
-
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
-        automaticallyImplyLeading: true,
         title: const Text(
-          'Edukasi',
+          'Edukasi Anak',
           style: TextStyle(
             color: Color(0xFF1E293B),
-            fontSize: 16,
+            fontSize: 18,
             fontWeight: FontWeight.w700,
           ),
         ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios,
+              color: Color(0xFF1E293B), size: 20),
+          onPressed: () => Navigator.pop(context),
+        ),
       ),
       body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 24.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildEdukasiBanner(),
-              const SizedBox(height: 16),
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: _activeFilters
-                      .map((label) => _buildFilterChip(label))
-                      .toList(),
-                ),
-              ),
-              const SizedBox(height: 24),
-              const Text(
-                'Konten Edukasi Cepat',
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF1E293B),
-                ),
-              ),
-              const SizedBox(height: 14),
-              if (filteredContent.isEmpty)
-                const Center(
-                  child: Padding(
-                    padding: EdgeInsets.all(24.0),
-                    child: Text(
-                      'Konten edukasi belum tersedia untuk filter ini.',
-                      style: TextStyle(color: Colors.grey),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Hero Image Section
+            Stack(
+              children: [
+                Container(
+                  height: 200,
+                  width: double.infinity,
+                  decoration: const BoxDecoration(
+                    image: DecorationImage(
+                      image: AssetImage('assets/images/hero_edukasi.png'),
+                      fit: BoxFit.cover,
                     ),
                   ),
-                )
-              else
-                ...filteredContent.asMap().entries.map(
-                      (entry) => _buildStaggeredListItem(
-                        index: entry.key,
-                        totalCount: filteredContent.length,
-                        child: _buildContentCard(entry.value),
-                      ),
+                ),
+                Container(
+                  height: 200,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.transparent,
+                        Colors.black.withOpacity(0.35),
+                      ],
                     ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+                  ),
+                ),
+                const Positioned(
+                  bottom: 24,
+                  left: 20,
+                  right: 20,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Belajar Bersama Si Kecil',
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                        ),
+                      ),
+                      SizedBox(height: 6),
+                      Text(
+                        'Panduan lengkap tumbuh kembang anak',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.white,
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
 
-  Widget _buildEdukasiBanner() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: const Color(0xFFFFF7ED),
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: const Row(
-        children: [
-          Icon(Icons.flash_on, color: Color(0xFFEA580C), size: 20),
-          SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              'Kumpulan edukasi ringkas dan praktis untuk aktivitas harian ibu dan anak.',
-              style: TextStyle(
-                color: Color(0xFFEA580C),
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
+            const SizedBox(height: 24),
+
+            // Menu Cards
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Column(
+                children: [
+                  // ================== POLA ASUH (BISA DIKLIK) ==================
+                  InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const PolaAsuhScreen(),
+                        ),
+                      );
+                    },
+                    borderRadius: BorderRadius.circular(16),
+                    child: _menuCard(
+                      icon: Icons.device_hub,
+                      title: 'Pola Asuh',
+                      subtitle: 'Metode pengasuhan positif',
+                      color: const Color(0xFFF0F9FF),
+                      iconBgColor: const Color(0xFFE0F2FE),
+                      iconColor: const Color(0xFF0EA5E9),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+
+                  // Perawatan (TIDAK BISA DIKLIK)
+                  _menuCard(
+                    icon: Icons.medical_services_outlined,
+                    title: 'Perawatan',
+                    subtitle: 'Kesehatan & nutrisi harian',
+                    color: const Color(0xFFF0F9FF),
+                    iconBgColor: const Color(0xFFE0F2FE),
+                    iconColor: const Color(0xFF3B82F6),
+                  ),
+                  const SizedBox(height: 12),
+
+                  // Informasi Umum (TIDAK BISA DIKLIK)
+                  _menuCard(
+                    icon: Icons.info_outline,
+                    title: 'Informasi Umum',
+                    subtitle: 'Artikel & tips terpercaya',
+                    color: const Color(0xFFF0F9FF),
+                    iconBgColor: const Color(0xFFE0F2FE),
+                    iconColor: const Color(0xFF06B6D4),
+                  ),
+                ],
               ),
             ),
-          ),
-        ],
+
+            const SizedBox(height: 28),
+
+            // Tips Hari Ini
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFDBEAFE),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: const [
+                    Row(
+                      children: [
+                        Icon(Icons.lightbulb_outline,
+                            color: Color(0xFF2563EB), size: 24),
+                        SizedBox(width: 8),
+                        Text(
+                          'Tips Hari Ini',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFF1E40AF),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 12),
+                    Text(
+                      'Pastikan si Kecil mendapatkan waktu istirahat yang cukup untuk mendukung pertumbuhan otaknya secara optimal.',
+                      style: TextStyle(
+                        fontSize: 14,
+                        height: 1.5,
+                        color: Color(0xFF1E3A8A),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 40),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildFilterChip(String label) {
-    final bool isActive = _selectedFilter == label;
-
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _selectedFilter = label;
-        });
-        _listAnimationController.forward(from: 0);
-      },
-      child: Container(
-        margin: const EdgeInsets.only(right: 12),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        decoration: BoxDecoration(
-          color: isActive ? const Color(0xFFEA580C) : Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: isActive ? const Color(0xFFEA580C) : Colors.grey.shade300,
-          ),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            color: isActive ? Colors.white : const Color(0xFF64748B),
-            fontSize: 13,
-            fontWeight: isActive ? FontWeight.bold : FontWeight.w500,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildContentCard(Map<String, dynamic> item) {
-    final bool isVideo = item['type'] == 'VIDEO';
-
+  // Menu Card Widget (hanya tampilan)
+  Widget _menuCard({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required Color color,
+    required Color iconBgColor,
+    required Color iconColor,
+  }) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 14),
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.grey.shade200),
+        color: color,
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
         children: [
           Container(
-            width: 42,
-            height: 42,
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color:
-                  isVideo ? const Color(0xFFEFF6FF) : const Color(0xFFFFF7ED),
-              borderRadius: BorderRadius.circular(10),
+              color: iconBgColor,
+              borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(
-              isVideo ? Icons.play_circle_outline : Icons.menu_book_rounded,
-              color:
-                  isVideo ? const Color(0xFF2563EB) : const Color(0xFFEA580C),
-            ),
+            child: Icon(icon, color: iconColor, size: 26),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  item['title'] as String,
+                  title,
                   style: const TextStyle(
-                    fontSize: 14,
+                    fontSize: 16,
                     fontWeight: FontWeight.w700,
                     color: Color(0xFF1E293B),
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  item['subtitle'] as String,
+                  subtitle,
                   style: const TextStyle(
-                    fontSize: 12,
+                    fontSize: 13,
                     color: Color(0xFF64748B),
-                    height: 1.4,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  item['durationText'] as String,
-                  style: const TextStyle(
-                    fontSize: 11,
-                    color: Color(0xFF94A3B8),
-                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ],
             ),
           ),
+          const Icon(
+            Icons.chevron_right,
+            color: Color(0xFF94A3B8),
+            size: 28,
+          ),
         ],
       ),
-    );
-  }
-
-  Widget _buildStaggeredListItem({
-    required int index,
-    required int totalCount,
-    required Widget child,
-  }) {
-    final int safeCount = totalCount <= 0 ? 1 : totalCount;
-    final double start = (index * 0.09).clamp(0.0, 0.8);
-    final double end =
-        (start + (0.35 / safeCount) + 0.22).clamp(start + 0.1, 1.0);
-
-    final Animation<double> animation = CurvedAnimation(
-      parent: _listAnimationController,
-      curve: Interval(start, end, curve: Curves.easeOutCubic),
-    );
-
-    return AnimatedBuilder(
-      animation: animation,
-      child: child,
-      builder: (context, itemChild) {
-        final double value = animation.value;
-        return Opacity(
-          opacity: value,
-          child: Transform.translate(
-            offset: Offset(0, (1 - value) * 18),
-            child: itemChild,
-          ),
-        );
-      },
     );
   }
 }
