@@ -85,7 +85,7 @@ const PelayananLilaCreate = () => {
       tanggal: formData.tanggal ? new Date(formData.tanggal).toISOString() : new Date().toISOString(),
       bulan_ke: formData.bulan_ke,
       hasil_lila: parseFloat(formData.hasil_lila) || 0,
-      kategori_risiko: formData.kategori_risiko || "normal",
+      kategori_risiko: formData.kategori_risiko || "baik",
       tenaga_kesehatan_id: parseInt(authUser.id || authUser.user_id) || 0
     };
   }, [formData, id, authUser]);

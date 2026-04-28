@@ -68,6 +68,11 @@ export const updateEdukasi = async (resourcePath, id, payload) => {
   return unwrap(res);
 };
 
+export const getEdukasiById = async (resourcePath, id) => {
+  const res = await api.get(`${basePath(resourcePath)}/${id}`);
+  return unwrap(res);
+};
+
 export const deleteEdukasi = async (resourcePath, id) => {
   const res = await api.delete(`${basePath(resourcePath)}/${id}`);
   return unwrap(res);

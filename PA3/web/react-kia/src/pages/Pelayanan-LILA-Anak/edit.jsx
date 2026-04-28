@@ -40,7 +40,7 @@ const PelayananLilaEdit = () => {
             bulan_ke: data.bulan_ke || 1,
             tanggal: new Date(data.tanggal).toISOString().split('T')[0],
             hasil_lila: data.hasil_lila || "",
-            kategori_risiko: data.kategori_risiko || "normal"
+            kategori_risiko: data.kategori_risiko || "baik"
           });
         }
       } catch (err) {
@@ -107,7 +107,7 @@ const PelayananLilaEdit = () => {
       tanggal: formData.tanggal ? new Date(formData.tanggal).toISOString() : new Date().toISOString(),
       bulan_ke: formData.bulan_ke,
       hasil_lila: parseFloat(formData.hasil_lila) || 0,
-      kategori_risiko: formData.kategori_risiko || "normal",
+      kategori_risiko: formData.kategori_risiko || "baik",
       tenaga_kesehatan_id: parseInt(authUser.id || authUser.user_id) || 0
     };
   }, [formData, id, lilaId, authUser]);

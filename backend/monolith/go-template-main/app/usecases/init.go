@@ -53,6 +53,7 @@ type Main struct {
 	AdminAkunKeluarga    *AdminAkunKeluargaUsecase
 	AdminTenagaKesehatan *AdminTenagaKesehatanUsecase
 	KeteranganLahir               KeteranganLahirUsecase // <-- TAMBAHKAN INI
+	PemantauanIndikator           PemantauanIndikatorUsecase
 	EdukasiInformasiUmum          EdukasiInformasiUmumUsecase
 	EdukasiTandaBahayaTrimester   EdukasiTandaBahayaTrimesterUsecase
 	EdukasiTandaMelahirkan        EdukasiTandaMelahirkanUsecase
@@ -124,6 +125,7 @@ func Init(opts Options) *Main {
 	m.EdukasiPolaAsuh = NewEdukasiPolaAsuhUsecase(opts.Repository.EdukasiPolaAsuh)
 	m.EdukasiKesehatanMental = NewEdukasiKesehatanMentalUsecase(opts.Repository.EdukasiKesehatanMental)
 	m.KesehatanLingkunganDanCatatanKader = NewKesehatanLingkunganDanCatatanKaderUsecase(opts.Repository.KesehatanLingkunganDanCatatanKader)
+	m.PemantauanIndikator = NewPemantauanIndikatorUsecase(opts.Repository.PemantauanIndikator)
 	m.Kependudukan = NewKependudukanUsecase(opts.Repository.Kependudukan)
 	// m.RegisterOrangTua = NewRegisterOrangTuaUsecase(
 	// 	opts.Repository.User,

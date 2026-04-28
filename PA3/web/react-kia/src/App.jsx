@@ -131,20 +131,28 @@ function App() {
           <Route path="/pemantauan/lihat" element={<LihatDataPemantauan />} />
            <Route path="/edukasi-digital/informasi-umum" element={<InformasiUmumPage />} />
            <Route path="/edukasi-digital/informasi-umum/form" element={<InformasiUmumFormPage />} />
+           <Route path="/edukasi-digital/informasi-umum/form/:id" element={<InformasiUmumFormPage />} />
            <Route path="/edukasi-digital/imd" element={<ImdPage />} />
            <Route path="/edukasi-digital/imd/form" element={<ImdFormPage />} />
+           <Route path="/edukasi-digital/imd/form/:id" element={<ImdFormPage />} />
            <Route path="/edukasi-digital/kesehatan-mental" element={<KesehatanMentalPage />} />
            <Route path="/edukasi-digital/kesehatan-mental/form" element={<KesehatanMentalFormPage />} />
+           <Route path="/edukasi-digital/kesehatan-mental/form/:id" element={<KesehatanMentalFormPage />} />
            <Route path="/edukasi-digital/menyusui-asi" element={<MenyusuiAsiPage />} />
            <Route path="/edukasi-digital/menyusui-asi/form" element={<MenyusuiAsiFormPage />} />
+           <Route path="/edukasi-digital/menyusui-asi/form/:id" element={<MenyusuiAsiFormPage />} />
            <Route path="/edukasi-digital/pola-asuh" element={<PolaAsuhPage />} />
            <Route path="/edukasi-digital/pola-asuh/form" element={<PolaAsuhFormPage />} />
+           <Route path="/edukasi-digital/pola-asuh/form/:id" element={<PolaAsuhFormPage />} />
            <Route path="/edukasi-digital/setelah-melahirkan" element={<SetelahMelahirkanPage />} />
            <Route path="/edukasi-digital/setelah-melahirkan/form" element={<SetelahMelahirkanFormPage />} />
+           <Route path="/edukasi-digital/setelah-melahirkan/form/:id" element={<SetelahMelahirkanFormPage />} />
            <Route path="/edukasi-digital/tanda-bahaya-trimester" element={<TandaBahayaTrimesterPage />} />
            <Route path="/edukasi-digital/tanda-bahaya-trimester/form" element={<TandaBahayaTrimesterFormPage />} />
+           <Route path="/edukasi-digital/tanda-bahaya-trimester/form/:id" element={<TandaBahayaTrimesterFormPage />} />
            <Route path="/edukasi-digital/tanda-melahirkan" element={<TandaMelahirkanPage />} />
            <Route path="/edukasi-digital/tanda-melahirkan/form" element={<TandaMelahirkanFormPage />} />
+           <Route path="/edukasi-digital/tanda-melahirkan/form/:id" element={<TandaMelahirkanFormPage />} />
            <Route path="/edukasi-digital/tanda-bahaya-trimester" element={<TandaBahayaTrimesterPage />} />
            <Route path="/edukasi-digital/tanda-melahirkan" element={<TandaMelahirkanPage />} />
            <Route path="/edukasi-digital/imd" element={<ImdPage />} />

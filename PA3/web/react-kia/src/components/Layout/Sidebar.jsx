@@ -1,13 +1,13 @@
 // src/components/Layout/Sidebar.jsx
 import { useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
-import { 
-  LayoutGrid, 
-  Users, 
-  Baby, 
-  Activity, 
-  BarChart3, 
-  Settings, 
+import {
+  LayoutGrid,
+  Users,
+  Baby,
+  Activity,
+  BarChart3,
+  Settings,
   ShieldPlus,
   UserCheck,
   ChevronDown, // Ikon tambahan untuk panah dropdown
@@ -47,7 +47,7 @@ const Sidebar = () => {
         { path: "/edukasi-digital/tanda-melahirkan", name: "Tanda Melahirkan", icon: ClipboardList },
         { path: "/edukasi-digital/imd", name: "Edukasi IMD", icon: ClipboardList },
         { path: "/edukasi-digital/setelah-melahirkan", name: "Setelah Melahirkan", icon: ClipboardList },
-        { path: "/edukasi-digital/menyusui-asi", name: "Menyusui ASI", icon: ClipboardList },
+        { path: "/edukasi-digital/menyusui-asi", name: "Menyusui & ASI", icon: ClipboardList },
         { path: "/edukasi-digital/pola-asuh", name: "Pola Asuh", icon: ClipboardList },
         { path: "/edukasi-digital/kesehatan-mental", name: "Kesehatan Mental", icon: ClipboardList },
       ],
@@ -93,18 +93,17 @@ const Sidebar = () => {
                 key={item.path}
                 to={item.path}
                 className={({ isActive }) =>
-                  `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${
-                    isActive 
-                      ? "bg-blue-50 text-blue-600 font-semibold" 
-                      : "text-slate-500 hover:bg-gray-50 hover:text-slate-700"
+                  `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${isActive
+                    ? "bg-blue-50 text-blue-600 font-semibold"
+                    : "text-slate-500 hover:bg-gray-50 hover:text-slate-700"
                   }`
                 }
               >
                 {({ isActive }) => (
                   <>
-                    <item.icon 
-                      size={20} 
-                      className={isActive ? "text-blue-600" : "text-slate-400 group-hover:text-slate-600"} 
+                    <item.icon
+                      size={20}
+                      className={isActive ? "text-blue-600" : "text-slate-400 group-hover:text-slate-600"}
                     />
                     <span className="truncate">{item.name}</span>
                   </>
@@ -116,24 +115,23 @@ const Sidebar = () => {
           // Logika untuk Menu Dropdown
           const isChildActive = item.children.some((child) => location.pathname.startsWith(child.path));
           const isOpen = dropdownOpen[item.dropdownKey] || false;
-          
+
           return (
             <div key={item.name} className="space-y-1">
               <button
                 onClick={() => toggleDropdown(item.dropdownKey)}
-                className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 group ${
-                  isOpen || isChildActive
-                    ? "text-slate-700 font-medium" 
-                    : "text-slate-500 hover:bg-gray-50 hover:text-slate-700"
-                }`}
+                className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 group ${isOpen || isChildActive
+                  ? "text-slate-700 font-medium"
+                  : "text-slate-500 hover:bg-gray-50 hover:text-slate-700"
+                  }`}
               >
                 <div className="flex items-center gap-3">
                   <item.icon size={20} className={(isOpen || isChildActive) ? "text-blue-600" : "text-slate-400"} />
                   <span>{item.name}</span>
                 </div>
-                <ChevronDown 
-                  size={16} 
-                  className={`transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} 
+                <ChevronDown
+                  size={16}
+                  className={`transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
                 />
               </button>
 
@@ -145,10 +143,9 @@ const Sidebar = () => {
                       key={child.path}
                       to={child.path}
                       className={({ isActive }) =>
-                        `flex items-center gap-3 px-4 py-2 rounded-lg text-sm transition-all ${
-                          isActive 
-                            ? "text-blue-600 font-semibold" 
-                            : "text-slate-400 hover:text-slate-600 hover:bg-gray-50"
+                        `flex items-center gap-3 px-4 py-2 rounded-lg text-sm transition-all ${isActive
+                          ? "text-blue-600 font-semibold"
+                          : "text-slate-400 hover:text-slate-600 hover:bg-gray-50"
                         }`
                       }
                     >
