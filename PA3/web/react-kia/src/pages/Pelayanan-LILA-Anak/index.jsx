@@ -42,12 +42,15 @@ const PelayananLilaIndex = () => {
   };
 
   const getRisikoBadge = (kategori) => {
-    switch(kategori?.toLowerCase()) {
-      case "risiko_tinggi":
-        return { bg: "bg-red-50", text: "text-red-600", label: "Risiko Tinggi", icon: "🔴" };
-      case "risiko_rendah":
-        return { bg: "bg-green-50", text: "text-green-600", label: "Risiko Rendah", icon: "🟢" };
-      case "normal":
+    const k = (kategori || '').toLowerCase();
+    switch(k) {
+      case "gizi_buruk":
+      case "risiko":
+        return { bg: "bg-red-50", text: "text-red-600", label: "Gizi Buruk / Risiko", icon: "🔴" };
+      case "gizi_kurang":
+        return { bg: "bg-yellow-50", text: "text-yellow-700", label: "Gizi Kurang", icon: "🟠" };
+      case "baik":
+        return { bg: "bg-green-50", text: "text-green-600", label: "Baik", icon: "🟢" };
       default:
         return { bg: "bg-blue-50", text: "text-blue-600", label: "Normal", icon: "🟦" };
     }
