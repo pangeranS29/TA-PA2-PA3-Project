@@ -408,4 +408,9 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	// Absensi Kelas Ibu Hamil
 	ibu.GET("/absensi-kelas-ibu-hamil/me", controller.AbsensiKelasIbuHamil.GetMine)
 	ibu.POST("/absensi-kelas-ibu-hamil", controller.AbsensiKelasIbuHamil.SaveMine)
+
+	// Checklist Pemantauan Ibu Nifas
+	ibu.GET("/checklist-pemantauan-ibu-nifas/me", controller.ChecklistPemantauanIbuNifas.GetMine)
+	ibu.POST("/checklist-pemantauan-ibu-nifas", controller.ChecklistPemantauanIbuNifas.SaveMine)
+	ibu.GET("/checklist-pemantauan-ibu-nifas/filled-days", controller.ChecklistPemantauanIbuNifas.GetFilledDays)
 }

@@ -21,6 +21,7 @@ type Main struct {
 	PemantauanPertumbuhan  PemantauanPertumbuhanRepository
 	PengukuranLilA         PengukuranLilaRepository
 	CatatanPelayanan       CatatanPelayananRepository
+	ChecklistPemantauanIbuNifas ChecklistPemantauanIbuNifasRepository
 
 	// New repositories (semua pointer, mengikuti pola Anak)
 	User                          *UserRepository
@@ -82,6 +83,7 @@ func Init(opts Options) *Main {
 	// New repositories
 	m.User = NewUserRepository(opts.Postgres)
 	m.Ibu = NewIbuRepository(opts.Postgres)
+	m.ChecklistPemantauanIbuNifas = NewChecklistPemantauanIbuNifasRepository(opts.Postgres)
 	m.Role = NewRoleRepository(opts.Postgres)
 	m.KartuKeluarga = NewKartuKeluargaRepository(opts.Postgres)
 	m.Kependudukan = NewKependudukanRepository(opts.Postgres)
