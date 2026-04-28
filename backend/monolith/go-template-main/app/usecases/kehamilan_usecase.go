@@ -23,27 +23,24 @@ func NewKehamilanUsecase(repo *repositories.KehamilanRepository) KehamilanUsecas
 	return &kehamilanUsecase{repo: repo}
 }
 
-func calculateIMT(bb, tb float64) (float64, error) {
+// hitung IMT hanya jika BB_Awal dan TB diisi
+func calculateIMT(bb, tb float64) float64 {
 	if tb <= 0 {
-		return 0, errors.New("tb tidak boleh 0")
+		return 0
 	}
-	return bb / (tb * tb), nil
+	return bb / (tb * tb)
 }
 
 func (u *kehamilanUsecase) Create(kehamilan *models.Kehamilan) error {
 	if kehamilan.IbuID == 0 {
 		return errors.New("ibu_id wajib diisi")
 	}
-	if kehamilan.BB_Awal <= 0 {
-		return errors.New("bb_awal tidak valid")
+	// Hitung IMT jika BB_Awal dan TB diisi
+	if kehamilan.BB_Awal > 0 && kehamilan.TB > 0 {
+		kehamilan.IMT_Awal = calculateIMT(kehamilan.BB_Awal, kehamilan.TB)
+	} else {
+		kehamilan.IMT_Awal = 0
 	}
-
-	imt, err := calculateIMT(kehamilan.BB_Awal, kehamilan.TB)
-	if err != nil {
-		return err
-	}
-
-	kehamilan.IMT_Awal = imt
 	return u.repo.Create(kehamilan)
 }
 
@@ -64,33 +61,44 @@ func (u *kehamilanUsecase) Update(kehamilan *models.Kehamilan) error {
 	if err != nil {
 		return errors.New("data kehamilan tidak ditemukan")
 	}
-
-	// UPDATE FIELD NON-IMT
-	existing.Gravida = kehamilan.Gravida
-	existing.Paritas = kehamilan.Paritas
-	existing.Abortus = kehamilan.Abortus
-	existing.HPHT = kehamilan.HPHT
-	existing.TaksiranPersalinan = kehamilan.TaksiranPersalinan
-	existing.UKKehamilanSaatIni = kehamilan.UKKehamilanSaatIni
-	existing.JarakKehamilanSebelumnya = kehamilan.JarakKehamilanSebelumnya
-	existing.StatusKehamilan = kehamilan.StatusKehamilan
-
-	// UPDATE BB & TB
+	// Update field yang diisi (tidak nol/nil)
+	if kehamilan.IbuID != 0 {
+		existing.IbuID = kehamilan.IbuID
+	}
+	if kehamilan.Gravida != 0 {
+		existing.Gravida = kehamilan.Gravida
+	}
+	if kehamilan.Paritas != 0 {
+		existing.Paritas = kehamilan.Paritas
+	}
+	if kehamilan.Abortus != 0 {
+		existing.Abortus = kehamilan.Abortus
+	}
+	if !kehamilan.HPHT.IsZero() {
+		existing.HPHT = kehamilan.HPHT
+	}
+	if !kehamilan.TaksiranPersalinan.IsZero() {
+		existing.TaksiranPersalinan = kehamilan.TaksiranPersalinan
+	}
+	if kehamilan.UKKehamilanSaatIni != 0 {
+		existing.UKKehamilanSaatIni = kehamilan.UKKehamilanSaatIni
+	}
+	if kehamilan.JarakKehamilanSebelumnya != 0 {
+		existing.JarakKehamilanSebelumnya = kehamilan.JarakKehamilanSebelumnya
+	}
+	if kehamilan.StatusKehamilan != "" {
+		existing.StatusKehamilan = kehamilan.StatusKehamilan
+	}
 	if kehamilan.BB_Awal > 0 {
 		existing.BB_Awal = kehamilan.BB_Awal
 	}
 	if kehamilan.TB > 0 {
 		existing.TB = kehamilan.TB
 	}
-
-	// RECALCULATE IMT
-	imt, err := calculateIMT(existing.BB_Awal, existing.TB)
-	if err != nil {
-		return err
+	// Rekalkulasi IMT jika BB_Awal atau TB berubah
+	if kehamilan.BB_Awal > 0 || kehamilan.TB > 0 {
+		existing.IMT_Awal = calculateIMT(existing.BB_Awal, existing.TB)
 	}
-
-	existing.IMT_Awal = imt
-
 	return u.repo.Update(existing)
 }
 

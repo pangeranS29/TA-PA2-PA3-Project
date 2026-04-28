@@ -84,8 +84,17 @@ func Init(opts Options) *Main {
 	m.Kehamilan = NewKehamilanUsecase(opts.Repository.Kehamilan)
 	m.PemeriksaanKehamilan = NewPemeriksaanKehamilanUsecase(opts.Repository.PemeriksaanKehamilan)
 	m.EvaluasiKesehatanIbu = NewEvaluasiKesehatanIbuUsecase(opts.Repository.EvaluasiKesehatanIbu)
-	m.PemeriksaanDokterTrimester1 = NewPemeriksaanDokterTrimester1Usecase(opts.Repository.PemeriksaanDokterTrimester1)
-	m.PemeriksaanDokterTrimester3 = NewPemeriksaanDokterTrimester3Usecase(opts.Repository.PemeriksaanDokterTrimester3)
+	// di dalam func Init(opts Options) *Main
+	// ...
+	// ... setelah repository diinisialisasi
+	m.PemeriksaanDokterTrimester1 = NewPemeriksaanDokterTrimester1Usecase(
+		opts.Repository.PemeriksaanDokterTrimester1,
+		opts.Repository.PemeriksaanLaboratoriumJiwa,
+	)
+	m.PemeriksaanDokterTrimester3 = NewPemeriksaanDokterTrimester3Usecase(
+		opts.Repository.PemeriksaanDokterTrimester3,
+		opts.Repository.PemeriksaanLaboratoriumJiwa,
+	)
 	m.PemeriksaanLaboratoriumJiwa = NewPemeriksaanLaboratoriumJiwaUsecase(opts.Repository.PemeriksaanLaboratoriumJiwa)
 	m.PemeriksaanLanjutanTrimester3 = NewPemeriksaanLanjutanTrimester3Usecase(opts.Repository.PemeriksaanLanjutanTrimester3)
 	m.CatatanPelayananTrimester1 = NewCatatanPelayananTrimester1Usecase(opts.Repository.CatatanPelayananTrimester1)

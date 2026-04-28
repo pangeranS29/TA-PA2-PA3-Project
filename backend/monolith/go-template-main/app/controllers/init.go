@@ -10,16 +10,17 @@ type Main struct {
 	config   *config.Config
 
 	// Controller yang sudah ada (untuk modul lain)
-	Anak                   *AnakController
-	PelayananKesehatanAnak *PelayananKesehatanAnakController
-	Neonatus               *NeonatusController
-	PelayananGiziAnak      *kunjunganGiziController
-	KunjunganVitamin       *KunjunganVitaminController
-	KunjunganImunisasi     *KunjunganImunisasiController
-	PemeriksaanGigi        *PemeriksaanGigiController
-	PemantauanPertumbuhan  *PemantauanPertumbuhanController
-	PengukuranLilA         *PengukuranLilAController
-	CatatanPelayanan       *CatatanPelayananController
+	Anak                      *AnakController
+	PelayananKesehatanAnak    *PelayananKesehatanAnakController
+	Neonatus                  *NeonatusController
+	PelayananGiziAnak         *kunjunganGiziController
+	KunjunganVitamin          *KunjunganVitaminController
+	KunjunganImunisasi        *KunjunganImunisasiController
+	PemeriksaanGigi           *PemeriksaanGigiController
+	PemantauanPertumbuhan     *PemantauanPertumbuhanController
+	PengukuranLilA            *PengukuranLilAController
+	CatatanPelayanan          *CatatanPelayananController
+	PemeriksaanDokterCombined *PemeriksaanDokterCombinedController
 
 	// Controller baru untuk struktur kehamilan
 	Ibu *IbuController
@@ -75,6 +76,8 @@ func Init(opts Options) *Main {
 	m.PemantauanPertumbuhan = NewPemantauanPertumbuhanController(opts.UseCases.PemantauanPertumbuhan)
 	m.PengukuranLilA = NewPengukuranLilAController(opts.UseCases.PengukuranLilA)
 	m.CatatanPelayanan = NewCatatanPelayananController(opts.UseCases.CatatanPelayanan)
+	m.PemeriksaanDokterTrimester1 = NewPemeriksaanDokterTrimester1Controller(opts.UseCases.PemeriksaanDokterTrimester1)
+	m.PemeriksaanDokterTrimester3 = NewPemeriksaanDokterTrimester3Controller(opts.UseCases.PemeriksaanDokterTrimester3)
 
 	// Controller baru
 	m.Ibu = NewIbuController(opts.UseCases.Ibu)
@@ -106,7 +109,11 @@ func Init(opts Options) *Main {
 	m.KeteranganLahir = NewKeteranganLahirController(opts.UseCases.KeteranganLahir) // <-- TAMBAHKAN INI
 	m.Kependudukan = NewKependudukanController(opts.UseCases.Kependudukan)
 	m.JenisPelayanan = NewJenisPelayananController(opts.UseCases.JenisPelayanan)
-
+	// di func Init, setelah usecase diinisialisasi:
+	m.PemeriksaanDokterCombined = NewPemeriksaanDokterCombinedController(
+		opts.UseCases.PemeriksaanDokterTrimester1,
+		opts.UseCases.PemeriksaanDokterTrimester3,
+	)
 	return m
 }
 
