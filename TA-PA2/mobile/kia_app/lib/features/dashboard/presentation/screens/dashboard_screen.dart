@@ -10,7 +10,8 @@ import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/
 import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/skrining/skrining_bahaya.dart';
 import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/mpasi/halaman_utama_mpasi.dart';
 import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/edukasi/edukasi_screen.dart';
-import 'package:ta_pa2_pa3_project/features/perawatan_bayi/presentation/screens/pilih_perawatan_screen.dart';
+import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/informasi_umum/informasi_umum_screen.dart';
+import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/perawatan/pilih_perawatan_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   @override
@@ -714,14 +715,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
             }),
 
             // 🔸 PERAWATAN
-            _menuItem(Icons.health_and_safety, "Perawatan", Colors.red, () {
+            /*_menuItem(Icons.health_and_safety, "Perawatan", Colors.red, () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (_) => const PilihPerawatanScreen(),
                 ),
               );
-            }),
+            }),*/
 
             // 🔸 EDUKASI
             _menuItem(Icons.menu_book, "Edukasi", Colors.orange, () {

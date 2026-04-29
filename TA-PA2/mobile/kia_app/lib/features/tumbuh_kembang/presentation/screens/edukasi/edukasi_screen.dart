@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'pola_asuh_screen.dart'; // Pastikan file ini ada
+import 'pola_asuh_screen.dart';
 import '../informasi_umum/informasi_umum_screen.dart';
+import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/perawatan/pilih_perawatan_screen.dart';
+import 'pedoman/pedoman_ibu_bayi_screen.dart';
 
 class EdukasiScreen extends StatelessWidget {
   const EdukasiScreen({Key? key}) : super(key: key);
@@ -107,6 +109,28 @@ class EdukasiScreen extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Column(
                 children: [
+                  // ================== PEDOMAN IBU & BAYI (BARU) ==================
+                  InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const PedomanIbuBayiScreen(), // SESUAIKAN NAMA CLASS
+                        ),
+                      );
+                    },
+                    borderRadius: BorderRadius.circular(16),
+                    child: _menuCard(
+                      icon: Icons.menu_book_outlined,
+                      title: 'Pedoman Ibu & Bayi',
+                      subtitle: 'Panduan kesehatan ibu & bayi',
+                      color: const Color(0xFFF0F9FF),
+                      iconBgColor: const Color(0xFFE0F2FE),
+                      iconColor: const Color(0xFF2563EB),
+                    ),
+                  ),
+
+                  const SizedBox(height: 12),
                   // ================== POLA ASUH (BISA DIKLIK) ==================
                   InkWell(
                     onTap: () {
@@ -129,16 +153,26 @@ class EdukasiScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
 
-                  // Perawatan (TIDAK BISA DIKLIK)
-                  _menuCard(
-                    icon: Icons.medical_services_outlined,
-                    title: 'Perawatan',
-                    subtitle: 'Kesehatan & nutrisi harian',
-                    color: const Color(0xFFF0F9FF),
-                    iconBgColor: const Color(0xFFE0F2FE),
-                    iconColor: const Color(0xFF3B82F6),
+                  // Perawatan (BISA DIKLIK)
+                  InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const PilihPerawatanScreen(),
+                        ),
+                      );
+                    },
+                    borderRadius: BorderRadius.circular(16),
+                    child: _menuCard(
+                      icon: Icons.medical_services_outlined,
+                      title: 'Perawatan',
+                      subtitle: 'Kesehatan & nutrisi harian',
+                      color: const Color(0xFFF0F9FF),
+                      iconBgColor: const Color(0xFFE0F2FE),
+                      iconColor: const Color(0xFF3B82F6),
+                    ),
                   ),
-                  const SizedBox(height: 12),
 
                   // Informasi Umum (BISA DIKLIK -> buka layar InformasiUmum)
                   InkWell(

@@ -120,6 +120,163 @@ class _InfoCard extends StatelessWidget {
   }
 }
 
+// ─────────────────────────────────────────────
+// PENANDA TABLE WIDGET
+// ─────────────────────────────────────────────
+class _PenandaTable extends StatefulWidget {
+  final List<String> items;
+  final Color accentColor;
+  const _PenandaTable({required this.items, required this.accentColor});
+
+  @override
+  State<_PenandaTable> createState() => _PenandaTableState();
+}
+
+class _PenandaTableState extends State<_PenandaTable> {
+  late List<bool?> _ya;
+  late List<bool?> _tidak;
+
+  @override
+  void initState() {
+    super.initState();
+    _ya = List<bool?>.filled(widget.items.length, null);
+    _tidak = List<bool?>.filled(widget.items.length, null);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 8,
+              offset: const Offset(0, 2)),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            decoration: const BoxDecoration(
+              color: Color(0xFFFEF08A),
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(16),
+                topRight: Radius.circular(16),
+              ),
+            ),
+            child: const Text(
+              'Beri tanda ✓ (centang) pada kolom Ya/Tidak. Jika anak belum bisa melakukan salah satu dari hal berikut ini, segera bawa ke Puskesmas.',
+              style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF713F12),
+                  height: 1.4),
+            ),
+          ),
+          Container(
+            color: widget.accentColor.withOpacity(0.12),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            child: Row(
+              children: [
+                const SizedBox(
+                    width: 28,
+                    child: Text('No.',
+                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold))),
+                const Expanded(
+                    child: Text('Penanda Perkembangan Anak',
+                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold))),
+                SizedBox(
+                    width: 40,
+                    child: Center(
+                        child: Text('Ya',
+                            style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                                color: widget.accentColor)))),
+                SizedBox(
+                    width: 48,
+                    child: Center(
+                        child: Text('Tidak',
+                            style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.red)))),
+              ],
+            ),
+          ),
+          Container(
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(16),
+                bottomRight: Radius.circular(16),
+              ),
+            ),
+            child: Column(
+              children: List.generate(widget.items.length, (i) {
+                final isEven = i % 2 == 0;
+                return Container(
+                  decoration: BoxDecoration(
+                    color: isEven ? Colors.white : const Color(0xFFF8FAFC),
+                    borderRadius: i == widget.items.length - 1
+                        ? const BorderRadius.only(
+                            bottomLeft: Radius.circular(16),
+                            bottomRight: Radius.circular(16))
+                        : null,
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      SizedBox(
+                          width: 28,
+                          child: Text('${i + 1}',
+                              style: const TextStyle(fontSize: 12, color: Colors.black54))),
+                      Expanded(
+                          child: Text(widget.items[i],
+                              style: const TextStyle(
+                                  fontSize: 12,
+                                  color: Color(0xFF1E40AF),
+                                  height: 1.4))),
+                      SizedBox(
+                        width: 40,
+                        child: Checkbox(
+                          value: _ya[i] == true,
+                          activeColor: widget.accentColor,
+                          onChanged: (v) => setState(() {
+                            _ya[i] = v == true ? true : null;
+                            if (v == true) _tidak[i] = null;
+                          }),
+                        ),
+                      ),
+                      SizedBox(
+                        width: 48,
+                        child: Checkbox(
+                          value: _tidak[i] == true,
+                          activeColor: Colors.red,
+                          onChanged: (v) => setState(() {
+                            _tidak[i] = v == true ? true : null;
+                            if (v == true) _ya[i] = null;
+                          }),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 Widget _headerBanner(String title, Color color) {
   return Container(
     width: double.infinity,
@@ -233,6 +390,19 @@ class _Tab1218Bulan extends StatelessWidget {
               ],
             ),
           ),
+          _PenandaTable(
+            accentColor: const Color(0xFF16A34A),
+            items: const [
+              'Anak bisa berdiri sendiri tanpa berpegangan?',
+              'Anak bisa membungkuk memungut mainan kemudian berdiri kembali?',
+              'Anak bisa berjalan mundur lima langkah?',
+              'Anak bisa memanggil ayah dengan kata "papa", memanggil ibu dengan kata "mama"?',
+              'Anak bisa menumpuk dua kubus?',
+              'Anak bisa memasukkan kubus di kotak?',
+              'Anak bisa menunjuk apa yang diinginkan tanpa menangis/merengek, anak bisa mengeluarkan suara yang menyenangkan atau menarik tangan ibu?',
+              'Anak bisa memperlihatkan rasa cemburu/bersaing?',
+            ],
+          ),
         ],
       ),
     );
@@ -316,6 +486,19 @@ class _Tab1824Bulan extends StatelessWidget {
                     'Melempar, menangkap, menendang bola.'),
               ],
             ),
+          ),
+          _PenandaTable(
+            accentColor: const Color(0xFF0891B2),
+            items: const [
+              'Anak bisa berdiri sendiri tanpa berpegangan 30 detik?',
+              'Anak bisa berjalan tanpa terhuyung-huyung?',
+              'Anak bisa menumpuk 4 buah kubus?',
+              'Anak bisa memungut benda kecil dengan ibu jari dan jari telunjuk?',
+              'Anak bisa menggelindingkan bola ke arah sasaran?',
+              'Anak bisa menyebut 3 – 6 kata yang mempunyai arti?',
+              'Anak bisa membantu/menirukan pekerjaan rumah tanggal?',
+              'Anak bisa memegang cangkir sendiri, belajar makan-minum sendiri?',
+            ],
           ),
         ],
       ),
