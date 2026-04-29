@@ -4,12 +4,13 @@ import 'package:ta_pa2_pa3_project/core/services/auth_session.dart';
 import 'package:ta_pa2_pa3_project/core/services/reminder_notification_service.dart';
 import 'package:ta_pa2_pa3_project/features/auth/presentation/screens/login_screen.dart';
 import 'package:ta_pa2_pa3_project/features/hamil/presentation/screens/journey_screen.dart';
-import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/pilih_anak_screen.dart';
+import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/anak/pilih_anak_screen.dart';
 // import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/tumbuh_kembang_screen.dart';
-import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/input_profil_anak_screen.dart';
-import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/skrining_bahaya.dart';
-import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/halaman_utama_mpasi.dart';
-import 'package:ta_pa2_pa3_project/features/edukasi/presentation/screens/edukasi_screen.dart';
+import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/anak/input_profil_anak_screen.dart';
+import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/skrining/skrining_bahaya.dart';
+import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/mpasi/halaman_utama_mpasi.dart';
+import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/edukasi/edukasi_screen.dart';
+import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/informasi_umum/informasi_umum_screen.dart';
 import 'package:ta_pa2_pa3_project/features/perawatan_bayi/presentation/screens/pilih_perawatan_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -242,9 +243,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               : _selectedNavIndex == 1
                   ? const Center(child: Text("Catatan"))
                   : _selectedNavIndex == 3
-                      ? const EdukasiScreen(
-                          entryPoint: EdukasiEntryPoint.mainNavigation,
-                        )
+                      ? const InformasiUmumScreen()
                       : const Center(child: Text("Profil")),
       bottomNavigationBar: _buildBottomNav(),
     );
@@ -587,14 +586,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
           onTap: () {
             if (menus[i]['label'] == 'Perawatan') {
               Navigator.push(
-                  context, MaterialPageRoute(builder: (c) => const PilihPerawatanScreen()));
+                  context,
+                  MaterialPageRoute(
+                      builder: (c) => const PilihPerawatanScreen()));
             }
             if (menus[i]['label'] == 'Edukasi') {
               Navigator.push(context,
-                  MaterialPageRoute(
-                      builder: (c) => const EdukasiScreen(
-                            entryPoint: EdukasiEntryPoint.quickMenu,
-                          )));
+                  MaterialPageRoute(builder: (c) => const EdukasiScreen()));
             }
           },
           child: Container(
@@ -674,68 +672,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // 🔹 REQUEST TAMBAH ANAK
-        GestureDetector(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => InputProfilAnakScreen(),
-              ),
-            );
-          },
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.blue.shade200),
-              borderRadius: BorderRadius.circular(16),
-              color: Colors.blue.shade50,
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.person_add, color: Colors.blue, size: 28),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
-                      Text(
-                        "Request Tambah Profil Anak",
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14,
-                        ),
-                      ),
-                      SizedBox(height: 4),
-                      Text(
-                        "Mulai pantau tumbuh kembang si kecil",
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.black54,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.all(6),
-                  decoration: const BoxDecoration(
-                    color: Colors.blue,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.add,
-                    size: 16,
-                    color: Colors.white,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-
-        SizedBox(height: 24),
-
         // 🔹 MENU CEPAT
         Text(
           "Menu Cepat",
@@ -795,9 +731,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => const EdukasiScreen(
-                    entryPoint: EdukasiEntryPoint.quickMenu,
-                  ),
+                  builder: (_) => const EdukasiScreen(),
                 ),
               );
             }),
@@ -895,7 +829,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         BottomNavigationBarItem(
             icon: Icon(Icons.security_outlined), label: "Imunisasi"),
         BottomNavigationBarItem(
-          icon: Icon(Icons.book_outlined), label: "Informasi Umum"),
+            icon: Icon(Icons.book_outlined), label: "Informasi Umum"),
         BottomNavigationBarItem(
             icon: Icon(Icons.person_outline), label: "Profil"),
       ],

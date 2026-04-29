@@ -25,7 +25,8 @@ class SehatiApp extends StatelessWidget {
         // Pastikan font atau tema konsisten dengan Style Guide
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: AuthSession.isLoggedIn ? DashboardScreen() : const LoginScreen(),
+      home:  DashboardScreen() ,
     );
   }
 }
+// AuthSession.isLoggedIn ? const LoginScreen()

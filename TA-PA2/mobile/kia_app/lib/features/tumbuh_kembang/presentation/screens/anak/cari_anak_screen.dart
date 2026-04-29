@@ -4,7 +4,7 @@ import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/data/datasources/pert
 import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/data/models/anak_search_model.dart';
 import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/data/repositories/pertumbuhan_repository.dart';
 import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/widgets/index.dart';
-import 'detail_pertumbuhan_screen.dart';
+import '../pertumbuhan/detail_pertumbuhan_screen.dart';
 
 enum SearchFilter { namaAnak, namaIbu, noKk }
 
