@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:ta_pa2_pa3_project/features/hamil/data/models/absensi_kelas_ibu_hamil_api_service.dart';
+import 'package:ta_pa2_pa3_project/features/hamil/data/models/absensi_kelas_ibu_hamil_model.dart';
 
 class AbsensiKelasIbuHamilScreen extends StatefulWidget {
   const AbsensiKelasIbuHamilScreen({super.key});
@@ -11,25 +13,70 @@ class AbsensiKelasIbuHamilScreen extends StatefulWidget {
 class _AbsensiKelasIbuHamilScreenState
     extends State<AbsensiKelasIbuHamilScreen> {
   static const int _maxSesi = 9;
+
+  final _apiService = AbsensiKelasIbuHamilApiService();
+
   final List<TextEditingController> _tanggalControllers = List.generate(
     _maxSesi,
     (_) => TextEditingController(),
   );
+
   final List<TextEditingController> _kaderControllers = List.generate(
     _maxSesi,
     (_) => TextEditingController(),
   );
+
+  bool _isLoading = false;
+  bool _isSaving = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadAbsensi();
+  }
 
   @override
   void dispose() {
     for (final controller in [..._tanggalControllers, ..._kaderControllers]) {
       controller.dispose();
     }
+    _apiService.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadAbsensi() async {
+    setState(() => _isLoading = true);
+
+    try {
+      final list = await _apiService.getMine();
+
+      for (final item in list) {
+        final index = item.pertemuanKe - 1;
+
+        if (index >= 0 && index < _maxSesi) {
+          _tanggalControllers[index].text = item.tanggal;
+          _kaderControllers[index].text = item.namaKader;
+        }
+      }
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.toString()),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
   }
 
   Future<void> _pickDate(int index) async {
     final now = DateTime.now();
+
     final picked = await showDatePicker(
       context: context,
       initialDate: now,
@@ -41,40 +88,64 @@ class _AbsensiKelasIbuHamilScreenState
     );
 
     if (picked == null) return;
+
     setState(() {
       _tanggalControllers[index].text = _formatDate(picked);
     });
   }
 
   String _formatDate(DateTime date) {
-    final months = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'Mei',
-      'Jun',
-      'Jul',
-      'Agt',
-      'Sep',
-      'Okt',
-      'Nov',
-      'Des',
-    ];
-    return '${date.day} ${months[date.month - 1]} ${date.year}';
+    final month = date.month.toString().padLeft(2, '0');
+    final day = date.day.toString().padLeft(2, '0');
+    return '${date.year}-$month-$day';
   }
 
-  void _saveAbsensi() {
-    final filledCount = _tanggalControllers
-        .where((controller) => controller.text.trim().isNotEmpty)
-        .length;
+  Future<void> _saveAbsensi() async {
+    setState(() => _isSaving = true);
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Absensi tersimpan ($filledCount/$_maxSesi sesi terisi).'),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
+    try {
+      int savedCount = 0;
+
+      for (int i = 0; i < _maxSesi; i++) {
+        final tanggal = _tanggalControllers[i].text.trim();
+        final namaKader = _kaderControllers[i].text.trim();
+
+        if (tanggal.isEmpty && namaKader.isEmpty) continue;
+
+        await _apiService.save(
+          AbsensiKelasIbuHamilModel(
+            pertemuanKe: i + 1,
+            tanggal: tanggal,
+            namaKader: namaKader,
+            tanggalParaf: tanggal,
+          ),
+        );
+
+        savedCount++;
+      }
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Absensi berhasil disimpan ($savedCount/$_maxSesi sesi).'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.toString()),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isSaving = false);
+      }
+    }
   }
 
   @override
@@ -87,33 +158,45 @@ class _AbsensiKelasIbuHamilScreenState
         foregroundColor: Colors.white,
         elevation: 0,
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(20),
-        children: [
-          _buildInfoCard(),
-          const SizedBox(height: 16),
-          _buildAttendanceTable(),
-          const SizedBox(height: 20),
-          SizedBox(
-            height: 52,
-            child: ElevatedButton.icon(
-              onPressed: _saveAbsensi,
-              icon: const Icon(Icons.save_outlined),
-              label: const Text(
-                'Simpan Absensi',
-                style: TextStyle(fontWeight: FontWeight.w800),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF2F80ED),
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : ListView(
+              padding: const EdgeInsets.all(20),
+              children: [
+                _buildInfoCard(),
+                const SizedBox(height: 16),
+                _buildAttendanceTable(),
+                const SizedBox(height: 20),
+                SizedBox(
+                  height: 52,
+                  child: ElevatedButton.icon(
+                    onPressed: _isSaving ? null : _saveAbsensi,
+                    icon: _isSaving
+                        ? const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : const Icon(Icons.save_outlined),
+                    label: Text(
+                      _isSaving ? 'Menyimpan...' : 'Simpan Absensi',
+                      style: const TextStyle(fontWeight: FontWeight.w800),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF2F80ED),
+                      foregroundColor: Colors.white,
+                      disabledBackgroundColor: Colors.grey,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                  ),
                 ),
-              ),
+              ],
             ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -224,7 +307,9 @@ class _AbsensiKelasIbuHamilScreenState
       decoration: BoxDecoration(
         border: Border(
           top: BorderSide(
-            color: index == 0 ? const Color(0xFFD7DEE9) : const Color(0xFFE8EDF4),
+            color: index == 0
+                ? const Color(0xFFD7DEE9)
+                : const Color(0xFFE8EDF4),
           ),
         ),
       ),
@@ -248,10 +333,12 @@ class _AbsensiKelasIbuHamilScreenState
             Expanded(
               flex: 4,
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                 child: TextFormField(
                   controller: _tanggalControllers[index],
                   readOnly: true,
+                  enabled: !_isSaving,
                   onTap: () => _pickDate(index),
                   decoration: const InputDecoration(
                     hintText: 'Pilih tanggal',
@@ -267,9 +354,11 @@ class _AbsensiKelasIbuHamilScreenState
             Expanded(
               flex: 5,
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                 child: TextFormField(
                   controller: _kaderControllers[index],
+                  enabled: !_isSaving,
                   minLines: 1,
                   maxLines: 2,
                   decoration: const InputDecoration(

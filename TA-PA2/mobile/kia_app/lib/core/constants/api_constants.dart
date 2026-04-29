@@ -34,4 +34,8 @@ class ApiConstants {
   // Pemeriksaan Dokter Trim 1 & 3
   static const String pemeriksaanDokterTrimester1 = '/modul-ibu/pemeriksaan-dokter-trimester-1/me';
   static const String pemeriksaanDokterTrimester3 = '/modul-ibu/pemeriksaan-dokter-trimester-3/me';
+
+  // Absensi kelas Kehamilan
+  static const String absensiKelasIbuHamil = '/modul-ibu/absensi-kelas-ibu-hamil/me';
+  static const String saveAbsensiKelasIbuHamil = '/modul-ibu/absensi-kelas-ibu-hamil';
 }
