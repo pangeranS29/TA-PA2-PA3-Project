@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'pola_asuh_screen.dart';   // Pastikan file ini ada
+import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/perawatan/pilih_perawatan_screen.dart';
+
 
 class EdukasiScreen extends StatelessWidget {
   const EdukasiScreen({Key? key}) : super(key: key);
@@ -116,16 +118,26 @@ class EdukasiScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
 
-                  // Perawatan (TIDAK BISA DIKLIK)
-                  _menuCard(
-                    icon: Icons.medical_services_outlined,
-                    title: 'Perawatan',
-                    subtitle: 'Kesehatan & nutrisi harian',
-                    color: const Color(0xFFF0F9FF),
-                    iconBgColor: const Color(0xFFE0F2FE),
-                    iconColor: const Color(0xFF3B82F6),
+                  // Perawatan (BISA DIKLIK)
+                  InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const PilihPerawatanScreen(),
+                        ),
+                      );
+                    },
+                    borderRadius: BorderRadius.circular(16),
+                    child: _menuCard(
+                      icon: Icons.medical_services_outlined,
+                      title: 'Perawatan',
+                      subtitle: 'Kesehatan & nutrisi harian',
+                      color: const Color(0xFFF0F9FF),
+                      iconBgColor: const Color(0xFFE0F2FE),
+                      iconColor: const Color(0xFF3B82F6),
+                    ),
                   ),
-                  const SizedBox(height: 12),
 
                   // Informasi Umum (TIDAK BISA DIKLIK)
                   _menuCard(
