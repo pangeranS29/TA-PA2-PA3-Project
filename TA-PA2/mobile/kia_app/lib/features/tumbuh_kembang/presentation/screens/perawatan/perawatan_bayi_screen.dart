@@ -127,6 +127,169 @@ class _InfoCard extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────────
+// PENANDA TABLE WIDGET
+// ─────────────────────────────────────────────
+class _PenandaTable extends StatefulWidget {
+  final List<String> items;
+  final Color accentColor;
+  const _PenandaTable({required this.items, required this.accentColor});
+
+  @override
+  State<_PenandaTable> createState() => _PenandaTableState();
+}
+
+class _PenandaTableState extends State<_PenandaTable> {
+  late List<bool?> _ya;
+  late List<bool?> _tidak;
+
+  @override
+  void initState() {
+    super.initState();
+    _ya = List<bool?>.filled(widget.items.length, null);
+    _tidak = List<bool?>.filled(widget.items.length, null);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 8,
+              offset: const Offset(0, 2)),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Banner kuning
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFEF08A),
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(16),
+                topRight: Radius.circular(16),
+              ),
+            ),
+            child: const Text(
+              'Beri tanda ✓ (centang) pada kolom Ya/Tidak. Jika anak belum bisa melakukan salah satu dari hal berikut ini, segera bawa ke Puskesmas.',
+              style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF713F12),
+                  height: 1.4),
+            ),
+          ),
+          // Table header
+          Container(
+            color: widget.accentColor.withOpacity(0.12),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            child: Row(
+              children: [
+                const SizedBox(
+                    width: 28,
+                    child: Text('No.',
+                        style: TextStyle(
+                            fontSize: 12, fontWeight: FontWeight.bold))),
+                const Expanded(
+                    child: Text('Penanda Perkembangan Anak',
+                        style: TextStyle(
+                            fontSize: 12, fontWeight: FontWeight.bold))),
+                SizedBox(
+                    width: 40,
+                    child: Center(
+                        child: Text('Ya',
+                            style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                                color: widget.accentColor)))),
+                SizedBox(
+                    width: 48,
+                    child: Center(
+                        child: Text('Tidak',
+                            style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.red)))),
+              ],
+            ),
+          ),
+          // Table rows
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: const BorderRadius.only(
+                bottomLeft: Radius.circular(16),
+                bottomRight: Radius.circular(16),
+              ),
+            ),
+            child: Column(
+              children: List.generate(widget.items.length, (i) {
+                final isEven = i % 2 == 0;
+                return Container(
+                  decoration: BoxDecoration(
+                    color: isEven ? Colors.white : const Color(0xFFF8FAFC),
+                    borderRadius: i == widget.items.length - 1
+                        ? const BorderRadius.only(
+                            bottomLeft: Radius.circular(16),
+                            bottomRight: Radius.circular(16))
+                        : null,
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      SizedBox(
+                          width: 28,
+                          child: Text('${i + 1}',
+                              style: const TextStyle(
+                                  fontSize: 12, color: Colors.black54))),
+                      Expanded(
+                          child: Text(widget.items[i],
+                              style: const TextStyle(
+                                  fontSize: 12,
+                                  color: Color(0xFF1E40AF),
+                                  height: 1.4))),
+                      SizedBox(
+                        width: 40,
+                        child: Checkbox(
+                          value: _ya[i] == true,
+                          activeColor: widget.accentColor,
+                          onChanged: (v) => setState(() {
+                            _ya[i] = v == true ? true : null;
+                            if (v == true) _tidak[i] = null;
+                          }),
+                        ),
+                      ),
+                      SizedBox(
+                        width: 48,
+                        child: Checkbox(
+                          value: _tidak[i] == true,
+                          activeColor: Colors.red,
+                          onChanged: (v) => setState(() {
+                            _tidak[i] = v == true ? true : null;
+                            if (v == true) _ya[i] = null;
+                          }),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────
 // SHARED HEADER BANNER BUILDER
 // ─────────────────────────────────────────────
 Widget _headerBanner(String title, Color color) {
@@ -272,6 +435,21 @@ class _Tab29Hari3Bulan extends StatelessWidget {
               ],
             ),
           ),
+          _PenandaTable(
+            accentColor: const Color(0xFF0891B2),
+            items: const [
+              'Bayi bisa mengangkat kepala mandiri hingga tegak 90°?',
+              'Bayi bisa mempertahankan posisi kepala tetap tegak dan stabil?',
+              'Bayi bisa menggenggam mainan kecil atau mainan bertangkai?',
+              'Bayi bisa meraih benda yang ada di dalam jangkauannya?',
+              'Bayi bisa mengamati tangannya sendiri?',
+              'Bayi berusaha memperluas pandangan?',
+              'Bayi mengarahkan matanya pada benda-benda kecil?',
+              'Bayi mengeluarkan suara gembira bernada tinggi atau memekik?',
+              'Bayi tersenyum ketika melihat mainan/gambar yang menarik saat bermain sendiri?',
+              'Bayi bisa berbalik dari telungkup ke telentang?',
+            ],
+          ),
         ],
       ),
     );
@@ -360,6 +538,21 @@ class _Tab36Bulan extends StatelessWidget {
               ],
             ),
           ),
+          _PenandaTable(
+            accentColor: const Color(0xFF7C3AED),
+            items: const [
+              'Bayi bisa berbalik dari telungkup ke telentang?',
+              'Bayi bisa mengangkat kepala secara mandiri hingga tegak 90 °?',
+              'Bayi bisa mempertahankan posisi kepala tetap tegak dan stabil?',
+              'Bayi bisa menggenggam mainan kecil atau mainan bertangkai?',
+              'Bayi bisa meraih benda yang ada dalam jangkauannya?',
+              'Bayi bisa mengamati tangannya sendiri?',
+              'Bayi berusaha memperluas pandangan?',
+              'Bayi mengarahkan matanya pada benda-benda kecil?',
+              'Bayi mengeluarkan suara gembira bernada tinggi atau memekik?',
+              'Bayi tersenyum ketika melihat mainan/gambar yang menarik saat bermain sendiri?',
+            ],
+          ),
         ],
       ),
     );
@@ -436,6 +629,22 @@ class _Tab69Bulan extends StatelessWidget {
               ],
             ),
           ),
+          _PenandaTable(
+            accentColor: const Color(0xFF059669),
+            items: const [
+              'Bayi bisa duduk secara mandiri?',
+              'Bayi belajar berdiri, kedua kakinya menyangga sebagian berat badan?',
+              'Bayi bisa merangkak meraih mainan atau mendekati seseorang?',
+              'Bayi bisa memindahkan benda dari satu tangan ke tangan lainnya?',
+              'Bayi bisa memungut 2 benda, kedua tangan pegang 2 benda pada saat bersamaan?',
+              'Bayi bisa memungut benda sebesar kacang dari cara meraup?',
+              'Bayi bersuara tanpa arti, mamama, bababa, dadada, tatata?',
+              'Bayi mencari mainan/benda yang dijatuhkan?',
+              'Bayi bermain tepuk tangan/Cilukba?',
+              'Bayi bergembira dengan melempar benda?',
+              'Bayi bergembira dengan melempar benda?',
+            ],
+          ),
         ],
       ),
     );
@@ -501,6 +710,23 @@ class _Tab912Bulan extends StatelessWidget {
                 _BulletItem('Berjalan mundur, jinjit.'),
               ],
             ),
+          ),
+          _PenandaTable(
+            accentColor: const Color(0xFFDC2626),
+            items: const [
+              'Bayi bisa mengangkat badannya ke posisi berdiri?',
+              'Bayi belajar berdiri selama 30 detik atau berpegangan di kursi?',
+              'Bayi dapat berjalan dengan dituntun?',
+              'Bayi mengulurkan lengan/badan untuk meraih mainan yang diinginkan?',
+              'Bayi bisa menggenggam erat pensil?',
+              'Bayi bisa memasukkan benda ke mulut?',
+              'Bayi mengulang menirukan bunyi yang didengar?',
+              'Bayi menyebut 2-3 suku kata yang sama tanpa arti?',
+              'Bayi mengeksplorasi sekitar, ingin tahu, ingin menyentuh apa saja?',
+              'Bayi bereaksi terhadap suara yang perlahan atau bisikan?',
+              'Bayi senang diajak bermain Cilukba?',
+              'Bayi mengenal anggota keluarga, takut pada orang yang belum dikenal?',
+            ],
           ),
         ],
       ),
