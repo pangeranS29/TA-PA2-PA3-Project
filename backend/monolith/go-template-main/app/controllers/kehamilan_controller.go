@@ -5,8 +5,10 @@ import (
 	"strconv"
 	"time"
 
+	"monitoring-service/app/helpers"
 	"monitoring-service/app/models"
 	"monitoring-service/app/usecases"
+	"monitoring-service/pkg/customerror"
 
 	"github.com/labstack/echo/v4"
 )
@@ -27,44 +29,20 @@ type createKehamilanRequest struct {
 	HPHT                     string  `json:"hpht,omitempty"`
 	TaksiranPersalinan       string  `json:"taksiran_persalinan,omitempty"`
 	UKKehamilanSaatIni       int32   `json:"uk_kehamilan_saat_ini,omitempty"`
-	BB_Awal                  float64 `json:"bb_awal,omitempty"`
-	TB                       float64 `json:"tb,omitempty"`
-	IMT_Awal                 float64 `json:"imt_awal,omitempty"`
 	JarakKehamilanSebelumnya int32   `json:"jarak_kehamilan_sebelumnya,omitempty"`
 	StatusKehamilan          string  `json:"status_kehamilan,omitempty"`
-}
-
-type updateKehamilanRequest struct {
-	Gravida                  int32   `json:"gravida,omitempty"`
-	Paritas                  int32   `json:"paritas,omitempty"`
-	Abortus                  int32   `json:"abortus,omitempty"`
-	HPHT                     string  `json:"hpht,omitempty"`
-	TaksiranPersalinan       string  `json:"taksiran_persalinan,omitempty"`
-	UKKehamilanSaatIni       int32   `json:"uk_kehamilan_saat_ini,omitempty"`
 	BB_Awal                  float64 `json:"bb_awal,omitempty"`
 	TB                       float64 `json:"tb,omitempty"`
-	IMT_Awal                 float64 `json:"imt_awal,omitempty"`
-	JarakKehamilanSebelumnya int32   `json:"jarak_kehamilan_sebelumnya,omitempty"`
-	StatusKehamilan          string  `json:"status_kehamilan,omitempty"`
 }
 
 func (c *KehamilanController) Create(ctx echo.Context) error {
-	claims, ok := ctx.Get("auth_claims").(*models.AuthClaims)
-	if !ok || claims == nil {
-		return ctx.JSON(http.StatusUnauthorized, models.Response{
-			StatusCode: http.StatusUnauthorized,
-			Message:    "Unauthorized",
-		})
-	}
-
 	var req createKehamilanRequest
 	if err := ctx.Bind(&req); err != nil {
-		return ctx.JSON(http.StatusBadRequest, models.Response{
-			StatusCode: http.StatusBadRequest,
-			Message:    err.Error(),
-		})
+		return helpers.Response(ctx, http.StatusBadRequest, []string{"format request tidak valid"})
 	}
-
+	if req.IbuID == 0 {
+		return helpers.Response(ctx, http.StatusBadRequest, []string{"ibu_id wajib diisi"})
+	}
 	kehamilan := &models.Kehamilan{
 		IbuID:                    req.IbuID,
 		Gravida:                  req.Gravida,
@@ -76,8 +54,6 @@ func (c *KehamilanController) Create(ctx echo.Context) error {
 		BB_Awal:                  req.BB_Awal,
 		TB:                       req.TB,
 	}
-
-	// Parse tanggal jika ada
 	if req.HPHT != "" {
 		if t, err := time.Parse("2006-01-02", req.HPHT); err == nil {
 			kehamilan.HPHT = t
@@ -88,105 +64,64 @@ func (c *KehamilanController) Create(ctx echo.Context) error {
 			kehamilan.TaksiranPersalinan = t
 		}
 	}
-
 	if err := c.usecase.Create(kehamilan); err != nil {
-		return ctx.JSON(http.StatusInternalServerError, models.Response{
-			StatusCode: http.StatusInternalServerError,
-			Message:    err.Error(),
-		})
+		statusCode := customerror.GetStatusCode(err)
+		return helpers.Response(ctx, statusCode, []string{err.Error()})
 	}
-
-	return ctx.JSON(http.StatusCreated, models.Response{
-		StatusCode: http.StatusCreated,
-		Data:       kehamilan,
-	})
+	return helpers.StandardResponse(ctx, http.StatusCreated, []string{"Kehamilan berhasil ditambahkan"}, kehamilan, nil)
 }
 
 func (c *KehamilanController) GetByID(ctx echo.Context) error {
 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 32)
 	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, models.Response{
-			StatusCode: http.StatusBadRequest,
-			Message:    "invalid id",
-		})
+		return helpers.Response(ctx, http.StatusBadRequest, []string{"id tidak valid"})
 	}
 	data, err := c.usecase.GetByID(int32(id))
 	if err != nil {
-		return ctx.JSON(http.StatusNotFound, models.Response{
-			StatusCode: http.StatusNotFound,
-			Message:    err.Error(),
-		})
+		statusCode := customerror.GetStatusCode(err)
+		return helpers.Response(ctx, statusCode, []string{err.Error()})
 	}
-	return ctx.JSON(http.StatusOK, models.Response{
-		StatusCode: http.StatusOK,
-		Data:       data,
-	})
+	return helpers.StandardResponse(ctx, http.StatusOK, []string{"Data ditemukan"}, data, nil)
 }
 
 func (c *KehamilanController) GetByIbuID(ctx echo.Context) error {
 	ibuID, err := strconv.ParseInt(ctx.QueryParam("ibu_id"), 10, 32)
-	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, models.Response{
-			StatusCode: http.StatusBadRequest,
-			Message:    "ibu_id required",
-		})
+	if err != nil || ibuID <= 0 {
+		return helpers.Response(ctx, http.StatusBadRequest, []string{"ibu_id wajib diisi dan harus angka"})
 	}
 	list, err := c.usecase.GetByIbuID(int32(ibuID))
 	if err != nil {
-		return ctx.JSON(http.StatusInternalServerError, models.Response{
-			StatusCode: http.StatusInternalServerError,
-			Message:    err.Error(),
-		})
+		statusCode := customerror.GetStatusCode(err)
+		return helpers.Response(ctx, statusCode, []string{err.Error()})
 	}
-	return ctx.JSON(http.StatusOK, models.Response{
-		StatusCode: http.StatusOK,
-		Data:       list,
-	})
+	return helpers.StandardResponse(ctx, http.StatusOK, []string{"Data ditemukan"}, list, nil)
 }
 
 func (c *KehamilanController) GetAll(ctx echo.Context) error {
 	list, err := c.usecase.GetAll()
 	if err != nil {
-		return ctx.JSON(http.StatusInternalServerError, models.Response{
-			StatusCode: http.StatusInternalServerError,
-			Message:    err.Error(),
-		})
+		statusCode := customerror.GetStatusCode(err)
+		return helpers.Response(ctx, statusCode, []string{err.Error()})
 	}
-	return ctx.JSON(http.StatusOK, models.Response{
-		StatusCode: http.StatusOK,
-		Data:       list,
-	})
+	return helpers.StandardResponse(ctx, http.StatusOK, []string{"Data ditemukan"}, list, nil)
 }
 
 func (c *KehamilanController) Update(ctx echo.Context) error {
 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 32)
 	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, models.Response{
-			StatusCode: http.StatusBadRequest,
-			Message:    "invalid id",
-		})
+		return helpers.Response(ctx, http.StatusBadRequest, []string{"id tidak valid"})
 	}
-
-	var req updateKehamilanRequest
+	var req createKehamilanRequest
 	if err := ctx.Bind(&req); err != nil {
-		return ctx.JSON(http.StatusBadRequest, models.Response{
-			StatusCode: http.StatusBadRequest,
-			Message:    err.Error(),
-		})
+		return helpers.Response(ctx, http.StatusBadRequest, []string{"format request tidak valid"})
 	}
-
 	existing, err := c.usecase.GetByID(int32(id))
 	if err != nil {
-		return ctx.JSON(http.StatusNotFound, models.Response{
-			StatusCode: http.StatusNotFound,
-			Message:    "Data tidak ditemukan",
-		})
+		return helpers.Response(ctx, http.StatusNotFound, []string{"Kehamilan tidak ditemukan"})
 	}
-	if req.BB_Awal > 0 {
-		existing.BB_Awal = req.BB_Awal
-	}
-	if req.TB > 0 {
-		existing.TB = req.TB
+	// Update hanya field yang dikirim (bukan zero value)
+	if req.IbuID != 0 {
+		existing.IbuID = req.IbuID
 	}
 	if req.Gravida != 0 {
 		existing.Gravida = req.Gravida
@@ -216,36 +151,27 @@ func (c *KehamilanController) Update(ctx echo.Context) error {
 	if req.StatusKehamilan != "" {
 		existing.StatusKehamilan = req.StatusKehamilan
 	}
-
-	if err := c.usecase.Update(existing); err != nil {
-		return ctx.JSON(http.StatusInternalServerError, models.Response{
-			StatusCode: http.StatusInternalServerError,
-			Message:    err.Error(),
-		})
+	if req.BB_Awal > 0 {
+		existing.BB_Awal = req.BB_Awal
 	}
-
-	return ctx.JSON(http.StatusOK, models.Response{
-		StatusCode: http.StatusOK,
-		Data:       existing,
-	})
+	if req.TB > 0 {
+		existing.TB = req.TB
+	}
+	if err := c.usecase.Update(existing); err != nil {
+		statusCode := customerror.GetStatusCode(err)
+		return helpers.Response(ctx, statusCode, []string{err.Error()})
+	}
+	return helpers.StandardResponse(ctx, http.StatusOK, []string{"Kehamilan berhasil diperbarui"}, existing, nil)
 }
 
 func (c *KehamilanController) Delete(ctx echo.Context) error {
 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 32)
 	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, models.Response{
-			StatusCode: http.StatusBadRequest,
-			Message:    "invalid id",
-		})
+		return helpers.Response(ctx, http.StatusBadRequest, []string{"id tidak valid"})
 	}
 	if err := c.usecase.Delete(int32(id)); err != nil {
-		return ctx.JSON(http.StatusInternalServerError, models.Response{
-			StatusCode: http.StatusInternalServerError,
-			Message:    err.Error(),
-		})
+		statusCode := customerror.GetStatusCode(err)
+		return helpers.Response(ctx, statusCode, []string{err.Error()})
 	}
-	return ctx.JSON(http.StatusOK, models.Response{
-		StatusCode: http.StatusOK,
-		Message:    "deleted",
-	})
+	return helpers.StandardResponse(ctx, http.StatusOK, []string{"Kehamilan berhasil dihapus"}, nil, nil)
 }

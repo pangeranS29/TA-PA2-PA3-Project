@@ -50,20 +50,20 @@ type Main struct {
 	Ibu                           IbuUsecase
 	RiwayatKehamilanLalu          RiwayatKehamilanLaluUsecase
 	// RegisterOrangTua              *RegisterOrangTuaUsecase
-	AdminAkunKeluarga    *AdminAkunKeluargaUsecase
-	AdminTenagaKesehatan *AdminTenagaKesehatanUsecase
-	KeteranganLahir               KeteranganLahirUsecase // <-- TAMBAHKAN INI
-	PemantauanIndikator           PemantauanIndikatorUsecase
-	EdukasiInformasiUmum          EdukasiInformasiUmumUsecase
-	EdukasiTandaBahayaTrimester   EdukasiTandaBahayaTrimesterUsecase
-	EdukasiTandaMelahirkan        EdukasiTandaMelahirkanUsecase
-	EdukasiImd                    EdukasiIMDUsecase
-	EdukasiSetelahMelahirkan      EdukasiSetelahMelahirkanUsecase
-	EdukasiMenyusuiAsi            EdukasiMenyusuiASIUsecase
-	EdukasiPolaAsuh               EdukasiPolaAsuhUsecase
-	EdukasiKesehatanMental        EdukasiKesehatanMentalUsecase
+	AdminAkunKeluarga                  *AdminAkunKeluargaUsecase
+	AdminTenagaKesehatan               *AdminTenagaKesehatanUsecase
+	KeteranganLahir                    KeteranganLahirUsecase // <-- TAMBAHKAN INI
+	PemantauanIndikator                PemantauanIndikatorUsecase
+	EdukasiInformasiUmum               EdukasiInformasiUmumUsecase
+	EdukasiTandaBahayaTrimester        EdukasiTandaBahayaTrimesterUsecase
+	EdukasiTandaMelahirkan             EdukasiTandaMelahirkanUsecase
+	EdukasiImd                         EdukasiIMDUsecase
+	EdukasiSetelahMelahirkan           EdukasiSetelahMelahirkanUsecase
+	EdukasiMenyusuiAsi                 EdukasiMenyusuiASIUsecase
+	EdukasiPolaAsuh                    EdukasiPolaAsuhUsecase
+	EdukasiKesehatanMental             EdukasiKesehatanMentalUsecase
 	KesehatanLingkunganDanCatatanKader KesehatanLingkunganDanCatatanKaderUsecase
-	JenisPelayanan                JenisPelayananUsecase
+	JenisPelayanan                     JenisPelayananUsecase
 }
 
 type Options struct {
@@ -94,8 +94,8 @@ func Init(opts Options) *Main {
 	m.Kehamilan = NewKehamilanUsecase(opts.Repository.Kehamilan)
 	m.PemeriksaanKehamilan = NewPemeriksaanKehamilanUsecase(opts.Repository.PemeriksaanKehamilan)
 	m.EvaluasiKesehatanIbu = NewEvaluasiKesehatanIbuUsecase(opts.Repository.EvaluasiKesehatanIbu)
-	m.PemeriksaanDokterTrimester1 = NewPemeriksaanDokterTrimester1Usecase(opts.Repository.PemeriksaanDokterTrimester1)
-	m.PemeriksaanDokterTrimester3 = NewPemeriksaanDokterTrimester3Usecase(opts.Repository.PemeriksaanDokterTrimester3)
+	m.PemeriksaanDokterTrimester1 = NewPemeriksaanDokterTrimester1Usecase(opts.Repository.PemeriksaanDokterTrimester1, opts.Repository.PemeriksaanLaboratoriumJiwa)
+	m.PemeriksaanDokterTrimester3 = NewPemeriksaanDokterTrimester3Usecase(opts.Repository.PemeriksaanDokterTrimester3, opts.Repository.PemeriksaanLaboratoriumJiwa)
 	m.PemeriksaanLaboratoriumJiwa = NewPemeriksaanLaboratoriumJiwaUsecase(opts.Repository.PemeriksaanLaboratoriumJiwa)
 	m.PemeriksaanLanjutanTrimester3 = NewPemeriksaanLanjutanTrimester3Usecase(opts.Repository.PemeriksaanLanjutanTrimester3)
 	m.CatatanPelayananTrimester1 = NewCatatanPelayananTrimester1Usecase(opts.Repository.CatatanPelayananTrimester1)

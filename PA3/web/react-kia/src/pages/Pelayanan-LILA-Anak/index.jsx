@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import MainLayout from "../../components/Layout/MainLayout";
 import { PelayananLilaService } from "../../services/Pelayanan-lila-anak";
-import { Plus, Calendar, Ruler, AlertCircle, ChevronRight, Loader2, Trash2, Edit, FileText } from 'lucide-react';
+import { Plus, Calendar, Ruler, ChevronRight, Loader2, Trash2, Edit, FileText } from 'lucide-react';
 
 const PelayananLilaIndex = () => {
   const { id: anakId } = useParams();
@@ -14,11 +14,10 @@ const PelayananLilaIndex = () => {
     setLoading(true);
     try {
       const data = await PelayananLilaService.getByAnakId(anakId);
-      // Mengurutkan dari bulan terbaru ke terlama
-      const sortedData = Array.isArray(data) 
-        ? data.sort((a, b) => b.bulan_ke - a.bulan_ke) 
+      const sorted = Array.isArray(data)
+        ? data.sort((a, b) => (b.bulan_ke || 0) - (a.bulan_ke || 0))
         : [];
-      setRiwayat(sortedData);
+      setRiwayat(sorted);
     } catch (err) {
       console.error("Gagal mengambil riwayat LILA:", err);
     } finally {
@@ -34,7 +33,7 @@ const PelayananLilaIndex = () => {
     if (window.confirm("Apakah Anda yakin ingin menghapus catatan bulan ini?")) {
       try {
         await PelayananLilaService.delete(id);
-        fetchRiwayat(); 
+        fetchRiwayat();
       } catch (err) {
         alert("Gagal menghapus data");
       }
@@ -43,7 +42,7 @@ const PelayananLilaIndex = () => {
 
   const getRisikoBadge = (kategori) => {
     const k = (kategori || '').toLowerCase();
-    switch(k) {
+    switch (k) {
       case "gizi_buruk":
       case "risiko":
         return { bg: "bg-red-50", text: "text-red-600", label: "Gizi Buruk / Risiko", icon: "🔴" };
@@ -51,6 +50,11 @@ const PelayananLilaIndex = () => {
         return { bg: "bg-yellow-50", text: "text-yellow-700", label: "Gizi Kurang", icon: "🟠" };
       case "baik":
         return { bg: "bg-green-50", text: "text-green-600", label: "Baik", icon: "🟢" };
+      case "risiko_tinggi":
+        return { bg: "bg-red-50", text: "text-red-600", label: "Risiko Tinggi", icon: "🔴" };
+      case "risiko_rendah":
+        return { bg: "bg-green-50", text: "text-green-600", label: "Risiko Rendah", icon: "🟢" };
+      case "normal":
       default:
         return { bg: "bg-blue-50", text: "text-blue-600", label: "Normal", icon: "🟦" };
     }
@@ -59,7 +63,7 @@ const PelayananLilaIndex = () => {
   return (
     <MainLayout>
       <div className="max-w-6xl mx-auto p-6 md:p-8 bg-slate-50 min-h-screen">
-        
+
         {/* HEADER */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
           <div>
@@ -73,12 +77,12 @@ const PelayananLilaIndex = () => {
               ID Anak: {anakId} • Pantau Lingkar Lengan Atas
             </p>
           </div>
-          
-          <button 
+
+          <button
             onClick={() => navigate(`/data-anak/lila/${anakId}/create`)}
             className="group flex items-center gap-3 bg-slate-900 hover:bg-blue-600 text-white px-8 py-4 rounded-[1.5rem] font-black text-xs uppercase tracking-widest transition-all shadow-xl active:scale-95"
           >
-            <Plus size={18} className="group-hover:rotate-90 transition-transform" /> 
+            <Plus size={18} className="group-hover:rotate-90 transition-transform" />
             Input Data Baru
           </button>
         </div>
@@ -93,8 +97,8 @@ const PelayananLilaIndex = () => {
             {riwayat.map((item) => {
               const risiko = getRisikoBadge(item.kategori_risiko);
               return (
-                <div key={item.id} className="group bg-white rounded-[2.5rem] p-7 shadow-sm border border-slate-100 hover:shadow-2xl hover:shadow-slate-200/50 transition-all relative">
-                  
+                <div key={item.id} className="group bg-white rounded-[2.5rem] p-7 shadow-sm border border-slate-100 hover:shadow-2xl hover:shadow-slate-200/50 transition-all">
+
                   {/* Header Card */}
                   <div className="flex justify-between items-start mb-8">
                     <div className="flex items-center gap-4">
@@ -103,21 +107,21 @@ const PelayananLilaIndex = () => {
                         <span className="text-2xl font-black text-slate-800 group-hover:text-white leading-none">{item.bulan_ke}</span>
                       </div>
                       <div>
-                          <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-1 flex items-center gap-1">
-                              <Calendar size={10} /> {new Date(item.tanggal).toLocaleDateString('id-ID', { day: '2-digit', month: 'short' })}
-                          </p>
-                          <span className="px-3 py-1 bg-slate-100 text-slate-500 text-[9px] font-black rounded-lg uppercase">Record #{item.id}</span>
+                        <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-1 flex items-center gap-1">
+                          <Calendar size={10} /> {item.tanggal ? new Date(item.tanggal).toLocaleDateString('id-ID', { day: '2-digit', month: 'short' }) : '-'}
+                        </p>
+                        <span className="px-3 py-1 bg-slate-100 text-slate-500 text-[9px] font-black rounded-lg uppercase">Record #{item.id}</span>
                       </div>
                     </div>
-                    
+
                     <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button 
+                      <button
                         onClick={() => navigate(`/data-anak/lila/${anakId}/edit/${item.id}`)}
                         className="p-2.5 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-600 hover:text-white transition-all"
                       >
                         <Edit size={16} />
                       </button>
-                      <button 
+                      <button
                         onClick={() => handleDelete(item.id)}
                         className="p-2.5 bg-red-50 text-red-600 rounded-xl hover:bg-red-600 hover:text-white transition-all"
                       >
@@ -126,7 +130,7 @@ const PelayananLilaIndex = () => {
                     </div>
                   </div>
 
-                  {/* Status Section */}
+                  {/* Status */}
                   <div className="space-y-3 mb-8">
                     <div className="flex items-center justify-between p-3 bg-slate-50 rounded-2xl">
                       <span className="text-[10px] font-black text-slate-400 uppercase">Hasil LILA</span>
@@ -140,12 +144,12 @@ const PelayananLilaIndex = () => {
                     </div>
                   </div>
 
-                  {/* Footer Card */}
-                  <button 
+                  {/* Footer */}
+                  <button
                     onClick={() => navigate(`/data-anak/lila/${anakId}/edit/${item.id}`)}
                     className="w-full py-4 bg-slate-50 group-hover:bg-blue-50 rounded-2xl text-slate-400 group-hover:text-blue-600 font-black text-[10px] uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-2"
                   >
-                    Lihat Detail <ChevronRight size={14} />
+                    Edit Data <ChevronRight size={14} />
                   </button>
                 </div>
               );
@@ -161,7 +165,7 @@ const PelayananLilaIndex = () => {
             <p className="text-slate-400 max-w-sm mb-10 text-sm font-medium leading-relaxed">
               Anak ini belum memiliki riwayat pencatatan LILA. Mulai catat lingkar lengan atas anak sekarang.
             </p>
-            <button 
+            <button
               onClick={() => navigate(`/data-anak/lila/${anakId}/create`)}
               className="px-12 py-5 bg-blue-600 text-white rounded-[2rem] font-black text-xs uppercase tracking-widest hover:scale-105 shadow-2xl shadow-blue-200 transition-all"
             >

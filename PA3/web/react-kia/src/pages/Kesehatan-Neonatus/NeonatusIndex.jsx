@@ -8,7 +8,7 @@ import { Scale, User, Loader2, ClipboardCheck, Stethoscope, AlertCircle, Calenda
 const NeonatusIndex = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  
+
   const authUser = useMemo(() => {
     try {
       const storedUser = localStorage.getItem('user');
@@ -30,55 +30,55 @@ const NeonatusIndex = () => {
   const tabToPeriode = { '0-6 JAM': 1, 'KN1': 2, 'KN2': 3, 'KN3': 4 };
 
   // --- LOGIKA UTAMA: FETCH DATA BERDASARKAN PERIODE ---
-useEffect(() => {
-  const loadData = async () => {
-    setLoading(true);
-    setFormData({});
-    setExistingRecordId(null);
+  useEffect(() => {
+    const loadData = async () => {
+      setLoading(true);
+      setFormData({});
+      setExistingRecordId(null);
 
-    try {
-      const periodeId = tabToPeriode[activeTab];
-      
-      // 1. Load Struktur Form
-      const list = await neonatusService.getJenisPelayanan(periodeId);
-      setPelayananList(list || []);
-
-      // 2. Load Data Inputan (Gunakan try-catch lokal agar tidak crash)
       try {
-        const res = await neonatusService.getPemeriksaanDetail(id, periodeId);
-        
-        // Pastikan res bukan undefined/null
-        if (res) {
-          // Jika response berupa array (karena pakai filter query), ambil yang pertama
-          const data = Array.isArray(res) ? res[0] : res;
-          
-          // CEK APAKAH PERIODE COCOK
-          if (data && data.periode_id === periodeId) {
-            setExistingRecordId(data.id);
-            if (data.tanggal) setTanggal(data.tanggal.split('T')[0]);
+        const periodeId = tabToPeriode[activeTab];
 
-            const mapped = {};
-            if (data.detail_pelayanan) {
-              data.detail_pelayanan.forEach(d => {
-                mapped[d.jenis_pelayanan_id] = d.nilai;
-              });
+        // 1. Load Struktur Form
+        const list = await neonatusService.getJenisPelayanan(periodeId);
+        setPelayananList(list || []);
+
+        // 2. Load Data Inputan (Gunakan try-catch lokal agar tidak crash)
+        try {
+          const res = await neonatusService.getPemeriksaanDetail(id, periodeId);
+
+          // Pastikan res bukan undefined/null
+          if (res) {
+            // Jika response berupa array (karena pakai filter query), ambil yang pertama
+            const data = Array.isArray(res) ? res[0] : res;
+
+            // CEK APAKAH PERIODE COCOK
+            if (data && data.periode_id === periodeId) {
+              setExistingRecordId(data.id);
+              if (data.tanggal) setTanggal(data.tanggal.split('T')[0]);
+
+              const mapped = {};
+              if (data.detail_pelayanan) {
+                data.detail_pelayanan.forEach(d => {
+                  mapped[d.jenis_pelayanan_id] = d.nilai;
+                });
+              }
+              setFormData(mapped);
             }
-            setFormData(mapped);
           }
+        } catch (innerError) {
+          console.log("Info: Data rekam medis belum pernah diisi.");
         }
-      } catch (innerError) {
-        console.log("Info: Data rekam medis belum pernah diisi.");
+
+      } catch (err) {
+        console.error("Gagal memuat struktur form:", err);
+      } finally {
+        setLoading(false);
       }
+    };
 
-    } catch (err) {
-      console.error("Gagal memuat struktur form:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (id) loadData();
-}, [activeTab, id]);
+    if (id) loadData();
+  }, [activeTab, id]);
 
   // --- HANDLERS ---
   const handleInputChange = useCallback((itemId, val) => {
@@ -86,12 +86,12 @@ useEffect(() => {
   }, []);
 
   const handleCheckboxChange = useCallback((itemId) => {
-  setFormData(prev => {
-    const val = prev[itemId];
-    const isCurrentlyChecked = val === true || val === "true" || val === 1 || val === "1";
-    return { ...prev, [itemId]: !isCurrentlyChecked };
-  });
-}, []);
+    setFormData(prev => {
+      const val = prev[itemId];
+      const isCurrentlyChecked = val === true || val === "true" || val === 1 || val === "1";
+      return { ...prev, [itemId]: !isCurrentlyChecked };
+    });
+  }, []);
 
   const groups = useMemo(() => {
     const filter = (g) => pelayananList.filter(i => i.group_name?.toLowerCase().includes(g.toLowerCase()));
@@ -113,9 +113,9 @@ useEffect(() => {
       tenaga_kesehatan_id: parseInt(nakesId),
       detail_pelayanan: Object.keys(formData).map(key => ({
         jenis_pelayanan_id: parseInt(key),
-        nilai: typeof formData[key] === 'boolean' 
-               ? (formData[key] ? "1" : "0") 
-               : formData[key].toString(),
+        nilai: typeof formData[key] === 'boolean'
+          ? (formData[key] ? "1" : "0")
+          : formData[key].toString(),
         keterangan: ""
       }))
     };
@@ -175,7 +175,7 @@ useEffect(() => {
           <div className="flex flex-wrap items-center gap-3">
             <div className="relative">
               <Calendar className="absolute left-3 top-2.5 text-blue-600" size={14} />
-              <input 
+              <input
                 type="date" value={tanggal} onChange={(e) => setTanggal(e.target.value)}
                 className="pl-9 pr-3 py-1.5 bg-white border border-gray-200 rounded-xl text-[11px] font-bold outline-none focus:ring-2 focus:ring-blue-500/20 shadow-sm"
               />
@@ -185,9 +185,8 @@ useEffect(() => {
                 <button
                   key={key}
                   onClick={() => setActiveTab(key)}
-                  className={`px-4 py-1.5 rounded-lg text-[10px] font-bold tracking-wider transition-all ${
-                    activeTab === key ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'
-                  }`}
+                  className={`px-4 py-1.5 rounded-lg text-[10px] font-bold tracking-wider transition-all ${activeTab === key ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'
+                    }`}
                 >
                   {key}
                 </button>
@@ -199,7 +198,7 @@ useEffect(() => {
         {loading ? (
           <div className="flex flex-col items-center justify-center py-24 text-center">
             <Loader2 className="w-8 h-8 text-blue-600 animate-spin mb-2" />
-            <p className="font-bold text-gray-400 uppercase text-[9px] tracking-widest leading-relaxed">Menyinkronkan Data<br/>Pemeriksaan {activeTab}...</p>
+            <p className="font-bold text-gray-400 uppercase text-[9px] tracking-widest leading-relaxed">Menyinkronkan Data<br />Pemeriksaan {activeTab}...</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
@@ -257,7 +256,7 @@ useEffect(() => {
               Data akan {existingRecordId ? 'diperbarui' : 'disimpan baru'} untuk periode {activeTab}
             </p>
           </div>
-          <button 
+          <button
             onClick={handleFinalSubmit} disabled={submitting}
             className="w-full sm:w-auto px-10 py-3 bg-white text-blue-900 rounded-lg font-black text-[10px] uppercase tracking-widest hover:scale-105 active:scale-95 transition-all disabled:opacity-50"
           >
@@ -273,10 +272,10 @@ useEffect(() => {
           {showDebug && (
             <div className="bg-slate-900 p-6 rounded-3xl shadow-2xl border border-slate-700">
               <pre className="text-green-400 font-mono text-[11px] leading-relaxed overflow-auto max-h-[300px]">
-                {JSON.stringify({ 
+                {JSON.stringify({
                   internal_db_id: existingRecordId,
                   periode_active: activeTab,
-                  payload_to_send: requestPayload 
+                  payload_to_send: requestPayload
                 }, null, 2)}
               </pre>
             </div>

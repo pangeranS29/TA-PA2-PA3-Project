@@ -9,12 +9,6 @@ import (
 	"monitoring-service/pkg/customerror"
 )
 
-type PertumbuhanRepository interface {
-	Create(data *models.CatatanPertumbuhan) error
-	GetLastByAnakID(anakID uint) (*models.CatatanPertumbuhan, error)
-	GetLastTwoByAnakID(anakID uint) ([]models.CatatanPertumbuhan, error)
-}
-
 func normalizeGender(gender string) string {
 	v := strings.TrimSpace(strings.ToLower(gender))
 	if v == "m" || v == "male" || v == "l" || strings.Contains(v, "laki") {

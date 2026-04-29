@@ -8,28 +8,23 @@ func AutoMigrate(db *gorm.DB) error {
 	// Semua model dalam satu slice
 	models := []interface{}{
 		// Master
-		&KategoriTandaBahaya{},
-		&SkriningPemantauan{},
 		&KartuKeluarga{},
 		&Kependudukan{},
-		&KategoriCapaian{},
-		&KategoriUmur{},
-		&PeriodeKunjungan{},
-		&MasterStandarAntropometri{},
-		&MasterImunisasi{},
-		&KaderPosyandu{},
+		&Ibu{},
+		// &KategoriTandaBahaya{},
+		&SkriningPemantauan{},
+		// &KartuKeluarga{},
+		// &Kependudukan{},
 
 		// Relasi utama
-		&Ibu{},
+		// &ibu
 		&Kehamilan{},
 		&Anak{},
 		&Role{},
 		&User{},
 		&Bidan{},
 		&Kader{},
-		&KartuKeluarga{},
-		&Kependudukan{},
-		&Ibu{},
+
 		&Anak{},
 
 		// Evaluasi & riwayat
@@ -41,7 +36,6 @@ func AutoMigrate(db *gorm.DB) error {
 		&JenisPelayananKategori{},
 		&KunjunganAnak{},
 		&AturanPelayanan{},
-		&DetailPelayanan{},
 		&KunjunganGizi{},
 		&KunjunganVitamin{},
 		&Neonatus{},
@@ -50,19 +44,12 @@ func AutoMigrate(db *gorm.DB) error {
 		&ASI{},
 		&MPASI{},
 		&CatatanPelayanan{},
-		&DetailPelayanan{},
-		&CatatanPertumbuhan{},
-		&CatatanPertumbuhan{},
 		&KehadiranImunisasi{},
-		&Imunisasi{},
-		&Imunisasi{},
 		&DetailPelayananImunisasi{},
 		&PeriksaGigi{},
 		&DeteksiDiniPenyimpangan{},
 		&PengukuranLila{},
-		&Perkembangan{},
 		&Pertumbuhan{},
-		&Perkembangan{},
 
 		// Kehamilan detail
 		&PemeriksaanKehamilan{},
@@ -87,23 +74,10 @@ func AutoMigrate(db *gorm.DB) error {
 		&KeteranganLahir{},
 		&RiwayatProsesMelahirkan{},
 
-		// // Nifas & rujukan
+		// Nifas & rujukan
 		&PelayananIbuNifas{},
 		&CatatanPelayananNifas{},
 		&Rujukan{},
-
-		// edukasi
-		&EdukasiIMD{},
-		&EdukasiInformasiUmum{},
-		&EdukasiKesehatanMental{},
-		&EdukasiPolaAsuh{},
-		&EdukasiSetelahMelahirkan{},
-		&EdukasiTandaBahayaTrimester{},
-		&EdukasiTandaMelahirkan{},
-		&EdukasiMenyusuiASI{},
-		&CatatanKaderKesehatanLingkungan{},
-		&KesehatanLingkunganDanCatatanKader{},
-		&PemantauanIndikator{},
 	}
 
 	// Jalankan automigrate sekali saja

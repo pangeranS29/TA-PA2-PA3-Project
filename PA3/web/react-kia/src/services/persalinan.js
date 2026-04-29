@@ -1,46 +1,53 @@
-import api from "./api";
+import api from './api';
 
-const BASE_RENCANA = "/tenaga-kesehatan/rencana-persalinan";
-const BASE_RINGKASAN = "/tenaga-kesehatan/ringkasan-persalinan";
-const BASE_RIWAYAT = "/tenaga-kesehatan/riwayat-proses-melahirkan";
-const BASE_KETERANGAN = "/tenaga-kesehatan/keterangan-lahir";
-
+// === Rencana Persalinan ===
 export const getRencanaByKehamilanId = async (kehamilanId) => {
-  const res = await api.get(`${BASE_RENCANA}?kehamilan_id=${kehamilanId}`);
-  return res.data.data;
+  const response = await api.get('/tenaga-kesehatan/rencana-persalinan', {
+    params: { kehamilan_id: kehamilanId }
+  });
+  return response.data.data; // array
 };
+
+export const getRencanaById = async (id) => {
+  if (!id) throw new Error('ID rencana tidak valid');
+  const response = await api.get(`/tenaga-kesehatan/rencana-persalinan/${id}`);
+  return response.data.data;
+};
+
 export const createRencana = async (data) => {
-  const res = await api.post(BASE_RENCANA, data);
-  return res.data.data;
+  const response = await api.post('/tenaga-kesehatan/rencana-persalinan', data);
+  return response;
 };
+
 export const updateRencana = async (id, data) => {
-  const res = await api.put(`${BASE_RENCANA}/${id}`, data);
-  return res.data.data;
+  const response = await api.put(`/tenaga-kesehatan/rencana-persalinan/${id}`, data);
+  return response;
 };
+
+// === (Opsional) Riwayat, Ringkasan, Keterangan ===
+export const getRiwayatByKehamilanId = async (kehamilanId) => {
+  const response = await api.get('/tenaga-kesehatan/riwayat-proses-melahirkan', {
+    params: { kehamilan_id: kehamilanId }
+  });
+  return response.data.data;
+};
+export const createRiwayat = async (data) => api.post('/tenaga-kesehatan/riwayat-proses-melahirkan', data);
+export const updateRiwayat = async (id, data) => api.put(`/tenaga-kesehatan/riwayat-proses-melahirkan/${id}`, data);
 
 export const getRingkasanByKehamilanId = async (kehamilanId) => {
-  const res = await api.get(`${BASE_RINGKASAN}?kehamilan_id=${kehamilanId}`);
-  return res.data.data;
+  const response = await api.get('/tenaga-kesehatan/ringkasan-persalinan', {
+    params: { kehamilan_id: kehamilanId }
+  });
+  return response.data.data;
 };
-export const createRingkasan = async (data) => {
-  const res = await api.post(BASE_RINGKASAN, data);
-  return res.data.data;
-};
-
-export const getRiwayatByKehamilanId = async (kehamilanId) => {
-  const res = await api.get(`${BASE_RIWAYAT}?kehamilan_id=${kehamilanId}`);
-  return res.data.data;
-};
-export const createRiwayat = async (data) => {
-  const res = await api.post(BASE_RIWAYAT, data);
-  return res.data.data;
-};
+export const createRingkasan = async (data) => api.post('/tenaga-kesehatan/ringkasan-persalinan', data);
+export const updateRingkasan = async (id, data) => api.put(`/tenaga-kesehatan/ringkasan-persalinan/${id}`, data);
 
 export const getKeteranganByIbuId = async (ibuId) => {
-  const res = await api.get(`${BASE_KETERANGAN}?ibu_id=${ibuId}`);
-  return res.data.data;
+  const response = await api.get('/tenaga-kesehatan/keterangan-lahir', {
+    params: { ibu_id: ibuId }
+  });
+  return response.data.data;
 };
-export const createKeterangan = async (data) => {
-  const res = await api.post(BASE_KETERANGAN, data);
-  return res.data.data;
-};
+export const createKeterangan = async (data) => api.post('/tenaga-kesehatan/keterangan-lahir', data);
+export const updateKeterangan = async (id, data) => api.put(`/tenaga-kesehatan/keterangan-lahir/${id}`, data);

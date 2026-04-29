@@ -1,6 +1,6 @@
 // src/pages/Ibu/Rujukan.jsx
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import MainLayout from "../../components/Layout/MainLayout";
 import { getKehamilanByIbuId } from "../../services/kehamilan";
 import { getRujukanByKehamilanId, createRujukan, updateRujukan } from "../../services/rujukanService";
@@ -8,6 +8,7 @@ import { Save } from "lucide-react";
 
 export default function Rujukan() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [kehamilan, setKehamilan] = useState(null);
   const [data, setData] = useState(null);
   const [form, setForm] = useState({
@@ -42,26 +43,64 @@ export default function Rujukan() {
               rujukan_balik_resume_pemeriksaan_tatalaksana: d.rujukan_balik_resume_pemeriksaan_tatalaksana || "",
               anjuran_rekomendasi_tempat_melahirkan: d.anjuran_rekomendasi_tempat_melahirkan || "",
             });
+            // Jika data sudah ada dan user tidak dalam mode edit, redirect ke display page
+            if (result && result.length > 0) {
+              const params = new URLSearchParams(window.location.search);
+              const isEditMode = params.get('edit') === 'true';
+              
+              if (!isEditMode) {
+                setTimeout(() => {
+                  navigate(`/data-ibu/${id}/rujukan-display`);
+                }, 500);
+              }
+            }
           }
         }
       } catch (err) { console.error(err); }
       finally { setLoading(false); }
     };
     fetchData();
-  }, [id]);
+  }, [id, navigate]);
 
-  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm(prev => ({ ...prev, [name]: value }));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!kehamilan) return;
     setSaving(true);
     try {
-      const payload = { ...form, kehamilan_id: kehamilan.id };
-      if (data) await updateRujukan(data.id_rujukan, payload);
-      else await createRujukan(payload);
+      const payload = {
+        kehamilan_id: kehamilan.id,
+        rujukan_resume_pemeriksaan_tatalaksana: form.rujukan_resume_pemeriksaan_tatalaksana,
+        rujukan_diagnosis_akhir: form.rujukan_diagnosis_akhir,
+        rujukan_alasan_dirujuk_ke_fkrtl: form.rujukan_alasan_dirujuk_ke_fkrtl,
+        rujukan_balik_tanggal: form.rujukan_balik_tanggal,
+        rujukan_balik_diagnosis_akhir: form.rujukan_balik_diagnosis_akhir,
+        rujukan_balik_resume_pemeriksaan_tatalaksana: form.rujukan_balik_resume_pemeriksaan_tatalaksana,
+        anjuran_rekomendasi_tempat_melahirkan: form.anjuran_rekomendasi_tempat_melahirkan,
+      };
+      
+      console.log("Payload yang dikirim:", payload);
+      
+      if (data) {
+        await updateRujukan(data.id, payload);
+      } else {
+        const result = await createRujukan(payload);
+        setData(result);
+      }
       alert("Data rujukan berhasil disimpan");
-    } catch (err) { alert("Gagal menyimpan rujukan"); console.error(err); }
+      // Tampilkan halaman display rujukan
+      setTimeout(() => {
+        window.location.href = `/data-ibu/${id}/rujukan-display`;
+      }, 500);
+    } catch (err) { 
+      const errorMsg = err.response?.data?.message || err.message || "Error tidak diketahui";
+      alert("Gagal menyimpan rujukan: " + errorMsg);
+      console.error(err); 
+    }
     finally { setSaving(false); }
   };
 

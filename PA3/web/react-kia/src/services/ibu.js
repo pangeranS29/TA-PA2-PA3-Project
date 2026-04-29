@@ -27,4 +27,4 @@ export const updateIbu = async (id, data) => {
 export const deleteIbu = async (id) => {
   const res = await api.delete(`${BASE}/${id}`);
   return res.data;
-};
+};

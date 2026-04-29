@@ -23,11 +23,11 @@ func NewKehamilanUsecase(repo *repositories.KehamilanRepository) KehamilanUsecas
 	return &kehamilanUsecase{repo: repo}
 }
 
-func calculateIMT(bb, tb float64) (float64, error) {
+func calculateIMT(bb, tb float64) float64 {
 	if tb <= 0 {
-		return 0, errors.New("tb tidak boleh 0")
+		return 0
 	}
-	return bb / (tb * tb), nil
+	return bb / (tb * tb)
 }
 
 func (u *kehamilanUsecase) Create(kehamilan *models.Kehamilan) error {
@@ -38,12 +38,12 @@ func (u *kehamilanUsecase) Create(kehamilan *models.Kehamilan) error {
 		return errors.New("bb_awal tidak valid")
 	}
 
-	imt, err := calculateIMT(kehamilan.BB_Awal, kehamilan.TB)
-	if err != nil {
-		return err
+	// Hitung IMT jika BB_Awal dan TB diisi
+	if kehamilan.BB_Awal > 0 && kehamilan.TB > 0 {
+		kehamilan.IMT_Awal = calculateIMT(kehamilan.BB_Awal, kehamilan.TB)
+	} else {
+		kehamilan.IMT_Awal = 0
 	}
-
-	kehamilan.IMT_Awal = imt
 	return u.repo.Create(kehamilan)
 }
 
@@ -76,6 +76,34 @@ func (u *kehamilanUsecase) Update(kehamilan *models.Kehamilan) error {
 	existing.StatusKehamilan = kehamilan.StatusKehamilan
 
 	// UPDATE BB & TB
+	// Update field yang diisi (tidak nol/nil)
+	if kehamilan.IbuID != 0 {
+		existing.IbuID = kehamilan.IbuID
+	}
+	if kehamilan.Gravida != 0 {
+		existing.Gravida = kehamilan.Gravida
+	}
+	if kehamilan.Paritas != 0 {
+		existing.Paritas = kehamilan.Paritas
+	}
+	if kehamilan.Abortus != 0 {
+		existing.Abortus = kehamilan.Abortus
+	}
+	if !kehamilan.HPHT.IsZero() {
+		existing.HPHT = kehamilan.HPHT
+	}
+	if !kehamilan.TaksiranPersalinan.IsZero() {
+		existing.TaksiranPersalinan = kehamilan.TaksiranPersalinan
+	}
+	if kehamilan.UKKehamilanSaatIni != 0 {
+		existing.UKKehamilanSaatIni = kehamilan.UKKehamilanSaatIni
+	}
+	if kehamilan.JarakKehamilanSebelumnya != 0 {
+		existing.JarakKehamilanSebelumnya = kehamilan.JarakKehamilanSebelumnya
+	}
+	if kehamilan.StatusKehamilan != "" {
+		existing.StatusKehamilan = kehamilan.StatusKehamilan
+	}
 	if kehamilan.BB_Awal > 0 {
 		existing.BB_Awal = kehamilan.BB_Awal
 	}
@@ -84,13 +112,13 @@ func (u *kehamilanUsecase) Update(kehamilan *models.Kehamilan) error {
 	}
 
 	// RECALCULATE IMT
-	imt, err := calculateIMT(existing.BB_Awal, existing.TB)
-	if err != nil {
-		return err
-	}
-
+	imt := calculateIMT(existing.BB_Awal, existing.TB)
 	existing.IMT_Awal = imt
 
+	// Rekalkulasi IMT jika BB_Awal atau TB berubah
+	if kehamilan.BB_Awal > 0 || kehamilan.TB > 0 {
+		existing.IMT_Awal = calculateIMT(existing.BB_Awal, existing.TB)
+	}
 	return u.repo.Update(existing)
 }
 
