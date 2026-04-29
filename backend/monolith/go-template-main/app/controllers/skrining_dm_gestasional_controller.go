@@ -48,7 +48,6 @@ func (c *SkriningDMGestasionalController) Create(ctx echo.Context) error {
 	return ctx.JSON(http.StatusCreated, models.Response{StatusCode: http.StatusCreated, Data: s})
 }
 
-// GetByID, GetByKehamilanID, Update, Delete (sama seperti pola sebelumnya)
 func (c *SkriningDMGestasionalController) GetByID(ctx echo.Context) error {
 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 32)
 	if err != nil {
@@ -86,6 +85,7 @@ func (c *SkriningDMGestasionalController) Update(ctx echo.Context) error {
 	if err != nil {
 		return ctx.JSON(http.StatusNotFound, models.Response{StatusCode: http.StatusNotFound, Message: "Data tidak ditemukan"})
 	}
+
 	if req.GulaDarahPuasaHasil != "" {
 		existing.GulaDarahPuasaHasil = req.GulaDarahPuasaHasil
 	}
@@ -98,6 +98,7 @@ func (c *SkriningDMGestasionalController) Update(ctx echo.Context) error {
 	if req.GulaDarah2JamPostPrandialRencana != "" {
 		existing.GulaDarah2JamPostPrandialRencana = req.GulaDarah2JamPostPrandialRencana
 	}
+
 	if err := c.usecase.Update(existing); err != nil {
 		return ctx.JSON(http.StatusInternalServerError, models.Response{StatusCode: http.StatusInternalServerError, Message: err.Error()})
 	}

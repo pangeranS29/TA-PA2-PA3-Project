@@ -8,6 +8,22 @@ import api from "../../services/api";
 import { AlertCircle, Save, ArrowRight, ShieldAlert, CheckCircle2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
+const CheckboxToggle = ({ name, label, form, handleChange }) => {
+  const isChecked = form[name];
+  return (
+    <label
+      className={`cursor-pointer select-none flex items-center gap-2 text-sm px-4 py-3 rounded-xl border transition-all duration-300 w-full ${
+        isChecked
+          ? "bg-rose-500 text-white border-rose-500 shadow-md shadow-rose-200"
+          : "bg-white text-gray-700 border-gray-200 hover:border-rose-300 hover:bg-rose-50"
+      }`}
+    >
+      <input type="checkbox" name={name} checked={!!isChecked} onChange={handleChange} className="hidden" />
+      {label}
+    </label>
+  );
+};
+
 export default function SkriningPreeklampsia() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -193,21 +209,7 @@ export default function SkriningPreeklampsia() {
 
   const isRujukan = hitungRisiko() === "PERLU RUJUKAN";
 
-  const CheckboxToggle = ({ name, label }) => {
-    const isChecked = formPreeklampsia[name];
-    return (
-      <label 
-        className={`cursor-pointer select-none flex items-center gap-2 text-sm px-4 py-3 rounded-xl border transition-all duration-300 w-full ${
-          isChecked 
-            ? "bg-rose-500 text-white border-rose-500 shadow-md shadow-rose-200" 
-            : "bg-white text-gray-700 border-gray-200 hover:border-rose-300 hover:bg-rose-50"
-        }`}
-      >
-        <input type="checkbox" name={name} checked={isChecked} onChange={handleChangePreeklampsia} className="hidden" />
-        {label}
-      </label>
-    );
-  };
+
 
   if (loading) return <MainLayout><div className="p-6">Memuat...</div></MainLayout>;
 
@@ -276,8 +278,8 @@ export default function SkriningPreeklampsia() {
           <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 p-8 transition-all hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
             <h3 className="font-bold mb-4 text-lg text-indigo-900 border-b border-indigo-100 pb-2">Pemeriksaan Fisik Khusus</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
-              <CheckboxToggle name="fisik_map_diatas_90_mmhg" label={`Mean Arterial Pressure ${'>'}90 mmHg`} />
-              <CheckboxToggle name="fisik_proteinuria_urin_celup" label={`Proteinuria (Urin Celup ${'>'}+1)`} />
+              <CheckboxToggle form={formPreeklampsia} handleChange={handleChangePreeklampsia} name="fisik_map_diatas_90_mmhg" label={`Mean Arterial Pressure ${'>'}90 mmHg`} />
+              <CheckboxToggle form={formPreeklampsia} handleChange={handleChangePreeklampsia} name="fisik_proteinuria_urin_celup" label={`Proteinuria (Urin Celup ${'>'}+1)`} />
             </div>
             <div>
               <label className="block font-semibold mb-2 text-gray-700">Kesimpulan Klinis (Opsional)</label>

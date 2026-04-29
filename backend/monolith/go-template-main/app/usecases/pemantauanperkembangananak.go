@@ -17,11 +17,17 @@ type PemantauanPertumbuhanAnakUseCase interface {
 }
 
 type pemantauanpertumbuhanUseCase struct {
-	repo repositories.PemantauanPertumbuhanRepository
+	repo     repositories.PemantauanPertumbuhanRepository
+	anakRepo *repositories.AnakRepository
+	mainRepo *repositories.Main
 }
 
-func NewPemantauanPertumbuhanUseCase(repo repositories.PemantauanPertumbuhanRepository) PemantauanPertumbuhanAnakUseCase {
-	return &pemantauanpertumbuhanUseCase{repo: repo}
+func NewPemantauanPertumbuhanUseCase(repo repositories.PemantauanPertumbuhanRepository, anakRepo *repositories.AnakRepository, mainRepo *repositories.Main) PemantauanPertumbuhanAnakUseCase {
+	return &pemantauanpertumbuhanUseCase{
+		repo:     repo,
+		anakRepo: anakRepo,
+		mainRepo: mainRepo,
+	}
 }
 
 func (u *pemantauanpertumbuhanUseCase) Create(req models.CreatePemantauanPemeriksaanRequest) error {
@@ -32,30 +38,76 @@ func (u *pemantauanpertumbuhanUseCase) Create(req models.CreatePemantauanPemerik
 
 	now := time.Now()
 
-	pemeriksaan := models.DeteksiDiniPenyimpangan{
-		AnakID:    req.AnakID,
-		BulanKe:   req.Bulanke,
-		Tanggal:   req.Tanggal,
-		TenagaKesehatanID: req.TenagaKesehatanID,
-		BBperU: req.BBperU,
-		BBperTB: req.BBperTB,
-		TBperU: req.TBperU,
-		LKperU: req.LKperU,
-		LILA: req.LILA,
-		KPSP: req.KPSP,
-		TDD: req.TDD,
-		TDL: req.TDL,
-		KMPE: req.KMPE,
-		MCHATRevised: req.MCHATRevised,
-		ACTRS: req.ACTRS,
-		HasilPKAT: req.HasilPKAT,
-		Tindakan: req.Tindakan,
-		KunjunganUlang: req.KunjunganUlang,
-		CreatedAt: now,
-		UpdatedAt: now,
+	// Parse Tanggal
+	tgl, _ := time.Parse("2006-01-02", req.Tanggal)
+	if tgl.IsZero() {
+		tgl = now
 	}
 
-	return u.repo.Create(&pemeriksaan)
+	var kunjunganUlang *time.Time
+	if req.KunjunganUlang != "" {
+		if ku, err := time.Parse("2006-01-02", req.KunjunganUlang); err == nil {
+			kunjunganUlang = &ku
+		}
+	}
+
+	pemeriksaan := models.DeteksiDiniPenyimpangan{
+		AnakID:            req.AnakID,
+		BulanKe:           req.Bulanke,
+		Tanggal:           tgl,
+		TenagaKesehatanID: req.TenagaKesehatanID,
+		BBperU:            req.BBperU,
+		BBperTB:           req.BBperTB,
+		TBperU:            req.TBperU,
+		LKperU:            req.LKperU,
+		LILA:              req.LILA,
+		KPSP:              req.KPSP,
+		TDD:               req.TDD,
+		TDL:               req.TDL,
+		KMPE:              req.KMPE,
+		MCHATRevised:      req.MCHATRevised,
+		ACTRS:             req.ACTRS,
+		HasilPKAT:         req.HasilPKAT,
+		Tindakan:          req.Tindakan,
+		KunjunganUlang:    kunjunganUlang,
+		CreatedAt:         now,
+		UpdatedAt:         now,
+	}
+
+	if err := u.repo.Create(&pemeriksaan); err != nil {
+		return err
+	}
+
+	// Integrasi ke Grafik Pertumbuhan
+	if req.BeratBadan > 0 || req.TinggiBadan > 0 {
+		anak, err := u.anakRepo.FindByID(req.AnakID)
+		if err == nil && anak != nil {
+			var tglLahir time.Time
+			if anak.Penduduk != nil && !anak.Penduduk.TanggalLahir.IsZero() {
+				tglLahir = anak.Penduduk.TanggalLahir
+			}
+
+			catatan := models.CatatanPertumbuhan{
+				AnakID:      req.AnakID,
+				TglUkur:     tgl,
+				BeratBadan:  req.BeratBadan,
+				TinggiBadan: req.TinggiBadan,
+				CreatedAt:   now,
+				UpdatedAt:   now,
+			}
+
+			if !tglLahir.IsZero() {
+				catatan.UsiaUkurBulan = catatan.HitungUsiaBulan(tglLahir)
+			} else {
+				catatan.UsiaUkurBulan = req.Bulanke
+			}
+
+			// Simpan ke repositori pertumbuhan
+			_ = u.mainRepo.CreateCatatanPertumbuhan(&catatan)
+		}
+	}
+
+	return nil
 }
 func (u *pemantauanpertumbuhanUseCase) Update(id int32, req models.UpdatePemantauanPemeriksaanRequest) error {
 	now := time.Now()
@@ -72,6 +124,7 @@ func (u *pemantauanpertumbuhanUseCase) GetByID(id int32) (*models.DeteksiDiniPen
 func (u *pemantauanpertumbuhanUseCase) GetAll() ([]models.DeteksiDiniPenyimpangan, error) {
 	return u.repo.GetAll()
 }
+
 func (u *pemantauanpertumbuhanUseCase) Delete(id int32) error {
 	return u.repo.Delete(id)
 }

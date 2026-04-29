@@ -35,6 +35,20 @@ type createKehamilanRequest struct {
 	TB                       float64 `json:"tb,omitempty"`
 }
 
+type updateKehamilanRequest struct {
+	IbuID                    int32   `json:"ibu_id,omitempty"`
+	Gravida                  int32   `json:"gravida,omitempty"`
+	Paritas                  int32   `json:"paritas,omitempty"`
+	Abortus                  int32   `json:"abortus,omitempty"`
+	HPHT                     string  `json:"hpht,omitempty"`
+	TaksiranPersalinan       string  `json:"taksiran_persalinan,omitempty"`
+	UKKehamilanSaatIni       int32   `json:"uk_kehamilan_saat_ini,omitempty"`
+	JarakKehamilanSebelumnya int32   `json:"jarak_kehamilan_sebelumnya,omitempty"`
+	StatusKehamilan          string  `json:"status_kehamilan,omitempty"`
+	BB_Awal                  float64 `json:"bb_awal,omitempty"`
+	TB                       float64 `json:"tb,omitempty"`
+}
+
 func (c *KehamilanController) Create(ctx echo.Context) error {
 	var req createKehamilanRequest
 	if err := ctx.Bind(&req); err != nil {
@@ -64,10 +78,12 @@ func (c *KehamilanController) Create(ctx echo.Context) error {
 			kehamilan.TaksiranPersalinan = t
 		}
 	}
+
 	if err := c.usecase.Create(kehamilan); err != nil {
 		statusCode := customerror.GetStatusCode(err)
 		return helpers.Response(ctx, statusCode, []string{err.Error()})
 	}
+
 	return helpers.StandardResponse(ctx, http.StatusCreated, []string{"Kehamilan berhasil ditambahkan"}, kehamilan, nil)
 }
 
@@ -111,15 +127,18 @@ func (c *KehamilanController) Update(ctx echo.Context) error {
 	if err != nil {
 		return helpers.Response(ctx, http.StatusBadRequest, []string{"id tidak valid"})
 	}
-	var req createKehamilanRequest
+
+	var req updateKehamilanRequest
 	if err := ctx.Bind(&req); err != nil {
 		return helpers.Response(ctx, http.StatusBadRequest, []string{"format request tidak valid"})
 	}
+
 	existing, err := c.usecase.GetByID(int32(id))
 	if err != nil {
 		return helpers.Response(ctx, http.StatusNotFound, []string{"Kehamilan tidak ditemukan"})
 	}
-	// Update hanya field yang dikirim (bukan zero value)
+
+	// Update hanya field yang dikirim (nullable fields dengan zero-value check)
 	if req.IbuID != 0 {
 		existing.IbuID = req.IbuID
 	}
@@ -157,6 +176,7 @@ func (c *KehamilanController) Update(ctx echo.Context) error {
 	if req.TB > 0 {
 		existing.TB = req.TB
 	}
+
 	if err := c.usecase.Update(existing); err != nil {
 		statusCode := customerror.GetStatusCode(err)
 		return helpers.Response(ctx, statusCode, []string{err.Error()})

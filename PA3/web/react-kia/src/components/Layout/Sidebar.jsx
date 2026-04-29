@@ -49,7 +49,7 @@ const Sidebar = () => {
   const bidanMenuItems = [
     { path: "/data-ibu", name: "Data Ibu", icon: Users },
     { path: "/daftar-anak", name: "Data Anak", icon: Baby },
-    { path: "/data-anak/lila", name: "Pelayanan LILA", icon: Ruler },
+    // { path: "/data-anak/lila", name: "Pelayanan LILA", icon: Ruler },
     { path: "/kependudukan", name: "Manajemen KK", icon: UserCheck },
     { path: "/pencatatan/kesehatan-lingkungan", name: "Kesehatan Lingkungan", icon: ClipboardList },
     { path: "/monitoring", name: "Monitoring", icon: Activity },

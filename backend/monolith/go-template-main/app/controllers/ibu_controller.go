@@ -37,8 +37,14 @@ func (c *IbuController) Create(ctx echo.Context) error {
 	if err := ctx.Bind(&req); err != nil {
 		return ctx.JSON(http.StatusBadRequest, models.Response{StatusCode: http.StatusBadRequest, Message: err.Error()})
 	}
+	if req.IDKependudukan == 0 {
+		return ctx.JSON(http.StatusBadRequest, models.Response{StatusCode: http.StatusBadRequest, Message: "id_kependudukan wajib diisi"})
+	}
+	if req.StatusKehamilan == "" {
+		return ctx.JSON(http.StatusBadRequest, models.Response{StatusCode: http.StatusBadRequest, Message: "status_kehamilan wajib diisi"})
+	}
 	ibu := &models.Ibu{
-		IDKependudukan:  req.IDKependudukan,
+		PendudukID:      req.IDKependudukan,
 		StatusKehamilan: req.StatusKehamilan,
 	}
 	if err := c.usecase.Create(ibu); err != nil {

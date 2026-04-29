@@ -67,10 +67,8 @@ func (m *Main) Init() (err error) {
 	// 	return
 	// }
 
-	// // Seeder
-	// err = seed.RunAllSeed(m.database.Postgres)
+	// Seeder
 	// if err != nil {
-	// 	return
 	// }
 
 	// SEEDER setelah migrate

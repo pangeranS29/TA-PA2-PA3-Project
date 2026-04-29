@@ -88,8 +88,10 @@ func (r *kunjunganVitaminRepository) Update(id int32, req models.UpdateKunjungan
 		if req.AnakID != 0 {
 			updates["anak_id"] = req.AnakID
 		}
-		if !req.Tanggal.IsZero() {
-			updates["tanggal"] = req.Tanggal
+		if req.Tanggal != "" {
+			if t, err := time.Parse("2006-01-02", req.Tanggal); err == nil {
+				updates["tanggal"] = t
+			}
 		}
 
 		if err := tx.Model(&models.KunjunganVitamin{}).

@@ -1,15 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import MainLayout from "../../components/Layout/MainLayout";
 import { getKehamilanByIbuId } from "../../services/kehamilan";
 import { getGrafikByKehamilanId, createGrafik, updateGrafik } from "../../services/grafik";
 import { getGrafikBBByKehamilanId, createGrafikBB, updateGrafikBB, getPenjelasanByKehamilanId, createPenjelasan, updatePenjelasan } from "../../services/grafikBB";
 import { Line } from "react-chartjs-2";
-import { Save, Loader2, ArrowLeft } from "lucide-react";
+import { Save } from "lucide-react";
 
 export default function GrafikEvaluasi() {
   const { id } = useParams();
-  const navigate = useNavigate();
   const [kehamilan, setKehamilan] = useState(null);
   
   // Data State

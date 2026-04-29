@@ -6,10 +6,9 @@ type PemeriksaanLaboratoriumJiwa struct {
 	IDLabJiwa   int32      `gorm:"primaryKey" json:"id_lab_jiwa"`
 	KehamilanID int32      `gorm:"not null;index" json:"kehamilan_id"`
 	Kehamilan   *Kehamilan `gorm:"foreignKey:KehamilanID;references:ID" json:"kehamilan,omitempty"`
-	Trimester   int32      `gorm:"not null;default:1" json:"trimester"` // 1, 2, atau 3
+	TanggalLab  *time.Time `gorm:"type:date" json:"tanggal_lab"`
 
-	TanggalLab *time.Time `gorm:"type:date" json:"tanggal_lab"`
-
+	Trimester int32 `gorm:"not null;default:1" json:"trimester"` // 1, 2, atau 3
 	// Pemeriksaan Darah
 	LabHemoglobinHasil               *float64 `gorm:"type:decimal(4,1)" json:"lab_hemoglobin_hasil"`
 	LabHemoglobinRencanaTindakLanjut string   `json:"lab_hemoglobin_rencana_tindak_lanjut"`

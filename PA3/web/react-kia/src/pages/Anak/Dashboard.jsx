@@ -44,9 +44,9 @@ export default function AnakDashboard() {
   const menuInput = [
     { title: "Kesehatan Bayi", subtitle: "(0 - 28 Hari)", icon: <Baby size={32} />, link: `/data-anak/neonatus/${id}` },
     { title: "Gizi & Obat Cacing", icon: <Apple size={32} />, link: `/data-anak/pelayanan-gizi/${id}` },
-    { title: "Imunisasi", icon: <Syringe size={32} />, link: `/data-anak/imunisasi/${id}`, active: true },
-    { title: "Kesehatan Gigi", icon: <Smile size={32} />, link: `/data-anak/gigi/${id}` },
-    { title: "Tumbuh Kembang", icon: <TrendingUp size={32} />, link: `/data-anak/tumbuh-kembang/${id}` },
+    { title: "Imunisasi", icon: <Syringe size={32} />, link: `/data-anak/pelayanan-Imunisasi/${id}`, active: true },
+    { title: "Kesehatan Gigi", icon: <Smile size={32} />, link: `/data-anak/pelayanan-Gigi/${id}` },
+    { title: "Tumbuh Kembang", icon: <TrendingUp size={32} />, link: `/data-anak/Tumbuh-kembang-Anak/${id}` },
     { title: "Pencatatan LILA", icon: <Ruler size={32} />, link: `/data-anak/lila/${id}` },
     { title: "Pertumbuhan", subtitle: "(0-2 Thn)", icon: <Smile size={32} />, link: `/data-anak/pertumbuhan-kecil/${id}` },
     { title: "Pertumbuhan", subtitle: "(2-5 Thn)", icon: <User size={32} />, link: `/data-anak/pertumbuhan-besar/${id}` },
@@ -54,7 +54,9 @@ export default function AnakDashboard() {
 
   return (
     <MainLayout>
-      {/* HEADER: Lebih rapat */}
+      <div className="p-4 md:p-8 bg-[#f8fafc] min-h-screen">
+        
+        {/* HEADER: Lebih rapat */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
         <div>
           <Link to="/daftar-anak" className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-indigo-600 mb-1 transition-all">
@@ -149,6 +151,7 @@ export default function AnakDashboard() {
     </div>
   </div>
 )}
+      </div>
     </MainLayout>
   );
 }
