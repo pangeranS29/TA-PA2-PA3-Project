@@ -1,81 +1,61 @@
 import 'package:flutter/material.dart';
+
+import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/data/datasources/informasi_umum_api_service.dart';
+import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/data/models/informasi_umum_model.dart';
+
 import 'informasi_umum_detail_screen.dart';
 
 class InformasiUmumScreen extends StatefulWidget {
-  const InformasiUmumScreen({
-    Key? key,
-  }) : super(key: key);
+  const InformasiUmumScreen({Key? key}) : super(key: key);
 
   @override
   State<InformasiUmumScreen> createState() => _InformasiUmumScreenState();
 }
 
-class _InformasiUmumScreenState extends State<InformasiUmumScreen>
-    with SingleTickerProviderStateMixin {
+class _InformasiUmumScreenState extends State<InformasiUmumScreen> {
+  final InformasiUmumApiService _apiService = InformasiUmumApiService();
+  final TextEditingController _searchController = TextEditingController();
+
+  late Future<List<InformasiUmumModel>> _itemsFuture;
   String _selectedFilter = 'Semua';
-  late final AnimationController _listAnimationController;
+  String _searchQuery = '';
 
-  final List<Map<String, dynamic>> _mainNavigationContent = [
-    {
-      'type': 'ARTIKEL',
-      'ageText': 'Semua Umur',
-      'durationText': '4 Menit Baca',
-      'title': 'Melihat Informasi Umum Cuci Tangan Pakai Sabun',
-    },
-    {
-      'type': 'ARTIKEL',
-      'ageText': '0-18 Tahun',
-      'durationText': '5 Menit Baca',
-      'title': 'Melihat Informasi Umum Perawatan Gigi Anak',
-    },
-    {
-      'type': 'ARTIKEL',
-      'ageText': 'Semua Umur',
-      'durationText': '7 Menit Baca',
-      'title': 'Melihat Informasi Umum Perawatan Anak Sakit',
-    },
-    {
-      'type': 'ARTIKEL',
-      'ageText': 'Semua Umur',
-      'durationText': '6 Menit Baca',
-      'title': 'Melihat Informasi Umum Anak dengan Disabilitas',
-    },
-    {
-      'type': 'ARTIKEL',
-      'ageText': 'Semua Umur',
-      'durationText': '5 Menit Baca',
-      'title': 'Melihat Informasi Umum Perlindungan Anak',
-    },
-  ];
-
-  List<Map<String, dynamic>> get _baseContent => _mainNavigationContent;
-
-  List<String> get _activeFilters => ['Semua', 'Video', 'Artikel'];
+  final List<String> _filters = const ['Semua', 'ARTIKEL', 'VIDEO'];
 
   @override
   void initState() {
     super.initState();
-    _listAnimationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 700),
-    )..forward();
+    _itemsFuture = _apiService.listInformasiUmum();
   }
 
   @override
   void dispose() {
-    _listAnimationController.dispose();
+    _searchController.dispose();
+    _apiService.dispose();
     super.dispose();
+  }
+
+  Future<void> _reload() async {
+    setState(() {
+      _itemsFuture = _apiService.listInformasiUmum();
+    });
+  }
+
+  List<InformasiUmumModel> _filterItems(List<InformasiUmumModel> items) {
+    final keyword = _searchQuery.trim().toLowerCase();
+
+    return items.where((item) {
+      final matchesFilter = _selectedFilter == 'Semua' || item.tipe.toUpperCase() == _selectedFilter;
+      final matchesSearch = keyword.isEmpty ||
+          [item.judul, item.ringkasan, item.umurTarget, item.konten]
+              .where((value) => value.trim().isNotEmpty)
+              .any((value) => value.toLowerCase().contains(keyword));
+      return matchesFilter && matchesSearch;
+    }).toList();
   }
 
   @override
   Widget build(BuildContext context) {
-    List<Map<String, dynamic>> filteredContent = _baseContent;
-    if (_selectedFilter != 'Semua') {
-      filteredContent = _baseContent
-          .where((item) => item['type'] == _selectedFilter.toUpperCase())
-          .toList();
-    }
-
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
@@ -83,137 +63,136 @@ class _InformasiUmumScreenState extends State<InformasiUmumScreen>
         elevation: 0,
         centerTitle: true,
         automaticallyImplyLeading: false,
-        title: Text(
+        title: const Text(
           'Informasi Umum',
-          style: const TextStyle(
+          style: TextStyle(
             color: Color(0xFF1E293B),
             fontSize: 16,
             fontWeight: FontWeight.w700,
           ),
         ),
+        actions: [
+          IconButton(
+            onPressed: _reload,
+            icon: const Icon(Icons.refresh, color: Color(0xFF2563EB)),
+          ),
+        ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1.0),
-          child: Container(
-            color: Colors.grey.shade200,
-            height: 1.0,
-          ),
+          child: Container(color: Colors.grey.shade200, height: 1.0),
         ),
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 24.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildEntryBanner(),
-              const SizedBox(height: 16),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(24),
-                  border: Border.all(color: Colors.grey.shade300),
-                ),
-                child: Row(
-                  children: [
-                    Icon(Icons.search, color: Color(0xFF94A3B8), size: 20),
-                    SizedBox(width: 12),
-                    Expanded(
-                      child: TextField(
-                        decoration: InputDecoration(
-                          hintText: 'Cari stimulasi atau tips...',
-                          hintStyle: TextStyle(
-                            color: Color(0xFF94A3B8),
-                            fontSize: 13,
+      body: FutureBuilder<List<InformasiUmumModel>>(
+        future: _itemsFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (snapshot.hasError) {
+            return _EmptyState(
+              title: 'Gagal memuat informasi umum',
+              message: snapshot.error.toString(),
+              actionLabel: 'Coba lagi',
+              onAction: _reload,
+            );
+          }
+
+          final items = _filterItems(snapshot.data ?? const []);
+
+          return RefreshIndicator(
+            onRefresh: _reload,
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
+              children: [
+                _buildBanner(),
+                const SizedBox(height: 16),
+                _buildSearchBox(),
+                const SizedBox(height: 16),
+                SizedBox(
+                  height: 44,
+                  child: ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: _filters.length,
+                    separatorBuilder: (_, __) => const SizedBox(width: 10),
+                    itemBuilder: (context, index) {
+                      final label = _filters[index];
+                      final isActive = _selectedFilter == label;
+                      return ChoiceChip(
+                        label: Text(label),
+                        selected: isActive,
+                        onSelected: (_) {
+                          setState(() {
+                            _selectedFilter = label;
+                          });
+                        },
+                        selectedColor: const Color(0xFF2563EB),
+                        labelStyle: TextStyle(
+                          color: isActive ? Colors.white : const Color(0xFF475569),
+                          fontWeight: FontWeight.w600,
+                        ),
+                        backgroundColor: Colors.white,
+                        shape: StadiumBorder(
+                          side: BorderSide(
+                            color: isActive ? const Color(0xFF2563EB) : Colors.grey.shade300,
                           ),
-                          border: InputBorder.none,
-                          isDense: true,
-                          contentPadding: EdgeInsets.symmetric(vertical: 14),
                         ),
-                      ),
-                    ),
-                    Icon(
-                      Icons.filter_alt_outlined,
-                      color: Color(0xFF94A3B8),
-                      size: 20,
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 32),
-              Text(
-                'Rekomendasi Edukasi KIA',
-                style: const TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF1E293B),
-                ),
-              ),
-              const SizedBox(height: 16),
-              if (filteredContent.isEmpty)
-                const Center(
-                  child: Padding(
-                    padding: EdgeInsets.all(24.0),
-                    child: Text(
-                      'Tidak ada konten ditemukan.',
-                      style: TextStyle(color: Colors.grey),
-                    ),
+                      );
+                    },
                   ),
-                )
-              else
-                ...filteredContent.asMap().entries.map(
-                      (entry) => _buildStaggeredListItem(
-                        index: entry.key,
-                        totalCount: filteredContent.length,
-                        child: _buildContentCard(
-                          type: entry.value['type'],
-                          ageText: entry.value['ageText'],
-                          durationText: entry.value['durationText'],
-                          title: entry.value['title'],
-                        ),
-                      ),
-                    ),
-              const SizedBox(height: 20),
-            ],
-          ),
-        ),
+                ),
+                const SizedBox(height: 20),
+                const Text(
+                  'Konten dari CRUD web',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF1E293B),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                if (items.isEmpty)
+                  const _EmptyState(
+                    title: 'Belum ada data',
+                    message: 'Tambahkan Informasi Umum dari web dashboard supaya tampil di mobile.',
+                  )
+                else
+                  ...items.map((item) => _InformasiUmumCard(
+                        item: item,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => InformasiUmumDetailScreen(item: item),
+                            ),
+                          );
+                        },
+                      )),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
 
-  Widget _buildEntryBanner() {
-    final Color bgColor = const Color(0xFFEFF6FF);
-    final Color iconBgColor = const Color(0xFFDBEAFE);
-    final Color iconColor = const Color(0xFF2563EB);
-
+  Widget _buildBanner() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(14),
+        color: const Color(0xFFEFF6FF),
+        borderRadius: BorderRadius.circular(16),
       ),
-      child: Row(
+      child: const Row(
         children: [
-          Container(
-            width: 34,
-            height: 34,
-            decoration: BoxDecoration(
-              color: iconBgColor,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(
-              Icons.menu_book,
-              color: iconColor,
-              size: 18,
-            ),
-          ),
-          const SizedBox(width: 10),
+          Icon(Icons.menu_book_rounded, color: Color(0xFF2563EB), size: 28),
+          SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Akses dari Navigasi Utama: eksplorasi semua konten informasi umum.',
+              'Konten di halaman ini diambil langsung dari data Informasi Umum yang kamu simpan lewat web.',
               style: TextStyle(
-                color: iconColor,
+                color: Color(0xFF1D4ED8),
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
               ),
@@ -224,301 +203,253 @@ class _InformasiUmumScreenState extends State<InformasiUmumScreen>
     );
   }
 
-  Widget _buildFilterChip(String label) {
-    final bool isActive = _selectedFilter == label;
-
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _selectedFilter = label;
-        });
-        _listAnimationController.forward(from: 0);
-      },
-      child: Container(
-        margin: const EdgeInsets.only(right: 12),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        decoration: BoxDecoration(
-          color: isActive ? const Color(0xFF3B82F6) : Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: isActive ? const Color(0xFF3B82F6) : Colors.grey.shade300,
+  Widget _buildSearchBox() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: Colors.grey.shade300),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.search, color: Color(0xFF94A3B8), size: 20),
+          const SizedBox(width: 12),
+          Expanded(
+            child: TextField(
+              controller: _searchController,
+              onChanged: (value) {
+                setState(() {
+                  _searchQuery = value;
+                });
+              },
+              decoration: const InputDecoration(
+                hintText: 'Cari informasi umum...',
+                hintStyle: TextStyle(
+                  color: Color(0xFF94A3B8),
+                  fontSize: 13,
+                ),
+                border: InputBorder.none,
+                isDense: true,
+                contentPadding: EdgeInsets.symmetric(vertical: 14),
+              ),
+            ),
           ),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            color: isActive ? Colors.white : const Color(0xFF64748B),
-            fontSize: 13,
-            fontWeight: isActive ? FontWeight.bold : FontWeight.w500,
+          IconButton(
+            onPressed: () {
+              setState(() {
+                _searchController.clear();
+                _searchQuery = '';
+                _selectedFilter = 'Semua';
+              });
+            },
+            icon: const Icon(Icons.filter_alt_outlined, color: Color(0xFF94A3B8), size: 20),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _InformasiUmumCard extends StatelessWidget {
+  final InformasiUmumModel item;
+  final VoidCallback onTap;
+
+  const _InformasiUmumCard({required this.item, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final Color topBgColor = item.isVideo ? const Color(0xFFE6EFFF) : const Color(0xFFFFF0D4);
+    final Color typeColor = item.isVideo ? const Color(0xFF3B82F6) : const Color(0xFFFF5C00);
+    final Color typeBgColor = item.isVideo ? const Color(0xFFE6EFFF) : const Color(0xFFFFF0D4);
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey.shade200),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 12,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(16),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: onTap,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                height: 140,
+                decoration: BoxDecoration(
+                  color: topBgColor,
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                ),
+                child: Stack(
+                  children: [
+                    Center(
+                      child: item.isVideo
+                          ? const Icon(Icons.play_circle_outline, color: Color(0xFF3B82F6), size: 42)
+                          : const Icon(Icons.menu_book_rounded, color: Color(0xFFE2C499), size: 64),
+                    ),
+                    Positioned(
+                      top: 12,
+                      left: 12,
+                      child: _Badge(text: item.displayAgeText),
+                    ),
+                    Positioned(
+                      bottom: 12,
+                      right: 12,
+                      child: _Badge(
+                        text: item.displayDurationText,
+                        backgroundColor: const Color(0xFF64748B),
+                        textColor: Colors.white,
+                      ),
+                    ),
+                    Positioned(
+                      top: 12,
+                      right: 12,
+                      child: _Badge(
+                        text: item.tipe.toUpperCase(),
+                        backgroundColor: typeBgColor,
+                        textColor: typeColor,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      item.judul,
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF1E293B),
+                      ),
+                    ),
+                    if (item.ringkasan.trim().isNotEmpty) ...[
+                      const SizedBox(height: 8),
+                      Text(
+                        item.ringkasan,
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: Color(0xFF64748B),
+                          height: 1.5,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
       ),
     );
   }
-
-  Widget _buildContentCard({
-    required String type,
-    required String ageText,
-    required String durationText,
-    required String title,
-  }) {
-    final bool isVideo = type == 'VIDEO';
-    final String heroTag = _buildHeroTag(type, title);
-    final Color topBgColor =
-        isVideo ? const Color(0xFFE6EFFF) : const Color(0xFFFFF0D4);
-    final Color typeColor =
-        isVideo ? const Color(0xFF3B82F6) : const Color(0xFFFF5C00);
-    final Color typeBgColor =
-        isVideo ? const Color(0xFFE6EFFF) : const Color(0xFFFFF0D4);
-
-    return AnimatedContentCard(
-      type: type,
-      ageText: ageText,
-      durationText: durationText,
-      title: title,
-      topBgColor: topBgColor,
-      typeColor: typeColor,
-      typeBgColor: typeBgColor,
-      heroTag: heroTag,
-      isVideo: isVideo,
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => InformasiUmumDetailScreen(
-              type: type,
-              ageText: ageText,
-              durationText: durationText,
-              title: title,
-              heroTag: heroTag,
-              isVideo: isVideo,
-              topBgColor: topBgColor,
-              typeColor: typeColor,
-              typeBgColor: typeBgColor,
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildStaggeredListItem({
-    required int index,
-    required int totalCount,
-    required Widget child,
-  }) {
-    final int safeCount = totalCount <= 0 ? 1 : totalCount;
-    final double start = (index * 0.08).clamp(0.0, 0.8);
-    final double end =
-        (start + (0.35 / safeCount) + 0.25).clamp(start + 0.1, 1.0);
-
-    final Animation<double> animation = CurvedAnimation(
-      parent: _listAnimationController,
-      curve: Interval(start, end, curve: Curves.easeOutCubic),
-    );
-
-    return AnimatedBuilder(
-      animation: animation,
-      child: child,
-      builder: (context, itemChild) {
-        final double value = animation.value;
-        return Opacity(
-          opacity: value,
-          child: Transform.translate(
-            offset: Offset(0, (1 - value) * 20),
-            child: itemChild,
-          ),
-        );
-      },
-    );
-  }
-
-  String _buildHeroTag(String type, String title) {
-    return 'informasi-umum-${type.toLowerCase()}-${title.toLowerCase().replaceAll(' ', '-')}';
-  }
 }
 
-class AnimatedContentCard extends StatefulWidget {
-  final String type;
-  final String ageText;
-  final String durationText;
-  final String title;
-  final Color topBgColor;
-  final Color typeColor;
-  final Color typeBgColor;
-  final String heroTag;
-  final bool isVideo;
-  final VoidCallback onTap;
+class _Badge extends StatelessWidget {
+  final String text;
+  final Color backgroundColor;
+  final Color textColor;
 
-  const AnimatedContentCard({
-    Key? key,
-    required this.type,
-    required this.ageText,
-    required this.durationText,
-    required this.title,
-    required this.topBgColor,
-    required this.typeColor,
-    required this.typeBgColor,
-    required this.heroTag,
-    required this.isVideo,
-    required this.onTap,
-  }) : super(key: key);
-
-  @override
-  State<AnimatedContentCard> createState() => _AnimatedContentCardState();
-}
-
-class _AnimatedContentCardState extends State<AnimatedContentCard> {
-  bool _isPressed = false;
+  const _Badge({
+    required this.text,
+    this.backgroundColor = Colors.white,
+    this.textColor = const Color(0xFF1E293B),
+  });
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedScale(
-      duration: const Duration(milliseconds: 120),
-      scale: _isPressed ? 0.98 : 1,
-      curve: Curves.easeOut,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 160),
-        margin: const EdgeInsets.only(bottom: 16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.grey.shade200),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(_isPressed ? 0.01 : 0.03),
-              blurRadius: _isPressed ? 6 : 12,
-              offset: Offset(0, _isPressed ? 2 : 5),
-            ),
-          ],
-        ),
-        child: Material(
-          color: Colors.transparent,
-          borderRadius: BorderRadius.circular(16),
-          child: InkWell(
-            borderRadius: BorderRadius.circular(16),
-            splashColor: const Color(0xFF3B82F6).withOpacity(0.12),
-            highlightColor: Colors.transparent,
-            onTap: widget.onTap,
-            onTapDown: (_) => setState(() => _isPressed = true),
-            onTapUp: (_) => setState(() => _isPressed = false),
-            onTapCancel: () => setState(() => _isPressed = false),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Hero(
-                  tag: widget.heroTag,
-                  child: Container(
-                    height: 140,
-                    decoration: BoxDecoration(
-                      color: widget.topBgColor,
-                      borderRadius: const BorderRadius.vertical(
-                        top: Radius.circular(16),
-                      ),
-                    ),
-                    child: Stack(
-                      children: [
-                        Center(
-                          child: widget.isVideo
-                              ? Container(
-                                  padding: const EdgeInsets.all(2),
-                                  decoration: const BoxDecoration(
-                                    color: Colors.white,
-                                    shape: BoxShape.circle,
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black12,
-                                        blurRadius: 6,
-                                        offset: Offset(0, 2),
-                                      )
-                                    ],
-                                  ),
-                                  child: const Icon(
-                                    Icons.play_circle_outline,
-                                    color: Color(0xFF3B82F6),
-                                    size: 40,
-                                  ),
-                                )
-                              : const Icon(
-                                  Icons.menu_book_rounded,
-                                  color: Color(0xFFE2C499),
-                                  size: 64,
-                                ),
-                        ),
-                        Positioned(
-                          top: 12,
-                          left: 12,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 10,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(12),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.05),
-                                  blurRadius: 4,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                            child: Text(
-                              widget.ageText,
-                              style: const TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF1E293B),
-                              ),
-                            ),
-                          ),
-                        ),
-                        Positioned(
-                          bottom: 12,
-                          right: 12,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 10,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF64748B),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Text(
-                              widget.durationText,
-                              style: const TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        widget.title,
-                        style: const TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF1E293B),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
           ),
+        ],
+      ),
+      child: Text(
+        text,
+        style: TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.bold,
+          color: textColor,
+        ),
+      ),
+    );
+  }
+}
+
+class _EmptyState extends StatelessWidget {
+  final String title;
+  final String message;
+  final String? actionLabel;
+  final VoidCallback? onAction;
+
+  const _EmptyState({
+    required this.title,
+    required this.message,
+    this.actionLabel,
+    this.onAction,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 12),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.menu_book_rounded, size: 52, color: Color(0xFF94A3B8)),
+            const SizedBox(height: 12),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF1E293B),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 13,
+                color: Color(0xFF64748B),
+                height: 1.5,
+              ),
+            ),
+            if (actionLabel != null && onAction != null) ...[
+              const SizedBox(height: 14),
+              FilledButton(
+                onPressed: onAction,
+                child: Text(actionLabel!),
+              ),
+            ],
+          ],
         ),
       ),
     );

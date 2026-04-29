@@ -14,7 +14,8 @@ import {
   UserCheck,
   UserPlus,
   BriefcaseMedical,
-  CalendarDays
+  CalendarDays,
+  BookOpen
 } from "lucide-react";
 
 const Sidebar = () => {
@@ -36,6 +37,14 @@ const Sidebar = () => {
       { path: "/dashboard/admin/manajemen-keluarga", name: "Manajemen KK", icon: UserCheck },
       { path: "/dashboard/admin/akun-keluarga", name: "Buat Akun", icon: UserPlus },
       
+    ],
+    []
+  );
+
+  const adminContentMenuItems = useMemo(
+    () => [
+      { path: "/dashboard/admin/jadwal-layanan", name: "Jadwal Layanan", icon: CalendarDays },
+      { path: "/dashboard/admin/informasi-umum", name: "Informasi Umum", icon: BookOpen },
     ],
     []
   );
@@ -158,8 +167,11 @@ const Sidebar = () => {
           </div>
         )}
 
-         <NavLink
-              to="/dashboard/admin/jadwal-layanan"
+        <div className="pt-2 space-y-1">
+          {adminContentMenuItems.map((item) => (
+            <NavLink
+              key={item.path}
+              to={item.path}
               className={({ isActive }) =>
                 `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${
                   isActive
@@ -170,14 +182,16 @@ const Sidebar = () => {
             >
               {({ isActive }) => (
                 <>
-                  <CalendarDays
+                  <item.icon
                     size={20}
                     className={isActive ? "text-blue-600" : "text-slate-400 group-hover:text-slate-600"}
                   />
-                  <span className="truncate">Jadwal Layanan</span>
+                  <span className="truncate">{item.name}</span>
                 </>
               )}
             </NavLink>
+          ))}
+        </div>
 
         <NavLink
           key={settingsMenu.path}
