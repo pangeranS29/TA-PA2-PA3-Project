@@ -62,15 +62,17 @@ func (r *SkriningPreeklampsiaRepository) IsOwnedByUser(skriningID int32, userID 
 	return count > 0, err
 }
 
+// // MODUL IBU (INTERNAL BACKUP ONLY)
 // func (r *SkriningPreeklampsiaRepository) FindMineByUserID(userID int32) (*models.SkriningPreeklampsia, error) {
 // 	var data models.SkriningPreeklampsia
 
 // 	err := r.db.
 // 		Table("skrining_preeklampsia s").
+// 		Select("s.*").
 // 		Joins("JOIN kehamilan k ON k.id = s.kehamilan_id").
 // 		Joins("JOIN ibu i ON i.id = k.ibu_id").
 // 		Joins("JOIN penduduk p ON p.id = i.penduduk_id").
-// 		Joins("JOIN pengguna u ON u.penduduk_id = p.id").
+// 		Joins("JOIN pengguna u ON u.id = p.id").
 // 		Where("u.id = ?", userID).
 // 		Order("s.id DESC").
 // 		First(&data).Error
@@ -78,7 +80,7 @@ func (r *SkriningPreeklampsiaRepository) IsOwnedByUser(skriningID int32, userID 
 // 	return &data, err
 // }
 
-// MODUL IBU (INTERNAL BACKUP ONLY)
+// MODUL IBU (SUPABASE UTAMA)
 func (r *SkriningPreeklampsiaRepository) FindMineByUserID(userID int32) (*models.SkriningPreeklampsia, error) {
 	var data models.SkriningPreeklampsia
 
@@ -88,7 +90,7 @@ func (r *SkriningPreeklampsiaRepository) FindMineByUserID(userID int32) (*models
 		Joins("JOIN kehamilan k ON k.id = s.kehamilan_id").
 		Joins("JOIN ibu i ON i.id = k.ibu_id").
 		Joins("JOIN penduduk p ON p.id = i.penduduk_id").
-		Joins("JOIN pengguna u ON u.id = p.id").
+		Joins("JOIN pengguna u ON u.penduduk_id = p.id").
 		Where("u.id = ?", userID).
 		Order("s.id DESC").
 		First(&data).Error

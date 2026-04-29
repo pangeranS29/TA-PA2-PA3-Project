@@ -24,7 +24,7 @@ func (r *ProsesMelahirkanRepository) FindActiveKehamilanByUserID(userID int32) (
 		Joins("JOIN penduduk AS p ON p.id = i.penduduk_id").
 		Joins("JOIN pengguna AS u ON u.penduduk_id = p.id").
 		Where("u.id = ?", userID).
-		Where("k.status_kehamilan IN ?", []string{"TRIMESTER 1", "TRIMESTER 2", "TRIMESTER 3"}).
+		Where("k.status_kehamilan IN ?", []string{"aktif", "TRIMESTER 1", "TRIMESTER 2", "TRIMESTER 3"}).
 		Order("k.created_at DESC").
 		First(&kehamilan).Error
 
