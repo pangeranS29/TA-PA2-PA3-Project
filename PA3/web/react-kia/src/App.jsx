@@ -1,4 +1,3 @@
-// src/App.jsx
 import React from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
@@ -26,9 +25,7 @@ import GrafikPeningkatanBB from "./pages/Ibu/GrafikPeningkatanBB";
 import RencanaPersalinan from "./pages/Ibu/RencanaPersalinan";
 import PelayananNifas from "./pages/Ibu/PelayananNifas";
 import EvaluasiKesehatanIbu from "./pages/Ibu/EvaluasiKesehatanIbu";
-// import PemeriksaanDokterT1 dari file lama sudah dihapus, gunakan yang baru
 import CatatanPelayanan from "./pages/Ibu/CatatanPelayanan";
-// import PemeriksaanDokterT3 dari file lama sudah dihapus
 import RujukanPage from "./pages/Ibu/Rujukan";
 import PelayananPersalinan from "./pages/Ibu/PelayananPersalinan";
 import PemeriksaanKehamilanList from "./pages/Ibu/PemeriksaanKehamilanList";
@@ -60,8 +57,14 @@ import PelayananGiziIndex from "./pages/Pelayanan-Gizi-Anak/index";
 import NeonatusIndex from "./pages/Kesehatan-Neonatus/NeonatusIndex";
 import PelayananGiziCreate from "./pages/Pelayanan-Gizi-Anak/create";
 
-// Pemeriksaan Dokter Complete (baru)
+// Pemeriksaan Dokter Complete T1
+import PemeriksaanDokterT1CompleteEntry from "./pages/Ibu/PemeriksaanDokterT1CompleteEntry";
+import PemeriksaanDokterT1CompleteDetail from "./pages/Ibu/PemeriksaanDokterT1CompleteDetail";
 import PemeriksaanDokterT1Complete from "./pages/Ibu/PemeriksaanDokterT1Complete";
+
+// Pemeriksaan Dokter Complete T3
+import PemeriksaanDokterT3CompleteEntry from "./pages/Ibu/PemeriksaanDokterT3CompleteEntry";
+import PemeriksaanDokterT3CompleteDetail from "./pages/Ibu/PemeriksaanDokterT3CompleteDetail";
 import PemeriksaanDokterT3Complete from "./pages/Ibu/PemeriksaanDokterT3Complete";
 
 const HomeRedirect = () => {
@@ -96,9 +99,17 @@ function App() {
           <Route path="/data-ibu/:id/rencana-persalinan/form" element={<RencanaPersalinanForm />} />
           <Route path="/data-ibu/:id/rencana-persalinan/detail" element={<RencanaPersalinanDetail />} />
 
-          <Route path="/data-ibu/:id/pemeriksaan-dokter-t1-complete" element={<PemeriksaanDokterT1Complete />} />
-          <Route path="/data-ibu/:id/pemeriksaan-dokter-t3-complete" element={<PemeriksaanDokterT3Complete />} />
+          {/* Pemeriksaan Dokter T1 Complete */}
+          <Route path="/data-ibu/:id/pemeriksaan-dokter-t1-complete" element={<PemeriksaanDokterT1CompleteEntry />} />
+          <Route path="/data-ibu/:id/pemeriksaan-dokter-t1-complete/detail" element={<PemeriksaanDokterT1CompleteDetail />} />
+          <Route path="/data-ibu/:id/pemeriksaan-dokter-t1-complete/form" element={<PemeriksaanDokterT1Complete />} />
 
+          {/* Pemeriksaan Dokter T3 Complete */}
+          <Route path="/data-ibu/:id/pemeriksaan-dokter-t3-complete" element={<PemeriksaanDokterT3CompleteEntry />} />
+          <Route path="/data-ibu/:id/pemeriksaan-dokter-t3-complete/detail" element={<PemeriksaanDokterT3CompleteDetail />} />
+          <Route path="/data-ibu/:id/pemeriksaan-dokter-t3-complete/form" element={<PemeriksaanDokterT3Complete />} />
+
+          {/* Ibu Lainnya */}
           <Route path="/data-ibu/:id/skrining-preeklampsia" element={<SkriningPreeklampsia />} />
           <Route path="/data-ibu/:id/skrining-dashboard" element={<SkriningDashboard />} />
           <Route path="/data-ibu/:id/pemeriksaan-fisik" element={<PemeriksaanFisik />} />
