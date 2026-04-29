@@ -10,7 +10,6 @@ import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/
 import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/skrining/skrining_bahaya.dart';
 import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/mpasi/halaman_utama_mpasi.dart';
 import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/edukasi/edukasi_screen.dart';
-import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/informasi_umum/informasi_umum_screen.dart';
 import 'package:ta_pa2_pa3_project/features/perawatan_bayi/presentation/screens/pilih_perawatan_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -236,15 +235,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF1F5F9),
-      body: _selectedNavIndex == 0
+        body: _selectedNavIndex == 0
           ? _buildHomeBody()
-          : _selectedNavIndex == 2
+          : _selectedNavIndex == 1
+            ? const Center(child: Text("Catatan"))
+            : _selectedNavIndex == 2
               ? const PilihAnakScreen(tujuan: "imunisasi")
-              : _selectedNavIndex == 1
-                  ? const Center(child: Text("Catatan"))
-                  : _selectedNavIndex == 3
-                      ? const InformasiUmumScreen()
-                      : const Center(child: Text("Profil")),
+              : const Center(child: Text("Profil")),
       bottomNavigationBar: _buildBottomNav(),
     );
   }
@@ -821,18 +818,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
       unselectedItemColor: Colors.grey,
       currentIndex: _selectedNavIndex,
       onTap: (index) => setState(() => _selectedNavIndex = index),
-      items: const [
+        items: const [
         BottomNavigationBarItem(
-            icon: Icon(Icons.home_filled), label: "Beranda"),
+          icon: Icon(Icons.home_filled), label: "Beranda"),
         BottomNavigationBarItem(
-            icon: Icon(Icons.assignment_outlined), label: "Catatan"),
+          icon: Icon(Icons.assignment_outlined), label: "Catatan"),
         BottomNavigationBarItem(
-            icon: Icon(Icons.security_outlined), label: "Imunisasi"),
+          icon: Icon(Icons.security_outlined), label: "Imunisasi"),
         BottomNavigationBarItem(
-            icon: Icon(Icons.book_outlined), label: "Informasi Umum"),
-        BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline), label: "Profil"),
-      ],
+          icon: Icon(Icons.person_outline), label: "Profil"),
+        ],
     );
   }
 }
