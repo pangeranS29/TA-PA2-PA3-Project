@@ -78,6 +78,12 @@ func AutoMigrate(db *gorm.DB) error {
 		// &PelayananIbuNifas{},
 		// &CatatanPelayananNifas{},
 		// &Rujukan{},
+
+		// // Skrining & Pemantauan
+		// &RentangUsia{},
+		// &KategoriTandaSakit{},
+		// &LembarPemantauan{},
+		// &DetailPemantauan{},
 	}
 
 	// Jalankan automigrate sekali saja

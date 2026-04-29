@@ -31,6 +31,22 @@ func (r *IbuRepository) FindAll() ([]models.Ibu, error) {
 	return list, err
 }
 
+func (r *IbuRepository) FindAnakByUserID(userID int32) ([]models.Anak, error) {
+	var list []models.Anak
+	err := r.db.
+		Model(&models.Anak{}).
+		Joins("JOIN kehamilan k ON k.id = anak.kehamilan_id").
+		Joins("JOIN ibu i ON i.id = k.ibu_id").
+		Joins("JOIN penduduk p_ibu ON p_ibu.id = i.penduduk_id").
+		Joins("JOIN pengguna u ON u.penduduk_id = p_ibu.id").
+		Where("u.id = ?", userID).
+		Preload("Penduduk").
+		Preload("Kehamilan").
+		Order("anak.created_at DESC").
+		Find(&list).Error
+	return list, err
+}
+
 func (r *IbuRepository) Update(ibu *models.Ibu) error {
 	return r.db.Save(ibu).Error
 }
