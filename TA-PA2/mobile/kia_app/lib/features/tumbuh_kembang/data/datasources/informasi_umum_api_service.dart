@@ -8,7 +8,8 @@ import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/data/models/informasi
 class InformasiUmumApiService {
   final http.Client _client;
 
-  InformasiUmumApiService({http.Client? client}) : _client = client ?? http.Client();
+  InformasiUmumApiService({http.Client? client})
+      : _client = client ?? http.Client();
 
   String _extractErrorMessage(String body, int statusCode) {
     try {
@@ -29,7 +30,8 @@ class InformasiUmumApiService {
   }
 
   Future<List<InformasiUmumModel>> listInformasiUmum() async {
-    final uri = Uri.parse('${ApiConstants.baseUrl}${ApiConstants.informasiUmum}');
+    final uri =
+        Uri.parse('${ApiConstants.baseUrl}${ApiConstants.informasiUmum}');
     final response = await _client.get(uri);
 
     if (response.statusCode < 200 || response.statusCode >= 300) {

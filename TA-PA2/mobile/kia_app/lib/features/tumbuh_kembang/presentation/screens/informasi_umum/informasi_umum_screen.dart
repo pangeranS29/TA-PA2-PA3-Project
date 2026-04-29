@@ -45,7 +45,8 @@ class _InformasiUmumScreenState extends State<InformasiUmumScreen> {
     final keyword = _searchQuery.trim().toLowerCase();
 
     return items.where((item) {
-      final matchesFilter = _selectedFilter == 'Semua' || item.tipe.toUpperCase() == _selectedFilter;
+      final matchesFilter = _selectedFilter == 'Semua' ||
+          item.tipe.toUpperCase() == _selectedFilter;
       final matchesSearch = keyword.isEmpty ||
           [item.judul, item.ringkasan, item.umurTarget, item.konten]
               .where((value) => value.trim().isNotEmpty)
@@ -128,13 +129,16 @@ class _InformasiUmumScreenState extends State<InformasiUmumScreen> {
                         },
                         selectedColor: const Color(0xFF2563EB),
                         labelStyle: TextStyle(
-                          color: isActive ? Colors.white : const Color(0xFF475569),
+                          color:
+                              isActive ? Colors.white : const Color(0xFF475569),
                           fontWeight: FontWeight.w600,
                         ),
                         backgroundColor: Colors.white,
                         shape: StadiumBorder(
                           side: BorderSide(
-                            color: isActive ? const Color(0xFF2563EB) : Colors.grey.shade300,
+                            color: isActive
+                                ? const Color(0xFF2563EB)
+                                : Colors.grey.shade300,
                           ),
                         ),
                       );
@@ -154,7 +158,8 @@ class _InformasiUmumScreenState extends State<InformasiUmumScreen> {
                 if (items.isEmpty)
                   const _EmptyState(
                     title: 'Belum ada data',
-                    message: 'Tambahkan Informasi Umum dari web dashboard supaya tampil di mobile.',
+                    message:
+                        'Tambahkan Informasi Umum dari web dashboard supaya tampil di mobile.',
                   )
                 else
                   ...items.map((item) => _InformasiUmumCard(
@@ -163,7 +168,8 @@ class _InformasiUmumScreenState extends State<InformasiUmumScreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => InformasiUmumDetailScreen(item: item),
+                              builder: (_) =>
+                                  InformasiUmumDetailScreen(item: item),
                             ),
                           );
                         },
@@ -243,7 +249,8 @@ class _InformasiUmumScreenState extends State<InformasiUmumScreen> {
                 _selectedFilter = 'Semua';
               });
             },
-            icon: const Icon(Icons.filter_alt_outlined, color: Color(0xFF94A3B8), size: 20),
+            icon: const Icon(Icons.filter_alt_outlined,
+                color: Color(0xFF94A3B8), size: 20),
           ),
         ],
       ),
@@ -259,9 +266,12 @@ class _InformasiUmumCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color topBgColor = item.isVideo ? const Color(0xFFE6EFFF) : const Color(0xFFFFF0D4);
-    final Color typeColor = item.isVideo ? const Color(0xFF3B82F6) : const Color(0xFFFF5C00);
-    final Color typeBgColor = item.isVideo ? const Color(0xFFE6EFFF) : const Color(0xFFFFF0D4);
+    final Color topBgColor =
+        item.isVideo ? const Color(0xFFE6EFFF) : const Color(0xFFFFF0D4);
+    final Color typeColor =
+        item.isVideo ? const Color(0xFF3B82F6) : const Color(0xFFFF5C00);
+    final Color typeBgColor =
+        item.isVideo ? const Color(0xFFE6EFFF) : const Color(0xFFFFF0D4);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -290,14 +300,17 @@ class _InformasiUmumCard extends StatelessWidget {
                 height: 140,
                 decoration: BoxDecoration(
                   color: topBgColor,
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                  borderRadius:
+                      const BorderRadius.vertical(top: Radius.circular(16)),
                 ),
                 child: Stack(
                   children: [
                     Center(
                       child: item.isVideo
-                          ? const Icon(Icons.play_circle_outline, color: Color(0xFF3B82F6), size: 42)
-                          : const Icon(Icons.menu_book_rounded, color: Color(0xFFE2C499), size: 64),
+                          ? const Icon(Icons.play_circle_outline,
+                              color: Color(0xFF3B82F6), size: 42)
+                          : const Icon(Icons.menu_book_rounded,
+                              color: Color(0xFFE2C499), size: 64),
                     ),
                     Positioned(
                       top: 12,
@@ -421,7 +434,8 @@ class _EmptyState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.menu_book_rounded, size: 52, color: Color(0xFF94A3B8)),
+            const Icon(Icons.menu_book_rounded,
+                size: 52, color: Color(0xFF94A3B8)),
             const SizedBox(height: 12),
             Text(
               title,

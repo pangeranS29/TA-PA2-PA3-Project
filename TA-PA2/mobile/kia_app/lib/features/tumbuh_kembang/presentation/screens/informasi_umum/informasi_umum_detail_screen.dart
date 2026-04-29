@@ -5,7 +5,8 @@ import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/data/models/informasi
 class InformasiUmumDetailScreen extends StatelessWidget {
   final InformasiUmumModel item;
 
-  const InformasiUmumDetailScreen({Key? key, required this.item}) : super(key: key);
+  const InformasiUmumDetailScreen({Key? key, required this.item})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +31,9 @@ class InformasiUmumDetailScreen extends StatelessWidget {
           Container(
             height: 200,
             decoration: BoxDecoration(
-              color: item.isVideo ? const Color(0xFFE6EFFF) : const Color(0xFFFFF0D4),
+              color: item.isVideo
+                  ? const Color(0xFFE6EFFF)
+                  : const Color(0xFFFFF0D4),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Center(
@@ -118,7 +121,9 @@ class InformasiUmumDetailScreen extends StatelessWidget {
                             child: Center(
                               child: Text(
                                 '${i + 1}',
-                                style: const TextStyle(fontWeight: FontWeight.w700, color: Color(0xFF2563EB)),
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.w700,
+                                    color: Color(0xFF2563EB)),
                               ),
                             ),
                           ),
@@ -126,7 +131,10 @@ class InformasiUmumDetailScreen extends StatelessWidget {
                           Expanded(
                             child: Text(
                               steps[i],
-                              style: const TextStyle(fontSize: 14, color: Color(0xFF475569), height: 1.6),
+                              style: const TextStyle(
+                                  fontSize: 14,
+                                  color: Color(0xFF475569),
+                                  height: 1.6),
                             ),
                           ),
                         ],
@@ -168,16 +176,22 @@ class InformasiUmumDetailScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Yang Perlu Diingat', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
+                    const Text('Yang Perlu Diingat',
+                        style: TextStyle(
+                            fontWeight: FontWeight.w700, fontSize: 15)),
                     const SizedBox(height: 12),
                     ...reminders.map((r) => Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const Padding(
                               padding: EdgeInsets.only(top: 4, right: 10),
-                              child: Icon(Icons.lightbulb_outline, size: 18, color: Color(0xFF2563EB)),
+                              child: Icon(Icons.lightbulb_outline,
+                                  size: 18, color: Color(0xFF2563EB)),
                             ),
-                            Expanded(child: Text(r, style: const TextStyle(color: Color(0xFF1E293B)))),
+                            Expanded(
+                                child: Text(r,
+                                    style: const TextStyle(
+                                        color: Color(0xFF1E293B)))),
                           ],
                         ))
                   ],
@@ -202,7 +216,8 @@ class InformasiUmumDetailScreen extends StatelessWidget {
   List<String> _parseNumberedSteps(String text) {
     final regex = RegExp(r"^\s*\d+\.\s*(.+)", multiLine: true);
     final matches = regex.allMatches(text);
-    if (matches.isNotEmpty) return matches.map((m) => m.group(1)!.trim()).toList();
+    if (matches.isNotEmpty)
+      return matches.map((m) => m.group(1)!.trim()).toList();
 
     // Fallback: look for short lines separated by newlines
     final lines = text.split(RegExp(r"\n{1,}"));
@@ -222,7 +237,10 @@ class InformasiUmumDetailScreen extends StatelessWidget {
       final trimmed = p.trim();
       if (trimmed.isEmpty) continue;
       final title = trimmed.split(RegExp(r"[\.!?\n]")).first;
-      sections.add({"title": title.length > 40 ? title.substring(0, 40) + "..." : title, "body": trimmed});
+      sections.add({
+        "title": title.length > 40 ? title.substring(0, 40) + "..." : title,
+        "body": trimmed
+      });
       if (sections.length >= 6) break;
     }
     return sections;
@@ -240,7 +258,11 @@ class InformasiUmumDetailScreen extends StatelessWidget {
     }
     if (reminders.isEmpty) {
       // fallback: use last short paragraphs
-      final parts = text.split(RegExp(r"\n\s*\n")).map((s) => s.trim()).where((s) => s.length < 200).toList();
+      final parts = text
+          .split(RegExp(r"\n\s*\n"))
+          .map((s) => s.trim())
+          .where((s) => s.length < 200)
+          .toList();
       for (final p in parts.reversed) {
         if (p.isNotEmpty) reminders.add(p);
         if (reminders.length >= 3) break;
@@ -318,7 +340,8 @@ class _SectionCard extends StatelessWidget {
 
 class _AccordionSections extends StatefulWidget {
   final List<Map<String, String>> sections;
-  const _AccordionSections({Key? key, required this.sections}) : super(key: key);
+  const _AccordionSections({Key? key, required this.sections})
+      : super(key: key);
 
   @override
   State<_AccordionSections> createState() => _AccordionSectionsState();
@@ -343,13 +366,16 @@ class _AccordionSectionsState extends State<_AccordionSections> {
             ListTile(
               onTap: () => setState(() => _open[i] = !_open[i]),
               contentPadding: EdgeInsets.zero,
-              title: Text(s['title'] ?? '', style: const TextStyle(fontWeight: FontWeight.w700)),
+              title: Text(s['title'] ?? '',
+                  style: const TextStyle(fontWeight: FontWeight.w700)),
               trailing: Icon(_open[i] ? Icons.expand_less : Icons.expand_more),
             ),
             if (_open[i])
               Padding(
                 padding: const EdgeInsets.only(bottom: 12),
-                child: Text(s['body'] ?? '', style: const TextStyle(color: Color(0xFF475569), height: 1.6)),
+                child: Text(s['body'] ?? '',
+                    style:
+                        const TextStyle(color: Color(0xFF475569), height: 1.6)),
               ),
             if (i < widget.sections.length - 1) const Divider(height: 8),
           ],
