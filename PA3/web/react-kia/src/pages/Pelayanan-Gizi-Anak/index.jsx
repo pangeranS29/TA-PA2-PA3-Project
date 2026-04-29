@@ -15,6 +15,8 @@ const PelayananGiziIndex = () => {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [lastSaved, setLastSaved] = useState(null);
 
   const authUser = useMemo(() => {
     try {
@@ -115,31 +117,35 @@ const requestPayload = useMemo(() => {
 }, [formData, anakId, authUser]);
 
   const handleSave = async () => {
-  // Validasi sederhana sebelum kirim
-  if (formData.asi.frekuensi_menyusui === "") {
-    alert("Mohon isi frekuensi menyusui.");
-    return;
-  }
+    // Validasi sederhana sebelum kirim
+    if (formData.asi.frekuensi_menyusui === "") {
+      alert("Mohon isi frekuensi menyusui.");
+      return;
+    }
 
-  setSubmitting(true);
-  try {
-    // Mengirim payload yang sudah sesuai format JSON target
-    await PelayananGiziService.create(requestPayload);
-    
-    // Feedback sukses
-    alert("Data Pelayanan Gizi Berhasil Disimpan.");
-    
-    // Reset dan tutup modal
-    setIsModalOpen(false);
-    setFormData(initialForm);
-    fetchRiwayat();
-  } catch (err) {
-    const errorMsg = err.response?.data?.message || err.message;
-    alert("Gagal menyimpan data: " + errorMsg);
-  } finally {
-    setSubmitting(false);
-  }
-};
+    setSubmitting(true);
+    try {
+      // Mengirim payload yang sudah sesuai format JSON target
+      await PelayananGiziService.create(requestPayload);
+      
+      // Feedback sukses
+      setShowSuccess(true);
+      setLastSaved(new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }));
+      
+      // Reset dan tutup modal
+      setIsModalOpen(false);
+      setFormData(initialForm);
+      fetchRiwayat();
+
+      // Sembunyikan banner setelah 5 detik
+      setTimeout(() => setShowSuccess(false), 5000);
+    } catch (err) {
+      const errorMsg = err.response?.data?.message || err.message;
+      alert("Gagal menyimpan data: " + errorMsg);
+    } finally {
+      setSubmitting(false);
+    }
+  };
   return (
     <MainLayout>
       <div className="max-w-7xl mx-auto p-4 md:p-8 bg-slate-50 min-h-screen font-sans">
@@ -156,7 +162,14 @@ const requestPayload = useMemo(() => {
               <Baby className="text-blue-600" size={32} />
               Monitoring Gizi & Nutrisi
             </h1>
-            <p className="text-slate-500 text-sm mt-1">Pantau perkembangan asupan nutrisi anak secara berkala.</p>
+            <div className="flex items-center gap-2 mt-2">
+              <p className="text-slate-500 text-sm">Pantau perkembangan asupan nutrisi anak secara berkala.</p>
+              {lastSaved && (
+                <span className="text-[10px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded-full animate-pulse">
+                  TERAKHIR DISIMPAN: {lastSaved}
+                </span>
+              )}
+            </div>
           </div>
           <button 
             onClick={() => setIsModalOpen(true)}
@@ -165,6 +178,24 @@ const requestPayload = useMemo(() => {
             <Plus size={18} /> Tambah Data Pelayanan
           </button>
         </div>
+
+        {/* NOTIFICATION BANNER */}
+        {showSuccess && (
+          <div className="mb-6 bg-green-600 text-white px-6 py-4 rounded-2xl flex items-center justify-between shadow-lg shadow-green-100 animate-in slide-in-from-top-4 duration-300">
+            <div className="flex items-center gap-3">
+              <div className="bg-white/20 p-2 rounded-full">
+                <Check size={20} />
+              </div>
+              <div>
+                <p className="font-bold text-sm">Data Berhasil Disimpan!</p>
+                <p className="text-xs text-green-100">Riwayat pelayanan gizi anak telah diperbarui dalam sistem.</p>
+              </div>
+            </div>
+            <button onClick={() => setShowSuccess(false)} className="hover:rotate-90 transition-transform">
+              <X size={20} />
+            </button>
+          </div>
+        )}
 
         {/* TABLE VIEW */}
         {loading ? (

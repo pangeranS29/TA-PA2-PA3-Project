@@ -29,10 +29,14 @@ func (u *kunjunganVitaminUseCase) Create(req models.CreateKunjunganVitaminReques
 	}
 
 	now := time.Now()
+	tgl, _ := time.Parse("2006-01-02", req.Tanggal)
+	if tgl.IsZero() {
+		tgl = now
+	}
 
 	kunjungan := models.KunjunganVitamin{
 		AnakID:    req.AnakID,
-		Tanggal:   req.Tanggal,
+		Tanggal:   tgl,
 		CreatedAt: now,
 		UpdatedAt: now,
 	}

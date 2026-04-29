@@ -8,6 +8,7 @@ const PelayananVitaminCreate = () => {
   const { id: anakId } = useParams();
   const navigate = useNavigate();
   const [submitting, setSubmitting] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   // 'bulan' disimpan di state untuk validasi UI, namun akan dibuang saat getPreparedPayload()
   const [formData, setFormData] = useState({
@@ -79,8 +80,14 @@ const PelayananVitaminCreate = () => {
     try {
       const payload = getPreparedPayload();
       await PelayananVitaminService.create(payload);
-      alert("Data berhasil disimpan ke sistem!");
-      navigate(`/data-anak/pelayanan-vitamin/${anakId}`);
+      
+      // Feedback sukses
+      setShowSuccess(true);
+      
+      // Delay sebelum navigasi agar user bisa melihat feedback
+      setTimeout(() => {
+        navigate(`/data-anak/pelayanan-vitamin/${anakId}`);
+      }, 2000);
     } catch (err) {
       console.error("Submit Error:", err.response?.data);
       alert("Gagal menyimpan data. Periksa koneksi atau validasi server.");
@@ -99,7 +106,19 @@ const PelayananVitaminCreate = () => {
           <ArrowLeft size={14} /> Kembali ke Riwayat
         </button>
 
-        <div className="bg-white rounded-[3.5rem] shadow-2xl border border-slate-100 overflow-hidden">
+        <div className="bg-white rounded-[3.5rem] shadow-2xl border border-slate-100 overflow-hidden relative">
+          
+          {/* SUCCESS OVERLAY */}
+          {showSuccess && (
+            <div className="absolute inset-0 z-50 bg-white/90 backdrop-blur-md flex flex-col items-center justify-center animate-in fade-in duration-500">
+              <div className="bg-green-500 p-6 rounded-full shadow-2xl shadow-green-200 mb-6 animate-bounce">
+                <CheckCircle2 size={64} className="text-white" />
+              </div>
+              <h2 className="text-3xl font-black text-slate-900 mb-2">BERHASIL DISIMPAN!</h2>
+              <p className="text-slate-500 font-bold uppercase tracking-widest text-xs">Mengalihkan ke halaman riwayat...</p>
+            </div>
+          )}
+
           {/* HEADER */}
           <div className="bg-slate-900 p-10 text-white flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
             <div>

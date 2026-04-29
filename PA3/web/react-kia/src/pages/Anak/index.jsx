@@ -70,14 +70,7 @@ export default function AnakListNakes() {
 
   return (
     <MainLayout>
-      {/* BREADCRUMB */}
-      <nav className="flex items-center text-sm text-gray-500 mb-6 gap-2 bg-white p-3 rounded-lg shadow-sm border border-gray-100 w-fit">
-        <Link to="/dashboard" className="hover:text-indigo-600 flex items-center gap-1">
-          Dashboard
-        </Link>
-        <ChevronRight size={14} />
-        <span className="font-semibold text-indigo-700">Rekam Medis Anak</span>
-      </nav>
+      <div className="p-4 md:p-8 bg-[#f8fafc] min-h-screen">
 
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
         <div>
@@ -211,6 +204,7 @@ export default function AnakListNakes() {
             </button>
           </div>
         </div>
+      </div>
       </div>
     </MainLayout>
   );

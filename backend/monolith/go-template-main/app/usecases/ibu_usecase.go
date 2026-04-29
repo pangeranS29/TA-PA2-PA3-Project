@@ -4,6 +4,8 @@ import (
 	"errors"
 	"monitoring-service/app/models"
 	"monitoring-service/app/repositories"
+
+	"gorm.io/gorm"
 )
 
 type IbuUsecase interface {
@@ -15,16 +17,25 @@ type IbuUsecase interface {
 }
 
 type ibuUsecase struct {
-	repo *repositories.IbuRepository
+	repo                  *repositories.IbuRepository
+	kependudukanRepo      *repositories.KependudukanRepository
 }
 
-func NewIbuUsecase(repo *repositories.IbuRepository) IbuUsecase {
-	return &ibuUsecase{repo: repo}
+func NewIbuUsecase(repo *repositories.IbuRepository, kependudukanRepo *repositories.KependudukanRepository) IbuUsecase {
+	return &ibuUsecase{repo: repo, kependudukanRepo: kependudukanRepo}
 }
 
 func (u *ibuUsecase) Create(ibu *models.Ibu) error {
-	if ibu.IDKependudukan == 0 {
+	if ibu.PendudukID == 0 {
 		return errors.New("id_kependudukan wajib diisi")
+	}
+	// Validasi apakah penduduk_id ada di tabel kependudukan
+	_, err := u.kependudukanRepo.FindByID(ibu.PendudukID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return errors.New("data penduduk dengan id tersebut tidak ditemukan")
+		}
+		return err
 	}
 	return u.repo.Create(ibu)
 }

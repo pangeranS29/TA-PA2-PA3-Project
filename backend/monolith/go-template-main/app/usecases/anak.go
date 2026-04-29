@@ -12,12 +12,14 @@ import (
 )
 
 type AnakUseCase struct {
-	anakRepo *repositories.AnakRepository
+	anakRepo     *repositories.AnakRepository
+	pendudukRepo *repositories.KependudukanRepository
 }
 
-func NewAnakUseCase(anakRepo *repositories.AnakRepository) *AnakUseCase {
+func NewAnakUseCase(anakRepo *repositories.AnakRepository, pendudukRepo *repositories.KependudukanRepository) *AnakUseCase {
 	return &AnakUseCase{
-		anakRepo: anakRepo,
+		anakRepo:     anakRepo,
+		pendudukRepo: pendudukRepo,
 	}
 }
 
@@ -83,6 +85,25 @@ func (u *AnakUseCase) UpdateAnak(id int32, req models.UpdateAnakRequest) (*model
 
 	if err := u.anakRepo.Update(anak); err != nil {
 		return nil, err
+	}
+
+	// Update data Penduduk jika relasi ada
+	if anak.Penduduk != nil {
+		if req.Nama != "" {
+			anak.Penduduk.NamaLengkap = req.Nama
+		}
+		if req.JenisKelamin != "" {
+			anak.Penduduk.JenisKelamin = req.JenisKelamin
+		}
+		if req.TanggalLahir != "" {
+			parsedDate, err := time.Parse("2006-01-02", req.TanggalLahir)
+			if err == nil {
+				anak.Penduduk.TanggalLahir = parsedDate
+			}
+		}
+		if err := u.pendudukRepo.Update(anak.Penduduk); err != nil {
+			return nil, err
+		}
 	}
 
 	resp := u.toAnakResponse(anak)
@@ -199,15 +220,31 @@ func (u *AnakUseCase) toAnakResponse(anak *models.Anak) models.AnakResponse {
 		resp.GolonganDarah = anak.Penduduk.GolonganDarah
 
 		// Hitung usia dari tanggal lahir penduduk
-		// usiaBulan := HitungUsiaBulan(*anak.Penduduk.TanggalLahir)
-		// resp.UsiaBulan = usiaBulan
-		// resp.UsiaTeks = FormatUsiaTeks(usiaBulan)
+		usiaBulan := HitungUsiaBulan(anak.Penduduk.TanggalLahir)
+		resp.UsiaBulan = usiaBulan
+		resp.UsiaTeks = FormatUsiaTeks(usiaBulan)
 	}
 
 	// Ambil data Kehamilan
 	if anak.Kehamilan != nil {
 		resp.Kehamilan = &models.KehamilanSimple{
 			ID: anak.Kehamilan.ID,
+		}
+
+		if anak.Kehamilan.Ibu != nil && anak.Kehamilan.Ibu.Kependudukan != nil {
+			resp.Kehamilan.Ibu.NamaIbu = anak.Kehamilan.Ibu.Kependudukan.NamaLengkap
+		}
+	}
+
+	// Map data Pertumbuhan
+	if len(anak.Pertumbuhan) > 0 {
+		resp.Pertumbuhan = make([]models.PertumbuhanSimple, 0, len(anak.Pertumbuhan))
+		for _, p := range anak.Pertumbuhan {
+			resp.Pertumbuhan = append(resp.Pertumbuhan, models.PertumbuhanSimple{
+				Bulan:       p.UsiaUkurBulan,
+				BeratBadan:  p.BeratBadan,
+				TinggiBadan: p.TinggiBadan,
+			})
 		}
 	}
 

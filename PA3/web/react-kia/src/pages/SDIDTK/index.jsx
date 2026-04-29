@@ -95,7 +95,7 @@ const FormSDIDTK = ({ idAnak = 1 }) => {
   return (
     <MainLayout>
       <div className="p-6 bg-gray-50 min-h-screen font-sans">
-        
+
         {/* HEADER */}
         <div className="flex flex-col md:flex-row justify-between items-end mb-8 gap-4">
           <div>
@@ -154,69 +154,69 @@ const FormSDIDTK = ({ idAnak = 1 }) => {
         {/* MODAL INPUT */}
         {isModalOpen && (
           <div className="fixed inset-0 bg-black/40 backdrop-blur-md flex items-center justify-center p-4 z-50">
-  <div className="bg-white rounded-[40px] w-full max-w-5xl shadow-2xl overflow-hidden animate-in zoom-in duration-300">
-    {/* Header */}
-    <div className="bg-gray-900 p-6 flex justify-between items-center text-white font-black uppercase">
-      <div className="flex items-center gap-4">
-        <ClipboardCheck /> 
-        <span>Input Laporan SDIDTK</span>
-      </div>
-      <button onClick={() => setIsModalOpen(false)}><X /></button>
-    </div>
+            <div className="bg-white rounded-[40px] w-full max-w-5xl shadow-2xl overflow-hidden animate-in zoom-in duration-300">
+              {/* Header */}
+              <div className="bg-gray-900 p-6 flex justify-between items-center text-white font-black uppercase">
+                <div className="flex items-center gap-4">
+                  <ClipboardCheck />
+                  <span>Input Laporan SDIDTK</span>
+                </div>
+                <button onClick={() => setIsModalOpen(false)}><X /></button>
+              </div>
 
-    <form onSubmit={handleSubmit} className="p-10">
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-        
-        {/* Kolom Kiri: Hanya Informasi Utama */}
-        <div className="space-y-6">
-          <InputField 
-            label="Bulan Ke-" 
-            type="number" 
-            value={formData.bulan_ke} 
-            onChange={e => setFormData({...formData, bulan_ke: e.target.value})} 
-            required 
-          />
-          <InputField 
-            label="Tanggal Periksa" 
-            type="date" 
-            value={formData.tanggal} 
-            onChange={e => setFormData({...formData, tanggal: e.target.value})} 
-            required 
-          />
-          <div className="p-4 bg-blue-50 rounded-2xl border border-blue-100">
-            <p className="text-xs font-bold text-blue-800 uppercase mb-1">Info Sistem</p>
-            <p className="text-[10px] text-blue-600 leading-relaxed">
-              Kunjungan ulang dan saran medis akan dikalkulasi otomatis oleh AI sesuai hasil pemeriksaan.
-            </p>
+              <form onSubmit={handleSubmit} className="p-10">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+
+                  {/* Kolom Kiri: Hanya Informasi Utama */}
+                  <div className="space-y-6">
+                    <InputField
+                      label="Bulan Ke-"
+                      type="number"
+                      value={formData.bulan_ke}
+                      onChange={e => setFormData({ ...formData, bulan_ke: e.target.value })}
+                      required
+                    />
+                    <InputField
+                      label="Tanggal Periksa"
+                      type="date"
+                      value={formData.tanggal}
+                      onChange={e => setFormData({ ...formData, tanggal: e.target.value })}
+                      required
+                    />
+                    <div className="p-4 bg-blue-50 rounded-2xl border border-blue-100">
+                      <p className="text-xs font-bold text-blue-800 uppercase mb-1">Info Sistem</p>
+                      <p className="text-[10px] text-blue-600 leading-relaxed">
+                        Kunjungan ulang dan saran medis akan dikalkulasi otomatis oleh AI sesuai hasil pemeriksaan.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Kolom Kanan: Indikator Medis */}
+                  <div className="md:col-span-3 grid grid-cols-3 gap-x-6 gap-y-5 bg-gray-50 p-8 rounded-[32px] border">
+                    <SelectField label="BB/U" value={formData.bb_u} options={optBBU} onChange={v => setFormData({ ...formData, bb_u: v })} />
+                    <SelectField label="BB/TB" value={formData.bb_tb} options={optBBTB} onChange={v => setFormData({ ...formData, bb_tb: v })} />
+                    <SelectField label="TB/U" value={formData.tb_u} options={optTBU} onChange={v => setFormData({ ...formData, tb_u: v })} />
+                    <SelectField label="LK/U" value={formData.lk_u} options={optLKU} onChange={v => setFormData({ ...formData, lk_u: v })} />
+                    <SelectField label="LiLA" value={formData.lila} options={optLila} onChange={v => setFormData({ ...formData, lila: v })} />
+                    <SelectField label="KPSP" value={formData.kpsp} options={optKPSP} onChange={v => setFormData({ ...formData, kpsp: v })} />
+                    <SelectField label="Daya Dengar" value={formData.tdd} options={optNormalRujuk} onChange={v => setFormData({ ...formData, tdd: v })} />
+                    <SelectField label="Daya Lihat" value={formData.tdl} options={optNormalRujuk} onChange={v => setFormData({ ...formData, tdl: v })} />
+                    <SelectField label="KMPE" value={formData.kmpe} options={optNormalRujuk} onChange={v => setFormData({ ...formData, kmpe: v })} />
+                    <SelectField label="M-CHAT-R" value={formData.m_chat_revised} options={optNormalRujuk} onChange={v => setFormData({ ...formData, m_chat_revised: v })} />
+                    <SelectField label="ACTRS" value={formData.actrs} options={optNormalRujuk} onChange={v => setFormData({ ...formData, actrs: v })} />
+                  </div>
+                </div>
+
+                <button
+                  disabled={isLoading}
+                  type="submit"
+                  className="w-full mt-10 bg-blue-700 text-white py-5 rounded-3xl font-black shadow-xl hover:bg-blue-800 transition-all uppercase flex items-center justify-center gap-3"
+                >
+                  {isLoading ? <Loader2 className="animate-spin" /> : <><Save size={20} /> Simpan & Generate Saran AI</>}
+                </button>
+              </form>
+            </div>
           </div>
-        </div>
-
-        {/* Kolom Kanan: Indikator Medis */}
-        <div className="md:col-span-3 grid grid-cols-3 gap-x-6 gap-y-5 bg-gray-50 p-8 rounded-[32px] border">
-          <SelectField label="BB/U" value={formData.bb_u} options={optBBU} onChange={v => setFormData({...formData, bb_u: v})} />
-          <SelectField label="BB/TB" value={formData.bb_tb} options={optBBTB} onChange={v => setFormData({...formData, bb_tb: v})} />
-          <SelectField label="TB/U" value={formData.tb_u} options={optTBU} onChange={v => setFormData({...formData, tb_u: v})} />
-          <SelectField label="LK/U" value={formData.lk_u} options={optLKU} onChange={v => setFormData({...formData, lk_u: v})} />
-          <SelectField label="LiLA" value={formData.lila} options={optLila} onChange={v => setFormData({...formData, lila: v})} />
-          <SelectField label="KPSP" value={formData.kpsp} options={optKPSP} onChange={v => setFormData({...formData, kpsp: v})} />
-          <SelectField label="Daya Dengar" value={formData.tdd} options={optNormalRujuk} onChange={v => setFormData({...formData, tdd: v})} />
-          <SelectField label="Daya Lihat" value={formData.tdl} options={optNormalRujuk} onChange={v => setFormData({...formData, tdl: v})} />
-          <SelectField label="KMPE" value={formData.kmpe} options={optNormalRujuk} onChange={v => setFormData({...formData, kmpe: v})} />
-          <SelectField label="M-CHAT-R" value={formData.m_chat_revised} options={optNormalRujuk} onChange={v => setFormData({...formData, m_chat_revised: v})} />
-          <SelectField label="ACTRS" value={formData.actrs} options={optNormalRujuk} onChange={v => setFormData({...formData, actrs: v})} />
-        </div>
-      </div>
-
-      <button 
-        disabled={isLoading} 
-        type="submit" 
-        className="w-full mt-10 bg-blue-700 text-white py-5 rounded-3xl font-black shadow-xl hover:bg-blue-800 transition-all uppercase flex items-center justify-center gap-3"
-      >
-        {isLoading ? <Loader2 className="animate-spin" /> : <><Save size={20} /> Simpan & Generate Saran AI</>}
-      </button>
-    </form>
-  </div>
-</div>
         )}
       </div>
     </MainLayout>
