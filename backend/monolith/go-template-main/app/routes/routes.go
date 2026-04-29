@@ -46,8 +46,6 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	admin.PUT("/kader/:id", controller.AdminUpdateKader)
 	admin.PATCH("/kader/:id/status", controller.AdminUpdateStatusKader)
 
-	// ==================== Branch Andika ====================
-
 	// Master Standar Routes
 	masterStandar := e.Group("/master-standar")
 	masterStandar.Use(middlewares.JWTAuth(controller.JWTSecret()))
@@ -84,8 +82,6 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	// perkembangan.PUT("/:id", controller.UpdatePerkembangan)
 	// perkembangan.DELETE("/:id", controller.DeletePerkembangan)
 	// perkembangan.GET("/search", controller.SearchPerkembangan)
-
-	// ==================== Branch Andika ====================
 
 	// Group untuk tenaga kesehatan (termasuk bidan, dokter, tenaga-kesehatan)
 	tenaga := e.Group("/tenaga-kesehatan")
@@ -350,6 +346,8 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	ibu := e.Group("/ibu")
 	ibu.Use(middlewares.JWTAuth(controller.JWTSecret()))
 	ibu.Use(middlewares.Ibu())
+	ibu.GET("/anak", controller.Ibu.GetAnakSaya)
 	ibu.POST("/lembar-pemantauan", controller.LembarPemantauan.CreateForIbu)
 	ibu.GET("/lembar-pemantauan", controller.LembarPemantauan.GetByAnakIDForIbu)
+
 }
