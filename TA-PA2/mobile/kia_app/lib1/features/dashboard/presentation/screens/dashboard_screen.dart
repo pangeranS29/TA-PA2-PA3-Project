@@ -4,7 +4,7 @@ import 'package:ta_pa2_pa3_project/core/services/auth_session.dart';
 import 'package:ta_pa2_pa3_project/features/auth/presentation/screens/login_screen.dart';
 import 'package:ta_pa2_pa3_project/features/hamil/presentation/screens/journey_screen.dart';
 import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/tumbuh_kembang_screen.dart';
-import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/lembar_pemantauan_screen.dart';
+import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/pertumbuhan/lembar_pemantauan_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   @override

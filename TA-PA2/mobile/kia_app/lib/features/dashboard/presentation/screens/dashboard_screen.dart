@@ -4,13 +4,13 @@ import 'package:ta_pa2_pa3_project/core/services/auth_session.dart';
 import 'package:ta_pa2_pa3_project/core/services/reminder_notification_service.dart';
 import 'package:ta_pa2_pa3_project/features/auth/presentation/screens/login_screen.dart';
 import 'package:ta_pa2_pa3_project/features/hamil/presentation/screens/journey_screen.dart';
-import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/pilih_anak_screen.dart';
+import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/anak/pilih_anak_screen.dart';
 // import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/tumbuh_kembang_screen.dart';
-import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/input_profil_anak_screen.dart';
-import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/skrining_bahaya.dart';
-import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/halaman_utama_mpasi.dart';
-import 'package:ta_pa2_pa3_project/features/edukasi/presentation/screens/edukasi_screen.dart';
-import 'package:ta_pa2_pa3_project/features/informasi_umum/presentation/screens/informasi_umum_screen.dart';
+import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/anak/input_profil_anak_screen.dart';
+import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/skrining/skrining_bahaya.dart';
+import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/mpasi/halaman_utama_mpasi.dart';
+import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/edukasi/edukasi_screen.dart';
+import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/informasi_umum/informasi_umum_screen.dart';
 import 'package:ta_pa2_pa3_project/features/perawatan_bayi/presentation/screens/pilih_perawatan_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
