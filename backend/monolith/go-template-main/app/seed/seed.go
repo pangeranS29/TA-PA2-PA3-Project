@@ -51,6 +51,12 @@ func RunAllSeed(db *gorm.DB) error {
 			return err
 		}
 
+		// // 6. Kategori Tanda Bahaya
+		// if err := seeders.SeedKategoriTandaBahaya(tx); err != nil {
+		// 	log.Println("❌ SeedKategoriTandaBahaya failed:", err)
+		// 	return err
+		// }
+
 		log.Println("✅ All seeding success")
 		return nil
 	})

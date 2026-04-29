@@ -44,11 +44,10 @@ type Main struct {
 	Rujukan                       RujukanUsecase
 	SkriningDMGestasional         SkriningDMGestasionalUsecase
 	SkriningPreeklampsia          SkriningPreeklampsiaUsecase
-	SkriningPemantauan            SkriningPemantauanUsecase
-	KategoriTandaBahaya           KategoriTandaBahayaUsecase
 	PelayananIbuNifas             PelayananIbuNifasUsecase
 	Ibu                           IbuUsecase
 	RiwayatKehamilanLalu          RiwayatKehamilanLaluUsecase
+	LembarPemantauan              LembarPemantauanUsecase
 	// RegisterOrangTua              *RegisterOrangTuaUsecase
 	AdminAkunKeluarga    *AdminAkunKeluargaUsecase
 	AdminTenagaKesehatan *AdminTenagaKesehatanUsecase
@@ -101,11 +100,10 @@ func Init(opts Options) *Main {
 	m.Rujukan = NewRujukanUsecase(opts.Repository.Rujukan)
 	m.SkriningDMGestasional = NewSkriningDMGestasionalUsecase(opts.Repository.SkriningDMGestasional)
 	m.SkriningPreeklampsia = NewSkriningPreeklampsiaUsecase(opts.Repository.SkriningPreeklampsia)
-	m.SkriningPemantauan = NewSkriningPemantauanUsecase(opts.Repository.SkriningPemantauan)
-	m.KategoriTandaBahaya = NewKategoriTandaBahayaUsecase(opts.Repository.KategoriTandaBahaya)
 	m.PelayananIbuNifas = NewPelayananIbuNifasUsecase(opts.Repository.PelayananIbuNifas)
 	m.Ibu = NewIbuUsecase(opts.Repository.Ibu)
 	m.RiwayatKehamilanLalu = NewRiwayatKehamilanLaluUsecase(opts.Repository.RiwayatKehamilanLalu)
+	m.LembarPemantauan = NewLembarPemantauanUsecase(opts.Repository.LembarPemantauan)
 	m.Kependudukan = NewKependudukanUsecase(opts.Repository.Kependudukan)
 	// m.RegisterOrangTua = NewRegisterOrangTuaUsecase(
 	// 	opts.Repository.User,
