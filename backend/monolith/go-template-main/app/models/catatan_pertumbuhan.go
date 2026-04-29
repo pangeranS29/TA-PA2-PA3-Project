@@ -35,13 +35,6 @@ type CatatanPertumbuhan struct {
 	CatatanNakes  string `gorm:"column:catatan_nakes;type:text" db:"catatan_nakes" json:"catatan_nakes,omitempty"`
 	Anak          *Anak  `gorm:"foreignKey:AnakID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT" json:"anak,omitempty"`
 
-	// KMS
-	StatusNaik        string `gorm:"type:char(1)"` // N / T
-	KBMMinGram        int
-	KenaikanGram      float64
-	StatusBGM         string
-	IsGrowthFaltering bool
-
 	CreatedAt time.Time      `gorm:"column:created_at" db:"created_at" json:"created_at"`
 	UpdatedAt time.Time      `gorm:"column:updated_at" db:"updated_at" json:"updated_at"`
 	DeletedAt gorm.DeletedAt `gorm:"column:deleted_at;index" json:"-"`

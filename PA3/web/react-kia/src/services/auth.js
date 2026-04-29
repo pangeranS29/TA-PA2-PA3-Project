@@ -1,20 +1,23 @@
 // src/services/auth.js
 import api from "./api";
 
-const buildLoginUrls = () => {
-  const base = String(api.defaults.baseURL || "").replace(/\/+$/, "");
+const ADMIN_ROLE = "admin";
+const BIDAN_ROLE = "bidan";
 
-  if (!base) {
-    return ["/api/v1/auth/login", "/auth/login"];
+const normalizeRole = (role) => (role || "").toString().trim().toLowerCase();
+
+export const isAdminUser = (user) => normalizeRole(user?.role) === ADMIN_ROLE;
+
+export const getUserRedirectRoute = (user) => {
+  if (isAdminUser(user)) {
+    return "/dashboard/admin";
   }
 
-  const origin = base.replace(/\/api\/v1$/, "");
-  return Array.from(
-    new Set([
-      `${base}/auth/login`,
-      `${origin}/auth/login`,
-    ])
-  );
+  if (normalizeRole(user?.role) === BIDAN_ROLE) {
+    return "/dashboard";
+  }
+
+  return "/dashboard";
 };
 
 /**
@@ -22,28 +25,7 @@ const buildLoginUrls = () => {
  * Menyimpan token dan data user ke localStorage
  */
 export const login = async (identifier, password) => {
-  const payload = { identifier, password };
-  const candidates = buildLoginUrls();
-  let lastError;
-  let response;
-
-  for (const url of candidates) {
-    try {
-      response = await api.post(url, payload);
-      break;
-    } catch (err) {
-      lastError = err;
-      const status = err?.response?.status;
-      // Coba endpoint kandidat lain hanya jika route tidak ditemukan.
-      if (status !== 404) {
-        throw err;
-      }
-    }
-  }
-
-  if (!response) {
-    throw lastError;
-  }
+  const response = await api.post("/auth/login", { identifier, password });
   
   // Ambil data dari response.data.data (sesuaikan dengan struktur API Laravel/Go kamu)
   const result = response.data.data;
@@ -86,4 +68,12 @@ export const getCurrentUser = () => {
 export const isAuthenticated = () => {
   const token = localStorage.getItem("access_token");
   return !!token; // Mengembalikan true jika token ada, false jika tidak ada
+};
+
+/**
+ * Ambil route tujuan default setelah login sesuai role user
+ */
+export const getPostLoginRoute = () => {
+  const user = getCurrentUser();
+  return getUserRedirectRoute(user);
 };

@@ -32,7 +32,7 @@ func (r *RujukanRepository) FindByKehamilanID(kehamilanID int32) ([]models.Rujuk
 }
 
 func (r *RujukanRepository) Update(rj *models.Rujukan) error {
-	return r.db.Save(rj).Error
+	return r.db.Model(&models.Rujukan{}).Where("id = ?", rj.ID).Updates(rj).Error
 }
 
 func (r *RujukanRepository) Delete(id int32) error {

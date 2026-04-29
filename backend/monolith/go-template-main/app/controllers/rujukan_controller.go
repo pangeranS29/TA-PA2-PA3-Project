@@ -101,6 +101,23 @@ func (c *RujukanController) Update(ctx echo.Context) error {
 		existing.RujukanResumePemeriksaanTatalaksana = req.RujukanResumePemeriksaanTatalaksana
 	}
 	// ... update semua field
+	// Update semua field
+	existing.RujukanResumePemeriksaanTatalaksana = req.RujukanResumePemeriksaanTatalaksana
+	existing.RujukanDiagnosisAkhir = req.RujukanDiagnosisAkhir
+	existing.RujukanAlasanDirujukKeFKRTL = req.RujukanAlasanDirujukKeFKRTL
+	existing.RujukanBalikDiagnosisAkhir = req.RujukanBalikDiagnosisAkhir
+	existing.RujukanBalikResumePemeriksaanTatalaksana = req.RujukanBalikResumePemeriksaanTatalaksana
+	existing.AnjuranRekomendasiTempatMelahirkan = req.AnjuranRekomendasiTempatMelahirkan
+
+	// Update tanggal rujukan balik jika ada
+	if req.RujukanBalikTanggal != "" {
+		if t, err := time.Parse("2006-01-02", req.RujukanBalikTanggal); err == nil {
+			existing.RujukanBalikTanggal = &t
+		}
+	} else {
+		existing.RujukanBalikTanggal = nil
+	}
+
 	if err := c.usecase.Update(existing); err != nil {
 		return ctx.JSON(http.StatusInternalServerError, models.Response{StatusCode: http.StatusInternalServerError, Message: err.Error()})
 	}

@@ -22,13 +22,12 @@ func (r *KehamilanRepository) Create(kehamilan *models.Kehamilan) error {
 func (r *KehamilanRepository) FindByID(id int32) (*models.Kehamilan, error) {
 	var kehamilan models.Kehamilan
 	err := r.db.Preload("Ibu.Kependudukan").
-	Preload("Anak").
-	First(&kehamilan, id).Error
-	
+		Preload("Anak").
+		First(&kehamilan, id).Error
+
 	if err != nil {
 		return nil, err
 	}
-
 	return &kehamilan, nil
 }
 
@@ -41,12 +40,13 @@ func (r *KehamilanRepository) FindByIbuID(ibuID int32) ([]models.Kehamilan, erro
 func (r *KehamilanRepository) GetAll() ([]models.Kehamilan, error) {
 	var list []models.Kehamilan
 	err := r.db.Preload("Ibu.Kependudukan").
-	Preload("Anak"). 
-	Find(&list).Error
+		Preload("Anak").
+		Find(&list).Error
 	return list, err
 }
 
 func (r *KehamilanRepository) Update(kehamilan *models.Kehamilan) error {
+	// Gunakan Save untuk update semua field (termasuk yang kosong)
 	return r.db.Save(kehamilan).Error
 }
 

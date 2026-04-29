@@ -2,14 +2,12 @@ import React, { useState, useMemo, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import MainLayout from "../../components/Layout/MainLayout";
 import { PelayananLilaService } from "../../services/Pelayanan-lila-anak";
-import { 
-  ChevronLeft, Save, Ruler, AlertCircle, Loader2, CheckCircle2 
-} from 'lucide-react';
+import { Save, AlertCircle, Loader2, CheckCircle2 } from 'lucide-react';
 
 const PelayananLilaEdit = () => {
   const { id, lilaId } = useParams();
   const navigate = useNavigate();
-  
+
   const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -28,7 +26,7 @@ const PelayananLilaEdit = () => {
     bulan_ke: 1,
     tanggal: new Date().toISOString().split('T')[0],
     hasil_lila: "",
-    kategori_risiko: ""
+    kategori_risiko: "normal"
   });
 
   useEffect(() => {
@@ -37,10 +35,10 @@ const PelayananLilaEdit = () => {
         const data = await PelayananLilaService.getById(lilaId);
         if (data) {
           setFormData({
-            bulan_ke: data.bulan_ke || 1,
-            tanggal: new Date(data.tanggal).toISOString().split('T')[0],
+            bulan_ke: data.bulan_ke || data.bulan || 1,
+            tanggal: data.tanggal ? new Date(data.tanggal).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
             hasil_lila: data.hasil_lila || "",
-            kategori_risiko: data.kategori_risiko || "baik"
+            kategori_risiko: data.kategori_risiko || "normal"
           });
         }
       } catch (err) {
@@ -52,89 +50,73 @@ const PelayananLilaEdit = () => {
     fetchData();
   }, [lilaId]);
 
+  const hitungKategori = (bulan, lila) => {
+    const b = parseInt(bulan) || 0;
+    const v = parseFloat(lila) || 0;
+    if (!v) return "normal";
+    if (b < 6) {
+      return v < 10.0 ? "gizi_buruk" : v >= 11.0 ? "baik" : "gizi_buruk";
+    } else {
+      if (v < 11.5) return "gizi_buruk";
+      if (v < 12.5) return "gizi_kurang";
+      return "baik";
+    }
+  };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
+    const updated = {
+      ...formData,
       [name]: name === 'bulan_ke' ? parseInt(value) || 1 : value
-    }));
-
-    if (name === 'bulan_ke' && formData.hasil_lila !== "") {
-      const bulan = parseInt(value) || 0;
-      const hasil = parseFloat(formData.hasil_lila) || 0;
-      let kategori = "";
-      if (bulan < 6) {
-        kategori = hasil < 10.0 ? "gizi_buruk" : hasil >= 11.0 ? "baik" : "gizi_buruk";
-      } else {
-        if (hasil < 11.5) kategori = "gizi_buruk";
-        else if (hasil < 12.5) kategori = "gizi_kurang";
-        else kategori = "baik";
-      }
-      setFormData(prev => ({ ...prev, kategori_risiko: kategori }));
+    };
+    if (name === 'bulan_ke' && formData.hasil_lila) {
+      updated.kategori_risiko = hitungKategori(value, formData.hasil_lila);
     }
+    setFormData(updated);
   };
 
   const handleLilaChange = (e) => {
-    const value = parseFloat(e.target.value) || "";
+    const value = e.target.value;
+    const kategori = hitungKategori(formData.bulan_ke, value);
     setFormData(prev => ({
       ...prev,
-      hasil_lila: value
+      hasil_lila: value,
+      kategori_risiko: kategori
     }));
-
-    if (value) {
-      const bulan = formData.bulan_ke || 0;
-      let kategori = "";
-      if (bulan < 6) {
-        if (value < 10.0) kategori = "gizi_buruk";
-        else if (value >= 11.0) kategori = "baik";
-        else kategori = "gizi_buruk";
-      } else {
-        if (value < 11.5) kategori = "gizi_buruk";
-        else if (value >= 11.5 && value < 12.5) kategori = "gizi_kurang";
-        else kategori = "baik";
-      }
-      setFormData(prev => ({
-        ...prev,
-        kategori_risiko: kategori
-      }));
-    }
   };
-
-  const requestPayload = useMemo(() => {
-    return {
-      id: parseInt(lilaId),
-      anak_id: parseInt(id) || 0,
-      tanggal: formData.tanggal ? new Date(formData.tanggal).toISOString() : new Date().toISOString(),
-      bulan_ke: formData.bulan_ke,
-      hasil_lila: parseFloat(formData.hasil_lila) || 0,
-      kategori_risiko: formData.kategori_risiko || "baik",
-      tenaga_kesehatan_id: parseInt(authUser.id || authUser.user_id) || 0
-    };
-  }, [formData, id, lilaId, authUser]);
 
   const handleSubmit = async () => {
     setError("");
-    
+
     if (!formData.hasil_lila) {
       setError("Hasil LILA harus diisi!");
       return;
     }
-
     if (formData.bulan_ke < 0 || formData.bulan_ke > 60) {
       setError("Bulan harus antara 0-60!");
       return;
     }
 
+    const payload = {
+      id: parseInt(lilaId),
+      anak_id: parseInt(id) || 0,
+      tanggal: formData.tanggal ? new Date(formData.tanggal).toISOString() : new Date().toISOString(),
+      bulan_ke: formData.bulan_ke,
+      hasil_lila: parseFloat(formData.hasil_lila) || 0,
+      kategori_risiko: formData.kategori_risiko || "normal",
+      tenaga_kesehatan_id: parseInt(authUser.id || authUser.user_id) || 0
+    };
+
     setSubmitting(true);
     try {
-      await PelayananLilaService.update(lilaId, requestPayload);
+      await PelayananLilaService.update(lilaId, payload);
       setSuccess(true);
       setTimeout(() => {
         navigate(`/data-anak/lila/${id}`);
       }, 1500);
     } catch (err) {
       console.error("Gagal update:", err);
-      const errMsg = err.response?.data?.error || err.response?.data?.message || JSON.stringify(err.response?.data) || err.message;
+      const errMsg = err.response?.data?.error || err.response?.data?.message || err.message;
       setError("Gagal Update: " + errMsg);
     } finally {
       setSubmitting(false);
@@ -142,16 +124,11 @@ const PelayananLilaEdit = () => {
   };
 
   const getRisikoBadge = (kategori) => {
-    switch(kategori?.toLowerCase()) {
-      case "gizi_buruk":
-        return { bg: "bg-red-50", text: "text-red-700", label: "Gizi Buruk / Risiko", icon: "🔴" };
-      case "gizi_kurang":
-        return { bg: "bg-yellow-50", text: "text-yellow-700", label: "Gizi Kurang", icon: "🟠" };
-      case "baik":
-        return { bg: "bg-green-50", text: "text-green-700", label: "Baik", icon: "🟢" };
-      case "normal":
-      default:
-        return { bg: "bg-blue-50", text: "text-blue-700", label: "Normal", icon: "🟦" };
+    switch (kategori?.toLowerCase()) {
+      case "gizi_buruk": return { bg: "bg-red-50", text: "text-red-700", label: "Gizi Buruk", icon: "🔴" };
+      case "gizi_kurang": return { bg: "bg-yellow-50", text: "text-yellow-700", label: "Gizi Kurang", icon: "🟠" };
+      case "baik": return { bg: "bg-green-50", text: "text-green-700", label: "Baik", icon: "🟢" };
+      default: return { bg: "bg-blue-50", text: "text-blue-700", label: "Normal", icon: "🟦" };
     }
   };
 
@@ -171,53 +148,45 @@ const PelayananLilaEdit = () => {
   return (
     <MainLayout>
       <div className="max-w-6xl mx-auto p-4 md:p-8 bg-slate-50 min-h-screen pb-24 font-sans">
-        
-        {/* Header Section */}
-        <header className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-slate-200 pb-8">
-          <div>
-            <nav className="flex items-center gap-2 text-[10px] font-black tracking-widest text-slate-400 uppercase mb-3">
-              <span>Data Anak</span>
-              <span className="w-1 h-1 rounded-full bg-slate-300"></span>
-              <span className="text-blue-600 font-black">Pencatatan LILA</span>
-            </nav>
-            <h1 className="text-4xl font-black text-slate-900 tracking-tight">Edit Pencatatan LILA</h1>
-            <p className="text-[10px] text-slate-400 font-bold mt-2 uppercase tracking-widest">Petugas: {authUser.nama} • ID Anak: {id}</p>
-          </div>
+
+        {/* Header */}
+        <header className="mb-10 border-b border-slate-200 pb-8">
+          <nav className="flex items-center gap-2 text-[10px] font-black tracking-widest text-slate-400 uppercase mb-3">
+            <span>Data Anak</span>
+            <span className="w-1 h-1 rounded-full bg-slate-300"></span>
+            <span className="text-blue-600 font-black">Edit Pencatatan LILA</span>
+          </nav>
+          <h1 className="text-4xl font-black text-slate-900 tracking-tight">Edit Pencatatan LILA</h1>
+          <p className="text-[10px] text-slate-400 font-bold mt-2 uppercase tracking-widest">
+            Petugas: {authUser.nama} • ID Anak: {id}
+          </p>
         </header>
 
-        {/* ERROR MESSAGE */}
+        {/* Error */}
         {error && (
           <div className="mb-6 p-4 bg-red-100 border border-red-300 rounded-2xl flex items-start gap-3">
             <AlertCircle className="text-red-600 flex-shrink-0 mt-0.5" size={20} />
-            <div>
-              <p className="font-bold text-red-800">{error}</p>
-            </div>
+            <p className="font-bold text-red-800">{error}</p>
           </div>
         )}
 
-        {/* SUCCESS MESSAGE */}
+        {/* Success */}
         {success && (
           <div className="mb-6 p-4 bg-green-100 border border-green-300 rounded-2xl flex items-start gap-3">
             <CheckCircle2 className="text-green-600 flex-shrink-0 mt-0.5" size={20} />
-            <div>
-              <p className="font-bold text-green-800">Data berhasil diperbarui!</p>
-            </div>
+            <p className="font-bold text-green-800">Data berhasil diperbarui!</p>
           </div>
         )}
 
-        {/* FORM GRID */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-          
-          {/* LEFT: Main Form */}
+          {/* Form */}
           <div className="lg:col-span-2">
             <div className="space-y-6 bg-white rounded-[3rem] p-8 shadow-sm border border-slate-100">
-              
-              {/* Bulan Ke */}
               <div>
                 <label className="block text-sm font-black text-slate-700 mb-3 uppercase tracking-wider">
                   Bulan Ke <span className="text-red-600">*</span>
                 </label>
-                <input 
+                <input
                   type="number"
                   name="bulan_ke"
                   value={formData.bulan_ke}
@@ -230,12 +199,11 @@ const PelayananLilaEdit = () => {
                 <p className="text-xs text-slate-500 mt-2">Usia anak dalam bulan (0-60)</p>
               </div>
 
-              {/* Tanggal */}
               <div>
                 <label className="block text-sm font-black text-slate-700 mb-3 uppercase tracking-wider">
                   Tanggal Pengukuran <span className="text-red-600">*</span>
                 </label>
-                <input 
+                <input
                   type="date"
                   name="tanggal"
                   value={formData.tanggal}
@@ -244,12 +212,11 @@ const PelayananLilaEdit = () => {
                 />
               </div>
 
-              {/* Hasil LILA */}
               <div>
                 <label className="block text-sm font-black text-slate-700 mb-3 uppercase tracking-wider">
                   Hasil LILA (cm) <span className="text-red-600">*</span>
                 </label>
-                <input 
+                <input
                   type="number"
                   step="0.1"
                   value={formData.hasil_lila}
@@ -260,36 +227,33 @@ const PelayananLilaEdit = () => {
                 <p className="text-xs text-slate-500 mt-2">Ukuran lingkar lengan atas dalam sentimeter</p>
               </div>
 
-              {/* Kategori Risiko */}
               <div>
                 <label className="block text-sm font-black text-slate-700 mb-3 uppercase tracking-wider">
-                  Kategori Risiko <span className="text-red-600">*</span>
+                  Kategori Risiko
                 </label>
-                <select 
+                <select
                   name="kategori_risiko"
                   value={formData.kategori_risiko}
                   onChange={handleInputChange}
                   className="w-full px-5 py-4 border-2 border-slate-200 rounded-2xl focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 font-semibold"
                 >
-                  <option value="gizi_buruk">🔴 Gizi Buruk / Risiko</option>
+                  <option value="gizi_buruk">🔴 Gizi Buruk</option>
                   <option value="gizi_kurang">🟠 Gizi Kurang</option>
                   <option value="baik">🟢 Baik</option>
+                  <option value="normal">🟦 Normal</option>
                 </select>
-                <p className="text-xs text-slate-500 mt-2">Kategori akan otomatis terisi berdasarkan hasil LILA</p>
+                <p className="text-xs text-slate-500 mt-2">Otomatis terisi berdasarkan hasil LILA</p>
               </div>
             </div>
           </div>
 
-          {/* RIGHT: Preview & Reference */}
+          {/* Preview */}
           <div className="space-y-6">
-            
-            {/* Preview Card */}
             {formData.hasil_lila && (
               <div className="bg-gradient-to-br from-blue-600 to-blue-700 rounded-[2.5rem] p-8 shadow-2xl shadow-blue-200 text-white">
                 <p className="text-[10px] font-black uppercase tracking-widest mb-3 text-blue-200">Hasil Pengukuran</p>
                 <p className="text-5xl font-black mb-2">{formData.hasil_lila}</p>
                 <p className="text-sm font-semibold mb-6 text-blue-100">Lingkar Lengan Atas (cm)</p>
-                
                 <div className={`${risiko.bg} rounded-2xl p-4 text-center`}>
                   <p className="text-[9px] font-black text-slate-600 uppercase mb-1">Status Gizi</p>
                   <p className={`text-lg font-black ${risiko.text}`}>{risiko.icon}</p>
@@ -298,20 +262,19 @@ const PelayananLilaEdit = () => {
               </div>
             )}
 
-            {/* Reference Card */}
             <div className="bg-white rounded-[2.5rem] p-6 shadow-sm border border-slate-100">
               <p className="text-xs font-black text-slate-600 uppercase mb-4 tracking-wider">Referensi LILA</p>
               <div className="space-y-3">
                 <div className="p-3 bg-red-50 rounded-xl border-l-4 border-red-600">
-                  <p className="text-[10px] font-black text-red-600 uppercase">&lt; 6 bulan: &lt; 10 cm</p>
-                  <p className="text-xs text-red-700 font-semibold mt-1">Risiko / Gizi Buruk</p>
+                  <p className="text-[10px] font-black text-red-600 uppercase">&lt;6 bln: &lt;10cm / ≥6bln: &lt;11.5cm</p>
+                  <p className="text-xs text-red-700 font-semibold mt-1">Gizi Buruk</p>
                 </div>
                 <div className="p-3 bg-yellow-50 rounded-xl border-l-4 border-yellow-600">
-                  <p className="text-[10px] font-black text-yellow-700 uppercase">&gt;= 6 bulan: 11.5 - 12.4 cm</p>
+                  <p className="text-[10px] font-black text-yellow-700 uppercase">≥6 bln: 11.5 – 12.4 cm</p>
                   <p className="text-xs text-yellow-800 font-semibold mt-1">Gizi Kurang</p>
                 </div>
                 <div className="p-3 bg-green-50 rounded-xl border-l-4 border-green-600">
-                  <p className="text-[10px] font-black text-green-600 uppercase">&lt; 6 bulan: &ge; 11 cm / &gt;= 6 bulan: &ge; 12.5 cm</p>
+                  <p className="text-[10px] font-black text-green-600 uppercase">&lt;6bln: ≥11cm / ≥6bln: ≥12.5cm</p>
                   <p className="text-xs text-green-700 font-semibold mt-1">Baik</p>
                 </div>
               </div>
@@ -319,27 +282,23 @@ const PelayananLilaEdit = () => {
           </div>
         </div>
 
-        {/* BUTTON GROUP */}
+        {/* Buttons */}
         <div className="flex gap-3 sticky bottom-0 bg-slate-50 p-4 rounded-2xl border border-slate-200 shadow-lg">
-          <button 
+          <button
             onClick={() => navigate(`/data-anak/lila/${id}`)}
             className="flex-1 px-6 py-4 border-2 border-slate-300 text-slate-700 font-black rounded-2xl hover:bg-slate-100 transition-all uppercase text-sm tracking-wider"
           >
             Batal
           </button>
-          <button 
+          <button
             onClick={handleSubmit}
             disabled={submitting}
             className="flex-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-black py-4 rounded-2xl transition-all shadow-lg uppercase text-sm tracking-wider"
           >
             {submitting ? (
-              <>
-                <Loader2 size={18} className="animate-spin" /> Menyimpan...
-              </>
+              <><Loader2 size={18} className="animate-spin" /> Menyimpan...</>
             ) : (
-              <>
-                <Save size={18} /> Simpan Perubahan
-              </>
+              <><Save size={18} /> Simpan Perubahan</>
             )}
           </button>
         </div>

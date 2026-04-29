@@ -107,9 +107,9 @@ export default function KependudukanList() {
           <div className="px-4 py-3 border-t flex justify-between items-center">
             <span className="text-sm text-gray-500">Menampilkan {currentItems.length} dari {filtered.length}</span>
             <div className="flex gap-2">
-              <button onClick={() => setCurrentPage(p => Math.max(1, p-1))} disabled={currentPage === 1} className="p-1 rounded border disabled:opacity-50"><ChevronLeft size={18} /></button>
+              <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1} className="p-1 rounded border disabled:opacity-50"><ChevronLeft size={18} /></button>
               <span>Halaman {currentPage} dari {totalPages || 1}</span>
-              <button onClick={() => setCurrentPage(p => Math.min(totalPages, p+1))} disabled={currentPage === totalPages} className="p-1 rounded border disabled:opacity-50"><ChevronRight size={18} /></button>
+              <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages} className="p-1 rounded border disabled:opacity-50"><ChevronRight size={18} /></button>
             </div>
           </div>
         </div>

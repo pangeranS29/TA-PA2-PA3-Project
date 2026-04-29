@@ -150,6 +150,18 @@ export default function IbuEdit() {
 
   if (fetching) return <MainLayout><div className="p-6">Memuat...</div></MainLayout>;
   if (!ibu) return <MainLayout><div className="p-6">Data tidak ditemukan</div></MainLayout>;
+  if (fetching)
+    return (
+      <MainLayout>
+        <div className="p-6">Memuat...</div>
+      </MainLayout>
+    );
+  if (!ibu)
+    return (
+      <MainLayout>
+        <div className="p-6">Data tidak ditemukan</div>
+      </MainLayout>
+    );
 
   return (
     <MainLayout>
@@ -193,6 +205,76 @@ export default function IbuEdit() {
               <div><label className="block text-sm font-medium mb-1">Pekerjaan</label><input name="pekerjaan" value={form.pekerjaan} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" /></div>
               <div><label className="block text-sm font-medium mb-1">Nomor Telepon</label><input name="telepon" value={form.telepon} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" /></div>
               <div className="md:col-span-2"><label className="block text-sm font-medium mb-1">Alamat</label><textarea name="alamat" value={form.alamat} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" rows="2" /></div>
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Nama Lengkap <span className="text-red-500">*</span>
+                </label>
+                <input name="nama_lengkap" value={form.nama_lengkap} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" required />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  NIK <span className="text-red-500">*</span>
+                </label>
+                <input name="nik" value={form.nik} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" required />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">No. KK</label>
+                <input name="no_kk" value={form.no_kk} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Jenis Kelamin</label>
+                <select name="jenis_kelamin" value={form.jenis_kelamin} onChange={handleChange} className="w-full border rounded-lg px-3 py-2">
+                  <option>Perempuan</option>
+                  <option>Laki-laki</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Tempat Lahir</label>
+                <input name="tempat_lahir" value={form.tempat_lahir} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Tanggal Lahir</label>
+                <input type="date" name="tanggal_lahir" value={form.tanggal_lahir} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Golongan Darah</label>
+                <select name="golongan_darah" value={form.golongan_darah} onChange={handleChange} className="w-full border rounded-lg px-3 py-2">
+                  <option value="">-- Pilih --</option>
+                  <option>A</option>
+                  <option>B</option>
+                  <option>AB</option>
+                  <option>O</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Dusun</label>
+                <input name="dusun" value={form.dusun} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Pendidikan Terakhir</label>
+                <select name="pendidikan_terakhir" value={form.pendidikan_terakhir} onChange={handleChange} className="w-full border rounded-lg px-3 py-2">
+                  <option value="">-- Pilih --</option>
+                  <option>SD</option>
+                  <option>SMP</option>
+                  <option>SMA</option>
+                  <option>D3</option>
+                  <option>S1</option>
+                  <option>S2</option>
+                  <option>S3</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Pekerjaan</label>
+                <input name="pekerjaan" value={form.pekerjaan} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Nomor Telepon</label>
+                <input name="telepon" value={form.telepon} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" />
+              </div>
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium mb-1">Alamat</label>
+                <textarea name="alamat" value={form.alamat} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" rows="2" />
+              </div>
             </div>
           </div>
 
@@ -203,35 +285,75 @@ export default function IbuEdit() {
               <div><label className="block text-sm font-medium mb-1">Status Kehamilan</label>
                 <select name="status_kehamilan" value={form.status_kehamilan} onChange={handleChange} className="w-full border rounded-lg px-3 py-2">
                   <option>TRIMESTER 1</option><option>TRIMESTER 2</option><option>TRIMESTER 3</option><option>NIFAS</option><option>SELESAI</option>
-                </select>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Status Kehamilan</label>
+                    <select name="status_kehamilan" value={form.status_kehamilan} onChange={handleChange} className="w-full border rounded-lg px-3 py-2">
+                      <option>TRIMESTER 1</option>
+                      <option>TRIMESTER 2</option>
+                      <option>TRIMESTER 3</option>
+                      <option>NIFAS</option>
+                      <option>SELESAI</option>
+                    </select>
+                  </div>
               </div>
             </div>
-          </div>
 
-          {/* Data Kehamilan */}
-          <div className="bg-white rounded-xl shadow-sm p-6">
-            <h2 className="text-lg font-semibold mb-4 text-indigo-700">Data Kehamilan</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div><label className="block text-sm font-medium mb-1">HPHT</label><input type="date" name="hpht" value={form.hpht} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" /></div>
-              <div><label className="block text-sm font-medium mb-1">Taksiran Persalinan (HPL)</label><input type="date" name="taksiran_persalinan" value={form.taksiran_persalinan} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" /></div>
-              <div><label className="block text-sm font-medium mb-1">UK Saat Ini (minggu)</label><input type="number" name="uk_kehamilan_saat_ini" value={form.uk_kehamilan_saat_ini} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" /></div>
-              <div><label className="block text-sm font-medium mb-1">Gravida (G)</label><input type="number" name="gravida" value={form.gravida} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" /></div>
-              <div><label className="block text-sm font-medium mb-1">Paritas (P)</label><input type="number" name="paritas" value={form.paritas} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" /></div>
-              <div><label className="block text-sm font-medium mb-1">Abortus (A)</label><input type="number" name="abortus" value={form.abortus} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" /></div>
-              <div><label className="block text-sm font-medium mb-1">Jarak Kehamilan Sebelumnya (bulan)</label><input type="number" name="jarak_kehamilan_sebelumnya" value={form.jarak_kehamilan_sebelumnya} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" /></div>
+            {/* Data Kehamilan */}
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <h2 className="text-lg font-semibold mb-4 text-indigo-700">Data Kehamilan</h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div><label className="block text-sm font-medium mb-1">HPHT</label><input type="date" name="hpht" value={form.hpht} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" /></div>
+                <div><label className="block text-sm font-medium mb-1">Taksiran Persalinan (HPL)</label><input type="date" name="taksiran_persalinan" value={form.taksiran_persalinan} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" /></div>
+                <div><label className="block text-sm font-medium mb-1">UK Saat Ini (minggu)</label><input type="number" name="uk_kehamilan_saat_ini" value={form.uk_kehamilan_saat_ini} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" /></div>
+                <div><label className="block text-sm font-medium mb-1">Gravida (G)</label><input type="number" name="gravida" value={form.gravida} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" /></div>
+                <div><label className="block text-sm font-medium mb-1">Paritas (P)</label><input type="number" name="paritas" value={form.paritas} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" /></div>
+                <div><label className="block text-sm font-medium mb-1">Abortus (A)</label><input type="number" name="abortus" value={form.abortus} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" /></div>
+                <div><label className="block text-sm font-medium mb-1">Jarak Kehamilan Sebelumnya (bulan)</label><input type="number" name="jarak_kehamilan_sebelumnya" value={form.jarak_kehamilan_sebelumnya} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" /></div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">HPHT</label>
+                  <input type="date" name="hpht" value={form.hpht} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Taksiran Persalinan (HPL)</label>
+                  <input type="date" name="taksiran_persalinan" value={form.taksiran_persalinan} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">UK Saat Ini (minggu)</label>
+                  <input type="number" name="uk_kehamilan_saat_ini" value={form.uk_kehamilan_saat_ini} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Gravida (G)</label>
+                  <input type="number" name="gravida" value={form.gravida} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Paritas (P)</label>
+                  <input type="number" name="paritas" value={form.paritas} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Abortus (A)</label>
+                  <input type="number" name="abortus" value={form.abortus} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Jarak Kehamilan Sebelumnya (bulan)</label>
+                  <input type="number" name="jarak_kehamilan_sebelumnya" value={form.jarak_kehamilan_sebelumnya} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" />
+                </div>
+              </div>
             </div>
-          </div>
 
-          {/* Submit */}
-          <div className="flex gap-3">
-            <button type="button" onClick={() => navigate(-1)} className="px-6 py-2 border rounded-lg hover:bg-gray-50">Batal</button>
-            <button type="submit" disabled={loading} className="bg-indigo-600 text-white px-6 py-2 rounded-lg flex items-center gap-2 hover:bg-indigo-700">
-              {loading ? <Loader2 className="animate-spin" size={18} /> : <Save size={18} />}
-              {loading ? "Menyimpan..." : "Simpan Perubahan"}
-            </button>
-          </div>
+            {/* Submit */}
+            <div className="flex gap-3">
+              <button type="button" onClick={() => navigate(-1)} className="px-6 py-2 border rounded-lg hover:bg-gray-50">Batal</button>
+              <button type="button" onClick={() => navigate(-1)} className="px-6 py-2 border rounded-lg hover:bg-gray-50">
+                Batal
+              </button>
+              <button type="submit" disabled={loading} className="bg-indigo-600 text-white px-6 py-2 rounded-lg flex items-center gap-2 hover:bg-indigo-700">
+                {loading ? <Loader2 className="animate-spin" size={18} /> : <Save size={18} />}
+                {loading ? "Menyimpan..." : "Simpan Perubahan"}
+              </button>
+            </div>
         </form>
       </div>
     </MainLayout>
   );
+}
 }

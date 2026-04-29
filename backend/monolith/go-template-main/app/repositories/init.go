@@ -68,10 +68,6 @@ type Main struct {
 	PemantauanIndikator                *PemantauanIndikatorRepository
 }
 
-type repository struct {
-	Options Options
-}
-
 type Options struct {
 	Postgres *gorm.DB
 	Config   *config.Config

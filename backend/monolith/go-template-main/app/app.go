@@ -59,13 +59,15 @@ func (m *Main) Init() (err error) {
 	}
 	fmt.Println("✅ BERHASIL KONEK KE DATABASE")
 
+	//comment sementara
+
 	// Migrate Tabel
 	// err = models.AutoMigrate(m.database.Postgres)
 	// if err != nil {
 	// 	return
 	// }
 
-	// Seeder
+	// // Seeder
 	// err = seed.RunAllSeed(m.database.Postgres)
 	// if err != nil {
 	// 	return
