@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:ta_pa2_pa3_project/features/imunisasi/presentation/screens/imunisasi_screen.dart';
-import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/lembar_pemantauan_screen.dart';
-import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/halaman_utama_mpasi.dart';
-import 'detail_pertumbuhan_dummy_screen.dart';
+import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/imunisasi/imunisasi_screen.dart';
+import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/pertumbuhan/lembar_pemantauan_screen.dart';
+import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/mpasi/halaman_utama_mpasi.dart';
+import '../pertumbuhan/detail_pertumbuhan_dummy_screen.dart';
 
 /// [tujuan] menentukan halaman tujuan setelah anak dipilih.
 /// Gunakan 'pertumbuhan' (default) atau 'imunisasi'.
