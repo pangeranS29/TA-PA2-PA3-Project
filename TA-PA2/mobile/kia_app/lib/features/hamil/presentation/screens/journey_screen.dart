@@ -10,6 +10,7 @@ import 'hasil_evaluasi_kesehatan_screen.dart';
 import 'package:ta_pa2_pa3_project/features/hamil/presentation/screens/trimester_menu_screen.dart';
 import 'package:ta_pa2_pa3_project/features/hamil/presentation/screens/proses_melahirkan_screens.dart';
 import 'package:ta_pa2_pa3_project/features/hamil/presentation/screens/absensi_kelas_ibu_hamil_screen.dart';
+import 'package:ta_pa2_pa3_project/features/hamil/presentation/screens/log_ttd_mms_screen.dart';
 
 // class JourneyScreen extends StatefulWidget {
 //   @override
@@ -213,6 +214,24 @@ class _JourneyScreenState extends State<JourneyScreen> {
                       context,
                       MaterialPageRoute(
                         builder: (_) => const AbsensiKelasIbuHamilScreen(),
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 14),
+
+                _buildBirthFeatureCard(
+                  icon: Icons.medication_liquid_outlined,
+                  iconColor: const Color(0xFF2F80ED),
+                  iconBackground: const Color(0xFFEAF4FF),
+                  title: "Log TTD/MMS",
+                  subtitle: "Checklist harian minum tablet tambah darah atau MMS",
+                  borderColor: const Color(0xFFB7DBFF),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const LogTTDMMSScreen(),
                       ),
                     );
                   },
