@@ -78,6 +78,10 @@ func (m *Main) Init() (err error) {
 	// if err := kependudukanSeeder.Seed(); err != nil {
 	// 	return err
 	// }
+	// kategoriTandaSakitSeeder := seeders.NewKategoriTandaSakitSeeder(m.database.Postgres)
+	// if err := kategoriTandaSakitSeeder.Seed(); err != nil {
+	// 	return err
+	// }
 
 	// // seeder master standar TBU
 	// masterTBUSeeder := seeders.NewMasterStandarTBUSeeder(m.database.Postgres)

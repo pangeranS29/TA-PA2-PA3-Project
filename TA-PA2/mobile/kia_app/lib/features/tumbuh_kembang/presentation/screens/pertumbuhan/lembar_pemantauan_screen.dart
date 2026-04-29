@@ -5,7 +5,9 @@ import 'package:ta_pa2_pa3_project/core/themes/app_theme.dart';
 import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/data/models/pemantauan_model.dart';
 
 class LembarPemantauanScreen extends StatefulWidget {
-  const LembarPemantauanScreen({Key? key}) : super(key: key);
+  final Map<String, dynamic>? anak;
+
+  const LembarPemantauanScreen({Key? key, this.anak}) : super(key: key);
 
   @override
   State<LembarPemantauanScreen> createState() => _LembarPemantauanScreenState();
@@ -229,8 +231,7 @@ class _LembarPemantauanScreenState extends State<LembarPemantauanScreen>
           SafeArea(
             bottom: false,
             child: Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -262,6 +263,15 @@ class _LembarPemantauanScreenState extends State<LembarPemantauanScreen>
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
+                            if (widget.anak != null)
+                              Text(
+                                'Untuk: ${widget.anak!['nama'] ?? 'Anak terpilih'}',
+                                style: TextStyle(
+                                  color: Colors.white.withOpacity(0.88),
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
                             Text(
                               'Skrining Tanda Bahaya • ${_selectedAgeGroup.label}',
                               style: TextStyle(
@@ -307,7 +317,8 @@ class _LembarPemantauanScreenState extends State<LembarPemantauanScreen>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
-        color: danger ? const Color(0xFFFFEBEE) : Colors.white.withOpacity(0.18),
+        color:
+            danger ? const Color(0xFFFFEBEE) : Colors.white.withOpacity(0.18),
         borderRadius: BorderRadius.circular(20),
         border: danger ? Border.all(color: const Color(0xFFEF5350)) : null,
       ),
@@ -315,8 +326,7 @@ class _LembarPemantauanScreenState extends State<LembarPemantauanScreen>
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon,
-              size: 12,
-              color: danger ? const Color(0xFFEF5350) : Colors.white),
+              size: 12, color: danger ? const Color(0xFFEF5350) : Colors.white),
           const SizedBox(width: 5),
           Text(
             label,
@@ -441,6 +451,7 @@ class _LembarPemantauanScreenState extends State<LembarPemantauanScreen>
 
   Widget _buildPeriodCard() {
     final maxPeriods = _selectedAgeGroup.maxPeriods;
+    final periodLabel = _selectedAgeGroup.periodLabel;
 
     return Container(
       padding: const EdgeInsets.all(14),
@@ -462,23 +473,43 @@ class _LembarPemantauanScreenState extends State<LembarPemantauanScreen>
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                '${_selectedAgeGroup.periodLabel}$_selectedPeriod',
+                '$periodLabel$_selectedPeriod',
                 style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.bold,
                   color: _primaryColor,
                 ),
               ),
-              Row(
-                children: [
-                  _navBtn(Icons.chevron_left_rounded,
-                      _selectedPeriod > 1 ? _prevPeriod : null),
-                  const SizedBox(width: 6),
-                  _navBtn(Icons.chevron_right_rounded,
-                      _selectedPeriod < maxPeriods ? _nextPeriod : null),
-                ],
-              ),
             ],
+          ),
+          const SizedBox(height: 10),
+          DropdownButtonFormField<int>(
+            value: _selectedPeriod,
+            isExpanded: true,
+            decoration: InputDecoration(
+              labelText: 'Pilih ${periodLabel.toLowerCase()}',
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            ),
+            items: List.generate(maxPeriods, (index) {
+              final period = index + 1;
+              return DropdownMenuItem<int>(
+                value: period,
+                child: Text('$periodLabel$period'),
+              );
+            }),
+            onChanged: (value) {
+              if (value == null || value == _selectedPeriod) return;
+              HapticFeedback.selectionClick();
+              setState(() {
+                _saveCurrentPeriod();
+                _selectedPeriod = value;
+                _loadChecksForPeriod(_selectedPeriod);
+              });
+            },
           ),
           const SizedBox(height: 10),
           _buildProgressBars(maxPeriods),
@@ -486,12 +517,12 @@ class _LembarPemantauanScreenState extends State<LembarPemantauanScreen>
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('${_selectedAgeGroup.periodLabel}1',
-                  style: const TextStyle(
-                      fontSize: 9.5, color: Color(0xFF9E9EB8))),
-              Text('${_selectedAgeGroup.periodLabel}$maxPeriods',
-                  style: const TextStyle(
-                      fontSize: 9.5, color: Color(0xFF9E9EB8))),
+              Text('${periodLabel}1',
+                  style:
+                      const TextStyle(fontSize: 9.5, color: Color(0xFF9E9EB8))),
+              Text('$periodLabel$maxPeriods',
+                  style:
+                      const TextStyle(fontSize: 9.5, color: Color(0xFF9E9EB8))),
             ],
           ),
         ],
@@ -613,8 +644,8 @@ class _LembarPemantauanScreenState extends State<LembarPemantauanScreen>
           color: const Color(0xFFFFEBEE),
           borderRadius: BorderRadius.circular(15),
           border: Border.all(
-            color: Color.lerp(const Color(0xFFEF5350),
-                const Color(0xFFFF8A80), _pulseCtrl.value)!,
+            color: Color.lerp(const Color(0xFFEF5350), const Color(0xFFFF8A80),
+                _pulseCtrl.value)!,
             width: 1.5,
           ),
         ),
@@ -745,8 +776,7 @@ class _LembarPemantauanScreenState extends State<LembarPemantauanScreen>
     );
   }
 
-  Widget _buildSignTile(
-      DangerSignItem item, bool isLast, Color categoryColor) {
+  Widget _buildSignTile(DangerSignItem item, bool isLast, Color categoryColor) {
     final isChecked = _currentChecks[item.id] ?? false;
 
     return GestureDetector(
@@ -766,8 +796,7 @@ class _LembarPemantauanScreenState extends State<LembarPemantauanScreen>
               : BorderRadius.zero,
           border: Border(
             left: BorderSide(
-              color:
-                  isChecked ? const Color(0xFFEF5350) : Colors.transparent,
+              color: isChecked ? const Color(0xFFEF5350) : Colors.transparent,
               width: 3,
             ),
           ),
@@ -784,9 +813,7 @@ class _LembarPemantauanScreenState extends State<LembarPemantauanScreen>
                 height: 22,
                 margin: const EdgeInsets.only(top: 1),
                 decoration: BoxDecoration(
-                  color: isChecked
-                      ? const Color(0xFFEF5350)
-                      : Colors.white,
+                  color: isChecked ? const Color(0xFFEF5350) : Colors.white,
                   borderRadius: BorderRadius.circular(6),
                   border: Border.all(
                     color: isChecked
@@ -909,13 +936,13 @@ class _LembarPemantauanScreenState extends State<LembarPemantauanScreen>
                   });
                 },
                 child: Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 14, vertical: 11),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
                   decoration: BoxDecoration(
                     border: !isLast
                         ? const Border(
-                            bottom: BorderSide(
-                                color: Color(0xFFF0F0F5), width: 1))
+                            bottom:
+                                BorderSide(color: Color(0xFFF0F0F5), width: 1))
                         : null,
                   ),
                   child: Row(
@@ -1015,8 +1042,8 @@ class _LembarPemantauanScreenState extends State<LembarPemantauanScreen>
                 ? const Color(0xFFEF5350)
                 : const Color(0xFF43A047),
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             duration: const Duration(seconds: 3),
           ),
         );

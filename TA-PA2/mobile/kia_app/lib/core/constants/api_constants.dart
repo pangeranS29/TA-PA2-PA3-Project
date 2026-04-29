@@ -29,4 +29,7 @@ class ApiConstants {
 
   static const String authLogin = '/auth/login';
   static const String authMe = '/auth/me';
+
+  static const String ibuAnak = '/ibu/anak';
+  static const String ibuLembarPemantauan = '/ibu/lembar-pemantauan';
 }

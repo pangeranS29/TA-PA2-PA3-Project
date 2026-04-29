@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:ta_pa2_pa3_project/core/services/auth_session.dart';
 import 'package:ta_pa2_pa3_project/core/services/reminder_notification_service.dart';
-import 'package:ta_pa2_pa3_project/features/dashboard/presentation/screens/dashboard_screen.dart';
 import 'package:ta_pa2_pa3_project/features/auth/presentation/screens/login_screen.dart';
+import 'package:ta_pa2_pa3_project/features/dashboard/presentation/screens/dashboard_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,8 +25,9 @@ class SehatiApp extends StatelessWidget {
         // Pastikan font atau tema konsisten dengan Style Guide
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home:  DashboardScreen() ,
+      home: AuthSession.isLoggedIn
+          ? DashboardScreen()
+          : const LoginScreen(),
     );
   }
 }
-// AuthSession.isLoggedIn ? const LoginScreen()
