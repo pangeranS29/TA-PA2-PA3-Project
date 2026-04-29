@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
+
+import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/data/datasources/ibu_api_service.dart';
+import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/data/models/ibu_anak_model.dart';
 import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/imunisasi/imunisasi_screen.dart';
-import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/pertumbuhan/lembar_pemantauan_screen.dart';
 import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/mpasi/halaman_utama_mpasi.dart';
-import '../pertumbuhan/detail_pertumbuhan_dummy_screen.dart';
+import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/pertumbuhan/detail_pertumbuhan_dummy_screen.dart';
+import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/pertumbuhan/pemantauan_menu_screen.dart';
 
 /// [tujuan] menentukan halaman tujuan setelah anak dipilih.
 /// Gunakan 'pertumbuhan' (default) atau 'imunisasi'.
-class PilihAnakScreen extends StatelessWidget {
+class PilihAnakScreen extends StatefulWidget {
   final String tujuan;
 
   const PilihAnakScreen({
@@ -15,13 +18,27 @@ class PilihAnakScreen extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    final List<Map<String, dynamic>> anakList = [
-      {"nama": "Andika Purba", "status": "aktif"},
-      {"nama": "Shinta Purba", "status": "aktif"},
-      {"nama": "Andrey Purba", "status": "pending"},
-    ];
+  State<PilihAnakScreen> createState() => _PilihAnakScreenState();
+}
 
+class _PilihAnakScreenState extends State<PilihAnakScreen> {
+  final IbuApiService _service = IbuApiService();
+  late Future<List<IbuAnakModel>> _anakFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _anakFuture = _service.getAnakSaya();
+  }
+
+  @override
+  void dispose() {
+    _service.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF1F5F9),
       appBar: AppBar(
@@ -30,19 +47,74 @@ class PilihAnakScreen extends StatelessWidget {
         foregroundColor: Colors.black,
         elevation: 0,
       ),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: anakList.length,
-        itemBuilder: (context, index) {
-          final anak = anakList[index];
-          return _buildItem(context, anak);
+      body: FutureBuilder<List<IbuAnakModel>>(
+        future: _anakFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (snapshot.hasError) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.error_outline,
+                        size: 48, color: Colors.red),
+                    const SizedBox(height: 12),
+                    Text(
+                      'Gagal memuat data anak',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      snapshot.error.toString(),
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(color: Colors.black54),
+                    ),
+                    const SizedBox(height: 16),
+                    FilledButton(
+                      onPressed: () {
+                        setState(() {
+                          _anakFuture = _service.getAnakSaya();
+                        });
+                      },
+                      child: const Text('Coba Lagi'),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }
+
+          final anakList = snapshot.data ?? const <IbuAnakModel>[];
+
+          if (anakList.isEmpty) {
+            return const Center(
+              child: Padding(
+                padding: EdgeInsets.all(24),
+                child: Text('Belum ada data anak yang terhubung ke akun ini.'),
+              ),
+            );
+          }
+
+          return ListView.builder(
+            padding: const EdgeInsets.all(16),
+            itemCount: anakList.length,
+            itemBuilder: (context, index) {
+              final anak = anakList[index];
+              return _buildItem(context, anak);
+            },
+          );
         },
       ),
     );
   }
 
-  Widget _buildItem(BuildContext context, Map<String, dynamic> anak) {
-    bool isPending = anak["status"] == "pending";
+  Widget _buildItem(BuildContext context, IbuAnakModel anak) {
+    final anakMap = anak.toChildMap();
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -66,63 +138,63 @@ class PilihAnakScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  anak["nama"],
+                  anak.nama,
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     color: Colors.blue,
                   ),
                 ),
-                const Text(
-                  "Mulai pantau tumbuh kembang si kecil",
-                  style: TextStyle(fontSize: 12),
+                Text(
+                  anak.usiaTeks.isEmpty
+                      ? 'Siap untuk pemantauan anak'
+                      : anak.usiaTeks,
+                  style: const TextStyle(fontSize: 12),
                 ),
               ],
             ),
           ),
 
           // ICON KANAN
-          isPending
-              ? const Icon(Icons.access_time, color: Colors.orange)
-              : InkWell(
-                  onTap: () {
-                    if (tujuan == 'imunisasi') {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => ImunisasiScreen(anak: anak),
-                        ),
-                      );
-                    } else if (tujuan == 'bahaya') {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => LembarPemantauanScreen(),
-                        ),
-                      );
-                    } else if (tujuan == 'mpasi') {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => HalamanUtamaMpasiScreen(anak: anak),
-                        ),
-                      );
-                    } else {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => DetailPertumbuhanScreenDummy(
-                            anak: anak,
-                          ),
-                        ),
-                      );
-                    }
-                  },
-                  child: const CircleAvatar(
-                    radius: 14,
-                    backgroundColor: Colors.blue,
-                    child: Icon(Icons.arrow_forward, size: 14, color: Colors.white),
+          InkWell(
+            onTap: () {
+              if (widget.tujuan == 'imunisasi') {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => ImunisasiScreen(anak: anakMap),
                   ),
-                ),
+                );
+              } else if (widget.tujuan == 'bahaya') {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => PemantauanMenuScreen(anak: anakMap),
+                  ),
+                );
+              } else if (widget.tujuan == 'mpasi') {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => HalamanUtamaMpasiScreen(anak: anakMap),
+                  ),
+                );
+              } else {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => DetailPertumbuhanScreenDummy(
+                      anak: anakMap,
+                    ),
+                  ),
+                );
+              }
+            },
+            child: const CircleAvatar(
+              radius: 14,
+              backgroundColor: Colors.blue,
+              child: Icon(Icons.arrow_forward, size: 14, color: Colors.white),
+            ),
+          ),
         ],
       ),
     );
