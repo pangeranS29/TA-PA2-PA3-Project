@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'pola_asuh_screen.dart';   // Pastikan file ini ada
+import 'pola_asuh_screen.dart'; // Pastikan file ini ada
 import '../informasi_umum/informasi_umum_screen.dart';
 
 class EdukasiScreen extends StatelessWidget {
