@@ -8,6 +8,8 @@ import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/
 import 'package:ta_pa2_pa3_project/features/hamil/data/models/kehamilan_api_service.dart';
 import 'package:ta_pa2_pa3_project/features/edukasi/presentation/screens/edukasi_explore_screen.dart';
 import 'package:ta_pa2_pa3_project/features/nifas/presentation/screens/nifas_screen.dart';
+import 'package:ta_pa2_pa3_project/features/hamil/presentation/screens/catatan_pelayanan_menu_screen.dart';
+import 'package:ta_pa2_pa3_project/features/hamil/presentation/screens/rujukan_list_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -93,7 +95,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     if (_selectedNavIndex == 0) {
       body = _buildHomeBody();
     } else if (_selectedNavIndex == 1) {
-      body = const Center(child: Text("Catatan"));
+      body = const CatatanPelayananMenuScreen();
     } else if (_selectedNavIndex == 2) {
       body = const PilihAnakScreen(tujuan: "imunisasi");
     } else if (_selectedNavIndex == 3) {
@@ -536,10 +538,13 @@ Widget _buildDangerAlert() {
   return InkWell(
     borderRadius: BorderRadius.circular(16),
     onTap: () {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Belum ada surat rekomendasi rujukan")),
-      );
-    },
+      Navigator.push(
+      context,
+        MaterialPageRoute(
+        builder: (_) => const RujukanListScreen(),
+      ),
+    );
+  },
     child: Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
