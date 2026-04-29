@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class EdukasiDetailScreen extends StatefulWidget {
+class InformasiUmumDetailScreen extends StatefulWidget {
   final String type;
   final String ageText;
   final String durationText;
@@ -11,7 +11,7 @@ class EdukasiDetailScreen extends StatefulWidget {
   final Color typeColor;
   final Color typeBgColor;
 
-  const EdukasiDetailScreen({
+  const InformasiUmumDetailScreen({
     Key? key,
     required this.type,
     required this.ageText,
@@ -25,10 +25,10 @@ class EdukasiDetailScreen extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<EdukasiDetailScreen> createState() => _EdukasiDetailScreenState();
+  State<InformasiUmumDetailScreen> createState() => _InformasiUmumDetailScreenState();
 }
 
-class _EdukasiDetailScreenState extends State<EdukasiDetailScreen> {
+class _InformasiUmumDetailScreenState extends State<InformasiUmumDetailScreen> {
   final Map<String, bool> _questionnaireAnswers = {};
   static const String _kesehatanSectionKey = 'kesehatan_lingkungan';
   static const String _keselamatanSectionKey = 'keselamatan_lingkungan';
@@ -93,10 +93,10 @@ class _EdukasiDetailScreenState extends State<EdukasiDetailScreen> {
     );
   }
 
-  _EdukasiArticle _buildArticleByTitle(String title) {
+  _InformasiUmumArticle _buildArticleByTitle(String title) {
     switch (title) {
       case 'Melihat Informasi Umum Cuci Tangan Pakai Sabun':
-        return const _EdukasiArticle(
+        return const _InformasiUmumArticle(
           ringkasan:
               'Kuman penyakit sangat mudah ditularkan melalui tangan. Tangan yang terlihat bersih belum tentu bebas kuman, sehingga cuci tangan pakai sabun dengan air mengalir perlu dibiasakan setiap hari.',
           tutorialLangkah: [
@@ -146,7 +146,7 @@ class _EdukasiDetailScreenState extends State<EdukasiDetailScreen> {
           ],
         );
       case 'Melihat Informasi Umum Perawatan Gigi Anak':
-        return const _EdukasiArticle(
+        return const _InformasiUmumArticle(
           ringkasan:
               'Perawatan gigi anak perlu dimulai sejak dini. Kebiasaan seperti minum susu botol saat tidur, sering ngemil manis, tidak menyikat gigi sebelum tidur, dan mengemut makanan meningkatkan risiko gigi berlubang.',
           tutorialLangkah: [
@@ -188,7 +188,7 @@ class _EdukasiDetailScreenState extends State<EdukasiDetailScreen> {
           ],
         );
       case 'Melihat Informasi Umum Perawatan Anak Sakit':
-        return const _EdukasiArticle(
+        return const _InformasiUmumArticle(
           ringkasan:
               'Saat anak sakit, orang tua perlu tetap tenang dan memastikan kebutuhan gizi anak terpenuhi. Daya tahan tubuh anak melemah saat sakit sehingga memerlukan asupan gizi lebih banyak dan lebih sering.',
           tutorialLangkah: [
@@ -247,7 +247,7 @@ class _EdukasiDetailScreenState extends State<EdukasiDetailScreen> {
           ],
         );
       case 'Melihat Informasi Umum Anak dengan Disabilitas':
-        return const _EdukasiArticle(
+        return const _InformasiUmumArticle(
           ringkasan:
               'Anak dengan disabilitas rentan terhadap masalah kesehatan dan kekerasan. Keluarga perlu memberi perlindungan, pemenuhan gizi, pendampingan kebersihan diri, serta pemantauan tumbuh kembang secara teratur.',
           tutorialLangkah: [
@@ -292,7 +292,7 @@ class _EdukasiDetailScreenState extends State<EdukasiDetailScreen> {
           ],
         );
       case 'Melihat Informasi Umum Perlindungan Anak':
-        return const _EdukasiArticle(
+        return const _InformasiUmumArticle(
           ringkasan:
               'Lindungi anak dari kekerasan fisik, psikis, seksual, dan penelantaran. Orang tua perlu membangun komunikasi, memahami hak anak, dan mengenali tanda-tanda kekerasan sejak dini.',
           tutorialLangkah: [
@@ -338,7 +338,7 @@ class _EdukasiDetailScreenState extends State<EdukasiDetailScreen> {
           ],
         );
       default:
-        return const _EdukasiArticle(
+        return const _InformasiUmumArticle(
           ringkasan:
               'Konten ini membantu orang tua memahami stimulasi dan perawatan anak sesuai tahap usia. Lakukan secara rutin dengan suasana menyenangkan agar hasilnya optimal.',
           tutorialLangkah: [
@@ -368,7 +368,7 @@ class _EdukasiDetailScreenState extends State<EdukasiDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final _EdukasiArticle article = _buildArticleByTitle(widget.title);
+    final _InformasiUmumArticle article = _buildArticleByTitle(widget.title);
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
@@ -1052,13 +1052,13 @@ class _ExpandableSection extends StatelessWidget {
   }
 }
 
-class _EdukasiArticle {
+class _InformasiUmumArticle {
   final String ringkasan;
   final List<String> tutorialLangkah;
   final List<_ArticleSection> bagian;
   final List<String> yangPerluDiingat;
 
-  const _EdukasiArticle({
+  const _InformasiUmumArticle({
     required this.ringkasan,
     required this.tutorialLangkah,
     required this.bagian,
@@ -1190,3 +1190,4 @@ class _QuestionnaireQuestion {
     required this.options,
   });
 }
+

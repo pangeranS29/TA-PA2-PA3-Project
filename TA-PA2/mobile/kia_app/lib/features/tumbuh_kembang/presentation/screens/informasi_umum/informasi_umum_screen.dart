@@ -1,30 +1,19 @@
 import 'package:flutter/material.dart';
-import 'edukasi_detail_screen.dart';
+import 'informasi_umum_detail_screen.dart';
 
-enum EdukasiEntryPoint {
-  mainNavigation,
-  quickMenu,
-}
-
-class EdukasiScreen extends StatefulWidget {
-  final EdukasiEntryPoint entryPoint;
-
-  const EdukasiScreen({
+class InformasiUmumScreen extends StatefulWidget {
+  const InformasiUmumScreen({
     Key? key,
-    this.entryPoint = EdukasiEntryPoint.mainNavigation,
   }) : super(key: key);
 
   @override
-  State<EdukasiScreen> createState() => _EdukasiScreenState();
+  State<InformasiUmumScreen> createState() => _InformasiUmumScreenState();
 }
 
-class _EdukasiScreenState extends State<EdukasiScreen>
+class _InformasiUmumScreenState extends State<InformasiUmumScreen>
     with SingleTickerProviderStateMixin {
   String _selectedFilter = 'Semua';
   late final AnimationController _listAnimationController;
-
-  bool get _isQuickMenuEntry =>
-      widget.entryPoint == EdukasiEntryPoint.quickMenu;
 
   final List<Map<String, dynamic>> _mainNavigationContent = [
     {
@@ -59,15 +48,9 @@ class _EdukasiScreenState extends State<EdukasiScreen>
     },
   ];
 
-  final List<Map<String, dynamic>> _quickMenuContent = [];
+  List<Map<String, dynamic>> get _baseContent => _mainNavigationContent;
 
-  List<Map<String, dynamic>> get _baseContent =>
-      _isQuickMenuEntry ? _quickMenuContent : _mainNavigationContent;
-
-  List<String> get _activeFilters =>
-      _isQuickMenuEntry
-        ? ['Semua', 'Video', 'Artikel', 'Resep']
-        : ['Semua', 'Video', 'Artikel'];
+  List<String> get _activeFilters => ['Semua', 'Video', 'Artikel'];
 
   @override
   void initState() {
@@ -99,19 +82,9 @@ class _EdukasiScreenState extends State<EdukasiScreen>
         backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
-        automaticallyImplyLeading: _isQuickMenuEntry,
-        leading: _isQuickMenuEntry
-            ? IconButton(
-                icon: const Icon(
-                  Icons.arrow_back_ios_new,
-                  color: Color(0xFF1E293B),
-                  size: 20,
-                ),
-                onPressed: () => Navigator.pop(context),
-              )
-            : null,
+        automaticallyImplyLeading: false,
         title: Text(
-          _isQuickMenuEntry ? 'Edukasi Cepat' : 'Informasi Umum',
+          'Informasi Umum',
           style: const TextStyle(
             color: Color(0xFF1E293B),
             fontSize: 16,
@@ -148,9 +121,7 @@ class _EdukasiScreenState extends State<EdukasiScreen>
                     Expanded(
                       child: TextField(
                         decoration: InputDecoration(
-                          hintText: _isQuickMenuEntry
-                              ? 'Cari edukasi singkat...'
-                              : 'Cari stimulasi atau tips...',
+                          hintText: 'Cari stimulasi atau tips...',
                           hintStyle: TextStyle(
                             color: Color(0xFF94A3B8),
                             fontSize: 13,
@@ -169,22 +140,9 @@ class _EdukasiScreenState extends State<EdukasiScreen>
                   ],
                 ),
               ),
-              if (_isQuickMenuEntry) ...[
-                const SizedBox(height: 24),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: _activeFilters
-                        .map((label) => _buildFilterChip(label))
-                        .toList(),
-                  ),
-                ),
-              ],
               const SizedBox(height: 32),
               Text(
-                _isQuickMenuEntry
-                    ? 'Rekomendasi Cepat Untuk Anda'
-                    : 'Rekomendasi Edukasi KIA',
+                'Rekomendasi Edukasi KIA',
                 style: const TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.bold,
@@ -224,12 +182,9 @@ class _EdukasiScreenState extends State<EdukasiScreen>
   }
 
   Widget _buildEntryBanner() {
-    final Color bgColor =
-        _isQuickMenuEntry ? const Color(0xFFFFF7ED) : const Color(0xFFEFF6FF);
-    final Color iconBgColor =
-        _isQuickMenuEntry ? const Color(0xFFFFEDD5) : const Color(0xFFDBEAFE);
-    final Color iconColor =
-        _isQuickMenuEntry ? const Color(0xFFEA580C) : const Color(0xFF2563EB);
+    final Color bgColor = const Color(0xFFEFF6FF);
+    final Color iconBgColor = const Color(0xFFDBEAFE);
+    final Color iconColor = const Color(0xFF2563EB);
 
     return Container(
       width: double.infinity,
@@ -248,7 +203,7 @@ class _EdukasiScreenState extends State<EdukasiScreen>
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(
-              _isQuickMenuEntry ? Icons.flash_on : Icons.menu_book,
+              Icons.menu_book,
               color: iconColor,
               size: 18,
             ),
@@ -256,9 +211,7 @@ class _EdukasiScreenState extends State<EdukasiScreen>
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              _isQuickMenuEntry
-                  ? 'Akses dari Menu Cepat: fokus ke konten ringkas dan praktis.'
-                  : 'Akses dari Navigasi Utama: eksplorasi semua konten edukasi.',
+              'Akses dari Navigasi Utama: eksplorasi semua konten informasi umum.',
               style: TextStyle(
                 color: iconColor,
                 fontSize: 12,
@@ -332,7 +285,7 @@ class _EdukasiScreenState extends State<EdukasiScreen>
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => EdukasiDetailScreen(
+            builder: (_) => InformasiUmumDetailScreen(
               type: type,
               ageText: ageText,
               durationText: durationText,
@@ -381,7 +334,7 @@ class _EdukasiScreenState extends State<EdukasiScreen>
   }
 
   String _buildHeroTag(String type, String title) {
-    return 'edukasi-${type.toLowerCase()}-${title.toLowerCase().replaceAll(' ', '-')}';
+    return 'informasi-umum-${type.toLowerCase()}-${title.toLowerCase().replaceAll(' ', '-')}';
   }
 }
 
