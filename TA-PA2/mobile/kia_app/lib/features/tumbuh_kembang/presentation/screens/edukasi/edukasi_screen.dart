@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'pola_asuh_screen.dart';   // Pastikan file ini ada
 import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/perawatan/pilih_perawatan_screen.dart';
-
+import 'pedoman/pedoman_ibu_bayi_screen.dart'; 
 
 class EdukasiScreen extends StatelessWidget {
   const EdukasiScreen({Key? key}) : super(key: key);
@@ -96,6 +96,28 @@ class EdukasiScreen extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Column(
                 children: [
+                  // ================== PEDOMAN IBU & BAYI (BARU) ==================
+                  InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const PedomanIbuBayiScreen(), // SESUAIKAN NAMA CLASS
+                        ),
+                      );
+                    },
+                    borderRadius: BorderRadius.circular(16),
+                    child: _menuCard(
+                      icon: Icons.menu_book_outlined,
+                      title: 'Pedoman Ibu & Bayi',
+                      subtitle: 'Panduan kesehatan ibu & bayi',
+                      color: const Color(0xFFF0F9FF),
+                      iconBgColor: const Color(0xFFE0F2FE),
+                      iconColor: const Color(0xFF2563EB),
+                    ),
+                  ),
+
+                  const SizedBox(height: 12),
                   // ================== POLA ASUH (BISA DIKLIK) ==================
                   InkWell(
                     onTap: () {
