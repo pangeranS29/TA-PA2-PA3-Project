@@ -21,6 +21,15 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	secured.Use(middlewares.JWTAuth(controller.JWTSecret()))
 	secured.GET("/me", controller.Me)
 
+	// ==================== INFORMASI UMUM ====================
+	informasiUmum := e.Group("/informasi-umum")
+	informasiUmum.GET("", controller.InformasiUmum.GetAll)
+	informasiUmum.GET("/:id", controller.InformasiUmum.Detail)
+	// CRUD dibuka agar web dashboard bisa langsung mengelola Informasi Umum.
+	informasiUmum.POST("", controller.InformasiUmum.Create)
+	informasiUmum.PUT("/:id", controller.InformasiUmum.Update)
+	informasiUmum.DELETE("/:id", controller.InformasiUmum.Delete)
+
 	// ==================== MODUL ADMIN  ====================
 
 	admin := e.Group("/admin")
@@ -72,26 +81,24 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	// Kategori Capaian Routes
 	kategoriCapaian := e.Group("/kategori-capaian")
 	kategoriCapaian.Use(middlewares.JWTAuth(controller.JWTSecret()))
-	kategoriCapaian.GET("", controller.GetAllKategoriCapaian)
-	kategoriCapaian.GET("/:id", controller.GetKategoriCapaianById)
-	kategoriCapaian.GET("/rentang-usia", controller.GetKategoriCapaianByRentangUsia)
-	kategoriCapaian.POST("", controller.CreateKategoriCapaian)
-	kategoriCapaian.PUT("/:id", controller.UpdateKategoriCapaian)
-	kategoriCapaian.DELETE("/:id", controller.DeleteKategoriCapaian)
+	// kategoriCapaian.GET("", controller.GetAllKategoriCapaian)
+	// kategoriCapaian.GET("/:id", controller.GetKategoriCapaianById)
+	// kategoriCapaian.GET("/rentang-usia", controller.GetKategoriCapaianByRentangUsia)
+	// kategoriCapaian.POST("", controller.CreateKategoriCapaian)
+	// kategoriCapaian.PUT("/:id", controller.UpdateKategoriCapaian)
+	// kategoriCapaian.DELETE("/:id", controller.DeleteKategoriCapaian)
 
 	// Perkembangan Routes
 	perkembangan := e.Group("/perkembangan")
 	perkembangan.Use(middlewares.JWTAuth(controller.JWTSecret()))
-	perkembangan.GET("", controller.GetAllPerkembangan)
-	perkembangan.GET("/:id", controller.GetPerkembanganById)
-	perkembangan.GET("/anak/:anak_id", controller.GetPerkembanganByAnakId)
-	perkembangan.GET("/anak/:anak_id/kategori/:kategori_capaian_id", controller.GetPerkembanganByAnakIdAndKategoriId)
-	perkembangan.POST("", controller.CreatePerkembangan)
-	perkembangan.PUT("/:id", controller.UpdatePerkembangan)
-	perkembangan.DELETE("/:id", controller.DeletePerkembangan)
-	perkembangan.GET("/search", controller.SearchPerkembangan)
-
-	// ==================== Branch Andika ====================
+	// perkembangan.GET("", controller.GetAllPerkembangan)
+	// perkembangan.GET("/:id", controller.GetPerkembanganById)
+	// perkembangan.GET("/anak/:anak_id", controller.GetPerkembanganByAnakId)
+	// perkembangan.GET("/anak/:anak_id/kategori/:kategori_capaian_id", controller.GetPerkembanganByAnakIdAndKategoriId)
+	// perkembangan.POST("", controller.CreatePerkembangan)
+	// perkembangan.PUT("/:id", controller.UpdatePerkembangan)
+	// perkembangan.DELETE("/:id", controller.DeletePerkembangan)
+	// perkembangan.GET("/search", controller.SearchPerkembangan)
 
 	// Group untuk tenaga kesehatan (termasuk bidan, dokter, tenaga-kesehatan)
 	tenaga := e.Group("/tenaga-kesehatan")
@@ -158,6 +165,13 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	tenaga.POST("/Catatan-Pelayanan", controller.CatatanPelayanan.Create)
 	tenaga.PUT("/Catatan-Pelayanan/:id", controller.CatatanPelayanan.Update)
 	tenaga.DELETE("/Catatan-Pelayanan/:id", controller.CatatanPelayanan.Delete)
+
+	// ==================== LEMBAR PEMANTAUAN ANAK ====================
+	tenaga.GET("/lembar-pemantauan", controller.LembarPemantauan.GetByAnakID)
+	tenaga.GET("/lembar-pemantauan/:id", controller.LembarPemantauan.GetByID)
+	tenaga.POST("/lembar-pemantauan", controller.LembarPemantauan.Create)
+	tenaga.PUT("/lembar-pemantauan/:id", controller.LembarPemantauan.Update)
+	tenaga.DELETE("/lembar-pemantauan/:id", controller.LembarPemantauan.Delete)
 
 	// ==================== MODUL IBU & KEHAMILAN ====================
 	tenaga.POST("/ibu", controller.Ibu.Create)
@@ -364,59 +378,67 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 
 	// ========================================= MODUL IBU - KIA- Kel-3 =========================================
 
-	ibu := e.Group("/modul-ibu")
-	ibu.Use(middlewares.JWTAuth(controller.JWTSecret()))
-	ibu.Use(middlewares.Orangtua())
+	ibuk := e.Group("/modul-ibu")
+	ibuk.Use(middlewares.JWTAuth(controller.JWTSecret()))
+	ibuk.Use(middlewares.Ibu())
 
 	// Data Ibu
-	ibu.GET("/kehamilan-aktif", controller.Kehamilan.GetAktifForOrangtua)
+	ibuk.GET("/kehamilan-aktif", controller.Kehamilan.GetAktifForOrangtua)
 
 	// Evaluasi Kehamilan Ibu
-	ibu.GET("/evaluasi-kesehatan-ibu/me", controller.EvaluasiKesehatanIbu.GetMine)
-	ibu.GET("/evaluasi-kesehatan-ibu/:id", controller.EvaluasiKesehatanIbu.GetByIDForOrangtua)
+	ibuk.GET("/evaluasi-kesehatan-ibu/me", controller.EvaluasiKesehatanIbu.GetMine)
+	ibuk.GET("/evaluasi-kesehatan-ibu/:id", controller.EvaluasiKesehatanIbu.GetByIDForOrangtua)
 
 	// Pemeriksaan Kehamilan
-	ibu.GET("/pemeriksaan-kehamilan/me", controller.PemeriksaanKehamilan.GetMine)
-	ibu.GET("/pemeriksaan-kehamilan/:id", controller.PemeriksaanKehamilan.GetByIDForOrangtua)
+	ibuk.GET("/pemeriksaan-kehamilan/me", controller.PemeriksaanKehamilan.GetMine)
+	ibuk.GET("/pemeriksaan-kehamilan/:id", controller.PemeriksaanKehamilan.GetByIDForOrangtua)
 
 	// Skrining Preeklampsia
-	ibu.GET("/skrining-preeklampsia/me", controller.SkriningPreeklampsia.GetMine)
-	ibu.GET("/skrining-preeklampsia/:id", controller.SkriningPreeklampsia.GetByIDForOrangtua)
+	ibuk.GET("/skrining-preeklampsia/me", controller.SkriningPreeklampsia.GetMine)
+	ibuk.GET("/skrining-preeklampsia/:id", controller.SkriningPreeklampsia.GetByIDForOrangtua)
 
-	ibu.GET("/rujukan/:id", controller.Rujukan.GetByIDForOrangtua)
+	ibuk.GET("/rujukan/:id", controller.Rujukan.GetByIDForOrangtua)
 
 	// Pemeriksaan Dokter Trimester 1 & 3
-	ibu.GET("/pemeriksaan-dokter-trimester-1/me", controller.PemeriksaanDokterTrimester1.GetMine)
-	ibu.GET("/pemeriksaan-dokter-trimester-3/me", controller.PemeriksaanDokterTrimester3.GetMine)
+	ibuk.GET("/pemeriksaan-dokter-trimester-1/me", controller.PemeriksaanDokterTrimester1.GetMine)
+	ibuk.GET("/pemeriksaan-dokter-trimester-3/me", controller.PemeriksaanDokterTrimester3.GetMine)
 
 	// Log TTD MMS
-	ibu.GET("/log-ttd-mms/me", controller.LogTTDMMS.GetMine)
-	ibu.POST("/log-ttd-mms", controller.LogTTDMMS.SaveMine)
+	ibuk.GET("/log-ttd-mms/me", controller.LogTTDMMS.GetMine)
+	ibuk.POST("/log-ttd-mms", controller.LogTTDMMS.SaveMine)
 
 	// Pemantauan Ibu Hamil
-	ibu.GET("/pemantauan-ibu-hamil/me", controller.PemantauanIbuHamil.GetMine)
-	ibu.POST("/pemantauan-ibu-hamil", controller.PemantauanIbuHamil.SaveMine)
+	ibuk.GET("/pemantauan-ibu-hamil/me", controller.PemantauanIbuHamil.GetMine)
+	ibuk.POST("/pemantauan-ibu-hamil", controller.PemantauanIbuHamil.SaveMine)
 
 	// Persiapan Melahirkan
-	ibu.GET("/persiapan-melahirkan/me", controller.PersiapanMelahirkan.GetMine)
-	ibu.POST("/persiapan-melahirkan", controller.PersiapanMelahirkan.SaveMine)
+	ibuk.GET("/persiapan-melahirkan/me", controller.PersiapanMelahirkan.GetMine)
+	ibuk.POST("/persiapan-melahirkan", controller.PersiapanMelahirkan.SaveMine)
 
 	// Proses Melahirkan
-	ibu.GET("/proses-melahirkan/me", controller.ProsesMelahirkan.GetMine)
-	ibu.POST("/proses-melahirkan", controller.ProsesMelahirkan.SaveMine)
+	ibuk.GET("/proses-melahirkan/me", controller.ProsesMelahirkan.GetMine)
+	ibuk.POST("/proses-melahirkan", controller.ProsesMelahirkan.SaveMine)
 
 	// Absensi Kelas Ibu Hamil
-	ibu.GET("/absensi-kelas-ibu-hamil/me", controller.AbsensiKelasIbuHamil.GetMine)
-	ibu.POST("/absensi-kelas-ibu-hamil", controller.AbsensiKelasIbuHamil.SaveMine)
+	ibuk.GET("/absensi-kelas-ibu-hamil/me", controller.AbsensiKelasIbuHamil.GetMine)
+	ibuk.POST("/absensi-kelas-ibu-hamil", controller.AbsensiKelasIbuHamil.SaveMine)
 
 	// Checklist Pemantauan Ibu Nifas
-	ibu.GET("/checklist-pemantauan-ibu-nifas/me", controller.ChecklistPemantauanIbuNifas.GetMine)
-	ibu.POST("/checklist-pemantauan-ibu-nifas", controller.ChecklistPemantauanIbuNifas.SaveMine)
-	ibu.GET("/checklist-pemantauan-ibu-nifas/filled-days", controller.ChecklistPemantauanIbuNifas.GetFilledDays)
+	ibuk.GET("/checklist-pemantauan-ibu-nifas/me", controller.ChecklistPemantauanIbuNifas.GetMine)
+	ibuk.POST("/checklist-pemantauan-ibu-nifas", controller.ChecklistPemantauanIbuNifas.SaveMine)
+	ibuk.GET("/checklist-pemantauan-ibu-nifas/filled-days", controller.ChecklistPemantauanIbuNifas.GetFilledDays)
 
 	// ==================== CATATAN PELAYANAN IBU (READ ONLY) ====================
-	ibu.GET("/catatan-pelayanan-t1", controller.CatatanPelayananTrimester1.GetByKehamilanID)
-	ibu.GET("/catatan-pelayanan-t2", controller.CatatanPelayananTrimester2.GetByKehamilanID)
-	ibu.GET("/catatan-pelayanan-t3", controller.CatatanPelayananTrimester3.GetByKehamilanID)
-	ibu.GET("/rujukan", controller.Rujukan.GetByKehamilanID)
+	ibuk.GET("/catatan-pelayanan-t1", controller.CatatanPelayananTrimester1.GetByKehamilanID)
+	ibuk.GET("/catatan-pelayanan-t2", controller.CatatanPelayananTrimester2.GetByKehamilanID)
+	ibuk.GET("/catatan-pelayanan-t3", controller.CatatanPelayananTrimester3.GetByKehamilanID)
+	ibuk.GET("/rujukan", controller.Rujukan.GetByKehamilanID)
+
+	ibu := e.Group("/ibu")
+	ibu.Use(middlewares.JWTAuth(controller.JWTSecret()))
+	ibu.Use(middlewares.Ibu())
+	ibu.GET("/anak", controller.Ibu.GetAnakSaya)
+	ibu.POST("/lembar-pemantauan", controller.LembarPemantauan.CreateForIbu)
+	ibu.GET("/lembar-pemantauan", controller.LembarPemantauan.GetByAnakIDForIbu)
+
 }

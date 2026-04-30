@@ -82,6 +82,23 @@ func (c *IbuController) GetAll(ctx echo.Context) error {
 	})
 }
 
+func (c *IbuController) GetAnakSaya(ctx echo.Context) error {
+	claims, _ := ctx.Get("auth_claims").(*models.AuthClaims)
+	if claims == nil {
+		return ctx.JSON(http.StatusUnauthorized, models.Response{StatusCode: http.StatusUnauthorized, Message: "Unauthorized"})
+	}
+
+	list, err := c.usecase.GetAnakSaya(claims.UserID)
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, models.Response{
+			StatusCode: http.StatusInternalServerError,
+			Message:    err.Error(),
+		})
+	}
+
+	return ctx.JSON(http.StatusOK, models.Response{StatusCode: http.StatusOK, Data: list})
+}
+
 func (c *IbuController) Update(ctx echo.Context) error {
 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 32)
 	if err != nil {
