@@ -82,56 +82,99 @@ class _NifasScreenState extends State<NifasScreen> {
   Widget build(BuildContext context) {
     final progress = filledDays.length / 42;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          "Menu Nifas",
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 16),
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _topHeader(),
+          const SizedBox(height: 18),
+          _summaryCard(progress),
+          const SizedBox(height: 18),
+          _menuCard(
+            title: "Checklist Pemantauan Ibu Nifas",
+            subtitle: "Isi checklist Nifas A dan B satu kali setiap hari",
+            icon: Icons.checklist_rounded,
+            color: const Color(0xFF2563EB),
+            onTap: _openChecklist,
+          ),
+          const SizedBox(height: 20),
+          const Text(
+            "Riwayat Pengisian Harian",
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w800,
+              color: Color(0xFF172033),
+            ),
+          ),
+          const SizedBox(height: 12),
+          _filledDaysView(),
+        ],
+      ),
+    );
+  }
 
-        _summaryCard(progress),
-
-        const SizedBox(height: 16),
-
-        _menuCard(
-          title: "Checklist Pemantauan Ibu Nifas",
-          subtitle: "Isi checklist Nifas A dan B satu kali setiap hari",
-          icon: Icons.checklist_rounded,
-          color: Colors.blue,
-          onTap: _openChecklist,
-        ),
-
-        const SizedBox(height: 18),
-
-        const Text(
-          "Riwayat Pengisian",
-          style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 10),
-
-        _filledDaysView(),
-      ],
+  Widget _topHeader() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: const Color(0xFFEFF6FF),
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: const Color(0xFFBFDBFE)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 52,
+            height: 52,
+            decoration: BoxDecoration(
+              color: const Color(0xFFDBEAFE),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: const Icon(
+              Icons.favorite_outline,
+              color: Color(0xFF2563EB),
+              size: 28,
+            ),
+          ),
+          const SizedBox(width: 14),
+          const Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Pemantauan Masa Nifas",
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
+                ),
+                SizedBox(height: 4),
+                Text(
+                  "Pantau kondisi ibu selama 42 hari setelah persalinan",
+                  style: TextStyle(fontSize: 12, color: Color(0xFF7B8798)),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
   Widget _summaryCard(double progress) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Colors.blue.shade700, Colors.blue.shade400],
+        gradient: const LinearGradient(
+          colors: [Color(0xFF2563EB), Color(0xFF3B82F6)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.blue.withOpacity(0.15),
-            blurRadius: 12,
-            offset: const Offset(0, 6),
+            color: Colors.blue.withOpacity(0.14),
+            blurRadius: 14,
+            offset: const Offset(0, 7),
           ),
         ],
       ),
@@ -139,30 +182,34 @@ class _NifasScreenState extends State<NifasScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            "Pemantauan Masa Nifas",
+            "Progress Pengisian Checklist",
             style: TextStyle(
               color: Colors.white,
-              fontSize: 18,
+              fontSize: 17,
               fontWeight: FontWeight.bold,
             ),
           ),
           const SizedBox(height: 6),
           const Text(
-            "Checklist diisi sekali sehari selama 42 hari masa nifas.",
+            "Checklist diisi sekali sehari selama masa nifas berlangsung.",
             style: TextStyle(color: Colors.white70, fontSize: 12),
           ),
           const SizedBox(height: 16),
           LinearProgressIndicator(
             value: progress,
-            backgroundColor: Colors.white.withOpacity(0.25),
+            backgroundColor: Colors.white24,
             color: Colors.white,
             minHeight: 8,
             borderRadius: BorderRadius.circular(20),
           ),
           const SizedBox(height: 8),
           Text(
-            "${filledDays.length}/42 hari sudah diisi",
-            style: const TextStyle(color: Colors.white, fontSize: 12),
+            "${filledDays.length}/42 hari telah diisi",
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ],
       ),
@@ -194,7 +241,9 @@ class _NifasScreenState extends State<NifasScreen> {
       );
     }
 
-    return Wrap(
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 28),
+      child: Wrap(
       spacing: 8,
       runSpacing: 8,
       children: filledDays.map((day) {
@@ -205,6 +254,7 @@ class _NifasScreenState extends State<NifasScreen> {
           side: BorderSide(color: Colors.blue.shade100),
         );
       }).toList(),
+    ),
     );
   }
 
@@ -215,25 +265,52 @@ class _NifasScreenState extends State<NifasScreen> {
     required Color color,
     required VoidCallback onTap,
   }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 10),
-        ],
-      ),
-      child: ListTile(
-        contentPadding: const EdgeInsets.all(20),
-        leading: CircleAvatar(
-          backgroundColor: color.withOpacity(0.12),
-          child: Icon(icon, color: color),
+    return InkWell(
+      borderRadius: BorderRadius.circular(22),
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(22),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 10,
+            ),
+          ],
         ),
-        title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-        subtitle: Text(subtitle),
-        trailing: const Icon(Icons.chevron_right),
-        onTap: onTap,
+        child: Row(
+          children: [
+            Container(
+              width: 50,
+              height: 50,
+              decoration: BoxDecoration(
+                color: const Color(0xFFDBEAFE),
+                borderRadius: BorderRadius.circular(15),
+              ),
+              child: Icon(icon, color: color),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    style: const TextStyle(fontSize: 12, color: Color(0xFF7B8798)),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(Icons.chevron_right),
+          ],
+        ),
       ),
     );
   }

@@ -4,13 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:ta_pa2_pa3_project/core/services/auth_session.dart';
 import 'package:ta_pa2_pa3_project/features/hamil/data/models/kehamilan_api_service.dart';
+import 'catatan_pelayanan_t3_detail_screen.dart';
 
 class CatatanPelayananT3Screen extends StatefulWidget {
   const CatatanPelayananT3Screen({super.key});
 
   @override
-  State<CatatanPelayananT3Screen> createState() =>
-      _CatatanPelayananT3ScreenState();
+  State<CatatanPelayananT3Screen> createState() => _CatatanPelayananT3ScreenState();
 }
 
 class _CatatanPelayananT3ScreenState extends State<CatatanPelayananT3Screen> {
@@ -28,19 +28,13 @@ class _CatatanPelayananT3ScreenState extends State<CatatanPelayananT3Screen> {
   Future<void> _loadCatatan() async {
     try {
       final token = AuthSession.token;
-      if (token == null || token.isEmpty) {
-        throw Exception("Token tidak ditemukan");
-      }
+      if (token == null || token.isEmpty) throw Exception("Token tidak ditemukan");
 
       final kehamilan = await _kehamilanService.getKehamilanAktif();
 
       final response = await http.get(
-        Uri.parse(
-          "http://localhost:8080/modul-ibu/catatan-pelayanan-t3?kehamilan_id=${kehamilan.id}",
-        ),
-        headers: {
-          "Authorization": "Bearer $token",
-        },
+        Uri.parse("http://localhost:8080/modul-ibu/catatan-pelayanan-t3?kehamilan_id=${kehamilan.id}"),
+        headers: {"Authorization": "Bearer $token"},
       );
 
       final body = jsonDecode(response.body);
@@ -55,11 +49,9 @@ class _CatatanPelayananT3ScreenState extends State<CatatanPelayananT3Screen> {
       }
     } catch (e) {
       if (!mounted) return;
-
       setState(() => isLoading = false);
-
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.toString()), backgroundColor: Colors.red),
+        SnackBar(content: Text(e.toString())),
       );
     }
   }
@@ -72,72 +64,138 @@ class _CatatanPelayananT3ScreenState extends State<CatatanPelayananT3Screen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF1F5F9),
-      appBar: AppBar(
-        title: const Text("Catatan Pelayanan T3"),
-        backgroundColor: Colors.blue,
-        foregroundColor: Colors.white,
-      ),
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : catatan.isEmpty
-              ? const Center(child: Text("Belum ada catatan pelayanan T3"))
-              : ListView.builder(
-                  padding: const EdgeInsets.all(18),
-                  itemCount: catatan.length,
-                  itemBuilder: (context, index) {
-                    final item = catatan[index];
+      backgroundColor: const Color(0xFFF4F8FF),
+      body: Column(
+        children: [
+          _buildHeader(context),
+          Expanded(
+            child: isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : catatan.isEmpty
+                    ? const Center(child: Text("Belum ada catatan pelayanan trimester 3"))
+                    : ListView.builder(
+                        padding: const EdgeInsets.all(20),
+                        itemCount: catatan.length,
+                        itemBuilder: (context, index) {
+                          final item = catatan[index];
 
-                    return _card(item);
-                  },
-                ),
+                          return InkWell(
+                            borderRadius: BorderRadius.circular(22),
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => CatatanPelayananT3DetailScreen(data: item),
+                                ),
+                              );
+                            },
+                            child: Container(
+                              margin: const EdgeInsets.only(bottom: 16),
+                              padding: const EdgeInsets.all(18),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(22),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.04),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 5),
+                                  ),
+                                ],
+                              ),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 52,
+                                    height: 52,
+                                    decoration: BoxDecoration(
+                                      color: Colors.blue.shade50,
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                    child: const Icon(Icons.medical_information_outlined, color: Color(0xFF2563EB)),
+                                  ),
+                                  const SizedBox(width: 14),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Catatan Bidan ANC ${index + 1}',
+                                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          'Tanggal periksa: ${_dateText(item['tanggal_periksa_stamp_paraf'])}',
+                                          style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        const Text(
+                                          'Ketuk untuk melihat detail pemeriksaan',
+                                          style: TextStyle(fontSize: 11, color: Color(0xFF2563EB)),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const Icon(Icons.chevron_right, color: Colors.grey),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _card(dynamic item) {
+  Widget _buildHeader(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 14),
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8),
-        ],
+      width: double.infinity,
+      padding: const EdgeInsets.only(top: 55, left: 20, right: 20, bottom: 28),
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Color(0xFF2563EB), Color(0xFF3B82F6)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(28),
+          bottomRight: Radius.circular(28),
+        ),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          _label("Tanggal Periksa"),
-          const SizedBox(height: 4),
-          Text(
-            _dateText(item["tanggal_periksa_stamp_paraf"]),
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: Colors.blue.shade700,
+          InkWell(
+            onTap: () => Navigator.pop(context),
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: const BoxDecoration(
+                color: Colors.white24,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 18),
             ),
           ),
-          const SizedBox(height: 14),
-          _label("Keluhan / Pemeriksaan / Tindakan / Saran"),
-          const SizedBox(height: 6),
-          Text(
-            item["keluhan_pemeriksaan_tindakan_saran"] ?? "-",
-            style: const TextStyle(fontSize: 14),
-          ),
-          const SizedBox(height: 14),
-          Text(
-            "Tanggal kembali: ${_dateText(item["tanggal_kembali"])}",
-            style: const TextStyle(fontSize: 12, color: Colors.black54),
+          const SizedBox(width: 14),
+          const Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Catatan Pelayanan Trimester 3",
+                  style: TextStyle(color: Colors.white, fontSize: 19, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 4),
+                Text(
+                  "Riwayat hasil pemeriksaan bidan",
+                  style: TextStyle(color: Colors.white70, fontSize: 12),
+                ),
+              ],
+            ),
           ),
         ],
       ),
-    );
-  }
-
-  Widget _label(String text) {
-    return Text(
-      text,
-      style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
     );
   }
 }

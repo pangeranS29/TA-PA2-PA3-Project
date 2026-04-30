@@ -1,23 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:ta_pa2_pa3_project/core/themes/app_theme.dart';
-// import 'package:ta_pa2_pa3_project/features/hamil/presentation/screens/anc_form_t1_screen.dart';
-// import 'package:ta_pa2_pa3_project/features/hamil/presentation/screens/anc_form_t2_screen.dart';
-// import 'package:ta_pa2_pa3_project/features/hamil/presentation/screens/anc_form_t3_screen.dart';
-
-// NEW M
 import 'package:ta_pa2_pa3_project/features/hamil/data/models/kehamilan_aktif_model.dart';
 import 'hasil_evaluasi_kesehatan_screen.dart';
 import 'package:ta_pa2_pa3_project/features/hamil/presentation/screens/trimester_menu_screen.dart';
 import 'package:ta_pa2_pa3_project/features/hamil/presentation/screens/proses_melahirkan_screens.dart';
 import 'package:ta_pa2_pa3_project/features/hamil/presentation/screens/absensi_kelas_ibu_hamil_screen.dart';
-import 'package:ta_pa2_pa3_project/features/hamil/presentation/screens/log_ttd_mms_screen.dart';
+import 'package:ta_pa2_pa3_project/features/edukasi/presentation/screens/edukasi_explore_screen.dart';
 
-// class JourneyScreen extends StatefulWidget {
-//   @override
-//   _JourneyScreenState createState() => _JourneyScreenState();
-// }
-
-// NEW M
 class JourneyScreen extends StatefulWidget {
   final KehamilanAktifModel kehamilan;
 
@@ -31,21 +20,17 @@ class JourneyScreen extends StatefulWidget {
 }
 
 class _JourneyScreenState extends State<JourneyScreen> {
-  // --- VARIABEL DINAMIS ---
-  // int currentWeek = 24; // Usia kehamilan saat ini
-  late int currentWeek; // NEW M
+  late int currentWeek;
+  final int totalWeeks = 40;
+  int completedTrimester = 0;
+  int _selectedNavIndex = 0;
+
   @override
   void initState() {
     super.initState();
     currentWeek = widget.kehamilan.ukKehamilanSaatIni;
   }
 
-  final int totalWeeks = 40;
-  
-  // Status Trimester yang sudah selesai (0: Belum ada, 1: T1 Selesai, 2: T2 Selesai)
-  int completedTrimester = 0; 
-
-  // --- LOGIKA PERHITUNGAN OTOMATIS ---
   String get currentTrimesterLabel {
     if (currentWeek <= 12) return "Trimester I";
     if (currentWeek <= 27) return "Trimester II";
@@ -56,289 +41,175 @@ class _JourneyScreenState extends State<JourneyScreen> {
 
   String _formatDate(DateTime? date) {
     if (date == null) return '-';
-    final months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
-      'Jul', 'Agt', 'Sep', 'Okt', 'Nov', 'Des'
-    ];
+    final months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agt', 'Sep', 'Okt', 'Nov', 'Des'];
     return '${date.day} ${months[date.month - 1]} ${date.year}';
   }
 
   @override
   Widget build(BuildContext context) {
+    Widget body = ListView(
+      padding: EdgeInsets.zero,
+      children: [
+        _buildStatusHeader(),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+          child: Column(
+            children: [
+              _buildJourneyStep(
+                trimester: 1,
+                title: "Trimester I",
+                desc: "Ukuran Plum · ±5 cm",
+                weeks: "Minggu 1-12",
+                status: TrimesterStatus.active,
+              ),
+              _buildJourneyStep(
+                trimester: 2,
+                title: "Trimester II",
+                desc: "Ukuran Pepaya · ±30 cm",
+                weeks: "Minggu 13-27",
+                status: TrimesterStatus.active,
+              ),
+              _buildJourneyStep(
+                trimester: 3,
+                title: "Trimester III",
+                desc: "Ukuran Semangka · ±48 cm",
+                weeks: "Minggu 28-40",
+                status: TrimesterStatus.active,
+              ),
+              const SizedBox(height: 8),
+              InkWell(
+                borderRadius: BorderRadius.circular(18),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const HasilEvaluasiKesehatanScreen(),
+                    ),
+                  );
+                },
+                child: Container(
+                  margin: const EdgeInsets.only(bottom: 14),
+                  padding: const EdgeInsets.all(18),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(color: const Color(0xFFB7DBFF), width: 1.2),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.04),
+                        blurRadius: 12,
+                        offset: const Offset(0, 6),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 52,
+                        height: 52,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFEAF4FF),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.assignment_outlined, color: Color(0xFF2F80ED), size: 28),
+                      ),
+                      const SizedBox(width: 14),
+                      const Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text("Evaluasi Kesehatan Ibu", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
+                            SizedBox(height: 6),
+                            Text("Lihat hasil evaluasi awal kehamilan", style: TextStyle(fontSize: 13, color: Colors.purple)),
+                          ],
+                        ),
+                      ),
+                      const Icon(Icons.chevron_right),
+                    ],
+                  ),
+                ),
+              ),
+              _buildBirthFeatureCard(
+                icon: Icons.summarize_outlined,
+                iconColor: const Color(0xFFE0A300),
+                iconBackground: const Color(0xFFFFF5D6),
+                title: "Ringkasan Pelayanan Proses Melahirkan",
+                subtitle: "Lihat ringkasan ibu bersalin, nifas, dan bayi saat lahir",
+                borderColor: const Color(0xFFFFE3A3),
+                onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const RingkasanPelayananProsesMelahirkanScreen()));
+                },
+              ),
+              const SizedBox(height: 14),
+              _buildBirthFeatureCard(
+                icon: Icons.history_edu_outlined,
+                iconColor: const Color(0xFF8B5CF6),
+                iconBackground: const Color(0xFFF3E8FF),
+                title: "Riwayat Proses Melahirkan",
+                subtitle: "Lihat cara melahirkan, tindakan, penolong, dan catatan pemeriksaan",
+                borderColor: const Color(0xFFE9D5FF),
+                onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const RiwayatProsesMelahirkanScreen()));
+                },
+              ),
+              const SizedBox(height: 14),
+              _buildBirthFeatureCard(
+                icon: Icons.child_friendly_outlined,
+                iconColor: const Color(0xFF10B981),
+                iconBackground: const Color(0xFFDFFBF0),
+                title: "Keterangan Lahir",
+                subtitle: "Lihat keterangan lahir bayi, data orang tua, dan tanda tangan",
+                borderColor: const Color(0xFFC7F2E0),
+                onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const KeteranganLahirScreen()));
+                },
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 40),
+      ],
+    );
+
+    if (_selectedNavIndex == 1) {
+      body = const AbsensiKelasIbuHamilScreen();
+    } else if (_selectedNavIndex == 2) {
+      body = const EdukasiExploreScreen();
+    }
+
     return Scaffold(
       backgroundColor: TrimesterTheme.background,
       appBar: AppBar(
-        // title: Column(
-        //   crossAxisAlignment: CrossAxisAlignment.start,
-        //   children: const [
-        //     Text("Pemeriksaan Kehamilan", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white)),
-        //     Text("Ibu Riyanthi · G2P1A0", style: TextStyle(fontSize: 12, color: Colors.white70)),
-        //   ],
-        // ),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              "Pemeriksaan Kehamilan",
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-                color: Colors.white,
-              ),
-            ),
-            Text(
-              "G${widget.kehamilan.gravida}P${widget.kehamilan.paritas}A${widget.kehamilan.abortus}",
-              style: const TextStyle(fontSize: 12, color: Colors.white70),
-            ),
+            const Text("Pemeriksaan Kehamilan", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white)),
+            Text("G${widget.kehamilan.gravida}P${widget.kehamilan.paritas}A${widget.kehamilan.abortus}", style: const TextStyle(fontSize: 12, color: Colors.white70)),
           ],
         ),
         backgroundColor: TrimesterTheme.t1Primary,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
-          onPressed: () => Navigator.pop(context), 
+          onPressed: () => Navigator.pop(context),
         ),
         actions: [
-          IconButton(icon: const Icon(Icons.notifications_none, color: Colors.white), onPressed: () {}),
-        ],
-      ),
-      // PERUBAHAN UTAMA: Gunakan ListView sebagai root agar semua elemen bisa di-scroll
-      body: ListView(
-        padding: EdgeInsets.zero, // Agar header biru menempel ke AppBar
-        children: [
-          _buildStatusHeader(), 
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-            child: Column(
-              children: [
-                InkWell(
-                  borderRadius: BorderRadius.circular(18),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const HasilEvaluasiKesehatanScreen(),
-                      ),
-                    );
-                  },
-                  child: Container(
-                    margin: const EdgeInsets.only(bottom: 24),
-                    padding: const EdgeInsets.all(18),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(18),
-                      border: Border.all(
-                        color: const Color(0xFFB7DBFF),
-                        width: 1.2,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.04),
-                          blurRadius: 12,
-                          offset: const Offset(0, 6),
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 52,
-                          height: 52,
-                          decoration: const BoxDecoration(
-                            color: Color(0xFFEAF4FF),
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(
-                            Icons.assignment_outlined,
-                            color: Color(0xFF2F80ED),
-                            size: 28,
-                          ),
-                        ),
-                        const SizedBox(width: 14),
-                        const Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Evaluasi Kesehatan Ibu",
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w800,
-                                ),
-                              ),
-                              SizedBox(height: 6),
-                              Text(
-                                "Lihat hasil evaluasi awal kehamilan",
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: Colors.purple,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const Icon(Icons.chevron_right),
-                      ],
-                    ),
-                  ),
-                ),
-
-
-                _buildBirthFeatureCard(
-                  icon: Icons.summarize_outlined,
-                  iconColor: const Color(0xFFE0A300),
-                  iconBackground: const Color(0xFFFFF5D6),
-                  title: "Ringkasan Pelayanan Proses Melahirkan",
-                  subtitle: "Lihat ringkasan ibu bersalin, nifas, dan bayi saat lahir",
-                  borderColor: const Color(0xFFFFE3A3),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const RingkasanPelayananProsesMelahirkanScreen(),
-                      ),
-                    );
-                  },
-                ),
-                const SizedBox(height: 14),
-
-                _buildBirthFeatureCard(
-                  icon: Icons.fact_check_outlined,
-                  iconColor: const Color(0xFFE0A300),
-                  iconBackground: const Color(0xFFFFF5D6),
-                  title: "Absensi Kelas Ibu Hamil",
-                  subtitle: "Isi tanggal hadir sampai 9 sesi dan paraf kader",
-                  borderColor: const Color(0xFFFFE3A3),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const AbsensiKelasIbuHamilScreen(),
-                      ),
-                    );
-                  },
-                ),
-                const SizedBox(height: 14),
-
-                _buildBirthFeatureCard(
-                  icon: Icons.medication_liquid_outlined,
-                  iconColor: const Color(0xFF2F80ED),
-                  iconBackground: const Color(0xFFEAF4FF),
-                  title: "Log TTD/MMS",
-                  subtitle: "Checklist harian minum tablet tambah darah atau MMS",
-                  borderColor: const Color(0xFFB7DBFF),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const LogTTDMMSScreen(),
-                      ),
-                    );
-                  },
-                ),
-                const SizedBox(height: 14),
-
-                _buildBirthFeatureCard(
-                  icon: Icons.history_edu_outlined,
-                  iconColor: const Color(0xFF8B5CF6),
-                  iconBackground: const Color(0xFFF3E8FF),
-                  title: "Riwayat Proses Melahirkan",
-                  subtitle: "Lihat cara melahirkan, tindakan, penolong, dan catatan pemeriksaan",
-                  borderColor: const Color(0xFFE9D5FF),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const RiwayatProsesMelahirkanScreen(),
-                      ),
-                    );
-                  },
-                ),
-                const SizedBox(height: 14),
-                _buildBirthFeatureCard(
-                  icon: Icons.child_friendly_outlined,
-                  iconColor: const Color(0xFF10B981),
-                  iconBackground: const Color(0xFFDFFBF0),
-                  title: "Keterangan Lahir",
-                  subtitle: "Lihat keterangan lahir bayi, data orang tua, dan tanda tangan",
-                  borderColor: const Color(0xFFC7F2E0),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const KeteranganLahirScreen(),
-                      ),
-                    );
-                  },
-                ),
-                const SizedBox(height: 24),
-
-                // _buildJourneyStep(
-                //   trimester: 1,
-                //   title: "Trimester I · ${completedTrimester >= 1 ? 'Selesai' : 'Sedang Berjalan'}",
-                //   desc: "Ukuran Plum · ±5 cm",
-                //   weeks: "Minggu 1-12",
-                //   status: completedTrimester >= 1 ? TrimesterStatus.completed : TrimesterStatus.active,
-                // ),
-                // _buildJourneyStep(
-                //   trimester: 2,
-                //   title: "Trimester II · ${completedTrimester >= 2 ? 'Selesai' : (completedTrimester >= 1 ? 'Sedang Berjalan' : 'Terkunci')}",
-                //   desc: "Ukuran Pepaya · ±30 cm",
-                //   weeks: "Minggu 13-27",
-                //   status: completedTrimester >= 2 ? TrimesterStatus.completed : 
-                //           (completedTrimester == 1 ? TrimesterStatus.active : TrimesterStatus.locked),
-                // ),
-                // _buildJourneyStep(
-                //   trimester: 3,
-                //   title: "Trimester III",
-                //   desc: "Ukuran Semangka · ±48 cm",
-                //   weeks: "Minggu 28-40",
-                //   status: completedTrimester >= 3 ? TrimesterStatus.completed :
-                //           (completedTrimester == 2 ? TrimesterStatus.active : TrimesterStatus.locked),
-                // ),
-
-                _buildJourneyStep(
-                  trimester: 1,
-                  title: "Trimester I",
-                  desc: "Ukuran Plum · ±5 cm",
-                  weeks: "Minggu 1-12",
-                  status: TrimesterStatus.active,
-                ),
-                _buildJourneyStep(
-                  trimester: 2,
-                  title: "Trimester II",
-                  desc: "Ukuran Pepaya · ±30 cm",
-                  weeks: "Minggu 13-27",
-                  status: TrimesterStatus.active,
-                ),
-                _buildJourneyStep(
-                  trimester: 3,
-                  title: "Trimester III",
-                  desc: "Ukuran Semangka · ±48 cm",
-                  weeks: "Minggu 28-40",
-                  status: TrimesterStatus.active,
-                ),
-
-              ],
-            ),
+          IconButton(
+            icon: const Icon(Icons.notifications_none, color: Colors.white, size: 26),
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Belum ada notifikasi')),
+              );
+            },
           ),
-          const SizedBox(height: 40), // Ruang tambahan di bawah agar tidak mentok
         ],
       ),
+      body: body,
       bottomNavigationBar: _buildBottomNav(),
     );
   }
 
-
-  Widget _buildBirthFeatureCard({
-    required IconData icon,
-    required Color iconColor,
-    required Color iconBackground,
-    required String title,
-    required String subtitle,
-    required Color borderColor,
-    required VoidCallback onTap,
-  }) {
+  Widget _buildBirthFeatureCard({required IconData icon, required Color iconColor, required Color iconBackground, required String title, required String subtitle, required Color borderColor, required VoidCallback onTap}) {
     return InkWell(
       borderRadius: BorderRadius.circular(18),
       onTap: onTap,
@@ -348,23 +219,14 @@ class _JourneyScreenState extends State<JourneyScreen> {
           color: Colors.white,
           borderRadius: BorderRadius.circular(18),
           border: Border.all(color: borderColor, width: 1.2),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.04),
-              blurRadius: 12,
-              offset: const Offset(0, 6),
-            ),
-          ],
+          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 12, offset: const Offset(0, 6))],
         ),
         child: Row(
           children: [
             Container(
               width: 52,
               height: 52,
-              decoration: BoxDecoration(
-                color: iconBackground,
-                shape: BoxShape.circle,
-              ),
+              decoration: BoxDecoration(color: iconBackground, shape: BoxShape.circle),
               child: Icon(icon, color: iconColor, size: 28),
             ),
             const SizedBox(width: 14),
@@ -372,22 +234,9 @@ class _JourneyScreenState extends State<JourneyScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
+                  Text(title, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800)),
                   const SizedBox(height: 6),
-                  Text(
-                    subtitle,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey.shade700,
-                      height: 1.35,
-                    ),
-                  ),
+                  Text(subtitle, style: TextStyle(fontSize: 12, color: Colors.grey.shade700, height: 1.35)),
                 ],
               ),
             ),
@@ -398,7 +247,6 @@ class _JourneyScreenState extends State<JourneyScreen> {
     );
   }
 
-  // --- WIDGET HELPER: HEADER DINAMIS ---
   Widget _buildStatusHeader() {
     return Container(
       width: double.infinity,
@@ -439,11 +287,7 @@ class _JourneyScreenState extends State<JourneyScreen> {
                     const Text("Minggu", style: TextStyle(color: Colors.white, fontSize: 20)),
                   ],
                 ),
-                // const Text("HPL: 15 Agustus 2025 • HPHT: 22 Oktober 2024", style: TextStyle(color: Colors.white70, fontSize: 11)),
-                Text(
-                  "HPL: ${_formatDate(widget.kehamilan.taksiranPersalinan)} • HPHT: ${_formatDate(widget.kehamilan.hpht)}",
-                  style: const TextStyle(color: Colors.white70, fontSize: 11),
-                ),
+                Text("HPL: ${_formatDate(widget.kehamilan.taksiranPersalinan)} • HPHT: ${_formatDate(widget.kehamilan.hpht)}", style: const TextStyle(color: Colors.white70, fontSize: 11)),
                 const SizedBox(height: 15),
                 LinearProgressIndicator(
                   value: progressValue,
@@ -470,25 +314,18 @@ class _JourneyScreenState extends State<JourneyScreen> {
     );
   }
 
-  // --- WIDGET HELPER: JOURNEY CARD ---
-  Widget _buildJourneyStep({
-    required int trimester, 
-    required String title, 
-    required String desc, 
-    required String weeks,
-    required TrimesterStatus status,
-  }) {
+  Widget _buildJourneyStep({required int trimester, required String title, required String desc, required String weeks, required TrimesterStatus status}) {
     bool isLocked = status == TrimesterStatus.locked;
     Color mainColor = TrimesterTheme.getThemeColor(trimester);
 
     return IntrinsicHeight(
       child: Row(
         children: [
-          // Timeline logic
           Column(
             children: [
               Container(
-                width: 24, height: 24,
+                width: 24,
+                height: 24,
                 decoration: BoxDecoration(
                   color: isLocked ? Colors.grey.shade300 : Colors.white,
                   shape: BoxShape.circle,
@@ -497,7 +334,8 @@ class _JourneyScreenState extends State<JourneyScreen> {
                 child: Center(
                   child: Icon(
                     isLocked ? Icons.lock : (status == TrimesterStatus.completed ? Icons.check : Icons.radio_button_checked),
-                    size: 14, color: isLocked ? Colors.white : mainColor,
+                    size: 14,
+                    color: isLocked ? Colors.white : mainColor,
                   ),
                 ),
               ),
@@ -505,7 +343,6 @@ class _JourneyScreenState extends State<JourneyScreen> {
             ],
           ),
           const SizedBox(width: 16),
-          // Content
           Expanded(
             child: Container(
               margin: const EdgeInsets.only(bottom: 24),
@@ -519,35 +356,18 @@ class _JourneyScreenState extends State<JourneyScreen> {
                 color: Colors.transparent,
                 child: InkWell(
                   borderRadius: BorderRadius.circular(20),
-                  // onTap: isLocked ? null : () async {
-                  //   Widget target = trimester == 1 ? AncFormT1Screen() : (trimester == 2 ? AncFormT2Screen() : AncFormT3Screen());
-                  //   final res = await Navigator.push(context, MaterialPageRoute(builder: (c) => target));
-                  //   if (res == true && completedTrimester < trimester) {
-                  //     setState(() => completedTrimester = trimester);
-                  //   }
-                  // },
                   onTap: isLocked ? null : () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (c) => TrimesterMenuScreen(trimester: trimester),
-                      ),
-                    );
+                    Navigator.push(context, MaterialPageRoute(builder: (c) => TrimesterMenuScreen(trimester: trimester)));
                   },
                   child: Padding(
                     padding: const EdgeInsets.all(20),
                     child: Row(
                       children: [
                         Container(
-                          width: 50, height: 50,
-                          decoration: BoxDecoration(
-                            color: isLocked ? Colors.grey.shade100 : mainColor.withOpacity(0.1),
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            isLocked ? Icons.lock_outline : (status == TrimesterStatus.completed ? Icons.verified_user : Icons.favorite),
-                            color: isLocked ? Colors.grey : mainColor, size: 26,
-                          ),
+                          width: 50,
+                          height: 50,
+                          decoration: BoxDecoration(color: isLocked ? Colors.grey.shade100 : mainColor.withOpacity(0.1), shape: BoxShape.circle),
+                          child: Icon(isLocked ? Icons.lock_outline : Icons.favorite, color: isLocked ? Colors.grey : mainColor, size: 26),
                         ),
                         const SizedBox(width: 16),
                         Expanded(
@@ -580,11 +400,15 @@ class _JourneyScreenState extends State<JourneyScreen> {
       type: BottomNavigationBarType.fixed,
       selectedItemColor: TrimesterTheme.t1Primary,
       unselectedItemColor: Colors.grey,
-      currentIndex: 0,
+      currentIndex: _selectedNavIndex,
+      onTap: (index) {
+        setState(() {
+          _selectedNavIndex = index;
+        });
+      },
       items: const [
         BottomNavigationBarItem(icon: Icon(Icons.home_filled), label: "Beranda"),
-        BottomNavigationBarItem(icon: Icon(Icons.assignment_outlined), label: "Catatan"),
-        BottomNavigationBarItem(icon: Icon(Icons.security_outlined), label: "Imunisasi"),
+        BottomNavigationBarItem(icon: Icon(Icons.event_available_outlined), label: "Absensi"),
         BottomNavigationBarItem(icon: Icon(Icons.book_outlined), label: "Edukasi"),
         BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: "Profil"),
       ],

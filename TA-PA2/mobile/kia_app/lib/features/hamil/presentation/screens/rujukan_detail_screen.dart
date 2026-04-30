@@ -8,129 +8,110 @@ class RujukanDetailScreen extends StatelessWidget {
     required this.data,
   });
 
-  String _value(String key) {
-    final value = data[key];
-    if (value == null || value.toString().isEmpty) return "-";
-    return value.toString();
+  String val(dynamic v) {
+    if (v == null || v.toString().isEmpty) return "-";
+    return v.toString();
   }
 
-  String _dateText(String key) {
-    final value = data[key];
-    if (value == null || value.toString().isEmpty) return "-";
-    return value.toString().split("T").first;
+  String dateVal(dynamic v) {
+    if (v == null || v.toString().isEmpty) return "-";
+    return v.toString().split("T").first;
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF1F5F9),
-      appBar: AppBar(
-        title: const Text("Detail Rujukan"),
-        backgroundColor: Colors.blue,
-        foregroundColor: Colors.white,
-      ),
-      body: ListView(
-        padding: const EdgeInsets.all(18),
-        children: [
-          Container(
-            padding: const EdgeInsets.all(18),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Colors.blue.shade700, Colors.blue.shade400],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(22),
-            ),
-            child: const Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(Icons.description_outlined, color: Colors.white, size: 34),
-                SizedBox(height: 12),
-                Text(
-                  "Surat Rekomendasi Rujukan",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                SizedBox(height: 6),
-                Text(
-                  "Detail rujukan dan rujukan balik dari tenaga kesehatan.",
-                  style: TextStyle(color: Colors.white70, fontSize: 13),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 18),
-
-          _section("Informasi Rujukan"),
-          _info("Resume pemeriksaan / tatalaksana", _value("rujukan_resume_pemeriksaan_tatalaksana")),
-          _info("Diagnosis akhir", _value("rujukan_diagnosis_akhir")),
-          _info("Alasan dirujuk ke FKRTL", _value("rujukan_alasan_dirujuk_ke_fkrtl")),
-
-          _section("Rujukan Balik"),
-          _info("Tanggal rujukan balik", _dateText("rujukan_balik_tanggal")),
-          _info("Diagnosis akhir rujukan balik", _value("rujukan_balik_diagnosis_akhir")),
-          _info("Resume pemeriksaan / tatalaksana rujukan balik", _value("rujukan_balik_resume_pemeriksaan_tatalaksana")),
-
-          _section("Anjuran"),
-          _info("Rekomendasi tempat melahirkan", _value("anjuran_rekomendasi_tempat_melahirkan")),
-        ],
-      ),
-    );
-  }
-
-  Widget _section(String title) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 10, bottom: 10),
-      child: Text(
-        title,
-        style: TextStyle(
-          color: Colors.blue.shade800,
-          fontWeight: FontWeight.bold,
-          fontSize: 15,
-        ),
-      ),
-    );
-  }
-
-  Widget _info(String label, String value) {
+  Widget infoCard({
+    required IconData icon,
+    required String title,
+    required List<Widget> children,
+  }) {
     return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.only(bottom: 18),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(22),
         boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 8,
-          ),
+          BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 10),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.grey.shade600,
-            ),
+          Row(
+            children: [
+              Container(
+                width: 46,
+                height: 46,
+                decoration: BoxDecoration(
+                  color: Colors.blue.shade50,
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Icon(icon, color: const Color(0xFF2563EB)),
+              ),
+              const SizedBox(width: 12),
+              Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            ],
           ),
-          const SizedBox(height: 6),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 14,
-              color: Colors.black87,
-              height: 1.35,
-            ),
-          ),
+          const SizedBox(height: 18),
+          ...children,
         ],
+      ),
+    );
+  }
+
+  Widget item(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
+          const SizedBox(height: 5),
+          Text(value, style: const TextStyle(fontSize: 13, height: 1.5, color: Colors.black87)),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF4F8FF),
+      appBar: AppBar(
+        title: const Text("Detail Surat Rujukan"),
+        backgroundColor: const Color(0xFF2563EB),
+        foregroundColor: Colors.white,
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(18),
+        child: Column(
+          children: [
+            infoCard(
+              icon: Icons.local_hospital_outlined,
+              title: "Informasi Rujukan",
+              children: [
+                item("Resume pemeriksaan / tatalaksana", val(data["rujukan_resume_pemeriksaan_tatalaksana"])),
+                item("Diagnosis akhir", val(data["rujukan_diagnosis_akhir"])),
+                item("Alasan dirujuk ke FKRTL", val(data["rujukan_alasan_dirujuk_ke_fkrtl"])),
+              ],
+            ),
+            infoCard(
+              icon: Icons.assignment_return_outlined,
+              title: "Rujukan Balik",
+              children: [
+                item("Tanggal rujukan balik", dateVal(data["rujukan_balik_tanggal"])),
+                item("Diagnosis akhir rujukan balik", val(data["rujukan_balik_diagnosis_akhir"])),
+                item("Resume pemeriksaan / tatalaksana balik", val(data["rujukan_balik_resume_pemeriksaan_tatalaksana"])),
+              ],
+            ),
+            infoCard(
+              icon: Icons.child_friendly_outlined,
+              title: "Anjuran Persalinan",
+              children: [
+                item("Rekomendasi tempat melahirkan", val(data["anjuran_rekomendasi_tempat_melahirkan"])),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

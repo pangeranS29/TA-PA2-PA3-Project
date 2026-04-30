@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../../core/themes/app_theme.dart';
-import '../widgets/edukasi_card.dart';
 import 'edukasi_detail_screen.dart';
 
 class EdukasiExploreScreen extends StatefulWidget {
@@ -11,206 +9,361 @@ class EdukasiExploreScreen extends StatefulWidget {
 }
 
 class _EdukasiExploreScreenState extends State<EdukasiExploreScreen> {
-  String _category = 'ibu'; // 'ibu' or 'anak'
+  String _category = 'ibu';
   String _sub = 'Kehamilan Trimester 1';
-  final Color _primary = TrimesterTheme.t1Primary;
+
+  final Color _primary = const Color(0xFF2563EB);
 
   final List<String> ibuSubs = [
     'Kehamilan Trimester 1',
     'Kehamilan Trimester 2',
     'Kehamilan Trimester 3',
-    'Kesehatan Jiwa Ibu Hamil',
-    'Inisiasi Menyusu Dini',
-    'Setelah Melahirkan',
-    'Menyusui dan ASI',
+    'Kesehatan Jiwa Ibu',
+    'Persiapan Persalinan',
+    'Masa Nifas',
+    'Menyusui & ASI',
   ];
 
-  // Mock data keyed by subcategory (simple)
-  final Map<String, List<Map<String,String>>> mock = {
+  final List<String> anakSubs = [
+    'Bayi 0-6 Bulan',
+    'Bayi 6-12 Bulan',
+    'Anak 1-3 Tahun',
+    'Tumbuh Kembang',
+    'Gizi Anak',
+  ];
+
+  final Map<String, List<Map<String, String>>> mock = {
     'Kehamilan Trimester 1': [
-      {'title':'Pengenalan Trimester 1','excerpt':'Apa yang perlu diketahui di trimester pertama.'},
-      {'title':'Nutrisi Awal Kehamilan','excerpt':'Nutrisi dan suplemen dasar.'},
+      {'title': 'Pengenalan Perubahan Awal Kehamilan', 'excerpt': 'Kenali perubahan tubuh ibu pada trimester pertama.'},
+      {'title': 'Nutrisi Penting di Awal Kehamilan', 'excerpt': 'Asupan gizi yang wajib dipenuhi untuk janin.'},
     ],
     'Kehamilan Trimester 2': [
-      {'title':'Nutrisi pada Trimester 2','excerpt':'Asupan zat besi, protein, dan sayur.'},
-      {'title':'Aktivitas Fisik Aman','excerpt':'Latihan ringan yang dianjurkan.'},
-      {'title':'Tanda Bahaya Trimester 2','excerpt':'Tanda bahaya yang mungkin muncul di trimester kedua.'},
+      {'title': 'Aktivitas Aman untuk Ibu Hamil', 'excerpt': 'Gerakan ringan dan aktivitas yang dianjurkan.'},
+      {'title': 'Tanda Bahaya Trimester Kedua', 'excerpt': 'Gejala yang harus segera dikonsultasikan.'},
     ],
     'Kehamilan Trimester 3': [
-      {'title':'Persiapan Persalinan','excerpt':'Tanda-tanda dan persiapan.'},
-      {'title':'Tanda Bahaya Trimester 3','excerpt':'Gejala yang mengindikasikan risiko pada trimester akhir.'},
+      {'title': 'Persiapan Menjelang Persalinan', 'excerpt': 'Hal yang perlu disiapkan sebelum melahirkan.'},
+      {'title': 'Pemantauan Gerak Janin', 'excerpt': 'Cara sederhana memantau gerakan bayi.'},
     ],
-    'Kesehatan Jiwa Ibu Hamil': [
-      {'title':'Mengenali Gangguan Mood','excerpt':'Cara deteksi dini dan rujukan.'},
+    'Kesehatan Jiwa Ibu': [
+      {'title': 'Menjaga Emosi Selama Hamil', 'excerpt': 'Pentingnya kesehatan mental selama kehamilan.'},
+      {'title': 'Mengelola Kecemasan Ibu', 'excerpt': 'Tips sederhana mengurangi rasa cemas.'},
     ],
-    'Inisiasi Menyusu Dini': [
-      {'title':'IMD: Manfaat dan Teknik','excerpt':'Langkah-langkah praktis IMD.'},
+    'Persiapan Persalinan': [
+      {'title': 'Tanda Persalinan Sudah Dekat', 'excerpt': 'Kenali sinyal tubuh sebelum persalinan.'},
+      {'title': 'Barang yang Harus Disiapkan', 'excerpt': 'Checklist perlengkapan ibu dan bayi.'},
     ],
-    'Setelah Melahirkan': [
-      {'title':'Pemulihan Pasca Persalinan','excerpt':'Perawatan diri dan bayi.'},
-      {'title':'Tanda Bahaya Persalinan / Nifas','excerpt':'Tanda bahaya persalinan dan nifas yang memerlukan tindakan cepat.'},
+    'Masa Nifas': [
+      {'title': 'Perawatan Ibu Setelah Melahirkan', 'excerpt': 'Panduan pemulihan selama masa nifas.'},
+      {'title': 'Tanda Bahaya Masa Nifas', 'excerpt': 'Kondisi yang perlu penanganan cepat.'},
     ],
-    'Menyusui dan ASI': [
-      {'title':'Teknik Menyusui Efektif','excerpt':'Posisi dan frekuensi menyusui.'},
+    'Menyusui & ASI': [
+      {'title': 'Teknik Menyusui yang Nyaman', 'excerpt': 'Posisi dan pelekatan yang benar.'},
+      {'title': 'Cara Menjaga Produksi ASI', 'excerpt': 'Tips sederhana agar ASI tetap lancar.'},
+    ],
+    'Bayi 0-6 Bulan': [
+      {'title': 'Perawatan Bayi Baru Lahir', 'excerpt': 'Hal penting yang harus diperhatikan ibu.'},
+      {'title': 'ASI Eksklusif untuk Bayi', 'excerpt': 'Manfaat dan jadwal pemberian ASI.'},
+    ],
+    'Bayi 6-12 Bulan': [
+      {'title': 'Memulai MPASI', 'excerpt': 'Waktu tepat dan menu awal MPASI.'},
+    ],
+    'Anak 1-3 Tahun': [
+      {'title': 'Stimulasi Bicara Anak', 'excerpt': 'Cara sederhana melatih komunikasi anak.'},
+    ],
+    'Tumbuh Kembang': [
+      {'title': 'Pantau Berat dan Tinggi Anak', 'excerpt': 'Cara membaca pertumbuhan anak.'},
+    ],
+    'Gizi Anak': [
+      {'title': 'Menu Seimbang untuk Anak', 'excerpt': 'Contoh makanan bergizi setiap hari.'},
     ],
   };
 
   @override
   Widget build(BuildContext context) {
+    final List<String> currentSubs = _category == 'ibu' ? ibuSubs : anakSubs;
+
+    if (!currentSubs.contains(_sub)) {
+      _sub = currentSubs.first;
+    }
+
+    final List<Map<String, String>> content = mock[_sub] ?? [];
+
     return Scaffold(
-      backgroundColor: TrimesterTheme.background,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        centerTitle: true,
-        title: const Text('Edukasi', style: TextStyle(color: Color(0xFF1E293B), fontWeight: FontWeight.w700)),
-        iconTheme: const IconThemeData(color: Color(0xFF1E293B)),
-        bottom: const PreferredSize(preferredSize: Size.fromHeight(1), child: Divider(height: 1, thickness: 1)),
+      backgroundColor: const Color(0xFFF4F8FF),
+      body: Column(
+        children: [
+          _buildHeader(context),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(18, 18, 18, 0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildCategorySelector(),
+                  const SizedBox(height: 18),
+                  _buildSubCategory(currentSubs),
+                  const SizedBox(height: 22),
+                  Text(
+                    _sub,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w800,
+                      color: Color(0xFF172033),
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: content.length,
+                      itemBuilder: (context, index) {
+                        final item = content[index];
+                        return _contentCard(
+                          title: item['title']!,
+                          excerpt: item['excerpt']!,
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Segmented category selector (Ibu / Anak)
-            Row(
+    );
+  }
+
+  Widget _buildHeader(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.only(top: 55, left: 20, right: 20, bottom: 28),
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Color(0xFF2563EB), Color(0xFF3B82F6)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(28),
+          bottomRight: Radius.circular(28),
+        ),
+      ),
+      child: Row(
+        children: [
+          InkWell(
+            onTap: () => Navigator.pop(context),
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: const BoxDecoration(
+                color: Colors.white24,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 18),
+            ),
+          ),
+          const SizedBox(width: 14),
+          const Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _categoryButton('ibu', 'Ibu'),
-                const SizedBox(width: 12),
-                _categoryButton('anak', 'Anak'),
+                Text(
+                  "Edukasi Kesehatan",
+                  style: TextStyle(color: Colors.white, fontSize: 19, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 4),
+                Text(
+                  "Informasi kesehatan ibu dan anak",
+                  style: TextStyle(color: Colors.white70, fontSize: 12),
+                ),
               ],
             ),
-            const SizedBox(height: 14),
+          ),
+        ],
+      ),
+    );
+  }
 
-            // If Ibu show subcategory scroller & list
-            if (_category == 'ibu') ...[
-              SizedBox(
-                height: 44,
-                child: ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: ibuSubs.length,
-                  separatorBuilder: (_, __) => const SizedBox(width: 10),
-                  itemBuilder: (context, idx) {
-                    final s = ibuSubs[idx];
-                    final selected = s == _sub;
-                    return GestureDetector(
-                      onTap: () => setState(() => _sub = s),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: selected ? Colors.white : Colors.white,
-                          borderRadius: BorderRadius.circular(22),
-                          border: Border.all(color: selected ? _primary : Colors.grey.shade300, width: selected ? 2 : 1),
-                          boxShadow: selected ? [BoxShadow(color: _primary.withOpacity(0.06), blurRadius: 8, offset: const Offset(0,2))] : null,
-                        ),
-                        child: Center(
-                          child: Text(s, style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
-                            color: selected ? _primary : const Color(0xFF374151),
-                          )),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-              const SizedBox(height: 12),
+  Widget _buildCategorySelector() {
+    return Row(
+      children: [
+        _segmentButton('ibu', 'Edukasi Ibu'),
+        const SizedBox(width: 10),
+        _segmentButton('anak', 'Edukasi Anak'),
+      ],
+    );
+  }
 
-              // List label
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 6),
-                child: Text(_sub, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
-              ),
+  Widget _segmentButton(String key, String label) {
+    final active = _category == key;
 
-              // Cards list (mock)
-              Expanded(
-                child: Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14)),
-                  child: ListView.separated(
-                    itemCount: mock[_sub]?.length ?? 0,
-                    separatorBuilder: (_, __) => const SizedBox(height: 10),
-                    itemBuilder: (context, idx) {
-                      final item = mock[_sub]![idx];
-                      return EdukasiCard(
-                        title: item['title']!,
-                        excerpt: item['excerpt']!,
-                        tag: _sub,
-                        primaryColor: _primary,
-                        onTap: () {
-                          final String title = item['title']!;
-                          final String type = 'ARTIKEL';
-                          final String ageText = 'Ibu Hamil';
-                          final String durationText = '5 Menit Baca';
-                          final bool isVideo = false;
-                          final String heroTag = 'edukasi-article-${title.toLowerCase().replaceAll(' ', '-') }';
-                          final Color topBgColor = _primary.withOpacity(0.12);
-                          final Color typeColor = _primary;
-                          final Color typeBgColor = _primary.withOpacity(0.12);
-
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => EdukasiDetailScreen(
-                                type: type,
-                                ageText: ageText,
-                                durationText: durationText,
-                                title: title,
-                                heroTag: heroTag,
-                                isVideo: isVideo,
-                                topBgColor: topBgColor,
-                                typeColor: typeColor,
-                                typeBgColor: typeBgColor,
-                              ),
-                            ),
-                          );
-                        },
-                      );
-                    },
-                  ),
-                ),
+    return Expanded(
+      child: InkWell(
+        onTap: () {
+          setState(() {
+            _category = key;
+            _sub = key == 'ibu' ? ibuSubs.first : anakSubs.first;
+          });
+        },
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          height: 44,
+          decoration: BoxDecoration(
+            color: active ? _primary : Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: active ? _primary : const Color(0xFFD9E2F2)),
+          ),
+          child: Center(
+            child: Text(
+              label,
+              style: TextStyle(
+                color: active ? Colors.white : const Color(0xFF64748B),
+                fontWeight: FontWeight.w700,
               ),
-            ] else ...[
-              // Anak: placeholder UI only (no data)
-              const SizedBox(height: 6),
-              Expanded(
-                child: Container(
-                  width: double.infinity,
-                  decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14)),
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.child_care, size: 56, color: _primary.withOpacity(0.9)),
-                      const SizedBox(height: 16),
-                      Text('Konten Edukasi untuk Anak', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
-                      const SizedBox(height: 8),
-                      Text('UI placeholder — belum ada konten. Tim backend akan menambahkan data nanti.', textAlign: TextAlign.center, style: TextStyle(color: Colors.grey.shade600)),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ],
+            ),
+          ),
         ),
       ),
     );
   }
 
-  Widget _categoryButton(String key, String label) {
-    final bool active = _category == key;
-    return Expanded(
-      child: GestureDetector(
-        onTap: () => setState(() => _category = key),
-        child: Container(
-          height: 40,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: active ? _primary : Colors.grey.shade300, width: active ? 2 : 1),
+  Widget _buildSubCategory(List<String> subs) {
+    return SizedBox(
+      height: 42,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: subs.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 10),
+        itemBuilder: (context, index) {
+          final item = subs[index];
+          final active = _sub == item;
+
+          return InkWell(
+            onTap: () {
+              setState(() {
+                _sub = item;
+              });
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              decoration: BoxDecoration(
+                color: active ? const Color(0xFFEFF6FF) : Colors.white,
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(
+                  color: active ? _primary : const Color(0xFFDCE6F5),
+                ),
+              ),
+              child: Center(
+                child: Text(
+                  item,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: active ? _primary : const Color(0xFF64748B),
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _contentCard({
+    required String title,
+    required String excerpt,
+  }) {
+    final heroTag = title.toLowerCase().replaceAll(' ', '-');
+
+    return InkWell(
+      borderRadius: BorderRadius.circular(22),
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => EdukasiDetailScreen(
+              type: 'ARTIKEL',
+              ageText: _category == 'ibu' ? 'Ibu' : 'Anak',
+              durationText: '5 Menit Baca',
+              title: title,
+              heroTag: heroTag,
+              isVideo: false,
+              topBgColor: const Color(0xFFEFF6FF),
+              typeColor: _primary,
+              typeBgColor: const Color(0xFFEFF6FF),
+            ),
           ),
-          child: Center(child: Text(label, style: TextStyle(color: active ? _primary : const Color(0xFF6B7280), fontWeight: active ? FontWeight.w700 : FontWeight.w600))),
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 14),
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(22),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.035),
+              blurRadius: 10,
+              offset: const Offset(0, 5),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 52,
+              height: 52,
+              decoration: BoxDecoration(
+                color: const Color(0xFFEFF6FF),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: const Icon(Icons.menu_book_rounded, color: Color(0xFF2563EB)),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFEFF6FF),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Text(
+                      "ARTIKEL",
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w800,
+                        color: Color(0xFF2563EB),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w800,
+                      fontSize: 14,
+                      color: Color(0xFF172033),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    excerpt,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Color(0xFF7B8798),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            const Icon(Icons.chevron_right, color: Colors.grey),
+          ],
         ),
       ),
     );
