@@ -8,6 +8,15 @@ import {
   listEdukasi,
   updateEdukasi,
 } from "../../services/edukasiDigital";
+import { 
+  Pencil, 
+  Trash2, 
+  Plus, 
+  RefreshCw, 
+  BookOpen, 
+  Image as ImageIcon,
+  ChevronRight
+} from "lucide-react";
 
 const emptyForm = {
   judul: "",
@@ -20,6 +29,9 @@ const emptyForm = {
 
 const guessId = (item) =>
   item?.id ?? item?.ID ?? item?.id_edukasi ?? item?.id_informasi ?? null;
+
+const guessImage = (item) => 
+  item?.gambar_url ?? item?.GambarURL ?? item?.image_url ?? item?.image ?? "";
 
 export default function EdukasiDigitalCrudPage({
   title,
@@ -278,22 +290,23 @@ export default function EdukasiDigitalCrudPage({
                   setEditingId(null);
                   setShowForm(true);
                 }}
-                className="px-3 py-2 rounded-lg bg-blue-600 text-white text-xs font-semibold hover:bg-blue-700 shadow-lg shadow-blue-100"
+                className="px-4 py-2 rounded-xl bg-blue-600 text-white text-sm font-bold hover:bg-blue-700 shadow-lg shadow-blue-100 flex items-center gap-2 transition-all active:scale-95"
               >
-                + Tambah Konten
+                <Plus size={18} /> Tambah Konten
               </button>
               <button
                 type="button"
                 onClick={loadData}
                 disabled={loading}
-                className="px-3 py-2 rounded-lg bg-slate-100 text-slate-700 text-xs font-semibold"
+                className="p-2 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors"
+                title="Refresh"
               >
-                {loading ? "Memuat..." : "Refresh"}
+                <RefreshCw size={18} className={loading ? "animate-spin" : ""} />
               </button>
             </div>
           </div>
 
-          <div className="space-y-3">
+          <div className="grid grid-cols-1 gap-4">
             {sortedRows.length === 0 && !loading ? (
               <p className="text-sm text-slate-500">Belum ada konten.</p>
             ) : null}
@@ -303,28 +316,65 @@ export default function EdukasiDigitalCrudPage({
               return (
                 <article
                   key={id || item.judul}
-                  className="border border-slate-200 rounded-xl p-4 hover:border-blue-300 hover:bg-blue-50 transition-colors"
+                  className="group bg-white border border-slate-100 rounded-2xl p-5 hover:border-blue-400 hover:shadow-xl hover:shadow-blue-50 transition-all duration-300 flex flex-col md:flex-row gap-6"
                 >
-                  <h3 className="font-semibold text-slate-800">{item.judul || "Tanpa Judul"}</h3>
-                  <p className="text-sm text-slate-500 mt-1 line-clamp-2">
-                    {item.deskripsi || item.isi_konten || item.isi || "Tidak ada deskripsi"}
-                  </p>
+                  {/* Image Section */}
+                  <div className="w-full md:w-48 h-48 md:h-32 shrink-0 bg-slate-50 rounded-xl overflow-hidden border border-slate-100 relative group-hover:border-blue-100 transition-colors">
+                    {guessImage(item) ? (
+                      <img 
+                        src={guessImage(item)} 
+                        alt={item.judul}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                        onError={(e) => {
+                          e.target.src = "https://placehold.co/400x300?text=Invalid+Image+URL";
+                        }}
+                      />
+                    ) : (
+                      <div className="w-full h-full flex flex-col items-center justify-center text-slate-300 gap-2">
+                        <ImageIcon size={32} strokeWidth={1.5} />
+                        <span className="text-[10px] font-bold uppercase tracking-wider">No Image</span>
+                      </div>
+                    )}
+                  </div>
 
-                  <div className="mt-3 flex gap-2">
-                    <button
-                      type="button"
-                      onClick={() => handleEdit(item)}
-                      className="px-3 py-1.5 rounded-lg bg-amber-100 text-amber-700 text-xs font-semibold hover:bg-amber-200 transition-colors"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleDelete(item)}
-                      className="px-3 py-1.5 rounded-lg bg-rose-100 text-rose-700 text-xs font-semibold hover:bg-rose-200 transition-colors"
-                    >
-                      Hapus
-                    </button>
+                  {/* Content Section */}
+                  <div className="flex-1 flex flex-col justify-between">
+                    <div>
+                      <div className="flex items-start justify-between gap-4">
+                        <h3 className="text-lg font-bold text-slate-800 group-hover:text-blue-600 transition-colors line-clamp-1">
+                          {item.judul || "Tanpa Judul"}
+                        </h3>
+                        <span className="shrink-0 px-2.5 py-1 bg-blue-50 text-blue-600 rounded-full text-[10px] font-black uppercase tracking-widest">
+                          Edukasi
+                        </span>
+                      </div>
+                      <p className="text-sm text-slate-500 mt-2 line-clamp-2 leading-relaxed">
+                        {item.deskripsi || item.isi_konten || item.isi || "Tidak ada deskripsi singkat untuk konten ini."}
+                      </p>
+                    </div>
+
+                    <div className="mt-4 flex items-center justify-between">
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          onClick={() => handleEdit(item)}
+                          className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-amber-50 text-amber-600 text-xs font-bold hover:bg-amber-100 transition-colors border border-amber-100/50"
+                        >
+                          <Pencil size={14} /> Edit
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(item)}
+                          className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-rose-50 text-rose-600 text-xs font-bold hover:bg-rose-100 transition-colors border border-rose-100/50"
+                        >
+                          <Trash2 size={14} /> Hapus
+                        </button>
+                      </div>
+
+                      <div className="flex items-center gap-1 text-blue-600 text-xs font-black uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity">
+                        Detail <ChevronRight size={14} />
+                      </div>
+                    </div>
                   </div>
                 </article>
               );
@@ -374,20 +424,39 @@ export default function EdukasiDigitalCrudPage({
                       onChange={handleChange}
                       placeholder={f.label}
                       rows={f.rows || 3}
-                      className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm"
+                      className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm focus:border-blue-400 focus:ring-1 focus:ring-blue-400 outline-none transition-all"
                     />
                   );
                 }
 
                 return (
-                  <input
-                    key={f.key}
-                    name={f.key}
-                    value={value}
-                    onChange={handleChange}
-                    placeholder={f.label}
-                    className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm"
-                  />
+                  <div key={f.key} className="space-y-1">
+                    <input
+                      name={f.key}
+                      value={value}
+                      onChange={handleChange}
+                      placeholder={f.label}
+                      className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm focus:border-blue-400 focus:ring-1 focus:ring-blue-400 outline-none transition-all"
+                    />
+                    {f.key === "gambar_url" && value && (
+                      <div className="mt-2 w-full max-w-xs h-32 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 relative">
+                        <img 
+                          src={value} 
+                          alt="Preview" 
+                          key={value} // Force re-render when value changes
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.target.style.opacity = '0';
+                            e.target.parentElement.classList.add('bg-red-50');
+                          }}
+                        />
+                        <div className="absolute inset-0 flex flex-col items-center justify-center -z-10 text-slate-300 gap-1">
+                          <ImageIcon size={24} />
+                          <span className="text-[8px] font-bold uppercase">Invalid URL</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 );
               })}
 
