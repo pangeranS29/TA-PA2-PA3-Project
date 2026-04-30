@@ -20,6 +20,7 @@ type Main struct {
 	PemantauanPertumbuhan  *PemantauanPertumbuhanController
 	PengukuranLilA         *PengukuranLilAController
 	CatatanPelayanan       *CatatanPelayananController
+	InformasiUmum          *InformasiUmumController
 
 	// Controller baru untuk struktur kehamilan
 	Ibu *IbuController
@@ -48,6 +49,7 @@ type Main struct {
 	KategoriTandaBahaya           *KategoriTandaBahayaController
 	PelayananIbuNifas             *PelayananIbuNifasController
 	RiwayatKehamilanLalu          *RiwayatKehamilanLaluController
+	LembarPemantauan              *LembarPemantauanController
 	KeteranganLahir               *KeteranganLahirController // <-- TAMBAHKAN INI
 	Kependudukan                  *KependudukanController
 	JenisPelayanan                *JenisPelayananController
@@ -83,6 +85,7 @@ func Init(opts Options) *Main {
 	m.PemantauanPertumbuhan = NewPemantauanPertumbuhanController(opts.UseCases.PemantauanPertumbuhan)
 	m.PengukuranLilA = NewPengukuranLilAController(opts.UseCases.PengukuranLilA)
 	m.CatatanPelayanan = NewCatatanPelayananController(opts.UseCases.CatatanPelayanan)
+	m.InformasiUmum = NewInformasiUmumController(opts.UseCases.InformasiUmum)
 
 	// Controller baru
 	m.Ibu = NewIbuController(opts.UseCases.Ibu)
@@ -111,6 +114,7 @@ func Init(opts Options) *Main {
 	m.KategoriTandaBahaya = NewKategoriTandaBahayaController(opts.UseCases.KategoriTandaBahaya)
 	m.PelayananIbuNifas = NewPelayananIbuNifasController(opts.UseCases.PelayananIbuNifas)
 	m.RiwayatKehamilanLalu = NewRiwayatKehamilanLaluController(opts.UseCases.RiwayatKehamilanLalu)
+	m.LembarPemantauan = NewLembarPemantauanController(opts.UseCases.LembarPemantauan)
 	m.KeteranganLahir = NewKeteranganLahirController(opts.UseCases.KeteranganLahir) // <-- TAMBAHKAN INI
 	m.Kependudukan = NewKependudukanController(opts.UseCases.Kependudukan)
 	m.JenisPelayanan = NewJenisPelayananController(opts.UseCases.JenisPelayanan)

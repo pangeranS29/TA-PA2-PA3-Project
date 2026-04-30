@@ -20,9 +20,12 @@ type Main struct {
 	PemantauanPertumbuhan  PemantauanPertumbuhanAnakUseCase
 	PengukuranLilA         PengukuranLilAUseCase
 	CatatanPelayanan       CatatanPelayananUseCase
+	InformasiUmum          InformasiUmumUsecase
 	Kependudukan           KependudukanUsecase
 
 	// Usecase baru terkait kehamilan
+	// Usecase baru (terkait kehamilan)
+	// KartuKeluarga 
 	Kehamilan                     KehamilanUsecase
 	PemeriksaanKehamilan          PemeriksaanKehamilanUsecase
 	EvaluasiKesehatanIbu          EvaluasiKesehatanIbuUsecase
@@ -61,6 +64,13 @@ type Main struct {
 	ProsesMelahirkan            ProsesMelahirkanUsecase
 	AbsensiKelasIbuHamil        AbsensiKelasIbuHamilUsecase
 	ChecklistPemantauanIbuNifas *ChecklistPemantauanIbuNifasUsecase
+
+	LembarPemantauan              LembarPemantauanUsecase
+	// RegisterOrangTua              *RegisterOrangTuaUsecase
+	// AdminAkunKeluarga    *AdminAkunKeluargaUsecase
+	// AdminTenagaKesehatan *AdminTenagaKesehatanUsecase
+	// KeteranganLahir      KeteranganLahirUsecase // <-- TAMBAHKAN INI
+	// JenisPelayanan       JenisPelayananUsecase
 }
 
 type Options struct {
@@ -85,8 +95,11 @@ func Init(opts Options) *Main {
 	m.PemantauanPertumbuhan = NewPemantauanPertumbuhanUseCase(opts.Repository.PemantauanPertumbuhan)
 	m.PengukuranLilA = NewPengukuranLilAUseCase(opts.Repository.PengukuranLilA)
 	m.CatatanPelayanan = NewCatatanPelayananUseCase(opts.Repository.CatatanPelayanan)
+	m.InformasiUmum = NewInformasiUmumUsecase(opts.Repository.InformasiUmum)
 
 	// Inisialisasi usecase terkait kehamilan
+	// Inisialisasi usecase baru
+	// m.KartuKeluarga = NewKartuKeluargaUsecase(opts.Repository.KartuKeluarga)
 	m.Kehamilan = NewKehamilanUsecase(opts.Repository.Kehamilan)
 	m.PemeriksaanKehamilan = NewPemeriksaanKehamilanUsecase(opts.Repository.PemeriksaanKehamilan)
 	m.EvaluasiKesehatanIbu = NewEvaluasiKesehatanIbuUsecase(opts.Repository.EvaluasiKesehatanIbu)
@@ -112,8 +125,30 @@ func Init(opts Options) *Main {
 	m.PelayananIbuNifas = NewPelayananIbuNifasUsecase(opts.Repository.PelayananIbuNifas)
 	m.Ibu = NewIbuUsecase(opts.Repository.Ibu)
 	m.RiwayatKehamilanLalu = NewRiwayatKehamilanLaluUsecase(opts.Repository.RiwayatKehamilanLalu)
+	m.LembarPemantauan = NewLembarPemantauanUsecase(opts.Repository.LembarPemantauan)
 	m.Kependudukan = NewKependudukanUsecase(opts.Repository.Kependudukan)
 	m.KeteranganLahir = NewKeteranganLahirUsecase(opts.Repository.KeteranganLahir)
+		// m.RegisterOrangTua = NewRegisterOrangTuaUsecase(
+	// 	opts.Repository.User,
+	// 	opts.Repository.Role,
+	// 	opts.Repository.KartuKeluarga,
+	// 	opts.Repository.Kependudukan,
+	// 	opts.Repository.Ibu,
+	// )
+	m.AdminAkunKeluarga = NewAdminAkunKeluargaUsecase(
+		opts.Repository.User,
+		opts.Repository.Role,
+		opts.Repository.KartuKeluarga,
+		opts.Repository.Kependudukan,
+	)
+	m.AdminTenagaKesehatan = NewAdminTenagaKesehatanUsecase(
+		opts.Repository.Bidan,
+		opts.Repository.Kader,
+		opts.Repository.Kependudukan,
+		opts.Repository.User,
+		opts.Repository.Role,
+	)
+	m.KeteranganLahir = NewKeteranganLahirUsecase(opts.Repository.KeteranganLahir) // <-- TAMBAHKAN INI
 	m.JenisPelayanan = NewJenisPelayananUsecase(opts.Repository.JenisPelayanan)
 
 	m.AdminAkunKeluarga = NewAdminAkunKeluargaUsecase(
