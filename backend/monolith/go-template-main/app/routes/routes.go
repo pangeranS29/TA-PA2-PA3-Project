@@ -21,6 +21,15 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	secured.Use(middlewares.JWTAuth(controller.JWTSecret()))
 	secured.GET("/me", controller.Me)
 
+	// ==================== INFORMASI UMUM ====================
+	informasiUmum := e.Group("/informasi-umum")
+	informasiUmum.GET("", controller.InformasiUmum.GetAll)
+	informasiUmum.GET("/:id", controller.InformasiUmum.Detail)
+	// CRUD dibuka agar web dashboard bisa langsung mengelola Informasi Umum.
+	informasiUmum.POST("", controller.InformasiUmum.Create)
+	informasiUmum.PUT("/:id", controller.InformasiUmum.Update)
+	informasiUmum.DELETE("/:id", controller.InformasiUmum.Delete)
+
 	// ==================== MODUL ADMIN  ====================
 
 	admin := e.Group("/admin")

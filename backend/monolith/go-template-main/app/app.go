@@ -5,6 +5,7 @@ import (
 	"monitoring-service/app/controllers"
 
 	// "monitoring-service/app/models"
+	// "monitoring-service/app/models"
 	"monitoring-service/app/repositories"
 	"monitoring-service/app/routes"
 
@@ -54,14 +55,12 @@ func (m *Main) Init() (err error) {
 
 	m.database.Postgres, err = database.GetConnection(m.cfg.Postgres().Read.ToArgs(database.Postgres, database.ReadConn, nil))
 
-	if err != nil {
-		panic("❌ Gagal konek ke database: " + err.Error())
-	}
-	fmt.Println("✅ BERHASIL KONEK KE DATABASE")
+	// if err != nil {
+	// 	panic("❌ Gagal konek ke database: " + err.Error())
+	// }
+	// fmt.Println("✅ BERHASIL KONEK KE DATABASE")
 
-	//comment sementara
-
-	// // Migrate Tabel
+	// // Migrate tabel yang dipakai oleh Informasi Umum.
 	// err = models.AutoMigrate(m.database.Postgres)
 	// if err != nil {
 	// 	return
