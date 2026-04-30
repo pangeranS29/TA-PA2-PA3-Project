@@ -339,3 +339,10 @@ const (
 	GenderMale   GenderType = "M"
 	GenderFemale GenderType = "F"
 )
+
+type RekapDusun struct {
+	Kecamatan string `json:"kecamatan"`
+	Desa      string `json:"desa"`
+	Dusun     string `json:"dusun"`
+	Total     int64  `json:"total"`
+}

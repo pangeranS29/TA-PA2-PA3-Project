@@ -210,3 +210,21 @@ func (c *KependudukanController) Delete(ctx echo.Context) error {
 	}
 	return ctx.JSON(http.StatusOK, models.Response{StatusCode: http.StatusOK, Message: "deleted"})
 }
+
+func (c *KependudukanController) GetRekapPerDusun(ctx echo.Context) error {
+	kecamatan := ctx.QueryParam("kecamatan")
+	desa := ctx.QueryParam("desa")
+
+	data, err := c.usecase.GetRekapPerDusun(kecamatan, desa)
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, models.Response{
+			StatusCode: http.StatusInternalServerError,
+			Message:    err.Error(),
+		})
+	}
+
+	return ctx.JSON(http.StatusOK, models.Response{
+		StatusCode: http.StatusOK,
+		Data:       data,
+	})
+}

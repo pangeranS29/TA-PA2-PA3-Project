@@ -28,7 +28,9 @@ func calculateIMT(bb, tb float64) float64 {
 	if tb <= 0 {
 		return 0
 	}
-	return bb / (tb * tb)
+
+	tbMeter := tb / 100 //
+	return bb / (tbMeter * tbMeter)
 }
 
 func (u *kehamilanUsecase) Create(kehamilan *models.Kehamilan) error {
