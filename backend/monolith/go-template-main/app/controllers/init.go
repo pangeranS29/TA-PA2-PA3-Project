@@ -20,6 +20,7 @@ type Main struct {
 	PemantauanPertumbuhan  *PemantauanPertumbuhanController
 	PengukuranLilA         *PengukuranLilAController
 	CatatanPelayanan       *CatatanPelayananController
+	InformasiUmum          *InformasiUmumController
 
 	// Controller baru untuk struktur kehamilan
 	Ibu *IbuController
@@ -74,6 +75,7 @@ func Init(opts Options) *Main {
 	m.PemantauanPertumbuhan = NewPemantauanPertumbuhanController(opts.UseCases.PemantauanPertumbuhan)
 	m.PengukuranLilA = NewPengukuranLilAController(opts.UseCases.PengukuranLilA)
 	m.CatatanPelayanan = NewCatatanPelayananController(opts.UseCases.CatatanPelayanan)
+	m.InformasiUmum = NewInformasiUmumController(opts.UseCases.InformasiUmum)
 
 	// Controller baru
 	m.Ibu = NewIbuController(opts.UseCases.Ibu)

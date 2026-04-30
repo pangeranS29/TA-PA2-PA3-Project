@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'pola_asuh_screen.dart';   // Pastikan file ini ada
+import 'pola_asuh_screen.dart';
+import '../informasi_umum/informasi_umum_screen.dart';
 import 'package:ta_pa2_pa3_project/features/tumbuh_kembang/presentation/screens/perawatan/pilih_perawatan_screen.dart';
-import 'pedoman/pedoman_ibu_bayi_screen.dart'; 
+import 'pedoman/pedoman_ibu_bayi_screen.dart';
 
 class EdukasiScreen extends StatelessWidget {
   const EdukasiScreen({Key? key}) : super(key: key);
@@ -38,10 +39,22 @@ class EdukasiScreen extends StatelessWidget {
                 Container(
                   height: 200,
                   width: double.infinity,
-                  decoration: const BoxDecoration(
-                    image: DecorationImage(
-                      image: AssetImage('assets/images/hero_edukasi.png'),
-                      fit: BoxFit.cover,
+                  child: Image.asset(
+                    'assets/images/hero_edukasi.png',
+                    fit: BoxFit.cover,
+                    width: double.infinity,
+                    height: 200,
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      width: double.infinity,
+                      height: 200,
+                      color: const Color(0xFFF0F9FF),
+                      child: const Center(
+                        child: Icon(
+                          Icons.menu_book,
+                          color: Color(0xFF0EA5E9),
+                          size: 48,
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -102,7 +115,8 @@ class EdukasiScreen extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const PedomanIbuBayiScreen(), // SESUAIKAN NAMA CLASS
+                          builder: (context) =>
+                              const PedomanIbuBayiScreen(), // SESUAIKAN NAMA CLASS
                         ),
                       );
                     },
@@ -161,14 +175,25 @@ class EdukasiScreen extends StatelessWidget {
                     ),
                   ),
 
-                  // Informasi Umum (TIDAK BISA DIKLIK)
-                  _menuCard(
-                    icon: Icons.info_outline,
-                    title: 'Informasi Umum',
-                    subtitle: 'Artikel & tips terpercaya',
-                    color: const Color(0xFFF0F9FF),
-                    iconBgColor: const Color(0xFFE0F2FE),
-                    iconColor: const Color(0xFF06B6D4),
+                  // Informasi Umum (BISA DIKLIK -> buka layar InformasiUmum)
+                  InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const InformasiUmumScreen(),
+                        ),
+                      );
+                    },
+                    borderRadius: BorderRadius.circular(16),
+                    child: _menuCard(
+                      icon: Icons.info_outline,
+                      title: 'Informasi Umum',
+                      subtitle: 'Artikel & tips terpercaya',
+                      color: const Color(0xFFF0F9FF),
+                      iconBgColor: const Color(0xFFE0F2FE),
+                      iconColor: const Color(0xFF06B6D4),
+                    ),
                   ),
                 ],
               ),

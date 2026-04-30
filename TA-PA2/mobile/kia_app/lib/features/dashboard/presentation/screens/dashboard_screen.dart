@@ -238,13 +238,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
       backgroundColor: const Color(0xFFF1F5F9),
       body: _selectedNavIndex == 0
           ? _buildHomeBody()
-          : _selectedNavIndex == 2
-              ? const PilihAnakScreen(tujuan: "imunisasi")
-              : _selectedNavIndex == 1
-                  ? const Center(child: Text("Catatan"))
-                  : _selectedNavIndex == 3
-                      ? const InformasiUmumScreen()
-                      : const Center(child: Text("Profil")),
+          : _selectedNavIndex == 1
+              ? const Center(child: Text("Catatan"))
+              : _selectedNavIndex == 2
+                  ? const PilihAnakScreen(tujuan: "imunisasi")
+                  : const Center(child: Text("Profil")),
       bottomNavigationBar: _buildBottomNav(),
     );
   }
@@ -828,8 +826,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
             icon: Icon(Icons.assignment_outlined), label: "Catatan"),
         BottomNavigationBarItem(
             icon: Icon(Icons.security_outlined), label: "Imunisasi"),
-        BottomNavigationBarItem(
-            icon: Icon(Icons.book_outlined), label: "Informasi Umum"),
         BottomNavigationBarItem(
             icon: Icon(Icons.person_outline), label: "Profil"),
       ],
