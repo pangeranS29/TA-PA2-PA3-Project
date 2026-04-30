@@ -2,36 +2,58 @@ import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import MainLayout from "../../components/Layout/MainLayout";
 import { getAnakById } from "../../services/Anak";
-import { 
-  XAxis, YAxis, CartesianGrid, Tooltip, 
-  ResponsiveContainer, AreaChart, Area 
-} from "recharts";
+import { getPertumbuhanChart } from "../../services/pertumbuhan";
+import GrowthChart from "../../components/Dashboard/GrowthChart";
 
 import { 
   ChevronLeft, Baby, Ruler, Activity, Calendar, User, 
-  Plus, X, Apple, Syringe, TrendingUp, Smile
+  Plus, X, Apple, Syringe, TrendingUp, Smile, ChartLine
 } from "lucide-react";
 
 export default function AnakDashboard() {
   const { id } = useParams();
   const [child, setChild] = useState(null);
+  const [chartData, setChartData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [activeChart, setActiveChart] = useState("bb_u"); // "bb_u" or "tb_u"
 
   useEffect(() => {
+    let isMounted = true;
     const fetchDetailData = async () => {
+      if (!id) return;
       try {
         setLoading(true);
-        const res = await getAnakById(id);
-        setChild(res.data || res); 
+        setError(null);
+        const [resAnak, resChart] = await Promise.all([
+          getAnakById(id),
+          getPertumbuhanChart(id)
+        ]);
+        
+        if (isMounted) {
+          const childData = resAnak.data || resAnak;
+          // Guard: pastikan data valid minimal punya nama/id
+          if (childData && (childData.nama || childData.id)) {
+            setChild(childData);
+          } else {
+            throw new Error("Data tidak ditemukan");
+          }
+          setChartData(resChart.data || resChart);
+        }
       } catch (err) {
-        setError("Gagal mengambil data anak.");
+        if (isMounted) {
+          console.error("Error fetching detail data:", err);
+          setError("Gagal mengambil data detail anak.");
+        }
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
     fetchDetailData();
+    return () => { isMounted = false; };
   }, [id]);
 
   if (loading) return <MainLayout><div className="p-10 text-center font-medium text-gray-400">Memuat...</div></MainLayout>;
@@ -48,8 +70,7 @@ export default function AnakDashboard() {
     { title: "Kesehatan Gigi", icon: <Smile size={32} />, link: `/data-anak/pelayanan-Gigi/${id}` },
     { title: "Tumbuh Kembang", icon: <TrendingUp size={32} />, link: `/data-anak/Tumbuh-kembang-Anak/${id}` },
     { title: "Pencatatan LILA", icon: <Ruler size={32} />, link: `/data-anak/lila/${id}` },
-    { title: "Pertumbuhan", subtitle: "(0-2 Thn)", icon: <Smile size={32} />, link: `/data-anak/pertumbuhan-kecil/${id}` },
-    { title: "Pertumbuhan", subtitle: "(2-5 Thn)", icon: <User size={32} />, link: `/data-anak/pertumbuhan-besar/${id}` },
+    { title: "Pertumbuhan", subtitle: "KMS (0-5 Thn)", icon: <Activity size={32} />, link: `/data-anak/pertumbuhan/${id}` },
   ];
 
   return (
@@ -66,7 +87,7 @@ export default function AnakDashboard() {
         </div>
         <button 
           onClick={() => setIsModalOpen(true)}
-          className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 text-sm font-semibold shadow-md transition-all active:scale-95"
+          className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 text-sm font-semibold shadow-md transition-all active:scale-95"
         >
           <Plus size={18} /> Input Data
         </button>
@@ -81,20 +102,35 @@ export default function AnakDashboard() {
       </div>
 
       {/* GRAFIK: Ukuran standar */}
-      <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm h-[320px]">
-        <h3 className="font-bold text-gray-700 text-sm mb-6 flex items-center gap-2">
-            <div className={`w-1 h-4 rounded-full ${isLaki ? 'bg-blue-500' : 'bg-pink-500'}`}></div>
-            Grafik Berat Badan
-        </h3>
-        <ResponsiveContainer width="100%" height="85%">
-          <AreaChart data={growthData}>
-            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
-            <XAxis dataKey="bulan" fontSize={11} tickMargin={8} axisLine={false} tickLine={false} />
-            <YAxis fontSize={11} axisLine={false} tickLine={false} />
-            <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', fontSize: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }} />
-            <Area type="monotone" dataKey="berat_badan" stroke={themeColor} fillOpacity={0.1} fill={themeColor} strokeWidth={3} />
-          </AreaChart>
-        </ResponsiveContainer>
+      <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm h-[400px]">
+        <div className="flex justify-between items-center mb-6">
+          <div className="flex gap-4">
+             <button 
+                onClick={() => setActiveChart("bb_u")}
+                className={`text-sm font-bold px-3 py-1 rounded-lg transition-all ${activeChart === 'bb_u' ? 'bg-indigo-50 text-indigo-600' : 'text-gray-400 hover:bg-gray-50'}`}
+             >
+                Berat Badan
+             </button>
+             <button 
+                onClick={() => setActiveChart("tb_u")}
+                className={`text-sm font-bold px-3 py-1 rounded-lg transition-all ${activeChart === 'tb_u' ? 'bg-indigo-50 text-indigo-600' : 'text-gray-400 hover:bg-gray-50'}`}
+             >
+                Tinggi Badan
+             </button>
+          </div>
+          <div className="flex items-center gap-2 text-xs text-gray-400 bg-gray-50 px-3 py-1 rounded-full">
+            <Activity size={12} />
+            Standar Permenkes 2/2020
+          </div>
+        </div>
+        
+        <div className="h-[280px]">
+          <GrowthChart 
+            data={chartData} 
+            type={activeChart} 
+            gender={child.jenis_kelamin} 
+          />
+        </div>
       </div>
 
       {/* MODAL: Versi Ringkas (Compact) */}

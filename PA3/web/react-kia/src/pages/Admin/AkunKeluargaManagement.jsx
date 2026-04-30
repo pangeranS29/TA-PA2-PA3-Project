@@ -433,7 +433,7 @@ const AkunKeluargaManagement = () => {
                 <button
                   type="button"
                   onClick={handleSaveHeader}
-                  className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 text-white px-4 py-2 hover:bg-indigo-700 disabled:opacity-60"
+                  className="inline-flex items-center gap-2 rounded-xl bg-blue-600 text-white px-4 py-2 hover:bg-blue-700 disabled:opacity-60"
                   disabled={saving}
                 >
                   <Save size={16} />

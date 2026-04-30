@@ -262,29 +262,16 @@ type UpdatePertumbuhanRequest struct {
 	LingkarKepala float64 `json:"lingkar_kepala,omitempty"`
 	CatatanNakes  string  `json:"catatan_nakes,omitempty"`
 }
-type CatatanPertumbuhanResponse struct {
-	ID            uint          `json:"id"`
-	AnakID        uint          `json:"anak_id"`
-	Anak          *AnakResponse `json:"anak,omitempty"`
-	TglUkur       string        `json:"tgl_ukur"`
-	UsiaUkurBulan int           `json:"usia_ukur_bulan"`
-	UsiaUkurYM    string        `json:"usia_ukur_tahun_bulan,omitempty"` // Format: "1:4" = 1 tahun 4 bulan
-	KurvaKMS      string        `json:"kurva_kms,omitempty"`             // "KMS 0-2 Tahun" atau "KMS 2-5 Tahun"
-	BeratBadan    float64       `json:"berat_badan"`
-	TinggiBadan   float64       `json:"tinggi_badan"`
-	LingkarKepala float64       `json:"lingkar_kepala"`
-	IMT           float64       `json:"imt"`
-	StatusBBU     string        `json:"status_bb_u"`
-	StatusTBU     string        `json:"status_tb_u"`
-	StatusIMTU    string        `json:"status_imt_u"`
-	StatusBBTB    string        `json:"status_bb_tb"`
-	StatusLKU     string        `json:"status_lk_u"`
-	StatusKMSNaik string        `json:"status_kms_naik,omitempty"`  // Naik (N), Tidak Naik (T), Data Awal
-	StatusKMSBGM  string        `json:"status_kms_bgm,omitempty"`   // Di bawah garis merah / Tidak
-	KBMMinGram    int           `json:"kbm_min_gram,omitempty"`     // Kenaikan BB minimum (gram)
-	KenaikanGram  float64       `json:"kenaikan_bb_gram,omitempty"` // Selisih dari penimbangan sebelumnya (gram)
-	StatusKMSInfo string        `json:"status_kms_info,omitempty"`  // Ringkasan interpretasi KMS
-	CatatanNakes  string        `json:"catatan_nakes"`
+
+type CreateKehamilanRequest struct {
+	IbuID                    int32   `json:"ibu_id"`
+	Gravida                  int32   `json:"gravida"`
+	Paritas                  int32   `json:"paritas"`
+	Abortus                  int32   `json:"abortus"`
+	HPHT                     string  `json:"hpht"`
+	BB_Awal                  float64 `json:"bb_awal"`
+	TB                       float64 `json:"tb"`
+	JarakKehamilanSebelumnya int32   `json:"jarak_kehamilan_sebelumnya"`
 }
 
 type CreateMasterStandarRequest struct {
@@ -346,3 +333,4 @@ const (
 	GenderMale   GenderType = "M"
 	GenderFemale GenderType = "F"
 )
+

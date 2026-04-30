@@ -358,6 +358,12 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	// tenaga.DELETE("/kartu-keluarga/:id", controller.KartuKeluarga.Delete)
 
 	// ==================== KEPENDUDUKAN ====================
+	tenaga.GET("/pertumbuhan/anak/:anak_id", controller.Pertumbuhan.GetRiwayat)
+	tenaga.GET("/pertumbuhan/chart/:anak_id", controller.Pertumbuhan.GetChartData)
+	tenaga.POST("/pertumbuhan", controller.Pertumbuhan.Create)
+	tenaga.GET("/pertumbuhan/:id", controller.Pertumbuhan.GetDetail)
+	tenaga.PUT("/pertumbuhan/:id", controller.Pertumbuhan.Update)
+	tenaga.DELETE("/pertumbuhan/:id", controller.Pertumbuhan.Delete)
 	tenaga.GET("/kependudukan", controller.Kependudukan.GetAll)
 	tenaga.POST("/kependudukan", controller.Kependudukan.Create)
 	tenaga.GET("/kependudukan/:id", controller.Kependudukan.GetByID)

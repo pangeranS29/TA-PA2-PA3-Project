@@ -264,7 +264,7 @@ export default function KelolaPemantauan() {
         </div>
 
         {isModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-blue-900/40 p-4">
             <div className="w-full max-w-2xl bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden">
               <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
                 <h2 className="text-lg font-bold text-slate-800">
@@ -308,7 +308,7 @@ export default function KelolaPemantauan() {
         )}
 
         {isDeleteModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-blue-900/40 p-4">
             <div className="w-full max-w-md bg-white rounded-2xl shadow-xl border border-slate-100">
               <div className="p-6 space-y-4">
                 <h2 className="text-lg font-bold text-slate-800">Hapus Indikator</h2>

@@ -80,7 +80,7 @@ const PelayananLilaIndex = () => {
 
           <button
             onClick={() => navigate(`/data-anak/lila/${anakId}/create`)}
-            className="group flex items-center gap-3 bg-slate-900 hover:bg-blue-600 text-white px-8 py-4 rounded-[1.5rem] font-black text-xs uppercase tracking-widest transition-all shadow-xl active:scale-95"
+            className="group flex items-center gap-3 bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-[1.5rem] font-black text-xs uppercase tracking-widest transition-all shadow-xl active:scale-95"
           >
             <Plus size={18} className="group-hover:rotate-90 transition-transform" />
             Input Data Baru

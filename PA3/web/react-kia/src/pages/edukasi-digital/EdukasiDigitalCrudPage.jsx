@@ -278,7 +278,7 @@ export default function EdukasiDigitalCrudPage({
                   setEditingId(null);
                   setShowForm(true);
                 }}
-                className="px-3 py-2 rounded-lg bg-green-600 text-white text-xs font-semibold"
+                className="px-3 py-2 rounded-lg bg-blue-600 text-white text-xs font-semibold hover:bg-blue-700 shadow-lg shadow-blue-100"
               >
                 + Tambah Konten
               </button>
