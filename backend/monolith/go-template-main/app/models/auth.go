@@ -14,6 +14,7 @@ type LoginRequest struct {
 	Identifier string `json:"identifier"`
 	Email      string `json:"email,omitempty"`
 	Password   string `json:"password"`
+	FcmToken   string `json:"fcm_token"`
 }
 
 type LoginResponse struct {

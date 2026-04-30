@@ -4,17 +4,22 @@ import { NavLink } from "react-router-dom";
 import { getCurrentUser, getUserRedirectRoute, isAdminUser } from "../../../services/auth";
 import {
   ChevronDown,
-  LayoutGrid, 
-  Users, 
-  Baby, 
-  Activity, 
-  BarChart3, 
-  Settings, 
+  LayoutGrid,
+  Users,
+  Baby,
+  Activity,
+  BarChart3,
+  Settings,
   ShieldPlus,
   UserCheck,
   UserPlus,
   BriefcaseMedical,
-  CalendarDays
+  CalendarDays,
+  Map,
+  Syringe,
+  Stethoscope,
+  FileText,
+  HeartPulse
 } from "lucide-react";
 
 const Sidebar = () => {
@@ -24,13 +29,12 @@ const Sidebar = () => {
   const [isFamilyMenuOpen, setIsFamilyMenuOpen] = useState(false);
 
   const puskesMenuItems = [
-    { path: "/desa", name: "Desa", icon: Users },
-    { path: "/vaksin", name: "Vaksin", icon: Baby },
-    { path: "/bidan-desa", name: "Bidan Desa", icon: UserCheck },
-    { path: "/kader", name: "Kader", icon: Activity },
-    { path: "/laporan", name: "Laporan", icon: BarChart3 },
+    { path: "/desa", name: "Desa", icon: Map },
+    { path: "/vaksin", name: "Vaksin", icon: Syringe },
+    { path: "/posyandu", name: "Posyandu", icon: HeartPulse },
+    { path: "/laporan", name: "Laporan", icon: FileText },
   ];
-  
+
   const menuItems = [
     { path: dashboardPath, name: "Dashboard", icon: LayoutGrid },
     ...(isAdmin ? [] : puskesMenuItems),
@@ -62,18 +66,17 @@ const Sidebar = () => {
             key={item.path}
             to={item.path}
             className={({ isActive }) =>
-              `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${
-                isActive 
-                  ? "bg-blue-50 text-blue-600 font-semibold" 
-                  : "text-slate-500 hover:bg-gray-50 hover:text-slate-700"
+              `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${isActive
+                ? "bg-blue-50 text-blue-600 font-semibold"
+                : "text-slate-500 hover:bg-gray-50 hover:text-slate-700"
               }`
             }
           >
             {({ isActive }) => (
               <>
-                <item.icon 
-                  size={20} 
-                  className={isActive ? "text-blue-600" : "text-slate-400 group-hover:text-slate-600"} 
+                <item.icon
+                  size={20}
+                  className={isActive ? "text-blue-600" : "text-slate-400 group-hover:text-slate-600"}
                 />
                 <span className="truncate">{item.name}</span>
               </>
@@ -86,10 +89,9 @@ const Sidebar = () => {
             <NavLink
               to="/dashboard/admin/tenaga-kesehatan"
               className={({ isActive }) =>
-                `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${
-                  isActive
-                    ? "bg-blue-50 text-blue-600 font-semibold"
-                    : "text-slate-500 hover:bg-gray-50 hover:text-slate-700"
+                `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${isActive
+                  ? "bg-blue-50 text-blue-600 font-semibold"
+                  : "text-slate-500 hover:bg-gray-50 hover:text-slate-700"
                 }`
               }
             >
@@ -104,7 +106,7 @@ const Sidebar = () => {
               )}
             </NavLink>
 
-           
+
 
             <button
               type="button"
@@ -126,10 +128,9 @@ const Sidebar = () => {
                     key={item.path}
                     to={item.path}
                     className={({ isActive }) =>
-                      `flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 group text-sm ${
-                        isActive
-                          ? "bg-blue-50 text-blue-600 font-semibold"
-                          : "text-slate-500 hover:bg-gray-50 hover:text-slate-700"
+                      `flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 group text-sm ${isActive
+                        ? "bg-blue-50 text-blue-600 font-semibold"
+                        : "text-slate-500 hover:bg-gray-50 hover:text-slate-700"
                       }`
                     }
                   >
@@ -148,36 +149,13 @@ const Sidebar = () => {
             )}
           </div>
         )}
-
-         <NavLink
-              to="/dashboard/admin/jadwal-layanan"
-              className={({ isActive }) =>
-                `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${
-                  isActive
-                    ? "bg-blue-50 text-blue-600 font-semibold"
-                    : "text-slate-500 hover:bg-gray-50 hover:text-slate-700"
-                }`
-              }
-            >
-              {({ isActive }) => (
-                <>
-                  <CalendarDays
-                    size={20}
-                    className={isActive ? "text-blue-600" : "text-slate-400 group-hover:text-slate-600"}
-                  />
-                  <span className="truncate">Jadwal Layanan</span>
-                </>
-              )}
-            </NavLink>
-
         <NavLink
           key={settingsMenu.path}
           to={settingsMenu.path}
           className={({ isActive }) =>
-            `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${
-              isActive
-                ? "bg-blue-50 text-blue-600 font-semibold"
-                : "text-slate-500 hover:bg-gray-50 hover:text-slate-700"
+            `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${isActive
+              ? "bg-blue-50 text-blue-600 font-semibold"
+              : "text-slate-500 hover:bg-gray-50 hover:text-slate-700"
             }`
           }
         >

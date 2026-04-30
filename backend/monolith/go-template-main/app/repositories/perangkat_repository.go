@@ -57,3 +57,24 @@ func (m *Main) UpdatePerangkat(perangkat *models.Perangkat) error {
 	}
 	return nil
 }
+
+func (m *Main) GetPerangkatByToken(token string) (*models.Perangkat, error) {
+    var perangkat models.Perangkat
+    err := m.postgres.Where("fcm_token = ?", token).First(&perangkat).Error
+    return &perangkat, err
+}
+
+func (m *Main) GetPerangkatByUserID(userID uint) (*models.Perangkat, error) {
+	var perangkat models.Perangkat
+	if err := m.postgres.Where("id_pengguna = ?", userID).First(&perangkat).Error; err != nil {
+		return nil, err
+	}
+	return &perangkat, nil
+}
+
+func (m *Main) UpdateFcmToken(id uint, newToken string) error {
+	if err := m.postgres.Model(&models.Perangkat{}).Where("id = ?", id).Update("fcm_token", newToken).Error; err != nil {
+		return err
+	}
+	return nil
+}

@@ -75,3 +75,16 @@ func (m *Main) GetAllPerangkat(c echo.Context) error {
 
 	return helpers.StandardResponse(c, http.StatusOK, []string{"Berhasil mendapatkan data perangkat"}, data, nil)
 }
+
+func (m *Main) SaveToken(c echo.Context) error {
+	var req models.TokenRequest
+	if err := c.Bind(&req); err != nil {
+		return helpers.Response(c, http.StatusBadRequest, []string{"Format request tidak valid"})
+	}
+
+	if err := m.usecases.SaveFCMToken(&req); err != nil {
+		return helpers.Response(c, http.StatusInternalServerError, []string{err.Error()})
+	}
+
+	return helpers.StandardResponse(c, http.StatusOK, []string{"Token berhasil diproses"}, nil, nil)
+}

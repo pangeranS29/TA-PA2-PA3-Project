@@ -57,3 +57,39 @@ func (m *Main) UpdatePerangkat(penggunaID uint, req *models.UpdatePerangkatReque
 
 	return nil
 }
+
+func (m *Main) SaveFCMToken(req *models.TokenRequest) error {
+	if req.PenggunaID == 0 || req.FcmToken == "" {
+		return errors.New("Sistem tidak dapat mengenali akun Anda. Silakan coba login kembali.")
+	}
+
+	// 1. Cek apakah UserID ini sudah terdaftar
+	perangkatLama, err := m.repository.GetPerangkatByUserID(req.PenggunaID)
+	
+	if err == nil {
+		// 2. Data ditemukan! SEKARANG KITA CEK, apakah tokennya berbeda?
+		if perangkatLama.FcmToken != req.FcmToken {
+			
+			// Jika berbeda (karena ganti HP atau Clear Data), UPDATE dengan token yang baru!
+			errUpdate := m.repository.UpdateFcmToken(perangkatLama.ID, req.FcmToken)
+			if errUpdate != nil {
+				return errors.New("Gagal memperbarui token notifikasi")
+			}
+		}
+		
+		// Jika tokennya sama persis, baru kita biarkan (return nil)
+		return nil 
+	}
+
+	// 3. Jika data TIDAK DITEMUKAN, lakukan INSERT seperti biasa
+	perangkatBaru := &models.Perangkat{
+		PenggunaID: req.PenggunaID,
+		FcmToken:   req.FcmToken,
+	}
+
+	if err := m.repository.CreatePerangkat(perangkatBaru); err != nil {
+		return errors.New("Gagal mengaktifkan fitur notifikasi")
+	}
+
+	return nil
+}
