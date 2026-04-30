@@ -115,7 +115,8 @@ class EdukasiScreen extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const PedomanIbuBayiScreen(), // SESUAIKAN NAMA CLASS
+                          builder: (context) =>
+                              const PedomanIbuBayiScreen(), // SESUAIKAN NAMA CLASS
                         ),
                       );
                     },

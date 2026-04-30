@@ -55,16 +55,16 @@ func (m *Main) Init() (err error) {
 
 	m.database.Postgres, err = database.GetConnection(m.cfg.Postgres().Read.ToArgs(database.Postgres, database.ReadConn, nil))
 
-	if err != nil {
-		panic("❌ Gagal konek ke database: " + err.Error())
-	}
-	fmt.Println("✅ BERHASIL KONEK KE DATABASE")
+	// if err != nil {
+	// 	panic("❌ Gagal konek ke database: " + err.Error())
+	// }
+	// fmt.Println("✅ BERHASIL KONEK KE DATABASE")
 
-	// Migrate tabel yang dipakai oleh Informasi Umum.
-	err = models.AutoMigrate(m.database.Postgres)
-	if err != nil {
-		return
-	}
+	// // Migrate tabel yang dipakai oleh Informasi Umum.
+	// err = models.AutoMigrate(m.database.Postgres)
+	// if err != nil {
+	// 	return
+	// }
 
 	// // Seeder
 	// err = seed.RunAllSeed(m.database.Postgres)
