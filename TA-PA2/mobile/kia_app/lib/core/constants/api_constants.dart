@@ -28,4 +28,11 @@ class ApiConstants {
   static const String saveAbsensiKelasIbuHamil = '/modul-ibu/absensi-kelas-ibu-hamil';
   static const String logTTDMMS = '/modul-ibu/log-ttd-mms/me';
   static const String saveLogTTDMMS = '/modul-ibu/log-ttd-mms';
+
+  // Pemantauan Ibu Hamil
+  static const String pemantauanIbuHamil = '/modul-ibu/pemantauan-ibu-hamil/me';
+  static const String savePemantauanIbuHamil = '/modul-ibu/pemantauan-ibu-hamil';
+  // Modul Anak - Data Ibu & Anak
+  static const String ibuAnak = '/ibu/anak';
+  static const String ibuLembarPemantauan = '/ibu/lembar-pemantauan';
 }

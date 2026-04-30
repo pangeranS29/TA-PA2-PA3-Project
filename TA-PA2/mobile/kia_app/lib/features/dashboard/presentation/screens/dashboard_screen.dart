@@ -3,7 +3,6 @@ import 'package:ta_pa2_pa3_project/core/services/auth_session.dart';
 import 'package:ta_pa2_pa3_project/core/theme/app_theme.dart';
 import 'package:ta_pa2_pa3_project/features/anak/imunisasi/presentation/screens/imunisasi_screen.dart';
 import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/screens/tumbuh_kembang_screen.dart';
-import 'package:ta_pa2_pa3_project/features/auth/presentation/screens/login_screen.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/data/models/kehamilan_aktif_model.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/data/services/kehamilan_api_service.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/hamil_screen.dart';
@@ -50,7 +49,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Future<void> _openHamilJourney() async {
     if (_loadingKehamilan) return;
     setState(() => _loadingKehamilan = true);
-
     try {
       await _kehamilanService.getKehamilanAktif();
       if (!mounted) return;
@@ -83,6 +81,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return '${date.day} ${months[date.month - 1]} ${date.year}';
   }
 
+  void _showSnackbar(String msg) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+  }
+
+  void _navigateTo(Widget screen) {
+    Navigator.push(context, MaterialPageRoute(builder: (_) => screen));
+  }
+
   // ─── BODY UTAMA ───────────────────────────────────────────────────────────
 
   Widget _buildHomeBody() {
@@ -98,17 +104,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 const SizedBox(height: 24),
                 DashboardPhaseSelector(
                   selectedPhase: selectedPhase,
-                  onPhaseSelected: (phase) =>
-                      setState(() => selectedPhase = phase),
+                  onPhaseSelected: (phase) {
+                    // Fase Nifas & Menyusui → navigate, bukan embed
+                    if (phase == 'Nifas') {
+                      _navigateTo(const NifasScreen());
+                      return;
+                    }
+                    if (phase == 'Menyusui') {
+                      _showSnackbar('Fitur Menyusui segera hadir!');
+                      return;
+                    }
+                    setState(() => selectedPhase = phase);
+                  },
                 ),
                 const SizedBox(height: 32),
                 if (selectedPhase == "Hamil") _buildHamilContent(),
-                if (selectedPhase == "Nifas") const NifasScreen(),
                 if (selectedPhase == "Tumbuh") _buildTumbuhContent(),
-                if (selectedPhase != "Hamil" &&
-                    selectedPhase != "Nifas" &&
-                    selectedPhase != "Tumbuh")
-                  _buildPlaceholderContent(),
               ],
             ),
           ),
@@ -137,7 +148,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
       body: body,
       bottomNavigationBar: DashboardBottomNav(
         currentIndex: _selectedNavIndex,
-        onTap: (index) => setState(() => _selectedNavIndex = index),
+        onTap: (index) {
+          // Tab Imunisasi (index 2) → navigate supaya Scaffold tidak konflik
+          if (index == 2) {
+            _navigateTo(const ImunisasiScreen());
+            return;
+          }
+          setState(() => _selectedNavIndex = index);
+        },
       ),
     );
   }
@@ -172,17 +190,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               ? 'Kehamilan $week Minggu'
                               : 'Kehamilan Aktif',
                           style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
+                              fontWeight: FontWeight.bold, fontSize: 16),
                         ),
-                        const Icon(Icons.chevron_right, color: Colors.grey),
+                        if (_loadingKehamilan)
+                          const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        else
+                          const Icon(Icons.chevron_right, color: Colors.grey),
                       ],
                     ),
                     Text(
                       '$trimester • HPL: $hpl',
-                      style:
-                          const TextStyle(color: Colors.grey, fontSize: 12),
+                      style: const TextStyle(color: Colors.grey, fontSize: 12),
                     ),
                     const SizedBox(height: 16),
                     LinearProgressIndicator(
@@ -196,11 +218,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text("Minggu 1",
-                            style: TextStyle(
-                                fontSize: 10, color: Colors.grey)),
+                            style:
+                                TextStyle(fontSize: 10, color: Colors.grey)),
                         Text("Minggu 40",
-                            style: TextStyle(
-                                fontSize: 10, color: Colors.grey)),
+                            style:
+                                TextStyle(fontSize: 10, color: Colors.grey)),
                       ],
                     ),
                   ],
@@ -223,8 +245,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         style: TextStyle(fontWeight: FontWeight.bold)),
                     Text(
                       "Panjang janin sekitar 30 cm dengan berat sekitar 600 gram.",
-                      style:
-                          TextStyle(fontSize: 12, color: Colors.black54),
+                      style: TextStyle(fontSize: 12, color: Colors.black54),
                     ),
                   ],
                 ),
@@ -232,6 +253,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
               Image.network(
                 'https://cdn-icons-png.flaticon.com/512/1141/1141771.png',
                 width: 40,
+                errorBuilder: (_, __, ___) =>
+                    const Icon(Icons.eco, size: 40, color: Colors.green),
               ),
             ],
           ),
@@ -259,7 +282,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           subtitle: "Persiapan & proses persalinan",
           icon: Icons.child_care_outlined,
           iconColor: Colors.blue,
-          onTap: () {},
+          onTap: () => _showSnackbar('Fitur Persalinan segera hadir!'),
         ),
         const SizedBox(height: 32),
 
@@ -267,9 +290,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         const Text(
           "MENU CEPAT",
           style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
-              color: Colors.grey),
+              fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey),
         ),
         const SizedBox(height: 16),
         DashboardQuickMenu(
@@ -291,12 +312,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
               'label': 'Absensi Kelas',
               'icon': Icons.event_available_outlined,
               'color': Colors.green,
-              'onTap': () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const AbsensiKelasIbuHamilScreen(),
-                    ),
-                  ),
+              'onTap': () =>
+                  _navigateTo(const AbsensiKelasIbuHamilScreen()),
             },
             {
               'label': 'Catatan',
@@ -308,8 +325,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ),
         const SizedBox(height: 32),
 
-        // Tanda bahaya / Rujukan
-        _buildDangerAlert(),
+        _buildRujukanCard(),
         const SizedBox(height: 40),
       ],
     );
@@ -321,12 +337,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Tambah profil anak
+        // Tambah profil anak → navigate ke TumbuhKembangScreen
         GestureDetector(
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const TumbuhKembangScreen()),
-          ),
+          onTap: () => _navigateTo(const TumbuhKembangScreen()),
           child: Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
@@ -359,10 +372,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 Container(
                   padding: const EdgeInsets.all(6),
                   decoration: const BoxDecoration(
-                    color: Colors.blue,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(Icons.add, size: 16, color: Colors.white),
+                      color: Colors.blue, shape: BoxShape.circle),
+                  child:
+                      const Icon(Icons.add, size: 16, color: Colors.white),
                 ),
               ],
             ),
@@ -372,7 +384,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
         const Text(
           "Menu Cepat",
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
         ),
         const SizedBox(height: 12),
 
@@ -382,21 +394,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
               'label': 'Pertumbuhan',
               'icon': Icons.scale,
               'color': Colors.orange,
-              'onTap': () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (_) => const TumbuhKembangScreen()),
-                  ),
+              'onTap': () => _navigateTo(const TumbuhKembangScreen()),
             },
             {
               'label': 'Imunisasi',
               'icon': Icons.shield,
               'color': Colors.green,
-              'onTap': () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (_) => const ImunisasiScreen()),
-                  ),
+              'onTap': () => _navigateTo(const ImunisasiScreen()),
             },
             {
               'label': 'MPASI',
@@ -419,7 +423,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             {
               'label': 'Bahaya',
               'icon': Icons.warning,
-              'color': Colors.orange,
+              'color': Colors.deepOrange,
               'onTap': () => _showSnackbar('Tanda bahaya belum tersedia'),
             },
           ],
@@ -453,7 +457,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   // ─── HELPERS ──────────────────────────────────────────────────────────────
 
-  Widget _buildDangerAlert() {
+  Widget _buildRujukanCard() {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -487,19 +491,5 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ],
       ),
     );
-  }
-
-  Widget _buildPlaceholderContent() {
-    return const Center(
-      child: Padding(
-        padding: EdgeInsets.all(40),
-        child: Text("Konten fase ini segera hadir!"),
-      ),
-    );
-  }
-
-  void _showSnackbar(String msg) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(msg)));
   }
 }
