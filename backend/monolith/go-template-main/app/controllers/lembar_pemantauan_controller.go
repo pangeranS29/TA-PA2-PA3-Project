@@ -80,6 +80,39 @@ func (c *LembarPemantauanController) CreateForIbu(ctx echo.Context) error {
 	return ctx.JSON(http.StatusCreated, models.Response{StatusCode: http.StatusCreated, Message: "Lembar pemantauan berhasil dibuat", Data: lembar})
 }
 
+// GetRentangUsiaForIbu - GET /ibu/lembar-pemantauan/rentang-usia
+func (c *LembarPemantauanController) GetRentangUsiaForIbu(ctx echo.Context) error {
+	if _, ok := getAuthClaims(ctx); !ok {
+		return ctx.JSON(http.StatusUnauthorized, models.Response{StatusCode: http.StatusUnauthorized, Message: "Unauthorized"})
+	}
+
+	rentang, err := c.usecase.GetRentangUsia()
+	if err != nil {
+		return ctx.JSON(http.StatusBadRequest, models.Response{StatusCode: http.StatusBadRequest, Message: err.Error()})
+	}
+
+	return ctx.JSON(http.StatusOK, models.Response{StatusCode: http.StatusOK, Data: rentang})
+}
+
+// GetKategoriByRentangUsiaForIbu - GET /ibu/lembar-pemantauan/kategori-tanda-sakit?rentang_usia_id=X
+func (c *LembarPemantauanController) GetKategoriByRentangUsiaForIbu(ctx echo.Context) error {
+	if _, ok := getAuthClaims(ctx); !ok {
+		return ctx.JSON(http.StatusUnauthorized, models.Response{StatusCode: http.StatusUnauthorized, Message: "Unauthorized"})
+	}
+
+	rentangUsiaID := strings.TrimSpace(ctx.QueryParam("rentang_usia_id"))
+	if rentangUsiaID == "" {
+		return ctx.JSON(http.StatusBadRequest, models.Response{StatusCode: http.StatusBadRequest, Message: "rentang_usia_id wajib diisi"})
+	}
+
+	kategori, err := c.usecase.GetKategoriTandaSakitByRentangUsiaID(rentangUsiaID)
+	if err != nil {
+		return ctx.JSON(http.StatusBadRequest, models.Response{StatusCode: http.StatusBadRequest, Message: err.Error()})
+	}
+
+	return ctx.JSON(http.StatusOK, models.Response{StatusCode: http.StatusOK, Data: kategori})
+}
+
 // GetByID - GET /tenaga-kesehatan/lembar-pemantauan/:id
 func (c *LembarPemantauanController) GetByID(ctx echo.Context) error {
 	id := ctx.Param("id")

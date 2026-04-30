@@ -16,6 +16,8 @@ var ErrLembarPemantauanForbidden = errors.New("akses lembar pemantauan ditolak")
 type LembarPemantauanUsecase interface {
 	Create(req models.LembarPemantauanRequest) (*models.LembarPemantauan, error)
 	CreateForIbu(req models.LembarPemantauanRequest, userID int32) (*models.LembarPemantauan, error)
+	GetRentangUsia() ([]models.RentangUsia, error)
+	GetKategoriTandaSakitByRentangUsiaID(rentangUsiaID string) ([]models.KategoriTandaSakit, error)
 	GetByID(id string) (*models.LembarPemantauan, error)
 	GetByAnakID(anakID string) ([]models.LembarPemantauan, error)
 	GetByAnakIDForIbu(anakID string, userID int32) ([]models.LembarPemantauan, error)
@@ -119,6 +121,19 @@ func (u *lembarPemantauanUsecase) CreateForIbu(req models.LembarPemantauanReques
 	}
 
 	return u.Create(req)
+}
+
+func (u *lembarPemantauanUsecase) GetRentangUsia() ([]models.RentangUsia, error) {
+	return u.repository.FindRentangUsia()
+}
+
+func (u *lembarPemantauanUsecase) GetKategoriTandaSakitByRentangUsiaID(rentangUsiaID string) ([]models.KategoriTandaSakit, error) {
+	id, err := parseID(rentangUsiaID, "rentang_usia_id")
+	if err != nil {
+		return nil, err
+	}
+
+	return u.repository.FindKategoriTandaSakitByRentangUsiaID(id)
 }
 
 // GetByID - Mendapatkan lembar pemantauan berdasarkan ID

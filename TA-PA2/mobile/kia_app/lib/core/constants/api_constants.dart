@@ -17,4 +17,8 @@ class ApiConstants {
 
   static const String ibuAnak = '/ibu/anak';
   static const String ibuLembarPemantauan = '/ibu/lembar-pemantauan';
+  static const String ibuLembarPemantauanRentangUsia =
+      '/ibu/lembar-pemantauan/rentang-usia';
+  static const String ibuLembarPemantauanKategori =
+      '/ibu/lembar-pemantauan/kategori-tanda-sakit';
 }
