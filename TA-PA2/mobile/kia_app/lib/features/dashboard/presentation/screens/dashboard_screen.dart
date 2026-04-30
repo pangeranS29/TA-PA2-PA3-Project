@@ -13,7 +13,7 @@ import 'package:ta_pa2_pa3_project/features/hamil/data/models/kehamilan_aktif_mo
 import 'package:ta_pa2_pa3_project/features/hamil/presentation/screens/absensi_kelas_ibu_hamil_screen.dart';
 import 'package:ta_pa2_pa3_project/features/hamil/presentation/screens/pemantauan_ibu_hamil_screen.dart';
 import 'package:ta_pa2_pa3_project/features/hamil/presentation/screens/log_ttd_mms_screen.dart';
-
+import 'package:ta_pa2_pa3_project/features/hamil/presentation/screens/persiapan_melahirkan_screen.dart';
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
 
@@ -310,7 +310,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
         const Text('Menu Hamil', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87)),
         const SizedBox(height: 16),
         _buildMenuCard(title: 'Kehamilan Trimester 1–3', subtitle: 'Pantau perkembangan kehamilan', icon: Icons.favorite_outline, iconColor: Colors.pink, onTap: _openHamilJourney),
-        _buildMenuCard(title: 'Persalinan', subtitle: 'Persiapan & proses persalinan', icon: Icons.child_care_outlined, iconColor: Colors.blue, onTap: () {}),
+_buildMenuCard(
+  title: 'Persiapan Melahirkan',
+  subtitle: 'Checklist persiapan sebelum melahirkan',
+  icon: Icons.child_care_outlined,
+  iconColor: Colors.blue,
+  onTap: () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const PersiapanMelahirkanScreen(),
+      ),
+    );
+  },
+),
         const SizedBox(height: 32),
         const SizedBox(height: 40),
       ],
