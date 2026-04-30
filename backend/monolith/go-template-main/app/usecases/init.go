@@ -64,6 +64,7 @@ type Main struct {
 	EdukasiKesehatanMental             EdukasiKesehatanMentalUsecase
 	KesehatanLingkunganDanCatatanKader KesehatanLingkunganDanCatatanKaderUsecase
 	JenisPelayanan                     JenisPelayananUsecase
+	Pertumbuhan                        PertumbuhanUseCase
 }
 
 type Options struct {
@@ -85,7 +86,10 @@ func Init(opts Options) *Main {
 	m.KunjunganVitamin = NewKunjunganVitaminUseCase(opts.Repository.KunjunganVitamin)
 	m.KunjunganImunisasi = NewKunjunganImunisasiUseCase(opts.Repository.KunjunganImunisasi)
 	m.PemeriksaanGigi = NewPemeriksaanGigiUseCase(opts.Repository.PemeriksaanGigi)
-	m.PemantauanPertumbuhan = NewPemantauanPertumbuhanUseCase(opts.Repository.PemantauanPertumbuhan, opts.Repository.Anak, opts.Repository)
+	m.PemantauanPertumbuhan = NewPemantauanPertumbuhanUseCase(opts.Repository.PemantauanPertumbuhan, 
+		opts.Repository.Anak, 
+		opts.Repository,
+	)
 	m.PengukuranLilA = NewPengukuranLilAUseCase(opts.Repository.PengukuranLilA)
 	m.CatatanPelayanan = NewCatatanPelayananUseCase(opts.Repository.CatatanPelayanan)
 
@@ -149,6 +153,7 @@ func Init(opts Options) *Main {
 	)
 	m.KeteranganLahir = NewKeteranganLahirUsecase(opts.Repository.KeteranganLahir) // <-- TAMBAHKAN INI
 	m.JenisPelayanan = NewJenisPelayananUsecase(opts.Repository.JenisPelayanan)
+	m.Pertumbuhan = NewPertumbuhanUseCase(opts.Repository)
 
 	return m
 }

@@ -104,7 +104,7 @@ const FormSDIDTK = ({ idAnak = 1 }) => {
             </p>
             <h1 className="text-3xl font-black text-gray-900 uppercase tracking-tighter italic">Pemantauan Pertumbuhan & Perkembangan </h1>
           </div>
-          <button onClick={() => setIsModalOpen(true)} className="bg-gray-900 text-white px-8 py-4 rounded-2xl font-bold flex items-center gap-3 hover:bg-black transition-all shadow-2xl">
+          <button onClick={() => setIsModalOpen(true)} className="bg-blue-600 text-white px-8 py-4 rounded-2xl font-bold flex items-center gap-3 hover:bg-blue-700 transition-all shadow-2xl">
             <Plus size={20} /> Input Pemeriksaan
           </button>
         </div>
@@ -113,19 +113,19 @@ const FormSDIDTK = ({ idAnak = 1 }) => {
         <div className="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-center text-[9px] border-collapse">
-              <thead className="bg-gray-900 text-white uppercase font-black tracking-widest">
+              <thead className="bg-blue-700 text-white uppercase font-black tracking-widest">
                 <tr>
                   <th className="p-4 border-r border-gray-800" rowSpan="2">Bulan</th>
                   <th className="p-2 border-b border-gray-800" colSpan="5">Pertumbuhan</th>
                   <th className="p-2 border-b border-gray-800" colSpan="3">Perkembangan</th>
                   <th className="p-2 border-b border-gray-800" colSpan="3">Emosional</th>
-                  <th className="p-4 border-l border-gray-800" rowSpan="2">PKAT</th>
-                  <th className="p-4 border-l border-gray-800" rowSpan="2">Tindakan</th>
-                  <th className="p-4 border-l border-gray-800" rowSpan="2">Kunjungan Ulang</th>
+                  <th className="p-4 border-l border-blue-800" rowSpan="2">PKAT</th>
+                  <th className="p-4 border-l border-blue-800" rowSpan="2">Tindakan</th>
+                  <th className="p-4 border-l border-blue-800" rowSpan="2">Kunjungan Ulang</th>
                 </tr>
-                <tr className="bg-gray-800 text-gray-400">
+                <tr className="bg-blue-600 text-blue-100">
                   {['BB/U', 'BB/TB', 'TB/U', 'LK/U', 'LiLA', 'KPSP', 'TDD', 'TDL', 'KMPE', 'M-CHAT', 'ACTRS'].map(h => (
-                    <th key={h} className="p-2 border-r border-gray-700 font-medium">{h}</th>
+                    <th key={h} className="p-2 border-r border-blue-500 font-medium">{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -156,7 +156,7 @@ const FormSDIDTK = ({ idAnak = 1 }) => {
           <div className="fixed inset-0 bg-black/40 backdrop-blur-md flex items-center justify-center p-4 z-50">
             <div className="bg-white rounded-[40px] w-full max-w-5xl shadow-2xl overflow-hidden animate-in zoom-in duration-300">
               {/* Header */}
-              <div className="bg-gray-900 p-6 flex justify-between items-center text-white font-black uppercase">
+              <div className="bg-blue-600 p-6 flex justify-between items-center text-white font-black uppercase">
                 <div className="flex items-center gap-4">
                   <ClipboardCheck />
                   <span>Input Laporan SDIDTK</span>

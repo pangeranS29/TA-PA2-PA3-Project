@@ -92,7 +92,7 @@ export default function IbuList() {
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
-          <Link to="/data-ibu/create" className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-xl flex items-center gap-2 font-bold">
+          <Link to="/data-ibu/create" className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl flex items-center gap-2 font-bold">
             <Plus size={20} /> Tambah Data Ibu Baru
           </Link>
         </div>

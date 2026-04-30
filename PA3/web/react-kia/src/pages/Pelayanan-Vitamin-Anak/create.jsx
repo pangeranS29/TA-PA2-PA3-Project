@@ -120,17 +120,17 @@ const PelayananVitaminCreate = () => {
           )}
 
           {/* HEADER */}
-          <div className="bg-slate-900 p-10 text-white flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+          <div className="bg-blue-600 p-10 text-white flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
             <div>
               <h1 className="text-3xl font-black tracking-tight flex items-center gap-3">
-                <Pill className="text-pink-500" size={36} /> Input Pelayanan
+                <Pill className="text-white" size={36} /> Input Pelayanan
               </h1>
-              <p className="text-slate-400 text-[10px] font-black uppercase mt-2 tracking-widest flex items-center gap-2">
+              <p className="text-blue-100 text-[10px] font-black uppercase mt-2 tracking-widest flex items-center gap-2">
                 <User size={12} /> ID Anak: {anakId}
               </p>
             </div>
             
-            <div className={`px-5 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center gap-3 shadow-xl transition-all ${isJadwalNasional() ? 'bg-green-600' : 'bg-amber-500'}`}>
+            <div className={`px-5 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center gap-3 shadow-xl transition-all ${isJadwalNasional() ? 'bg-blue-600' : 'bg-amber-500'}`}>
               {isJadwalNasional() ? <CheckCircle2 size={16} /> : <AlertTriangle size={16} />}
               {isJadwalNasional() ? "Jadwal Nasional Aktif" : "Bukan Jadwal Vit A"}
             </div>
@@ -189,7 +189,7 @@ const PelayananVitaminCreate = () => {
             <button 
               type="submit"
               disabled={submitting || formData.detail.length === 0}
-              className="w-full py-6 bg-slate-900 text-white rounded-[2.5rem] font-black text-xs uppercase tracking-widest hover:bg-pink-600 shadow-2xl transition-all disabled:opacity-30 flex items-center justify-center gap-3"
+              className="w-full py-6 bg-blue-600 text-white rounded-[2.5rem] font-black text-xs uppercase tracking-widest hover:bg-blue-700 shadow-2xl transition-all disabled:opacity-30 flex items-center justify-center gap-3"
             >
               {submitting ? <Loader2 className="animate-spin" size={18} /> : <Save size={18} />}
               Simpan Rekam Medis
@@ -205,8 +205,8 @@ const PelayananVitaminCreate = () => {
                 </div>
               </div>
               
-              <div className="bg-slate-900 rounded-[2.5rem] p-8 shadow-inner overflow-hidden">
-                <pre className="text-green-400 font-mono text-[11px] leading-relaxed overflow-x-auto whitespace-pre-wrap">
+              <div className="bg-blue-900 rounded-[2.5rem] p-8 shadow-inner overflow-hidden">
+                <pre className="text-blue-200 font-mono text-[11px] leading-relaxed overflow-x-auto whitespace-pre-wrap">
                   {JSON.stringify(getPreparedPayload(), null, 2)}
                 </pre>
               </div>

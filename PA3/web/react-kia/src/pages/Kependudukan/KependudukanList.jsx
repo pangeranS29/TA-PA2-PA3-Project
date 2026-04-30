@@ -49,7 +49,7 @@ export default function KependudukanList() {
       <div className="p-6">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">Manajemen Kartu Keluarga (KK)</h1>
-          <Link to="/kependudukan/create" className="bg-indigo-600 text-white px-4 py-2 rounded-lg flex items-center gap-2">
+          <Link to="/kependudukan/create" className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2">
             <Plus size={18} /> Tambah KK
           </Link>
         </div>

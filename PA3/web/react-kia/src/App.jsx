@@ -48,6 +48,7 @@ import CreateAnak from "./pages/Anak/create";
 import EditAnak from "./pages/Anak/edit";
 import DetailAnak from "./pages/Anak/detail";
 import AnakDashboard from "./pages/Anak/Dashboard";
+import PertumbuhanIndex from "./pages/Pertumbuhan/index";
 
 // Kependudukan
 import KependudukanList from "./pages/Kependudukan/KependudukanList";
@@ -209,6 +210,7 @@ function App() {
 
         {/* Rute Anak (tanpa auth wrapper - bisa diakses langsung) */}
         <Route path="/data-anak/dashboard/:id" element={<AnakDashboard />} />
+        <Route path="/data-anak/pertumbuhan/:id" element={<PertumbuhanIndex />} />
         <Route path="/data-anak/neonatus/:id" element={<NeonatusIndex />} />
         <Route path="/data-anak/pelayanan-gizi/:id" element={<PelayananGiziIndex />} />
         <Route path="/data-anak/pelayanan-gizi/:id/create" element={<PelayananGiziCreate />} />

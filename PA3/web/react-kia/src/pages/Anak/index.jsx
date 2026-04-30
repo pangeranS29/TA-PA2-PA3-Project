@@ -78,7 +78,7 @@ export default function AnakListNakes() {
           <p className="text-gray-500 text-sm">Rekam data pertumbuhan anak secara terpusat.</p>
         </div>
         
-        <div className="bg-indigo-600 text-white px-6 py-3 rounded-2xl shadow-lg shadow-indigo-100 flex items-center gap-4">
+        <div className="bg-blue-600 text-white px-6 py-3 rounded-2xl shadow-lg shadow-blue-100 flex items-center gap-4">
           <div className="p-2 bg-white/20 rounded-xl">
             <Baby size={24} />
           </div>
@@ -102,7 +102,7 @@ export default function AnakListNakes() {
           </div>
           <Link
             to="/data-anak/create"
-            className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-xl flex items-center justify-center gap-2 font-bold transition-all shadow-md active:scale-95"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl flex items-center justify-center gap-2 font-bold transition-all shadow-md active:scale-95"
           >
             <Plus size={20} /> Tambah Data Anak
           </Link>
@@ -151,7 +151,7 @@ export default function AnakListNakes() {
                   <td className="px-6 py-4 text-sm font-semibold">{child.kehamilan?.ibu?.nama_ibu || "-"}</td>
                   <td className="px-6 py-4">
                     <div className="flex items-center justify-center gap-2">
-                       <Link to={`/data-anak/dashboard/${child.id}`} className="bg-indigo-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow-sm active:scale-95">
+                       <Link to={`/data-anak/dashboard/${child.id}`} className="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow-sm active:scale-95">
                          Pantau
                        </Link>
                        <Link to={`/data-anak/edit/${child.id}`} className="p-1.5 text-gray-400 hover:text-amber-600"><Pencil size={14}/></Link>

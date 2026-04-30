@@ -64,6 +64,7 @@ type Main struct {
 	KeteranganLahir               *KeteranganLahirController // <-- TAMBAHKAN INI
 	Kependudukan                  *KependudukanController
 	JenisPelayanan                *JenisPelayananController
+	Pertumbuhan                   *PertumbuhanController
 }
 
 type Options struct {
@@ -90,6 +91,7 @@ func Init(opts Options) *Main {
 	m.CatatanPelayanan = NewCatatanPelayananController(opts.UseCases.CatatanPelayanan)
 
 	// Controller baru
+	m.EdukasiInformasiUmum = NewEdukasiInformasiUmumController(opts.UseCases.EdukasiInformasiUmum)
 	m.EdukasiTandaBahayaTrimester = NewEdukasiTandaBahayaTrimesterController(opts.UseCases.EdukasiTandaBahayaTrimester)
 	m.EdukasiTandaMelahirkan = NewEdukasiTandaMelahirkanController(opts.UseCases.EdukasiTandaMelahirkan)
 	m.EdukasiImd = NewEdukasiIMDController(opts.UseCases.EdukasiImd)
@@ -133,6 +135,7 @@ func Init(opts Options) *Main {
 	m.PemantauanIndikator = NewPemantauanIndikatorController(opts.UseCases.PemantauanIndikator)
 	m.Kependudukan = NewKependudukanController(opts.UseCases.Kependudukan)
 	m.JenisPelayanan = NewJenisPelayananController(opts.UseCases.JenisPelayanan)
+	m.Pertumbuhan = NewPertumbuhanController(opts.UseCases.Pertumbuhan)
 
 	return m
 }
