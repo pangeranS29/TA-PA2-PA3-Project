@@ -3,10 +3,16 @@ import api from "./api";
 export const createAkunKeluargaAdmin = async (payload) => {
   const normalizedPayload = {
     ...payload,
-    role: payload?.role || payload?.akun_role || "Orangtua",
   };
 
-  // Keep request backward-compatible when caller still passes akun_role.
+  if (normalizedPayload.role_id != null) {
+    normalizedPayload.role_id = Number(normalizedPayload.role_id);
+    delete normalizedPayload.role;
+    delete normalizedPayload.akun_role;
+  } else if (normalizedPayload.role == null && normalizedPayload.akun_role != null) {
+    normalizedPayload.role = normalizedPayload.akun_role;
+  }
+
   delete normalizedPayload.akun_role;
 
   const response = await api.post("/admin/akun-keluarga", normalizedPayload);

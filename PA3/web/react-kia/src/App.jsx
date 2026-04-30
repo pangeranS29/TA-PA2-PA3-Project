@@ -53,6 +53,11 @@ import PelayananGiziIndex from "./pages/Pelayanan-Gizi-Anak/index"
 // import PrivateRoute from "./routes/Private-routes";
 import NeonatusIndex from "./pages/Kesehatan-Neonatus/NeonatusIndex"
 import PelayananGiziCreate from "./pages/Pelayanan-Gizi-Anak/create";
+import ImunisasiTable from "./pages/Bidan/ImunisasiTable";
+import BidanDashboard from "./pages/Bidan/BidanDashboard";
+import KelolaProfIlIbu from "./pages/Bidan/KelolaProfIlIbu";
+import DataKehamilan from "./pages/Bidan/DataKehamilan";
+import KelolaProfIlAnak from "./pages/Bidan/KelolaProfIlAnak";
 
 
 const HomeRedirect = () => {
@@ -107,6 +112,16 @@ function App() {
           <Route path="/data-anak/create" element={<CreateAnak />} />
           <Route path="/data-anak/edit/:id" element={<EditAnak />} />
           <Route path="/data-anak/:id" element={<DetailAnak />} />
+
+          {/* Pelayanan Imunisasi */}
+          <Route path="/pelayanan-imunisasi" element={<ImunisasiTable />} />
+
+          {/* Bidan/Kader Routes - Pelayanan Imunisasi Baru */}
+          <Route path="/bidan/dashboard" element={<BidanDashboard />} />
+          <Route path="/bidan/profil-ibu" element={<KelolaProfIlIbu />} />
+          <Route path="/bidan/kehamilan" element={<DataKehamilan />} />
+          <Route path="/bidan/profil-anak" element={<KelolaProfIlAnak />} />
+          <Route path="/bidan/imunisasi" element={<ImunisasiTable />} />
 
           {/* Monitoring & Laporan */}
           <Route path="/monitoring" element={<Monitoring />} />

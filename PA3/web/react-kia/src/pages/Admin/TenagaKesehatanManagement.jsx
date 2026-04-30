@@ -646,7 +646,7 @@ const TenagaKesehatanManagement = () => {
                         </option>
                       ))}
                     </select>
-                  ) : item.posyandu_id || "-"}
+                  ) : item.posyandu_nama || item.posyandu_id || "-"}
                 </td>
                 <td className="py-2 pr-3">
                   {editingKaderId === item.id ? (

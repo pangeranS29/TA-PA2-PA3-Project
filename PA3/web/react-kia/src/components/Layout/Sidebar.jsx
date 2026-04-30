@@ -14,21 +14,34 @@ import {
   UserCheck,
   UserPlus,
   BriefcaseMedical,
-  CalendarDays
+  CalendarDays,
+  Syringe,
+  Stethoscope,
+  Heart
 } from "lucide-react";
 
 const Sidebar = () => {
   const user = getCurrentUser();
   const isAdmin = isAdminUser(user);
+  const isBidanOrKader = user && (user.role === "Bidan" || user.role === "Kader");
   const dashboardPath = getUserRedirectRoute(user);
   const [isFamilyMenuOpen, setIsFamilyMenuOpen] = useState(false);
+  const [isBidanMenuOpen, setIsBidanMenuOpen] = useState(false);
 
   const bidanMenuItems = [
     { path: "/data-ibu", name: "Data Ibu", icon: Users },
     { path: "/daftar-anak", name: "Data Anak", icon: Baby },
+    { path: "/pelayanan-imunisasi", name: "Pelayanan Imunisasi", icon: Syringe },
     { path: "/kependudukan", name: "Manajemen KK", icon: UserCheck },
     { path: "/monitoring", name: "Monitoring", icon: Activity },
     { path: "/laporan", name: "Laporan", icon: BarChart3 },
+  ];
+
+  const bidanNewMenuItems = [
+    { path: "/bidan/profil-ibu", name: "Kelola Profil Ibu", icon: Heart },
+    { path: "/bidan/kehamilan", name: "Data Kehamilan", icon: Stethoscope },
+    { path: "/bidan/profil-anak", name: "Kelola Profil Anak", icon: Baby },
+    { path: "/bidan/imunisasi", name: "Rekap Imunisasi", icon: Syringe },
   ];
 
   const adminFamilyMenuItems = useMemo(
@@ -131,6 +144,51 @@ const Sidebar = () => {
             {isFamilyMenuOpen && (
               <div className="mt-1 space-y-1 pl-5 border-l border-slate-200 ml-5">
                 {adminFamilyMenuItems.map((item) => (
+                  <NavLink
+                    key={item.path}
+                    to={item.path}
+                    className={({ isActive }) =>
+                      `flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 group text-sm ${
+                        isActive
+                          ? "bg-blue-50 text-blue-600 font-semibold"
+                          : "text-slate-500 hover:bg-gray-50 hover:text-slate-700"
+                      }`
+                    }
+                  >
+                    {({ isActive }) => (
+                      <>
+                        <item.icon
+                          size={16}
+                          className={isActive ? "text-blue-600" : "text-slate-400 group-hover:text-slate-600"}
+                        />
+                        <span className="truncate">{item.name}</span>
+                      </>
+                    )}
+                  </NavLink>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {isBidanOrKader && (
+          <div className="pt-4 border-t border-slate-200 mt-4">
+            <button
+              type="button"
+              onClick={() => setIsBidanMenuOpen((prev) => !prev)}
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 text-slate-500 hover:bg-gray-50 hover:text-slate-700 font-semibold"
+            >
+              <Stethoscope size={20} className="text-slate-400" />
+              <span className="flex-1 text-left truncate">Pelayanan Imunisasi</span>
+              <ChevronDown
+                size={16}
+                className={`transition-transform duration-200 ${isBidanMenuOpen ? "rotate-180" : "rotate-0"}`}
+              />
+            </button>
+
+            {isBidanMenuOpen && (
+              <div className="mt-1 space-y-1 pl-5 border-l border-slate-200 ml-5">
+                {bidanNewMenuItems.map((item) => (
                   <NavLink
                     key={item.path}
                     to={item.path}

@@ -53,6 +53,14 @@ const headerByPath = (pathname) => {
     };
   }
 
+  if (pathname === "/pelayanan-imunisasi") {
+    return {
+      title: "Pelayanan Imunisasi",
+      subtitle: "Catatan pemberian imunisasi bayi dan anak sesuai jadwal yang ditentukan.",
+      variant: "hero",
+    };
+  }
+
   if (pathname.startsWith("/dashboard/admin/tenaga-kesehatan")) {
     return {
       title: "Manajemen Bidan & Kader",

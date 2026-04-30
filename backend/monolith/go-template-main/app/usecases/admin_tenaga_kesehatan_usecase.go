@@ -214,6 +214,20 @@ func (u *AdminTenagaKesehatanUsecase) CreateKader(req *AdminCreateKaderRequest) 
 		return nil, customerror.NewNotFoundError("penduduk tidak ditemukan")
 	}
 
+	if req.PosyanduID != nil {
+		if *req.PosyanduID <= 0 {
+			return nil, customerror.NewBadRequestError("posyandu_id tidak valid")
+		}
+
+		exists, existsErr := u.kependudukanRepo.PosyanduExists(*req.PosyanduID)
+		if existsErr != nil {
+			return nil, customerror.NewBadRequestError(existsErr.Error())
+		}
+		if !exists {
+			return nil, customerror.NewNotFoundError("posyandu tidak ditemukan")
+		}
+	}
+
 	data := &models.Kader{
 		PendudukID: req.PendudukID,
 		PosyanduID: req.PosyanduID,
@@ -256,6 +270,20 @@ func (u *AdminTenagaKesehatanUsecase) UpdateKader(id int32, req *AdminUpdateKade
 	data, err := u.kaderRepo.FindByID(id)
 	if err != nil {
 		return nil, customerror.NewNotFoundError("kader tidak ditemukan")
+	}
+
+	if req.PosyanduID != nil {
+		if *req.PosyanduID <= 0 {
+			return nil, customerror.NewBadRequestError("posyandu_id tidak valid")
+		}
+
+		exists, existsErr := u.kependudukanRepo.PosyanduExists(*req.PosyanduID)
+		if existsErr != nil {
+			return nil, customerror.NewBadRequestError(existsErr.Error())
+		}
+		if !exists {
+			return nil, customerror.NewNotFoundError("posyandu tidak ditemukan")
+		}
 	}
 
 	data.PosyanduID = req.PosyanduID

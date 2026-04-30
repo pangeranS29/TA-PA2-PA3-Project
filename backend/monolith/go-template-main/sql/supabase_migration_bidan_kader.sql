@@ -97,7 +97,20 @@ CREATE INDEX IF NOT EXISTS ix_bidan_desa ON bidan(desa);
 CREATE INDEX IF NOT EXISTS ix_bidan_status ON bidan(status);
 CREATE INDEX IF NOT EXISTS ix_bidan_deleted_at ON bidan(deleted_at);
 
--- 4) Table kader
+-- 4) Table posyandu
+CREATE TABLE IF NOT EXISTS posyandu (
+  id BIGSERIAL PRIMARY KEY,
+  nama TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  deleted_at TIMESTAMPTZ
+);
+
+-- Optional uniqueness to avoid duplicate active names
+CREATE UNIQUE INDEX IF NOT EXISTS ux_posyandu_nama ON posyandu (LOWER(nama));
+CREATE INDEX IF NOT EXISTS ix_posyandu_deleted_at ON posyandu(deleted_at);
+
+-- 5) Table kader
 CREATE TABLE IF NOT EXISTS kader (
   id BIGSERIAL PRIMARY KEY,
   penduduk_id BIGINT NOT NULL,
@@ -126,6 +139,23 @@ BEGIN
       REFERENCES penduduk(id)
       ON UPDATE CASCADE
       ON DELETE RESTRICT;
+  END IF;
+END $$;
+
+-- FK kader -> posyandu (nullable)
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_constraint
+    WHERE conname = 'fk_kader_posyandu_id'
+  ) THEN
+    ALTER TABLE kader
+      ADD CONSTRAINT fk_kader_posyandu_id
+      FOREIGN KEY (posyandu_id)
+      REFERENCES posyandu(id)
+      ON UPDATE CASCADE
+      ON DELETE SET NULL;
   END IF;
 END $$;
 
@@ -160,6 +190,18 @@ BEGIN
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_trigger WHERE tgname = 'trg_posyandu_set_updated_at'
+  ) THEN
+    CREATE TRIGGER trg_posyandu_set_updated_at
+    BEFORE UPDATE ON posyandu
+    FOR EACH ROW
+    EXECUTE FUNCTION set_updated_at();
+  END IF;
+END $$;
 
 DO $$
 BEGIN

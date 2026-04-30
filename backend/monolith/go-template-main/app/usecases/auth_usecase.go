@@ -36,10 +36,11 @@ var roleAliases = map[string]string{
 	"tenaga kesehatan": "Tenaga-kesehatan",
 	"kader":            "Kader",
 	"bidan":            "Bidan",
-	"orangtua":         "Orangtua",
-	"orang tua":        "Orangtua",
-	"orang-tua":        "Orangtua",
-	"Ibu":              "Orangtua",
+	"ibu":              "Ibu",
+	"orangtua":         "Ibu",
+	"orang tua":        "Ibu",
+	"orang-tua":        "Ibu",
+	"ortu":             "Ibu",
 }
 
 var phonePattern = regexp.MustCompile(`^\+62[0-9]{8,13}$`)

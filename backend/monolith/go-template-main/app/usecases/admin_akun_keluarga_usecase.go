@@ -15,7 +15,7 @@ import (
 
 const (
 	defaultAdminAkunKeluargaPassword = "pengguna12345"
-	roleOrangtua                     = "Orangtua"
+	roleIbu                          = "Ibu"
 	roleBidan                        = "Bidan"
 	roleKader                        = "Kader"
 )
@@ -45,6 +45,7 @@ type AdminCreateAkunKeluargaRequest struct {
 	NoKK            string                        `json:"no_kk"`
 	TanggalTerbit   string                        `json:"tanggal_terbit"`
 	Email           string                        `json:"email"`
+	RoleID          int32                         `json:"role_id"`
 	Role            string                        `json:"role"`
 	AkunPendudukNIK string                        `json:"akun_penduduk_nik"`
 	AnggotaKeluarga []AdminAnggotaKeluargaRequest `json:"anggota_keluarga"`
@@ -153,8 +154,8 @@ func NewAdminAkunKeluargaUsecase(
 func normalizeRoleAkunKeluarga(input string) (string, bool) {
 	cleaned := strings.ToLower(strings.TrimSpace(input))
 	switch cleaned {
-	case "", "orangtua", "orang tua", "ortu":
-		return roleOrangtua, true
+	case "", "ibu", "orangtua", "orang tua", "orang-tua", "ortu":
+		return roleIbu, true
 	case "bidan":
 		return roleBidan, true
 	case "kader":
@@ -172,6 +173,7 @@ func (u *AdminAkunKeluargaUsecase) CreateAkunKeluarga(req *AdminCreateAkunKeluar
 	req.NoKK = strings.TrimSpace(req.NoKK)
 	req.Email = strings.TrimSpace(strings.ToLower(req.Email))
 	req.Role = strings.TrimSpace(req.Role)
+	req.RoleID = req.RoleID
 	req.AkunPendudukNIK = strings.TrimSpace(req.AkunPendudukNIK)
 
 	for i := range req.AnggotaKeluarga {
@@ -199,11 +201,25 @@ func (u *AdminAkunKeluargaUsecase) CreateAkunKeluarga(req *AdminCreateAkunKeluar
 		return nil, customerror.NewBadRequestError("no_kk dan email wajib diisi")
 	}
 
-	normalizedRole, ok := normalizeRoleAkunKeluarga(req.Role)
-	if !ok {
-		return nil, customerror.NewBadRequestError("role harus salah satu dari: Orangtua, Bidan, Kader")
+	var role *models.Role
+	var err error
+	if req.RoleID > 0 {
+		role, err = u.roleRepo.FindByID(req.RoleID)
+		if err != nil {
+			return nil, customerror.NewNotFoundError("role dengan id tersebut tidak ditemukan")
+		}
+	} else {
+		normalizedRole, ok := normalizeRoleAkunKeluarga(req.Role)
+		if !ok {
+			return nil, customerror.NewBadRequestError("role_id wajib diisi atau role harus salah satu dari: Ibu, Bidan, Kader")
+		}
+		role, err = u.roleRepo.FindByName(normalizedRole)
+		if err != nil {
+			return nil, customerror.NewNotFoundError("role " + normalizedRole + " tidak ditemukan")
+		}
 	}
-	req.Role = normalizedRole
+	req.RoleID = role.ID
+	req.Role = role.Name
 
 	if len(req.AnggotaKeluarga) == 0 {
 		return nil, customerror.NewBadRequestError("anggota_keluarga wajib diisi minimal 1 orang")
@@ -231,11 +247,6 @@ func (u *AdminAkunKeluargaUsecase) CreateAkunKeluarga(req *AdminCreateAkunKeluar
 		if _, err := u.kependudukanRepo.FindByNIK(anggota.NIK); err == nil {
 			return nil, customerror.NewBadRequestError("NIK sudah terdaftar: " + anggota.NIK)
 		}
-	}
-
-	role, err := u.roleRepo.FindByName(req.Role)
-	if err != nil {
-		return nil, customerror.NewNotFoundError("role " + req.Role + " tidak ditemukan")
 	}
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(defaultAdminAkunKeluargaPassword), bcrypt.DefaultCost)

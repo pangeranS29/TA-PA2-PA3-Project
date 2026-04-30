@@ -152,7 +152,7 @@ func detectPosyanduNameColumn(db *gorm.DB) (string, map[string]bool, error) {
 		return "", nil, err
 	}
 	if len(columns) == 0 {
-		return "", nil, errors.New("tabel posyandu tidak ditemukan")
+		return "", nil, errors.New("tabel posyandu tidak ditemukan, jalankan SQL migration posyandu terlebih dahulu")
 	}
 
 	hasColumn := map[string]bool{}
@@ -167,6 +167,29 @@ func detectPosyanduNameColumn(db *gorm.DB) (string, map[string]bool, error) {
 	}
 
 	return "", nil, errors.New("kolom nama posyandu tidak ditemukan")
+}
+
+func (r *KependudukanRepository) PosyanduExists(id int64) (bool, error) {
+	if id <= 0 {
+		return false, errors.New("posyandu_id tidak valid")
+	}
+
+	_, hasColumn, err := detectPosyanduNameColumn(r.db)
+	if err != nil {
+		return false, err
+	}
+
+	q := r.db.Table("posyandu").Where("id = ?", id)
+	if hasColumn["deleted_at"] {
+		q = q.Where("deleted_at IS NULL")
+	}
+
+	var count int64
+	if err := q.Count(&count).Error; err != nil {
+		return false, err
+	}
+
+	return count > 0, nil
 }
 
 func (r *KependudukanRepository) CreatePosyandu(nama string) error {

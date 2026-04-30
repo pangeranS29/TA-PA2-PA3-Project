@@ -3,9 +3,11 @@ package app
 import (
 	"fmt"
 	"monitoring-service/app/controllers"
+
 	// "monitoring-service/app/models"
 	"monitoring-service/app/repositories"
 	"monitoring-service/app/routes"
+
 	// "monitoring-service/app/seed"
 	"monitoring-service/app/usecases"
 	"monitoring-service/pkg/config"
@@ -142,4 +144,8 @@ func (m *Main) close() {
 			db.Close()
 		}
 	}
+}
+
+func (m *Main) Database() Database {
+	return m.database
 }

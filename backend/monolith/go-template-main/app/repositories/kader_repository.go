@@ -8,16 +8,17 @@ import (
 )
 
 type KaderListItem struct {
-	ID          int32     `json:"id"`
-	PendudukID  int32     `json:"penduduk_id"`
-	NamaLengkap string    `json:"nama_lengkap"`
-	NIK         string    `json:"nik"`
-	Kecamatan   string    `json:"kecamatan"`
-	Desa        string    `json:"desa"`
-	PosyanduID  *int64    `json:"posyandu_id,omitempty"`
-	Status      string    `json:"status"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
+	ID           int32     `json:"id"`
+	PendudukID   int32     `json:"penduduk_id"`
+	NamaLengkap  string    `json:"nama_lengkap"`
+	NIK          string    `json:"nik"`
+	Kecamatan    string    `json:"kecamatan"`
+	Desa         string    `json:"desa"`
+	PosyanduID   *int64    `json:"posyandu_id,omitempty"`
+	PosyanduNama string    `json:"posyandu_nama,omitempty"`
+	Status       string    `json:"status"`
+	CreatedAt    time.Time `json:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at"`
 }
 
 type KaderRepository struct {
@@ -68,8 +69,9 @@ func (r *KaderRepository) List(desa string) ([]KaderListItem, error) {
 	var rows []KaderListItem
 
 	q := r.db.Table("kader k").
-		Select("k.id, k.penduduk_id, p.nama_lengkap, p.nik, p.kecamatan, p.desa, k.posyandu_id, k.status, k.created_at, k.updated_at").
+		Select("k.id, k.penduduk_id, p.nama_lengkap, p.nik, p.kecamatan, p.desa, k.posyandu_id, COALESCE(ps.nama, '') AS posyandu_nama, k.status, k.created_at, k.updated_at").
 		Joins("JOIN penduduk p ON p.id = k.penduduk_id").
+		Joins("LEFT JOIN posyandu ps ON ps.id = k.posyandu_id").
 		Where("k.deleted_at IS NULL AND p.deleted_at IS NULL").
 		Order("k.id DESC")
 

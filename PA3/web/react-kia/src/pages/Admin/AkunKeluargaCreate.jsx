@@ -3,6 +3,12 @@ import { Plus, Trash2, Send } from "lucide-react";
 import MainLayout from "../../components/Layout/MainLayout";
 import { createAkunKeluargaAdmin } from "../../services/adminAkunKeluarga";
 
+const ACCOUNT_ROLE_OPTIONS = [
+  { id: 6, label: "Ibu" },
+  { id: 5, label: "Bidan" },
+  { id: 4, label: "Kader" },
+];
+
 const getTodayDate = () => {
   const now = new Date();
   const y = now.getFullYear();
@@ -40,7 +46,7 @@ const AdminAkunKeluargaCreate = () => {
     tanggal_terbit: getTodayDate(),
     email: "",
     akun_penduduk_nik: "",
-    role: "Orangtua",
+    role_id: 6,
     anggota_keluarga: [createEmptyMember()],
   });
   const [submitting, setSubmitting] = useState(false);
@@ -103,7 +109,7 @@ const AdminAkunKeluargaCreate = () => {
     if (!form.no_kk.trim()) return "No KK wajib diisi";
     if (!form.tanggal_terbit) return "Tanggal terbit wajib diisi";
     if (!form.email.trim()) return "Email wajib diisi";
-    if (!form.role.trim()) return "Role akun wajib dipilih";
+    if (!form.role_id) return "Role akun wajib dipilih";
     if (form.anggota_keluarga.length === 0) return "Anggota keluarga minimal 1 orang";
 
     for (let i = 0; i < form.anggota_keluarga.length; i += 1) {
@@ -125,7 +131,7 @@ const AdminAkunKeluargaCreate = () => {
       no_kk: form.no_kk.trim(),
       tanggal_terbit: form.tanggal_terbit,
       email: form.email.trim(),
-      role: form.role,
+      role_id: form.role_id,
       akun_penduduk_nik: akunNik,
       anggota_keluarga: form.anggota_keluarga.map((member) => ({
         nik: member.nik.trim(),
@@ -174,7 +180,7 @@ const AdminAkunKeluargaCreate = () => {
         tanggal_terbit: getTodayDate(),
         email: "",
         akun_penduduk_nik: "",
-        role: "Orangtua",
+        role_id: 6,
         anggota_keluarga: [createEmptyMember()],
       });
     } catch (error) {
@@ -381,13 +387,15 @@ const AdminAkunKeluargaCreate = () => {
               <div>
                 <label className="text-sm text-slate-600">Role Akun</label>
                 <select
-                  value={form.role}
-                  onChange={(e) => setTopField("role", e.target.value)}
+                  value={form.role_id}
+                  onChange={(e) => setTopField("role_id", Number(e.target.value))}
                   className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2"
                 >
-                  <option value="Orangtua">Orangtua (password: pengguna12345)</option>
-                  <option value="Bidan">Bidan (password: pengguna12345)</option>
-                  <option value="Kader">Kader (password: pengguna12345)</option>
+                  {ACCOUNT_ROLE_OPTIONS.map((option) => (
+                    <option key={option.id} value={option.id}>
+                      {option.label} (password: pengguna12345)
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>
