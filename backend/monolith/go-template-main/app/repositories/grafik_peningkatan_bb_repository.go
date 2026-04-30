@@ -3,6 +3,7 @@ package repositories
 import (
 	"errors"
 	"monitoring-service/app/models"
+	"strings"
 
 	"gorm.io/gorm"
 )
@@ -19,7 +20,15 @@ func NewGrafikPeningkatanBBRepository(db *gorm.DB) *GrafikPeningkatanBBRepositor
 // CREATE
 //
 func (r *GrafikPeningkatanBBRepository) Create(g *models.GrafikPeningkatanBB) error {
-	return r.db.Create(g).Error
+	err := r.db.Create(g).Error
+	if err != nil {
+		// 🔥 handle duplicate dari DB (unique index)
+		if strings.Contains(err.Error(), "duplicate") {
+			return errors.New("data minggu ini sudah ada")
+		}
+		return err
+	}
+	return nil
 }
 
 //
@@ -34,7 +43,7 @@ func (r *GrafikPeningkatanBBRepository) FindByID(id int32) (*models.GrafikPening
 
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errors.New("data grafik tidak ditemukan")
+			return nil, nil // 🔥 ubah jadi nil
 		}
 		return nil, err
 	}
@@ -53,11 +62,14 @@ func (r *GrafikPeningkatanBBRepository) FindByKehamilanID(kehamilanID int32) ([]
 		Order("minggu_kehamilan ASC").
 		Find(&list).Error
 
-	return list, err
-}
+	if err != nil {
+		return nil, err
+	}
 
+	return list, nil
+}
 //
-// 🔥 CEK DUPLIKAT MINGGU (PENTING)
+//  CEK DUPLIKAT MINGGU (PENTING)
 //
 func (r *GrafikPeningkatanBBRepository) FindByKehamilanIDAndMinggu(kehamilanID int32, minggu int) (*models.GrafikPeningkatanBB, error) {
 	var g models.GrafikPeningkatanBB
@@ -67,6 +79,9 @@ func (r *GrafikPeningkatanBBRepository) FindByKehamilanIDAndMinggu(kehamilanID i
 		First(&g).Error
 
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
 		return nil, err
 	}
 
@@ -77,9 +92,24 @@ func (r *GrafikPeningkatanBBRepository) FindByKehamilanIDAndMinggu(kehamilanID i
 // UPDATE
 //
 func (r *GrafikPeningkatanBBRepository) Update(g *models.GrafikPeningkatanBB) error {
-	return r.db.Save(g).Error
-}
+	err := r.db.
+		Model(&models.GrafikPeningkatanBB{}).
+		Where("id = ?", g.ID).
+		Updates(map[string]interface{}{
+			"berat_badan":             g.BeratBadan,
+			"minggu_kehamilan":        g.MingguKehamilan,
+			"penjelasan_hasil_grafik": g.PenjelasanHasilGrafik,
+		}).Error
 
+	if err != nil {
+		if strings.Contains(err.Error(), "duplicate") {
+			return errors.New("data minggu ini sudah ada")
+		}
+		return err
+	}
+
+	return nil
+}
 //
 // DELETE
 //
@@ -91,7 +121,7 @@ func (r *GrafikPeningkatanBBRepository) Delete(id int32) error {
 	}
 
 	if result.RowsAffected == 0 {
-		return errors.New("data grafik peningkatan berat badan tidak ditemukan")
+		return errors.New("data tidak ditemukan")
 	}
 
 	return nil
