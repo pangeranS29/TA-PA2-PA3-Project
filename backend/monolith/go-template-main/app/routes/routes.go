@@ -336,7 +336,7 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	// tenaga.GET("/kependudukan", controller.Kependudukan.GetAll)
 	// tenaga.POST("/kependudukan", controller.Kependudukan.Create)
 	// tenaga.GET("/kependudukan/:id", controller.Kependudukan.GetByID)
-	// // tenaga.GET("/kependudukan/kartu-keluarga/:kartu_keluarga_id", controller.Kependudukan.GetByKartuKeluargaID)
+	// // tenaga.GET("/kep// endudukan/kartu-keluarga/:kartu_keluarga_id", controller.Kependudukan.GetByKartuKeluargaID)
 	// tenaga.PUT("/kependudukan/:id", controller.Kependudukan.Update)
 	// tenaga.DELETE("/kependudukan/:id", controller.Kependudukan.Delete)
 
@@ -347,6 +347,8 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	ibu.Use(middlewares.JWTAuth(controller.JWTSecret()))
 	ibu.Use(middlewares.Ibu())
 	ibu.GET("/anak", controller.Ibu.GetAnakSaya)
+	ibu.GET("/lembar-pemantauan/rentang-usia", controller.LembarPemantauan.GetRentangUsiaForIbu)
+	ibu.GET("/lembar-pemantauan/kategori-tanda-sakit", controller.LembarPemantauan.GetKategoriByRentangUsiaForIbu)
 	ibu.POST("/lembar-pemantauan", controller.LembarPemantauan.CreateForIbu)
 	ibu.GET("/lembar-pemantauan", controller.LembarPemantauan.GetByAnakIDForIbu)
 

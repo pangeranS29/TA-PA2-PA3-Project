@@ -14,6 +14,8 @@ type LembarPemantauanRepository interface {
 	FindByID(id int32) (*models.LembarPemantauan, error)
 	FindByAnakID(anakID int32) ([]models.LembarPemantauan, error)
 	FindAll() ([]models.LembarPemantauan, error)
+	FindRentangUsia() ([]models.RentangUsia, error)
+	FindKategoriTandaSakitByRentangUsiaID(rentangUsiaID int32) ([]models.KategoriTandaSakit, error)
 	IsAnakMilikIbu(userID, anakID int32) (bool, error)
 	Update(lembarPemantauan *models.LembarPemantauan) error
 	Delete(id int32) error
@@ -90,7 +92,7 @@ func (r *lembarPemantauanRepository) IsAnakMilikIbu(userID, anakID int32) (bool,
 	err := r.db.Table("anak a").
 		Joins("JOIN kehamilan k ON k.id = a.kehamilan_id").
 		Joins("JOIN ibu i ON i.id = k.ibu_id").
-		Joins("JOIN kependudukan ki ON ki.id = i.penduduk_id").
+		Joins("JOIN penduduk ki ON ki.id = i.penduduk_id").
 		Joins("JOIN pengguna p ON p.penduduk_id = ki.id").
 		Where("a.id = ?", anakID).
 		Where("p.id = ?", userID).
@@ -121,6 +123,27 @@ func (r *lembarPemantauanRepository) FindAll() ([]models.LembarPemantauan, error
 	}
 
 	return lembars, nil
+}
+
+func (r *lembarPemantauanRepository) FindRentangUsia() ([]models.RentangUsia, error) {
+	var rentang []models.RentangUsia
+	err := r.db.Order("id ASC").Find(&rentang).Error
+	if err != nil {
+		return nil, customerror.NewInternalServiceError("gagal mengambil data rentang usia")
+	}
+	return rentang, nil
+}
+
+func (r *lembarPemantauanRepository) FindKategoriTandaSakitByRentangUsiaID(rentangUsiaID int32) ([]models.KategoriTandaSakit, error) {
+	var kategori []models.KategoriTandaSakit
+	err := r.db.
+		Where("rentang_usia_id = ? AND is_active = ?", rentangUsiaID, true).
+		Order("id ASC").
+		Find(&kategori).Error
+	if err != nil {
+		return nil, customerror.NewInternalServiceError("gagal mengambil data kategori tanda sakit")
+	}
+	return kategori, nil
 }
 
 // Update - Mengupdate lembar pemantauan dan detail gejala
