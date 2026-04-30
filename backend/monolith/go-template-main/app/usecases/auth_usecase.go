@@ -26,6 +26,7 @@ var roleDestinations = map[string]roleDestination{
 	"Kader":            {TargetApp: "mobile", RedirectRoute: "/mobile/home-kader"},
 	"Bidan":            {TargetApp: "mobile", RedirectRoute: "/mobile/home-bidan"},
 	"Ibu":              {TargetApp: "mobile", RedirectRoute: "/mobile/home-orangtua"},
+	"Puskesmas":        {TargetApp: "website", RedirectRoute: "/dashboard/puskesmas"},
 }
 
 var roleAliases = map[string]string{
@@ -41,6 +42,7 @@ var roleAliases = map[string]string{
 	"orang tua":        "Ibu",
 	"orang-tua":        "Ibu",
 	"ortu":             "Ibu",
+	"puskesmas":        "Puskesmas",
 }
 
 var phonePattern = regexp.MustCompile(`^\+62[0-9]{8,13}$`)
@@ -270,6 +272,15 @@ func (m *Main) Login(req *models.LoginRequest) (*models.LoginResponse, error) {
 			kader, kErr := m.repository.Kader.FindByPendudukID(int32(*user.PendudukID))
 			if kErr != nil || strings.ToLower(strings.TrimSpace(kader.Status)) != "aktif" {
 				return nil, customerror.NewBadRequestError("akun kader nonaktif")
+			}
+
+		}
+
+	} else {
+		if canonicalRoleName == "Puskesmas" {
+			_, pErr := m.repository.Puskesmas.FindByUserID(uint(user.ID))
+			if pErr != nil {
+				return nil, customerror.NewBadRequestError("akun puskesmas tidak ditemukan")
 			}
 		}
 	}

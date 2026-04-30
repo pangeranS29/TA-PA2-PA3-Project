@@ -59,6 +59,9 @@ import KelolaProfIlIbu from "./pages/Bidan/KelolaProfIlIbu";
 import DataKehamilan from "./pages/Bidan/DataKehamilan";
 import KelolaProfIlAnak from "./pages/Bidan/KelolaProfIlAnak";
 
+// PUSKESMAS
+import DashboardPuskesmas from "./pages/Puskesmas/Dashboard";
+
 
 const HomeRedirect = () => {
   if (!isAuthenticated()) {
@@ -76,7 +79,7 @@ function App() {
         <Route path="/login" element={<Login />} />
 
         {/* PROTECTED */}
-        <Route element={<PrivateRoute />}>
+        <Route element={<PrivateRoute allowedRoles={['bidan']} />}>
           <Route path="/dashboard" element={<Dashboard />} />
           {/* // tambahkan route */}
           <Route path="/kependudukan" element={<KependudukanList />} />
@@ -127,6 +130,11 @@ function App() {
           <Route path="/monitoring" element={<Monitoring />} />
           <Route path="/laporan" element={<Laporan />} />
         </Route>
+
+        <Route element={<PrivateRoute allowedRoles={['puskesmas']} />}>
+          <Route path="/dashboard/puskesmas" element={<DashboardPuskesmas />} />
+        </Route>
+
 
         <Route element={<AdminRoute />}>
           <Route path="/dashboard/admin" element={<Dashboard />} />

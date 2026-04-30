@@ -1,7 +1,5 @@
 import 'dart:convert';
-
 import 'package:http/http.dart' as http;
-
 import 'package:ta_pa2_pa3_project/core/constants/api_constants.dart';
 import 'package:ta_pa2_pa3_project/core/services/auth_session.dart';
 
@@ -13,6 +11,7 @@ class AuthApiService {
   Future<void> login({
     required String identifier,
     required String password,
+    String? fcmToken, 
   }) async {
     final uri = Uri.parse('${ApiConstants.baseUrl}${ApiConstants.authLogin}');
 
@@ -22,6 +21,7 @@ class AuthApiService {
       body: jsonEncode({
         'identifier': identifier,
         'password': password,
+        if (fcmToken != null) 'fcm_token': fcmToken, 
       }),
     );
 

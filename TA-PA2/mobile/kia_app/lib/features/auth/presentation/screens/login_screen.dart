@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:ta_pa2_pa3_project/features/auth/data/datasources/auth_api_service.dart';
 import 'package:ta_pa2_pa3_project/features/dashboard/presentation/screens/dashboard_screen.dart';
 
@@ -26,7 +27,7 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  Future<void> _submit() async {
+Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() {
@@ -34,15 +35,29 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     try {
+      // ==========================================================
+      // AMBIL FCM TOKEN DARI PERANGKAT
+      // ==========================================================
+      String? deviceFcmToken;
+      try {
+        deviceFcmToken = await FirebaseMessaging.instance.getToken();
+        debugPrint("Berhasil mendapatkan FCM Token: $deviceFcmToken");
+      } catch (e) {
+        debugPrint("Gagal mendapatkan FCM Token: $e");
+      }
+      // ==========================================================
+
+      // PANGGIL API LOGIN BESERTA TOKENNYA
       await _service.login(
         identifier: _identifierController.text.trim(),
         password: _passwordController.text,
+        fcmToken: deviceFcmToken, 
       );
 
       if (!mounted) return;
 
       Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => DashboardScreen()),
+        MaterialPageRoute(builder: (_) =>  DashboardScreen()), 
         (route) => false,
       );
     } catch (e) {

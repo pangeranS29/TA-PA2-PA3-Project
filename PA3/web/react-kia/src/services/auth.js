@@ -3,23 +3,26 @@ import api from "./api";
 
 const ADMIN_ROLE = "admin";
 const BIDAN_ROLE = "bidan";
+const PUSKES_ROLE = "puskesmas";
 
 const normalizeRole = (role) => (role || "").toString().trim().toLowerCase();
 
 export const isAdminUser = (user) => normalizeRole(user?.role) === ADMIN_ROLE;
 
 export const getUserRedirectRoute = (user) => {
-  if (isAdminUser(user)) {
-    return "/dashboard/admin";
-  }
+  const role = normalizeRole(user?.role);
 
-  if (normalizeRole(user?.role) === BIDAN_ROLE) {
-    return "/dashboard";
+  switch (role) {
+    case ADMIN_ROLE:
+      return "/dashboard/admin";
+    case BIDAN_ROLE:
+      return "/dashboard";
+    case PUSKES_ROLE:
+      return "/dashboard/puskesmas";
+    default:
+      return "/login"; 
   }
-
-  return "/dashboard";
 };
-
 /**
  * Fungsi Login
  * Menyimpan token dan data user ke localStorage
