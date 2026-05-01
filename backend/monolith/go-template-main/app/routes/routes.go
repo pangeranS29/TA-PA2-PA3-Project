@@ -12,8 +12,13 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 		return c.JSON(200, map[string]string{"status": "ok"})
 	})
 
+	registerRoutes(e.Group(""), controller)
+	registerRoutes(e.Group("/api/v1"), controller)
+}
+
+func registerRoutes(r *echo.Group, controller *controllers.Main) {
 	// Auth routes
-	auth := e.Group("/auth")
+	auth := r.Group("/auth")
 	auth.POST("/register", controller.Register)
 	auth.POST("/login", controller.Login)
 	// auth.POST("/register/ortu", controller.RegisterOrangTua) // registrasi khusus orang tua
@@ -23,7 +28,7 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 
 	// ==================== MODUL ADMIN  ====================
 
-	admin := e.Group("/admin")
+	admin := r.Group("/admin")
 	admin.Use(middlewares.JWTAuth(controller.JWTSecret()))
 	admin.Use(middlewares.AdminOnly())
 	admin.POST("/akun-keluarga", controller.AdminCreateAkunKeluarga)
@@ -48,20 +53,20 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 
 	// ==================== Branch Andika ====================
 
-	anak := e.Group("/anak")
+	anak := r.Group("/anak")
 	anak.Use(middlewares.JWTAuth(controller.JWTSecret()))
 	// anak.GET("", controller.GetAllAnak)
 	// anak.GET("/search", controller.GetAnak)
 	// anak.GET("/:anak_id", controller.GetAnakById)
 
 	// Master Standar Routes
-	masterStandar := e.Group("/master-standar")
+	masterStandar := r.Group("/master-standar")
 	masterStandar.Use(middlewares.JWTAuth(controller.JWTSecret()))
 	// masterStandar.GET("", controller.GetMasterStandar)
 	// masterStandar.POST("", controller.CreateMasterStandar)
 
 	// Pertumbuhan Routes
-	pertumbuhan := e.Group("/pertumbuhan")
+	pertumbuhan := r.Group("/pertumbuhan")
 	pertumbuhan.Use(middlewares.JWTAuth(controller.JWTSecret()))
 	// pertumbuhan.POST("", controller.AddCatatanPertumbuhan)
 	// pertumbuhan.GET("/:anak_id", controller.GetRiwayatPertumbuhan)
@@ -70,7 +75,7 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	// pertumbuhan.DELETE("/:id", controller.DeleteCatatanPertumbuhan)
 
 	// Kategori Capaian Routes
-	kategoriCapaian := e.Group("/kategori-capaian")
+	kategoriCapaian := r.Group("/kategori-capaian")
 	kategoriCapaian.Use(middlewares.JWTAuth(controller.JWTSecret()))
 	kategoriCapaian.GET("", controller.GetAllKategoriCapaian)
 	kategoriCapaian.GET("/:id", controller.GetKategoriCapaianById)
@@ -80,7 +85,7 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	kategoriCapaian.DELETE("/:id", controller.DeleteKategoriCapaian)
 
 	// Perkembangan Routes
-	perkembangan := e.Group("/perkembangan")
+	perkembangan := r.Group("/perkembangan")
 	perkembangan.Use(middlewares.JWTAuth(controller.JWTSecret()))
 	perkembangan.GET("", controller.GetAllPerkembangan)
 	perkembangan.GET("/:id", controller.GetPerkembanganById)
@@ -94,7 +99,7 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	// ==================== Branch Andika ====================
 
 	// Group untuk tenaga kesehatan (termasuk bidan, dokter, tenaga-kesehatan)
-	tenaga := e.Group("/tenaga-kesehatan")
+	tenaga := r.Group("/tenaga-kesehatan")
 	tenaga.Use(middlewares.JWTAuth(controller.JWTSecret()))
 	tenaga.Use(middlewares.TenagaKesehatan())
 
@@ -359,16 +364,20 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	// tenaga.PUT("/kependudukan/:id", controller.Kependudukan.Update)
 	// tenaga.DELETE("/kependudukan/:id", controller.Kependudukan.Delete)
 
-
 	//jenis pelayanan neonatus
 	tenaga.GET("/jenis-pelayanan", controller.JenisPelayanan.GetJenisPelayanan)
 
-	// ==================== Vaksin ====================
-
 	// ==================== Puskesmas ====================
 
-	puskes := e.Group("/puskesmas")
+	puskes := r.Group("/puskesmas")
 	puskes.Use(middlewares.JWTAuth(controller.JWTSecret()))
 	puskes.Use(middlewares.Puskesmas())
-	
+
+	// ==================== Vaksin ====================
+	puskes.GET("/vaksin", controller.GetAllVaksin)
+	puskes.GET("/vaksin/:id", controller.GetVaksinByID)
+	puskes.POST("/vaksin", controller.CreateVaksin)
+	puskes.PUT("/vaksin/:id", controller.UpdateVaksin)
+	puskes.PATCH("/vaksin/:id/status", controller.UpdateVaksinStatus)
+	puskes.DELETE("/vaksin/:id", controller.DeleteVaksin)
 }

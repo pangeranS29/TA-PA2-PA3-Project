@@ -40,6 +40,13 @@ func (m *Main) DeleteVaksinByID(id uint) error {
 	return nil
 }
 
+func (m *Main) UpdateVaksinStatus(id uint, status string) error {
+	if err := m.postgres.Model(&models.Vaksin{}).Where("id = ?", id).Update("status", status).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
 func (m *Main) UpdateVaksin(vaksin *models.Vaksin) error {
 	if err := m.postgres.Save(vaksin).Error; err != nil {
 		return err

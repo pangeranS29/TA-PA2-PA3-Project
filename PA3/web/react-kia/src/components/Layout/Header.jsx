@@ -61,6 +61,37 @@ const headerByPath = (pathname) => {
     };
   }
 
+  if (pathname === "/vaksin") {
+    return {
+      title: "Data Vaksin",
+      subtitle: "Kelola Data Vaksin untuk Ibu dan Anak",
+      variant: "hero",
+    };
+  }
+
+  if (pathname === "/vaksin/tambah") {
+    return {
+      title: "Tambah Data Vaksin",
+      subtitle: "Input data vaksin KIA Cerdas untuk layanan imunisasi ibu dan anak.",
+      variant: "hero",
+    };
+  }
+
+  if (pathname.startsWith("/vaksin/") && pathname !== "/vaksin") {
+    if (pathname.endsWith("/edit")) {
+      return {
+        title: "Edit Vaksin",
+        subtitle: "Perbarui informasi vaksin agar tetap akurat.",
+        variant: "hero",
+      };
+    }
+    return {
+      title: "Detail Vaksin",
+      subtitle: "Lihat ringkasan informasi vaksin yang tersimpan.",
+      variant: "hero",
+    };
+  }
+
   if (pathname.startsWith("/dashboard/admin/tenaga-kesehatan")) {
     return {
       title: "Manajemen Bidan & Kader",

@@ -1,5 +1,13 @@
-import React from 'react'
-import MainLayout from '../../components/Layout/Puskesmas/MainLayout';
+import React from "react";
+import { Baby, CalendarDays, HeartPulse, Syringe } from "lucide-react";
+import MainLayout from "../../components/Layout/Puskesmas/MainLayout";
+
+const icons = {
+  preg: <HeartPulse size={18} />,
+  baby: <Baby size={18} />,
+  imm: <Syringe size={18} />,
+  sched: <CalendarDays size={18} />,
+};
 const statCards = [
   {
     label: "Ibu Hamil Aktif",
@@ -80,5 +88,5 @@ export default function DashboardPuskesmas() {
         </div>
       </div>
     </MainLayout>
-  )
+  );
 }

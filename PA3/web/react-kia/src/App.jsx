@@ -61,6 +61,10 @@ import KelolaProfIlAnak from "./pages/Bidan/KelolaProfIlAnak";
 
 // PUSKESMAS
 import DashboardPuskesmas from "./pages/Puskesmas/Dashboard";
+import VaksinPuskesmas from "./pages/Puskesmas/Vaksin";
+import VaksinCreatePuskesmas from "./pages/Puskesmas/VaksinCreate";
+import VaksinDetailPuskesmas from "./pages/Puskesmas/VaksinDetail";
+import VaksinEditPuskesmas from "./pages/Puskesmas/VaksinEdit";
 
 
 const HomeRedirect = () => {
@@ -133,6 +137,10 @@ function App() {
 
         <Route element={<PrivateRoute allowedRoles={['puskesmas']} />}>
           <Route path="/dashboard/puskesmas" element={<DashboardPuskesmas />} />
+          <Route path="/vaksin" element={<VaksinPuskesmas />} />
+          <Route path="/vaksin/tambah" element={<VaksinCreatePuskesmas />} />
+          <Route path="/vaksin/:id" element={<VaksinDetailPuskesmas />} />
+          <Route path="/vaksin/:id/edit" element={<VaksinEditPuskesmas />} />
         </Route>
 
 

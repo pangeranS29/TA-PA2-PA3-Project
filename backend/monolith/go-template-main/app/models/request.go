@@ -345,15 +345,26 @@ const (
 
 
 type CreateVaksinRequest struct {
-	Name        string `json:"nama"`
-	Deskripsi   string `json:"deskripsi"`
-	EfekSamping string `json:"efek_samping"`
+	JenisVaksin     string `json:"jenis_vaksin"`
+	Kepanjangan     string `json:"kepanjangan"`
+	DitujukanKepada string `json:"ditujukan_kepada"`
+	WaktuPemberian  string `json:"waktu_pemberian"`
+	Deskripsi       string `json:"deskripsi"`
+	EfekSamping     string `json:"efek_samping"`
 }
 
 type UpdateVaksinRequest struct {
-	Nama        string `json:"nama"`
-	Deskripsi   string `json:"deskripsi"`
-	EfekSamping string `json:"efek_samping"`
+	JenisVaksin     string `json:"jenis_vaksin"`
+	Kepanjangan     string `json:"kepanjangan"`
+	DitujukanKepada string `json:"ditujukan_kepada"`
+	WaktuPemberian  string `json:"waktu_pemberian"`
+	Deskripsi       string `json:"deskripsi"`
+	EfekSamping     string `json:"efek_samping"`
+	Status          string `json:"status"`
+}
+
+type UpdateVaksinStatusRequest struct {
+	Status string `json:"status"`
 }
 
 // Perangkat
