@@ -54,8 +54,8 @@ export const deleteDokterT3 = async (id) => {
 
 // Lab Jiwa (lama)
 export const getLabJiwaByKehamilanId = async (kehamilanId) => {
-  const res = await api.get(`${BASE_LAB_JIWA}?kehamilan_id=${kehamilanId}`);
-  return res.data;
+  const res = await api.get(`/tenaga-kesehatan/pemeriksaan-lab-jiwa?kehamilan_id=${kehamilanId}`);
+  return res.data.data;
 };
 export const createLabJiwa = async (data) => {
   const res = await api.post(BASE_LAB_JIWA, data);
