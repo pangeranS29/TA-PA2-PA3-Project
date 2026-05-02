@@ -158,10 +158,10 @@ export default function IbuCreate() {
             return (
               <React.Fragment key={s.num}>
                 <div className="flex flex-col items-center">
-                  <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${isDone ? "bg-green-500 text-white shadow-lg shadow-green-200" : isActive ? "bg-indigo-600 text-white shadow-lg shadow-indigo-200 scale-110" : "bg-gray-100 text-gray-400"}`}>
+                  <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${isDone ? "bg-green-500 text-white shadow-lg shadow-green-200" : isActive ? "bg-blue-600 text-white shadow-lg shadow-blue-200 scale-110" : "bg-gray-100 text-gray-400"}`}>
                     {isDone ? <CheckCircle2 size={22} /> : <Icon size={20} />}
                   </div>
-                  <span className={`text-xs mt-2 font-medium ${isActive ? "text-indigo-600" : isDone ? "text-green-600" : "text-gray-400"}`}>
+                  <span className={`text-xs mt-2 font-medium ${isActive ? "text-blue-600" : isDone ? "text-green-600" : "text-gray-400"}`}>
                     {s.label}
                   </span>
                 </div>
@@ -181,7 +181,7 @@ export default function IbuCreate() {
         {step === 1 && (
           <form onSubmit={handleSubmitStep1} className="space-y-6">
             <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-sm border border-white/50 p-8">
-              <h3 className="font-semibold text-lg text-indigo-700 mb-6 flex items-center gap-2">
+              <h3 className="font-semibold text-lg text-blue-700 mb-6 flex items-center gap-2">
                 <Users size={20} /> Pilih Data Penduduk
               </h3>
               <div className="space-y-4">
@@ -193,7 +193,7 @@ export default function IbuCreate() {
                     name="id_kependudukan"
                     value={formIbu.id_kependudukan}
                     onChange={handleChangeIbu}
-                    className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
+                    className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
                     required
                   >
                     <option value="">-- Pilih Data Penduduk --</option>
@@ -208,15 +208,15 @@ export default function IbuCreate() {
                   </select>
                   <p className="text-xs text-gray-500 mt-2">
                     Belum ada data penduduk?{" "}
-                    <Link to="/kependudukan/create" className="text-indigo-600 hover:underline font-medium">
+                    <Link to="/kependudukan/create" className="text-blue-600 hover:underline font-medium">
                       + Tambah Data Penduduk
                     </Link>
                   </p>
                 </div>
 
                 {selectedPenduduk && (
-                  <div className="bg-indigo-50/50 rounded-xl p-5 border border-indigo-100 mt-4">
-                    <h4 className="text-sm font-semibold text-indigo-800 mb-3">Data Penduduk Terpilih</h4>
+                  <div className="bg-blue-50/50 rounded-xl p-5 border border-blue-100 mt-4">
+                    <h4 className="text-sm font-semibold text-blue-800 mb-3">Data Penduduk Terpilih</h4>
                     <div className="grid grid-cols-2 gap-3 text-sm">
                       <div><span className="text-gray-500">Nama:</span> <span className="font-medium">{selectedPenduduk.nama_lengkap}</span></div>
                       <div><span className="text-gray-500">NIK:</span> <span className="font-medium">{selectedPenduduk.nik}</span></div>
@@ -232,7 +232,7 @@ export default function IbuCreate() {
                     name="status_kehamilan"
                     value={formIbu.status_kehamilan}
                     onChange={handleChangeIbu}
-                    className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
+                    className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
                   >
                     <option>TRIMESTER 1</option>
                     <option>TRIMESTER 2</option>
@@ -246,7 +246,7 @@ export default function IbuCreate() {
               <button
                 type="submit"
                 disabled={loading}
-                className="bg-gradient-to-r from-indigo-600 to-indigo-700 text-white px-8 py-3 rounded-xl font-semibold shadow-lg hover:shadow-indigo-300/40 transform transition-all hover:-translate-y-0.5 flex items-center gap-2 disabled:opacity-50"
+                className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-8 py-3 rounded-xl font-semibold shadow-lg hover:shadow-blue-300/40 transform transition-all hover:-translate-y-0.5 flex items-center gap-2 disabled:opacity-50"
               >
                 {loading ? <Loader2 className="animate-spin" size={18} /> : <ArrowRight size={18} />}
                 {loading ? "Menyimpan..." : "Simpan & Lanjut"}
@@ -259,56 +259,56 @@ export default function IbuCreate() {
         {step === 2 && (
           <form onSubmit={handleSubmitStep2} className="space-y-6">
             <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-sm border border-white/50 p-8">
-              <h3 className="font-semibold text-lg text-indigo-700 mb-2 flex items-center gap-2">
+              <h3 className="font-semibold text-lg text-blue-700 mb-2 flex items-center gap-2">
                 <ClipboardList size={20} /> Riwayat Obstetri
               </h3>
               <p className="text-gray-500 text-sm mb-6">Data riwayat kehamilan ibu (Gravida, Paritas, Abortus)</p>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                 <div>
                   <label className="block text-sm font-medium mb-2 text-gray-700">Gravida (G)</label>
-                  <input type="number" name="gravida" value={formKehamilan.gravida} onChange={handleChangeKehamilan} placeholder="Jumlah kehamilan" min="0" className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 outline-none" />
+                  <input type="number" name="gravida" value={formKehamilan.gravida} onChange={handleChangeKehamilan} placeholder="Jumlah kehamilan" min="0" className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-2 text-gray-700">Paritas (P)</label>
-                  <input type="number" name="paritas" value={formKehamilan.paritas} onChange={handleChangeKehamilan} placeholder="Jumlah persalinan" min="0" className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 outline-none" />
+                  <input type="number" name="paritas" value={formKehamilan.paritas} onChange={handleChangeKehamilan} placeholder="Jumlah persalinan" min="0" className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-2 text-gray-700">Abortus (A)</label>
-                  <input type="number" name="abortus" value={formKehamilan.abortus} onChange={handleChangeKehamilan} placeholder="Jumlah keguguran" min="0" className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 outline-none" />
+                  <input type="number" name="abortus" value={formKehamilan.abortus} onChange={handleChangeKehamilan} placeholder="Jumlah keguguran" min="0" className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none" />
                 </div>
               </div>
             </div>
 
             <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-sm border border-white/50 p-8">
-              <h3 className="font-semibold text-lg text-indigo-700 mb-2 flex items-center gap-2">
+              <h3 className="font-semibold text-lg text-blue-700 mb-2 flex items-center gap-2">
                 <Baby size={20} /> Data Kehamilan Saat Ini
               </h3>
               <p className="text-gray-500 text-sm mb-6">Informasi kehamilan yang sedang berjalan</p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div>
                   <label className="block text-sm font-medium mb-2 text-gray-700">HPHT (Hari Pertama Haid Terakhir)</label>
-                  <input type="date" name="hpht" value={formKehamilan.hpht} onChange={handleChangeKehamilan} className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 outline-none" />
+                  <input type="date" name="hpht" value={formKehamilan.hpht} onChange={handleChangeKehamilan} className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-2 text-gray-700">Taksiran Persalinan (HPL)</label>
-                  <input type="date" name="taksiran_persalinan" value={formKehamilan.taksiran_persalinan} onChange={handleChangeKehamilan} className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 outline-none bg-gray-50" />
+                  <input type="date" name="taksiran_persalinan" value={formKehamilan.taksiran_persalinan} onChange={handleChangeKehamilan} className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none bg-gray-50" />
                   <p className="text-xs text-gray-400 mt-1">Otomatis dihitung dari HPHT (Rumus Naegele)</p>
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-2 text-gray-700">Usia Kehamilan Saat Ini (minggu)</label>
-                  <input type="number" name="uk_kehamilan_saat_ini" value={formKehamilan.uk_kehamilan_saat_ini} onChange={handleChangeKehamilan} placeholder="Contoh: 12" min="0" max="45" className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 outline-none" />
+                  <input type="number" name="uk_kehamilan_saat_ini" value={formKehamilan.uk_kehamilan_saat_ini} onChange={handleChangeKehamilan} placeholder="Contoh: 12" min="0" max="45" className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-2 text-gray-700">Jarak Kehamilan Sebelumnya (bulan)</label>
-                  <input type="number" name="jarak_kehamilan_sebelumnya" value={formKehamilan.jarak_kehamilan_sebelumnya} onChange={handleChangeKehamilan} placeholder="Contoh: 24" min="0" className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 outline-none" />
+                  <input type="number" name="jarak_kehamilan_sebelumnya" value={formKehamilan.jarak_kehamilan_sebelumnya} onChange={handleChangeKehamilan} placeholder="Contoh: 24" min="0" className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-2 text-gray-700">Berat Badan Awal (kg)</label>
-                  <input type="number" name="bb_awal" step="0.1" placeholder="Contoh: 50.5" value={formKehamilan.bb_awal} onChange={handleChangeKehamilan} className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 outline-none" />
+                  <input type="number" name="bb_awal" step="0.1" placeholder="Contoh: 50.5" value={formKehamilan.bb_awal} onChange={handleChangeKehamilan} className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-2 text-gray-700">Tinggi Badan (cm)</label>
-                  <input type="number" name="tb" step="0.1" placeholder="Contoh: 160" value={formKehamilan.tb} onChange={handleChangeKehamilan} className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 outline-none" />
+                  <input type="number" name="tb" step="0.1" placeholder="Contoh: 160" value={formKehamilan.tb} onChange={handleChangeKehamilan} className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none" />
                 </div>
               </div>
             </div>
@@ -317,7 +317,7 @@ export default function IbuCreate() {
               <button type="button" onClick={handleSkipKehamilan} className="text-gray-500 hover:text-gray-700 px-6 py-3 rounded-xl font-medium transition-colors">
                 Lewati, isi nanti →
               </button>
-              <button type="submit" disabled={loading} className="bg-gradient-to-r from-indigo-600 to-indigo-700 text-white px-8 py-3 rounded-xl font-semibold shadow-lg hover:shadow-indigo-300/40 transform transition-all hover:-translate-y-0.5 flex items-center gap-2 disabled:opacity-50">
+              <button type="submit" disabled={loading} className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-8 py-3 rounded-xl font-semibold shadow-lg hover:shadow-blue-300/40 transform transition-all hover:-translate-y-0.5 flex items-center gap-2 disabled:opacity-50">
                 {loading ? <Loader2 className="animate-spin" size={18} /> : <Save size={18} />}
                 {loading ? "Menyimpan..." : "Simpan Data Kehamilan"}
               </button>

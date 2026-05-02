@@ -70,9 +70,7 @@ export default function AnakDashboard() {
     { title: "Kesehatan Gigi", icon: <Smile size={32} />, link: `/data-anak/pelayanan-Gigi/${id}` },
     { title: "Tumbuh Kembang", icon: <TrendingUp size={32} />, link: `/data-anak/Tumbuh-kembang-Anak/${id}` },
     { title: "Pencatatan LILA", icon: <Ruler size={32} />, link: `/data-anak/lila/${id}` },
-    { title: "Perkembangan Anak", icon: <ClipboardList size={32} />, link: `/data-anak/perkembangan/${id}` },
-    { title: "Lembar Pemantauan", icon: <ClipboardList size={32} />, link: `/data-anak/pemantauan/${id}` },
-    { title: "Pertumbuhan", subtitle: "KMS (0-5 Thn)", icon: <Activity size={32} />, link: `/data-anak/pertumbuhan/${id}` },
+    { title: "Pertumbuhan", icon: <Activity size={32} />, link: `/data-anak/pertumbuhan/${id}` },
     { title: "Keluhan Anak", icon: <Stethoscope size={32} />, link: `/data-anak/keluhan/${id}` },
   ];
 
@@ -83,7 +81,7 @@ export default function AnakDashboard() {
         {/* HEADER: Lebih rapat */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
           <div>
-            <Link to="/daftar-anak" className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-indigo-600 mb-1 transition-all">
+            <Link to="/daftar-anak" className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-blue-600 mb-1 transition-all">
               <ChevronLeft size={14} /> Kembali
             </Link>
             <h1 className="text-2xl font-bold text-gray-800 tracking-tight">{child.nama}</h1>
@@ -98,10 +96,10 @@ export default function AnakDashboard() {
 
         {/* STAT CARDS: Lebih ramping */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
-          <StatCard icon={<Calendar size={20} />} label="Usia" value={child.usia_teks || "-"} color="orange" />
-          <StatCard icon={<User size={20} />} label="Ibu" value={child.kehamilan?.ibu?.nama_ibu || "-"} color="indigo" />
-          <StatCard icon={<Activity size={20} />} label="BB" value={`${growthData[growthData.length - 1]?.berat_badan || 0} kg`} color="green" />
-          <StatCard icon={<Ruler size={20} />} label="TB" value={`${growthData[growthData.length - 1]?.tinggi_badan || 0} cm`} color="purple" />
+          <StatCard icon={<Calendar size={20} />} label="Usia" value={child.usia_teks || "-"} color="blue" />
+          <StatCard icon={<User size={20} />} label="Ibu" value={child.kehamilan?.ibu?.nama_ibu || "-"} color="blue" />
+          <StatCard icon={<Activity size={20} />} label="BB" value={`${growthData[growthData.length - 1]?.berat_badan || 0} kg`} color="blue" />
+          <StatCard icon={<Ruler size={20} />} label="TB" value={`${growthData[growthData.length - 1]?.tinggi_badan || 0} cm`} color="blue" />
         </div>
 
         {/* GRAFIK: Ukuran standar */}
@@ -110,13 +108,13 @@ export default function AnakDashboard() {
             <div className="flex gap-4">
               <button
                 onClick={() => setActiveChart("bb_u")}
-                className={`text-sm font-bold px-3 py-1 rounded-lg transition-all ${activeChart === 'bb_u' ? 'bg-indigo-50 text-indigo-600' : 'text-gray-400 hover:bg-gray-50'}`}
+                className={`text-sm font-bold px-3 py-1 rounded-lg transition-all ${activeChart === 'bb_u' ? 'bg-blue-50 text-blue-600' : 'text-gray-400 hover:bg-gray-50'}`}
               >
                 Berat Badan
               </button>
               <button
                 onClick={() => setActiveChart("tb_u")}
-                className={`text-sm font-bold px-3 py-1 rounded-lg transition-all ${activeChart === 'tb_u' ? 'bg-indigo-50 text-indigo-600' : 'text-gray-400 hover:bg-gray-50'}`}
+                className={`text-sm font-bold px-3 py-1 rounded-lg transition-all ${activeChart === 'tb_u' ? 'bg-blue-50 text-blue-600' : 'text-gray-400 hover:bg-gray-50'}`}
               >
                 Tinggi Badan
               </button>
@@ -198,9 +196,9 @@ export default function AnakDashboard() {
 function StatCard({ icon, label, value, color }) {
   const colors = {
     orange: "bg-orange-50 text-orange-500",
-    indigo: "bg-indigo-50 text-indigo-500",
+    blue: "bg-blue-50 text-blue-500",
     green: "bg-green-50 text-green-500",
-    purple: "bg-purple-50 text-purple-500",
+    purple: "bg-blue-50 text-blue-500",
   };
   return (
     <div className="bg-white p-3.5 rounded-xl border border-gray-100 flex items-center gap-3">

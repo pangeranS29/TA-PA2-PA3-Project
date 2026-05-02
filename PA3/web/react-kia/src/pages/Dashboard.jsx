@@ -98,9 +98,9 @@ const risks = [
   {
     name: "5 Balita Terlambat Imunisasi",
     detail: "Imunisasi vaksin Rubella terlambat lebih dari 1 bulan dari jadwal.",
-    color: "#8b5cf6",
-    bg: "#f5f3ff",
-    border: "#ddd6fe",
+    color: "#3b82f6",
+    bg: "#eff6ff",
+    border: "#bfdbfe",
   },
 ];
 

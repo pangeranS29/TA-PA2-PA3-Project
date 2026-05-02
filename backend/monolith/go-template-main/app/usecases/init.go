@@ -71,6 +71,7 @@ type Main struct {
 	Pertumbuhan                        PertumbuhanUseCase
 	PerkembanganAnak                   PerkembanganAnakUseCase
 	EdukasiMPASI                       EdukasiMPASIUsecase
+	KesehatanLingkungan                KesehatanLingkunganUsecase
 }
 
 type Options struct {
@@ -166,6 +167,7 @@ func Init(opts Options) *Main {
 	m.Pertumbuhan = NewPertumbuhanUseCase(opts.Repository)
 	m.PerkembanganAnak = NewPerkembanganAnakUseCase(opts.Repository.PerkembanganAnak)
 	m.EdukasiMPASI = NewEdukasiMPASIUsecase(opts.Repository.EdukasiMPASI)
+	m.KesehatanLingkungan = NewKesehatanLingkunganUsecase(opts.Repository.KesehatanLingkungan)
 
 	return m
 }

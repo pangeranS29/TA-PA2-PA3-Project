@@ -72,6 +72,7 @@ type Main struct {
 	PemantauanIndikator                *PemantauanIndikatorRepository
 	PerkembanganAnak                   PerkembanganAnakRepository
 	EdukasiMPASI                       EdukasiMPASIRepository
+	KesehatanLingkungan                KesehatanLingkunganRepository
 }
 
 type Options struct {
@@ -148,6 +149,7 @@ func Init(opts Options) *Main {
 	m.PemantauanIndikator = NewPemantauanIndikatorRepository(opts.Postgres)
 	m.PerkembanganAnak = NewPerkembanganAnakRepository(opts.Postgres)
 	m.EdukasiMPASI = NewEdukasiMPASIRepository(opts.Postgres)
+	m.KesehatanLingkungan = NewKesehatanLingkunganRepository(opts.Postgres)
 
 	return m
 }

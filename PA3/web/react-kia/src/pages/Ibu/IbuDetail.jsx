@@ -44,7 +44,7 @@ export default function IbuDetail() {
             <p className="text-gray-500">Manajemen data fundamental pasien untuk pemantauan klinis kehamilan yang komprehensif.</p>
           </div>
           <div className="flex gap-3">
-            <Link to={`/data-ibu/${id}/edit`} className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium">
+            <Link to={`/data-ibu/${id}/edit`} className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium">
               Edit Profil Lengkap
             </Link>
           </div>
@@ -83,18 +83,18 @@ export default function IbuDetail() {
             {/* Patient Journey Timeline */}
             <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
               <h2 className="text-xl font-bold mb-6 text-gray-800 border-b pb-4">Jalur Pelayanan KIA</h2>
-              <div className="relative border-l-2 border-indigo-100 ml-3 space-y-8 pb-4">
+              <div className="relative border-l-2 border-blue-100 ml-3 space-y-8 pb-4">
                 {/* Step 1 */}
                 <div className="relative pl-8">
-                  <div className="absolute -left-[11px] top-1 h-5 w-5 rounded-full bg-indigo-600 border-4 border-white shadow-sm"></div>
-                  <h3 className="font-bold text-indigo-900 text-lg">1. Evaluasi & Skrining Awal</h3>
+                  <div className="absolute -left-[11px] top-1 h-5 w-5 rounded-full bg-blue-600 border-4 border-white shadow-sm"></div>
+                  <h3 className="font-bold text-blue-900 text-lg">1. Evaluasi & Skrining Awal</h3>
                   <p className="text-sm text-gray-500 mb-3 mt-1">Lakukan pemeriksaan dasar dan skrining risiko.</p>
                   <div className="flex flex-wrap gap-2">
-                    <Link to={`/data-ibu/${id}/evaluasi-kesehatan`} className="group flex items-center justify-between p-3 rounded-xl bg-gray-50 hover:bg-indigo-50 border border-transparent hover:border-indigo-100 transition-all min-w-[240px] flex-1">
-                      <span className="text-sm font-medium text-gray-700 group-hover:text-indigo-700">📋 Evaluasi Kesehatan Ibu</span>
+                    <Link to={`/data-ibu/${id}/evaluasi-kesehatan`} className="group flex items-center justify-between p-3 rounded-xl bg-gray-50 hover:bg-blue-50 border border-transparent hover:border-blue-100 transition-all min-w-[240px] flex-1">
+                      <span className="text-sm font-medium text-gray-700 group-hover:text-blue-700">📋 Evaluasi Kesehatan Ibu</span>
                     </Link>
-                    <Link to={`/data-ibu/${id}/skrining-preeklampsia`} className="group flex items-center justify-between p-3 rounded-xl bg-gray-50 hover:bg-indigo-50 border border-transparent hover:border-indigo-100 transition-all min-w-[200px] flex-1">
-                      <span className="text-sm font-medium text-gray-700 group-hover:text-indigo-700">🔍 Skrining Preeklampsia</span>
+                    <Link to={`/data-ibu/${id}/skrining-preeklampsia`} className="group flex items-center justify-between p-3 rounded-xl bg-gray-50 hover:bg-blue-50 border border-transparent hover:border-blue-100 transition-all min-w-[200px] flex-1">
+                      <span className="text-sm font-medium text-gray-700 group-hover:text-blue-700">🔍 Skrining Preeklampsia</span>
                     </Link>
                   </div>
                 </div>

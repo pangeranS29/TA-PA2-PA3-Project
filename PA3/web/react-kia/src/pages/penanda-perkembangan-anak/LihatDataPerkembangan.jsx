@@ -109,13 +109,13 @@ export default function LihatDataPerkembangan() {
             <h1 className="text-2xl font-bold text-slate-800">Monitoring Perkembangan Anak</h1>
             <p className="text-slate-500">Pantau pencapaian milestone perkembangan anak dari laporan Ibu.</p>
           </div>
-          <button className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition-all text-sm font-semibold shadow-sm shadow-indigo-100">
+          <button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-all text-sm font-semibold shadow-sm shadow-blue-100">
             <Download size={18} /> Ekspor Data
           </button>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <StatCard icon={<ClipboardCheck className="text-indigo-600" />} label="TOTAL ANAK" value={stats.total} color="bg-indigo-50" />
+          <StatCard icon={<ClipboardCheck className="text-blue-600" />} label="TOTAL ANAK" value={stats.total} color="bg-blue-50" />
           <StatCard icon={<CheckCircle className="text-green-600" />} label="SESUAI UMUR" value={stats.sesuai} color="bg-green-50" />
           <StatCard icon={<AlertTriangle className="text-amber-600" />} label="PERLU PANTAU" value={stats.perlu_pantau} color="bg-amber-50" />
         </div>
@@ -128,7 +128,7 @@ export default function LihatDataPerkembangan() {
                 <input
                   type="text"
                   placeholder="Cari nama anak..."
-                  className="pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-indigo-500 w-64"
+                  className="pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-blue-500 w-64"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
@@ -148,7 +148,7 @@ export default function LihatDataPerkembangan() {
                 ))}
               </div>
             </div>
-            <button onClick={() => { setStatusFilter("Semua"); setSearchTerm(""); }} className="text-indigo-600 text-xs font-bold flex items-center gap-1">
+            <button onClick={() => { setStatusFilter("Semua"); setSearchTerm(""); }} className="text-blue-600 text-xs font-bold flex items-center gap-1">
               <RotateCcw size={14} /> Reset
             </button>
           </div>
@@ -187,7 +187,7 @@ export default function LihatDataPerkembangan() {
                       <div className="flex justify-end">
                         <Link
                           to={`/data-anak/perkembangan/${item.id}`}
-                          className="flex items-center gap-1 px-3 py-1.5 bg-slate-100 text-slate-600 rounded-lg hover:bg-indigo-600 hover:text-white transition-all text-[10px] font-bold"
+                          className="flex items-center gap-1 px-3 py-1.5 bg-slate-100 text-slate-600 rounded-lg hover:bg-blue-600 hover:text-white transition-all text-[10px] font-bold"
                         >
                           <Eye size={14} /> LIHAT HASIL <ChevronRight size={14} />
                         </Link>

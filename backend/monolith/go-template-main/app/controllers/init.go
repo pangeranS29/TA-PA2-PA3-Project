@@ -71,6 +71,7 @@ type Main struct {
 	Pertumbuhan                   *PertumbuhanController
 	PerkembanganAnak              *PerkembanganAnakController
 	EdukasiMPASI                  *EdukasiMPASIController
+	KesehatanLingkungan           *KesehatanLingkunganController
 }
 
 type Options struct {
@@ -148,6 +149,7 @@ func Init(opts Options) *Main {
 	m.Pertumbuhan = NewPertumbuhanController(opts.UseCases.Pertumbuhan)
 	m.PerkembanganAnak = NewPerkembanganAnakController(opts.UseCases.PerkembanganAnak)
 	m.EdukasiMPASI = NewEdukasiMPASIController(opts.UseCases.EdukasiMPASI)
+	m.KesehatanLingkungan = NewKesehatanLingkunganController(opts.UseCases.KesehatanLingkungan)
 
 	return m
 }
