@@ -108,6 +108,8 @@ import PemantauanAnakPage from "./pages/Anak/Pemantauan/PemantauanAnakPage";
 import PerkembanganAnakPage from "./pages/Anak/Perkembangan/PerkembanganAnakPage";
 import LihatDataPerkembangan from "./pages/penanda-perkembangan-anak/LihatDataPerkembangan";
 import KelolaPerkembangan from "./pages/penanda-perkembangan-anak/KelolaPerkembangan";
+import KelolaLingkungan from "./pages/KesehatanLingkungan/KelolaLingkungan";
+import DataLingkungan from "./pages/KesehatanLingkungan/DataLingkungan";
 
 const HomeRedirect = () => {
   if (!isAuthenticated()) {
@@ -178,7 +180,8 @@ function App() {
           <Route path="/pemantauan/kelola" element={<KelolaPemantauan />} />
 
           {/* Pencatatan */}
-          <Route path="/pencatatan/kesehatan-lingkungan" element={<KesehatanLingkunganCatatanPage />} />
+          <Route path="/pencatatan/kesehatan-lingkungan" element={<DataLingkungan />} />
+          <Route path="/pencatatan/kesehatan-lingkungan/kelola" element={<KelolaLingkungan />} />
 
           {/* Edukasi Digital */}
           <Route path="/edukasi-digital/informasi-umum" element={<InformasiUmumPage />} />

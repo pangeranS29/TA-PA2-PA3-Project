@@ -1,12 +1,12 @@
 import React, { useEffect, useMemo, useState } from "react";
 import MainLayout from "../../components/Layout/MainLayout";
 import { Search, Plus, Pencil, Trash2, X, Check, ClipboardList } from "lucide-react";
-import { 
-  getRentangPerkembangan, 
-  getKategoriPerkembangan, 
-  createKategoriPerkembangan, 
-  updateKategoriPerkembangan, 
-  deleteKategoriPerkembangan 
+import {
+  getRentangPerkembangan,
+  getKategoriPerkembangan,
+  createKategoriPerkembangan,
+  updateKategoriPerkembangan,
+  deleteKategoriPerkembangan
 } from "../../services/perkembanganAnak";
 
 export default function KelolaPerkembangan() {
@@ -57,8 +57,8 @@ export default function KelolaPerkembangan() {
     try {
       const res = await getKategoriPerkembangan(rentangId);
       const rows = Array.isArray(res?.data) ? res.data : (Array.isArray(res) ? res : []);
-      
-      const filtered = q 
+
+      const filtered = q
         ? rows.filter(item => item.indikator.toLowerCase().includes(q.toLowerCase()))
         : rows;
 
@@ -162,11 +162,11 @@ export default function KelolaPerkembangan() {
   return (
     <MainLayout>
       <div className="max-w-6xl mx-auto space-y-6">
-        
+
         <div className="flex justify-center">
           <div className="relative w-full max-w-2xl">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-            <input 
+            <input
               type="text"
               placeholder={`Cari penanda perkembangan...`}
               className="w-full pl-12 pr-4 py-3 bg-white border border-slate-100 rounded-full text-sm shadow-sm focus:ring-2 focus:ring-indigo-100 outline-none transition-all"
@@ -206,11 +206,10 @@ export default function KelolaPerkembangan() {
             <button
               key={rentang.id}
               onClick={() => setActiveRentangId(String(rentang.id))}
-              className={`px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all ${
-                activeRentangId === String(rentang.id)
-                ? "bg-white text-indigo-600 shadow-sm" 
+              className={`px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all ${activeRentangId === String(rentang.id)
+                ? "bg-white text-indigo-600 shadow-sm"
                 : "text-slate-500 hover:bg-slate-100"
-              }`}
+                }`}
             >
               {rentang.nama_rentang}
             </button>
@@ -239,13 +238,13 @@ export default function KelolaPerkembangan() {
                     {item.indikator}
                   </div>
                   <div className="col-span-2 flex justify-end gap-2">
-                    <button 
+                    <button
                       onClick={() => openEditModal(item)}
                       className="p-2 text-indigo-500 bg-indigo-50 hover:bg-indigo-600 hover:text-white rounded-lg transition-all"
                     >
                       <Pencil size={18} />
                     </button>
-                    <button 
+                    <button
                       onClick={() => openDeleteModal(item)}
                       className="p-2 text-red-500 bg-red-50 hover:bg-red-600 hover:text-white rounded-lg transition-all"
                     >
@@ -285,7 +284,7 @@ export default function KelolaPerkembangan() {
                     rows={6}
                     value={formText}
                     onChange={(e) => setFormText(e.target.value)}
-                    placeholder="Contoh: Bayi bisa mengangkat kepala secara mandiri..."
+                    placeholder="Contoh: Anak bisa mengangkat kepala secara mandiri..."
                     className="w-full rounded-2xl border border-slate-200 px-5 py-4 text-sm outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-400 transition-all resize-none"
                   />
                 </div>

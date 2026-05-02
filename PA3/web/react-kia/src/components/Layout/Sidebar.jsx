@@ -32,6 +32,7 @@ const Sidebar = () => {
   const [dropdownOpen, setDropdownOpen] = useState({
     monitoring: location.pathname.startsWith("/monitoring") || location.pathname.startsWith("/pemantauan"),
     edukasiDigital: location.pathname.startsWith("/edukasi-digital"),
+    kesehatanLingkungan: location.pathname.startsWith("/pencatatan/kesehatan-lingkungan"),
   });
 
   const toggleDropdown = (key) => {
@@ -51,7 +52,16 @@ const Sidebar = () => {
     { path: "/daftar-anak", name: "Data Anak", icon: Baby },
     // { path: "/data-anak/lila", name: "Pelayanan LILA", icon: Ruler },
     { path: "/kependudukan", name: "Manajemen KK", icon: UserCheck },
-    { path: "/pencatatan/kesehatan-lingkungan", name: "Kesehatan Lingkungan", icon: ClipboardList },
+    {
+      name: "Kesehatan Lingkungan",
+      icon: ClipboardList,
+      isDropdown: true,
+      dropdownKey: "kesehatanLingkungan",
+      children: [
+        { path: "/pencatatan/kesehatan-lingkungan", name: "Data Pencatatan", icon: TableProperties },
+        { path: "/pencatatan/kesehatan-lingkungan/kelola", name: "Kelola Indikator", icon: ClipboardEdit },
+      ],
+    },
     {
       name: "Monitoring",
       icon: Activity,
@@ -62,7 +72,7 @@ const Sidebar = () => {
         { path: "/pemantauan/lihat", name: "Data Pemantauan Anak", icon: TableProperties },
         { path: "/pemantauan/perkembangan", name: "Data Perkembangan Anak", icon: TableProperties },
         { path: "/pemantauan/kelola-perkembangan", name: "Kelola Penanda Perkembangan Anak", icon: ClipboardEdit },
-        { path: "/pemantauan/kelola", name: "Kelola Indikator Anak", icon: ClipboardEdit },
+        { path: "/pemantauan/kelola", name: "Kelola Pemantauan Anak", icon: ClipboardEdit },
       ],
     },
     {
@@ -80,7 +90,7 @@ const Sidebar = () => {
         { path: "/edukasi-digital/pola-asuh", name: "Pola Asuh", icon: ClipboardList },
         { path: "/edukasi-digital/kesehatan-mental", name: "Kesehatan Mental", icon: ClipboardList },
         { path: "/edukasi-digital/perawatan-anak", name: "Perawatan Anak", icon: ClipboardList },
-        { path: "/edukasi-digital/mpasi", name: "MPASI & Resep", icon: ClipboardList },
+        { path: "/edukasi-digital/mpasi", name: "MPASI", icon: ClipboardList },
       ],
     },
     { path: "/laporan", name: "Laporan", icon: BarChart3 },
@@ -139,8 +149,8 @@ const Sidebar = () => {
               <button
                 onClick={() => toggleDropdown(item.dropdownKey)}
                 className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 group ${isOpen || isChildActive
-                    ? "text-slate-700 font-medium"
-                    : "text-slate-500 hover:bg-gray-50 hover:text-slate-700"
+                  ? "text-slate-700 font-medium"
+                  : "text-slate-500 hover:bg-gray-50 hover:text-slate-700"
                   }`}
               >
                 <div className="flex items-center gap-3">

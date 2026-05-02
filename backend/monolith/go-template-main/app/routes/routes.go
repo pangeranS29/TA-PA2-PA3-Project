@@ -386,6 +386,23 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	tenaga.PUT("/kesehatan-lingkungan/:id/catatan-kader/:catatanId", controller.KesehatanLingkunganDanCatatanKader.UpdateCatatan)
 	tenaga.DELETE("/kesehatan-lingkungan/:id/catatan-kader/:catatanId", controller.KesehatanLingkunganDanCatatanKader.DeleteCatatan)
 	tenaga.PUT("/kesehatan-lingkungan/:id/catatan-kader/:catatanId/kirim-mobile", controller.KesehatanLingkunganDanCatatanKader.KirimCatatanKeMobile)
+
+	// New Kesehatan Lingkungan (Dynamic Indicators)
+	tenaga.GET("/lingkungan/kategori", controller.KesehatanLingkungan.GetAllKategori)
+	tenaga.POST("/lingkungan/kategori", controller.KesehatanLingkungan.CreateKategori)
+	tenaga.DELETE("/lingkungan/kategori/:id", controller.KesehatanLingkungan.DeleteKategori)
+	tenaga.POST("/lingkungan/kategori/:id/indikator", controller.KesehatanLingkungan.AddIndikator)
+	tenaga.DELETE("/lingkungan/indikator/:id", controller.KesehatanLingkungan.DeleteIndikator)
+	tenaga.DELETE("/lingkungan/:id", controller.KesehatanLingkungan.DeleteLembar)
+
+	// Routes accessible by both Ibu and Bidan
+	lingkungan := e.Group("/lingkungan")
+	lingkungan.Use(middlewares.JWTAuth(controller.JWTSecret()))
+	lingkungan.GET("/history", controller.KesehatanLingkungan.GetHistory)
+	lingkungan.GET("/detail/:id", controller.KesehatanLingkungan.GetDetail)
+	lingkungan.POST("/submit", controller.KesehatanLingkungan.SubmitLembar)
+	lingkungan.GET("/kategori", controller.KesehatanLingkungan.GetAllKategori) // Agar Ibu bisa ambil daftar pertanyaan
+
 	tenaga.GET("/edukasi-informasi-umum/:id", controller.EdukasiInformasiUmum.GetByID)
 	tenaga.POST("/edukasi-informasi-umum", controller.EdukasiInformasiUmum.Create)
 	tenaga.PUT("/edukasi-informasi-umum/:id", controller.EdukasiInformasiUmum.Update)

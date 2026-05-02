@@ -75,7 +75,7 @@ func AutoMigrate(db *gorm.DB) error {
 		// &PemeriksaanLaboratoriumJiwa{},
 		// &CatatanPelayananTrimester1{},
 		// &SkriningPreeklampsia{},
-		// &SkriningDMGestasional{},
+		&SkriningDMGestasional{},
 		// &CatatanPelayananTrimester2{},
 		// &PemeriksaanDokterTrimester3{},
 		// &PemeriksaanLanjutanTrimester3{},
@@ -107,6 +107,7 @@ func AutoMigrate(db *gorm.DB) error {
 		// &EdukasiTandaBahayaTrimester{},
 		// &EdukasiTandaMelahirkan{},
 		&EdukasiPerawatanAnak{},
+		&EdukasiMPASI{},
 		// &KategoriPemantauanIbu{},
 		// &LembarPemantauanIbu{},
 		// &DetailPemantauanIbu{},
@@ -114,7 +115,10 @@ func AutoMigrate(db *gorm.DB) error {
 		&KeluhanAnak{},
 		&MasterStandarAntropometri{},
 		&KesehatanLingkunganDanCatatanKader{},
-		&KeluhanAnak{},
+		&KategoriLingkungan{},
+		&IndikatorLingkungan{},
+		&LembarLingkungan{},
+		&DetailLingkungan{},
 	}
 
 	// Jalankan automigrate sekali saja
