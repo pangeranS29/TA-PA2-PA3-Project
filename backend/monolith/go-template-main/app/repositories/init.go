@@ -59,13 +59,19 @@ type Main struct {
 	EdukasiMenyusuiAsi                 EdukasiMenyusuiASIRepository
 	EdukasiPolaAsuh                    EdukasiPolaAsuhRepository
 	EdukasiKesehatanMental             EdukasiKesehatanMentalRepository
+	EdukasiPerawatanAnak               EdukasiPerawatanAnakRepository
+	KeluhanAnak                        KeluhanAnakRepository
 	KesehatanLingkunganDanCatatanKader *KesehatanLingkunganDanCatatanKaderRepository
 	RiwayatProsesMelahirkan            *RiwayatProsesMelahirkanRepository
 	PelayananIbuNifas                  *PelayananIbuNifasRepository
 	CatatanPelayananNifas              *CatatanPelayananNifasRepository
 	Rujukan                            *RujukanRepository
+	PemantauanIbu                      PemantauanIbuRepository
+	PemantauanAnak                     PemantauanAnakRepository
 	JenisPelayanan                     JenisPelayananRepository
 	PemantauanIndikator                *PemantauanIndikatorRepository
+	PerkembanganAnak                   PerkembanganAnakRepository
+	EdukasiMPASI                       EdukasiMPASIRepository
 }
 
 type Options struct {
@@ -120,11 +126,15 @@ func Init(opts Options) *Main {
 	m.EdukasiMenyusuiAsi = NewEdukasiMenyusuiASIRepository(opts.Postgres)
 	m.EdukasiPolaAsuh = NewEdukasiPolaAsuhRepository(opts.Postgres)
 	m.EdukasiKesehatanMental = NewEdukasiKesehatanMentalRepository(opts.Postgres)
+	m.EdukasiPerawatanAnak = NewEdukasiPerawatanAnakRepository(opts.Postgres)
+	m.KeluhanAnak = NewKeluhanAnakRepository(opts.Postgres)
 	m.KesehatanLingkunganDanCatatanKader = NewKesehatanLingkunganDanCatatanKaderRepository(opts.Postgres)
 	m.RiwayatProsesMelahirkan = NewRiwayatProsesMelahirkanRepository(opts.Postgres)
 	m.PelayananIbuNifas = NewPelayananIbuNifasRepository(opts.Postgres)
 	m.CatatanPelayananNifas = NewCatatanPelayananNifasRepository(opts.Postgres)
 	m.Rujukan = NewRujukanRepository(opts.Postgres)
+	m.PemantauanIbu = NewPemantauanIbuRepository(opts.Postgres)
+	m.PemantauanAnak = NewPemantauanAnakRepository(opts.Postgres)
 
 	m.Neonatus = NewPelayananNeonatusRepository(opts.Postgres)
 	m.KunjunganGizi = NewKunjunganGiziRepository(opts.Postgres)
@@ -136,6 +146,8 @@ func Init(opts Options) *Main {
 	m.CatatanPelayanan = NewCatatanPelayananRepository(opts.Postgres)
 	m.JenisPelayanan = NewJenisPelayananRepository(opts.Postgres)
 	m.PemantauanIndikator = NewPemantauanIndikatorRepository(opts.Postgres)
+	m.PerkembanganAnak = NewPerkembanganAnakRepository(opts.Postgres)
+	m.EdukasiMPASI = NewEdukasiMPASIRepository(opts.Postgres)
 
 	return m
 }

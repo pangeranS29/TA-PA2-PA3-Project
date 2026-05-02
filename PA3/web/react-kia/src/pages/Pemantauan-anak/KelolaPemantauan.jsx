@@ -2,69 +2,84 @@ import React, { useEffect, useMemo, useState } from "react";
 import MainLayout from "../../components/Layout/MainLayout";
 import { Search, Plus, Pencil, Trash2, X, Check } from "lucide-react";
 import {
-  createPemantauanIndikator,
-  deletePemantauanIndikator,
-  getPemantauanIndikator,
-  updatePemantauanIndikator,
-} from "../../services/monitoring";
-
-const ageTabs = ["0-28 hari", "29 hari - 3 bulan", "6-12 bulan", "12-24 bulan", "2-6 tahun"];
-
-const emptyByTab = ageTabs.reduce((acc, tab) => {
-  acc[tab] = [];
-  return acc;
-}, {});
+  getRentangUsia,
+  getKategoriByRentang,
+  createIndicator,
+  updateIndicator,
+  deleteIndicator
+} from "../../services/pemantauanAnak";
 
 export default function KelolaPemantauan() {
-  const [activeTab, setActiveTab] = useState("6-12 bulan");
+  const [rentangList, setRentangList] = useState([]);
+  const [activeRentangId, setActiveRentangId] = useState("");
   const [query, setQuery] = useState("");
-  const [clickedBtn, setClickedBtn] = useState({ id: null, type: null });
-  const [dataPertanyaan, setDataPertanyaan] = useState(emptyByTab);
+  const [dataPertanyaan, setDataPertanyaan] = useState({});
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [formText, setFormText] = useState("");
   const [formMode, setFormMode] = useState("add");
+  const [clickedBtn, setClickedBtn] = useState({ id: null, type: null });
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [notice, setNotice] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
 
   useEffect(() => {
+    const init = async () => {
+      try {
+        const res = await getRentangUsia();
+        setRentangList(res || []);
+        if (res.length > 0) {
+          setActiveRentangId(String(res[0].id));
+        }
+      } catch (e) {
+        setErrorMsg("Gagal memuat kategori usia");
+      }
+    };
+    init();
+  }, []);
+
+  useEffect(() => {
+    if (!activeRentangId) return;
     const t = setTimeout(() => {
-      fetchData(activeTab, query);
+      fetchData(activeRentangId, query);
     }, 300);
 
     return () => clearTimeout(t);
-  }, [activeTab, query]);
+  }, [activeRentangId, query]);
 
-  const fetchData = async (kategoriUsia, q) => {
+  const fetchData = async (rentangId, q) => {
     setIsLoading(true);
     setErrorMsg("");
 
     try {
-      const rows = await getPemantauanIndikator({ kategoriUsia, q });
-      const mapped = (rows || []).map((item) => ({
+      const rows = await getKategoriByRentang(rentangId);
+      // Client-side filtering for 'q' if backend doesn't support it yet
+      const filtered = q
+        ? rows.filter(item => item.gejala.toLowerCase().includes(q.toLowerCase()))
+        : rows;
+
+      const mapped = (filtered || []).map((item) => ({
         id: item.id,
-        deskripsi: item.deskripsi,
-        kategoriUsia: item.kategori_usia,
+        deskripsi: item.gejala,
+        rentangUsiaId: item.rentang_usia_id,
       }));
 
       setDataPertanyaan((prev) => ({
         ...prev,
-        [kategoriUsia]: mapped,
+        [rentangId]: mapped,
       }));
     } catch (error) {
-      setErrorMsg(error?.response?.data?.message || "Gagal memuat data indikator pemantauan");
+      setErrorMsg("Gagal memuat data indikator pemantauan");
     } finally {
       setIsLoading(false);
     }
   };
 
   const filteredData = useMemo(() => {
-    const listData = dataPertanyaan[activeTab] || [];
-    return listData;
-  }, [activeTab, query, dataPertanyaan]);
+    return dataPertanyaan[activeRentangId] || [];
+  }, [activeRentangId, dataPertanyaan]);
 
   const openAddModal = () => {
     setFormMode("add");
@@ -98,23 +113,23 @@ export default function KelolaPemantauan() {
 
       try {
         if (formMode === "edit" && selectedItem) {
-          await updatePemantauanIndikator(selectedItem.id, {
-            kategori_usia: activeTab,
-            deskripsi: value,
+          await updateIndicator(selectedItem.id, {
+            rentang_usia_id: Number(activeRentangId),
+            gejala: value,
           });
           setNotice("Indikator berhasil diperbarui");
         } else {
-          await createPemantauanIndikator({
-            kategori_usia: activeTab,
-            deskripsi: value,
+          await createIndicator({
+            rentang_usia_id: Number(activeRentangId),
+            gejala: value,
           });
           setNotice("Indikator berhasil ditambahkan");
         }
 
         closeModal();
-        await fetchData(activeTab, query);
+        await fetchData(activeRentangId, query);
       } catch (error) {
-        setErrorMsg(error?.response?.data?.message || "Gagal menyimpan indikator");
+        setErrorMsg("Gagal menyimpan indikator");
       } finally {
         setIsSubmitting(false);
       }
@@ -140,12 +155,12 @@ export default function KelolaPemantauan() {
       setNotice("");
 
       try {
-        await deletePemantauanIndikator(selectedItem.id);
+        await deleteIndicator(selectedItem.id);
         setNotice("Indikator berhasil dihapus");
         closeDeleteModal();
-        await fetchData(activeTab, query);
+        await fetchData(activeRentangId, query);
       } catch (error) {
-        setErrorMsg(error?.response?.data?.message || "Gagal menghapus indikator");
+        setErrorMsg("Gagal menghapus indikator");
       } finally {
         setIsSubmitting(false);
       }
@@ -155,14 +170,14 @@ export default function KelolaPemantauan() {
   return (
     <MainLayout>
       <div className="max-w-6xl mx-auto space-y-6">
-        
+
         {/* Header: Search Bar */}
         <div className="flex justify-center">
           <div className="relative w-full max-w-2xl">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-            <input 
+            <input
               type="text"
-              placeholder={`Cari indikator di kategori ${activeTab}...`}
+              placeholder={`Cari indikator...`}
               className="w-full pl-12 pr-4 py-3 bg-white border border-slate-100 rounded-full text-sm shadow-sm focus:ring-2 focus:ring-blue-100 outline-none transition-all"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
@@ -174,7 +189,7 @@ export default function KelolaPemantauan() {
         <div className="flex items-center justify-between px-2">
           <div>
             <h1 className="text-2xl font-bold text-slate-800">Kelola Lembar Pemantauan</h1>
-            <p className="text-sm text-slate-500 mt-1">Mengatur bank soal indikator kesehatan bayi per kategori umur.</p>
+            <p className="text-sm text-slate-500 mt-1">Mengatur bank soal indikator kesehatan anak per kategori umur.</p>
           </div>
           <button
             onClick={openAddModal}
@@ -198,17 +213,16 @@ export default function KelolaPemantauan() {
 
         {/* Tab Selector */}
         <div className="bg-slate-100/50 p-1 rounded-xl flex gap-1">
-          {ageTabs.map((tab) => (
+          {rentangList.map((rentang) => (
             <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`flex-1 py-2.5 text-sm font-medium rounded-lg transition-all ${
-                activeTab === tab 
-                ? "bg-white text-blue-600 shadow-sm" 
-                : "text-slate-500 hover:text-slate-700"
-              }`}
+              key={rentang.id}
+              onClick={() => setActiveRentangId(String(rentang.id))}
+              className={`flex-1 py-2.5 text-sm font-medium rounded-lg transition-all ${activeRentangId === String(rentang.id)
+                  ? "bg-white text-blue-600 shadow-sm"
+                  : "text-slate-500 hover:text-slate-700"
+                }`}
             >
-              {tab}
+              {rentang.nama_rentang}
             </button>
           ))}
         </div>
@@ -236,7 +250,7 @@ export default function KelolaPemantauan() {
                     {item.deskripsi}
                   </div>
                   <div className="col-span-2 flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button 
+                    <button
                       onClick={() => openEditModal(item)}
                       onMouseDown={() => setClickedBtn({ id: item.id, type: 'edit' })}
                       onMouseUp={() => setClickedBtn({ id: null, type: null })}
@@ -244,7 +258,7 @@ export default function KelolaPemantauan() {
                     >
                       <Pencil size={18} />
                     </button>
-                    <button 
+                    <button
                       onClick={() => openDeleteModal(item)}
                       onMouseDown={() => setClickedBtn({ id: item.id, type: 'delete' })}
                       onMouseUp={() => setClickedBtn({ id: null, type: null })}
@@ -257,7 +271,7 @@ export default function KelolaPemantauan() {
               ))
             ) : (
               <div className="p-20 text-center">
-                <p className="text-slate-400 text-sm italic">Belum ada indikator untuk kategori {activeTab}.</p>
+                <p className="text-slate-400 text-sm italic">Belum ada indikator untuk kategori {rentangList.find(r => String(r.id) === activeRentangId)?.nama_rentang}.</p>
               </div>
             )}
           </div>
@@ -277,7 +291,7 @@ export default function KelolaPemantauan() {
 
               <div className="p-6 space-y-4">
                 <p className="text-sm text-slate-500">
-                  Kategori aktif: <span className="font-semibold text-slate-700">{activeTab}</span>
+                  Kategori aktif: <span className="font-semibold text-slate-700">{rentangList.find(r => String(r.id) === activeRentangId)?.nama_rentang}</span>
                 </p>
                 <textarea
                   rows={5}

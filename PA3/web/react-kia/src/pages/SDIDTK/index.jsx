@@ -212,7 +212,7 @@ const FormSDIDTK = ({ idAnak = 1 }) => {
                   type="submit"
                   className="w-full mt-10 bg-blue-700 text-white py-5 rounded-3xl font-black shadow-xl hover:bg-blue-800 transition-all uppercase flex items-center justify-center gap-3"
                 >
-                  {isLoading ? <Loader2 className="animate-spin" /> : <><Save size={20} /> Simpan & Generate Saran AI</>}
+                  {isLoading ? <Loader2 className="animate-spin" /> : <><Save size={20} /> Simpan</>}
                 </button>
               </form>
             </div>

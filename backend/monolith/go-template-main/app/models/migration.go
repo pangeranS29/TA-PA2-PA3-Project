@@ -10,6 +10,23 @@ func AutoMigrate(db *gorm.DB) error {
 		// Master
 		// &KartuKeluarga{},
 		// &Kependudukan{},
+		// Pemantauan Ibu Nifas
+		// &KategoriPemantauanIbu{},
+		// &LembarPemantauanIbu{},
+		// &DetailPemantauanIbu{},
+
+		// Pemantauan Anak
+		&RentangUsia{},
+		&KategoriTandaSakit{},
+		&LembarPemantauanAnak{},
+		&DetailPemantauanAnak{},
+
+		// Perkembangan Anak
+		&RentangUsiaPerkembangan{},
+		&KategoriPerkembangan{},
+		&LembarPerkembanganAnak{},
+		&DetailPerkembanganAnak{},
+
 		// &Ibu{},
 		// &KategoriTandaBahaya{},
 		// &SkriningPemantauan{},
@@ -81,14 +98,23 @@ func AutoMigrate(db *gorm.DB) error {
 		// &Rujukan{},
 
 		// Edukasi Digital
-		&EdukasiInformasiUmum{},
-		&EdukasiIMD{},
-		&EdukasiKesehatanMental{},
-		&EdukasiMenyusuiASI{},
-		&EdukasiPolaAsuh{},
-		&EdukasiSetelahMelahirkan{},
-		&EdukasiTandaBahayaTrimester{},
-		&EdukasiTandaMelahirkan{},
+		// &EdukasiInformasiUmum{},
+		// &EdukasiIMD{},
+		// &EdukasiKesehatanMental{},
+		// &EdukasiMenyusuiASI{},
+		// &EdukasiPolaAsuh{},
+		// &EdukasiSetelahMelahirkan{},
+		// &EdukasiTandaBahayaTrimester{},
+		// &EdukasiTandaMelahirkan{},
+		&EdukasiPerawatanAnak{},
+		// &KategoriPemantauanIbu{},
+		// &LembarPemantauanIbu{},
+		// &DetailPemantauanIbu{},
+		&DetailPemantauanAnak{},
+		&KeluhanAnak{},
+		&MasterStandarAntropometri{},
+		&KesehatanLingkunganDanCatatanKader{},
+		&KeluhanAnak{},
 	}
 
 	// Jalankan automigrate sekali saja

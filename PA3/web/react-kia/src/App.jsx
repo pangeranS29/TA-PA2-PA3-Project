@@ -76,8 +76,8 @@ import PelayananLilaCreate from "./pages/Pelayanan-LILA-Anak/create";
 import PelayananLilaEdit from "./pages/Pelayanan-LILA-Anak/edit";
 
 // Pemantauan
-import KelolaPemantauan from "./pages/Pemantauan/KelolaPemantauan";
-import LihatDataPemantauan from "./pages/Pemantauan/LihatDataPemantauan";
+import KelolaPemantauan from "./pages/Pemantauan-anak/KelolaPemantauan";
+import LihatDataPemantauan from "./pages/Pemantauan-anak/LihatDataPemantauan";
 
 // Pencatatan
 import KesehatanLingkunganCatatanPage from "./pages/Pencatatan/KesehatanLingkunganCatatan";
@@ -99,6 +99,15 @@ import PolaAsuhPage from "./pages/edukasi-digital/PolaAsuhPage";
 import PolaAsuhFormPage from "./pages/edukasi-digital/PolaAsuhFormPage";
 import KesehatanMentalPage from "./pages/edukasi-digital/KesehatanMentalPage";
 import KesehatanMentalFormPage from "./pages/edukasi-digital/KesehatanMentalFormPage";
+import PerawatanAnakPage from "./pages/edukasi-digital/PerawatanAnakPage";
+import PerawatanAnakFormPage from "./pages/edukasi-digital/PerawatanAnakFormPage";
+import MpasiPage from "./pages/edukasi-digital/MpasiPage";
+import MpasiFormPage from "./pages/edukasi-digital/MpasiFormPage";
+import KeluhanAnak from "./pages/Anak/Keluhan/KeluhanAnak";
+import PemantauanAnakPage from "./pages/Anak/Pemantauan/PemantauanAnakPage";
+import PerkembanganAnakPage from "./pages/Anak/Perkembangan/PerkembanganAnakPage";
+import LihatDataPerkembangan from "./pages/penanda-perkembangan-anak/LihatDataPerkembangan";
+import KelolaPerkembangan from "./pages/penanda-perkembangan-anak/KelolaPerkembangan";
 
 const HomeRedirect = () => {
   if (!isAuthenticated()) {
@@ -154,14 +163,19 @@ function App() {
           <Route path="/data-anak/create" element={<CreateAnak />} />
           <Route path="/data-anak/edit/:id" element={<EditAnak />} />
           <Route path="/data-anak/:id" element={<DetailAnak />} />
+          <Route path="/data-anak/keluhan/:id" element={<KeluhanAnak />} />
+          <Route path="/data-anak/pemantauan/:id" element={<PemantauanAnakPage />} />
+          <Route path="/data-anak/perkembangan/:id" element={<PerkembanganAnakPage />} />
 
           {/* Monitoring & Laporan */}
           <Route path="/monitoring" element={<Monitoring />} />
           <Route path="/laporan" element={<Laporan />} />
 
           {/* Pemantauan */}
-          <Route path="/pemantauan/kelola" element={<KelolaPemantauan />} />
           <Route path="/pemantauan/lihat" element={<LihatDataPemantauan />} />
+          <Route path="/pemantauan/perkembangan" element={<LihatDataPerkembangan />} />
+          <Route path="/pemantauan/kelola-perkembangan" element={<KelolaPerkembangan />} />
+          <Route path="/pemantauan/kelola" element={<KelolaPemantauan />} />
 
           {/* Pencatatan */}
           <Route path="/pencatatan/kesehatan-lingkungan" element={<KesehatanLingkunganCatatanPage />} />
@@ -191,6 +205,12 @@ function App() {
           <Route path="/edukasi-digital/kesehatan-mental" element={<KesehatanMentalPage />} />
           <Route path="/edukasi-digital/kesehatan-mental/form" element={<KesehatanMentalFormPage />} />
           <Route path="/edukasi-digital/kesehatan-mental/form/:id" element={<KesehatanMentalFormPage />} />
+          <Route path="/edukasi-digital/perawatan-anak" element={<PerawatanAnakPage />} />
+          <Route path="/edukasi-digital/perawatan-anak/form" element={<PerawatanAnakFormPage />} />
+          <Route path="/edukasi-digital/perawatan-anak/form/:id" element={<PerawatanAnakFormPage />} />
+          <Route path="/edukasi-digital/mpasi" element={<MpasiPage />} />
+          <Route path="/edukasi-digital/mpasi/form" element={<MpasiFormPage />} />
+          <Route path="/edukasi-digital/mpasi/form/:id" element={<MpasiFormPage />} />
 
           {/* Pelayanan LILA Anak */}
           <Route path="/data-anak/lila" element={<PelayananLilaGlobalList />} />

@@ -41,7 +41,9 @@ type Main struct {
 	RencanaPersalinan             RencanaPersalinanUsecase
 	RingkasanPelayananPersalinan  RingkasanPelayananPersalinanUsecase
 	RiwayatProsesMelahirkan       RiwayatProsesMelahirkanUsecase
-	Rujukan                       RujukanUsecase
+	Rujukan                       RujukanUseCase
+	PemantauanIbu                 PemantauanIbuUseCase
+	PemantauanAnak                PemantauanAnakUseCase
 	SkriningDMGestasional         SkriningDMGestasionalUsecase
 	SkriningPreeklampsia          SkriningPreeklampsiaUsecase
 	SkriningPemantauan            SkriningPemantauanUsecase
@@ -52,7 +54,7 @@ type Main struct {
 	// RegisterOrangTua              *RegisterOrangTuaUsecase
 	AdminAkunKeluarga                  *AdminAkunKeluargaUsecase
 	AdminTenagaKesehatan               *AdminTenagaKesehatanUsecase
-	KeteranganLahir                    KeteranganLahirUsecase // <-- TAMBAHKAN INI
+	KeteranganLahir                    KeteranganLahirUsecase
 	PemantauanIndikator                PemantauanIndikatorUsecase
 	EdukasiInformasiUmum               EdukasiInformasiUmumUsecase
 	EdukasiTandaBahayaTrimester        EdukasiTandaBahayaTrimesterUsecase
@@ -62,9 +64,13 @@ type Main struct {
 	EdukasiMenyusuiAsi                 EdukasiMenyusuiASIUsecase
 	EdukasiPolaAsuh                    EdukasiPolaAsuhUsecase
 	EdukasiKesehatanMental             EdukasiKesehatanMentalUsecase
+	EdukasiPerawatanAnak               EdukasiPerawatanAnakUseCase
+	KeluhanAnak                        KeluhanAnakUseCase
 	KesehatanLingkunganDanCatatanKader KesehatanLingkunganDanCatatanKaderUsecase
 	JenisPelayanan                     JenisPelayananUsecase
 	Pertumbuhan                        PertumbuhanUseCase
+	PerkembanganAnak                   PerkembanganAnakUseCase
+	EdukasiMPASI                       EdukasiMPASIUsecase
 }
 
 type Options struct {
@@ -112,7 +118,9 @@ func Init(opts Options) *Main {
 	m.RencanaPersalinan = NewRencanaPersalinanUsecase(opts.Repository.RencanaPersalinan)
 	m.RingkasanPelayananPersalinan = NewRingkasanPelayananPersalinanUsecase(opts.Repository.RingkasanPelayananPersalinan)
 	m.RiwayatProsesMelahirkan = NewRiwayatProsesMelahirkanUsecase(opts.Repository.RiwayatProsesMelahirkan)
-	m.Rujukan = NewRujukanUsecase(opts.Repository.Rujukan)
+	m.Rujukan = NewRujukanUseCase(opts.Repository.Rujukan)
+	m.PemantauanIbu = NewPemantauanIbuUseCase(opts.Repository.PemantauanIbu)
+	m.PemantauanAnak = NewPemantauanAnakUseCase(opts.Repository.PemantauanAnak)
 	m.SkriningDMGestasional = NewSkriningDMGestasionalUsecase(opts.Repository.SkriningDMGestasional)
 	m.SkriningPreeklampsia = NewSkriningPreeklampsiaUsecase(opts.Repository.SkriningPreeklampsia)
 	m.SkriningPemantauan = NewSkriningPemantauanUsecase(opts.Repository.SkriningPemantauan)
@@ -128,6 +136,8 @@ func Init(opts Options) *Main {
 	m.EdukasiMenyusuiAsi = NewEdukasiMenyusuiASIUsecase(opts.Repository.EdukasiMenyusuiAsi)
 	m.EdukasiPolaAsuh = NewEdukasiPolaAsuhUsecase(opts.Repository.EdukasiPolaAsuh)
 	m.EdukasiKesehatanMental = NewEdukasiKesehatanMentalUsecase(opts.Repository.EdukasiKesehatanMental)
+	m.EdukasiPerawatanAnak = NewEdukasiPerawatanAnakUseCase(opts.Repository.EdukasiPerawatanAnak)
+	m.KeluhanAnak = NewKeluhanAnakUseCase(opts.Repository.KeluhanAnak)
 	m.KesehatanLingkunganDanCatatanKader = NewKesehatanLingkunganDanCatatanKaderUsecase(opts.Repository.KesehatanLingkunganDanCatatanKader)
 	m.PemantauanIndikator = NewPemantauanIndikatorUsecase(opts.Repository.PemantauanIndikator)
 	m.Kependudukan = NewKependudukanUsecase(opts.Repository.Kependudukan)
@@ -154,6 +164,8 @@ func Init(opts Options) *Main {
 	m.KeteranganLahir = NewKeteranganLahirUsecase(opts.Repository.KeteranganLahir) // <-- TAMBAHKAN INI
 	m.JenisPelayanan = NewJenisPelayananUsecase(opts.Repository.JenisPelayanan)
 	m.Pertumbuhan = NewPertumbuhanUseCase(opts.Repository)
+	m.PerkembanganAnak = NewPerkembanganAnakUseCase(opts.Repository.PerkembanganAnak)
+	m.EdukasiMPASI = NewEdukasiMPASIUsecase(opts.Repository.EdukasiMPASI)
 
 	return m
 }

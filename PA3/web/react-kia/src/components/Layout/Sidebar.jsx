@@ -30,7 +30,7 @@ const Sidebar = () => {
 
   const [isFamilyMenuOpen, setIsFamilyMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState({
-    pemantauan: location.pathname.startsWith("/pemantauan"),
+    monitoring: location.pathname.startsWith("/monitoring") || location.pathname.startsWith("/pemantauan"),
     edukasiDigital: location.pathname.startsWith("/edukasi-digital"),
   });
 
@@ -52,7 +52,19 @@ const Sidebar = () => {
     // { path: "/data-anak/lila", name: "Pelayanan LILA", icon: Ruler },
     { path: "/kependudukan", name: "Manajemen KK", icon: UserCheck },
     { path: "/pencatatan/kesehatan-lingkungan", name: "Kesehatan Lingkungan", icon: ClipboardList },
-    { path: "/monitoring", name: "Monitoring", icon: Activity },
+    {
+      name: "Monitoring",
+      icon: Activity,
+      isDropdown: true,
+      dropdownKey: "monitoring",
+      children: [
+        { path: "/monitoring", name: "Rekap Wilayah", icon: BarChart3 },
+        { path: "/pemantauan/lihat", name: "Data Pemantauan Anak", icon: TableProperties },
+        { path: "/pemantauan/perkembangan", name: "Data Perkembangan Anak", icon: TableProperties },
+        { path: "/pemantauan/kelola-perkembangan", name: "Kelola Penanda Perkembangan Anak", icon: ClipboardEdit },
+        { path: "/pemantauan/kelola", name: "Kelola Indikator Anak", icon: ClipboardEdit },
+      ],
+    },
     {
       name: "Edukasi Digital",
       icon: BookOpenCheck,
@@ -67,16 +79,8 @@ const Sidebar = () => {
         { path: "/edukasi-digital/menyusui-asi", name: "Menyusui & ASI", icon: ClipboardList },
         { path: "/edukasi-digital/pola-asuh", name: "Pola Asuh", icon: ClipboardList },
         { path: "/edukasi-digital/kesehatan-mental", name: "Kesehatan Mental", icon: ClipboardList },
-      ],
-    },
-    {
-      name: "Pemantauan",
-      icon: Activity,
-      isDropdown: true,
-      dropdownKey: "pemantauan",
-      children: [
-        { path: "/pemantauan/kelola", name: "Kelola Pemantauan", icon: ClipboardEdit },
-        { path: "/pemantauan/lihat", name: "Lihat Data Pemantauan", icon: TableProperties },
+        { path: "/edukasi-digital/perawatan-anak", name: "Perawatan Anak", icon: ClipboardList },
+        { path: "/edukasi-digital/mpasi", name: "MPASI & Resep", icon: ClipboardList },
       ],
     },
     { path: "/laporan", name: "Laporan", icon: BarChart3 },
@@ -89,10 +93,9 @@ const Sidebar = () => {
   ];
 
   const navLinkClass = ({ isActive }) =>
-    `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${
-      isActive
-        ? "bg-blue-50 text-blue-600 font-semibold"
-        : "text-slate-500 hover:bg-gray-50 hover:text-slate-700"
+    `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${isActive
+      ? "bg-blue-50 text-blue-600 font-semibold"
+      : "text-slate-500 hover:bg-gray-50 hover:text-slate-700"
     }`;
 
   return (
@@ -135,11 +138,10 @@ const Sidebar = () => {
             <div key={item.name} className="space-y-1">
               <button
                 onClick={() => toggleDropdown(item.dropdownKey)}
-                className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 group ${
-                  isOpen || isChildActive
+                className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 group ${isOpen || isChildActive
                     ? "text-slate-700 font-medium"
                     : "text-slate-500 hover:bg-gray-50 hover:text-slate-700"
-                }`}
+                  }`}
               >
                 <div className="flex items-center gap-3">
                   <item.icon size={20} className={(isOpen || isChildActive) ? "text-blue-600" : "text-slate-400"} />
@@ -155,10 +157,9 @@ const Sidebar = () => {
                       key={child.path}
                       to={child.path}
                       className={({ isActive }) =>
-                        `flex items-center gap-3 px-4 py-2 rounded-lg text-sm transition-all ${
-                          isActive
-                            ? "text-blue-600 font-semibold"
-                            : "text-slate-400 hover:text-slate-600 hover:bg-gray-50"
+                        `flex items-center gap-3 px-4 py-2 rounded-lg text-sm transition-all ${isActive
+                          ? "text-blue-600 font-semibold"
+                          : "text-slate-400 hover:text-slate-600 hover:bg-gray-50"
                         }`
                       }
                     >
@@ -201,10 +202,9 @@ const Sidebar = () => {
                     key={item.path}
                     to={item.path}
                     className={({ isActive }) =>
-                      `flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 group text-sm ${
-                        isActive
-                          ? "bg-blue-50 text-blue-600 font-semibold"
-                          : "text-slate-500 hover:bg-gray-50 hover:text-slate-700"
+                      `flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 group text-sm ${isActive
+                        ? "bg-blue-50 text-blue-600 font-semibold"
+                        : "text-slate-500 hover:bg-gray-50 hover:text-slate-700"
                       }`
                     }
                   >
