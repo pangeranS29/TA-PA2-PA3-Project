@@ -41,6 +41,16 @@ export const EDUKASI_RESOURCES = {
     label: "Kesehatan Mental",
     path: "edukasi-kesehatan-mental",
   },
+  perawatanAnak: {
+    key: "perawatanAnak",
+    label: "Perawatan Anak",
+    path: "edukasi-perawatan-anak",
+  },
+  mpasi: {
+    key: "mpasi",
+    label: "Edukasi MPASI",
+    path: "edukasi-mpasi",
+  },
 };
 
 const unwrap = (res) => {

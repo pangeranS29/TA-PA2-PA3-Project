@@ -23,7 +23,7 @@ const emptyForm = {
   gambar_url: "",
   deskripsi: "",
   isi_konten: "",
-  materi_inti: "",
+  materi_inti: "[]",
   hal_penting: "",
 };
 
@@ -62,7 +62,7 @@ export default function EdukasiDigitalCrudPage({
       deskripsi: "",
       isi_konten: "",
       isi: "",
-      materi_inti: "",
+      materi_inti: "[]",
       hal_penting: "",
       ringkasan: "",
     };
@@ -162,6 +162,36 @@ export default function EdukasiDigitalCrudPage({
 
     loadFormData();
   }, [location.state, view, params.id, resourcePath, fields]);
+
+  // --- MATERI INTI LOGIC ---
+  const materiIntiList = useMemo(() => {
+    try {
+      const parsed = JSON.parse(form.materi_inti || "[]");
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  }, [form.materi_inti]);
+
+  const handleUpdateMateriInti = (newList) => {
+    setForm((prev) => ({ ...prev, materi_inti: JSON.stringify(newList) }));
+  };
+
+  const handleAddMateriInti = () => {
+    handleUpdateMateriInti([...materiIntiList, { judul: "", isi: "" }]);
+  };
+
+  const handleRemoveMateriInti = (index) => {
+    const newList = [...materiIntiList];
+    newList.splice(index, 1);
+    handleUpdateMateriInti(newList);
+  };
+
+  const handleChangeMateriInti = (index, field, value) => {
+    const newList = [...materiIntiList];
+    newList[index] = { ...newList[index], [field]: value };
+    handleUpdateMateriInti(newList);
+  };
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -413,7 +443,7 @@ export default function EdukasiDigitalCrudPage({
                 { key: "isi_konten", label: "Isi konten", type: "textarea", rows: 4 },
                 { key: "materi_inti", label: "Materi inti", type: "textarea", rows: 2 },
                 { key: "hal_penting", label: "Hal penting", type: "textarea", rows: 2 },
-              ]).map((f) => {
+              ]).filter(f => f.key !== 'materi_inti').map((f) => {
                 const value = form[f.key] ?? "";
                 if (f.type === "textarea") {
                   return (
@@ -459,6 +489,67 @@ export default function EdukasiDigitalCrudPage({
                   </div>
                 );
               })}
+
+              {/* Special Section: Materi Inti (Dynamic List) */}
+              {(fields === null || fields.some(f => f.key === 'materi_inti')) && (
+                <div className="pt-4 border-t border-slate-100">
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <h3 className="text-sm font-bold text-slate-800">Materi Inti</h3>
+                      <p className="text-[10px] text-slate-400 uppercase tracking-wider">Tambahkan satu atau lebih blok materi inti.</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleAddMateriInti}
+                      className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg text-[10px] font-black uppercase hover:bg-blue-100 transition-colors"
+                    >
+                      <Plus size={14} /> Tambah Materi
+                    </button>
+                  </div>
+
+                  <div className="space-y-4">
+                    {materiIntiList.map((item, index) => (
+                      <div key={index} className="bg-slate-50/50 p-4 rounded-2xl border border-slate-100 relative group/item">
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveMateriInti(index)}
+                          className="absolute top-2 right-2 p-1 text-slate-300 hover:text-rose-500 transition-colors opacity-0 group-hover/item:opacity-100"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                        <div className="space-y-3">
+                          <div className="space-y-1">
+                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Judul Materi {index + 1}</label>
+                            <input
+                              value={item.judul}
+                              onChange={(e) => handleChangeMateriInti(index, "judul", e.target.value)}
+                              placeholder="Contoh: Pengertian ASI Eksklusif"
+                              className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm focus:border-blue-400 outline-none transition-all"
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Isi Materi</label>
+                            <textarea
+                              value={item.isi}
+                              onChange={(e) => handleChangeMateriInti(index, "isi", e.target.value)}
+                              placeholder="Tulis penjelasan detail di sini..."
+                              rows={3}
+                              className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm focus:border-blue-400 outline-none transition-all"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+
+                    {materiIntiList.length === 0 && (
+                      <div className="text-center py-6 border-2 border-dashed border-slate-100 rounded-2xl">
+                        <BookOpen size={24} className="mx-auto text-slate-200 mb-2" />
+                        <p className="text-[10px] font-bold text-slate-300 uppercase italic">Belum ada materi inti yang ditambahkan</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
 
               {error ? <p className="text-sm text-red-600">{error}</p> : null}
 

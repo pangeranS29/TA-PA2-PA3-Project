@@ -12,10 +12,10 @@ import (
 )
 
 type RujukanController struct {
-	usecase usecases.RujukanUsecase
+	usecase usecases.RujukanUseCase
 }
 
-func NewRujukanController(u usecases.RujukanUsecase) *RujukanController {
+func NewRujukanController(u usecases.RujukanUseCase) *RujukanController {
 	return &RujukanController{usecase: u}
 }
 

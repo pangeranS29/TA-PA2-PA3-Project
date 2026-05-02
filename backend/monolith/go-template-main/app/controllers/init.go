@@ -30,6 +30,8 @@ type Main struct {
 	EdukasiMenyusuiAsi          *EdukasiMenyusuiASIController
 	EdukasiPolaAsuh             *EdukasiPolaAsuhController
 	EdukasiKesehatanMental      *EdukasiKesehatanMentalController
+	EdukasiPerawatanAnak        *EdukasiPerawatanAnakController
+	KeluhanAnak                 *KeluhanAnakController
 	KesehatanLingkunganDanCatatanKader *KesehatanLingkunganDanCatatanKaderController
 
 	// Controller baru untuk struktur kehamilan
@@ -54,6 +56,8 @@ type Main struct {
 	RingkasanPelayananPersalinan  *RingkasanPelayananPersalinanController
 	RiwayatProsesMelahirkan       *RiwayatProsesMelahirkanController
 	Rujukan                       *RujukanController
+	PemantauanIbu                 *PemantauanIbuController
+	PemantauanAnak                *PemantauanAnakController
 	SkriningDMGestasional         *SkriningDMGestasionalController
 	SkriningPreeklampsia          *SkriningPreeklampsiaController
 	SkriningPemantauan            *SkriningPemantauanController
@@ -65,6 +69,8 @@ type Main struct {
 	Kependudukan                  *KependudukanController
 	JenisPelayanan                *JenisPelayananController
 	Pertumbuhan                   *PertumbuhanController
+	PerkembanganAnak              *PerkembanganAnakController
+	EdukasiMPASI                  *EdukasiMPASIController
 }
 
 type Options struct {
@@ -99,6 +105,8 @@ func Init(opts Options) *Main {
 	m.EdukasiMenyusuiAsi = NewEdukasiMenyusuiASIController(opts.UseCases.EdukasiMenyusuiAsi)
 	m.EdukasiPolaAsuh = NewEdukasiPolaAsuhController(opts.UseCases.EdukasiPolaAsuh)
 	m.EdukasiKesehatanMental = NewEdukasiKesehatanMentalController(opts.UseCases.EdukasiKesehatanMental)
+	m.EdukasiPerawatanAnak = NewEdukasiPerawatanAnakController(opts.UseCases.EdukasiPerawatanAnak)
+	m.KeluhanAnak = NewKeluhanAnakController(opts.UseCases.KeluhanAnak)
 	m.KesehatanLingkunganDanCatatanKader = NewKesehatanLingkunganDanCatatanKaderController(opts.UseCases.KesehatanLingkunganDanCatatanKader, opts.UseCases.Ibu)
 
 	// Controller baru
@@ -125,6 +133,8 @@ func Init(opts Options) *Main {
 	m.RingkasanPelayananPersalinan = NewRingkasanPelayananPersalinanController(opts.UseCases.RingkasanPelayananPersalinan)
 	m.RiwayatProsesMelahirkan = NewRiwayatProsesMelahirkanController(opts.UseCases.RiwayatProsesMelahirkan)
 	m.Rujukan = NewRujukanController(opts.UseCases.Rujukan)
+	m.PemantauanIbu = NewPemantauanIbuController(opts.UseCases.PemantauanIbu)
+	m.PemantauanAnak = NewPemantauanAnakController(opts.UseCases.PemantauanAnak)
 	m.SkriningDMGestasional = NewSkriningDMGestasionalController(opts.UseCases.SkriningDMGestasional)
 	m.SkriningPreeklampsia = NewSkriningPreeklampsiaController(opts.UseCases.SkriningPreeklampsia)
 	m.SkriningPemantauan = NewSkriningPemantauanController(opts.UseCases.SkriningPemantauan)
@@ -136,6 +146,8 @@ func Init(opts Options) *Main {
 	m.Kependudukan = NewKependudukanController(opts.UseCases.Kependudukan)
 	m.JenisPelayanan = NewJenisPelayananController(opts.UseCases.JenisPelayanan)
 	m.Pertumbuhan = NewPertumbuhanController(opts.UseCases.Pertumbuhan)
+	m.PerkembanganAnak = NewPerkembanganAnakController(opts.UseCases.PerkembanganAnak)
+	m.EdukasiMPASI = NewEdukasiMPASIController(opts.UseCases.EdukasiMPASI)
 
 	return m
 }
