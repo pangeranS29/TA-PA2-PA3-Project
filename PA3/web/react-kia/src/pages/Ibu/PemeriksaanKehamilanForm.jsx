@@ -8,7 +8,8 @@ import {
   createPemeriksaanKehamilan, 
   updatePemeriksaanKehamilan 
 } from "../../services/pemeriksaanKehamilan";
-import { Save, ArrowLeft, Loader2, ClipboardCheck, Activity, Beaker } from "lucide-react";
+import { getLabJiwaByKehamilanId } from "../../services/pemeriksaanDokter";
+import { Save, ArrowLeft, Loader2, ClipboardCheck, Activity, Beaker, Info } from "lucide-react";
 
 export default function PemeriksaanKehamilanForm() {
   const { id, periksaId } = useParams(); // id = IbuId, periksaId = ANC record ID
@@ -18,6 +19,8 @@ export default function PemeriksaanKehamilanForm() {
   const [kehamilan, setKehamilan] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [labData, setLabData] = useState(null);
+  const [labSourceTrimester, setLabSourceTrimester] = useState(null);
 
   const [form, setForm] = useState({
     trimester: "T1",
@@ -43,6 +46,75 @@ export default function PemeriksaanKehamilanForm() {
     tata_laksana_kasus: "",
   });
 
+  // Helper: menentukan trimester berdasarkan kunjungan_ke
+  const getTrimesterFromKunjungan = (kunjunganKe) => {
+    const k = parseInt(kunjunganKe);
+    if (k <= 3) return 1;
+    return 3;
+  };
+
+  // Mengambil data lab sesuai trimester
+  const fetchLabByTrimester = async (kehamilanId, trimester) => {
+    try {
+      const res = await getLabJiwaByKehamilanId(kehamilanId);
+      if (res && Array.isArray(res)) {
+        const lab = res.find(item => item.trimester === trimester);
+        return lab || null;
+      }
+      return null;
+    } catch (err) {
+      console.error(`Gagal ambil data lab trimester ${trimester}:`, err);
+      return null;
+    }
+  };
+
+  // Update data lab ketika kehamilan atau kunjungan_ke berubah
+  useEffect(() => {
+    const loadLabData = async () => {
+      if (!kehamilan) return;
+      const kunjungan = parseInt(form.kunjungan_ke) || 1;
+      const targetTrimester = getTrimesterFromKunjungan(kunjungan);
+      setLabSourceTrimester(targetTrimester);
+      const lab = await fetchLabByTrimester(kehamilan.id, targetTrimester);
+      setLabData(lab);
+
+      if (lab) {
+        // Mapping data lab ke form
+        let proteinUrine = "Negatif";
+        if (lab.lab_protein_urin_hasil) {
+          if (lab.lab_protein_urin_hasil === 1) proteinUrine = "Positif 1";
+          else if (lab.lab_protein_urin_hasil === 2) proteinUrine = "Positif 2";
+          else if (lab.lab_protein_urin_hasil >= 3) proteinUrine = "Positif 3";
+        }
+        let triple = "NonReaktif";
+        if (lab.lab_hiv_hasil === "Reaktif") triple = "Reak HIV";
+        else if (lab.lab_sifilis_hasil === "Reaktif") triple = "Reak Sif";
+        else if (lab.lab_hepatitis_b_hasil === "Reaktif") triple = "Reak HBsAg";
+
+        setForm(prev => ({
+          ...prev,
+          tes_lab_hb: lab.lab_hemoglobin_hasil?.toString() || "",
+          tes_golongan_darah: lab.lab_golongan_darah_rhesus_hasil || "",
+          tes_lab_protein_urine: proteinUrine,
+          tes_lab_gula_darah: lab.lab_gula_darah_sewaktu_hasil?.toString() || "",
+          tripel_eliminasi: triple,
+        }));
+      } else {
+        // Reset lab fields jika tidak ada data
+        setForm(prev => ({
+          ...prev,
+          tes_lab_hb: "",
+          tes_golongan_darah: "",
+          tes_lab_protein_urine: "Negatif",
+          tes_lab_gula_darah: "",
+          tripel_eliminasi: "NonReaktif",
+        }));
+      }
+    };
+    loadLabData();
+  }, [kehamilan, form.kunjungan_ke]);
+
+  // Ambil data kehamilan dan data existing ANC (jika edit)
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -128,6 +200,13 @@ export default function PemeriksaanKehamilanForm() {
 
   if (loading) return <MainLayout><div className="p-6 text-center">Memuat...</div></MainLayout>;
 
+  const kunjungan = parseInt(form.kunjungan_ke) || 1;
+  const labTrimester = getTrimesterFromKunjungan(kunjungan);
+  const isLabDisabled = !!labData; // Jika ada data lab, field lab disabled (read-only)
+  const labInfoText = labData 
+    ? `Data laboratorium diambil dari Pemeriksaan Dokter Trimester ${labTrimester} (sudah tersimpan)`
+    : `Data laboratorium belum tersedia untuk Trimester ${labTrimester}. Silakan isi manual atau lengkapi pemeriksaan dokter terlebih dahulu.`;
+
   return (
     <MainLayout>
       <div className="p-6 max-w-5xl mx-auto">
@@ -154,6 +233,7 @@ export default function PemeriksaanKehamilanForm() {
                 <select name="kunjungan_ke" value={form.kunjungan_ke} onChange={handleChange} className="w-full border-gray-300 rounded-xl shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-4 py-3 bg-white">
                   {[1, 2, 3, 4, 5, 6].map(n => <option key={n} value={n}>{n}</option>)}
                 </select>
+                <p className="text-xs text-gray-500 mt-1">Kunjungan 1–3 → data lab trimester 1, kunjungan 4–6 → data lab trimester 3</p>
               </div>
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">Trimester</label>
@@ -175,7 +255,7 @@ export default function PemeriksaanKehamilanForm() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* 2. Pemeriksaan Fisik */}
+            {/* 2. Pemeriksaan Fisik (tidak berubah) */}
             <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 p-8 transition-all hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
               <div className="flex items-center gap-3 mb-6 border-b border-indigo-100 pb-4">
                 <div className="bg-indigo-100 p-2 rounded-lg text-indigo-600"><Activity size={24} /></div>
@@ -209,20 +289,24 @@ export default function PemeriksaanKehamilanForm() {
               </div>
             </div>
 
-            {/* 3. Pemeriksaan Laboratorium */}
+            {/* 3. Pemeriksaan Laboratorium - otomatis dari data lab */}
             <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 p-8 transition-all hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
               <div className="flex items-center gap-3 mb-6 border-b border-indigo-100 pb-4">
                 <div className="bg-indigo-100 p-2 rounded-lg text-indigo-600"><Beaker size={24} /></div>
                 <h2 className="text-xl font-bold text-indigo-900">Laboratorium & Tindakan</h2>
               </div>
+              <div className="mb-4 p-3 bg-blue-50 rounded-xl flex items-start gap-2 text-blue-700 text-xs">
+                <Info size={16} className="mt-0.5 flex-shrink-0" />
+                <span>{labInfoText}</span>
+              </div>
               <div className="grid grid-cols-2 gap-5">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">Kadar Hb (g/dL)</label>
-                  <input type="number" step="0.1" name="tes_lab_hb" value={form.tes_lab_hb} onChange={handleChange} className="w-full border-gray-300 rounded-xl shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-4 py-3 bg-gray-50" />
+                  <input type="number" step="0.1" name="tes_lab_hb" value={form.tes_lab_hb} onChange={handleChange} disabled={isLabDisabled} className="w-full border-gray-300 rounded-xl shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-4 py-3 bg-gray-50 disabled:bg-gray-100 disabled:text-gray-500" />
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">Protein Urine</label>
-                  <select name="tes_lab_protein_urine" value={form.tes_lab_protein_urine} onChange={handleChange} className="w-full border-gray-300 rounded-xl shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-4 py-3 bg-gray-50">
+                  <select name="tes_lab_protein_urine" value={form.tes_lab_protein_urine} onChange={handleChange} disabled={isLabDisabled} className="w-full border-gray-300 rounded-xl shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-4 py-3 bg-gray-50 disabled:bg-gray-100">
                     <option value="Negatif">Negatif (-)</option>
                     <option value="Positif 1">Positif 1 (+)</option>
                     <option value="Positif 2">Positif 2 (++)</option>
@@ -231,7 +315,7 @@ export default function PemeriksaanKehamilanForm() {
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">Triple Eliminasi</label>
-                  <select name="tripel_eliminasi" value={form.tripel_eliminasi} onChange={handleChange} className="w-full border-gray-300 rounded-xl shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-4 py-3 bg-gray-50">
+                  <select name="tripel_eliminasi" value={form.tripel_eliminasi} onChange={handleChange} disabled={isLabDisabled} className="w-full border-gray-300 rounded-xl shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-4 py-3 bg-gray-50 disabled:bg-gray-100">
                     <option value="NonReaktif">Non-Reaktif</option>
                     <option value="Reak HIV">Reaktif (HIV)</option>
                     <option value="Reak Sif">Reaktif (Sifilis)</option>
@@ -241,7 +325,7 @@ export default function PemeriksaanKehamilanForm() {
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">Gula Darah</label>
-                  <input type="number" name="tes_lab_gula_darah" value={form.tes_lab_gula_darah} onChange={handleChange} className="w-full border-gray-300 rounded-xl shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-4 py-3 bg-gray-50" />
+                  <input type="number" name="tes_lab_gula_darah" value={form.tes_lab_gula_darah} onChange={handleChange} disabled={isLabDisabled} className="w-full border-gray-300 rounded-xl shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-4 py-3 bg-gray-50 disabled:bg-gray-100" />
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">Status Imunisasi TT</label>
@@ -253,11 +337,15 @@ export default function PemeriksaanKehamilanForm() {
                   <label className="block text-sm font-semibold text-gray-700 mb-2">Tab. Tambah Darah</label>
                   <input type="number" name="tablet_tambah_darah" value={form.tablet_tambah_darah} onChange={handleChange} className="w-full border-gray-300 rounded-xl shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-4 py-3 bg-gray-50" />
                 </div>
+                <div className="col-span-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Golongan Darah</label>
+                  <input name="tes_golongan_darah" value={form.tes_golongan_darah} onChange={handleChange} disabled={isLabDisabled} className="w-full border-gray-300 rounded-xl shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-4 py-3 bg-gray-50 disabled:bg-gray-100" placeholder="A/B/AB/O" />
+                </div>
               </div>
             </div>
           </div>
 
-          {/* 4. Konseling & Tata Laksana */}
+          {/* 4. Konseling & Tata Laksana (tidak berubah) */}
           <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 p-8 transition-all hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] space-y-6">
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">Konseling / Temuan Skrining Dokter</label>
