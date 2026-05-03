@@ -4,7 +4,6 @@ import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/data/models/anak
 import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/screens/mpasi/materi_mpasi.dart';
 import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/screens/mpasi/porsi_mpasi.dart';
 import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/screens/mpasi/resep_mpasi.dart';
-import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/widgets/index.dart';
 
 class HalamanUtamaMpasiScreen extends StatefulWidget {
   final Map<String, dynamic> anak;
@@ -62,16 +61,27 @@ class _HalamanUtamaMpasiScreenState extends State<HalamanUtamaMpasiScreen> {
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
-      return const Scaffold(
-        body: AnakLoadingView(message: 'Memuat data MPASI...'),
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('MPASI Anak'),
+          backgroundColor: Colors.white,
+          foregroundColor: Colors.black,
+          elevation: 0,
+        ),
+        body: const Center(child: CircularProgressIndicator()),
       );
     }
 
     if (hasError) {
       return Scaffold(
-        body: AnakErrorView(
-          message: errorMessage,
-          onRetry: _initializeAnakData,
+        appBar: AppBar(
+          title: const Text('MPASI Anak'),
+          backgroundColor: Colors.white,
+          foregroundColor: Colors.black,
+          elevation: 0,
+        ),
+        body: Center(
+          child: Text('Error: $errorMessage'),
         ),
       );
     }
@@ -246,55 +256,147 @@ class _HalamanUtamaMpasiScreenState extends State<HalamanUtamaMpasiScreen> {
     );
   }
 
-  // Menggunakan AnakMenuCard dari shared widgets — tidak perlu _buildMenuCard lokal lagi
   Widget _buildMenuUtama() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const AnakSectionTitle('MENU UTAMA'),
-        AnakMenuCard(
+        const Text(
+          'Menu Utama',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: Colors.black87,
+          ),
+        ),
+        const SizedBox(height: 16),
+        _buildMenuCard(
           icon: Icons.book_outlined,
-          iconColor: const Color(0xFF1976D2),
           title: 'Materi MPASI',
           subtitle: 'Panduan & Edukasi',
-          marginBottom: 12,
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => MateriMpasiScreen(anakData: anakData, usiaChild: _calculateAge()),
-            ),
-          ),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => MateriMpasiScreen(
+                  anakData: anakData,
+                  usiaChild: _calculateAge(),
+                ),
+              ),
+            );
+          },
         ),
-        AnakMenuCard(
+        const SizedBox(height: 12),
+        _buildMenuCard(
           icon: Icons.schedule,
-          iconColor: const Color(0xFF1976D2),
           title: 'Porsi & Jadwal',
           subtitle: 'Atur waktu makan',
-          marginBottom: 12,
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => PorsiMpasiScreen(anakData: anakData, usiaChild: _calculateAge()),
-            ),
-          ),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => PorsiMpasiScreen(
+                  anakData: anakData,
+                  usiaChild: _calculateAge(),
+                ),
+              ),
+            );
+          },
         ),
-        AnakMenuCard(
+        const SizedBox(height: 12),
+        _buildMenuCard(
           icon: Icons.restaurant_menu,
-          iconColor: const Color(0xFF1976D2),
           title: 'Resep Harian',
           subtitle: 'Menu sehat bergizi',
-          marginBottom: 0,
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => ResepMpasiScreen(anakData: anakData, usiaChild: _calculateAge()),
-            ),
-          ),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => ResepMpasiScreen(
+                  anakData: anakData,
+                  usiaChild: _calculateAge(),
+                ),
+              ),
+            );
+          },
         ),
       ],
     );
   }
 
+  Widget _buildMenuCard({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.08),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1976D2).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  icon,
+                  color: const Color(0xFF1976D2),
+                  size: 24,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      subtitle,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Icon(
+                Icons.arrow_forward_ios,
+                size: 16,
+                color: Colors.grey,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
   Widget _buildKandunganGiziSection() {
     return Column(
