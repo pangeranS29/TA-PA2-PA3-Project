@@ -346,3 +346,4 @@ type RekapDusun struct {
 	Dusun     string `json:"dusun"`
 	Total     int64  `json:"total"`
 }
+

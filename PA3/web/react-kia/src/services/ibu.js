@@ -2,12 +2,17 @@
 import api from "./api";
 
 const BASE = "/tenaga-kesehatan/ibu";
+const BASE1 = "/tenaga-kesehatan/ibuk";
 
 export const getIbuList = async () => {
   const res = await api.get(BASE);
   return res.data.data;
 };
 
+export const getIbuDashboard = async () => {
+  const res = await api.get(BASE1);
+  return res.data.data;
+};
 export const getIbuById = async (id) => {
   const res = await api.get(`${BASE}/${id}`);
   return res.data.data;

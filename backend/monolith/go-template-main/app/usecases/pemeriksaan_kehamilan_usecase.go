@@ -2,10 +2,10 @@ package usecases
 
 import (
 	"errors"
-	"log"
+	// "log"
 	"monitoring-service/app/models"
 	"monitoring-service/app/repositories"
-	"strings"
+	// "strings"
 )
 
 type PemeriksaanKehamilanUsecase interface {
@@ -33,7 +33,7 @@ func (u *pemeriksaanKehamilanUsecase) Create(p *models.PemeriksaanKehamilan) err
 		return err
 	}
 
-	u.calculateANC(p)
+	// u.calculateANC(p)
 	return u.repo.Create(p)
 }
 
@@ -55,7 +55,7 @@ func (u *pemeriksaanKehamilanUsecase) Update(p *models.PemeriksaanKehamilan) err
 		return err
 	}
 
-	u.calculateANC(p)
+	// u.calculateANC(p)
 	return u.repo.Update(p)
 }
 
@@ -79,169 +79,169 @@ func (u *pemeriksaanKehamilanUsecase) validate(p *models.PemeriksaanKehamilan) e
 
 // ================= ANC SCORING =================
 
-func (u *pemeriksaanKehamilanUsecase) calculateANC(p *models.PemeriksaanKehamilan) {
+// func (u *pemeriksaanKehamilanUsecase) calculateANC(p *models.PemeriksaanKehamilan) {
 
-	score := 0
-	isEmergency := false
-	var alasan []string
+// 	score := 0
+// 	isEmergency := false
+// 	var alasan []string
 
-	// ================= TRIMESTER =================
-	if p.MingguKehamilan <= 12 {
-		p.Trimester = "I"
-	} else if p.MingguKehamilan <= 27 {
-		p.Trimester = "II"
-	} else {
-		p.Trimester = "III"
-	}
+// 	// ================= TRIMESTER =================
+// 	if p.MingguKehamilan <= 12 {
+// 		p.Trimester = "I"
+// 	} else if p.MingguKehamilan <= 27 {
+// 		p.Trimester = "II"
+// 	} else {
+// 		p.Trimester = "III"
+// 	}
 
-	// ================= ANTROPOMETRI =================
-	if p.LingkarLenganAtas != nil && *p.LingkarLenganAtas < 23.5 {
-		score += 2
-		alasan = append(alasan, "LiLA rendah")
-	}
+// 	// ================= ANTROPOMETRI =================
+// 	if p.LingkarLenganAtas != nil && *p.LingkarLenganAtas < 23.5 {
+// 		score += 2
+// 		alasan = append(alasan, "LiLA rendah")
+// 	}
 
-	if p.TinggiBadan != nil && *p.TinggiBadan < 145 {
-		score += 2
-		alasan = append(alasan, "Tinggi badan rendah")
-	}
+// 	if p.TinggiBadan != nil && *p.TinggiBadan < 145 {
+// 		score += 2
+// 		alasan = append(alasan, "Tinggi badan rendah")
+// 	}
 
-	// ================= TEKANAN DARAH =================
-	if p.Sistole >= 160 || p.Diastole >= 110 {
-		isEmergency = true
-		alasan = append(alasan, "Hipertensi berat")
-	} else if p.Sistole >= 140 || p.Diastole >= 90 {
-		score += 8
-		alasan = append(alasan, "Hipertensi")
-	}
+// 	// ================= TEKANAN DARAH =================
+// 	if p.Sistole >= 160 || p.Diastole >= 110 {
+// 		isEmergency = true
+// 		alasan = append(alasan, "Hipertensi berat")
+// 	} else if p.Sistole >= 140 || p.Diastole >= 90 {
+// 		score += 8
+// 		alasan = append(alasan, "Hipertensi")
+// 	}
 
-	// ================= HB =================
-	if p.TesLabHb != nil {
-		hb := *p.TesLabHb
-		if hb < 8 {
-			isEmergency = true
-			alasan = append(alasan, "Anemia berat")
-		} else if hb < 11 {
-			score += 4
-			alasan = append(alasan, "Anemia sedang")
-		}
-	}
+// 	// ================= HB =================
+// 	if p.TesLabHb != nil {
+// 		hb := *p.TesLabHb
+// 		if hb < 8 {
+// 			isEmergency = true
+// 			alasan = append(alasan, "Anemia berat")
+// 		} else if hb < 11 {
+// 			score += 4
+// 			alasan = append(alasan, "Anemia sedang")
+// 		}
+// 	}
 
-	// ================= PROTEIN URINE =================
-	if strings.TrimSpace(strings.ToLower(p.TesLabProteinUrine)) == "positif" {
-		isEmergency = true
-		alasan = append(alasan, "Protein urine positif")
-	}
+// 	// ================= PROTEIN URINE =================
+// 	if strings.TrimSpace(strings.ToLower(p.TesLabProteinUrine)) == "positif" {
+// 		isEmergency = true
+// 		alasan = append(alasan, "Protein urine positif")
+// 	}
 
-	// ================= DJJ =================
-	if p.DenyutJantungJanin > 0 {
-		if p.DenyutJantungJanin < 120 || p.DenyutJantungJanin > 160 {
-			isEmergency = true
-			alasan = append(alasan, "DJJ tidak normal")
-		}
-	}
+// 	// ================= DJJ =================
+// 	if p.DenyutJantungJanin > 0 {
+// 		if p.DenyutJantungJanin < 120 || p.DenyutJantungJanin > 160 {
+// 			isEmergency = true
+// 			alasan = append(alasan, "DJJ tidak normal")
+// 		}
+// 	}
 
-	// ================= TFU =================
-	if p.TinggiRahim != nil {
-		expected := float64(p.MingguKehamilan)
-		if *p.TinggiRahim < expected-3 || *p.TinggiRahim > expected+3 {
-			score += 4
-			alasan = append(alasan, "TFU tidak sesuai usia kehamilan")
-		}
-	}
+// 	// ================= TFU =================
+// 	if p.TinggiRahim != nil {
+// 		expected := float64(p.MingguKehamilan)
+// 		if *p.TinggiRahim < expected-3 || *p.TinggiRahim > expected+3 {
+// 			score += 4
+// 			alasan = append(alasan, "TFU tidak sesuai usia kehamilan")
+// 		}
+// 	}
 
-	// ================= GULA DARAH =================
-	if p.TesLabGulaDarah != nil && *p.TesLabGulaDarah > 140 {
-		score += 4
-		alasan = append(alasan, "Gula darah tinggi")
-	}
+// 	// ================= GULA DARAH =================
+// 	if p.TesLabGulaDarah != nil && *p.TesLabGulaDarah > 140 {
+// 		score += 4
+// 		alasan = append(alasan, "Gula darah tinggi")
+// 	}
 
-	// ================= USG =================
-	usg := strings.ToLower(p.USG)
-	if usg == "sungsang" || usg == "lintang" {
-		score += 4
-		alasan = append(alasan, "Posisi janin tidak normal")
-	}
+// 	// ================= USG =================
+// 	usg := strings.ToLower(p.USG)
+// 	if usg == "sungsang" || usg == "lintang" {
+// 		score += 4
+// 		alasan = append(alasan, "Posisi janin tidak normal")
+// 	}
 
-	// ================= TRIPEL ELIMINASI =================
-	if strings.ToLower(strings.TrimSpace(p.TripelEliminasi)) == "reaktif" {
-		isEmergency = true
-		alasan = append(alasan, "Infeksi terdeteksi")
-	}
+// 	// ================= TRIPEL ELIMINASI =================
+// 	if strings.ToLower(strings.TrimSpace(p.TripelEliminasi)) == "reaktif" {
+// 		isEmergency = true
+// 		alasan = append(alasan, "Infeksi terdeteksi")
+// 	}
 
-	log.Println("DEBUG SCORE:", score)
-	log.Println("DEBUG EMERGENCY:", isEmergency)
-	log.Println("DEBUG ALASAN:", alasan)
+// 	log.Println("DEBUG SCORE:", score)
+// 	log.Println("DEBUG EMERGENCY:", isEmergency)
+// 	log.Println("DEBUG ALASAN:", alasan)
 
-	status := u.determineStatus(score, isEmergency)
+// 	status := u.determineStatus(score, isEmergency)
 
-	p.SkorRisiko = int32(score)
-	p.StatusRisiko = status
-	p.DetailRisiko = u.generateExplanation(status, isEmergency, alasan)
-}
+// 	p.SkorRisiko = int32(score)
+// 	p.StatusRisiko = status
+// 	p.DetailRisiko = u.generateExplanation(status, isEmergency, alasan)
+// }
 
-// ================= STATUS =================
+// // ================= STATUS =================
 
-func (u *pemeriksaanKehamilanUsecase) determineStatus(score int, emergency bool) string {
-	if emergency || score >= 12 {
-		return "Resiko Tinggi"
-	} else if score >= 6 {
-		return "Resiko Sedang"
-	}
-	return "Resiko Rendah"
-}
+// func (u *pemeriksaanKehamilanUsecase) determineStatus(score int, emergency bool) string {
+// 	if emergency || score >= 12 {
+// 		return "Resiko Tinggi"
+// 	} else if score >= 6 {
+// 		return "Resiko Sedang"
+// 	}
+// 	return "Resiko Rendah"
+// }
 
-func (u *pemeriksaanKehamilanUsecase) generateExplanation(status string, emergency bool, alasan []string) string {
+// func (u *pemeriksaanKehamilanUsecase) generateExplanation(status string, emergency bool, alasan []string) string {
 
-	var penjelasan []string
+// 	var penjelasan []string
 
-	if emergency {
-		penjelasan = append(penjelasan, "Kondisi gawat darurat terdeteksi.")
-	}
+// 	if emergency {
+// 		penjelasan = append(penjelasan, "Kondisi gawat darurat terdeteksi.")
+// 	}
 
-	for _, a := range alasan {
-		switch a {
-		case "LiLA rendah":
-			penjelasan = append(penjelasan, "Status gizi ibu kurang.")
-		case "Tinggi badan rendah":
-			penjelasan = append(penjelasan, "Risiko persalinan meningkat.")
-		case "Hipertensi":
-			penjelasan = append(penjelasan, "Tekanan darah tinggi.")
-		case "Hipertensi berat":
-			penjelasan = append(penjelasan, "Hipertensi berat dan berbahaya.")
-		case "Anemia sedang":
-			penjelasan = append(penjelasan, "Anemia sedang.")
-		case "Anemia berat":
-			penjelasan = append(penjelasan, "Anemia berat membutuhkan tindakan segera.")
-		case "Protein urine positif":
-			penjelasan = append(penjelasan, "Indikasi preeklamsia.")
-		case "DJJ tidak normal":
-			penjelasan = append(penjelasan, "Detak jantung janin tidak normal.")
-		case "TFU tidak sesuai usia kehamilan":
-			penjelasan = append(penjelasan, "Pertumbuhan janin tidak sesuai usia.")
-		case "Gula darah tinggi":
-			penjelasan = append(penjelasan, "Risiko diabetes gestasional.")
-		case "Infeksi terdeteksi":
-			penjelasan = append(penjelasan, "Infeksi terdeteksi.")
-		case "Posisi janin tidak normal":
-			penjelasan = append(penjelasan, "Posisi janin tidak ideal.")
-		}
-	}
+// 	for _, a := range alasan {
+// 		switch a {
+// 		case "LiLA rendah":
+// 			penjelasan = append(penjelasan, "Status gizi ibu kurang.")
+// 		case "Tinggi badan rendah":
+// 			penjelasan = append(penjelasan, "Risiko persalinan meningkat.")
+// 		case "Hipertensi":
+// 			penjelasan = append(penjelasan, "Tekanan darah tinggi.")
+// 		case "Hipertensi berat":
+// 			penjelasan = append(penjelasan, "Hipertensi berat dan berbahaya.")
+// 		case "Anemia sedang":
+// 			penjelasan = append(penjelasan, "Anemia sedang.")
+// 		case "Anemia berat":
+// 			penjelasan = append(penjelasan, "Anemia berat membutuhkan tindakan segera.")
+// 		case "Protein urine positif":
+// 			penjelasan = append(penjelasan, "Indikasi preeklamsia.")
+// 		case "DJJ tidak normal":
+// 			penjelasan = append(penjelasan, "Detak jantung janin tidak normal.")
+// 		case "TFU tidak sesuai usia kehamilan":
+// 			penjelasan = append(penjelasan, "Pertumbuhan janin tidak sesuai usia.")
+// 		case "Gula darah tinggi":
+// 			penjelasan = append(penjelasan, "Risiko diabetes gestasional.")
+// 		case "Infeksi terdeteksi":
+// 			penjelasan = append(penjelasan, "Infeksi terdeteksi.")
+// 		case "Posisi janin tidak normal":
+// 			penjelasan = append(penjelasan, "Posisi janin tidak ideal.")
+// 		}
+// 	}
 
-	kesimpulan := "Risiko rendah, lanjutkan kontrol rutin."
-	if emergency || status == "Resiko Tinggi" {
-		kesimpulan = "Risiko tinggi, segera rujuk."
-	} else if status == "Resiko Sedang" {
-		kesimpulan = "Risiko sedang, perlu pemantauan."
-	}
+// 	kesimpulan := "Risiko rendah, lanjutkan kontrol rutin."
+// 	if emergency || status == "Resiko Tinggi" {
+// 		kesimpulan = "Risiko tinggi, segera rujuk."
+// 	} else if status == "Resiko Sedang" {
+// 		kesimpulan = "Risiko sedang, perlu pemantauan."
+// 	}
 
-	if len(penjelasan) == 0 {
-		return "Kondisi normal. " + kesimpulan
-	}
+// 	if len(penjelasan) == 0 {
+// 		return "Kondisi normal. " + kesimpulan
+// 	}
 
-	return strings.Join(penjelasan, " ") + " " + kesimpulan
-}
+// 	return strings.Join(penjelasan, " ") + " " + kesimpulan
+// }
 
-// ================= GRAFIK =================
+// // ================= GRAFIK =================
 
 type GrafikPoint struct {
 	Minggu int32   `json:"minggu"`

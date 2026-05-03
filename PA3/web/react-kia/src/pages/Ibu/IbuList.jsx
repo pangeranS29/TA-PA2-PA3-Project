@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import MainLayout from "../../components/Layout/MainLayout";
-import { getIbuList } from "../../services/ibu";
+import { getIbuDashboard } from "../../services/ibu";
 import { Plus, Search, ChevronLeft, ChevronRight } from "lucide-react";
 
 const statusBadge = (status) => {
@@ -15,18 +15,8 @@ const statusBadge = (status) => {
 const riskBadge = (risk) => {
   if (risk === "TINGGI") return "bg-red-100 text-red-800";
   if (risk === "SEDANG") return "bg-orange-100 text-orange-800";
-  return "bg-green-100 text-green-800";
-};
-
-// Hitung usia dari tanggal lahir
-const hitungUsia = (tanggalLahir) => {
-  if (!tanggalLahir) return "-";
-  const today = new Date();
-  const birth = new Date(tanggalLahir);
-  let age = today.getFullYear() - birth.getFullYear();
-  const m = today.getMonth() - birth.getMonth();
-  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
-  return age;
+  if (risk === "RENDAH") return "bg-green-100 text-green-800";
+  return "bg-gray-100 text-gray-800";
 };
 
 export default function IbuList() {
@@ -39,10 +29,15 @@ export default function IbuList() {
   useEffect(() => {
     const fetch = async () => {
       try {
-        const data = await getIbuList();
-        setIbuList(data);
+        const data = await getIbuDashboard();
+
+        console.log("DASHBOARD DATA:", data);
+
+        // 🔥 FIX UTAMA DI SINI
+        setIbuList(data || []);
       } catch (err) {
         console.error(err);
+        setIbuList([]);
       } finally {
         setLoading(false);
       }
@@ -50,121 +45,162 @@ export default function IbuList() {
     fetch();
   }, []);
 
-  const filtered = ibuList.filter((ibu) => ibu.kependudukan?.nama_lengkap?.toLowerCase().includes(search.toLowerCase()));
+  const filtered = ibuList.filter((ibu) =>
+    ibu.nama_lengkap?.toLowerCase().includes(search.toLowerCase())
+  );
+
   const totalPages = Math.ceil(filtered.length / itemsPerPage);
-  const currentItems = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+  const currentItems = filtered.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   const totalIbu = ibuList.length;
-  const totalHamil = ibuList.filter((i) => i.status_kehamilan?.startsWith("TRIMESTER")).length;
-  const totalRisikoTinggi = ibuList.filter((i) => i.risiko_tinggi === true).length;
+  const totalHamil = ibuList.length;
+
+  const totalRisikoTinggi = ibuList.filter(
+    (i) => i.status_risiko === "TINGGI"
+  ).length;
 
   return (
     <MainLayout>
       <div className="p-6">
-        {/* Header Stats */}
+
+        {/* STATS */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <div className="bg-white rounded-xl shadow-sm p-4 border-l-4 border-indigo-500">
-            <p className="text-gray-500 text-sm">TOTAL IBU TERDAFTAR</p>
-            <p className="text-2xl font-bold">{totalIbu.toLocaleString()}</p>
+            <p className="text-gray-500 text-sm">TOTAL IBU</p>
+            <p className="text-2xl font-bold">{totalIbu}</p>
           </div>
+
           <div className="bg-white rounded-xl shadow-sm p-4 border-l-4 border-green-500">
-            <p className="text-gray-500 text-sm">IBU SEDANG HAMIL</p>
+            <p className="text-gray-500 text-sm">IBU HAMIL</p>
             <p className="text-2xl font-bold">{totalHamil}</p>
           </div>
+
           <div className="bg-white rounded-xl shadow-sm p-4 border-l-4 border-red-500">
             <p className="text-gray-500 text-sm">RESIKO TINGGI</p>
             <p className="text-2xl font-bold">{totalRisikoTinggi}</p>
           </div>
         </div>
 
-        {/* Search & Add Button */}
-        <div className="flex flex-wrap justify-between items-center gap-4 mb-6">
+        {/* SEARCH */}
+        <div className="flex justify-between items-center gap-4 mb-6">
           <div className="relative w-full max-w-md">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-            <input type="text" placeholder="Cari Nama Ibu..." className="pl-10 pr-4 py-2 border border-gray-200 rounded-xl w-full focus:ring-2 focus:ring-indigo-500 outline-none" value={search} onChange={(e) => setSearch(e.target.value)} />
+            <Search className="absolute left-3 top-3 text-gray-400" size={18} />
+            <input
+              className="pl-10 pr-4 py-2 border rounded-xl w-full"
+              placeholder="Cari Nama Ibu..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
           </div>
-          <Link to="/data-ibu/create" className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-xl flex items-center gap-2 font-bold">
-            <Plus size={20} /> Tambah Data Ibu Baru
+
+          <Link
+            to="/data-ibu/create"
+            className="bg-indigo-600 text-white px-5 py-2 rounded-xl flex items-center gap-2"
+          >
+            <Plus size={18} /> Tambah
           </Link>
         </div>
 
-        {/* Table */}
+        {/* TABLE */}
         <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nama Ibu</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Resiko</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Usia</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Kehamilan</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Kunjungan Terakhir</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Dusun</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status Gizi</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Aksi</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {loading ? (
-                  <tr>
-                    <td colSpan="9" className="p-6 text-center">
-                      Memuat...
-                    </td>
-                  </tr>
-                ) : currentItems.length === 0 ? (
-                  <tr>
-                    <td colSpan="9" className="p-6 text-center">
-                      Tidak ada data
-                    </td>
-                  </tr>
-                ) : (
-                  currentItems.map((ibu) => (
-                    <tr key={ibu.id_ibu} className="hover:bg-gray-50">
-                      <td className="px-6 py-4">
-                        <div className="font-medium text-gray-900">{ibu.kependudukan?.nama_lengkap || "-"}</div>
-                        <div className="text-xs text-gray-500">ID: {ibu.id_ibu}</div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className={`px-2 py-1 text-xs rounded-full ${statusBadge(ibu.status_kehamilan)}`}>{ibu.status_kehamilan || "-"}</span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className={`px-2 py-1 text-xs rounded-full ${riskBadge(ibu.risiko_tinggi ? "TINGGI" : "RENDAH")}`}>{ibu.risiko_tinggi ? "TINGGI" : "RENDAH"}</span>
-                      </td>
-                      <td className="px-6 py-4 text-sm">{ibu.kependudukan?.tanggal_lahir ? hitungUsia(ibu.kependudukan.tanggal_lahir) + " Tahun" : "-"}</td>
-                      <td className="px-6 py-4 text-sm">{ibu.status_kehamilan || "-"}</td>
-                      <td className="px-6 py-4 text-sm">-</td>
-                      <td className="px-6 py-4 text-sm">{ibu.kependudukan?.dusun || "-"}</td>
-                      <td className="px-6 py-4 text-sm">-</td>
-                      <td className="px-6 py-4 text-right">
-                        <Link to={`/data-ibu/${ibu.id_ibu}`} className="text-indigo-600 hover:text-indigo-800 text-sm font-medium mr-2">
-                          Detail
-                        </Link>
-                        <Link to={`/data-ibu/${ibu.id_ibu}/edit`} className="text-amber-600 hover:text-amber-800 text-sm font-medium">
-                          Edit
-                        </Link>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+          <table className="w-full">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="p-3 text-left">Nama</th>
+                <th>Status</th>
+                <th>Risiko</th>
+                <th>Usia Hamil</th>
+                <th>Dusun</th>
+                <th>Skor</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
 
-          {/* Pagination */}
-          <div className="px-6 py-4 border-t flex justify-between items-center">
-            <span className="text-sm text-gray-500">
-              Menampilkan {currentItems.length} dari {filtered.length} data
+            <tbody>
+              {loading ? (
+                <tr>
+                  <td colSpan="7" className="text-center p-4">
+                    Loading...
+                  </td>
+                </tr>
+              ) : currentItems.length === 0 ? (
+                <tr>
+                  <td colSpan="7" className="text-center p-4">
+                    Tidak ada data
+                  </td>
+                </tr>
+              ) : (
+                currentItems.map((ibu) => (
+                  <tr key={ibu.id_ibu} className="border-t hover:bg-gray-50">
+                    <td className="p-3 font-medium">
+                      {ibu.nama_lengkap}
+                      <div className="text-xs text-gray-400">
+                        ID: {ibu.id_ibu}
+                      </div>
+                    </td>
+
+                    <td>
+                      <span className={`px-2 py-1 text-xs rounded-full ${statusBadge(ibu.status_kehamilan)}`}>
+                        {ibu.status_kehamilan}
+                      </span>
+                    </td>
+
+                    <td>
+                      <span className={`px-2 py-1 text-xs rounded-full ${riskBadge(ibu.status_risiko)}`}>
+                        {ibu.status_risiko || "NORMAL"}
+                      </span>
+                    </td>
+
+                    <td>{ibu.usia_kehamilan} Minggu</td>
+                    <td>{ibu.dusun}</td>
+                    <td>{ibu.skor_risiko}</td>
+
+                    <td className="flex gap-2">
+                      {/* <Link
+                        to={`/data-ibu/${ibu.id_ibu}`}
+                        className="text-blue-600"
+                      > */}
+                      <Link to={`/data-ibu/${ibu.id_ibu}?kehamilan_id=${ibu.kehamilan_id}`}>
+                        Detail
+                      </Link>
+                      <Link
+                        to={`/data-ibu/${ibu.id_ibu}/edit`}
+                        className="text-yellow-600"
+                      >
+                        Edit
+                      </Link>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+
+          {/* PAGINATION */}
+          <div className="flex justify-between p-4 border-t">
+            <span>
+              {currentItems.length} dari {filtered.length}
             </span>
+
             <div className="flex gap-2">
-              <button onClick={() => setCurrentPage((p) => Math.max(1, p - 1))} disabled={currentPage === 1} className="p-2 rounded-lg border disabled:opacity-50">
-                <ChevronLeft size={16} />
+              <button
+                onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+              >
+                <ChevronLeft />
               </button>
-              <span className="px-2">
-                Halaman {currentPage} dari {totalPages || 1}
-              </span>
-              <button onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages} className="p-2 rounded-lg border disabled:opacity-50">
-                <ChevronRight size={16} />
+
+              <span>{currentPage} / {totalPages || 1}</span>
+
+              <button
+                onClick={() =>
+                  setCurrentPage((p) => Math.min(p + 1, totalPages))
+                }
+              >
+                <ChevronRight />
               </button>
             </div>
           </div>
