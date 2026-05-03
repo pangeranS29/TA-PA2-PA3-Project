@@ -14,6 +14,8 @@ export default function IbuCreate() {
   const [step, setStep] = useState(1);
   const [createdIbu, setCreatedIbu] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
+  const [errors, setErrors] = useState({});
+  const today = new Date().toISOString().split("T")[0];
 
   const [formIbu, setFormIbu] = useState({
     id_kependudukan: "",
@@ -21,14 +23,14 @@ export default function IbuCreate() {
   });
 
   const [formKehamilan, setFormKehamilan] = useState({
-    gravida: "",
-    paritas: "",
-    abortus: "",
+    // gravida: "",
+    // paritas: "",
+    // abortus: "",
     hpht: "",
     taksiran_persalinan: "",
-    uk_kehamilan_saat_ini: "",
+    // uk_kehamilan_saat_ini: "",
     jarak_kehamilan_sebelumnya: "",
-    status_kehamilan: "TRIMESTER 1",
+    // status_kehamilan: "TRIMESTER 1",
     bb_awal: "",      // <-- tambahan
     tb: "",           // <-- tambahan
   });
@@ -64,9 +66,13 @@ export default function IbuCreate() {
   };
 
   const handleChangeKehamilan = (e) => {
-    setFormKehamilan(prev => ({ ...prev, [e.target.name]: e.target.value }));
-  };
+    const { name, value } = e.target;
 
+    setFormKehamilan(prev => ({ ...prev, [name]: value }));
+
+    // hapus error saat user mulai isi ulang
+    setErrors(prev => ({ ...prev, [name]: "" }));
+  };
   const handleSubmitStep1 = async (e) => {
     e.preventDefault();
     if (!formIbu.id_kependudukan) {
@@ -95,30 +101,64 @@ export default function IbuCreate() {
 
   const handleSubmitStep2 = async (e) => {
     e.preventDefault();
+
+    let newErrors = {};
+
+    // HPHT wajib
+    if (!formKehamilan.hpht) {
+      newErrors.hpht = "Silakan pilih tanggal HPHT terlebih dahulu";
+    }
+
+    // HPHT tidak boleh masa depan
+    if (formKehamilan.hpht && formKehamilan.hpht > today) {
+      newErrors.hpht = "Tanggal HPHT tidak boleh melebihi hari ini";
+    }
+
+    // BB wajib & tidak boleh minus
+    if (!formKehamilan.bb_awal) {
+      newErrors.bb_awal = "Berat badan wajib diisi";
+    } else if (parseFloat(formKehamilan.bb_awal) <= 0) {
+      newErrors.bb_awal = "Berat badan harus lebih dari 0 kg";
+    }
+
+    // TB wajib & tidak boleh minus
+    if (!formKehamilan.tb) {
+      newErrors.tb = "Tinggi badan wajib diisi";
+    } else if (parseFloat(formKehamilan.tb) <= 0) {
+      newErrors.tb = "Tinggi badan harus lebih dari 0 cm";
+    }
+
+    setErrors(newErrors);
+
+    // hentikan submit kalau ada error
+    if (Object.keys(newErrors).length > 0) return;
+
     if (!createdIbu) {
       setErrorMessage("Data ibu belum dibuat.");
       return;
     }
+
     setLoading(true);
     try {
       const ibuId = createdIbu.id_ibu || createdIbu.id;
+
       await createKehamilan({
         ibu_id: Number(ibuId),
-        gravida: parseInt(formKehamilan.gravida) || 0,
-        paritas: parseInt(formKehamilan.paritas) || 0,
-        abortus: parseInt(formKehamilan.abortus) || 0,
-        hpht: formKehamilan.hpht || "",
-        taksiran_persalinan: formKehamilan.taksiran_persalinan || "",
-        uk_kehamilan_saat_ini: parseInt(formKehamilan.uk_kehamilan_saat_ini) || 0,
-        jarak_kehamilan_sebelumnya: parseInt(formKehamilan.jarak_kehamilan_sebelumnya) || 0,
-        status_kehamilan: formKehamilan.status_kehamilan,
-        bb_awal: parseFloat(formKehamilan.bb_awal) || 0,
-        tb: parseFloat(formKehamilan.tb) || 0,
+        hpht: formKehamilan.hpht,
+        taksiran_persalinan: formKehamilan.taksiran_persalinan,
+        jarak_kehamilan_sebelumnya:
+          parseInt(formKehamilan.jarak_kehamilan_sebelumnya) || 0,
+        bb_awal: parseFloat(formKehamilan.bb_awal),
+        tb: parseFloat(formKehamilan.tb),
       });
+
       setStep(3);
       setTimeout(() => navigate(`/data-ibu/${ibuId}`), 2000);
     } catch (err) {
-      const msg = err.response?.data?.message || err.message || "Gagal menyimpan data kehamilan";
+      const msg =
+        err.response?.data?.message ||
+        err.message ||
+        "Gagal menyimpan data kehamilan";
       setErrorMessage(msg);
     } finally {
       setLoading(false);
@@ -193,12 +233,12 @@ export default function IbuCreate() {
                   <p><strong>NIK:</strong> {selectedPenduduk.nik}</p>
                 </div>
               )}
-              <div className="mt-4">
-                <label>Status Kehamilan</label>
-                <select name="status_kehamilan" value={formIbu.status_kehamilan} onChange={handleChangeIbu} className="w-full border rounded-xl p-3 mt-1">
-                  <option>TRIMESTER 1</option><option>TRIMESTER 2</option><option>TRIMESTER 3</option><option>NIFAS</option>
-                </select>
-              </div>
+              {/* <div className="mt-4">
+                  <label>Status Kehamilan</label>
+                  <select name="status_kehamilan" value={formIbu.status_kehamilan} onChange={handleChangeIbu} className="w-full border rounded-xl p-3 mt-1">
+                    <option>TRIMESTER 1</option><option>TRIMESTER 2</option><option>TRIMESTER 3</option><option>NIFAS</option>
+                  </select>
+                </div> */}
             </div>
             <div className="flex justify-end mt-6">
               <button type="submit" disabled={loading} className="bg-indigo-600 text-white px-6 py-2 rounded-xl flex items-center gap-2">
@@ -209,38 +249,157 @@ export default function IbuCreate() {
         )}
 
         {step === 2 && (
-          <form onSubmit={handleSubmitStep2}>
-            <div className="bg-white rounded-2xl p-6 shadow-sm space-y-4">
-              <h3 className="font-semibold">Data Kehamilan</h3>
-              <div className="grid grid-cols-3 gap-4">
-                <input name="gravida" placeholder="Gravida" value={formKehamilan.gravida} onChange={handleChangeKehamilan} className="border rounded p-2" type="number" />
-                <input name="paritas" placeholder="Paritas" value={formKehamilan.paritas} onChange={handleChangeKehamilan} className="border rounded p-2" type="number" />
-                <input name="abortus" placeholder="Abortus" value={formKehamilan.abortus} onChange={handleChangeKehamilan} className="border rounded p-2" type="number" />
+          <form onSubmit={handleSubmitStep2} noValidate>
+            <div className="bg-white rounded-2xl p-6 shadow-sm space-y-6">
+
+              <div>
+                <h3 className="font-semibold text-lg">Data Kehamilan</h3>
+                <p className="text-sm text-gray-500">
+                  Isi informasi dasar kehamilan ibu untuk pemantauan kesehatan
+                </p>
               </div>
+
+              {/* Tanggal */}
               <div className="grid grid-cols-2 gap-4">
-                <input type="date" name="hpht" value={formKehamilan.hpht} onChange={handleChangeKehamilan} className="border rounded p-2" />
-                <input type="date" name="taksiran_persalinan" value={formKehamilan.taksiran_persalinan} readOnly className="border rounded p-2 bg-gray-100" />
-                <input name="uk_kehamilan_saat_ini" placeholder="Usia Kehamilan (minggu)" value={formKehamilan.uk_kehamilan_saat_ini} onChange={handleChangeKehamilan} className="border rounded p-2" type="number" />
-                <input name="jarak_kehamilan_sebelumnya" placeholder="Jarak (bulan)" value={formKehamilan.jarak_kehamilan_sebelumnya} onChange={handleChangeKehamilan} className="border rounded p-2" type="number" />
-              </div>
-              {/* BARIS BARU untuk BB Awal dan TB */}
-              <div className="grid grid-cols-2 gap-4 mt-2">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Berat Badan Awal (kg)</label>
-                  <input name="bb_awal" type="number" step="0.1" placeholder="Contoh: 50.5" value={formKehamilan.bb_awal} onChange={handleChangeKehamilan} className="w-full border rounded p-2 mt-1" />
+                  <label className="block text-sm font-medium text-gray-700">
+                    HPHT (Hari Pertama Haid Terakhir)
+                  </label>
+                  <input
+                    type="date"
+                    name="hpht"
+                    max={today}
+                    value={formKehamilan.hpht}
+                    onChange={handleChangeKehamilan}
+                    className={`w-full border rounded p-2 mt-1 ${errors.hpht ? "border-red-500" : ""
+                      }`}
+                  />
+
+                  {errors.hpht && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.hpht}
+                    </p>
+                  )}
+
+
+                  <p className="text-xs text-gray-400 mt-1">
+                    Digunakan untuk menghitung usia kehamilan
+                  </p>
                 </div>
+
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Tinggi Badan (cm)</label>
-                  <input name="tb" type="number" step="0.1" placeholder="Contoh: 160" value={formKehamilan.tb} onChange={handleChangeKehamilan} className="w-full border rounded p-2 mt-1" />
+                  <label className="block text-sm font-medium text-gray-700">
+                    Taksiran Persalinan (HPL)
+                  </label>
+                  <input
+                    type="date"
+                    name="taksiran_persalinan"
+                    value={formKehamilan.taksiran_persalinan}
+                    readOnly
+                    className="w-full border rounded p-2 mt-1 bg-gray-100"
+                  />
+                  <p className="text-xs text-gray-400 mt-1">
+                    Otomatis dihitung dari HPHT
+                  </p>
                 </div>
               </div>
+
+              {/* Jarak Kehamilan */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Jarak dengan Kehamilan Sebelumnya (bulan)
+                </label>
+                <input
+                  name="jarak_kehamilan_sebelumnya"
+                  type="number"
+                  placeholder="Contoh: 24"
+                  value={formKehamilan.jarak_kehamilan_sebelumnya}
+                  onChange={handleChangeKehamilan}
+                  className="w-full border rounded p-2 mt-1"
+                />
+                <p className="text-xs text-gray-400 mt-1">
+                  Kosongkan jika ini kehamilan pertama
+                </p>
+              </div>
+
+              {/* Kondisi Fisik */}
+              <div>
+                <h4 className="font-medium text-gray-800">Kondisi Fisik Awal</h4>
+                <div className="grid grid-cols-2 gap-4 mt-2">
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Berat Badan Awal (kg)
+                    </label>
+                    <input
+                      name="bb_awal"
+                      type="number"
+                      min="0"
+                      step="0.1"
+                      placeholder="Contoh: 50.5"
+                      value={formKehamilan.bb_awal}
+                      onChange={handleChangeKehamilan}
+                      className={`w-full border rounded p-2 mt-1 ${errors.bb_awal ? "border-red-500" : ""
+                        }`}
+                    />
+
+                    {errors.bb_awal && (
+                      <p className="text-red-500 text-xs mt-1">
+                        {errors.bb_awal}
+                      </p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Tinggi Badan (cm)
+                    </label>
+                    <input
+                      name="tb"
+                      type="number"
+                      min="0"
+                      step="0.1"
+                      placeholder="Contoh: 160"
+                      value={formKehamilan.tb}
+                      onChange={handleChangeKehamilan}
+                      className={`w-full border rounded p-2 mt-1 ${errors.tb ? "border-red-500" : ""
+                        }`}
+                    />
+
+                    {errors.tb && (
+                      <p className="text-red-500 text-xs mt-1">
+                        {errors.tb}
+                      </p>
+                    )}
+                  </div>
+
+                </div>
+              </div>
+
             </div>
+
+            {/* Action */}
             <div className="flex justify-between mt-6">
-              <button type="button" onClick={handleSkipKehamilan} className="text-gray-500">Lewati, isi nanti</button>
-              <button type="submit" disabled={loading} className="bg-indigo-600 text-white px-6 py-2 rounded-xl flex items-center gap-2">
-                {loading ? <Loader2 className="animate-spin" /> : <Save />} {loading ? "Menyimpan..." : "Simpan Data Kehamilan"}
-              </button>
-            </div>
+  {/* Tombol Kembali */}
+  <button
+    type="button"
+    onClick={() => setStep(1)}
+    className="px-6 py-2 rounded-xl border text-gray-600 flex items-center gap-2 hover:bg-gray-50"
+  >
+    <ArrowLeft size={18} />
+    Kembali
+  </button>
+
+  {/* Tombol Simpan */}
+  <button
+    type="submit"
+    disabled={loading}
+    className="bg-indigo-600 text-white px-6 py-2 rounded-xl flex items-center gap-2"
+  >
+    {loading ? <Loader2 className="animate-spin" /> : <Save />}
+    {loading ? "Menyimpan..." : "Simpan & Lanjut"}
+  </button>
+</div>
           </form>
         )}
 

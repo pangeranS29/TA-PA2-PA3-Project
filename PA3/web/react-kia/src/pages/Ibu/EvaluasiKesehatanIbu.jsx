@@ -1,20 +1,24 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import MainLayout from "../../components/Layout/MainLayout";
 import { getKehamilanByIbuId } from "../../services/kehamilan";
 import { getEvaluasiByKehamilanId, createEvaluasi, updateEvaluasi, getRiwayatKehamilanByEvaluasiId, createRiwayatKehamilan } from "../../services/evaluasiKesehatan";
-import { Save, Plus, ArrowRight, ArrowLeft } from "lucide-react";
+import { Save, Plus, ArrowRight, ArrowLeft, AlertCircle } from "lucide-react";
 
 export default function EvaluasiKesehatanIbu() {
-  const { id } = useParams();
+  const { id: ibuId } = useParams();
+  const [searchParams] = useSearchParams();
+  const kehamilanId = searchParams.get("kehamilan_id");
   const navigate = useNavigate();
+  
   const [kehamilan, setKehamilan] = useState(null);
   const [evaluasi, setEvaluasi] = useState(null);
   const [riwayatList, setRiwayatList] = useState([]);
   const [activeTab, setActiveTab] = useState("evaluasi");
+  const [errors, setErrors] = useState({});
   const [form, setForm] = useState({
     nama_dokter: "",
-    tanggal_periksa: "",
+    tanggal_periksa: new Date().toISOString().split("T")[0], // default hari ini
     fasilitas_kesehatan: "",
     tb_cm: "",
     bb_kg: "",
@@ -73,94 +77,143 @@ export default function EvaluasiKesehatanIbu() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
+  // Ambil nama user yang login (contoh dari localStorage atau context)
+  useEffect(() => {
+    // Sesuaikan dengan cara penyimpanan user Anda
+    const user = JSON.parse(localStorage.getItem("user") || "{}");
+    if (user.nama) {
+      setForm(prev => ({ ...prev, nama_dokter: user.nama }));
+    }
+  }, []);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const kehamilanList = await getKehamilanByIbuId(id);
-        if (kehamilanList.length > 0) {
-          const aktif = kehamilanList[0];
-          setKehamilan(aktif);
-          const evalData = await getEvaluasiByKehamilanId(aktif.id);
-          if (evalData && evalData.length > 0) {
-            const e = evalData[0];
-            setEvaluasi(e);
-            setForm((prev) => ({
-              ...prev,
-              nama_dokter: e.nama_dokter || "",
-              tanggal_periksa: e.tanggal_periksa ? e.tanggal_periksa.split("T")[0] : "",
-              fasilitas_kesehatan: e.fasilitas_kesehatan || "",
-              tb_cm: e.tb_cm ?? "",
-              bb_kg: e.bb_kg ?? "",
-              imt_kategori: e.imt_kategori || "",
-              lila_cm: e.lila_cm ?? "",
-              status_tt_1: e.status_tt_1 || false,
-              status_tt_2: e.status_tt_2 || false,
-              status_tt_3: e.status_tt_3 || false,
-              status_tt_4: e.status_tt_4 || false,
-              status_tt_5: e.status_tt_5 || false,
-              imunisasi_lainnya_covid19: e.imunisasi_lainnya_covid19 || "",
-              riwayat_alergi: e.riwayat_alergi || false,
-              riwayat_asma: e.riwayat_asma || false,
-              riwayat_autoimun: e.riwayat_autoimun || false,
-              riwayat_diabetes: e.riwayat_diabetes || false,
-              riwayat_hepatitis_b: e.riwayat_hepatitis_b || false,
-              riwayat_hipertensi: e.riwayat_hipertensi || false,
-              riwayat_jantung: e.riwayat_jantung || false,
-              riwayat_jiwa: e.riwayat_jiwa || false,
-              riwayat_sifilis: e.riwayat_sifilis || false,
-              riwayat_tb: e.riwayat_tb || false,
-              riwayat_kesehatan_lainnya: e.riwayat_kesehatan_lainnya || "",
-              perilaku_aktivitas_fisik_kurang: e.perilaku_aktivitas_fisik_kurang || false,
-              perilaku_alkohol: e.perilaku_alkohol || false,
-              perilaku_kosmetik_berbahaya: e.perilaku_kosmetik_berbahaya || false,
-              perilaku_merokok: e.perilaku_merokok || false,
-              perilaku_obat_teratogenik: e.perilaku_obat_teratogenik || false,
-              perilaku_pola_makan_berisiko: e.perilaku_pola_makan_berisiko || false,
-              perilaku_lainnya: e.perilaku_lainnya || "",
-              keluarga_alergi: e.keluarga_alergi || false,
-              keluarga_asma: e.keluarga_asma || false,
-              keluarga_autoimun: e.keluarga_autoimun || false,
-              keluarga_diabetes: e.keluarga_diabetes || false,
-              keluarga_hepatitis_b: e.keluarga_hepatitis_b || false,
-              keluarga_hipertensi: e.keluarga_hipertensi || false,
-              keluarga_jantung: e.keluarga_jantung || false,
-              keluarga_jiwa: e.keluarga_jiwa || false,
-              keluarga_sifilis: e.keluarga_sifilis || false,
-              keluarga_tb: e.keluarga_tb || false,
-              keluarga_lainnya: e.keluarga_lainnya || "",
-              inspeksi_porsio: e.inspeksi_porsio || "",
-              inspeksi_uretra: e.inspeksi_uretra || "",
-              inspeksi_vagina: e.inspeksi_vagina || "",
-              inspeksi_vulva: e.inspeksi_vulva || "",
-              inspeksi_fluksus: e.inspeksi_fluksus || "",
-              inspeksi_fluor: e.inspeksi_fluor || "",
-            }));
-            // Load riwayat kehamilan lalu
-            try {
-              const riwayat = await getRiwayatKehamilanByEvaluasiId(e.id_evaluasi);
-              if (riwayat) setRiwayatList(riwayat);
-            } catch (err) {
-              console.error("Gagal load riwayat:", err);
-            }
+        setLoading(true);
+        // Ambil semua kehamilan ibu
+        const kehamilanList = await getKehamilanByIbuId(ibuId);
+        if (!kehamilanList || kehamilanList.length === 0) {
+          alert("Ibu belum memiliki data kehamilan.");
+          navigate(`/data-ibu/${ibuId}`);
+          return;
+        }
+        // Pilih kehamilan berdasarkan kehamilan_id dari query param
+        let targetKehamilan = null;
+        if (kehamilanId) {
+          targetKehamilan = kehamilanList.find(k => k.id == kehamilanId);
+          if (!targetKehamilan) {
+            alert(`Kehamilan dengan ID ${kehamilanId} tidak ditemukan.`);
+            navigate(`/data-ibu/${ibuId}`);
+            return;
+          }
+        } else {
+          targetKehamilan = kehamilanList[0];
+        }
+        setKehamilan(targetKehamilan);
+
+        // Ambil data evaluasi untuk kehamilan tersebut
+        const evalData = await getEvaluasiByKehamilanId(targetKehamilan.id);
+        if (evalData && evalData.length > 0) {
+          const e = evalData[0];
+          setEvaluasi(e);
+          setForm(prev => ({
+            ...prev,
+            nama_dokter: e.nama_dokter || prev.nama_dokter,
+            tanggal_periksa: e.tanggal_periksa ? e.tanggal_periksa.split("T")[0] : prev.tanggal_periksa,
+            fasilitas_kesehatan: e.fasilitas_kesehatan || "",
+            tb_cm: e.tb_cm ?? "",
+            bb_kg: e.bb_kg ?? "",
+            imt_kategori: e.imt_kategori || "",
+            lila_cm: e.lila_cm ?? "",
+            status_tt_1: e.status_tt_1 || false,
+            status_tt_2: e.status_tt_2 || false,
+            status_tt_3: e.status_tt_3 || false,
+            status_tt_4: e.status_tt_4 || false,
+            status_tt_5: e.status_tt_5 || false,
+            imunisasi_lainnya_covid19: e.imunisasi_lainnya_covid19 || "",
+            riwayat_alergi: e.riwayat_alergi || false,
+            riwayat_asma: e.riwayat_asma || false,
+            riwayat_autoimun: e.riwayat_autoimun || false,
+            riwayat_diabetes: e.riwayat_diabetes || false,
+            riwayat_hepatitis_b: e.riwayat_hepatitis_b || false,
+            riwayat_hipertensi: e.riwayat_hipertensi || false,
+            riwayat_jantung: e.riwayat_jantung || false,
+            riwayat_jiwa: e.riwayat_jiwa || false,
+            riwayat_sifilis: e.riwayat_sifilis || false,
+            riwayat_tb: e.riwayat_tb || false,
+            riwayat_kesehatan_lainnya: e.riwayat_kesehatan_lainnya || "",
+            perilaku_aktivitas_fisik_kurang: e.perilaku_aktivitas_fisik_kurang || false,
+            perilaku_alkohol: e.perilaku_alkohol || false,
+            perilaku_kosmetik_berbahaya: e.perilaku_kosmetik_berbahaya || false,
+            perilaku_merokok: e.perilaku_merokok || false,
+            perilaku_obat_teratogenik: e.perilaku_obat_teratogenik || false,
+            perilaku_pola_makan_berisiko: e.perilaku_pola_makan_berisiko || false,
+            perilaku_lainnya: e.perilaku_lainnya || "",
+            keluarga_alergi: e.keluarga_alergi || false,
+            keluarga_asma: e.keluarga_asma || false,
+            keluarga_autoimun: e.keluarga_autoimun || false,
+            keluarga_diabetes: e.keluarga_diabetes || false,
+            keluarga_hepatitis_b: e.keluarga_hepatitis_b || false,
+            keluarga_hipertensi: e.keluarga_hipertensi || false,
+            keluarga_jantung: e.keluarga_jantung || false,
+            keluarga_jiwa: e.keluarga_jiwa || false,
+            keluarga_sifilis: e.keluarga_sifilis || false,
+            keluarga_tb: e.keluarga_tb || false,
+            keluarga_lainnya: e.keluarga_lainnya || "",
+            inspeksi_porsio: e.inspeksi_porsio || "",
+            inspeksi_uretra: e.inspeksi_uretra || "",
+            inspeksi_vagina: e.inspeksi_vagina || "",
+            inspeksi_vulva: e.inspeksi_vulva || "",
+            inspeksi_fluksus: e.inspeksi_fluksus || "",
+            inspeksi_fluor: e.inspeksi_fluor || "",
+          }));
+          // Load riwayat kehamilan lalu
+          try {
+            const riwayat = await getRiwayatKehamilanByEvaluasiId(e.id_evaluasi);
+            if (riwayat) setRiwayatList(riwayat);
+          } catch (err) {
+            console.error("Gagal load riwayat:", err);
           }
         }
       } catch (err) {
         console.error(err);
+        alert("Gagal memuat data");
       } finally {
         setLoading(false);
       }
     };
-    fetchData();
-  }, [id]);
+    if (ibuId) fetchData();
+  }, [ibuId, kehamilanId, navigate]);
+
+  // Validasi form evaluasi
+  const validateForm = () => {
+    const newErrors = {};
+    if (!form.tanggal_periksa) newErrors.tanggal_periksa = "Tanggal periksa wajib diisi";
+    if (form.tb_cm && (isNaN(parseFloat(form.tb_cm)) || parseFloat(form.tb_cm) <= 0)) newErrors.tb_cm = "TB harus angka > 0";
+    if (form.bb_kg && (isNaN(parseFloat(form.bb_kg)) || parseFloat(form.bb_kg) <= 0)) newErrors.bb_kg = "BB harus angka > 0";
+    if (form.lila_cm && (isNaN(parseFloat(form.lila_cm)) || parseFloat(form.lila_cm) <= 0)) newErrors.lila_cm = "LILA harus angka > 0";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setForm({ ...form, [name]: type === "checkbox" ? checked : value });
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: "" }));
+    }
   };
 
   const handleSubmitEvaluasi = async (e) => {
     e.preventDefault();
-    if (!kehamilan) return;
+    if (!kehamilan) {
+      alert("Kehamilan tidak ditemukan");
+      return;
+    }
+    if (!validateForm()) {
+      alert("Mohon perbaiki data yang bermasalah.");
+      return;
+    }
     setSaving(true);
     try {
       const payload = {
@@ -177,8 +230,8 @@ export default function EvaluasiKesehatanIbu() {
         setEvaluasi(created);
       }
       alert("Evaluasi kesehatan ibu berhasil disimpan");
-      // Auto-navigate to next step (Skrining Preeklampsia)
-      navigate(`/data-ibu/${id}/skrining-preeklampsia`);
+      // Navigasi ke skrining preeklampsia dengan tetap membawa kehamilan_id
+      navigate(`/data-ibu/${ibuId}/skrining-preeklampsia?kehamilan_id=${kehamilan.id}`);
     } catch (err) {
       alert("Gagal menyimpan evaluasi");
       console.error(err);
@@ -190,6 +243,11 @@ export default function EvaluasiKesehatanIbu() {
   const handleAddRiwayat = async () => {
     if (!evaluasi) {
       alert("Simpan evaluasi terlebih dahulu");
+      return;
+    }
+    // Validasi sederhana riwayat
+    if (!formRiwayat.tahun || !formRiwayat.proses_melahirkan) {
+      alert("Tahun dan Proses Melahirkan wajib diisi");
       return;
     }
     try {
@@ -234,12 +292,11 @@ export default function EvaluasiKesehatanIbu() {
     </div>
   );
 
-  if (loading)
-    return (
-      <MainLayout>
-        <div className="p-6">Memuat...</div>
-      </MainLayout>
-    );
+  const ErrorMsg = ({ field }) => errors[field] ? (
+    <p className="text-red-500 text-xs mt-1 flex items-center gap-1"><AlertCircle size={12} /> {errors[field]}</p>
+  ) : null;
+
+  if (loading) return <MainLayout><div className="p-6">Memuat...</div></MainLayout>;
 
   return (
     <MainLayout>
@@ -271,16 +328,17 @@ export default function EvaluasiKesehatanIbu() {
         {activeTab === "evaluasi" && (
           <form onSubmit={handleSubmitEvaluasi} className="space-y-8">
             {/* Data Umum */}
-            <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 p-8 transition-all hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
+            <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 p-8">
               <h3 className="font-semibold mb-3 text-indigo-700">Data Pemeriksaan</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium mb-1">Nama Dokter</label>
-                  <input name="nama_dokter" value={form.nama_dokter} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" />
+                  <input name="nama_dokter" value={form.nama_dokter} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" readOnly />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">Tanggal Periksa</label>
-                  <input type="date" name="tanggal_periksa" value={form.tanggal_periksa} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" />
+                  <label className="block text-sm font-medium mb-1">Tanggal Periksa <span className="text-red-500">*</span></label>
+                  <input type="date" name="tanggal_periksa" value={form.tanggal_periksa} onChange={handleChange} className={`w-full border rounded-lg px-3 py-2 ${errors.tanggal_periksa ? 'border-red-500' : ''}`} />
+                  <ErrorMsg field="tanggal_periksa" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-1">Fasilitas Kesehatan</label>
@@ -290,16 +348,18 @@ export default function EvaluasiKesehatanIbu() {
             </div>
 
             {/* Antropometri */}
-            <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 p-8 transition-all hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
+            <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 p-8">
               <h3 className="font-semibold mb-3 text-indigo-700">Antropometri</h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div>
                   <label className="block text-sm font-medium mb-1">TB (cm)</label>
-                  <input type="number" step="0.1" name="tb_cm" value={form.tb_cm} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" />
+                  <input type="number" step="0.1" name="tb_cm" value={form.tb_cm} onChange={handleChange} className={`w-full border rounded-lg px-3 py-2 ${errors.tb_cm ? 'border-red-500' : ''}`} />
+                  <ErrorMsg field="tb_cm" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-1">BB (kg)</label>
-                  <input type="number" step="0.1" name="bb_kg" value={form.bb_kg} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" />
+                  <input type="number" step="0.1" name="bb_kg" value={form.bb_kg} onChange={handleChange} className={`w-full border rounded-lg px-3 py-2 ${errors.bb_kg ? 'border-red-500' : ''}`} />
+                  <ErrorMsg field="bb_kg" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-1">IMT Kategori</label>
@@ -313,13 +373,14 @@ export default function EvaluasiKesehatanIbu() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-1">LILA (cm)</label>
-                  <input type="number" step="0.1" name="lila_cm" value={form.lila_cm} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" />
+                  <input type="number" step="0.1" name="lila_cm" value={form.lila_cm} onChange={handleChange} className={`w-full border rounded-lg px-3 py-2 ${errors.lila_cm ? 'border-red-500' : ''}`} />
+                  <ErrorMsg field="lila_cm" />
                 </div>
               </div>
             </div>
 
             {/* Imunisasi TT */}
-            <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 p-8 transition-all hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
+            <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 p-8">
               <h3 className="font-semibold mb-3 text-indigo-700">Status Imunisasi TT</h3>
               <div className="flex flex-wrap gap-4">
                 {[1, 2, 3, 4, 5].map((n) => (
@@ -336,7 +397,7 @@ export default function EvaluasiKesehatanIbu() {
             </div>
 
             {/* Riwayat Kesehatan & Perilaku */}
-            <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 p-8 transition-all hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] space-y-6">
+            <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 p-8 space-y-6">
               <CheckboxGroup
                 title="Riwayat Kesehatan Ibu"
                 items={[
@@ -395,7 +456,7 @@ export default function EvaluasiKesehatanIbu() {
             </div>
 
             {/* Inspeksi */}
-            <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 p-8 transition-all hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
+            <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 p-8">
               <h3 className="font-bold mb-6 text-xl text-indigo-900 border-b pb-2">Inspeksi Medis</h3>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
                 {[
@@ -477,7 +538,7 @@ export default function EvaluasiKesehatanIbu() {
                   <input type="number" value={formRiwayat.no_urut} onChange={(e) => setFormRiwayat({ ...formRiwayat, no_urut: e.target.value })} className="w-full border rounded-lg px-3 py-2" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">Tahun</label>
+                  <label className="block text-sm font-medium mb-1">Tahun <span className="text-red-500">*</span></label>
                   <input type="number" value={formRiwayat.tahun} onChange={(e) => setFormRiwayat({ ...formRiwayat, tahun: e.target.value })} className="w-full border rounded-lg px-3 py-2" />
                 </div>
                 <div>
@@ -485,7 +546,7 @@ export default function EvaluasiKesehatanIbu() {
                   <input type="number" value={formRiwayat.bb_gram} onChange={(e) => setFormRiwayat({ ...formRiwayat, bb_gram: e.target.value })} className="w-full border rounded-lg px-3 py-2" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">Proses Melahirkan</label>
+                  <label className="block text-sm font-medium mb-1">Proses Melahirkan <span className="text-red-500">*</span></label>
                   <input value={formRiwayat.proses_melahirkan} onChange={(e) => setFormRiwayat({ ...formRiwayat, proses_melahirkan: e.target.value })} className="w-full border rounded-lg px-3 py-2" />
                 </div>
                 <div>

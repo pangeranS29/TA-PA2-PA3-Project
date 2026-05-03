@@ -3,6 +3,7 @@ package repositories
 import (
 	"errors"
 	"monitoring-service/app/models"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -54,4 +55,68 @@ func (r *KehamilanRepository) Delete(id int32) error {
 		return errors.New("data kehamilan tidak ditemukan")
 	}
 	return nil
+}
+func (r *KehamilanRepository) UpdateStatusKehamilan(id int32, status string) error {
+	return r.db.Model(&models.Kehamilan{}).
+		Where("id = ?", id).
+		Update("status_kehamilan", status).Error
+}
+
+type KehamilanDashboardDTO struct {
+	IDIbu           int32     `json:"id_ibu"`
+	NamaLengkap     string    `json:"nama_lengkap"`
+	Dusun           string    `json:"dusun"`
+	Desa            string    `json:"desa"`
+	KehamilanID     int32     `json:"kehamilan_id"`
+	HPHT            time.Time `json:"hpht"`
+	StatusKehamilan string    `json:"status_kehamilan"`
+
+	SkorRisiko   *int32  `json:"skor_risiko"`
+	StatusRisiko *string `json:"status_risiko"`
+}
+
+func (r *KehamilanRepository) GetDashboardIbuHamil() ([]KehamilanDashboardDTO, error) {
+	var result []KehamilanDashboardDTO
+
+	err := r.db.
+		Table("kehamilan k").
+		Select(`
+			k.id as kehamilan_id,
+		 	i.id as id_ibu,
+			p.nama_lengkap,
+			p.dusun,
+			p.desa,
+			k.hpht,
+			k.status_kehamilan,
+			anc.skor_risiko,
+			anc.status_risiko
+		`).
+		Joins("JOIN ibu i ON k.ibu_id = i.id").
+		Joins("JOIN penduduk p ON i.penduduk_id = p.id").
+		Joins(`
+			LEFT JOIN pemeriksaan_kehamilan anc 
+			ON anc.id_periksa = (
+				SELECT id_periksa FROM pemeriksaan_kehamilan
+				WHERE kehamilan_id = k.id
+				ORDER BY created_at DESC
+				LIMIT 1
+			)
+		`).
+		Where("k.status_kehamilan IN ?", []string{
+			"TRIMESTER 1",
+			"TRIMESTER 2",
+			"TRIMESTER 3",
+		}).
+		Scan(&result).Error
+
+	return result, err
+}
+func (r *KehamilanRepository) ExistsActiveByIbuID(ibuID int32) (bool, error) {
+	var count int64
+
+	err := r.db.Model(&models.Kehamilan{}).
+		Where("ibu_id = ? AND status_kehamilan != ?", ibuID, "NON-AKTIF").
+		Count(&count).Error
+
+	return count > 0, err
 }

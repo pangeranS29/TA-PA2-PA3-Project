@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, useSearchParams, Link } from "react-router-dom";
 import MainLayout from "../../components/Layout/MainLayout";
 import { getKehamilanByIbuId } from "../../services/kehamilan";
 import { getPemeriksaanKehamilanByKehamilanId } from "../../services/pemeriksaanKehamilan";
@@ -19,6 +19,7 @@ import {
 
 import { Plus, AlertTriangle, Activity, Scale, Heart, Droplets } from "lucide-react";
 
+// Registrasi ChartJS
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -29,22 +30,17 @@ ChartJS.register(
   Filler
 );
 
-// ================= HELPER BUKU KIA =================
-// Menghitung batas normal kenaikan BB berdasarkan IMT Pra-kehamilan
+// Helper Buku KIA (sama seperti sebelumnya)
 const getBatasBB = (minggu, kategoriIMT) => {
-  let rateMin = 0.35, rateMax = 0.50, t1Min = 0.5, t1Max = 2.0; // Default: Normal
-  
+  let rateMin = 0.35, rateMax = 0.50, t1Min = 0.5, t1Max = 2.0; // Default Normal
   const kat = kategoriIMT?.toLowerCase() || "";
   if (kat.includes("kurang")) { rateMin = 0.44; rateMax = 0.58; t1Min = 1.0; t1Max = 2.0; }
   else if (kat.includes("overweight")) { rateMin = 0.23; rateMax = 0.33; t1Min = 0.5; t1Max = 1.0; }
   else if (kat.includes("obesitas")) { rateMin = 0.17; rateMax = 0.27; t1Min = 0.2; t1Max = 0.5; }
 
-  // Trimester 1 (0-12 minggu)
   if (minggu <= 12) {
     return { min: (t1Min / 12) * minggu, max: (t1Max / 12) * minggu };
   }
-  
-  // Trimester 2 & 3
   return {
     min: t1Min + ((minggu - 12) * rateMin),
     max: t1Max + ((minggu - 12) * rateMax)
@@ -52,7 +48,9 @@ const getBatasBB = (minggu, kategoriIMT) => {
 };
 
 export default function PemeriksaanKehamilanList() {
-  const { id } = useParams();
+  const { id: ibuId } = useParams();
+  const [searchParams] = useSearchParams();
+  const kehamilanIdQuery = searchParams.get("kehamilan_id");
 
   const [kehamilan, setKehamilan] = useState(null);
   const [examinations, setExaminations] = useState([]);
@@ -66,18 +64,32 @@ export default function PemeriksaanKehamilanList() {
         setLoading(true);
         setError(null);
 
-        const kehamilanList = await getKehamilanByIbuId(id);
+        const kehamilanList = await getKehamilanByIbuId(ibuId);
         if (!kehamilanList || kehamilanList.length === 0) {
+          setError("Belum ada data kehamilan untuk ibu ini.");
           setKehamilan(null);
           return;
         }
 
-        const aktif = kehamilanList[0];
-        setKehamilan(aktif);
+        // Pilih kehamilan berdasarkan query parameter, jika ada
+        let selectedKehamilan = null;
+        if (kehamilanIdQuery) {
+          selectedKehamilan = kehamilanList.find(k => k.id == kehamilanIdQuery);
+          if (!selectedKehamilan) {
+            setError(`Kehamilan dengan ID ${kehamilanIdQuery} tidak ditemukan untuk ibu ini.`);
+            setKehamilan(null);
+            return;
+          }
+        } else {
+          // Fallback: ambil kehamilan pertama (atau bisa yang status hamil)
+          selectedKehamilan = kehamilanList[0];
+        }
+
+        setKehamilan(selectedKehamilan);
 
         const [examRes, grafikRes] = await Promise.all([
-          getPemeriksaanKehamilanByKehamilanId(aktif.id),
-          getGrafikehamilanByKehamilanId(aktif.id),
+          getPemeriksaanKehamilanByKehamilanId(selectedKehamilan.id),
+          getGrafikehamilanByKehamilanId(selectedKehamilan.id),
         ]);
 
         setExaminations(
@@ -93,9 +105,8 @@ export default function PemeriksaanKehamilanList() {
     };
 
     fetchData();
-  }, [id]);
+  }, [ibuId, kehamilanIdQuery]);
 
-  // ================= DATA PREPARATION =================
   const tfu = grafik?.grafik_tfu ?? [];
   const djj = grafik?.grafik_djj ?? [];
   const td = grafik?.grafik_tekanan_darah ?? [];
@@ -105,13 +116,11 @@ export default function PemeriksaanKehamilanList() {
 
   const getRiskStyles = (status) => {
     const s = status?.toLowerCase() || "";
-    if (s.includes("tinggi")) return "bg-red-50 border-red-200 text-red-700 icon-red-500";
-    if (s.includes("sedang")) return "bg-yellow-50 border-yellow-200 text-yellow-700 icon-yellow-500";
-    return "bg-green-50 border-green-200 text-green-700 icon-green-500";
+    if (s.includes("tinggi")) return "bg-red-50 border-red-200 text-red-700";
+    if (s.includes("sedang")) return "bg-yellow-50 border-yellow-200 text-yellow-700";
+    return "bg-green-50 border-green-200 text-green-700";
   };
 
-  // ================= CHART OPTIONS & DATA =================
-  
   const commonOptions = {
     responsive: true,
     maintainAspectRatio: false,
@@ -124,7 +133,6 @@ export default function PemeriksaanKehamilanList() {
     }
   };
 
-  // 1. GRAFIK TFU (Tinggi Fundus)
   const chartTFU = useMemo(() => ({
     labels: tfu.map((d) => `Mgg ${d.minggu}`),
     datasets: [
@@ -144,7 +152,7 @@ export default function PemeriksaanKehamilanList() {
         borderDash: [5, 5],
         borderWidth: 1,
         pointRadius: 0,
-        fill: '-1', // Arsir area ke dataset sebelumnya (Batas Atas)
+        fill: '-1',
         backgroundColor: "rgba(16, 185, 129, 0.15)", 
       },
       {
@@ -159,7 +167,6 @@ export default function PemeriksaanKehamilanList() {
     ],
   }), [tfu]);
 
-  // 2. GRAFIK DJJ (Detak Jantung Janin)
   const chartDJJ = useMemo(() => ({
     labels: djj.map((d) => `Mgg ${d.minggu}`),
     datasets: [
@@ -178,7 +185,7 @@ export default function PemeriksaanKehamilanList() {
         borderWidth: 1,
         pointRadius: 0,
         fill: '-1',
-        backgroundColor: "rgba(16, 185, 129, 0.15)", // Zona hijau aman
+        backgroundColor: "rgba(16, 185, 129, 0.15)",
       },
       {
         label: "DJJ Pasien (bpm)",
@@ -192,7 +199,6 @@ export default function PemeriksaanKehamilanList() {
     ],
   }), [djj]);
 
-  // 3. GRAFIK TEKANAN DARAH
   const chartTD = useMemo(() => ({
     labels: td.map((d) => `Mgg ${d.minggu}`),
     datasets: [
@@ -231,7 +237,6 @@ export default function PemeriksaanKehamilanList() {
     ],
   }), [td]);
 
-  // 4. GRAFIK PENINGKATAN BERAT BADAN
   const chartBB = useMemo(() => ({
     labels: bb.map((d) => `Mgg ${d.minggu}`),
     datasets: [
@@ -252,7 +257,7 @@ export default function PemeriksaanKehamilanList() {
         borderWidth: 1,
         pointRadius: 0,
         fill: '-1',
-        backgroundColor: "rgba(236, 72, 153, 0.15)", // Pita merah muda Buku KIA
+        backgroundColor: "rgba(236, 72, 153, 0.15)",
       },
       {
         label: "Kenaikan BB Pasien (kg)",
@@ -270,6 +275,10 @@ export default function PemeriksaanKehamilanList() {
 
   if (loading) return <MainLayout><div className="p-10 text-center">Memuat data medis...</div></MainLayout>;
   if (error) return <MainLayout><div className="p-10 text-center text-red-600">{error}</div></MainLayout>;
+  if (!kehamilan) return <MainLayout><div className="p-10 text-center">Data kehamilan tidak tersedia</div></MainLayout>;
+
+  // Helper untuk menambahkan query parameter kehamilan_id ke URL
+  const withKehamilan = (path) => `${path}?kehamilan_id=${kehamilan.id}`;
 
   return (
     <MainLayout>
@@ -280,16 +289,17 @@ export default function PemeriksaanKehamilanList() {
           <div>
             <h1 className="text-3xl font-extrabold text-gray-900">Pemantauan ANC</h1>
             <p className="text-gray-500 italic">Berdasarkan Standar Buku KIA & Skrining Risiko</p>
+            <p className="text-xs text-gray-400 mt-1">Kehamilan ID: {kehamilan.id}</p>
           </div>
           <Link
-            to={`/data-ibu/${id}/pemeriksaan-rutin/baru`}
+            to={withKehamilan(`/data-ibu/${ibuId}/pemeriksaan-rutin/baru`)}
             className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 transition-all shadow-lg shadow-indigo-200"
           >
             <Plus size={20} /> Catat Pemeriksaan
           </Link>
         </div>
 
-        {/* STATUS RISK - CRITICAL INFO */}
+        {/* STATUS RISK */}
         {risk && (
           <div className={`border-l-4 p-5 rounded-r-2xl shadow-sm flex gap-4 ${getRiskStyles(risk.status_risiko)}`}>
             <AlertTriangle className="flex-shrink-0" size={28} />
@@ -332,30 +342,27 @@ export default function PemeriksaanKehamilanList() {
           </div>
         </div>
 
-        {/* GRAPHS SECTION */}
+        {/* GRAFIK */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
-            <h2 className="font-bold text-gray-700 mb-4 flex items-center gap-2"> Tinggi Fundus (TFU)</h2>
+            <h2 className="font-bold text-gray-700 mb-4 flex items-center gap-2">📈 Tinggi Fundus (TFU)</h2>
             <div className="h-64"><Line data={chartTFU} options={commonOptions} /></div>
           </div>
-
           <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
-            <h2 className="font-bold text-gray-700 mb-4 flex items-center gap-2"> Detak Jantung Janin</h2>
+            <h2 className="font-bold text-gray-700 mb-4 flex items-center gap-2">💓 Detak Jantung Janin</h2>
             <div className="h-64"><Line data={chartDJJ} options={commonOptions} /></div>
           </div>
-
           <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
-            <h2 className="font-bold text-gray-700 mb-4 flex items-center gap-2"> Tekanan Darah</h2>
+            <h2 className="font-bold text-gray-700 mb-4 flex items-center gap-2">🩸 Tekanan Darah</h2>
             <div className="h-64"><Line data={chartTD} options={commonOptions} /></div>
           </div>
-
           <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
-            <h2 className="font-bold text-gray-700 mb-4 flex items-center gap-2"> Grafik Berat Badan (PBB)</h2>
+            <h2 className="font-bold text-gray-700 mb-4 flex items-center gap-2">⚖️ Grafik Berat Badan (PBB)</h2>
             <div className="h-64"><Line data={chartBB} options={commonOptions} /></div>
           </div>
         </div>
 
-        {/* HISTORY LIST */}
+        {/* RIWAYAT PEMERIKSAAN */}
         <div className="space-y-4">
           <h2 className="text-xl font-bold text-gray-800">Riwayat Pemeriksaan</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -372,7 +379,7 @@ export default function PemeriksaanKehamilanList() {
                 <p className="text-gray-400 text-xs mb-1">Tanggal Periksa</p>
                 <p className="font-bold text-gray-800 mb-4">{new Date(exam.tanggal_periksa).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
                 <Link
-                  to={`/data-ibu/${id}/pemeriksaan-rutin/${exam.id_periksa}`}
+                  to={withKehamilan(`/data-ibu/${ibuId}/pemeriksaan-rutin/${exam.id_periksa}`)}
                   className="w-full block text-center py-2 bg-gray-50 group-hover:bg-indigo-600 group-hover:text-white text-indigo-600 rounded-xl text-sm font-semibold transition-all"
                 >
                   Lihat Detail
