@@ -55,9 +55,13 @@ class ApiConstants {
 
   // MODUL ANAK ==================================================
     // Modul Anak - Data Ibu & Anak
+    // Tumbuh Kembang
   static const String ibuAnak = '/ibu/anak';
   static const String ibuLembarPemantauan = '/ibu/lembar-pemantauan';
-    // Tumbuh Kembang
+  static const String ibuLembarPemantauanRentangUsia =
+      '/ibu/lembar-pemantauan/rentang-usia';
+  static const String ibuLembarPemantauanKategori =
+      '/ibu/lembar-pemantauan/kategori-tanda-sakit';      
       // Pencarian
   static const String anakSearch = '/anak/search';
   static String anakById(int anakId) => '/anak/$anakId';

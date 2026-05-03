@@ -120,6 +120,7 @@ const Header = () => {
 
   const handleLogout = () => {
     logout();
+    window.location.href = "/login"; // Redirect ke login setelah logout
   };
 
   return (
