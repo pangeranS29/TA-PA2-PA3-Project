@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:ta_pa2_pa3_project/core/theme/app_theme.dart';
+import 'package:ta_pa2_pa3_project/core/themes/app_theme.dart';
 import 'package:ta_pa2_pa3_project/features/dashboard/data/dashboard_menu_data.dart';
 
 class DashboardPhaseSelector extends StatelessWidget {

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:ta_pa2_pa3_project/core/theme/app_theme.dart';
+import 'package:ta_pa2_pa3_project/core/themes/app_theme.dart';
 
 class DashboardBottomNav extends StatelessWidget {
   final int currentIndex;
