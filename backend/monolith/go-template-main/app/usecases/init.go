@@ -23,8 +23,9 @@ type Main struct {
 	InformasiUmum          InformasiUmumUsecase
 	Kependudukan           KependudukanUsecase
 
+	// Usecase baru terkait kehamilan
 	// Usecase baru (terkait kehamilan)
-	// KartuKeluarga                 KartuKeluargaUsecase
+	// KartuKeluarga 
 	Kehamilan                     KehamilanUsecase
 	PemeriksaanKehamilan          PemeriksaanKehamilanUsecase
 	EvaluasiKesehatanIbu          EvaluasiKesehatanIbuUsecase
@@ -45,15 +46,31 @@ type Main struct {
 	Rujukan                       RujukanUsecase
 	SkriningDMGestasional         SkriningDMGestasionalUsecase
 	SkriningPreeklampsia          SkriningPreeklampsiaUsecase
+	SkriningPemantauan            SkriningPemantauanUsecase
+	KategoriTandaBahaya           KategoriTandaBahayaUsecase
 	PelayananIbuNifas             PelayananIbuNifasUsecase
 	Ibu                           IbuUsecase
 	RiwayatKehamilanLalu          RiwayatKehamilanLaluUsecase
-	LembarPemantauan              LembarPemantauanUsecase
-	// RegisterOrangTua              *RegisterOrangTuaUsecase
+	KeteranganLahir               KeteranganLahirUsecase
+	JenisPelayanan                JenisPelayananUsecase
+
 	AdminAkunKeluarga    *AdminAkunKeluargaUsecase
 	AdminTenagaKesehatan *AdminTenagaKesehatanUsecase
-	KeteranganLahir      KeteranganLahirUsecase // <-- TAMBAHKAN INI
-	JenisPelayanan       JenisPelayananUsecase
+
+	// MODUL IBU
+	LogTTDMMS                    LogTTDMMSUsecase
+	PemantauanIbuHamil          PemantauanIbuHamilUsecase
+	PersiapanMelahirkan         PersiapanMelahirkanUsecase
+	ProsesMelahirkan            ProsesMelahirkanUsecase
+	AbsensiKelasIbuHamil        AbsensiKelasIbuHamilUsecase
+	ChecklistPemantauanIbuNifas *ChecklistPemantauanIbuNifasUsecase
+
+	LembarPemantauan              LembarPemantauanUsecase
+	// RegisterOrangTua              *RegisterOrangTuaUsecase
+	// AdminAkunKeluarga    *AdminAkunKeluargaUsecase
+	// AdminTenagaKesehatan *AdminTenagaKesehatanUsecase
+	// KeteranganLahir      KeteranganLahirUsecase // <-- TAMBAHKAN INI
+	// JenisPelayanan       JenisPelayananUsecase
 }
 
 type Options struct {
@@ -80,6 +97,7 @@ func Init(opts Options) *Main {
 	m.CatatanPelayanan = NewCatatanPelayananUseCase(opts.Repository.CatatanPelayanan)
 	m.InformasiUmum = NewInformasiUmumUsecase(opts.Repository.InformasiUmum)
 
+	// Inisialisasi usecase terkait kehamilan
 	// Inisialisasi usecase baru
 	// m.KartuKeluarga = NewKartuKeluargaUsecase(opts.Repository.KartuKeluarga)
 	m.Kehamilan = NewKehamilanUsecase(opts.Repository.Kehamilan)
@@ -102,12 +120,15 @@ func Init(opts Options) *Main {
 	m.Rujukan = NewRujukanUsecase(opts.Repository.Rujukan)
 	m.SkriningDMGestasional = NewSkriningDMGestasionalUsecase(opts.Repository.SkriningDMGestasional)
 	m.SkriningPreeklampsia = NewSkriningPreeklampsiaUsecase(opts.Repository.SkriningPreeklampsia)
+	m.SkriningPemantauan = NewSkriningPemantauanUsecase(opts.Repository.SkriningPemantauan)
+	m.KategoriTandaBahaya = NewKategoriTandaBahayaUsecase(opts.Repository.KategoriTandaBahaya)
 	m.PelayananIbuNifas = NewPelayananIbuNifasUsecase(opts.Repository.PelayananIbuNifas)
 	m.Ibu = NewIbuUsecase(opts.Repository.Ibu)
 	m.RiwayatKehamilanLalu = NewRiwayatKehamilanLaluUsecase(opts.Repository.RiwayatKehamilanLalu)
 	m.LembarPemantauan = NewLembarPemantauanUsecase(opts.Repository.LembarPemantauan)
 	m.Kependudukan = NewKependudukanUsecase(opts.Repository.Kependudukan)
-	// m.RegisterOrangTua = NewRegisterOrangTuaUsecase(
+	m.KeteranganLahir = NewKeteranganLahirUsecase(opts.Repository.KeteranganLahir)
+		// m.RegisterOrangTua = NewRegisterOrangTuaUsecase(
 	// 	opts.Repository.User,
 	// 	opts.Repository.Role,
 	// 	opts.Repository.KartuKeluarga,
@@ -130,5 +151,30 @@ func Init(opts Options) *Main {
 	m.KeteranganLahir = NewKeteranganLahirUsecase(opts.Repository.KeteranganLahir) // <-- TAMBAHKAN INI
 	m.JenisPelayanan = NewJenisPelayananUsecase(opts.Repository.JenisPelayanan)
 
+	m.AdminAkunKeluarga = NewAdminAkunKeluargaUsecase(
+		opts.Repository.User,
+		opts.Repository.Role,
+		opts.Repository.KartuKeluarga,
+		opts.Repository.Kependudukan,
+	)
+
+	m.AdminTenagaKesehatan = NewAdminTenagaKesehatanUsecase(
+		opts.Repository.Bidan,
+		opts.Repository.Kader,
+		opts.Repository.Kependudukan,
+		opts.Repository.User,
+		opts.Repository.Role,
+	)
+
+	// MODUL IBU
+	m.LogTTDMMS = NewLogTTDMMSUsecase(opts.Repository.LogTTDMMS)
+	m.PemantauanIbuHamil = NewPemantauanIbuHamilUsecase(opts.Repository.PemantauanIbuHamil)
+	m.PersiapanMelahirkan = NewPersiapanMelahirkanUsecase(opts.Repository.PersiapanMelahirkan)
+	m.ProsesMelahirkan = NewProsesMelahirkanUsecase(opts.Repository.ProsesMelahirkan)
+	m.AbsensiKelasIbuHamil = NewAbsensiKelasIbuHamilUsecase(opts.Repository.AbsensiKelasIbuHamil)
+	m.ChecklistPemantauanIbuNifas = NewChecklistPemantauanIbuNifasUsecase(
+		opts.Repository.ChecklistPemantauanIbuNifas,
+		opts.Repository.Kehamilan,
+	)
 	return m
 }

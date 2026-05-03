@@ -9,6 +9,8 @@ import (
 type KehamilanUsecase interface {
 	Create(kehamilan *models.Kehamilan) error
 	GetByID(id int32) (*models.Kehamilan, error)
+	// GetAktifByPhoneNumber(phoneNumber string) (*models.Kehamilan, error) // MODUL IBU
+	GetAktifByUserID(userID int32) (*models.Kehamilan, error) // MODUL IBU
 	GetByIbuID(ibuID int32) ([]models.Kehamilan, error)
 	GetAll() ([]models.Kehamilan, error)
 	Update(kehamilan *models.Kehamilan) error
@@ -96,4 +98,18 @@ func (u *kehamilanUsecase) Update(kehamilan *models.Kehamilan) error {
 
 func (u *kehamilanUsecase) Delete(id int32) error {
 	return u.repo.Delete(id)
+}
+
+// MODUL IBU
+// func (u *kehamilanUsecase) GetAktifByPhoneNumber(phoneNumber string) (*models.Kehamilan, error) {
+// 	if phoneNumber == "" {
+// 		return nil, errors.New("nomor telepon tidak ditemukan")
+// 	}
+// 	return u.repo.FindAktifByPhoneNumber(phoneNumber)
+// }
+func (u *kehamilanUsecase) GetAktifByUserID(userID int32) (*models.Kehamilan, error) {
+	if userID == 0 {
+		return nil, errors.New("user_id tidak valid")
+	}
+	return u.repo.FindAktifByUserID(userID)
 }

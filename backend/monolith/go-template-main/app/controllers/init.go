@@ -45,12 +45,22 @@ type Main struct {
 	Rujukan                       *RujukanController
 	SkriningDMGestasional         *SkriningDMGestasionalController
 	SkriningPreeklampsia          *SkriningPreeklampsiaController
+	SkriningPemantauan            *SkriningPemantauanController
+	KategoriTandaBahaya           *KategoriTandaBahayaController
 	PelayananIbuNifas             *PelayananIbuNifasController
 	RiwayatKehamilanLalu          *RiwayatKehamilanLaluController
 	LembarPemantauan              *LembarPemantauanController
 	KeteranganLahir               *KeteranganLahirController // <-- TAMBAHKAN INI
 	Kependudukan                  *KependudukanController
 	JenisPelayanan                *JenisPelayananController
+
+	// MODUL IBU
+	PemantauanIbuHamil   *PemantauanIbuHamilController
+	LogTTDMMS            *LogTTDMMSController
+	PersiapanMelahirkan  *PersiapanMelahirkanController
+	ProsesMelahirkan     *ProsesMelahirkanController
+	AbsensiKelasIbuHamil *AbsensiKelasIbuHamilController
+	ChecklistPemantauanIbuNifas *ChecklistPemantauanIbuNifasController
 }
 
 type Options struct {
@@ -100,6 +110,8 @@ func Init(opts Options) *Main {
 	m.Rujukan = NewRujukanController(opts.UseCases.Rujukan)
 	m.SkriningDMGestasional = NewSkriningDMGestasionalController(opts.UseCases.SkriningDMGestasional)
 	m.SkriningPreeklampsia = NewSkriningPreeklampsiaController(opts.UseCases.SkriningPreeklampsia)
+	m.SkriningPemantauan = NewSkriningPemantauanController(opts.UseCases.SkriningPemantauan)
+	m.KategoriTandaBahaya = NewKategoriTandaBahayaController(opts.UseCases.KategoriTandaBahaya)
 	m.PelayananIbuNifas = NewPelayananIbuNifasController(opts.UseCases.PelayananIbuNifas)
 	m.RiwayatKehamilanLalu = NewRiwayatKehamilanLaluController(opts.UseCases.RiwayatKehamilanLalu)
 	m.LembarPemantauan = NewLembarPemantauanController(opts.UseCases.LembarPemantauan)
@@ -107,6 +119,14 @@ func Init(opts Options) *Main {
 	m.Kependudukan = NewKependudukanController(opts.UseCases.Kependudukan)
 	m.JenisPelayanan = NewJenisPelayananController(opts.UseCases.JenisPelayanan)
 
+	// MODEL IBU
+	m.LogTTDMMS = NewLogTTDMMSController(opts.UseCases.LogTTDMMS)
+	m.PemantauanIbuHamil = NewPemantauanIbuHamilController(opts.UseCases.PemantauanIbuHamil)
+	m.PersiapanMelahirkan = NewPersiapanMelahirkanController(opts.UseCases.PersiapanMelahirkan)
+	m.ProsesMelahirkan = NewProsesMelahirkanController(opts.UseCases.ProsesMelahirkan)
+	m.AbsensiKelasIbuHamil = NewAbsensiKelasIbuHamilController(opts.UseCases.AbsensiKelasIbuHamil)
+	m.ChecklistPemantauanIbuNifas = NewChecklistPemantauanIbuNifasController(
+	opts.UseCases.ChecklistPemantauanIbuNifas,)
 	return m
 }
 

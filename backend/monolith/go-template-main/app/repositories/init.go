@@ -21,6 +21,7 @@ type Main struct {
 	PemantauanPertumbuhan  PemantauanPertumbuhanRepository
 	PengukuranLilA         PengukuranLilaRepository
 	CatatanPelayanan       CatatanPelayananRepository
+	ChecklistPemantauanIbuNifas ChecklistPemantauanIbuNifasRepository
 	InformasiUmum          *InformasiUmumRepository
 
 	// New repositories (semua pointer, mengikuti pola Anak)
@@ -40,6 +41,8 @@ type Main struct {
 	CatatanPelayananTrimester1    *CatatanPelayananTrimester1Repository
 	SkriningPreeklampsia          *SkriningPreeklampsiaRepository
 	SkriningDMGestasional         *SkriningDMGestasionalRepository
+	SkriningPemantauan            *SkriningPemantauanRepository
+	KategoriTandaBahaya           *KategoriTandaBahayaRepository
 	CatatanPelayananTrimester2    *CatatanPelayananTrimester2Repository
 	PemeriksaanDokterTrimester3   *PemeriksaanDokterTrimester3Repository
 	PemeriksaanLanjutanTrimester3 *PemeriksaanLanjutanTrimester3Repository
@@ -56,6 +59,12 @@ type Main struct {
 	CatatanPelayananNifas         *CatatanPelayananNifasRepository
 	Rujukan                       *RujukanRepository
 	JenisPelayanan                JenisPelayananRepository
+	// MODUL IBU
+	LogTTDMMS            *LogTTDMMSRepository
+	PemantauanIbuHamil   *PemantauanIbuHamilRepository
+	PersiapanMelahirkan  *PersiapanMelahirkanRepository
+	ProsesMelahirkan     *ProsesMelahirkanRepository
+	AbsensiKelasIbuHamil *AbsensiKelasIbuHamilRepository
 }
 
 type Options struct {
@@ -76,6 +85,7 @@ func Init(opts Options) *Main {
 	// New repositories
 	m.User = NewUserRepository(opts.Postgres)
 	m.Ibu = NewIbuRepository(opts.Postgres)
+	m.ChecklistPemantauanIbuNifas = NewChecklistPemantauanIbuNifasRepository(opts.Postgres)
 	m.Role = NewRoleRepository(opts.Postgres)
 	m.KartuKeluarga = NewKartuKeluargaRepository(opts.Postgres)
 	m.Kependudukan = NewKependudukanRepository(opts.Postgres)
@@ -90,6 +100,8 @@ func Init(opts Options) *Main {
 	m.CatatanPelayananTrimester1 = NewCatatanPelayananTrimester1Repository(opts.Postgres)
 	m.SkriningPreeklampsia = NewSkriningPreeklampsiaRepository(opts.Postgres)
 	m.SkriningDMGestasional = NewSkriningDMGestasionalRepository(opts.Postgres)
+	m.SkriningPemantauan = NewSkriningPemantauanRepository(opts.Postgres)
+	m.KategoriTandaBahaya = NewKategoriTandaBahayaRepository(opts.Postgres)
 	m.CatatanPelayananTrimester2 = NewCatatanPelayananTrimester2Repository(opts.Postgres)
 	m.PemeriksaanDokterTrimester3 = NewPemeriksaanDokterTrimester3Repository(opts.Postgres)
 	m.PemeriksaanLanjutanTrimester3 = NewPemeriksaanLanjutanTrimester3Repository(opts.Postgres)
@@ -116,6 +128,13 @@ func Init(opts Options) *Main {
 	m.CatatanPelayanan = NewCatatanPelayananRepository(opts.Postgres)
 	m.InformasiUmum = NewInformasiUmumRepository(opts.Postgres)
 	m.JenisPelayanan = NewJenisPelayananRepository(opts.Postgres)
+
+	// MODUL IBU
+	m.LogTTDMMS = NewLogTTDMMSRepository(opts.Postgres)
+	m.PemantauanIbuHamil = NewPemantauanIbuHamilRepository(opts.Postgres)
+	m.PersiapanMelahirkan = NewPersiapanMelahirkanRepository(opts.Postgres)
+	m.ProsesMelahirkan = NewProsesMelahirkanRepository(opts.Postgres)
+	m.AbsensiKelasIbuHamil = NewAbsensiKelasIbuHamilRepository(opts.Postgres)
 
 	return m
 }

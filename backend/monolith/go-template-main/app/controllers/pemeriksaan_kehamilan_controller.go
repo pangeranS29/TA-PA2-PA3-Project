@@ -295,3 +295,59 @@ func (c *PemeriksaanKehamilanController) Delete(ctx echo.Context) error {
 		Message:    "deleted",
 	})
 }
+
+// MODUL IBY
+func (c *PemeriksaanKehamilanController) GetByIDForOrangtua(ctx echo.Context) error {
+	id, err := strconv.ParseInt(ctx.Param("id"), 10, 32)
+	if err != nil {
+		return ctx.JSON(http.StatusBadRequest, models.Response{
+			StatusCode: http.StatusBadRequest,
+			Message:    "invalid id",
+		})
+	}
+
+	claims, ok := ctx.Get("auth_claims").(*models.AuthClaims)
+	if !ok || claims == nil {
+		return ctx.JSON(http.StatusUnauthorized, models.Response{
+			StatusCode: http.StatusUnauthorized,
+			Message:    "token tidak valid",
+		})
+	}
+
+	data, err := c.usecase.GetByIDForOrangtua(int32(id), claims.UserID)
+	if err != nil {
+		return ctx.JSON(http.StatusForbidden, models.Response{
+			StatusCode: http.StatusForbidden,
+			Message:    err.Error(),
+		})
+	}
+
+	return ctx.JSON(http.StatusOK, models.Response{
+		StatusCode: http.StatusOK,
+		Data:       data,
+	})
+}
+
+// MODUL IBU
+func (c *PemeriksaanKehamilanController) GetMine(ctx echo.Context) error {
+	claims, ok := ctx.Get("auth_claims").(*models.AuthClaims)
+	if !ok || claims == nil {
+		return ctx.JSON(http.StatusUnauthorized, models.Response{
+			StatusCode: http.StatusUnauthorized,
+			Message:    "token tidak valid",
+		})
+	}
+
+	data, err := c.usecase.GetMine(claims.UserID)
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, models.Response{
+			StatusCode: http.StatusInternalServerError,
+			Message:    err.Error(),
+		})
+	}
+
+	return ctx.JSON(http.StatusOK, models.Response{
+		StatusCode: http.StatusOK,
+		Data:       data,
+	})
+}
