@@ -1,20 +1,3 @@
-// [MODUL: ANAK - Shared Widget]
-// Card menu dengan ikon, judul, subtitle, dan chevron kanan.
-// Dipakai berulang di:
-// - PemantauanMenuScreen (_buildMenuCard)
-// - PilihPerawatanScreen (_buildCard)
-// - HalamanUtamaMpasiScreen (menu mpasi)
-// - Dan screen-screen anak lain yang punya daftar menu
-//
-// CARA PAKAI:
-//   AnakMenuCard(
-//     title: 'Skrining Tanda Bahaya',
-//     subtitle: 'Deteksi dini tanda-tanda bahaya pada anak',
-//     icon: Icons.assignment_turned_in_outlined,
-//     iconColor: Color(0xFF2196F3),
-//     onTap: () { ... },
-//   )
-
 import 'package:flutter/material.dart';
 
 class AnakMenuCard extends StatelessWidget {

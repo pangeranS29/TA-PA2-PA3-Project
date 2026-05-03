@@ -1,40 +1,5 @@
-// [MODUL: ANAK - Shared Widget]
-// Loading, error, dan empty state yang dipakai berulang di:
-// - PilihAnakScreen, InformasiUmumScreen, DetailPertumbuhanScreen,
-//   CariAnakScreen, HalamanUtamaMpasiScreen, dan screen-screen lain.
-//
-// Tiga widget terpisah agar fleksibel dipakai sesuai kebutuhan:
-//   1. AnakLoadingView   — spinner saat data sedang dimuat
-//   2. AnakErrorView     — tampilan error dengan tombol retry
-//   3. AnakEmptyView     — tampilan kosong (belum ada data)
-//
-// CARA PAKAI:
-//
-//   // Loading
-//   if (isLoading) return const AnakLoadingView();
-//
-//   // Error
-//   if (hasError) return AnakErrorView(
-//     message: errorMessage,
-//     onRetry: _loadData,
-//   );
-//
-//   // Empty
-//   if (list.isEmpty) return const AnakEmptyView(
-//     message: 'Belum ada data pertumbuhan',
-//   );
-//
-//   // Atau pakai di FutureBuilder:
-//   if (snapshot.connectionState == ConnectionState.waiting)
-//     return const AnakLoadingView();
-//   if (snapshot.hasError)
-//     return AnakErrorView(message: snapshot.error.toString(), onRetry: _reload);
-
 import 'package:flutter/material.dart';
 
-// ─────────────────────────────────────────────
-// 1. Loading State
-// ─────────────────────────────────────────────
 class AnakLoadingView extends StatelessWidget {
   final String? message;
 
@@ -66,9 +31,6 @@ class AnakLoadingView extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────
-// 2. Error State
-// ─────────────────────────────────────────────
 class AnakErrorView extends StatelessWidget {
   final String message;
   final VoidCallback? onRetry;
