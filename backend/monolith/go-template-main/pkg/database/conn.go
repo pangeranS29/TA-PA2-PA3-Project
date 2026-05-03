@@ -2,9 +2,7 @@ package database
 
 import (
 	"errors"
-	"fmt"
 
-	"github.com/glebarez/sqlite"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -36,12 +34,7 @@ func GetConnection(arg *Args) (db *gorm.DB, err error) {
 			PreferSimpleProtocol: true,
 		}), &gorm.Config{})
 		if err != nil {
-			fallbackDB, fallbackErr := gorm.Open(sqlite.Open("tmp/local.db"), &gorm.Config{})
-			if fallbackErr != nil {
-				return nil, fmt.Errorf("postgres connection failed: %w; sqlite fallback failed: %v", err, fallbackErr)
-			}
-			db = fallbackDB
-			err = nil
+			return
 		}
 	case mysqlDriverName:
 		db, err = gorm.Open(mysql.Open(urlStr), &gorm.Config{})
