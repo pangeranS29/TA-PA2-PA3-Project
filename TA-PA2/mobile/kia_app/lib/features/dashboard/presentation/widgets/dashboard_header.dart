@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ta_pa2_pa3_project/core/services/auth_session.dart';
-import 'package:ta_pa2_pa3_project/core/theme/app_theme.dart';
+import 'package:ta_pa2_pa3_project/core/themes/app_theme.dart';
 import 'package:ta_pa2_pa3_project/features/auth/presentation/screens/login_screen.dart';
 
 class DashboardHeader extends StatelessWidget {

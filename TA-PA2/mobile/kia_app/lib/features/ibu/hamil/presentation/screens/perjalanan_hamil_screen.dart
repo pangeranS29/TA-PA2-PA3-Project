@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:ta_pa2_pa3_project/core/theme/app_theme.dart';
+import 'package:ta_pa2_pa3_project/core/themes/app_theme.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/trimester_menu_screen.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/hasil_evaluasi_kesehatan_screen.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/absensi_kelas_ibu_hamil_screen.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/log_ttd_mms_screen.dart';
+import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/proses_melahirkan_screens.dart';
 
 class JourneyScreen extends StatefulWidget {
   final int currentWeek;
@@ -130,7 +131,13 @@ class _JourneyScreenState extends State<JourneyScreen> {
                   title: 'Ringkasan Pelayanan Proses Melahirkan',
                   subtitle: 'Lihat ringkasan ibu bersalin, nifas, dan bayi saat lahir',
                   borderColor: const Color(0xFFFFE3A3),
-                  onTap: () => _openComingSoon('Ringkasan Pelayanan Proses Melahirkan'),
+                  // onTap: () => _openComingSoon('Ringkasan Pelayanan Proses Melahirkan'),
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const RingkasanPelayananProsesMelahirkanScreen(),
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 14),
                 _buildFeatureCard(

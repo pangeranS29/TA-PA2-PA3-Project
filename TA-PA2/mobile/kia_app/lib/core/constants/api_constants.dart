@@ -18,6 +18,8 @@ class ApiConstants {
 
   static const String authLogin = '/auth/login';
   static const String authMe = '/auth/me';
+
+  // MODUL IBU  ==================================================
   static const String kehamilanAktif = '/modul-ibu/kehamilan-aktif';
   static const String pemeriksaanKehamilan = '/modul-ibu/pemeriksaan-kehamilan/me';
   static const String pemeriksaanDokterTrimester1 = '/modul-ibu/pemeriksaan-dokter-trimester-1/me';
@@ -28,11 +30,42 @@ class ApiConstants {
   static const String saveAbsensiKelasIbuHamil = '/modul-ibu/absensi-kelas-ibu-hamil';
   static const String logTTDMMS = '/modul-ibu/log-ttd-mms/me';
   static const String saveLogTTDMMS = '/modul-ibu/log-ttd-mms';
-
-  // Pemantauan Ibu Hamil
+    // Pemantauan Ibu Hamil               
   static const String pemantauanIbuHamil = '/modul-ibu/pemantauan-ibu-hamil/me';
   static const String savePemantauanIbuHamil = '/modul-ibu/pemantauan-ibu-hamil';
-  // Modul Anak - Data Ibu & Anak
+  static const String prosesMelahirkan = '/modul-ibu/proses-melahirkan/me';
+    // Pemantauan Ibu Nifas
+  static const String checklistPemantauanIbuNifas = '/modul-ibu/checklist-pemantauan-ibu-nifas';
+  // static const String checklistPemantauanIbuNifasFilledDays = '/modul-ibu/checklist-pemantauan-ibu-nifas/filled-days';
+  // static const String checklistNifasFilledDays = '/modul-ibu/checklist-pemantauan-nifas/filled-days';
+  // static const String saveChecklistNifas = '/modul-ibu/checklist-pemantauan-nifas';
+  static const String checklistNifasFilledDays = '/modul-ibu/checklist-pemantauan-ibu-nifas/filled-days';
+  static const String checklistNifasSave = '/modul-ibu/checklist-pemantauan-ibu-nifas';
+  static const String checklistNifasMe = '/modul-ibu/checklist-pemantauan-ibu-nifas/me';
+
+  /*
+   *
+   * 
+   * 
+   * 
+   * 
+   * 
+  */
+
+
+  // MODUL ANAK ==================================================
+    // Modul Anak - Data Ibu & Anak
   static const String ibuAnak = '/ibu/anak';
   static const String ibuLembarPemantauan = '/ibu/lembar-pemantauan';
+    // Tumbuh Kembang
+      // Pencarian
+  static const String anakSearch = '/anak/search';
+  static String anakById(int anakId) => '/anak/$anakId';
+      // Pertumbuhan dan Standar
+  static const String pertumbuhan = '/pertumbuhan';
+  static String riwayatPertumbuhanByAnakId(int anakId) => '/pertumbuhan/$anakId';
+      // Informasi Umum
+  static const String masterStandar = '/master-standar';
+  static const String informasiUmum = '/informasi-umum';
+  static String informasiUmumById(int id) => '/informasi-umum/$id';
 }
