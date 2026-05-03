@@ -33,7 +33,8 @@ class _LembarPemantauanScreenState extends State<LembarPemantauanScreen>
 
   List<RentangUsiaModel> _rentangUsia = const [];
   List<KategoriTandaSakitModel> _kategori = const [];
-  List<Map<String, dynamic>> _lembarRecords = const [];
+  List<LembarPemantauanModel> _lembarRecords = const [];
+  // List<Map<String, dynamic>> _lembarRecords = const [];
   int? _selectedRentangId;
   final Map<int, bool> _checks = {};
   DateTime _tanggalPeriksa = DateTime.now();
@@ -126,46 +127,27 @@ class _LembarPemantauanScreenState extends State<LembarPemantauanScreen>
     });
 
     try {
-      // TODO: Call API to fetch existing records
-      // For now, using mock data
-      setState(() {
-        _lembarRecords = [
-          {
-            'id': 1,
-            'periode': 1,
-            'tanggal_periksa': '2026-05-01',
-            'nama_pemeriksa': 'Bu Siti',
-            'status_paraf': 'approved',
-            'tanggal_paraf': '2026-05-01',
-            'nama_paraf_nakes': 'Bidan Siti',
-          },
-          {
-            'id': 2,
-            'periode': 2,
-            'tanggal_periksa': '2026-04-24',
-            'nama_pemeriksa': 'Bu Sondang',
-            'status_paraf': 'approved',
-            'tanggal_paraf': '2026-04-24',
-            'nama_paraf_nakes': 'Bidan Sondang',
-          },
-          {
-            'id': 3,
-            'periode': 3,
-            'tanggal_periksa': null,
-            'nama_pemeriksa': '',
-            'status_paraf': 'pending',
-            'tanggal_paraf': null,
-            'nama_paraf_nakes': '',
-          },
-        ];
-        _loadingRecords = false;
-      });
+      final anakRaw = widget.anak?['id'];
+      final anakId = anakRaw is int
+          ? anakRaw
+          : int.tryParse((anakRaw ?? '').toString()) ?? 0;
+
+      if (anakId > 0) {
+        final records = await _service.getRiwayatPemantauan(anakId);
+        if (!mounted) return;
+        setState(() {
+          _lembarRecords = records;
+        });
+      }
     } catch (e) {
       if (!mounted) return;
-      setState(() {
-        _loadingRecords = false;
-      });
-      _showError('Gagal memuat data lembar pemantauan: $e');
+      _showError('Gagal memuat data riwayat pemantauan: $e');
+    } finally {
+      if (mounted) {
+        setState(() {
+          _loadingRecords = false;
+        });
+      }
     }
   }
 
@@ -404,49 +386,50 @@ class _LembarPemantauanScreenState extends State<LembarPemantauanScreen>
     return DataTable(
       columns: const [
         DataColumn(label: Text('No.')),
+        DataColumn(label: Text('Rentang Usia')), // Tambahan info rentang usia
         DataColumn(label: Text('Periode')),
         DataColumn(label: Text('Tanggal')),
         DataColumn(label: Text('Pemeriksa')),
         DataColumn(label: Text('Status')),
-        DataColumn(label: Text('Tgl Paraf')),
-        DataColumn(label: Text('Paraf Nakes')),
+        DataColumn(label: Text('Tgl Verifikasi')),
       ],
       rows: List<DataRow>.generate(
         _lembarRecords.length,
         (index) {
           final record = _lembarRecords[index];
-          final statusParaf = record['status_paraf'] ?? 'pending';
-          final tanggalPeriksa = record['tanggal_periksa'] ?? 'Belum diisi';
-          final namaPemeriksa = record['nama_pemeriksa'] ?? 'Belum diisi';
-          final tanggalParaf = record['tanggal_paraf'] ?? '-';
-          final namaParafNakes = record['nama_paraf_nakes'] ?? '-';
+          
+          // Konversi status teks dari backend ('Diterima', 'Ditolak', 'Menunggu verifikasi') 
+          // ke format yang sesuai dengan helper warna UI kamu
+          String statusColorKey = 'pending';
+          if (record.status == 'Diterima') statusColorKey = 'approved';
+          if (record.status == 'Ditolak') statusColorKey = 'rejected';
 
           return DataRow(
             cells: [
               DataCell(Text((index + 1).toString())),
-              DataCell(Text('Pemeriksaan ke-${record['periode']}')),
-              DataCell(Text(tanggalPeriksa)),
-              DataCell(Text(namaPemeriksa)),
+              DataCell(Text(record.rentangUsia?.namaRentang ?? '-')),
+              DataCell(Text('Ke-${record.periodeWaktu}')),
+              DataCell(Text(record.tanggalPeriksa)),
+              DataCell(Text(record.namaPemeriksa.isNotEmpty ? record.namaPemeriksa : 'Ibu')),
               DataCell(
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: _getStatusParafColor(statusParaf).withOpacity(0.2),
+                    color: _getStatusParafColor(statusColorKey).withOpacity(0.2),
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
-                    _getStatusParafLabel(statusParaf),
+                    record.status,
                     style: TextStyle(
-                      color: _getStatusParafColor(statusParaf),
+                      color: _getStatusParafColor(statusColorKey),
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
               ),
-              DataCell(Text(tanggalParaf)),
-              DataCell(Text(namaParafNakes)),
+              // Jika statusnya sudah diubah Nakes, tampilkan tanggal update-nya
+              DataCell(Text(record.status != 'Menunggu verifikasi' ? record.updatedAt : '-')),
             ],
           );
         },
