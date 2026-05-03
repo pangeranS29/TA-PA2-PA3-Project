@@ -9,6 +9,8 @@ import (
 type EvaluasiKesehatanIbuUsecase interface {
 	Create(e *models.EvaluasiKesehatanIbu) error
 	GetByID(id int32) (*models.EvaluasiKesehatanIbu, error)
+	GetByIDForOrangtua(id int32, userID int32) (*models.EvaluasiKesehatanIbu, error) // MODUL IBU
+	GetMine(userID int32) (*models.EvaluasiKesehatanIbu, error) // MODUL IBU
 	GetByKehamilanID(kehamilanID int32) ([]models.EvaluasiKesehatanIbu, error)
 	Update(e *models.EvaluasiKesehatanIbu) error
 	Delete(id int32) error
@@ -30,7 +32,7 @@ func (u *evaluasiKesehatanIbuUsecase) Create(e *models.EvaluasiKesehatanIbu) err
 }
 
 func (u *evaluasiKesehatanIbuUsecase) GetByID(id int32) (*models.EvaluasiKesehatanIbu, error) {
-	return u.repo.FindByID(id)
+	return u.repo.FindByID(id)	
 }
 
 func (u *evaluasiKesehatanIbuUsecase) GetByKehamilanID(kehamilanID int32) ([]models.EvaluasiKesehatanIbu, error) {
@@ -47,4 +49,23 @@ func (u *evaluasiKesehatanIbuUsecase) Update(e *models.EvaluasiKesehatanIbu) err
 
 func (u *evaluasiKesehatanIbuUsecase) Delete(id int32) error {
 	return u.repo.Delete(id)
+}
+
+// MODUL IBU
+func (u *evaluasiKesehatanIbuUsecase) GetByIDForOrangtua(id int32, userID int32) (*models.EvaluasiKesehatanIbu, error) {
+	allowed, err := u.repo.IsOwnedByUser(id, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	if !allowed {
+		return nil, errors.New("Anda tidak memiliki akses ke data ini")
+	}
+
+	return u.repo.FindByID(id)
+}
+
+// MODUL IBU
+func (u *evaluasiKesehatanIbuUsecase) GetMine(userID int32) (*models.EvaluasiKesehatanIbu, error) {
+	return u.repo.FindMineByUserID(userID)
 }

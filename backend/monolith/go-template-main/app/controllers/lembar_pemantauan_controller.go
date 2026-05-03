@@ -19,13 +19,13 @@ func NewLembarPemantauanController(uc usecases.LembarPemantauanUsecase) *LembarP
 	return &LembarPemantauanController{usecase: uc}
 }
 
-func getAuthClaims(ctx echo.Context) (*models.AuthClaims, bool) {
-	claims, ok := ctx.Get("auth_claims").(*models.AuthClaims)
-	if !ok || claims == nil {
-		return nil, false
-	}
-	return claims, true
-}
+// func getAuthClaims(ctx echo.Context) (*models.AuthClaims, bool) {
+// 	claims, ok := ctx.Get("auth_claims").(*models.AuthClaims)
+// 	if !ok || claims == nil {
+// 		return nil, false
+// 	}
+// 	return claims, true
+// }
 
 func isLembarPemantauanForbidden(err error) bool {
 	return errors.Is(err, usecases.ErrLembarPemantauanForbidden)

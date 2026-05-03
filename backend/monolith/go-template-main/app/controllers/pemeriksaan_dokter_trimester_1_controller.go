@@ -186,3 +186,27 @@ func (c *PemeriksaanDokterTrimester1Controller) Delete(ctx echo.Context) error {
 	}
 	return ctx.JSON(http.StatusOK, models.Response{StatusCode: http.StatusOK, Message: "deleted"})
 }
+
+// MODUL IBU
+func (c *PemeriksaanDokterTrimester1Controller) GetMine(ctx echo.Context) error {
+	claims, ok := ctx.Get("auth_claims").(*models.AuthClaims)
+	if !ok || claims == nil {
+		return ctx.JSON(http.StatusUnauthorized, models.Response{
+			StatusCode: http.StatusUnauthorized,
+			Message:    "token tidak valid",
+		})
+	}
+
+	data, err := c.usecase.GetMine(claims.UserID)
+	if err != nil {
+		return ctx.JSON(http.StatusNotFound, models.Response{
+			StatusCode: http.StatusNotFound,
+			Message:    "data pemeriksaan dokter trimester 1 tidak ditemukan",
+		})
+	}
+
+	return ctx.JSON(http.StatusOK, models.Response{
+		StatusCode: http.StatusOK,
+		Data:       data,
+	})
+}

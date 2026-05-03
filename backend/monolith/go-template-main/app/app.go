@@ -4,9 +4,16 @@ import (
 	"fmt"
 	"monitoring-service/app/controllers"
 
+	// "monitoring-service/app/models"
 	"monitoring-service/app/repositories"
 	"monitoring-service/app/routes"
 
+	// "monitoring-service/app/models"
+	// "monitoring-service/app/models"
+	// "monitoring-service/app/repositories"
+	// "monitoring-service/app/routes"
+
+	// "monitoring-service/app/seed"
 	"monitoring-service/app/usecases"
 	"monitoring-service/pkg/config"
 	"monitoring-service/pkg/database"
@@ -57,7 +64,9 @@ func (m *Main) Init() (err error) {
 	}
 	fmt.Println("✅ BERHASIL KONEK KE DATABASE")
 
-	// // Migrate tabel yang dipakai oleh Informasi Umum.
+	//comment sementara
+
+	// // Migrate Tabel
 	// err = models.AutoMigrate(m.database.Postgres)
 	// if err != nil {
 	// 	return
@@ -67,8 +76,6 @@ func (m *Main) Init() (err error) {
 	// err = seed.RunAllSeed(m.database.Postgres)
 	// if err != nil {
 	// 	return
-	// }
-
 	// SEEDER setelah migrate
 	// seeder kependudukan + anak
 	// kependudukanSeeder := seeders.NewKependudukanSeeder(m.database.Postgres)
@@ -77,6 +84,39 @@ func (m *Main) Init() (err error) {
 	// }
 	// kategoriTandaSakitSeeder := seeders.NewKategoriTandaSakitSeeder(m.database.Postgres)
 	// if err := kategoriTandaSakitSeeder.Seed(); err != nil {
+	// 	return err
+	// }
+
+	// // seeder master standar TBU
+	// masterTBUSeeder := seeders.NewMasterStandarTBUSeeder(m.database.Postgres)
+	// if err := masterTBUSeeder.Seed(); err != nil {
+	// 	return err
+	// }
+	// masterBBTBSeeder := seeders.NewMasterStandarBBTBSeeder(m.database.Postgres)
+	// if err := masterBBTBSeeder.Seed(); err != nil {
+	// 	return err
+	// }
+	// masterBBUSeeder := seeders.NewMasterStandarBBUSeeder(m.database.Postgres)
+	// if err := masterBBUSeeder.Seed(); err != nil {
+	// 	return err
+	// }
+	// masterIMTUSeeder := seeders.NewMasterStandarIMTUSeeder(m.database.Postgres)
+	// if err := masterIMTUSeeder.Seed(); err != nil {
+	// 	return err
+	// }
+	// masterLKUSeeder := seeders.NewMasterStandarLKUSeeder(m.database.Postgres)
+	// if err := masterLKUSeeder.Seed(); err != nil {
+	// 	return err
+	// }
+	// kategoriCapaianSeeder := seeders.NewKategoriCapaianSeeder(m.database.Postgres)
+	// if err := kategoriCapaianSeeder.Seed(); err != nil {
+	// 	return err
+	// }
+
+	// SEEDER setelah migrate
+	// seeder kependudukan + anak
+	// kependudukanSeeder := seeders.NewKependudukanSeeder(m.database.Postgres)
+	// if err := kependudukanSeeder.Seed(); err != nil {
 	// 	return err
 	// }
 

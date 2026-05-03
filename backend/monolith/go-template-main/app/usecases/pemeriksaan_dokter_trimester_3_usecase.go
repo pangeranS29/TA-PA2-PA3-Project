@@ -9,6 +9,7 @@ import (
 type PemeriksaanDokterTrimester3Usecase interface {
 	Create(p *models.PemeriksaanDokterTrimester3) error
 	GetByID(id int32) (*models.PemeriksaanDokterTrimester3, error)
+	GetMine(userID int32) (*models.PemeriksaanDokterTrimester3, error) // MODUL IBU
 	GetByKehamilanID(kehamilanID int32) ([]models.PemeriksaanDokterTrimester3, error)
 	Update(p *models.PemeriksaanDokterTrimester3) error
 	Delete(id int32) error
@@ -47,4 +48,9 @@ func (u *pemeriksaanDokterTrimester3Usecase) Update(p *models.PemeriksaanDokterT
 
 func (u *pemeriksaanDokterTrimester3Usecase) Delete(id int32) error {
 	return u.repo.Delete(id)
+}
+
+// MODUL IBU
+func (u *pemeriksaanDokterTrimester3Usecase) GetMine(userID int32) (*models.PemeriksaanDokterTrimester3, error) {
+	return u.repo.FindMineByUserID(userID)
 }

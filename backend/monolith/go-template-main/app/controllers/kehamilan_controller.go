@@ -249,3 +249,50 @@ func (c *KehamilanController) Delete(ctx echo.Context) error {
 		Message:    "deleted",
 	})
 }
+
+// MODUL IBU
+// func (c *KehamilanController) GetAktifForOrangtua(ctx echo.Context) error {
+// 	claims, ok := ctx.Get("auth_claims").(*models.AuthClaims)
+// 	if !ok || claims == nil {
+// 		return ctx.JSON(http.StatusUnauthorized, models.Response{
+// 			StatusCode: http.StatusUnauthorized,
+// 			Message:    "Unauthorized",
+// 		})
+// 	}
+
+// 	data, err := c.usecase.GetAktifByPhoneNumber(claims.PhoneNumber)
+// 	if err != nil {
+// 		return ctx.JSON(http.StatusNotFound, models.Response{
+// 			StatusCode: http.StatusNotFound,
+// 			Message:    "Data kehamilan aktif tidak ditemukan",
+// 		})
+// 	}
+
+// 	return ctx.JSON(http.StatusOK, models.Response{
+// 		StatusCode: http.StatusOK,
+// 		Data:       data,
+// 	})
+// }
+
+func (c *KehamilanController) GetAktifForOrangtua(ctx echo.Context) error {
+	claims, ok := ctx.Get("auth_claims").(*models.AuthClaims)
+	if !ok || claims == nil {
+		return ctx.JSON(http.StatusUnauthorized, models.Response{
+			StatusCode: http.StatusUnauthorized,
+			Message:    "Unauthorized",
+		})
+	}
+
+	data, err := c.usecase.GetAktifByUserID(claims.UserID)
+	if err != nil {
+		return ctx.JSON(http.StatusNotFound, models.Response{
+			StatusCode: http.StatusNotFound,
+			Message:    "Data kehamilan aktif tidak ditemukan",
+		})
+	}
+
+	return ctx.JSON(http.StatusOK, models.Response{
+		StatusCode: http.StatusOK,
+		Data:       data,
+	})
+}
