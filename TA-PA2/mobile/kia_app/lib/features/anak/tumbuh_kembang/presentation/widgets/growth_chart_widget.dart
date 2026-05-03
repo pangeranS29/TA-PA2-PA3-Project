@@ -195,9 +195,9 @@ class GrowthChartWidget extends StatelessWidget {
                             final dataAsli = sortedRiwayat[spot.spotIndex];
                             final zScore = _getZScoreForTab(dataAsli);
                             
-                            // Format: Nilai Aktual Z-Score
+                            // Format: Nilai Aktual \n Z-Score
                             return LineTooltipItem(
-                              '${spot.y.toStringAsFixed(2)}(Z: ${zScore.toStringAsFixed(2)})',
+                              '${spot.y.toStringAsFixed(2)}\n(Z: ${zScore.toStringAsFixed(2)})',
                               const TextStyle(
                                 color: Color(0xFF2563EB), // Warna biru sama seperti garis data anak
                                 fontWeight: FontWeight.bold, 
