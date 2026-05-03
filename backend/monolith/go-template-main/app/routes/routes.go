@@ -164,6 +164,8 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	tenaga.POST("/lembar-pemantauan", controller.LembarPemantauan.Create)
 	tenaga.PUT("/lembar-pemantauan/:id", controller.LembarPemantauan.Update)
 	tenaga.DELETE("/lembar-pemantauan/:id", controller.LembarPemantauan.Delete)
+	// TAMBAHAN: Endpoint untuk verifikasi oleh nakes
+	tenaga.PATCH("/lembar-pemantauan/:id/verifikasi", controller.LembarPemantauan.Verify)
 
 	// ==================== MODUL IBU & KEHAMILAN ====================
 	tenaga.POST("/ibu", controller.Ibu.Create)
@@ -360,5 +362,6 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	ibu.GET("/lembar-pemantauan/kategori-tanda-sakit", controller.LembarPemantauan.GetKategoriByRentangUsiaForIbu)
 	ibu.POST("/lembar-pemantauan", controller.LembarPemantauan.CreateForIbu)
 	ibu.GET("/lembar-pemantauan", controller.LembarPemantauan.GetByAnakIDForIbu)
+	// Catatan: Ibu tidak memiliki akses UPDATE/DELETE/VERIFY untuk menjaga integritas rekam medis
 
 }

@@ -106,6 +106,27 @@ class LembarPemantauanApiService {
     }
   }
 
+  Future<List<LembarPemantauanModel>> getRiwayatPemantauan(int anakId) async {
+    // Memanggil endpoint GET /ibu/lembar-pemantauan?anak_id=X
+    final uri = Uri.parse(
+      '${ApiConstants.baseUrl}${ApiConstants.ibuLembarPemantauan}?anak_id=$anakId',
+    );
+
+    final response = await _client.get(uri, headers: _headers());
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw Exception(_extractErrorMessage(response.body, response.statusCode));
+    }
+
+    final decoded = jsonDecode(response.body) as Map<String, dynamic>;
+    final rawData = decoded['data'];
+    if (rawData is! List) return const [];
+
+    return rawData
+        .whereType<Map<String, dynamic>>()
+        .map(LembarPemantauanModel.fromJson)
+        .toList();
+  }
+
   void dispose() {
     _client.close();
   }

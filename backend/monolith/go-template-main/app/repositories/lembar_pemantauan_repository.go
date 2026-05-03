@@ -3,47 +3,56 @@ package repositories
 import (
 	"monitoring-service/app/models"
 	"monitoring-service/pkg/customerror"
+	"strings"
 	"time"
 
 	"gorm.io/gorm"
 )
 
-// Interface untuk LembarPemantauan Repository
 type LembarPemantauanRepository interface {
 	Create(lembarPemantauan *models.LembarPemantauan) error
-	FindByID(id int32) (*models.LembarPemantauan, error)
-	FindByAnakID(anakID int32) ([]models.LembarPemantauan, error)
+	FindByID(id uint) (*models.LembarPemantauan, error)
+	FindByAnakID(anakID uint) ([]models.LembarPemantauan, error)
 	FindAll() ([]models.LembarPemantauan, error)
+	FindRentangUsiaByID(id uint) (*models.RentangUsia, error)
 	FindRentangUsia() ([]models.RentangUsia, error)
-	FindKategoriTandaSakitByRentangUsiaID(rentangUsiaID int32) ([]models.KategoriTandaSakit, error)
-	IsAnakMilikIbu(userID, anakID int32) (bool, error)
+	FindKategoriTandaSakitByRentangUsiaID(rentangUsiaID uint) ([]models.KategoriTandaSakit, error)
+	IsAnakMilikIbu(userID, anakID uint) (bool, error)
 	Update(lembarPemantauan *models.LembarPemantauan) error
-	Delete(id int32) error
+	Verify(id uint, status string, namaPemeriksa string) error
+	Delete(id uint) error
 }
 
 type lembarPemantauanRepository struct {
 	db *gorm.DB
 }
 
-// Constructor
 func NewLembarPemantauanRepository(db *gorm.DB) LembarPemantauanRepository {
 	return &lembarPemantauanRepository{db: db}
 }
 
-// Create - Membuat lembar pemantauan baru beserta detail gejala
 func (r *lembarPemantauanRepository) Create(lembarPemantauan *models.LembarPemantauan) error {
-	// Menggunakan transaction untuk membuat lembar pemantauan dan detail secara bersamaan
 	return r.db.Transaction(func(tx *gorm.DB) error {
-		// Buat lembar pemantauan
 		if err := tx.Create(lembarPemantauan).Error; err != nil {
+			// Menangkap error Unique Constraint PostgreSQL (SQLSTATE 23505)
+			if strings.Contains(err.Error(), "23505") || strings.Contains(err.Error(), "duplicate key value") {
+				return customerror.NewConflictError("Data pemantauan untuk periode ini sudah pernah diisi")
+			}
 			return customerror.NewInternalServiceError("gagal membuat lembar pemantauan")
 		}
 		return nil
 	})
 }
 
-// FindByID - Mencari lembar pemantauan berdasarkan ID dengan detail gejala
-func (r *lembarPemantauanRepository) FindByID(id int32) (*models.LembarPemantauan, error) {
+func (r *lembarPemantauanRepository) FindRentangUsiaByID(id uint) (*models.RentangUsia, error) {
+	var ru models.RentangUsia
+	if err := r.db.First(&ru, id).Error; err != nil {
+		return nil, customerror.NewNotFoundError("rentang usia tidak ditemukan")
+	}
+	return &ru, nil
+}
+
+func (r *lembarPemantauanRepository) FindByID(id uint) (*models.LembarPemantauan, error) {
 	var lembar models.LembarPemantauan
 	err := r.db.
 		Where("id = ? AND deleted_at IS NULL", id).
@@ -61,12 +70,10 @@ func (r *lembarPemantauanRepository) FindByID(id int32) (*models.LembarPemantaua
 		}
 		return nil, customerror.NewInternalServiceError("gagal mengambil data lembar pemantauan")
 	}
-
 	return &lembar, nil
 }
 
-// FindByAnakID - Mencari semua lembar pemantauan untuk anak tertentu
-func (r *lembarPemantauanRepository) FindByAnakID(anakID int32) ([]models.LembarPemantauan, error) {
+func (r *lembarPemantauanRepository) FindByAnakID(anakID uint) ([]models.LembarPemantauan, error) {
 	var lembars []models.LembarPemantauan
 	err := r.db.
 		Where("anak_id = ? AND deleted_at IS NULL", anakID).
@@ -82,12 +89,10 @@ func (r *lembarPemantauanRepository) FindByAnakID(anakID int32) ([]models.Lembar
 	if err != nil {
 		return nil, customerror.NewInternalServiceError("gagal mengambil data lembar pemantauan anak")
 	}
-
 	return lembars, nil
 }
 
-// IsAnakMilikIbu - Memastikan anak dimiliki oleh ibu yang sedang login
-func (r *lembarPemantauanRepository) IsAnakMilikIbu(userID, anakID int32) (bool, error) {
+func (r *lembarPemantauanRepository) IsAnakMilikIbu(userID, anakID uint) (bool, error) {
 	var count int64
 	err := r.db.Table("anak a").
 		Joins("JOIN kehamilan k ON k.id = a.kehamilan_id").
@@ -100,11 +105,9 @@ func (r *lembarPemantauanRepository) IsAnakMilikIbu(userID, anakID int32) (bool,
 	if err != nil {
 		return false, customerror.NewInternalServiceError("gagal memverifikasi kepemilikan data anak")
 	}
-
 	return count > 0, nil
 }
 
-// FindAll - Mencari semua lembar pemantauan
 func (r *lembarPemantauanRepository) FindAll() ([]models.LembarPemantauan, error) {
 	var lembars []models.LembarPemantauan
 	err := r.db.
@@ -121,7 +124,6 @@ func (r *lembarPemantauanRepository) FindAll() ([]models.LembarPemantauan, error
 	if err != nil {
 		return nil, customerror.NewInternalServiceError("gagal mengambil data lembar pemantauan")
 	}
-
 	return lembars, nil
 }
 
@@ -134,7 +136,7 @@ func (r *lembarPemantauanRepository) FindRentangUsia() ([]models.RentangUsia, er
 	return rentang, nil
 }
 
-func (r *lembarPemantauanRepository) FindKategoriTandaSakitByRentangUsiaID(rentangUsiaID int32) ([]models.KategoriTandaSakit, error) {
+func (r *lembarPemantauanRepository) FindKategoriTandaSakitByRentangUsiaID(rentangUsiaID uint) ([]models.KategoriTandaSakit, error) {
 	var kategori []models.KategoriTandaSakit
 	err := r.db.
 		Where("rentang_usia_id = ? AND is_active = ?", rentangUsiaID, true).
@@ -146,26 +148,16 @@ func (r *lembarPemantauanRepository) FindKategoriTandaSakitByRentangUsiaID(renta
 	return kategori, nil
 }
 
-// Update - Mengupdate lembar pemantauan dan detail gejala
 func (r *lembarPemantauanRepository) Update(lembarPemantauan *models.LembarPemantauan) error {
 	return r.db.Transaction(func(tx *gorm.DB) error {
-		// Update lembar pemantauan
-		if err := tx.
-			Model(&models.LembarPemantauan{}).
-			Where("id = ?", lembarPemantauan.ID).
-			Updates(lembarPemantauan).Error; err != nil {
+		if err := tx.Model(&models.LembarPemantauan{}).Where("id = ?", lembarPemantauan.ID).Updates(lembarPemantauan).Error; err != nil {
 			return customerror.NewInternalServiceError("gagal update lembar pemantauan")
 		}
 
-		// Hapus detail gejala lama (soft delete)
-		if err := tx.
-			Model(&models.DetailPemantauan{}).
-			Where("lembar_pemantauan_id = ?", lembarPemantauan.ID).
-			Update("deleted_at", time.Now()).Error; err != nil {
+		if err := tx.Model(&models.DetailPemantauan{}).Where("lembar_pemantauan_id = ?", lembarPemantauan.ID).Update("deleted_at", time.Now()).Error; err != nil {
 			return customerror.NewInternalServiceError("gagal menghapus detail gejala lama")
 		}
 
-		// Buat detail gejala baru
 		if len(lembarPemantauan.DetailGejala) > 0 {
 			for _, detail := range lembarPemantauan.DetailGejala {
 				detail.LembarPemantauanID = lembarPemantauan.ID
@@ -175,28 +167,33 @@ func (r *lembarPemantauanRepository) Update(lembarPemantauan *models.LembarPeman
 				}
 			}
 		}
-
 		return nil
 	})
 }
 
-// Delete - Soft delete lembar pemantauan dan detail gejala
-func (r *lembarPemantauanRepository) Delete(id int32) error {
+func (r *lembarPemantauanRepository) Verify(id uint, status string, namaPemeriksa string) error {
+	err := r.db.Model(&models.LembarPemantauan{}).
+		Where("id = ?", id).
+		Updates(map[string]interface{}{
+			"status":         status,
+			"nama_pemeriksa": namaPemeriksa,
+			"updated_at":     time.Now(),
+		}).Error
+
+	if err != nil {
+		return customerror.NewInternalServiceError("gagal memverifikasi lembar pemantauan")
+	}
+	return nil
+}
+
+func (r *lembarPemantauanRepository) Delete(id uint) error {
 	return r.db.Transaction(func(tx *gorm.DB) error {
-		// Soft delete lembar pemantauan
-		if err := tx.Model(&models.LembarPemantauan{}).
-			Where("id = ?", id).
-			Update("deleted_at", time.Now()).Error; err != nil {
+		if err := tx.Model(&models.LembarPemantauan{}).Where("id = ?", id).Update("deleted_at", time.Now()).Error; err != nil {
 			return customerror.NewInternalServiceError("gagal menghapus lembar pemantauan")
 		}
-
-		// Soft delete detail gejala terkait
-		if err := tx.Model(&models.DetailPemantauan{}).
-			Where("lembar_pemantauan_id = ?", id).
-			Update("deleted_at", time.Now()).Error; err != nil {
+		if err := tx.Model(&models.DetailPemantauan{}).Where("lembar_pemantauan_id = ?", id).Update("deleted_at", time.Now()).Error; err != nil {
 			return customerror.NewInternalServiceError("gagal menghapus detail gejala")
 		}
-
 		return nil
 	})
 }

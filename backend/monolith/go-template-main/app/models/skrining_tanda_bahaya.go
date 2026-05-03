@@ -7,73 +7,74 @@ import (
 	"gorm.io/gorm"
 )
 
-// Menyimpan: "0-28 Hari", "29 Hari - 3 Bulan", "2-6 Tahun"
+// RentangUsia
 type RentangUsia struct {
-	ID          int32     `gorm:"primaryKey;autoIncrement" json:"id"`
-	NamaRentang string    `gorm:"type:varchar(50);not null" json:"nama_rentang"`
-	SatuanWaktu string    `gorm:"type:enum('Hari','Minggu','Bulan');not null" json:"satuan_waktu"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
+	ID          uint      `gorm:"primaryKey;column:id" db:"id" json:"id"`
+	NamaRentang string    `gorm:"column:nama_rentang;type:varchar(50);not null" db:"nama_rentang" json:"nama_rentang"`
+	SatuanWaktu string    `gorm:"column:satuan_waktu;type:varchar(20);not null" db:"satuan_waktu" json:"satuan_waktu"`
+	MaxPeriode  int       `gorm:"column:max_periode;not null" db:"max_periode" json:"max_periode"`
+	CreatedAt   time.Time `gorm:"column:created_at" db:"created_at" json:"created_at"`
+	UpdatedAt   time.Time `gorm:"column:updated_at" db:"updated_at" json:"updated_at"`
 }
 
 func (RentangUsia) TableName() string {
 	return "rentang_usia"
 }
 
-// Menyimpan: "Demam", "Kejang", "Tali pusat kemerahan", dll.
+// KategoriTandaSakit
 type KategoriTandaSakit struct {
-	ID            int32          `gorm:"primaryKey;autoIncrement" json:"id"`
-	RentangUsiaID int32          `gorm:"not null;index" json:"rentang_usia_id"` // Relasi ke rentang usia (karena gejala bayi 0 hari beda dengan balita 4 tahun)
-	Gejala        string         `gorm:"type:text;not null" json:"gejala"`
-	Deskripsi     string         `gorm:"type:text" json:"deskripsi"`
-	IsActive      bool           `gorm:"default:true" json:"is_active"` // pertanyaan aktif atau tidak
-	CreatedAt     time.Time      `json:"created_at"`
-	UpdatedAt     time.Time      `json:"updated_at"`
-	DeletedAt     gorm.DeletedAt `gorm:"index" json:"-"`
+	ID            uint           `gorm:"primaryKey;column:id" db:"id" json:"id"`
+	RentangUsiaID uint           `gorm:"column:rentang_usia_id;not null;index" db:"rentang_usia_id" json:"rentang_usia_id"`
+	Gejala        string         `gorm:"column:gejala;type:text;not null" db:"gejala" json:"gejala"`
+	Deskripsi     string         `gorm:"column:deskripsi;type:text" db:"deskripsi" json:"deskripsi"`
+	IsActive      bool           `gorm:"column:is_active;default:true" db:"is_active" json:"is_active"`
+	CreatedAt     time.Time      `gorm:"column:created_at" db:"created_at" json:"created_at"`
+	UpdatedAt     time.Time      `gorm:"column:updated_at" db:"updated_at" json:"updated_at"`
+	DeletedAt     gorm.DeletedAt `gorm:"column:deleted_at;index" json:"-"`
 
-	RentangUsia RentangUsia `gorm:"foreignKey:RentangUsiaID;references:ID" json:"rentang_usia,omitempty"`
+	RentangUsia *RentangUsia `gorm:"foreignKey:RentangUsiaID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT" json:"rentang_usia,omitempty"`
 }
 
 func (KategoriTandaSakit) TableName() string {
 	return "kategori_tanda_sakit"
 }
 
-// transaksi
-// MEWAKILI 1 KOLOM DI BUKU KIA (Header)
+// LembarPemantauan (Header)
 type LembarPemantauan struct {
-	ID            int32 `gorm:"primaryKey;autoIncrement" json:"id"`
-	AnakID        int32 `gorm:"not null;index" json:"anak_id"`
-	RentangUsiaID int32 `gorm:"not null;index" json:"rentang_usia_id"`
+	ID            uint `gorm:"primaryKey;column:id" db:"id" json:"id"`
+	AnakID        uint `gorm:"column:anak_id;not null;uniqueIndex:idx_anak_periode" db:"anak_id" json:"anak_id"`
+	RentangUsiaID uint `gorm:"column:rentang_usia_id;not null;uniqueIndex:idx_anak_periode" db:"rentang_usia_id" json:"rentang_usia_id"`
+	PeriodeWaktu  int  `gorm:"column:periode_waktu;not null;uniqueIndex:idx_anak_periode" db:"periode_waktu" json:"periode_waktu"`
 
-	PeriodeWaktu   int       `gorm:"not null" json:"periode_waktu"` // Contoh: 4 (jika hari ke-4 / bulan ke-4)
-	TanggalPeriksa time.Time `gorm:"type:date;not null" json:"tanggal_periksa"`
-	NamaPemeriksa  string    `gorm:"type:varchar(100)" json:"nama_pemeriksa"` // Menyimpan Nama/Paraf Kader atau Nakes
+	TanggalPeriksa *time.Time `gorm:"column:tanggal_periksa;type:date;not null" db:"tanggal_periksa" json:"tanggal_periksa"`
+	NamaPemeriksa  string     `gorm:"column:nama_pemeriksa;type:varchar(100)" db:"nama_pemeriksa" json:"nama_pemeriksa"`
+	Status         string     `gorm:"column:status;type:varchar(50);not null" db:"status" json:"status"`
 
-	CreatedAt time.Time      `json:"created_at"`
-	UpdatedAt time.Time      `json:"updated_at"`
-	DeletedAt gorm.DeletedAt `gorm:"index" json:"-"`
+	CreatedAt time.Time      `gorm:"column:created_at" db:"created_at" json:"created_at"`
+	UpdatedAt time.Time      `gorm:"column:updated_at" db:"updated_at" json:"updated_at"`
+	DeletedAt gorm.DeletedAt `gorm:"column:deleted_at;index" json:"-"`
 
-	Anak         Anak               `gorm:"foreignKey:AnakID;references:ID" json:"anak,omitempty"`
-	RentangUsia  RentangUsia        `gorm:"foreignKey:RentangUsiaID;references:ID" json:"rentang_usia,omitempty"`
-	DetailGejala []DetailPemantauan `gorm:"foreignKey:LembarPemantauanID" json:"detail_gejala,omitempty"` // Relasi Has-Many
+	Anak         *Anak              `gorm:"foreignKey:AnakID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT" json:"anak,omitempty"`
+	RentangUsia  *RentangUsia       `gorm:"foreignKey:RentangUsiaID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT" json:"rentang_usia,omitempty"`
+	DetailGejala []DetailPemantauan `gorm:"foreignKey:LembarPemantauanID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE" json:"detail_gejala,omitempty"`
 }
 
 func (LembarPemantauan) TableName() string {
 	return "lembar_pemantauan"
 }
 
-// MEWAKILI KOTAK CENTANG (Detail)
+// DetailPemantauan (Detail)
 type DetailPemantauan struct {
-	ID                   int32          `gorm:"primaryKey;autoIncrement" json:"id"`
-	LembarPemantauanID   int32          `gorm:"not null;index" json:"lembar_pemantauan_id"`
-	KategoriTandaSakitID int32          `gorm:"not null;index" json:"kategori_tanda_sakit_id"`
-	IsTerjadi            bool           `gorm:"not null" json:"is_terjadi"` // True = Sakit/Dicentang, False = Sehat
-	CreatedAt            time.Time      `json:"created_at"`
-	UpdatedAt            time.Time      `json:"updated_at"`
-	DeletedAt            gorm.DeletedAt `gorm:"index" json:"-"`
+	ID                   uint           `gorm:"primaryKey;column:id" db:"id" json:"id"`
+	LembarPemantauanID   uint           `gorm:"column:lembar_pemantauan_id;not null;index" db:"lembar_pemantauan_id" json:"lembar_pemantauan_id"`
+	KategoriTandaSakitID uint           `gorm:"column:kategori_tanda_sakit_id;not null;index" db:"kategori_tanda_sakit_id" json:"kategori_tanda_sakit_id"`
+	IsTerjadi            bool           `gorm:"column:is_terjadi;not null" db:"is_terjadi" json:"is_terjadi"`
+	CreatedAt            time.Time      `gorm:"column:created_at" db:"created_at" json:"created_at"`
+	UpdatedAt            time.Time      `gorm:"column:updated_at" db:"updated_at" json:"updated_at"`
+	DeletedAt            gorm.DeletedAt `gorm:"column:deleted_at;index" json:"-"`
 
-	LembarPemantauan   LembarPemantauan   `gorm:"foreignKey:LembarPemantauanID;references:ID;constraint:OnDelete:CASCADE" json:"-"`
-	KategoriTandaSakit KategoriTandaSakit `gorm:"foreignKey:KategoriTandaSakitID;references:ID" json:"kategori_tanda_sakit,omitempty"`
+	LembarPemantauan   *LembarPemantauan   `gorm:"foreignKey:LembarPemantauanID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE" json:"-"`
+	KategoriTandaSakit *KategoriTandaSakit `gorm:"foreignKey:KategoriTandaSakitID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT" json:"kategori_tanda_sakit,omitempty"`
 }
 
 func (DetailPemantauan) TableName() string {
@@ -82,41 +83,44 @@ func (DetailPemantauan) TableName() string {
 
 // ==================== REQUEST MODELS ====================
 
-// DetailPemantauanDetailRequest - Detail gejala dalam request
 type DetailPemantauanDetailRequest struct {
-	KategoriTandaSakitID int32 `json:"kategori_tanda_sakit_id" validate:"required"`
-	IsTerjadi            bool  `json:"is_terjadi"` // true = gejala terjadi, false = tidak
+	KategoriTandaSakitID uint `json:"kategori_tanda_sakit_id" validate:"required"`
+	IsTerjadi            bool `json:"is_terjadi"`
 }
 
-// LembarPemantauanRequest - Request untuk create/update lembar pemantauan
 type LembarPemantauanRequest struct {
-	AnakID         int32                           `json:"anak_id" validate:"required"`
-	RentangUsiaID  int32                           `json:"rentang_usia_id" validate:"required"`
+	AnakID         uint                            `json:"anak_id" validate:"required"`
+	RentangUsiaID  uint                            `json:"rentang_usia_id" validate:"required"`
 	PeriodeWaktu   int                             `json:"periode_waktu" validate:"required,min=1"`
-	TanggalPeriksa string                          `json:"tanggal_periksa" validate:"required"` // Format: YYYY-MM-DD
-	NamaPemeriksa  string                          `json:"nama_pemeriksa" validate:"required"`
+	TanggalPeriksa string                          `json:"tanggal_periksa" validate:"required"`
+	NamaPemeriksa  string                          `json:"nama_pemeriksa"`
 	DetailGejala   []DetailPemantauanDetailRequest `json:"detail_gejala" validate:"required,dive"`
 }
 
-// Validate - Validasi request
 func (r *LembarPemantauanRequest) Validate() error {
-	if r.AnakID <= 0 {
-		return errors.New("anak_id harus lebih dari 0")
+	if r.AnakID <= 0 || r.RentangUsiaID <= 0 || r.PeriodeWaktu <= 0 {
+		return errors.New("anak_id, rentang_usia_id, dan periode_waktu harus lebih dari 0")
 	}
-	if r.RentangUsiaID <= 0 {
-		return errors.New("rentang_usia_id harus lebih dari 0")
-	}
-	if r.PeriodeWaktu <= 0 {
-		return errors.New("periode_waktu harus lebih dari 0")
-	}
-	if r.TanggalPeriksa == "" {
-		return errors.New("tanggal_periksa tidak boleh kosong")
-	}
-	if r.NamaPemeriksa == "" {
-		return errors.New("nama_pemeriksa tidak boleh kosong")
+	if _, err := time.Parse("2006-01-02", r.TanggalPeriksa); err != nil {
+		return errors.New("format tanggal_periksa harus YYYY-MM-DD")
 	}
 	if len(r.DetailGejala) == 0 {
 		return errors.New("detail_gejala wajib diisi minimal 1")
+	}
+	return nil
+}
+
+type LembarPemantauanVerifikasiRequest struct {
+	NamaPemeriksa string `json:"nama_pemeriksa" validate:"required"`
+	Status        string `json:"status" validate:"required,oneof='Diterima' 'Ditolak'"`
+}
+
+func (r *LembarPemantauanVerifikasiRequest) Validate() error {
+	if r.NamaPemeriksa == "" {
+		return errors.New("nama_pemeriksa tidak boleh kosong saat melakukan verifikasi")
+	}
+	if r.Status != "Diterima" && r.Status != "Ditolak" {
+		return errors.New("status hanya boleh diisi 'Diterima' atau 'Ditolak'")
 	}
 	return nil
 }
