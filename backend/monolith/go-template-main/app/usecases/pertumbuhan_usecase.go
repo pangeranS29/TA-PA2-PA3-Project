@@ -1,8 +1,11 @@
 package usecases
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"math"
+	"net/http"
 	"time"
 
 	"monitoring-service/app/models"
@@ -71,6 +74,7 @@ func (u *pertumbuhanUseCase) AddCatatanPertumbuhan(req *models.CreatePertumbuhan
 		BeratBadan:    req.BeratBadan,
 		TinggiBadan:   req.TinggiBadan,
 		LingkarKepala: req.LingkarKepala,
+		HasilLila:     req.HasilLila,
 		CatatanNakes:  req.CatatanNakes,
 	}
 
@@ -86,6 +90,46 @@ func (u *pertumbuhanUseCase) AddCatatanPertumbuhan(req *models.CreatePertumbuhan
 
 	// Hitung Z-Scores dan Status
 	u.calculateAllStatuses(catatan, gender)
+
+	// Panggil ML prediction service (jika tersedia) untuk override TBU
+	// Default ke localhost:8000 jika tidak ada konfigurasi khusus
+	mlGender := gender
+	if mlGender == "" {
+		mlGender = "Laki-laki" // default fallback
+	}
+	payload := map[string]interface{}{
+		"bb":             catatan.BeratBadan,
+		"tb":             catatan.TinggiBadan,
+		"lila":           catatan.HasilLila,
+		"lingkar_kepala": catatan.LingkarKepala,
+		"umur":           catatan.UsiaUkurBulan,
+		"jenis_kelamin":  mlGender,
+	}
+
+	body, err := json.Marshal(payload)
+	if err == nil {
+		resp, err := http.Post("http://localhost:8000/predict", "application/json", bytes.NewBuffer(body))
+		if err == nil {
+			defer resp.Body.Close()
+			if resp.StatusCode == http.StatusOK {
+				var pr models.PrediksiResponse
+				if err := json.NewDecoder(resp.Body).Decode(&pr); err == nil {
+					// Override TBU fields with ML output
+					catatan.ZScoreTBU = pr.ZScoreTBU
+					catatan.StatusTBU = pr.StatusTBU
+
+					// Append ML recommendations into catatan_nakes
+					if pr.Rekomendasi != "" {
+						if catatan.CatatanNakes == "" {
+							catatan.CatatanNakes = "[ML REKOMENDASI] " + pr.Rekomendasi
+						} else {
+							catatan.CatatanNakes = catatan.CatatanNakes + "\n[ML REKOMENDASI] " + pr.Rekomendasi
+						}
+					}
+				}
+			}
+		}
+	}
 
 	return u.repo.CreateCatatanPertumbuhan(catatan)
 }
@@ -123,6 +167,7 @@ func (u *pertumbuhanUseCase) GetRiwayatPertumbuhan(anakID int32) ([]models.Catat
 			BeratBadan:    val.BeratBadan,
 			TinggiBadan:   val.TinggiBadan,
 			LingkarKepala: val.LingkarKepala,
+			HasilLila:     val.HasilLila,
 			IMT:           math.Round(val.IMT*100) / 100,
 			StatusBBU:     val.StatusBBU,
 			StatusTBU:     val.StatusTBU,
@@ -162,6 +207,7 @@ func (u *pertumbuhanUseCase) GetDetailCatatanPertumbuhan(id int32) (*models.Cata
 		BeratBadan:    val.BeratBadan,
 		TinggiBadan:   val.TinggiBadan,
 		LingkarKepala: val.LingkarKepala,
+		HasilLila:     val.HasilLila,
 		IMT:           math.Round(val.IMT*100) / 100,
 		StatusBBU:     val.StatusBBU,
 		StatusTBU:     val.StatusTBU,
@@ -200,6 +246,9 @@ func (u *pertumbuhanUseCase) UpdateCatatanPertumbuhan(id int32, req *models.Upda
 	}
 	if req.LingkarKepala > 0 {
 		data.LingkarKepala = req.LingkarKepala
+	}
+	if req.HasilLila > 0 {
+		data.HasilLila = req.HasilLila
 	}
 	if req.CatatanNakes != "" {
 		data.CatatanNakes = req.CatatanNakes

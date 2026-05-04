@@ -61,6 +61,7 @@ type CatatanPertumbuhanResponse struct {
 	BeratBadan    float64 `json:"berat_badan"`
 	TinggiBadan   float64 `json:"tinggi_badan"`
 	LingkarKepala float64 `json:"lingkar_kepala"`
+	HasilLila     float64 `json:"hasil_lila"`
 	IMT           float64 `json:"imt"`
 
 	// Status Gizi (Permenkes 2/2020)

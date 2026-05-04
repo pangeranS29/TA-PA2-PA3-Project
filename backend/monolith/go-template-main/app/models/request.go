@@ -252,6 +252,7 @@ type CreatePertumbuhanRequest struct {
 	BeratBadan    float64 `json:"berat_badan" binding:"required"`
 	TinggiBadan   float64 `json:"tinggi_badan" binding:"required"`
 	LingkarKepala float64 `json:"lingkar_kepala,omitempty"`
+	HasilLila     float64 `json:"hasil_lila,omitempty"`
 	CatatanNakes  string  `json:"catatan_nakes,omitempty"`
 }
 
@@ -260,6 +261,7 @@ type UpdatePertumbuhanRequest struct {
 	BeratBadan    float64 `json:"berat_badan"`
 	TinggiBadan   float64 `json:"tinggi_badan"`
 	LingkarKepala float64 `json:"lingkar_kepala,omitempty"`
+	HasilLila     float64 `json:"hasil_lila,omitempty"`
 	CatatanNakes  string  `json:"catatan_nakes,omitempty"`
 }
 

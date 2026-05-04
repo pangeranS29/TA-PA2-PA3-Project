@@ -1,12 +1,14 @@
 """
-Script untuk training model prediksi stunting menggunakan dataset Stunting.csv
-Target: Prediksi stunting berdasarkan BB, TB, LILA, Lingkar Kepala
+Script untuk training model prediksi stunting menggunakan dataset ML service.
+
+Model dilatih dari kolom yang benar-benar tersedia di dataset agar alur training
+dan inference tetap konsisten dengan service FastAPI.
 """
 
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler, LabelEncoder
+from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from sklearn.metrics import classification_report, confusion_matrix, roc_auc_score
 import xgboost as xgb
@@ -76,33 +78,22 @@ def load_and_prepare_data(csv_path):
     # Clean column names (remove whitespace)
     df.columns = df.columns.str.strip()
     
-    # Parse umur ke bulan
+    # Parse umur ke bulan dan pastikan kolom numerik bersih
     df['Usia_Bulan'] = df['Usia Saat Ukur'].apply(parse_age)
+    for col in ['Berat', 'Tinggi', 'LiLA', 'ZS TB/U']:
+        df[col] = pd.to_numeric(df[col], errors='coerce')
     
     # Create stunting label (target variable)
     df['Stunting_Label'] = df['ZS TB/U'].apply(create_stunting_label)
-    
-    # Encode jenis kelamin (assumed dari data, jika ada)
-    # Jika tidak ada, default ke 0 (Laki-laki)
-    df['Jenis_Kelamin_Encoded'] = 0  # Default
-    
-    # Pilih features yang akan digunakan untuk model
-    features = ['Berat', 'Tinggi', 'LiLA', 'Berat', 'Usia_Bulan']
-    
-    # Rename untuk clarity
-    df['Berat_Saat_Ukur'] = df['Berat']
-    df['Tinggi_Saat_Ukur'] = df['Tinggi']
+
+    # Gunakan fitur yang tersedia di dataset tanpa proxy yang menyesatkan.
+    # Service inference akan menyesuaikan diri dengan metadata fitur ini.
     df['LILA'] = df['LiLA']
-    df['Lingkar_Kepala'] = df['Berat']  # NOTE: Dataset tidak punya lingkar kepala, using berat as proxy
-    
-    # Features untuk model
     X_features = [
-        'Berat_Saat_Ukur',      # Berat Badan saat ukur (kg)
-        'Tinggi_Saat_Ukur',     # Tinggi Badan saat ukur (cm)
-        'LILA',                 # Lingkar Lengan Atas (cm)
-        'Lingkar_Kepala',       # Lingkar Kepala proxy (cm)
-        'Usia_Bulan',           # Umur saat ukur (bulan)
-        'Jenis_Kelamin_Encoded' # Jenis Kelamin (0=Laki-laki, 1=Perempuan)
+        'Berat',      # Berat badan saat ukur (kg)
+        'Tinggi',     # Tinggi badan saat ukur (cm)
+        'LILA',       # Lingkar Lengan Atas (cm)
+        'Usia_Bulan', # Umur saat ukur (bulan)
     ]
     
     # Remove rows dengan missing values di features atau target

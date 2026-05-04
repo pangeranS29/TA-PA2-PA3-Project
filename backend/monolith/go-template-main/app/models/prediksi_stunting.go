@@ -66,11 +66,13 @@ type PrediksiStuntingRequest struct {
 }
 
 // PrediksiResponse - response dari Python service
+// Field z_score_tb_u_estimated sesuai dengan output FastAPI ML service
 type PrediksiResponse struct {
-	StuntingRisk  float64 `json:"stunting_risk"`
+	StuntingRisk   float64 `json:"stunting_risk"`
 	Classification string  `json:"classification"`
-	Confidence    float64 `json:"confidence"`
-	ZScoreTBU     float64 `json:"z_score_tb_u"`
-	StatusTBU     string  `json:"status_tb_u"`
-	Rekomendasi   string  `json:"rekomendasi"`
+	Confidence     float64 `json:"confidence"`
+	ZScoreTBU      float64 `json:"z_score_tb_u_estimated"` // nama field di ML service
+	StatusTBU      string  `json:"status_tb_u"`
+	Rekomendasi    string  `json:"rekomendasi"`
+	Message        string  `json:"message"`
 }
