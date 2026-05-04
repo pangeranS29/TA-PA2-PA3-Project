@@ -36,19 +36,45 @@ func (u *pemantauanpertumbuhanUseCase) Create(req models.CreatePemantauanPemerik
 		return errors.New("anak_id wajib diisi")
 	}
 
+	if req.TenagaKesehatanID == 0 {
+		return errors.New("tenaga_kesehatan_id wajib diisi")
+	}
+
 	now := time.Now()
 
-	// Parse Tanggal
-	tgl, _ := time.Parse("2006-01-02", req.Tanggal)
+	// Parse Tanggal (mendukung format YYYY-MM-DD dan ISO 8601)
+	var tgl time.Time
+	if req.Tanggal != "" {
+		// Coba format ISO 8601 dulu (dari frontend)
+		if t, err := time.Parse(time.RFC3339, req.Tanggal); err == nil {
+			tgl = t
+		} else if t, err := time.Parse("2006-01-02", req.Tanggal); err == nil {
+			tgl = t
+		}
+	}
+
 	if tgl.IsZero() {
 		tgl = now
 	}
 
 	var kunjunganUlang *time.Time
 	if req.KunjunganUlang != "" {
-		if ku, err := time.Parse("2006-01-02", req.KunjunganUlang); err == nil {
+		if ku, err := time.Parse(time.RFC3339, req.KunjunganUlang); err == nil {
+			kunjunganUlang = &ku
+		} else if ku, err := time.Parse("2006-01-02", req.KunjunganUlang); err == nil {
 			kunjunganUlang = &ku
 		}
+	}
+
+	// Default values untuk field NOT NULL
+	hasilPKAT := req.HasilPKAT
+	if hasilPKAT == "" {
+		hasilPKAT = "Normal" // Default jika kosong
+	}
+
+	tindakan := req.Tindakan
+	if tindakan == "" {
+		tindakan = "Pemberian stimulasi sesuai usia" // Default jika kosong
 	}
 
 	pemeriksaan := models.DeteksiDiniPenyimpangan{
@@ -67,8 +93,8 @@ func (u *pemantauanpertumbuhanUseCase) Create(req models.CreatePemantauanPemerik
 		KMPE:              req.KMPE,
 		MCHATRevised:      req.MCHATRevised,
 		ACTRS:             req.ACTRS,
-		HasilPKAT:         req.HasilPKAT,
-		Tindakan:          req.Tindakan,
+		HasilPKAT:         hasilPKAT,
+		Tindakan:          tindakan,
 		KunjunganUlang:    kunjunganUlang,
 		CreatedAt:         now,
 		UpdatedAt:         now,
