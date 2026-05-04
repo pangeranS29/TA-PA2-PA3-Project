@@ -113,9 +113,9 @@ func (c *IbuController) Update(ctx echo.Context) error {
 		})
 	}
 
-	if req.StatusKehamilan != "" {
-		existing.StatusKehamilan = req.StatusKehamilan
-	}
+	// if req.StatusKehamilan != "" {
+	// 	existing.StatusKehamilan = req.StatusKehamilan
+	// }
 
 	if err := c.usecase.Update(existing); err != nil {
 		return ctx.JSON(http.StatusInternalServerError, models.Response{
@@ -147,5 +147,20 @@ func (c *IbuController) Delete(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, models.Response{
 		StatusCode: http.StatusOK,
 		Message:    "deleted",
+	})
+}
+func (c *IbuController) GetDashboard(ctx echo.Context) error {
+	list, err := c.usecase.GetDashboard()
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, models.Response{
+			StatusCode: 500,
+			Message:    err.Error(),
+		})
+	}
+
+	return ctx.JSON(http.StatusOK, models.Response{
+		StatusCode: 200,
+		Message:    "Dashboard ibu hamil",
+		Data:       list,
 	})
 }

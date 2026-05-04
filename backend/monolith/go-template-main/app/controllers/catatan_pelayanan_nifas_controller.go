@@ -19,40 +19,59 @@ func NewCatatanPelayananNifasController(u usecases.CatatanPelayananNifasUsecase)
 	return &CatatanPelayananNifasController{usecase: u}
 }
 
+// controllers/catatan_pelayanan_nifas_controller.go
+
 type createCatatanNifasRequest struct {
 	KehamilanID                     int32  `json:"kehamilan_id"`
+	KunjunganKe                     string `json:"kunjungan_ke"`
 	TanggalPeriksaStampParaf        string `json:"tanggal_periksa_stamp_paraf"`
 	KeluhanPemeriksaanTindakanSaran string `json:"keluhan_pemeriksaan_tindakan_saran"`
 	TanggalKembali                  string `json:"tanggal_kembali"`
+	// JANGAN ADA ID DI SINI!
 }
+// controllers/catatan_pelayanan_nifas_controller.go
+
+// controllers/catatan_pelayanan_nifas_controller.go
 
 func (c *CatatanPelayananNifasController) Create(ctx echo.Context) error {
-	claims, _ := ctx.Get("auth_claims").(*models.AuthClaims)
-	if claims == nil {
-		return ctx.JSON(http.StatusUnauthorized, models.Response{StatusCode: http.StatusUnauthorized, Message: "Unauthorized"})
-	}
-	var req createCatatanNifasRequest
-	if err := ctx.Bind(&req); err != nil {
-		return ctx.JSON(http.StatusBadRequest, models.Response{StatusCode: http.StatusBadRequest, Message: err.Error()})
-	}
-	catatan := &models.CatatanPelayananNifas{
-		KehamilanID:                     req.KehamilanID,
-		KeluhanPemeriksaanTindakanSaran: req.KeluhanPemeriksaanTindakanSaran,
-	}
-	if req.TanggalPeriksaStampParaf != "" {
-		if t, err := time.Parse("2006-01-02", req.TanggalPeriksaStampParaf); err == nil {
-			catatan.TanggalPeriksaStampParaf = &t
-		}
-	}
-	if req.TanggalKembali != "" {
-		if t, err := time.Parse("2006-01-02", req.TanggalKembali); err == nil {
-			catatan.TanggalKembali = &t
-		}
-	}
-	if err := c.usecase.Create(catatan); err != nil {
-		return ctx.JSON(http.StatusInternalServerError, models.Response{StatusCode: http.StatusInternalServerError, Message: err.Error()})
-	}
-	return ctx.JSON(http.StatusCreated, models.Response{StatusCode: http.StatusCreated, Data: catatan})
+    claims, _ := ctx.Get("auth_claims").(*models.AuthClaims)
+    if claims == nil {
+        return ctx.JSON(http.StatusUnauthorized, models.Response{StatusCode: http.StatusUnauthorized, Message: "Unauthorized"})
+    }
+    
+    var req createCatatanNifasRequest
+    if err := ctx.Bind(&req); err != nil {
+        return ctx.JSON(http.StatusBadRequest, models.Response{StatusCode: http.StatusBadRequest, Message: err.Error()})
+    }
+    
+    // Set default kunjungan_ke jika kosong
+    kunjunganKe := req.KunjunganKe
+    if kunjunganKe == "" {
+        kunjunganKe = "KF1"
+    }
+    
+    catatan := &models.CatatanPelayananNifas{
+        KehamilanID:                     req.KehamilanID,
+        KunjunganKe:                     kunjunganKe,
+        KeluhanPemeriksaanTindakanSaran: req.KeluhanPemeriksaanTindakanSaran,
+    }
+    // JANGAN SET ID_CATATAN_NIFAS - biarkan auto increment
+    
+    if req.TanggalPeriksaStampParaf != "" {
+        if t, err := time.Parse("2006-01-02", req.TanggalPeriksaStampParaf); err == nil {
+            catatan.TanggalPeriksaStampParaf = &t
+        }
+    }
+    if req.TanggalKembali != "" {
+        if t, err := time.Parse("2006-01-02", req.TanggalKembali); err == nil {
+            catatan.TanggalKembali = &t
+        }
+    }
+    
+    if err := c.usecase.Create(catatan); err != nil {
+        return ctx.JSON(http.StatusInternalServerError, models.Response{StatusCode: http.StatusInternalServerError, Message: err.Error()})
+    }
+    return ctx.JSON(http.StatusCreated, models.Response{StatusCode: http.StatusCreated, Data: catatan})
 }
 
 func (c *CatatanPelayananNifasController) GetByID(ctx echo.Context) error {

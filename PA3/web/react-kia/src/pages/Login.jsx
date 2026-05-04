@@ -1,7 +1,7 @@
 // src/pages/Login.jsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getUserRedirectRoute, login } from "../services/auth";
+import { login, getCurrentUser, getUserRedirectRoute } from "../services/auth";
 
 const Login = () => {
   const [identifier, setIdentifier] = useState("");

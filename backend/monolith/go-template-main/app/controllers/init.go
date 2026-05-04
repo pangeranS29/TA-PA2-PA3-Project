@@ -49,7 +49,7 @@ type Main struct {
 	CatatanPelayananTrimester2    *CatatanPelayananTrimester2Controller
 	CatatanPelayananTrimester3    *CatatanPelayananTrimester3Controller
 	CatatanPelayananNifas         *CatatanPelayananNifasController
-	GrafikEvaluasiKehamilan       *GrafikEvaluasiKehamilanController
+	// GrafikEvaluasiKehamilan       *GrafikEvaluasiKehamilanController
 	GrafikPeningkatanBB           *GrafikPeningkatanBBController
 	PenjelasanHasilGrafik         *PenjelasanHasilGrafikController
 	RencanaPersalinan             *RencanaPersalinanController
@@ -127,7 +127,7 @@ func Init(opts Options) *Main {
 	m.CatatanPelayananTrimester2 = NewCatatanPelayananTrimester2Controller(opts.UseCases.CatatanPelayananTrimester2)
 	m.CatatanPelayananTrimester3 = NewCatatanPelayananTrimester3Controller(opts.UseCases.CatatanPelayananTrimester3)
 	m.CatatanPelayananNifas = NewCatatanPelayananNifasController(opts.UseCases.CatatanPelayananNifas)
-	m.GrafikEvaluasiKehamilan = NewGrafikEvaluasiKehamilanController(opts.UseCases.GrafikEvaluasiKehamilan)
+	// m.GrafikEvaluasiKehamilan = NewGrafikEvaluasiKehamilanController(opts.UseCases.GrafikEvaluasiKehamilan)
 	m.GrafikPeningkatanBB = NewGrafikPeningkatanBBController(opts.UseCases.GrafikPeningkatanBB)
 	m.PenjelasanHasilGrafik = NewPenjelasanHasilGrafikController(opts.UseCases.PenjelasanHasilGrafik)
 	m.RencanaPersalinan = NewRencanaPersalinanController(opts.UseCases.RencanaPersalinan)

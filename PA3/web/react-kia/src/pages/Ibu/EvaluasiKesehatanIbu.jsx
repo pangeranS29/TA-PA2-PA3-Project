@@ -1,6 +1,6 @@
 // src/pages/Ibu/EvaluasiKesehatanIbu.jsx
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams, Link } from "react-router-dom";
 import MainLayout from "../../components/Layout/MainLayout";
 import { getKehamilanByIbuId } from "../../services/kehamilan";
 import {
@@ -37,8 +37,14 @@ const CheckboxGroup = ({ title, items, form, handleChange }) => (
 );
 
 export default function EvaluasiKesehatanIbu() {
-  const { id } = useParams();
+  const { id: ibuId } = useParams();
+  const [searchParams] = useSearchParams();
+  const kehamilanId = searchParams.get("kehamilan_id");
   const navigate = useNavigate();
+
+  const user = getCurrentUser();
+  const isDokter = isDokterUser(user);
+  
   const [kehamilan, setKehamilan] = useState(null);
   const [evaluasi, setEvaluasi] = useState(null);
   const [riwayatList, setRiwayatList] = useState([]);
@@ -114,15 +120,100 @@ export default function EvaluasiKesehatanIbu() {
               if (riwayat) setRiwayatList(riwayat);
             } catch { /* ignore */ }
           }
+        } else {
+          targetKehamilan = kehamilanList[0];
+        }
+        setKehamilan(targetKehamilan);
+
+        // ✅ Tentukan status aktif (NON-AKTIF = tidak aktif)
+        const status = targetKehamilan.status_kehamilan || "";
+        const aktif = status !== "NON-AKTIF";
+        setIsActive(aktif);
+
+        const evalData = await getEvaluasiByKehamilanId(targetKehamilan.id);
+        if (evalData && evalData.length > 0) {
+          const e = evalData[0];
+          setEvaluasi(e);
+          setForm({
+            nama_dokter: e.nama_dokter || "",
+            tanggal_periksa: e.tanggal_periksa ? e.tanggal_periksa.split("T")[0] : new Date().toISOString().split("T")[0],
+            fasilitas_kesehatan: e.fasilitas_kesehatan || "",
+            tb_cm: e.tb_cm ?? "",
+            bb_kg: e.bb_kg ?? "",
+            imt_kategori: e.imt_kategori || "",
+            lila_cm: e.lila_cm ?? "",
+            status_tt_1: e.status_tt_1 || false,
+            status_tt_2: e.status_tt_2 || false,
+            status_tt_3: e.status_tt_3 || false,
+            status_tt_4: e.status_tt_4 || false,
+            status_tt_5: e.status_tt_5 || false,
+            imunisasi_lainnya_covid19: e.imunisasi_lainnya_covid19 || "",
+            riwayat_alergi: e.riwayat_alergi || false,
+            riwayat_asma: e.riwayat_asma || false,
+            riwayat_autoimun: e.riwayat_autoimun || false,
+            riwayat_diabetes: e.riwayat_diabetes || false,
+            riwayat_hepatitis_b: e.riwayat_hepatitis_b || false,
+            riwayat_hipertensi: e.riwayat_hipertensi || false,
+            riwayat_jantung: e.riwayat_jantung || false,
+            riwayat_jiwa: e.riwayat_jiwa || false,
+            riwayat_sifilis: e.riwayat_sifilis || false,
+            riwayat_tb: e.riwayat_tb || false,
+            riwayat_kesehatan_lainnya: e.riwayat_kesehatan_lainnya || "",
+            perilaku_aktivitas_fisik_kurang: e.perilaku_aktivitas_fisik_kurang || false,
+            perilaku_alkohol: e.perilaku_alkohol || false,
+            perilaku_kosmetik_berbahaya: e.perilaku_kosmetik_berbahaya || false,
+            perilaku_merokok: e.perilaku_merokok || false,
+            perilaku_obat_teratogenik: e.perilaku_obat_teratogenik || false,
+            perilaku_pola_makan_berisiko: e.perilaku_pola_makan_berisiko || false,
+            perilaku_lainnya: e.perilaku_lainnya || "",
+            keluarga_alergi: e.keluarga_alergi || false,
+            keluarga_asma: e.keluarga_asma || false,
+            keluarga_autoimun: e.keluarga_autoimun || false,
+            keluarga_diabetes: e.keluarga_diabetes || false,
+            keluarga_hepatitis_b: e.keluarga_hepatitis_b || false,
+            keluarga_hipertensi: e.keluarga_hipertensi || false,
+            keluarga_jantung: e.keluarga_jantung || false,
+            keluarga_jiwa: e.keluarga_jiwa || false,
+            keluarga_sifilis: e.keluarga_sifilis || false,
+            keluarga_tb: e.keluarga_tb || false,
+            keluarga_lainnya: e.keluarga_lainnya || "",
+            inspeksi_porsio: e.inspeksi_porsio || "",
+            inspeksi_uretra: e.inspeksi_uretra || "",
+            inspeksi_vagina: e.inspeksi_vagina || "",
+            inspeksi_vulva: e.inspeksi_vulva || "",
+            inspeksi_fluksus: e.inspeksi_fluksus || "",
+            inspeksi_fluor: e.inspeksi_fluor || "",
+          });
+          try {
+            const riwayat = await getRiwayatKehamilanByEvaluasiId(e.id_evaluasi);
+            if (riwayat) setRiwayatList(riwayat);
+          } catch (err) {
+            console.error("Gagal load riwayat:", err);
+          }
+        } else {
+          setEvaluasi(null);
+          setRiwayatList([]);
         }
       } catch (err) {
         console.error(err);
+        alert("Gagal memuat data");
       } finally {
         setLoading(false);
       }
     };
-    fetchData();
-  }, [id]);
+    if (ibuId) fetchData();
+  }, [ibuId, kehamilanId, navigate]);
+
+  // Validasi form (sama)
+  const validateForm = () => {
+    const newErrors = {};
+    if (!form.tanggal_periksa) newErrors.tanggal_periksa = "Tanggal periksa wajib diisi";
+    if (form.tb_cm && (isNaN(parseFloat(form.tb_cm)) || parseFloat(form.tb_cm) <= 0)) newErrors.tb_cm = "TB harus angka > 0";
+    if (form.bb_kg && (isNaN(parseFloat(form.bb_kg)) || parseFloat(form.bb_kg) <= 0)) newErrors.bb_kg = "BB harus angka > 0";
+    if (form.lila_cm && (isNaN(parseFloat(form.lila_cm)) || parseFloat(form.lila_cm) <= 0)) newErrors.lila_cm = "LILA harus angka > 0";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -131,7 +222,18 @@ export default function EvaluasiKesehatanIbu() {
 
   const handleSubmitEvaluasi = async (e) => {
     e.preventDefault();
-    if (!kehamilan) return;
+    if (!canEdit) {
+      alert("Tidak dapat mengedit karena kehamilan sudah selesai (NON-AKTIF).");
+      return;
+    }
+    if (!kehamilan) {
+      alert("Kehamilan tidak ditemukan");
+      return;
+    }
+    if (!validateForm()) {
+      alert("Mohon perbaiki data yang bermasalah.");
+      return;
+    }
     setSaving(true);
     try {
       const payload = {
@@ -141,12 +243,14 @@ export default function EvaluasiKesehatanIbu() {
         bb_kg: parseFloat(form.bb_kg) || null,
         lila_cm: parseFloat(form.lila_cm) || null,
       };
+      let savedEvaluasi;
       if (evaluasi) {
         await updateEvaluasi(evaluasi.id_evaluasi, payload);
+        savedEvaluasi = { ...evaluasi, ...payload };
       } else {
-        const created = await createEvaluasi(payload);
-        setEvaluasi(created);
+        savedEvaluasi = await createEvaluasi(payload);
       }
+      setEvaluasi(savedEvaluasi);
       alert("Evaluasi kesehatan ibu berhasil disimpan");
       navigate(`/data-ibu/${id}/skrining-preeklampsia`);
     } catch (err) {
@@ -182,14 +286,20 @@ export default function EvaluasiKesehatanIbu() {
 
   return (
     <MainLayout>
-      <div className="p-6 max-w-5xl mx-auto">
+      <div className="p-6 max-w-5xl">
+        {/* <Breadcrumb /> */}
+
         <div className="flex items-center gap-4 mb-6">
           <button type="button" onClick={() => navigate(-1)} className="p-2 rounded-full hover:bg-gray-100 transition-colors">
             <ArrowLeft size={20} />
           </button>
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Evaluasi Kesehatan Ibu</h1>
-            <p className="text-gray-500">Lakukan pemeriksaan dasar dan skrining risiko.</p>
+            {/* {kehamilan && !isActive && (
+              <p className="text-red-500 text-sm flex items-center gap-1 mt-1">
+                <EyeOff size={14} /> Kehamilan sudah selesai (NON-AKTIF) – data hanya dapat dilihat.
+              </p>
+            )} */}
           </div>
         </div>
 
@@ -350,6 +460,14 @@ export default function EvaluasiKesehatanIbu() {
             </div>
           </div>
         )}
+
+        {!canEdit && isActive && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-6 text-blue-700 text-sm flex items-center gap-2">
+            <Eye size={16} /> Anda dalam mode baca (Bidan). Data hanya dapat dilihat, tidak dapat diubah.
+          </div>
+        )}
+
+        {isEditing ? <EvaluationForm /> : <EvaluationView />}
       </div>
     </MainLayout>
   );
