@@ -28,8 +28,6 @@ func AutoMigrate(db *gorm.DB) error {
 		&DetailPerkembanganAnak{},
 
 		&Ibu{},
-		&KategoriTandaBahaya{},
-		&SkriningPemantauan{},
 		&KartuKeluarga{},
 		&Kependudukan{},
 

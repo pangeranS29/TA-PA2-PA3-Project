@@ -329,22 +329,6 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	// tenaga.PUT("/pemeriksaan-lanjutan-t3/:id", controller.PemeriksaanLanjutanTrimester3.Update)
 	// tenaga.DELETE("/pemeriksaan-lanjutan-t3/:id", controller.PemeriksaanLanjutanTrimester3.Delete)
 
-	// ==================== KATEGORI TANDA BAHAYA ====================
-	tenaga.GET("/kategori-tanda-bahaya", controller.KategoriTandaBahaya.GetAll)
-	tenaga.POST("/kategori-tanda-bahaya", controller.KategoriTandaBahaya.Create)
-	tenaga.GET("/kategori-tanda-bahaya/:id", controller.KategoriTandaBahaya.Detail)
-	tenaga.GET("/kategori-tanda-bahaya/filter", controller.KategoriTandaBahaya.GetByTipeAndKategoriUsia)
-	tenaga.PUT("/kategori-tanda-bahaya/:id", controller.KategoriTandaBahaya.Update)
-	tenaga.DELETE("/kategori-tanda-bahaya/:id", controller.KategoriTandaBahaya.Delete)
-
-	// ==================== SKRINING PEMANTAUAN TANDA BAHAYA ====================
-	tenaga.GET("/skrining-pemantauan", controller.SkriningPemantauan.GetAll)
-	tenaga.POST("/skrining-pemantauan", controller.SkriningPemantauan.Create)
-	tenaga.GET("/skrining-pemantauan/:id", controller.SkriningPemantauan.Detail)
-	tenaga.GET("/skrining-pemantauan/anak/:anak_id", controller.SkriningPemantauan.GetByAnakID)
-	tenaga.PUT("/skrining-pemantauan/:id", controller.SkriningPemantauan.Update)
-	tenaga.DELETE("/skrining-pemantauan/:id", controller.SkriningPemantauan.Delete)
-
 	// ==================== PEMANTAUAN INDIKATOR ====================
 	tenaga.GET("/pemantauan-indikator", controller.PemantauanIndikator.GetAll)
 	tenaga.POST("/pemantauan-indikator", controller.PemantauanIndikator.Create)
