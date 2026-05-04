@@ -54,20 +54,20 @@ export default function IbuDetail() {
   }, [id, kehamilanId]);
 
   // Breadcrumb component
-  const Breadcrumb = () => {
-    const namaIbu = ibu?.kependudukan?.nama_lengkap || "Detail Ibu";
-    return (
-      <div className="flex items-center gap-2 text-sm text-gray-500 mb-4 flex-wrap">
-        <Link to="/dashboard" className="hover:text-indigo-600 flex items-center gap-1">
-          <Home size={14} /> Beranda
-        </Link>
-        <ChevronRight size={14} />
-        <Link to="/data-ibu" className="hover:text-indigo-600">Data Ibu</Link>
-        <ChevronRight size={14} />
-        <span className="text-gray-700 font-medium">{namaIbu}</span>
-      </div>
-    );
-  };
+  // const Breadcrumb = () => {
+  //   const namaIbu = ibu?.kependudukan?.nama_lengkap || "Detail Ibu";
+  //   return (
+  //     <div className="flex items-center gap-2 text-sm text-gray-500 mb-4 flex-wrap">
+  //       <Link to="/dashboard" className="hover:text-indigo-600 flex items-center gap-1">
+  //         <Home size={14} /> Beranda
+  //       </Link>
+  //       <ChevronRight size={14} />
+  //       <Link to="/data-ibu" className="hover:text-indigo-600">Data Ibu</Link>
+  //       <ChevronRight size={14} />
+  //       <span className="text-gray-700 font-medium">{namaIbu}</span>
+  //     </div>
+  //   );
+  // };
 
   if (loading) return <MainLayout><div className="p-6">Memuat...</div></MainLayout>;
   if (!ibu) return <MainLayout><div className="p-6">Data ibu tidak ditemukan</div></MainLayout>;
@@ -98,7 +98,7 @@ export default function IbuDetail() {
     <MainLayout>
       <div className="p-6 max-w-7xl mx-auto">
         {/* Breadcrumb */}
-        <Breadcrumb />
+        {/* <Breadcrumb /> */}
 
         {/* Header */}
         <div className="flex flex-wrap justify-between items-center mb-6">

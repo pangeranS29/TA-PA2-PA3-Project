@@ -89,24 +89,24 @@ export default function EvaluasiKesehatanIbu() {
   });
 
   // Breadcrumb
-  const Breadcrumb = () => {
-    if (!kehamilan) return null;
-    return (
-      <div className="flex items-center gap-2 text-sm text-gray-500 mb-4 flex-wrap">
-        <Link to="/dashboard" className="hover:text-indigo-600 flex items-center gap-1">
-          <Home size={14} /> Beranda
-        </Link>
-        <span>/</span>
-        <Link to="/data-ibu" className="hover:text-indigo-600">Data Ibu</Link>
-        <span>/</span>
-        <Link to={`/data-ibu/${ibuId}?kehamilan_id=${kehamilan.id}`} className="hover:text-indigo-600">
-          Detail Ibu
-        </Link>
-        <span>/</span>
-        <span className="text-gray-700 font-medium">Evaluasi Kesehatan Ibu</span>
-      </div>
-    );
-  };
+  // const Breadcrumb = () => {
+  //   if (!kehamilan) return null;
+  //   return (
+  //     <div className="flex items-center gap-2 text-sm text-gray-500 mb-4 flex-wrap">
+  //       <Link to="/dashboard" className="hover:text-indigo-600 flex items-center gap-1">
+  //         <Home size={14} /> Beranda
+  //       </Link>
+  //       <span>/</span>
+  //       <Link to="/data-ibu" className="hover:text-indigo-600">Data Ibu</Link>
+  //       <span>/</span>
+  //       <Link to={`/data-ibu/${ibuId}?kehamilan_id=${kehamilan.id}`} className="hover:text-indigo-600">
+  //         Detail Ibu
+  //       </Link>
+  //       <span>/</span>
+  //       <span className="text-gray-700 font-medium">Evaluasi Kesehatan Ibu</span>
+  //     </div>
+  //   );
+  // };
 
   // Ambil nama user yang login
   useEffect(() => {
@@ -672,7 +672,7 @@ export default function EvaluasiKesehatanIbu() {
   return (
     <MainLayout>
       <div className="p-6 max-w-5xl">
-        <Breadcrumb />
+        {/* <Breadcrumb /> */}
 
         <div className="flex items-center gap-4 mb-6">
           <button onClick={() => navigate(-1)} className="p-2 rounded-full hover:bg-gray-100">
@@ -680,11 +680,11 @@ export default function EvaluasiKesehatanIbu() {
           </button>
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Evaluasi Kesehatan Ibu</h1>
-            {kehamilan && !isActive && (
+            {/* {kehamilan && !isActive && (
               <p className="text-red-500 text-sm flex items-center gap-1 mt-1">
                 <EyeOff size={14} /> Kehamilan sudah selesai (NON-AKTIF) – data hanya dapat dilihat.
               </p>
-            )}
+            )} */}
           </div>
         </div>
 
