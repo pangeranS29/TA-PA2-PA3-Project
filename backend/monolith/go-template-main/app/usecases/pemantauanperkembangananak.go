@@ -1,9 +1,12 @@
 package usecases
 
 import (
+	"bytes"
+	"encoding/json"
 	"errors"
 	"monitoring-service/app/models"
 	"monitoring-service/app/repositories"
+	"net/http"
 	"time"
 )
 
@@ -126,6 +129,39 @@ func (u *pemantauanpertumbuhanUseCase) Create(req models.CreatePemantauanPemerik
 				catatan.UsiaUkurBulan = catatan.HitungUsiaBulan(tglLahir)
 			} else {
 				catatan.UsiaUkurBulan = req.Bulanke
+			}
+
+			// Panggil ML prediction service sebelum menyimpan, agar hasil ML tersimpan bersama catatan
+			payload := map[string]interface{}{
+				"bb": catatan.BeratBadan,
+				"tb": catatan.TinggiBadan,
+				"lila": catatan.LingkarKepala,
+				"lingkar_kepala": catatan.LingkarKepala,
+				"umur": catatan.UsiaUkurBulan,
+			}
+			if b, err := json.Marshal(payload); err == nil {
+				if resp, err := http.Post("http://localhost:8000/predict", "application/json", bytes.NewBuffer(b)); err == nil {
+					defer resp.Body.Close()
+					if resp.StatusCode == http.StatusOK {
+						var pr models.PrediksiResponse
+						if err := json.NewDecoder(resp.Body).Decode(&pr); err == nil {
+							// override fields from ML jika tersedia
+							if pr.ZScoreTBU != 0 {
+								catatan.ZScoreTBU = pr.ZScoreTBU
+							}
+							if pr.StatusTBU != "" {
+								catatan.StatusTBU = pr.StatusTBU
+							}
+							if pr.Rekomendasi != "" {
+								if catatan.CatatanNakes == "" {
+									catatan.CatatanNakes = "[ML REKOMENDASI] " + pr.Rekomendasi
+								} else {
+									catatan.CatatanNakes = catatan.CatatanNakes + "\n[ML REKOMENDASI] " + pr.Rekomendasi
+								}
+							}
+						}
+					}
+				}
 			}
 
 			// Simpan ke repositori pertumbuhan

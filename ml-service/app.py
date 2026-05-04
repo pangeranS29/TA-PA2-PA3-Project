@@ -4,6 +4,7 @@ Endpoint untuk menerima data pengukuran anak dan melakukan prediksi
 """
 
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 import joblib
 import numpy as np
@@ -21,6 +22,15 @@ app = FastAPI(
     title="Stunting Prediction Service",
     description="ML Service untuk prediksi stunting anak",
     version="1.0.0"
+)
+
+# ── CORS ── izinkan request dari frontend React
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173", "*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # Model & Scaler paths
@@ -44,8 +54,8 @@ class PredictStuntingRequest(BaseModel):
     """Request untuk prediksi stunting"""
     bb: float = Field(..., description="Berat Badan (kg)", ge=0, le=50)
     tb: float = Field(..., description="Tinggi Badan (cm)", ge=30, le=150)
-    lila: float = Field(..., description="Lingkar Lengan Atas (cm)", ge=5, le=35)
-    lingkar_kepala: float = Field(..., description="Lingkar Kepala (cm)", ge=20, le=60)
+    lila: float = Field(..., description="Lingkar Lengan Atas (cm)", ge=0, le=35)
+    lingkar_kepala: float = Field(default=0, description="Lingkar Kepala (cm)", ge=0, le=60)
     umur: int = Field(..., description="Umur saat ukur (bulan)", ge=0, le=60)
     jenis_kelamin: JenisKelaminEnum = Field(..., description="Jenis Kelamin")
     
@@ -91,12 +101,54 @@ def load_model_and_scaler():
         model = joblib.load(MODEL_PATH)
         scaler = joblib.load(SCALER_PATH)
         feature_names = joblib.load(FEATURES_PATH)
+
+        if not isinstance(feature_names, list) or not feature_names:
+            raise ValueError("Metadata feature tidak valid")
         
         logger.info("✅ Model, scaler, dan features berhasil di-load")
         return True
     except Exception as e:
         logger.error(f"❌ Error loading model: {str(e)}")
         return False
+
+def build_feature_vector(request: PredictStuntingRequest) -> np.ndarray:
+    """Bangun feature vector sesuai metadata fitur model."""
+    jenis_kelamin_encoded = 1 if request.jenis_kelamin == JenisKelaminEnum.PEREMPUAN else 0
+
+    feature_value_map = {
+        "bb": request.bb,
+        "berat": request.bb,
+        "berat_saat_ukur": request.bb,
+        "tb": request.tb,
+        "tinggi": request.tb,
+        "tinggi_saat_ukur": request.tb,
+        "lila": request.lila,
+        "lingkar_lengan_atas": request.lila,
+        "lingkar_kepala": request.lingkar_kepala,
+        "umur": float(request.umur),
+        "usia_bulan": float(request.umur),
+        "jenis_kelamin": float(jenis_kelamin_encoded),
+        "jenis_kelamin_encoded": float(jenis_kelamin_encoded),
+    }
+
+    feature_row = []
+    missing_features = []
+
+    for feature_name in feature_names or []:
+        normalized_name = feature_name.strip().lower().replace(" ", "_")
+        value = feature_value_map.get(normalized_name)
+        if value is None:
+            missing_features.append(feature_name)
+            value = 0.0
+        feature_row.append(float(value))
+
+    if missing_features:
+        logger.warning(
+            "⚠️ Feature berikut tidak ditemukan di request dan diisi 0.0: %s",
+            ", ".join(missing_features),
+        )
+
+    return np.array([feature_row], dtype=float)
 
 def classify_stunting(risk_percentage: float, z_score: float) -> tuple[str, str]:
     """
@@ -224,18 +276,8 @@ async def predict_stunting(request: PredictStuntingRequest):
                 detail="Model belum di-load. Silakan coba beberapa saat lagi."
             )
         
-        # Encode jenis kelamin
-        jenis_kelamin_encoded = 1 if request.jenis_kelamin == JenisKelaminEnum.PEREMPUAN else 0
-        
-        # Prepare features sesuai urutan training
-        features = np.array([[
-            request.bb,                 # Berat Badan
-            request.tb,                 # Tinggi Badan
-            request.lila,               # LILA
-            request.lingkar_kepala,     # Lingkar Kepala
-            request.umur,               # Umur (bulan)
-            jenis_kelamin_encoded       # Jenis Kelamin
-        ]])
+        # Prepare features sesuai metadata training
+        features = build_feature_vector(request)
         
         # Scale features
         features_scaled = scaler.transform(features)
