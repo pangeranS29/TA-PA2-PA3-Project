@@ -27,20 +27,21 @@ func AutoMigrate(db *gorm.DB) error {
 		&LembarPerkembanganAnak{},
 		&DetailPerkembanganAnak{},
 
-		// &Ibu{},
-		// &KategoriTandaBahaya{},
-		// &SkriningPemantauan{},
-		// &KartuKeluarga{},
-		// &Kependudukan{},
+		&Ibu{},
+		&KategoriTandaBahaya{},
+		&SkriningPemantauan{},
+		&KartuKeluarga{},
+		&Kependudukan{},
 
 		// Relasi utama
+		// Relasi utama
 		// &ibu
-		// &Kehamilan{},
-		// &Anak{},
-		// &Role{},
-		// &User{},
-		// &Bidan{},
-		// &Kader{},
+		&Kehamilan{},
+		&Anak{},
+		&Role{},
+		&User{},
+		&Bidan{},
+		&Kader{},
 
 		// &Anak{},
 
@@ -63,11 +64,14 @@ func AutoMigrate(db *gorm.DB) error {
 		// &CatatanPelayanan{},
 		// &KehadiranImunisasi{},
 		// &DetailPelayananImunisasi{},
-		// &PeriksaGigi{},
-		// &DeteksiDiniPenyimpangan{},
-		// &PengukuranLila{},
-		// &CatatanPertumbuhan{},
-		// &MasterStandarAntropometri{},
+		&PeriksaGigi{},
+		&DeteksiDiniPenyimpangan{},
+		&PengukuranLila{},
+		&CatatanPertumbuhan{},
+		&MasterStandarAntropometri{},
+
+		// Prediksi Stunting (ML Service)
+		&PrediksiStunting{},
 
 		// Kehamilan detail
 		// &PemeriksaanKehamilan{},

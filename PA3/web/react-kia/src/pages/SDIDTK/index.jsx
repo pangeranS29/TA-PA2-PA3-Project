@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, X, Save, UserCheck, ClipboardCheck, Loader2 } from 'lucide-react';
+import { useParams } from 'react-router-dom';
 import MainLayout from "../../components/Layout/MainLayout";
 import { getCurrentUser } from '../../services/auth';
 import { sdidtkService } from '../../services/SDIDTk';
 
-const FormSDIDTK = ({ idAnak = 1 }) => {
+const FormSDIDTK = () => {
+  const { id: idAnakParam } = useParams();
+  const idAnak = idAnakParam || 1;
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [dataList, setDataList] = useState([]);
@@ -40,12 +43,19 @@ const FormSDIDTK = ({ idAnak = 1 }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const nakesId = Number(userLogin?.user_id || userLogin?.id);
+    if (!nakesId || nakesId === 0) {
+      alert("Sesi login tidak valid. Silakan login ulang.");
+      return;
+    }
+
     setIsLoading(true);
 
     const payload = {
       anak_id: Number(idAnak),
       bulan_ke: Number(formData.bulan_ke),
-      tenaga_kesehatan_id: userLogin?.id || 2,
+      tenaga_kesehatan_id: nakesId,
       bb_u: formData.bb_u,
       bb_tb: formData.bb_tb,
       tb_u: formData.tb_u,
@@ -62,13 +72,20 @@ const FormSDIDTK = ({ idAnak = 1 }) => {
       kunjungan_ulang: formData.kunjungan_ulang ? sdidtkService.formatToISO(formData.kunjungan_ulang) : null
     };
 
+    console.log("Mengirim payload SDIDTK:", payload);
+
     try {
       await sdidtkService.create(payload);
+      alert("Data berhasil disimpan!");
       setIsModalOpen(false);
       resetForm();
       loadData();
     } catch (err) {
-      alert("Gagal menyimpan data ke server!");
+      console.error("Gagal simpan SDIDTK. Detail error:", err);
+      const status = err.response?.status;
+      const serverMsg = err.response?.data?.message || err.message;
+      const serverDetail = err.response?.data?.error || "";
+      alert(`Gagal menyimpan data ke server! (Status: ${status})\nDetail: ${serverMsg}${serverDetail ? `\n${serverDetail}` : ""}`);
     } finally {
       setIsLoading(false);
     }
@@ -86,7 +103,7 @@ const FormSDIDTK = ({ idAnak = 1 }) => {
   // --- MAPPING OPTIONS (Label Panjang, Value Kode DB) ---
   const optBBU = [{ label: "Normal", value: "N" }, { label: "Berat Badan Kurang", value: "K" }, { label: "Sangat Kurang", value: "SK" }, { label: "Risiko BB Lebih", value: "RBBL" }, { label: "Gizi Normal", value: "GN" }];
   const optBBTB = [{ label: "Gizi Baik (Normal)", value: "GN" }, { label: "Gizi Kurang", value: "GK" }, { label: "Gizi Buruk", value: "GB" }, { label: "Risiko Gizi Lebih", value: "RGL" }, { label: "Obesitas", value: "O" }, { label: "Normal", value: "N" }];
-  const optTBU = [{ label: "Normal", value: "N" }, { label: "Pendek (Stunted)", value: "P" }, { label: "Sangat Pendek", value: "SP" }, { label: "Tinggi", value: "Ti" }];
+  const optTBU = [{ label: "Normal", value: "N" }, { label: "Tidak Normal", value: "TN" }];
   const optLila = [{ label: "Normal", value: "N" }, { label: "Gizi Kurang", value: "GK" }, { label: "Gizi Buruk", value: "BG" }];
   const optLKU = [{ label: "Normal", value: "N" }, { label: "Mikrosefali", value: "Mi" }, { label: "Makrosefali", value: "Ma" }];
   const optKPSP = [{ label: "Sesuai Usia", value: "Ds" }, { label: "Meragukan", value: "Dm" }, { label: "Penyimpangan", value: "Dp" }, { label: "Sesuai", value: "S" }];
@@ -136,7 +153,7 @@ const FormSDIDTK = ({ idAnak = 1 }) => {
                   <tr key={row.id} className="hover:bg-blue-50/30 transition-colors">
                     <td className="p-4 font-black text-gray-900 border-r">{row.bulan_ke}</td>
                     <td className="p-2 border-r">{row.bb_u}</td><td className="p-2 border-r">{row.bb_tb}</td>
-                    <td className="p-2 border-r">{row.tb_u}</td><td className="p-2 border-r">{row.lk_u}</td>
+                    <td className="p-2 border-r">{decodeTBU(row.tb_u)}</td><td className="p-2 border-r">{row.lk_u}</td>
                     <td className="p-2 border-r">{row.lila}</td><td className="p-2 border-r">{row.kpsp}</td>
                     <td className="p-2 border-r">{row.tdd}</td><td className="p-2 border-r">{row.tdl}</td>
                     <td className="p-2 border-r">{row.kmpe}</td><td className="p-2 border-r">{row.m_chat_revised}</td>
@@ -224,6 +241,11 @@ const FormSDIDTK = ({ idAnak = 1 }) => {
 };
 
 // --- HELPERS ---
+const decodeTBU = (val) => {
+  const map = { N: "Normal", TN: "Tidak Normal", SP: "Tidak Normal", P: "Tidak Normal", Ti: "Normal" };
+  return map[val] ?? val ?? "-";
+};
+
 const InputField = ({ label, ...props }) => (
   <div className="flex flex-col gap-1.5">
     <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest">{label}</label>
