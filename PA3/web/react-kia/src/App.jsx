@@ -19,6 +19,7 @@ import IbuList from "./pages/Ibu/IbuList";
 import IbuDetail from "./pages/Ibu/IbuDetail";
 import IbuEdit from "./pages/Ibu/IbuEdit";
 import SkriningPreeklampsia from "./pages/Ibu/SkriningPreeklampsia";
+import SkriningDMG from"./pages/Ibu/SkriningDMG";
 import PemeriksaanFisik from "./pages/Ibu/PemeriksaanFisik";
 import GrafikEvaluasiKehamilan from "./pages/Ibu/GrafikEvaluasiKehamilan";
 import GrafikPeningkatanBB from "./pages/Ibu/GrafikPeningkatanBB";
@@ -67,6 +68,10 @@ import PemeriksaanDokterT3CompleteEntry from "./pages/Ibu/PemeriksaanDokterT3Com
 import PemeriksaanDokterT3CompleteDetail from "./pages/Ibu/PemeriksaanDokterT3CompleteDetail";
 import PemeriksaanDokterT3Complete from "./pages/Ibu/PemeriksaanDokterT3Complete";
 
+//Dokter
+import ProtectedRoute from "./components/ProtectedRoute";
+import DokterDashboard from "./pages/Dokter/index";
+
 const HomeRedirect = () => {
   if (!isAuthenticated()) {
     return <Navigate to="/login" replace />;
@@ -83,7 +88,7 @@ function App() {
 
         {/* PROTECTED */}
         <Route element={<PrivateRoute />}>
-          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/dashboard/bidan" element={<Dashboard />} />
           
           {/* Kependudukan */}
           <Route path="/kependudukan" element={<KependudukanList />} />
@@ -95,7 +100,7 @@ function App() {
           <Route path="/data-ibu" element={<IbuList />} />
           <Route path="/data-ibu/:id" element={<IbuDetail />} />
           <Route path="/data-ibu/:id/edit" element={<IbuEdit />} />
-          <Route path="/data-ibu/:id/rencana-persalinan" element={<RencanaPersalinanRedirect />} />
+          {/* <Route path="/data-ibu/:id/rencana-persalinan" element={<RencanaPersalinanRedirect />} /> */}
           <Route path="/data-ibu/:id/rencana-persalinan/form" element={<RencanaPersalinanForm />} />
           <Route path="/data-ibu/:id/rencana-persalinan/detail" element={<RencanaPersalinanDetail />} />
 
@@ -111,6 +116,7 @@ function App() {
 
           {/* Ibu Lainnya */}
           <Route path="/data-ibu/:id/skrining-preeklampsia" element={<SkriningPreeklampsia />} />
+          <Route path="/data-ibu/:id/Skrining-Diabetes-Melitus-Gestasional" element={<SkriningDMG />} />
           <Route path="/data-ibu/:id/skrining-dashboard" element={<SkriningDashboard />} />
           <Route path="/data-ibu/:id/pemeriksaan-fisik" element={<PemeriksaanFisik />} />
           <Route path="/data-ibu/:id/grafik-evaluasi" element={<GrafikEvaluasiKehamilan />} />
@@ -153,6 +159,7 @@ function App() {
         <Route path="/data-anak/pelayanan-gizi/:id" element={<PelayananGiziIndex />} />
         <Route path="/data-anak/pelayanan-gizi/:id/create" element={<PelayananGiziCreate />} />
 
+        <Route path="/dashboard/dokter" element={<ProtectedRoute allowedRoles={["dokter"]}> <DokterDashboard /></ProtectedRoute>}/>
         <Route path="/" element={<HomeRedirect />} />
         <Route path="*" element={<HomeRedirect />} />
       </Routes>

@@ -1,6 +1,6 @@
 // src/pages/Ibu/PelayananPersalinan.jsx
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import MainLayout from "../../components/Layout/MainLayout";
 import { getKehamilanByIbuId } from "../../services/kehamilan";
 import {
@@ -14,7 +14,7 @@ import {
   createKeteranganLahir,
   updateKeteranganLahir,
 } from "../../services/prosesMelahirkan";
-import { Save, ArrowLeft, Edit2, CheckCircle, Printer } from "lucide-react";
+import { Save, ArrowLeft, Edit2, CheckCircle, Printer, Plus, Home } from "lucide-react";
 
 // ============================================================
 // KOMPONEN DETAIL ITEM
@@ -23,6 +23,27 @@ const DetailItem = ({ label, value }) => (
   <div className="flex flex-col">
     <span className="text-xs text-gray-500 font-medium uppercase tracking-wide">{label}</span>
     <span className="text-sm text-gray-800 font-semibold mt-0.5">{value ?? "-"}</span>
+  </div>
+);
+
+// ============================================================
+// KOMPONEN EMPTY STATE
+// ============================================================
+const EmptyState = ({ title, message, onAdd }) => (
+  <div className="bg-white rounded-xl shadow-sm p-8 text-center">
+    <div className="flex flex-col items-center gap-4">
+      <div className="p-4 bg-indigo-50 rounded-full">
+        <Plus size={40} className="text-indigo-400" />
+      </div>
+      <h3 className="text-xl font-semibold text-gray-800">{title}</h3>
+      <p className="text-gray-500 max-w-md">{message}</p>
+      <button
+        onClick={onAdd}
+        className="bg-indigo-600 text-white px-6 py-2.5 rounded-lg font-semibold flex items-center gap-2 hover:bg-indigo-700 transition"
+      >
+        <Plus size={18} /> Tambah Data
+      </button>
+    </div>
   </div>
 );
 
@@ -176,7 +197,7 @@ const SuratKeteranganLahir = ({ data }) => (
               {data?.alamat_orang_tua || ""}
             </span>
           </td>
-          <td className="py-1 px-2 whitespace-nowrap">RW/RW</td>
+          <td className="py-1 px-2 whitespace-nowrap">RW/RT</td>
           <td className="py-1" colSpan={2}>
             <span className="border-b border-dotted border-gray-400 block w-full"></span>
           </td>
@@ -227,9 +248,10 @@ export default function PelayananPersalinan() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  const [modeRingkasan, setModeRingkasan] = useState("form");
-  const [modeRiwayat, setModeRiwayat] = useState("form");
-  const [modeKeterangan, setModeKeterangan] = useState("form");
+  // Mode: "empty" -> belum ada data, "detail" -> tampilkan data, "form" -> tampilkan form input
+  const [modeRingkasan, setModeRingkasan] = useState("empty");
+  const [modeRiwayat, setModeRiwayat] = useState("empty");
+  const [modeKeterangan, setModeKeterangan] = useState("empty");
 
   const [ringkasan, setRingkasan] = useState(null);
   const [formRingkasan, setFormRingkasan] = useState({
@@ -262,6 +284,26 @@ export default function PelayananPersalinan() {
     nama_penolong_kelahiran: "",
   });
 
+  // Breadcrumb component
+  const Breadcrumb = () => {
+    if (!kehamilan) return null;
+    return (
+      <div className="flex items-center gap-2 text-sm text-gray-500 mb-4 flex-wrap">
+        <Link to="/dashboard" className="hover:text-indigo-600 flex items-center gap-1">
+          <Home size={14} /> Beranda
+        </Link>
+        <span>/</span>
+        <Link to="/data-ibu" className="hover:text-indigo-600">Data Ibu</Link>
+        <span>/</span>
+        <Link to={`/data-ibu/${id}?kehamilan_id=${kehamilan.id}`} className="hover:text-indigo-600">
+          Detail Ibu
+        </Link>
+        <span>/</span>
+        <span className="text-gray-700 font-medium">Proses & Riwayat Melahirkan</span>
+      </div>
+    );
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -290,6 +332,8 @@ export default function PelayananPersalinan() {
               asuhan_imd_1_jam_pertama: d.asuhan_imd_1_jam_pertama || false,
             });
             setModeRingkasan("detail");
+          } else {
+            setModeRingkasan("empty");
           }
 
           const dRiwayat = await getRiwayatMelahirkanByKehamilanId(aktif.id);
@@ -306,6 +350,8 @@ export default function PelayananPersalinan() {
               tindakan_sc: d.tindakan_sc || false,
             });
             setModeRiwayat("detail");
+          } else {
+            setModeRiwayat("empty");
           }
         }
 
@@ -330,12 +376,14 @@ export default function PelayananPersalinan() {
             nama_bayi_diberi_nama: d.nama_bayi_diberi_nama || "",
             nama_ibu: d.nama_ibu || "",
             nik_ibu: d.nik_ibu || "",
-            nama_ayah: d.nama_ayah || "", 
+            nama_ayah: d.nama_ayah || "",
             pekerjaan_orang_tua: d.pekerjaan_orang_tua || "",
             alamat_orang_tua: d.alamat_orang_tua || "",
             nama_penolong_kelahiran: d.nama_penolong_kelahiran || "",
           });
           setModeKeterangan("detail");
+        } else {
+          setModeKeterangan("empty");
         }
       } catch (err) {
         console.error(err);
@@ -370,6 +418,26 @@ export default function PelayananPersalinan() {
         setRingkasan(saved);
       }
       setModeRingkasan("detail");
+      // Refresh data agar tampilan detail terbaru
+      const dRingkasan = await getRingkasanPersalinanByKehamilanId(kehamilan.id);
+      if (dRingkasan && dRingkasan.length > 0) {
+        const d = dRingkasan[0];
+        setFormRingkasan({
+          tanggal_melahirkan: d.tanggal_melahirkan ? d.tanggal_melahirkan.split("T")[0] : "",
+          umur_kehamilan_minggu: d.umur_kehamilan_minggu ?? "",
+          penolong_proses_melahirkan: d.penolong_proses_melahirkan || "",
+          cara_melahirkan: d.cara_melahirkan || "",
+          keadaan_ibu: d.keadaan_ibu || "",
+          kb_pasca_melahirkan: d.kb_pasca_melahirkan || "",
+          bayi_anak_ke: d.bayi_anak_ke ?? "",
+          bayi_berat_lahir_gram: d.bayi_berat_lahir_gram ?? "",
+          bayi_panjang_badan_cm: d.bayi_panjang_badan_cm ?? "",
+          bayi_lingkar_kepala_cm: d.bayi_lingkar_kepala_cm ?? "",
+          bayi_jenis_kelamin: d.bayi_jenis_kelamin || "",
+          kondisi_bayi_segera_menangis: d.kondisi_bayi_segera_menangis || false,
+          asuhan_imd_1_jam_pertama: d.asuhan_imd_1_jam_pertama || false,
+        });
+      }
     } catch (err) {
       const msg = err.response?.data?.message || err.response?.data?.error || err.message;
       alert(`Gagal menyimpan.\nError: ${msg}`);
@@ -395,6 +463,19 @@ export default function PelayananPersalinan() {
         setRiwayat(saved);
       }
       setModeRiwayat("detail");
+      const dRiwayat = await getRiwayatMelahirkanByKehamilanId(kehamilan.id);
+      if (dRiwayat && dRiwayat.length > 0) {
+        const d = dRiwayat[0];
+        setFormRiwayat({
+          g_gravida: d.g_gravida ?? "",
+          p_partus: d.p_partus ?? "",
+          a_abortus: d.a_abortus ?? "",
+          tanggal_melahirkan: d.tanggal_melahirkan ? d.tanggal_melahirkan.split("T")[0] : "",
+          fasyankes_tempat_melahirkan: d.fasyankes_tempat_melahirkan || "",
+          cara_melahirkan_spontan: d.cara_melahirkan_spontan || false,
+          tindakan_sc: d.tindakan_sc || false,
+        });
+      }
     } catch (err) {
       const msg = err.response?.data?.message || err.response?.data?.error || err.message;
       alert(`Gagal menyimpan.\nError: ${msg}`);
@@ -421,6 +502,32 @@ export default function PelayananPersalinan() {
         setKeterangan(saved);
       }
       setModeKeterangan("detail");
+      const dKeterangan = await getKeteranganLahirByIbuId(id);
+      if (dKeterangan && dKeterangan.length > 0) {
+        const d = dKeterangan[0];
+        setFormKeterangan({
+          nomor_surat: d.nomor_surat || "",
+          hari_lahir: d.hari_lahir || "",
+          tanggal_lahir: d.tanggal_lahir ? d.tanggal_lahir.split("T")[0] : "",
+          pukul_lahir: d.pukul_lahir || "",
+          jenis_kelamin: d.jenis_kelamin || "",
+          jenis_kelahiran: d.jenis_kelahiran || "",
+          anak_ke: d.anak_ke ?? "",
+          usia_gestasi_minggu: d.usia_gestasi_minggu ?? "",
+          berat_lahir_gram: d.berat_lahir_gram ?? "",
+          panjang_badan_cm: d.panjang_badan_cm ?? "",
+          lingkar_kepala_cm: d.lingkar_kepala_cm ?? "",
+          lokasi_persalinan: d.lokasi_persalinan || "",
+          alamat_lokasi_persalinan: d.alamat_lokasi_persalinan || "",
+          nama_bayi_diberi_nama: d.nama_bayi_diberi_nama || "",
+          nama_ibu: d.nama_ibu || "",
+          nik_ibu: d.nik_ibu || "",
+          nama_ayah: d.nama_ayah || "",
+          pekerjaan_orang_tua: d.pekerjaan_orang_tua || "",
+          alamat_orang_tua: d.alamat_orang_tua || "",
+          nama_penolong_kelahiran: d.nama_penolong_kelahiran || "",
+        });
+      }
     } catch (err) {
       const msg = err.response?.data?.message || err.response?.data?.error || err.message;
       alert(`Gagal menyimpan.\nError: ${msg}`);
@@ -462,7 +569,10 @@ export default function PelayananPersalinan() {
 
   return (
     <MainLayout>
-      <div className="p-6 max-w-5xl mx-auto">
+      <div className="p-6 max-w-5xl">
+        {/* Breadcrumb */}
+        <Breadcrumb />
+
         {/* Header */}
         <div className="flex items-center gap-4 mb-6">
           <button onClick={() => navigate(-1)} className="p-2 rounded-full hover:bg-gray-100">
@@ -483,267 +593,295 @@ export default function PelayananPersalinan() {
 
         {/* ===== RINGKASAN ===== */}
         {activeTab === "ringkasan" && (
-          modeRingkasan === "detail" ? (
-            <div className="bg-white rounded-xl shadow-sm p-6 space-y-5">
-              <div className="flex justify-between items-center">
-                <div className="flex items-center gap-2 text-green-600">
-                  <CheckCircle size={20} />
-                  <h2 className="text-lg font-semibold text-gray-800">Ringkasan Pelayanan Persalinan</h2>
+          <>
+            {modeRingkasan === "detail" && (
+              <div className="bg-white rounded-xl shadow-sm p-6 space-y-5">
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center gap-2 text-green-600">
+                    <CheckCircle size={20} />
+                    <h2 className="text-lg font-semibold text-gray-800">Ringkasan Pelayanan Persalinan</h2>
+                  </div>
+                  <button onClick={() => setModeRingkasan("form")}
+                    className="flex items-center gap-2 text-sm text-indigo-600 border border-indigo-300 px-3 py-1.5 rounded-lg hover:bg-indigo-50">
+                    <Edit2 size={14} /> Edit
+                  </button>
                 </div>
-                <button onClick={() => setModeRingkasan("form")}
-                  className="flex items-center gap-2 text-sm text-indigo-600 border border-indigo-300 px-3 py-1.5 rounded-lg hover:bg-indigo-50">
-                  <Edit2 size={14} /> Edit
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-5 bg-gray-50 rounded-lg p-4">
+                  <DetailItem label="Tanggal Melahirkan" value={formRingkasan.tanggal_melahirkan} />
+                  <DetailItem label="Umur Kehamilan (Mgg)" value={formRingkasan.umur_kehamilan_minggu} />
+                  <DetailItem label="Penolong Persalinan" value={formRingkasan.penolong_proses_melahirkan} />
+                  <DetailItem label="Cara Melahirkan" value={formRingkasan.cara_melahirkan} />
+                  <DetailItem label="Keadaan Ibu" value={formRingkasan.keadaan_ibu} />
+                  <DetailItem label="KB Pasca Salin" value={formRingkasan.kb_pasca_melahirkan} />
+                </div>
+                <hr />
+                <p className="font-semibold text-gray-700">Keadaan Bayi Saat Lahir</p>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-5 bg-gray-50 rounded-lg p-4">
+                  <DetailItem label="Anak Ke" value={formRingkasan.bayi_anak_ke} />
+                  <DetailItem label="Berat (gram)" value={formRingkasan.bayi_berat_lahir_gram} />
+                  <DetailItem label="Panjang (cm)" value={formRingkasan.bayi_panjang_badan_cm} />
+                  <DetailItem label="Lingkar Kepala (cm)" value={formRingkasan.bayi_lingkar_kepala_cm} />
+                  <DetailItem label="Jenis Kelamin" value={formRingkasan.bayi_jenis_kelamin} />
+                  <DetailItem label="Segera Menangis" value={formRingkasan.kondisi_bayi_segera_menangis ? "Ya" : "Tidak"} />
+                  <DetailItem label="IMD 1 Jam Pertama" value={formRingkasan.asuhan_imd_1_jam_pertama ? "Ya" : "Tidak"} />
+                </div>
+              </div>
+            )}
+            {modeRingkasan === "empty" && (
+              <EmptyState
+                title="Belum Ada Ringkasan Persalinan"
+                message="Silakan isi ringkasan pelayanan persalinan untuk ibu ini."
+                onAdd={() => setModeRingkasan("form")}
+              />
+            )}
+            {modeRingkasan === "form" && (
+              <form onSubmit={submitRingkasan} className="bg-white rounded-xl shadow-sm p-6 space-y-6">
+                <h2 className="text-lg font-semibold text-indigo-700">Ringkasan Pelayanan Persalinan</h2>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div><label className="block text-sm font-medium mb-1">Tanggal Melahirkan</label>
+                    <input type="date" name="tanggal_melahirkan" value={formRingkasan.tanggal_melahirkan}
+                      onChange={(e) => handleChange(e, setFormRingkasan)} className="w-full border rounded px-3 py-2" /></div>
+                  <div><label className="block text-sm font-medium mb-1">Umur Kehamilan (Mgg)</label>
+                    <input type="number" name="umur_kehamilan_minggu" value={formRingkasan.umur_kehamilan_minggu}
+                      onChange={(e) => handleChange(e, setFormRingkasan)} className="w-full border rounded px-3 py-2" /></div>
+                  <div><label className="block text-sm font-medium mb-1">Penolong Persalinan</label>
+                    <input name="penolong_proses_melahirkan" value={formRingkasan.penolong_proses_melahirkan}
+                      onChange={(e) => handleChange(e, setFormRingkasan)} className="w-full border rounded px-3 py-2" /></div>
+                  <div><label className="block text-sm font-medium mb-1">Cara Melahirkan</label>
+                    <select name="cara_melahirkan" value={formRingkasan.cara_melahirkan}
+                      onChange={(e) => handleChange(e, setFormRingkasan)} className="w-full border rounded px-3 py-2">
+                      <option value="">-- Pilih --</option>
+                      <option>Spontan/Normal</option><option>SC</option><option>Vakum</option>
+                    </select></div>
+                  <div><label className="block text-sm font-medium mb-1">Keadaan Ibu</label>
+                    <input name="keadaan_ibu" value={formRingkasan.keadaan_ibu}
+                      onChange={(e) => handleChange(e, setFormRingkasan)} className="w-full border rounded px-3 py-2" /></div>
+                  <div><label className="block text-sm font-medium mb-1">KB Pasca Salin</label>
+                    <input name="kb_pasca_melahirkan" value={formRingkasan.kb_pasca_melahirkan}
+                      onChange={(e) => handleChange(e, setFormRingkasan)} className="w-full border rounded px-3 py-2" /></div>
+                </div>
+                <hr />
+                <h3 className="font-semibold text-gray-800">Keadaan Bayi Saat Lahir</h3>
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <div><label className="block text-sm font-medium mb-1">Anak Ke</label>
+                    <input type="number" name="bayi_anak_ke" value={formRingkasan.bayi_anak_ke}
+                      onChange={(e) => handleChange(e, setFormRingkasan)} className="w-full border rounded px-3 py-2" /></div>
+                  <div><label className="block text-sm font-medium mb-1">Berat (gram)</label>
+                    <input type="number" name="bayi_berat_lahir_gram" value={formRingkasan.bayi_berat_lahir_gram}
+                      onChange={(e) => handleChange(e, setFormRingkasan)} className="w-full border rounded px-3 py-2" /></div>
+                  <div><label className="block text-sm font-medium mb-1">Panjang (cm)</label>
+                    <input type="number" name="bayi_panjang_badan_cm" value={formRingkasan.bayi_panjang_badan_cm}
+                      onChange={(e) => handleChange(e, setFormRingkasan)} className="w-full border rounded px-3 py-2" /></div>
+                  <div><label className="block text-sm font-medium mb-1">Lingkar Kepala (cm)</label>
+                    <input type="number" name="bayi_lingkar_kepala_cm" value={formRingkasan.bayi_lingkar_kepala_cm}
+                      onChange={(e) => handleChange(e, setFormRingkasan)} className="w-full border rounded px-3 py-2" /></div>
+                  <div><label className="block text-sm font-medium mb-1">Jenis Kelamin</label>
+                    <select name="bayi_jenis_kelamin" value={formRingkasan.bayi_jenis_kelamin}
+                      onChange={(e) => handleChange(e, setFormRingkasan)} className="w-full border rounded px-3 py-2">
+                      <option value="">-- Pilih --</option>
+                      <option>Laki-laki</option><option>Perempuan</option>
+                    </select></div>
+                </div>
+                <div className="flex gap-6">
+                  <label className="flex items-center gap-2">
+                    <input type="checkbox" name="kondisi_bayi_segera_menangis"
+                      checked={formRingkasan.kondisi_bayi_segera_menangis}
+                      onChange={(e) => handleChange(e, setFormRingkasan)} className="w-4 h-4" /> Segera Menangis
+                  </label>
+                  <label className="flex items-center gap-2">
+                    <input type="checkbox" name="asuhan_imd_1_jam_pertama"
+                      checked={formRingkasan.asuhan_imd_1_jam_pertama}
+                      onChange={(e) => handleChange(e, setFormRingkasan)} className="w-4 h-4" /> IMD 1 Jam Pertama
+                  </label>
+                </div>
+                <button type="submit" disabled={saving}
+                  className="bg-indigo-600 text-white px-6 py-2 rounded-lg flex items-center gap-2 hover:bg-indigo-700">
+                  <Save size={18} /> {saving ? "Menyimpan..." : "Simpan Ringkasan"}
                 </button>
-              </div>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-5 bg-gray-50 rounded-lg p-4">
-                <DetailItem label="Tanggal Melahirkan" value={formRingkasan.tanggal_melahirkan} />
-                <DetailItem label="Umur Kehamilan (Mgg)" value={formRingkasan.umur_kehamilan_minggu} />
-                <DetailItem label="Penolong Persalinan" value={formRingkasan.penolong_proses_melahirkan} />
-                <DetailItem label="Cara Melahirkan" value={formRingkasan.cara_melahirkan} />
-                <DetailItem label="Keadaan Ibu" value={formRingkasan.keadaan_ibu} />
-                <DetailItem label="KB Pasca Salin" value={formRingkasan.kb_pasca_melahirkan} />
-              </div>
-              <hr />
-              <p className="font-semibold text-gray-700">Keadaan Bayi Saat Lahir</p>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-5 bg-gray-50 rounded-lg p-4">
-                <DetailItem label="Anak Ke" value={formRingkasan.bayi_anak_ke} />
-                <DetailItem label="Berat (gram)" value={formRingkasan.bayi_berat_lahir_gram} />
-                <DetailItem label="Panjang (cm)" value={formRingkasan.bayi_panjang_badan_cm} />
-                <DetailItem label="Lingkar Kepala (cm)" value={formRingkasan.bayi_lingkar_kepala_cm} />
-                <DetailItem label="Jenis Kelamin" value={formRingkasan.bayi_jenis_kelamin} />
-                <DetailItem label="Segera Menangis" value={formRingkasan.kondisi_bayi_segera_menangis ? "Ya" : "Tidak"} />
-                <DetailItem label="IMD 1 Jam Pertama" value={formRingkasan.asuhan_imd_1_jam_pertama ? "Ya" : "Tidak"} />
-              </div>
-            </div>
-          ) : (
-            <form onSubmit={submitRingkasan} className="bg-white rounded-xl shadow-sm p-6 space-y-6">
-              <h2 className="text-lg font-semibold text-indigo-700">Ringkasan Pelayanan Persalinan</h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div><label className="block text-sm font-medium mb-1">Tanggal Melahirkan</label>
-                  <input type="date" name="tanggal_melahirkan" value={formRingkasan.tanggal_melahirkan}
-                    onChange={(e) => handleChange(e, setFormRingkasan)} className="w-full border rounded px-3 py-2" /></div>
-                <div><label className="block text-sm font-medium mb-1">Umur Kehamilan (Mgg)</label>
-                  <input type="number" name="umur_kehamilan_minggu" value={formRingkasan.umur_kehamilan_minggu}
-                    onChange={(e) => handleChange(e, setFormRingkasan)} className="w-full border rounded px-3 py-2" /></div>
-                <div><label className="block text-sm font-medium mb-1">Penolong Persalinan</label>
-                  <input name="penolong_proses_melahirkan" value={formRingkasan.penolong_proses_melahirkan}
-                    onChange={(e) => handleChange(e, setFormRingkasan)} className="w-full border rounded px-3 py-2" /></div>
-                <div><label className="block text-sm font-medium mb-1">Cara Melahirkan</label>
-                  <select name="cara_melahirkan" value={formRingkasan.cara_melahirkan}
-                    onChange={(e) => handleChange(e, setFormRingkasan)} className="w-full border rounded px-3 py-2">
-                    <option value="">-- Pilih --</option>
-                    <option>Spontan/Normal</option><option>SC</option><option>Vakum</option>
-                  </select></div>
-                <div><label className="block text-sm font-medium mb-1">Keadaan Ibu</label>
-                  <input name="keadaan_ibu" value={formRingkasan.keadaan_ibu}
-                    onChange={(e) => handleChange(e, setFormRingkasan)} className="w-full border rounded px-3 py-2" /></div>
-                <div><label className="block text-sm font-medium mb-1">KB Pasca Salin</label>
-                  <input name="kb_pasca_melahirkan" value={formRingkasan.kb_pasca_melahirkan}
-                    onChange={(e) => handleChange(e, setFormRingkasan)} className="w-full border rounded px-3 py-2" /></div>
-              </div>
-              <hr />
-              <h3 className="font-semibold text-gray-800">Keadaan Bayi Saat Lahir</h3>
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div><label className="block text-sm font-medium mb-1">Anak Ke</label>
-                  <input type="number" name="bayi_anak_ke" value={formRingkasan.bayi_anak_ke}
-                    onChange={(e) => handleChange(e, setFormRingkasan)} className="w-full border rounded px-3 py-2" /></div>
-                <div><label className="block text-sm font-medium mb-1">Berat (gram)</label>
-                  <input type="number" name="bayi_berat_lahir_gram" value={formRingkasan.bayi_berat_lahir_gram}
-                    onChange={(e) => handleChange(e, setFormRingkasan)} className="w-full border rounded px-3 py-2" /></div>
-                <div><label className="block text-sm font-medium mb-1">Panjang (cm)</label>
-                  <input type="number" name="bayi_panjang_badan_cm" value={formRingkasan.bayi_panjang_badan_cm}
-                    onChange={(e) => handleChange(e, setFormRingkasan)} className="w-full border rounded px-3 py-2" /></div>
-                <div><label className="block text-sm font-medium mb-1">Lingkar Kepala (cm)</label>
-                  <input type="number" name="bayi_lingkar_kepala_cm" value={formRingkasan.bayi_lingkar_kepala_cm}
-                    onChange={(e) => handleChange(e, setFormRingkasan)} className="w-full border rounded px-3 py-2" /></div>
-                <div><label className="block text-sm font-medium mb-1">Jenis Kelamin</label>
-                  <select name="bayi_jenis_kelamin" value={formRingkasan.bayi_jenis_kelamin}
-                    onChange={(e) => handleChange(e, setFormRingkasan)} className="w-full border rounded px-3 py-2">
-                    <option value="">-- Pilih --</option>
-                    <option>Laki-laki</option><option>Perempuan</option>
-                  </select></div>
-              </div>
-              <div className="flex gap-6">
-                <label className="flex items-center gap-2">
-                  <input type="checkbox" name="kondisi_bayi_segera_menangis"
-                    checked={formRingkasan.kondisi_bayi_segera_menangis}
-                    onChange={(e) => handleChange(e, setFormRingkasan)} className="w-4 h-4" /> Segera Menangis
-                </label>
-                <label className="flex items-center gap-2">
-                  <input type="checkbox" name="asuhan_imd_1_jam_pertama"
-                    checked={formRingkasan.asuhan_imd_1_jam_pertama}
-                    onChange={(e) => handleChange(e, setFormRingkasan)} className="w-4 h-4" /> IMD 1 Jam Pertama
-                </label>
-              </div>
-              <button type="submit" disabled={saving}
-                className="bg-indigo-600 text-white px-6 py-2 rounded-lg flex items-center gap-2 hover:bg-indigo-700">
-                <Save size={18} /> {saving ? "Menyimpan..." : "Simpan Ringkasan"}
-              </button>
-            </form>
-          )
+              </form>
+            )}
+          </>
         )}
 
         {/* ===== RIWAYAT ===== */}
         {activeTab === "riwayat" && (
-          modeRiwayat === "detail" ? (
-            <div className="bg-white rounded-xl shadow-sm p-6 space-y-5">
-              <div className="flex justify-between items-center">
-                <div className="flex items-center gap-2 text-green-600">
-                  <CheckCircle size={20} />
-                  <h2 className="text-lg font-semibold text-gray-800">Riwayat Proses Melahirkan</h2>
+          <>
+            {modeRiwayat === "detail" && (
+              <div className="bg-white rounded-xl shadow-sm p-6 space-y-5">
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center gap-2 text-green-600">
+                    <CheckCircle size={20} />
+                    <h2 className="text-lg font-semibold text-gray-800">Riwayat Proses Melahirkan</h2>
+                  </div>
+                  <button onClick={() => setModeRiwayat("form")}
+                    className="flex items-center gap-2 text-sm text-indigo-600 border border-indigo-300 px-3 py-1.5 rounded-lg hover:bg-indigo-50">
+                    <Edit2 size={14} /> Edit
+                  </button>
                 </div>
-                <button onClick={() => setModeRiwayat("form")}
-                  className="flex items-center gap-2 text-sm text-indigo-600 border border-indigo-300 px-3 py-1.5 rounded-lg hover:bg-indigo-50">
-                  <Edit2 size={14} /> Edit
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-5 bg-gray-50 rounded-lg p-4">
+                  <DetailItem label="Gravida (G)" value={formRiwayat.g_gravida} />
+                  <DetailItem label="Partus (P)" value={formRiwayat.p_partus} />
+                  <DetailItem label="Abortus (A)" value={formRiwayat.a_abortus} />
+                  <DetailItem label="Tanggal Melahirkan" value={formRiwayat.tanggal_melahirkan} />
+                  <DetailItem label="Faskes / Tempat Melahirkan" value={formRiwayat.fasyankes_tempat_melahirkan} />
+                  <DetailItem label="Cara Melahirkan" value={
+                    formRiwayat.cara_melahirkan_spontan ? "Spontan/Normal" :
+                    formRiwayat.tindakan_sc ? "Operasi Caesar" : "-"
+                  } />
+                </div>
+              </div>
+            )}
+            {modeRiwayat === "empty" && (
+              <EmptyState
+                title="Belum Ada Riwayat Melahirkan"
+                message="Silakan isi riwayat proses melahirkan untuk ibu ini."
+                onAdd={() => setModeRiwayat("form")}
+              />
+            )}
+            {modeRiwayat === "form" && (
+              <form onSubmit={submitRiwayat} className="bg-white rounded-xl shadow-sm p-6 space-y-6">
+                <h2 className="text-lg font-semibold text-indigo-700">Riwayat Proses Melahirkan</h2>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div><label className="block text-sm font-medium mb-1">Gravida (G)</label>
+                    <input type="number" name="g_gravida" value={formRiwayat.g_gravida}
+                      onChange={(e) => handleChange(e, setFormRiwayat)} className="w-full border rounded px-3 py-2" /></div>
+                  <div><label className="block text-sm font-medium mb-1">Partus (P)</label>
+                    <input type="number" name="p_partus" value={formRiwayat.p_partus}
+                      onChange={(e) => handleChange(e, setFormRiwayat)} className="w-full border rounded px-3 py-2" /></div>
+                  <div><label className="block text-sm font-medium mb-1">Abortus (A)</label>
+                    <input type="number" name="a_abortus" value={formRiwayat.a_abortus}
+                      onChange={(e) => handleChange(e, setFormRiwayat)} className="w-full border rounded px-3 py-2" /></div>
+                  <div><label className="block text-sm font-medium mb-1">Tanggal Melahirkan</label>
+                    <input type="date" name="tanggal_melahirkan" value={formRiwayat.tanggal_melahirkan}
+                      onChange={(e) => handleChange(e, setFormRiwayat)} className="w-full border rounded px-3 py-2" /></div>
+                  <div className="md:col-span-2"><label className="block text-sm font-medium mb-1">Faskes / Tempat Melahirkan</label>
+                    <input name="fasyankes_tempat_melahirkan" value={formRiwayat.fasyankes_tempat_melahirkan}
+                      onChange={(e) => handleChange(e, setFormRiwayat)} className="w-full border rounded px-3 py-2" /></div>
+                </div>
+                <div className="flex gap-6">
+                  <label className="flex items-center gap-2">
+                    <input type="checkbox" name="cara_melahirkan_spontan" checked={formRiwayat.cara_melahirkan_spontan}
+                      onChange={(e) => handleChange(e, setFormRiwayat)} className="w-4 h-4" /> Spontan/Normal
+                  </label>
+                  <label className="flex items-center gap-2">
+                    <input type="checkbox" name="tindakan_sc" checked={formRiwayat.tindakan_sc}
+                      onChange={(e) => handleChange(e, setFormRiwayat)} className="w-4 h-4" /> Operasi Caesar
+                  </label>
+                </div>
+                <button type="submit" disabled={saving}
+                  className="bg-indigo-600 text-white px-6 py-2 rounded-lg flex items-center gap-2 hover:bg-indigo-700">
+                  <Save size={18} /> {saving ? "Menyimpan..." : "Simpan Riwayat"}
                 </button>
-              </div>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-5 bg-gray-50 rounded-lg p-4">
-                <DetailItem label="Gravida (G)" value={formRiwayat.g_gravida} />
-                <DetailItem label="Partus (P)" value={formRiwayat.p_partus} />
-                <DetailItem label="Abortus (A)" value={formRiwayat.a_abortus} />
-                <DetailItem label="Tanggal Melahirkan" value={formRiwayat.tanggal_melahirkan} />
-                <DetailItem label="Faskes / Tempat Melahirkan" value={formRiwayat.fasyankes_tempat_melahirkan} />
-                <DetailItem label="Cara Melahirkan" value={
-                  formRiwayat.cara_melahirkan_spontan ? "Spontan/Normal" :
-                  formRiwayat.tindakan_sc ? "Operasi Caesar" : "-"
-                } />
-              </div>
-            </div>
-          ) : (
-            <form onSubmit={submitRiwayat} className="bg-white rounded-xl shadow-sm p-6 space-y-6">
-              <h2 className="text-lg font-semibold text-indigo-700">Riwayat Proses Melahirkan</h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div><label className="block text-sm font-medium mb-1">Gravida (G)</label>
-                  <input type="number" name="g_gravida" value={formRiwayat.g_gravida}
-                    onChange={(e) => handleChange(e, setFormRiwayat)} className="w-full border rounded px-3 py-2" /></div>
-                <div><label className="block text-sm font-medium mb-1">Partus (P)</label>
-                  <input type="number" name="p_partus" value={formRiwayat.p_partus}
-                    onChange={(e) => handleChange(e, setFormRiwayat)} className="w-full border rounded px-3 py-2" /></div>
-                <div><label className="block text-sm font-medium mb-1">Abortus (A)</label>
-                  <input type="number" name="a_abortus" value={formRiwayat.a_abortus}
-                    onChange={(e) => handleChange(e, setFormRiwayat)} className="w-full border rounded px-3 py-2" /></div>
-                <div><label className="block text-sm font-medium mb-1">Tanggal Melahirkan</label>
-                  <input type="date" name="tanggal_melahirkan" value={formRiwayat.tanggal_melahirkan}
-                    onChange={(e) => handleChange(e, setFormRiwayat)} className="w-full border rounded px-3 py-2" /></div>
-                <div className="md:col-span-2"><label className="block text-sm font-medium mb-1">Faskes / Tempat Melahirkan</label>
-                  <input name="fasyankes_tempat_melahirkan" value={formRiwayat.fasyankes_tempat_melahirkan}
-                    onChange={(e) => handleChange(e, setFormRiwayat)} className="w-full border rounded px-3 py-2" /></div>
-              </div>
-              <div className="flex gap-6">
-                <label className="flex items-center gap-2">
-                  <input type="checkbox" name="cara_melahirkan_spontan" checked={formRiwayat.cara_melahirkan_spontan}
-                    onChange={(e) => handleChange(e, setFormRiwayat)} className="w-4 h-4" /> Spontan/Normal
-                </label>
-                <label className="flex items-center gap-2">
-                  <input type="checkbox" name="tindakan_sc" checked={formRiwayat.tindakan_sc}
-                    onChange={(e) => handleChange(e, setFormRiwayat)} className="w-4 h-4" /> Operasi Caesar
-                </label>
-              </div>
-              <button type="submit" disabled={saving}
-                className="bg-indigo-600 text-white px-6 py-2 rounded-lg flex items-center gap-2 hover:bg-indigo-700">
-                <Save size={18} /> {saving ? "Menyimpan..." : "Simpan Riwayat"}
-              </button>
-            </form>
-          )
+              </form>
+            )}
+          </>
         )}
 
         {/* ===== KETERANGAN LAHIR ===== */}
         {activeTab === "keterangan" && (
-          modeKeterangan === "detail" ? (
-            <div className="space-y-4">
-              {/* Tombol aksi */}
-              <div className="flex justify-between items-center">
-                <button onClick={() => setModeKeterangan("form")}
-                  className="flex items-center gap-2 text-sm text-indigo-600 border border-indigo-300 px-3 py-1.5 rounded-lg hover:bg-indigo-50">
-                  <Edit2 size={14} /> Edit Data
-                </button>
-                <button onClick={handlePrint}
-                  className="flex items-center gap-2 text-sm bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
-                  <Printer size={16} /> Cetak Surat
-                </button>
-              </div>
-              {/* Surat */}
-              <SuratKeteranganLahir data={formKeterangan} />
-            </div>
-          ) : (
-            <form onSubmit={submitKeterangan} className="bg-white rounded-xl shadow-sm p-6 space-y-6">
-              <h2 className="text-lg font-semibold text-indigo-700">Surat Keterangan Lahir (Model A.B)</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div><label className="block text-sm font-medium mb-1">Nomor Surat</label>
-                  <input name="nomor_surat" value={formKeterangan.nomor_surat}
-                    onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-3 py-2" /></div>
-                <div><label className="block text-sm font-medium mb-1">Nama Bayi Diberikan</label>
-                  <input name="nama_bayi_diberi_nama" value={formKeterangan.nama_bayi_diberi_nama}
-                    onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-3 py-2" /></div>
-                <div><label className="block text-sm font-medium mb-1">Tanggal Lahir</label>
-                  <input type="date" name="tanggal_lahir" value={formKeterangan.tanggal_lahir}
-                    onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-3 py-2" /></div>
-                <div><label className="block text-sm font-medium mb-1">Hari Lahir</label>
-                  <input name="hari_lahir" value={formKeterangan.hari_lahir}
-                    onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-3 py-2" placeholder="Contoh: Senin" /></div>
-                <div><label className="block text-sm font-medium mb-1">Pukul Lahir</label>
-                  <input name="pukul_lahir" value={formKeterangan.pukul_lahir}
-                    onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-3 py-2" placeholder="Contoh: 08:30" /></div>
-                <div><label className="block text-sm font-medium mb-1">Jenis Kelamin</label>
-                  <select name="jenis_kelamin" value={formKeterangan.jenis_kelamin}
-                    onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-3 py-2">
-                    <option value="">-- Pilih --</option>
-                    <option>Laki-laki</option><option>Perempuan</option>
-                  </select></div>
-                <div><label className="block text-sm font-medium mb-1">Jenis Kelahiran</label>
-                  <select name="jenis_kelahiran" value={formKeterangan.jenis_kelahiran}
-                    onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-3 py-2">
-                    <option value="">-- Pilih --</option>
-                    <option>Tunggal</option><option>Kembar 2</option>
-                    <option>Kembar 3</option><option>Lainnya</option>
-                  </select></div>
-                <div><label className="block text-sm font-medium mb-1">Anak Ke</label>
-                  <input type="number" name="anak_ke" value={formKeterangan.anak_ke}
-                    onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-3 py-2" /></div>
-                <div><label className="block text-sm font-medium mb-1">Usia Gestasi (Minggu)</label>
-                  <input type="number" name="usia_gestasi_minggu" value={formKeterangan.usia_gestasi_minggu}
-                    onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-3 py-2" /></div>
-                <div><label className="block text-sm font-medium mb-1">Berat Lahir (gram)</label>
-                  <input type="number" name="berat_lahir_gram" value={formKeterangan.berat_lahir_gram}
-                    onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-3 py-2" /></div>
-                <div><label className="block text-sm font-medium mb-1">Panjang Bayi (cm)</label>
-                  <input type="number" name="panjang_badan_cm" value={formKeterangan.panjang_badan_cm}
-                    onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-3 py-2" /></div>
-                <div><label className="block text-sm font-medium mb-1">Lingkar Kepala (cm)</label>
-                  <input type="number" name="lingkar_kepala_cm" value={formKeterangan.lingkar_kepala_cm}
-                    onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-3 py-2" /></div>
-                <div className="md:col-span-2"><label className="block text-sm font-medium mb-1">Lokasi Persalinan</label>
-                  <input name="lokasi_persalinan" value={formKeterangan.lokasi_persalinan}
-                    onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-3 py-2"
-                    placeholder="Nama RS/Puskesmas/Klinik" /></div>
-                <div className="md:col-span-2 border-t pt-4">
-                  <h3 className="font-semibold mb-3">Orang Tua</h3>
+          <>
+            {modeKeterangan === "detail" && (
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <button onClick={() => setModeKeterangan("form")}
+                    className="flex items-center gap-2 text-sm text-indigo-600 border border-indigo-300 px-3 py-1.5 rounded-lg hover:bg-indigo-50">
+                    <Edit2 size={14} /> Edit Data
+                  </button>
+                  <button onClick={handlePrint}
+                    className="flex items-center gap-2 text-sm bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
+                    <Printer size={16} /> Cetak Surat
+                  </button>
                 </div>
-                <div><label className="block text-sm font-medium mb-1">Nama Ibu</label>
-                  <input name="nama_ibu" value={formKeterangan.nama_ibu}
-                    onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-3 py-2" /></div>
-                <div><label className="block text-sm font-medium mb-1">NIK Ibu</label>
-                  <input name="nik_ibu" value={formKeterangan.nik_ibu}
-                    onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-3 py-2" /></div>
-                <div><label className="block text-sm font-medium mb-1">Nama Ayah</label>
-                  <input name="nama_ayah" value={formKeterangan.nama_ayah}
-                    onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-3 py-2" /></div>
-                <div><label className="block text-sm font-medium mb-1">Pekerjaan Orang Tua</label>
-                  <input name="pekerjaan_orang_tua" value={formKeterangan.pekerjaan_orang_tua}
-                    onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-3 py-2" /></div>
-                <div className="md:col-span-2"><label className="block text-sm font-medium mb-1">Alamat Orang Tua</label>
-                  <input name="alamat_orang_tua" value={formKeterangan.alamat_orang_tua}
-                    onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-3 py-2" /></div>
-                <div><label className="block text-sm font-medium mb-1">Saksi / Penolong Kelahiran</label>
-                  <input name="nama_penolong_kelahiran" value={formKeterangan.nama_penolong_kelahiran}
-                    onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-3 py-2" /></div>
+                <SuratKeteranganLahir data={formKeterangan} />
               </div>
-              <button type="submit" disabled={saving}
-                className="bg-indigo-600 text-white px-6 py-2 rounded-lg flex items-center gap-2 hover:bg-indigo-700">
-                <Save size={18} /> {saving ? "Menyimpan..." : "Simpan Keterangan Lahir"}
-              </button>
-            </form>
-          )
+            )}
+            {modeKeterangan === "empty" && (
+              <EmptyState
+                title="Belum Ada Surat Keterangan Lahir"
+                message="Silakan isi data untuk membuat Surat Keterangan Lahir."
+                onAdd={() => setModeKeterangan("form")}
+              />
+            )}
+            {modeKeterangan === "form" && (
+              <form onSubmit={submitKeterangan} className="bg-white rounded-xl shadow-sm p-6 space-y-6">
+                <h2 className="text-lg font-semibold text-indigo-700">Surat Keterangan Lahir (Model A.B)</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div><label className="block text-sm font-medium mb-1">Nomor Surat</label>
+                    <input name="nomor_surat" value={formKeterangan.nomor_surat}
+                      onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-3 py-2" /></div>
+                  <div><label className="block text-sm font-medium mb-1">Nama Bayi Diberikan</label>
+                    <input name="nama_bayi_diberi_nama" value={formKeterangan.nama_bayi_diberi_nama}
+                      onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-3 py-2" /></div>
+                  <div><label className="block text-sm font-medium mb-1">Tanggal Lahir</label>
+                    <input type="date" name="tanggal_lahir" value={formKeterangan.tanggal_lahir}
+                      onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-3 py-2" /></div>
+                  <div><label className="block text-sm font-medium mb-1">Hari Lahir</label>
+                    <input name="hari_lahir" value={formKeterangan.hari_lahir}
+                      onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-3 py-2" placeholder="Contoh: Senin" /></div>
+                  <div><label className="block text-sm font-medium mb-1">Pukul Lahir</label>
+                    <input name="pukul_lahir" value={formKeterangan.pukul_lahir}
+                      onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-3 py-2" placeholder="Contoh: 08:30" /></div>
+                  <div><label className="block text-sm font-medium mb-1">Jenis Kelamin</label>
+                    <select name="jenis_kelamin" value={formKeterangan.jenis_kelamin}
+                      onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-3 py-2">
+                      <option value="">-- Pilih --</option>
+                      <option>Laki-laki</option><option>Perempuan</option>
+                    </select></div>
+                  <div><label className="block text-sm font-medium mb-1">Jenis Kelahiran</label>
+                    <select name="jenis_kelahiran" value={formKeterangan.jenis_kelahiran}
+                      onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-3 py-2">
+                      <option value="">-- Pilih --</option>
+                      <option>Tunggal</option><option>Kembar 2</option>
+                      <option>Kembar 3</option><option>Lainnya</option>
+                    </select></div>
+                  <div><label className="block text-sm font-medium mb-1">Anak Ke</label>
+                    <input type="number" name="anak_ke" value={formKeterangan.anak_ke}
+                      onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-3 py-2" /></div>
+                  <div><label className="block text-sm font-medium mb-1">Usia Gestasi (Minggu)</label>
+                    <input type="number" name="usia_gestasi_minggu" value={formKeterangan.usia_gestasi_minggu}
+                      onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-3 py-2" /></div>
+                  <div><label className="block text-sm font-medium mb-1">Berat Lahir (gram)</label>
+                    <input type="number" name="berat_lahir_gram" value={formKeterangan.berat_lahir_gram}
+                      onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-3 py-2" /></div>
+                  <div><label className="block text-sm font-medium mb-1">Panjang Bayi (cm)</label>
+                    <input type="number" name="panjang_badan_cm" value={formKeterangan.panjang_badan_cm}
+                      onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-3 py-2" /></div>
+                  <div><label className="block text-sm font-medium mb-1">Lingkar Kepala (cm)</label>
+                    <input type="number" name="lingkar_kepala_cm" value={formKeterangan.lingkar_kepala_cm}
+                      onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-3 py-2" /></div>
+                  <div className="md:col-span-2"><label className="block text-sm font-medium mb-1">Lokasi Persalinan</label>
+                    <input name="lokasi_persalinan" value={formKeterangan.lokasi_persalinan}
+                      onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-3 py-2"
+                      placeholder="Nama RS/Puskesmas/Klinik" /></div>
+                  <div className="md:col-span-2 border-t pt-4">
+                    <h3 className="font-semibold mb-3">Orang Tua</h3>
+                  </div>
+                  <div><label className="block text-sm font-medium mb-1">Nama Ibu</label>
+                    <input name="nama_ibu" value={formKeterangan.nama_ibu}
+                      onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-3 py-2" /></div>
+                  <div><label className="block text-sm font-medium mb-1">NIK Ibu</label>
+                    <input name="nik_ibu" value={formKeterangan.nik_ibu}
+                      onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-3 py-2" /></div>
+                  <div><label className="block text-sm font-medium mb-1">Nama Ayah</label>
+                    <input name="nama_ayah" value={formKeterangan.nama_ayah}
+                      onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-3 py-2" /></div>
+                  <div><label className="block text-sm font-medium mb-1">Pekerjaan Orang Tua</label>
+                    <input name="pekerjaan_orang_tua" value={formKeterangan.pekerjaan_orang_tua}
+                      onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-3 py-2" /></div>
+                  <div className="md:col-span-2"><label className="block text-sm font-medium mb-1">Alamat Orang Tua</label>
+                    <input name="alamat_orang_tua" value={formKeterangan.alamat_orang_tua}
+                      onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-3 py-2" /></div>
+                  <div><label className="block text-sm font-medium mb-1">Saksi / Penolong Kelahiran</label>
+                    <input name="nama_penolong_kelahiran" value={formKeterangan.nama_penolong_kelahiran}
+                      onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-3 py-2" /></div>
+                </div>
+                <button type="submit" disabled={saving}
+                  className="bg-indigo-600 text-white px-6 py-2 rounded-lg flex items-center gap-2 hover:bg-indigo-700">
+                  <Save size={18} /> {saving ? "Menyimpan..." : "Simpan Keterangan Lahir"}
+                </button>
+              </form>
+            )}
+          </>
         )}
       </div>
     </MainLayout>

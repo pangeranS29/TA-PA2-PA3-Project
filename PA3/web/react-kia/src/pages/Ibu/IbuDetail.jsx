@@ -4,7 +4,7 @@ import { useParams, useSearchParams, Link } from "react-router-dom";
 import MainLayout from "../../components/Layout/MainLayout";
 import { getIbuById } from "../../services/ibu";
 import { getKehamilanByIbuId } from "../../services/kehamilan";
-import { Users, Heart, Phone, MapPin, Clipboard } from "lucide-react";
+import { Users, Heart, Phone, MapPin, Clipboard, Home, ChevronRight } from "lucide-react";
 
 export default function IbuDetail() {
   const { id } = useParams();
@@ -53,6 +53,22 @@ export default function IbuDetail() {
     fetchData();
   }, [id, kehamilanId]);
 
+  // Breadcrumb component
+  const Breadcrumb = () => {
+    const namaIbu = ibu?.kependudukan?.nama_lengkap || "Detail Ibu";
+    return (
+      <div className="flex items-center gap-2 text-sm text-gray-500 mb-4 flex-wrap">
+        <Link to="/dashboard" className="hover:text-indigo-600 flex items-center gap-1">
+          <Home size={14} /> Beranda
+        </Link>
+        <ChevronRight size={14} />
+        <Link to="/data-ibu" className="hover:text-indigo-600">Data Ibu</Link>
+        <ChevronRight size={14} />
+        <span className="text-gray-700 font-medium">{namaIbu}</span>
+      </div>
+    );
+  };
+
   if (loading) return <MainLayout><div className="p-6">Memuat...</div></MainLayout>;
   if (!ibu) return <MainLayout><div className="p-6">Data ibu tidak ditemukan</div></MainLayout>;
   if (error) return (
@@ -76,12 +92,14 @@ export default function IbuDetail() {
   const usiaKehamilan = `${kehamilan.uk_kehamilan_saat_ini || 0} Minggu`;
   const formatDate = (dateStr) => dateStr ? new Date(dateStr).toLocaleDateString("id-ID") : "-";
 
-  // Semua link akan menggunakan path /data-ibu/${id}/... dengan query parameter kehamilan_id
   const withKehamilan = (path) => `${path}?kehamilan_id=${kehamilan.id}`;
 
   return (
     <MainLayout>
       <div className="p-6 max-w-7xl mx-auto">
+        {/* Breadcrumb */}
+        <Breadcrumb />
+
         {/* Header */}
         <div className="flex flex-wrap justify-between items-center mb-6">
           <div>
@@ -122,7 +140,7 @@ export default function IbuDetail() {
               </div>
             </div>
 
-            {/* Timeline Layanan KIA */}
+            {/* Timeline Layanan KIA - diperbaiki tampilannya */}
             <div className="bg-white rounded-2xl shadow-sm p-6 border">
               <h2 className="text-xl font-bold mb-6 border-b pb-4">Jalur Pelayanan KIA</h2>
               <div className="relative border-l-2 border-indigo-100 ml-3 space-y-8 pb-4">
@@ -130,9 +148,10 @@ export default function IbuDetail() {
                 <div className="relative pl-8">
                   <div className="absolute -left-[11px] top-1 h-5 w-5 rounded-full bg-indigo-600 border-4 border-white"></div>
                   <h3 className="font-bold text-indigo-900">1. Evaluasi & Skrining Awal</h3>
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    <Link to={withKehamilan(`/data-ibu/${id}/evaluasi-kesehatan`)} className="p-3 rounded-xl bg-gray-50 hover:bg-indigo-50 flex-1">📋 Evaluasi Kesehatan Ibu</Link>
-                    <Link to={withKehamilan(`/data-ibu/${id}/skrining-preeklampsia`)} className="p-3 rounded-xl bg-gray-50 hover:bg-indigo-50 flex-1">🔍 Skrining Preeklampsia</Link>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 mt-2">
+                    <Link to={withKehamilan(`/data-ibu/${id}/evaluasi-kesehatan`)} className="p-3 rounded-xl bg-gray-50 hover:bg-indigo-50 text-center transition">📋 Evaluasi Kesehatan Ibu</Link>
+                    <Link to={withKehamilan(`/data-ibu/${id}/skrining-preeklampsia`)} className="p-3 rounded-xl bg-gray-50 hover:bg-indigo-50 text-center transition">🔍 Skrining Preeklampsia</Link>
+                    <Link to={withKehamilan(`/data-ibu/${id}/Skrining-Diabetes-Melitus-Gestasional`)} className="p-3 rounded-xl bg-gray-50 hover:bg-indigo-50 text-center transition">🔍 Skrining Diabetes Melitus Gestasional</Link>
                   </div>
                 </div>
 
@@ -140,33 +159,23 @@ export default function IbuDetail() {
                 <div className="relative pl-8">
                   <div className="absolute -left-[11px] top-1 h-5 w-5 rounded-full bg-blue-400 border-4 border-white"></div>
                   <h3 className="font-bold text-gray-800">2. Pemantauan & ANC</h3>
-                  <div className="flex flex-col gap-2 mt-2">
-                    <Link to={withKehamilan(`/data-ibu/${id}/pemeriksaan-rutin`)} className="p-3 rounded-xl bg-blue-50">🩺 Input Pemeriksaan ANC Rutin</Link>
+                  <div className="space-y-2 mt-2">
+                    <Link to={withKehamilan(`/data-ibu/${id}/pemeriksaan-rutin`)} className="block p-3 rounded-xl bg-blue-50 hover:bg-blue-100 transition text-center">🩺 Input Pemeriksaan ANC Rutin</Link>
                     <div className="flex gap-2">
-                      <Link to={withKehamilan(`/data-ibu/${id}/pemeriksaan-dokter-t1-complete/form`)} className="text-xs p-2 rounded-lg bg-gray-50">👩‍⚕️ Dokter T1</Link>
-                      <Link to={withKehamilan(`/data-ibu/${id}/pemeriksaan-dokter-t3-complete/form`)} className="text-xs p-2 rounded-lg bg-gray-50">👩‍⚕️ Dokter T3</Link>
+                      <Link to={withKehamilan(`/data-ibu/${id}/pemeriksaan-dokter-t1-complete/form`)} className="flex-1 text-center text-xs p-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition">👩‍⚕️ Dokter T1</Link>
+                      <Link to={withKehamilan(`/data-ibu/${id}/pemeriksaan-dokter-t3-complete/form`)} className="flex-1 text-center text-xs p-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition">👩‍⚕️ Dokter T3</Link>
                     </div>
                   </div>
                 </div>
 
-                {/* Step 3: Grafik */}
-                {/* <div className="relative pl-8">
-                  <div className="absolute -left-[11px] top-1 h-5 w-5 rounded-full bg-emerald-400 border-4 border-white"></div>
-                  <h3 className="font-bold text-gray-800">3. Analisis Grafik</h3>
-                  <div className="flex flex-col gap-2 mt-2">
-                    <Link to={withKehamilan(`/data-ibu/${id}/grafik-evaluasi`)} className="p-3 rounded-xl bg-emerald-50">📊 Grafik Evaluasi Kehamilan (TFU & DJJ)</Link>
-                    <Link to={withKehamilan(`/data-ibu/${id}/grafik-bb`)} className="p-3 rounded-xl bg-emerald-50">⚖️ Grafik Peningkatan Berat Badan</Link>
-                  </div>
-                </div> */}
-
-                {/* Step 4: Persalinan & Nifas */}
+                {/* Step 3: Persalinan & Nifas */}
                 <div className="relative pl-8">
                   <div className="absolute -left-[11px] top-1 h-5 w-5 rounded-full bg-rose-400 border-4 border-white"></div>
                   <h3 className="font-bold text-gray-800">3. Persalinan & Nifas</h3>
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    <Link to={withKehamilan(`/data-ibu/${id}/rencana-persalinan`)} className="p-3 rounded-xl bg-gray-50 flex-1 text-center">🏥 Rencana Persalinan</Link>
-                    <Link to={withKehamilan(`/data-ibu/${id}/pelayanan-persalinan`)} className="p-3 rounded-xl bg-gray-50 flex-1 text-center">👶 Proses & Riwayat Melahirkan</Link>
-                    <Link to={withKehamilan(`/data-ibu/${id}/pelayanan-nifas`)} className="p-3 rounded-xl bg-gray-50 flex-1 text-center">🤱 Pelayanan Nifas</Link>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-2">
+                    <Link to={withKehamilan(`/data-ibu/${id}/rencana-persalinan`)} className="p-3 rounded-xl bg-gray-50 hover:bg-gray-100 text-center transition">🏥 Rencana Persalinan</Link>
+                    <Link to={withKehamilan(`/data-ibu/${id}/pelayanan-persalinan`)} className="p-3 rounded-xl bg-gray-50 hover:bg-gray-100 text-center transition">👶 Proses & Riwayat Melahirkan</Link>
+                    <Link to={withKehamilan(`/data-ibu/${id}/pelayanan-nifas`)} className="p-3 rounded-xl bg-gray-50 hover:bg-gray-100 text-center transition">🤱 Pelayanan Nifas</Link>
                   </div>
                 </div>
 
@@ -174,9 +183,9 @@ export default function IbuDetail() {
                 <div className="relative pl-8 mt-6">
                   <div className="absolute -left-[11px] top-1 h-5 w-5 rounded-full bg-amber-400 border-4 border-white"></div>
                   <h3 className="font-bold text-gray-800">⚠️ Rujukan Medis</h3>
-                  <div className="mt-2">
-                    <Link to={withKehamilan(`/data-ibu/${id}/rujukan`)} className="block p-3 rounded-xl bg-amber-50">Buat Proposal Rujukan</Link>
-                    <Link to="/daftar-rujukan" className="block text-xs text-center text-amber-700 mt-2">Lihat Dashboard Semua Rujukan</Link>
+                  <div className="mt-2 space-y-2">
+                    <Link to={withKehamilan(`/data-ibu/${id}/rujukan`)} className="block p-3 rounded-xl bg-amber-50 hover:bg-amber-100 transition text-center">Buat / Lihat Rujukan</Link>
+                    <Link to="/daftar-rujukan" className="block text-xs text-center text-amber-700 mt-1 hover:underline">Lihat Dashboard Semua Rujukan</Link>
                   </div>
                 </div>
               </div>

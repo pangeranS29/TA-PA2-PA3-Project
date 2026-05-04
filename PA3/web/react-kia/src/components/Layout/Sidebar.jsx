@@ -1,7 +1,13 @@
 // src/components/Layout/Sidebar.jsx
 import { useMemo, useState } from "react";
 import { NavLink } from "react-router-dom";
-import { getCurrentUser, getUserRedirectRoute, isAdminUser } from "../../services/auth";
+import { 
+  getCurrentUser, 
+  getUserRedirectRoute, 
+  isAdminUser, 
+  isBidanUser, 
+  isDokterUser 
+} from "../../services/auth";
 import {
   ChevronDown,
   LayoutGrid, 
@@ -20,9 +26,13 @@ import {
 const Sidebar = () => {
   const user = getCurrentUser();
   const isAdmin = isAdminUser(user);
+  const isBidan = isBidanUser(user);
+  const isDokter = isDokterUser(user);
+  
   const dashboardPath = getUserRedirectRoute(user);
   const [isFamilyMenuOpen, setIsFamilyMenuOpen] = useState(false);
 
+  // Menu untuk bidan (lengkap)
   const bidanMenuItems = [
     { path: "/data-ibu", name: "Data Ibu", icon: Users },
     { path: "/daftar-anak", name: "Data Anak", icon: Baby },
@@ -31,19 +41,40 @@ const Sidebar = () => {
     { path: "/laporan", name: "Laporan", icon: BarChart3 },
   ];
 
+  // Menu untuk dokter (hanya Data Ibu & Laporan)
+  const dokterMenuItems = [
+    { path: "/data-ibu", name: "Data Ibu", icon: Users },
+    { path: "/laporan", name: "Laporan", icon: BarChart3 },
+  ];
+
+  // Menu admin (kelola keluarga)
   const adminFamilyMenuItems = useMemo(
     () => [
       { path: "/dashboard/admin/manajemen-keluarga", name: "Manajemen KK", icon: UserCheck },
       { path: "/dashboard/admin/akun-keluarga", name: "Buat Akun", icon: UserPlus },
-      
     ],
     []
   );
 
-  const menuItems = [
-    { path: dashboardPath, name: "Dashboard", icon: LayoutGrid },
-    ...(isAdmin ? [] : bidanMenuItems),
-  ];
+  // Menentukan menuItems berdasarkan role
+  let menuItems = [];
+  if (isAdmin) {
+    // Admin hanya memiliki dashboard (menu lain akan ditambahkan di bawah terpisah)
+    menuItems = [{ path: dashboardPath, name: "Dashboard", icon: LayoutGrid }];
+  } else if (isDokter) {
+    menuItems = [
+      { path: dashboardPath, name: "Dashboard", icon: LayoutGrid },
+      ...dokterMenuItems,
+    ];
+  } else if (isBidan) {
+    menuItems = [
+      { path: dashboardPath, name: "Dashboard", icon: LayoutGrid },
+      ...bidanMenuItems,
+    ];
+  } else {
+    // Fallback (misal role tidak dikenal)
+    menuItems = [{ path: dashboardPath, name: "Dashboard", icon: LayoutGrid }];
+  }
 
   const settingsMenu = { path: "/pengaturan", name: "Pengaturan", icon: Settings };
 
@@ -56,7 +87,7 @@ const Sidebar = () => {
         </div>
         <div>
           <h1 className="text-lg font-bold text-slate-800 leading-tight">KIA Cerdas</h1>
-          <p className="text-xs text-slate-400">Dashboard </p>
+          <p className="text-xs text-slate-400">Dashboard {isDokter ? "Dokter" : isBidan ? "Bidan" : "Admin"}</p>
         </div>
       </div>
 
@@ -90,6 +121,7 @@ const Sidebar = () => {
           </NavLink>
         ))}
 
+        {/* Menu khusus admin */}
         {isAdmin && (
           <div className="pt-2">
             <NavLink
@@ -112,8 +144,6 @@ const Sidebar = () => {
                 </>
               )}
             </NavLink>
-
-           
 
             <button
               type="button"
@@ -158,27 +188,31 @@ const Sidebar = () => {
           </div>
         )}
 
-         <NavLink
-              to="/dashboard/admin/jadwal-layanan"
-              className={({ isActive }) =>
-                `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${
-                  isActive
-                    ? "bg-blue-50 text-blue-600 font-semibold"
-                    : "text-slate-500 hover:bg-gray-50 hover:text-slate-700"
-                }`
-              }
-            >
-              {({ isActive }) => (
-                <>
-                  <CalendarDays
-                    size={20}
-                    className={isActive ? "text-blue-600" : "text-slate-400 group-hover:text-slate-600"}
-                  />
-                  <span className="truncate">Jadwal Layanan</span>
-                </>
-              )}
-            </NavLink>
+        {/* Menu Jadwal Layanan hanya untuk bidan & admin (opsional, bisa untuk dokter juga) */}
+        {(isBidan || isAdmin) && (
+          <NavLink
+            to={isAdmin ? "/dashboard/admin/jadwal-layanan" : "/jadwal-layanan"}
+            className={({ isActive }) =>
+              `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${
+                isActive
+                  ? "bg-blue-50 text-blue-600 font-semibold"
+                  : "text-slate-500 hover:bg-gray-50 hover:text-slate-700"
+              }`
+            }
+          >
+            {({ isActive }) => (
+              <>
+                <CalendarDays
+                  size={20}
+                  className={isActive ? "text-blue-600" : "text-slate-400 group-hover:text-slate-600"}
+                />
+                <span className="truncate">Jadwal Layanan</span>
+              </>
+            )}
+          </NavLink>
+        )}
 
+        {/* Menu Pengaturan untuk semua role */}
         <NavLink
           key={settingsMenu.path}
           to={settingsMenu.path}
@@ -202,15 +236,17 @@ const Sidebar = () => {
         </NavLink>
       </nav>
 
-      {/* Footer Info Wilayah */}
-      <div className="mt-auto pt-6">
-        <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100">
-          <h4 className="text-sm font-bold text-slate-800">Wilayah aktif</h4>
-          <p className="text-[11px] text-slate-500 mt-1 leading-relaxed">
-            Desa Suka Maju · 4 posyandu aktif · sinkron terakhir 08.10 WIB
-          </p>
+      {/* Footer Info Wilayah (hanya untuk bidan) */}
+      {isBidan && (
+        <div className="mt-auto pt-6">
+          <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100">
+            <h4 className="text-sm font-bold text-slate-800">Wilayah aktif</h4>
+            <p className="text-[11px] text-slate-500 mt-1 leading-relaxed">
+              Desa Suka Maju · 4 posyandu aktif · sinkron terakhir 08.10 WIB
+            </p>
+          </div>
         </div>
-      </div>
+      )}
     </aside>
   );
 };

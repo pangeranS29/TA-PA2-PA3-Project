@@ -4,6 +4,7 @@ import MainLayout from "../../components/Layout/MainLayout";
 import { getKehamilanByIbuId } from "../../services/kehamilan";
 import { getPemeriksaanKehamilanByKehamilanId } from "../../services/pemeriksaanKehamilan";
 import { getGrafikehamilanByKehamilanId } from "../../services/pemeriksaanKehamilan";
+import { getCurrentUser, isDokterUser } from "../../services/auth";
 
 import { Line } from "react-chartjs-2";
 import {
@@ -17,7 +18,7 @@ import {
   Filler,
 } from "chart.js";
 
-import { Plus, AlertTriangle, Activity, Scale, Heart, Droplets } from "lucide-react";
+import { Plus, AlertTriangle, Activity, Scale, Heart, Droplets, Home } from "lucide-react";
 
 // Registrasi ChartJS
 ChartJS.register(
@@ -30,7 +31,7 @@ ChartJS.register(
   Filler
 );
 
-// Helper Buku KIA (sama seperti sebelumnya)
+// Helper Buku KIA
 const getBatasBB = (minggu, kategoriIMT) => {
   let rateMin = 0.35, rateMax = 0.50, t1Min = 0.5, t1Max = 2.0; // Default Normal
   const kat = kategoriIMT?.toLowerCase() || "";
@@ -52,11 +53,36 @@ export default function PemeriksaanKehamilanList() {
   const [searchParams] = useSearchParams();
   const kehamilanIdQuery = searchParams.get("kehamilan_id");
 
+  // Role: dokter hanya baca, bidan bisa edit/create
+  const user = getCurrentUser();
+  const isDokter = isDokterUser(user);
+  const canEdit = !isDokter; // bidan bisa edit/create
+
   const [kehamilan, setKehamilan] = useState(null);
   const [examinations, setExaminations] = useState([]);
   const [grafik, setGrafik] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // Breadcrumb component
+  const Breadcrumb = () => {
+    if (!kehamilan) return null;
+    return (
+      <div className="flex items-center gap-2 text-sm text-gray-500 mb-4 flex-wrap">
+        <Link to="/dashboard" className="hover:text-indigo-600 flex items-center gap-1">
+          <Home size={14} /> Beranda
+        </Link>
+        <span>/</span>
+        <Link to="/data-ibu" className="hover:text-indigo-600">Data Ibu</Link>
+        <span>/</span>
+        <Link to={`/data-ibu/${ibuId}?kehamilan_id=${kehamilan.id}`} className="hover:text-indigo-600">
+          Detail Ibu
+        </Link>
+        <span>/</span>
+        <span className="text-gray-700 font-medium">Pemantauan ANC</span>
+      </div>
+    );
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -71,7 +97,6 @@ export default function PemeriksaanKehamilanList() {
           return;
         }
 
-        // Pilih kehamilan berdasarkan query parameter, jika ada
         let selectedKehamilan = null;
         if (kehamilanIdQuery) {
           selectedKehamilan = kehamilanList.find(k => k.id == kehamilanIdQuery);
@@ -81,7 +106,6 @@ export default function PemeriksaanKehamilanList() {
             return;
           }
         } else {
-          // Fallback: ambil kehamilan pertama (atau bisa yang status hamil)
           selectedKehamilan = kehamilanList[0];
         }
 
@@ -277,29 +301,40 @@ export default function PemeriksaanKehamilanList() {
   if (error) return <MainLayout><div className="p-10 text-center text-red-600">{error}</div></MainLayout>;
   if (!kehamilan) return <MainLayout><div className="p-10 text-center">Data kehamilan tidak tersedia</div></MainLayout>;
 
-  // Helper untuk menambahkan query parameter kehamilan_id ke URL
   const withKehamilan = (path) => `${path}?kehamilan_id=${kehamilan.id}`;
 
   return (
     <MainLayout>
       <div className="p-6 max-w-6xl mx-auto space-y-6">
         
-        {/* HEADER */}
+        {/* Breadcrumb */}
+        <Breadcrumb />
+
+        {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
             <h1 className="text-3xl font-extrabold text-gray-900">Pemantauan ANC</h1>
             <p className="text-gray-500 italic">Berdasarkan Standar Buku KIA & Skrining Risiko</p>
             <p className="text-xs text-gray-400 mt-1">Kehamilan ID: {kehamilan.id}</p>
           </div>
-          <Link
-            to={withKehamilan(`/data-ibu/${ibuId}/pemeriksaan-rutin/baru`)}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 transition-all shadow-lg shadow-indigo-200"
-          >
-            <Plus size={20} /> Catat Pemeriksaan
-          </Link>
+          {canEdit && (
+            <Link
+              to={withKehamilan(`/data-ibu/${ibuId}/pemeriksaan-rutin/baru`)}
+              className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 transition-all shadow-lg shadow-indigo-200"
+            >
+              <Plus size={20} /> Catat Pemeriksaan
+            </Link>
+          )}
         </div>
 
-        {/* STATUS RISK */}
+        {/* Pesan role */}
+        {!canEdit && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-blue-700 text-sm flex items-center gap-2">
+            <AlertTriangle size={16} /> Anda dalam mode baca (Dokter). Data hanya dapat dilihat, tidak dapat diubah atau menambah pemeriksaan.
+          </div>
+        )}
+
+        {/* Status Risiko */}
         {risk && (
           <div className={`border-l-4 p-5 rounded-r-2xl shadow-sm flex gap-4 ${getRiskStyles(risk.status_risiko)}`}>
             <AlertTriangle className="flex-shrink-0" size={28} />
@@ -310,7 +345,7 @@ export default function PemeriksaanKehamilanList() {
           </div>
         )}
 
-        {/* SUMMARY CARDS */}
+        {/* Summary Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
             <div className="flex items-center gap-3 text-indigo-600 mb-2">
@@ -342,7 +377,7 @@ export default function PemeriksaanKehamilanList() {
           </div>
         </div>
 
-        {/* GRAFIK */}
+        {/* Grafik */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
             <h2 className="font-bold text-gray-700 mb-4 flex items-center gap-2">📈 Tinggi Fundus (TFU)</h2>
@@ -362,7 +397,7 @@ export default function PemeriksaanKehamilanList() {
           </div>
         </div>
 
-        {/* RIWAYAT PEMERIKSAAN */}
+        {/* Riwayat Pemeriksaan */}
         <div className="space-y-4">
           <h2 className="text-xl font-bold text-gray-800">Riwayat Pemeriksaan</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">

@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate, useSearchParams } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams, Link } from "react-router-dom";
 import MainLayout from "../../components/Layout/MainLayout";
 import { getRencanaById } from "../../services/persalinan";
-import { Edit, Download, ArrowLeft } from "lucide-react";
+import { getCurrentUser, isDokterUser } from "../../services/auth";
+import { Edit, Download, ArrowLeft, Home } from "lucide-react";
 
 export default function RencanaPersalinanDetail() {
   const { id } = useParams();
@@ -12,6 +13,11 @@ export default function RencanaPersalinanDetail() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  // Role: bidan bisa edit, dokter hanya baca
+  const user = getCurrentUser();
+  const isDokter = isDokterUser(user);
+  const canEdit = !isDokter; // bidan
 
   useEffect(() => {
     const fetchData = async () => {
@@ -35,6 +41,26 @@ export default function RencanaPersalinanDetail() {
 
   const handleExport = () => window.print();
 
+  // Breadcrumb component
+  const Breadcrumb = () => {
+    if (!data) return null;
+    return (
+      <div className="flex items-center gap-2 text-sm text-gray-500 mb-4 flex-wrap">
+        <Link to="/dashboard" className="hover:text-indigo-600 flex items-center gap-1">
+          <Home size={14} /> Beranda
+        </Link>
+        <span>/</span>
+        <Link to="/data-ibu" className="hover:text-indigo-600">Data Ibu</Link>
+        <span>/</span>
+        <Link to={`/data-ibu/${id}`} className="hover:text-indigo-600">
+          Detail Ibu
+        </Link>
+        <span>/</span>
+        <span className="text-gray-700 font-medium">Rencana Persalinan</span>
+      </div>
+    );
+  };
+
   if (loading) return <MainLayout><div className="p-6 text-center">Memuat data...</div></MainLayout>;
   if (error) return (
     <MainLayout>
@@ -50,18 +76,33 @@ export default function RencanaPersalinanDetail() {
   return (
     <MainLayout>
       <div className="p-6 max-w-4xl mx-auto print:p-0">
+        <Breadcrumb />
         <div className="flex items-center justify-between mb-6 print:hidden">
           <div className="flex items-center gap-4">
             <button onClick={() => navigate(`/data-ibu/${id}`)} className="p-2 rounded-full hover:bg-gray-100"><ArrowLeft size={20} /></button>
             <h1 className="text-2xl font-bold">Detail Rencana Persalinan</h1>
           </div>
           <div className="flex gap-2">
-            <button onClick={() => navigate(`/data-ibu/${id}/rencana-persalinan/form?id=${editId}`)} className="px-4 py-2 bg-amber-500 text-white rounded-lg flex items-center gap-2 hover:bg-amber-600"><Edit size={18} /> Edit</button>
-            <button onClick={handleExport} className="px-4 py-2 bg-green-600 text-white rounded-lg flex items-center gap-2 hover:bg-green-700"><Download size={18} /> Export PDF</button>
+            {canEdit && (
+              <button onClick={() => navigate(`/data-ibu/${id}/rencana-persalinan/form?id=${editId}`)} className="px-4 py-2 bg-amber-500 text-white rounded-lg flex items-center gap-2 hover:bg-amber-600">
+                <Edit size={18} /> Edit
+              </button>
+            )}
+            <button onClick={handleExport} className="px-4 py-2 bg-green-600 text-white rounded-lg flex items-center gap-2 hover:bg-green-700">
+              <Download size={18} /> Export PDF
+            </button>
           </div>
         </div>
+        {!canEdit && (
+          <div className="bg-blue-50 border border-blue-200 p-3 rounded-lg mb-4 text-blue-700 text-sm flex items-center gap-2">
+            <Home size={16} /> Anda dalam mode baca (Dokter). Data hanya dapat dilihat, tidak dapat diubah.
+          </div>
+        )}
         <div className="bg-white rounded-xl shadow-sm p-8 print:shadow-none">
-          <div className="text-center mb-8"><h2 className="text-2xl font-bold">Rencana Persalinan</h2><p className="text-gray-500">Dibuat untuk ibu: {data.nama_ibu_pernyataan}</p></div>
+          <div className="text-center mb-8">
+            <h2 className="text-2xl font-bold">Rencana Persalinan</h2>
+            <p className="text-gray-500">Dibuat untuk ibu: {data.nama_ibu_pernyataan}</p>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="border-b pb-2 col-span-full"><h3 className="font-semibold text-lg">Data Ibu</h3></div>
             <div><label className="text-gray-500">Nama Ibu</label><p className="font-medium">{data.nama_ibu_pernyataan || "-"}</p></div>
