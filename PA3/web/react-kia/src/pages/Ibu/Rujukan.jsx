@@ -4,12 +4,13 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import MainLayout from "../../components/Layout/MainLayout";
 import { getKehamilanByIbuId } from "../../services/kehamilan";
 import { getRujukanByKehamilanId, createRujukan, updateRujukan } from "../../services/rujukanService";
-import { Save, Home, Plus, Edit2, CheckCircle, X } from "lucide-react";
+import { getCurrentUser, isDokterUser } from "../../services/auth";
+import { Save, Home, Plus, Edit2, CheckCircle, X, Eye, EyeOff } from "lucide-react";
 
 // ============================================================
 // KOMPONEN EMPTY STATE
 // ============================================================
-const EmptyState = ({ title, message, onAdd }) => (
+const EmptyState = ({ title, message, onAdd, canAdd }) => (
   <div className="bg-white rounded-xl shadow-sm p-8 text-center">
     <div className="flex flex-col items-center gap-4">
       <div className="p-4 bg-indigo-50 rounded-full">
@@ -17,12 +18,17 @@ const EmptyState = ({ title, message, onAdd }) => (
       </div>
       <h3 className="text-xl font-semibold text-gray-800">{title}</h3>
       <p className="text-gray-500 max-w-md">{message}</p>
-      <button
-        onClick={onAdd}
-        className="bg-indigo-600 text-white px-6 py-2.5 rounded-lg font-semibold flex items-center gap-2 hover:bg-indigo-700 transition"
-      >
-        <Plus size={18} /> Tambah Rujukan
-      </button>
+      {canAdd && (
+        <button
+          onClick={onAdd}
+          className="bg-indigo-600 text-white px-6 py-2.5 rounded-lg font-semibold flex items-center gap-2 hover:bg-indigo-700 transition"
+        >
+          <Plus size={18} /> Tambah Rujukan
+        </button>
+      )}
+      {!canAdd && (
+        <p className="text-gray-400 text-sm mt-2">Tidak dapat menambah data karena kehamilan sudah selesai.</p>
+      )}
     </div>
   </div>
 );
@@ -40,19 +46,21 @@ const DetailItem = ({ label, value }) => (
 // ============================================================
 // KOMPONEN DETAIL RUJUKAN
 // ============================================================
-const DetailRujukan = ({ data, onEdit }) => (
+const DetailRujukan = ({ data, onEdit, canEdit }) => (
   <div className="bg-white rounded-xl shadow-sm p-6 space-y-5">
     <div className="flex justify-between items-center">
       <div className="flex items-center gap-2 text-green-600">
         <CheckCircle size={20} />
         <h2 className="text-lg font-semibold text-gray-800">Data Rujukan</h2>
       </div>
-      <button
-        onClick={onEdit}
-        className="flex items-center gap-2 text-sm text-indigo-600 border border-indigo-300 px-3 py-1.5 rounded-lg hover:bg-indigo-50"
-      >
-        <Edit2 size={14} /> Edit
-      </button>
+      {canEdit && (
+        <button
+          onClick={onEdit}
+          className="flex items-center gap-2 text-sm text-indigo-600 border border-indigo-300 px-3 py-1.5 rounded-lg hover:bg-indigo-50"
+        >
+          <Edit2 size={14} /> Edit
+        </button>
+      )}
     </div>
 
     <div>
@@ -67,7 +75,7 @@ const DetailRujukan = ({ data, onEdit }) => (
     <div>
       <h3 className="font-semibold text-indigo-700 mb-3">Rujukan Balik</h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 rounded-lg p-4">
-        <DetailItem label="Tanggal Rujukan Balik" value={data.rujukan_balik_tanggal} />
+        <DetailItem label="Tanggal Rujukan Balik" value={data.rujukan_balik_tanggal ? new Date(data.rujukan_balik_tanggal).toLocaleDateString("id-ID") : "-"} />
         <DetailItem label="Diagnosis Akhir" value={data.rujukan_balik_diagnosis_akhir} />
         <DetailItem label="Resume Pemeriksaan & Tatalaksana" value={data.rujukan_balik_resume_pemeriksaan_tatalaksana} />
       </div>
@@ -85,6 +93,9 @@ const DetailRujukan = ({ data, onEdit }) => (
 export default function Rujukan() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const user = getCurrentUser();
+  const isDokter = isDokterUser(user);
+
   const [kehamilan, setKehamilan] = useState(null);
   const [data, setData] = useState(null);
   const [mode, setMode] = useState("empty"); // "empty", "detail", "form"
@@ -99,28 +110,10 @@ export default function Rujukan() {
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [isActive, setIsActive] = useState(true); // status kehamilan aktif
 
-  // Breadcrumb component
-  const Breadcrumb = () => {
-    if (!kehamilan) return null;
-    return (
-      <div className="flex items-center gap-2 text-sm text-gray-500 mb-4 flex-wrap">
-        <Link to="/dashboard" className="hover:text-indigo-600 flex items-center gap-1">
-          <Home size={14} /> Beranda
-        </Link>
-        <span>/</span>
-        <Link to="/data-ibu" className="hover:text-indigo-600">Data Ibu</Link>
-        <span>/</span>
-        <Link to={`/data-ibu/${id}?kehamilan_id=${kehamilan.id}`} className="hover:text-indigo-600">
-          Detail Ibu
-        </Link>
-        <span>/</span>
-        <span className="text-gray-700 font-medium">Rujukan</span>
-      </div>
-    );
-  };
+  const canEdit = isDokter && isActive;
 
-  // Fungsi untuk mereset form ke kosong
   const resetForm = () => {
     setForm({
       rujukan_resume_pemeriksaan_tatalaksana: "",
@@ -133,7 +126,6 @@ export default function Rujukan() {
     });
   };
 
-  // Fungsi untuk mengisi form dengan data rujukan yang ada
   const populateForm = (rujukanData) => {
     setForm({
       rujukan_resume_pemeriksaan_tatalaksana: rujukanData.rujukan_resume_pemeriksaan_tatalaksana || "",
@@ -149,11 +141,20 @@ export default function Rujukan() {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setLoading(true);
         const kehamilanList = await getKehamilanByIbuId(id);
         if (kehamilanList.length > 0) {
-          const aktif = kehamilanList[0];
-          setKehamilan(aktif);
-          const result = await getRujukanByKehamilanId(aktif.id);
+          // Ambil kehamilan yang sedang aktif? Asumsikan ambil pertama, atau bisa juga filter berdasarkan kehamilan_id dari URL
+          // Untuk sederhananya kita ambil yang pertama, namun sebaiknya pakai kehamilan_id dari URL jika ada
+          const aktifKehamilan = kehamilanList[0];
+          setKehamilan(aktifKehamilan);
+          
+          // Tentukan status aktif (NON-AKTIF = tidak aktif)
+          const status = aktifKehamilan.status_kehamilan || "";
+          const aktif = status !== "NON-AKTIF";
+          setIsActive(aktif);
+
+          const result = await getRujukanByKehamilanId(aktifKehamilan.id);
           if (result && result.length > 0) {
             const d = result[0];
             setData(d);
@@ -168,6 +169,7 @@ export default function Rujukan() {
         }
       } catch (err) {
         console.error(err);
+        alert("Gagal memuat data kehamilan");
       } finally {
         setLoading(false);
       }
@@ -176,12 +178,17 @@ export default function Rujukan() {
   }, [id]);
 
   const handleChange = (e) => {
+    if (!canEdit) return;
     const { name, value } = e.target;
     setForm(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!canEdit) {
+      alert("Anda tidak memiliki izin untuk mengubah data.");
+      return;
+    }
     if (!kehamilan) return;
     setSaving(true);
     try {
@@ -226,7 +233,7 @@ export default function Rujukan() {
   };
 
   const handleEdit = () => {
-    setMode("form");
+    if (canEdit) setMode("form");
   };
 
   const handleCancel = () => {
@@ -244,22 +251,33 @@ export default function Rujukan() {
   return (
     <MainLayout>
       <div className="p-6 max-w-5xl">
-        {/* Breadcrumb */}
-        <Breadcrumb />
-
         <h1 className="text-2xl font-bold mb-2">Rujukan</h1>
         <p className="text-gray-500 mb-6">Dokumentasi rujukan ke FKRTL dan rujukan balik.</p>
+
+        {!isActive && (
+          <div className="mb-6 bg-gray-100 border-l-4 border-gray-500 p-4 rounded flex items-center gap-2">
+            <EyeOff size={20} className="text-gray-600" />
+            <span className="text-gray-800">Kehamilan ini sudah selesai (NON-AKTIF). Data hanya dapat dilihat, tidak dapat diubah atau ditambahkan.</span>
+          </div>
+        )}
+
+        {!canEdit && isActive && (
+          <div className="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-3 text-blue-700 text-sm flex items-center gap-2">
+            <Eye size={16} /> Anda dalam mode baca (Bidan). Data hanya dapat dilihat, tidak dapat diubah.
+          </div>
+        )}
 
         {mode === "empty" && (
           <EmptyState
             title="Belum Ada Data Rujukan"
             message="Silakan tambah data rujukan untuk ibu ini."
             onAdd={() => setMode("form")}
+            canAdd={canEdit}
           />
         )}
 
         {mode === "detail" && data && (
-          <DetailRujukan data={data} onEdit={handleEdit} />
+          <DetailRujukan data={data} onEdit={handleEdit} canEdit={canEdit} />
         )}
 
         {mode === "form" && (
@@ -280,26 +298,102 @@ export default function Rujukan() {
             <div>
               <h3 className="font-semibold mb-3 text-indigo-700">Rujukan ke FKRTL</h3>
               <div className="space-y-4">
-                <div><label className="block text-sm font-medium mb-1">Resume Pemeriksaan & Tatalaksana</label><textarea name="rujukan_resume_pemeriksaan_tatalaksana" value={form.rujukan_resume_pemeriksaan_tatalaksana} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" rows="3" /></div>
-                <div><label className="block text-sm font-medium mb-1">Diagnosis Akhir</label><input name="rujukan_diagnosis_akhir" value={form.rujukan_diagnosis_akhir} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" /></div>
-                <div><label className="block text-sm font-medium mb-1">Alasan Dirujuk ke FKRTL</label><textarea name="rujukan_alasan_dirujuk_ke_fkrtl" value={form.rujukan_alasan_dirujuk_ke_fkrtl} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" rows="3" /></div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Resume Pemeriksaan & Tatalaksana</label>
+                  <textarea
+                    name="rujukan_resume_pemeriksaan_tatalaksana"
+                    value={form.rujukan_resume_pemeriksaan_tatalaksana}
+                    onChange={handleChange}
+                    disabled={!canEdit}
+                    className="w-full border rounded-lg px-3 py-2 disabled:bg-gray-100"
+                    rows="3"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Diagnosis Akhir</label>
+                  <input
+                    name="rujukan_diagnosis_akhir"
+                    value={form.rujukan_diagnosis_akhir}
+                    onChange={handleChange}
+                    disabled={!canEdit}
+                    className="w-full border rounded-lg px-3 py-2 disabled:bg-gray-100"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Alasan Dirujuk ke FKRTL</label>
+                  <textarea
+                    name="rujukan_alasan_dirujuk_ke_fkrtl"
+                    value={form.rujukan_alasan_dirujuk_ke_fkrtl}
+                    onChange={handleChange}
+                    disabled={!canEdit}
+                    className="w-full border rounded-lg px-3 py-2 disabled:bg-gray-100"
+                    rows="3"
+                  />
+                </div>
               </div>
             </div>
+
             <div>
               <h3 className="font-semibold mb-3 text-indigo-700">Rujukan Balik</h3>
               <div className="space-y-4">
-                <div><label className="block text-sm font-medium mb-1">Tanggal Rujukan Balik</label><input type="date" name="rujukan_balik_tanggal" value={form.rujukan_balik_tanggal} onChange={handleChange} className="w-full max-w-xs border rounded-lg px-3 py-2" /></div>
-                <div><label className="block text-sm font-medium mb-1">Diagnosis Akhir</label><input name="rujukan_balik_diagnosis_akhir" value={form.rujukan_balik_diagnosis_akhir} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" /></div>
-                <div><label className="block text-sm font-medium mb-1">Resume Pemeriksaan & Tatalaksana</label><textarea name="rujukan_balik_resume_pemeriksaan_tatalaksana" value={form.rujukan_balik_resume_pemeriksaan_tatalaksana} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" rows="3" /></div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Tanggal Rujukan Balik</label>
+                  <input
+                    type="date"
+                    name="rujukan_balik_tanggal"
+                    value={form.rujukan_balik_tanggal}
+                    onChange={handleChange}
+                    disabled={!canEdit}
+                    className="w-full max-w-xs border rounded-lg px-3 py-2 disabled:bg-gray-100"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Diagnosis Akhir</label>
+                  <input
+                    name="rujukan_balik_diagnosis_akhir"
+                    value={form.rujukan_balik_diagnosis_akhir}
+                    onChange={handleChange}
+                    disabled={!canEdit}
+                    className="w-full border rounded-lg px-3 py-2 disabled:bg-gray-100"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Resume Pemeriksaan & Tatalaksana</label>
+                  <textarea
+                    name="rujukan_balik_resume_pemeriksaan_tatalaksana"
+                    value={form.rujukan_balik_resume_pemeriksaan_tatalaksana}
+                    onChange={handleChange}
+                    disabled={!canEdit}
+                    className="w-full border rounded-lg px-3 py-2 disabled:bg-gray-100"
+                    rows="3"
+                  />
+                </div>
               </div>
             </div>
+
             <div>
               <h3 className="font-semibold mb-3 text-indigo-700">Anjuran</h3>
-              <div><label className="block text-sm font-medium mb-1">Rekomendasi Tempat Melahirkan</label><input name="anjuran_rekomendasi_tempat_melahirkan" value={form.anjuran_rekomendasi_tempat_melahirkan} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" /></div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Rekomendasi Tempat Melahirkan</label>
+                <input
+                  name="anjuran_rekomendasi_tempat_melahirkan"
+                  value={form.anjuran_rekomendasi_tempat_melahirkan}
+                  onChange={handleChange}
+                  disabled={!canEdit}
+                  className="w-full border rounded-lg px-3 py-2 disabled:bg-gray-100"
+                />
+              </div>
             </div>
-            <button type="submit" disabled={saving} className="bg-indigo-600 text-white px-6 py-2 rounded-lg flex items-center gap-2 hover:bg-indigo-700">
-              <Save size={18} /> {saving ? "Menyimpan..." : "Simpan Rujukan"}
-            </button>
+
+            {canEdit && (
+              <button
+                type="submit"
+                disabled={saving}
+                className="bg-indigo-600 text-white px-6 py-2 rounded-lg flex items-center gap-2 hover:bg-indigo-700 disabled:opacity-50"
+              >
+                <Save size={18} /> {saving ? "Menyimpan..." : "Simpan Rujukan"}
+              </button>
+            )}
           </form>
         )}
       </div>

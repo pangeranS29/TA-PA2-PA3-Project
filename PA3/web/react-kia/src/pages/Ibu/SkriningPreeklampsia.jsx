@@ -7,7 +7,7 @@ import { getSkriningByKehamilanId, createSkrining, updateSkrining } from "../../
 import { getCurrentUser, isDokterUser } from "../../services/auth";
 import {
   AlertCircle, Save, ArrowRight, ShieldAlert, CheckCircle2,
-  Edit2, Plus, Heart, Eye, ClipboardList, Home
+  Edit2, Plus, Heart, Eye, ClipboardList, Home, EyeOff
 } from "lucide-react";
 
 export default function SkriningPreeklampsia() {
@@ -16,16 +16,18 @@ export default function SkriningPreeklampsia() {
   const kehamilanId = searchParams.get("kehamilan_id");
   const navigate = useNavigate();
 
-  // Role
   const user = getCurrentUser();
   const isDokter = isDokterUser(user);
-  const canEdit = !isDokter;
 
   const [kehamilan, setKehamilan] = useState(null);
   const [skrining, setSkrining] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [isActive, setIsActive] = useState(true); // ✅ status aktif kehamilan
+
+  // Hak edit: dokter DAN kehamilan aktif (bukan NON-AKTIF)
+  const canEdit = isDokter && isActive;
 
   const [form, setForm] = useState({
     anamnesis_multipara_pasangan_baru_sedang: false,
@@ -71,6 +73,11 @@ export default function SkriningPreeklampsia() {
         }
         setKehamilan(targetKehamilan);
 
+        // ✅ Tentukan status aktif (non-aktif hanya jika status === "NON-AKTIF")
+        const status = targetKehamilan.status_kehamilan || "";
+        const aktif = status !== "NON-AKTIF";
+        setIsActive(aktif);
+
         const skriningData = await getSkriningByKehamilanId(targetKehamilan.id);
         if (skriningData && skriningData.length > 0) {
           const s = skriningData[0];
@@ -91,7 +98,8 @@ export default function SkriningPreeklampsia() {
       }
     };
     if (ibuId) fetchData();
-  }, [ibuId, kehamilanId, navigate, searchParams, canEdit]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ibuId, kehamilanId, navigate, searchParams]); // canEdit tidak perlu dimasukkan karena isActive akan berubah
 
   const handleChange = (e) => {
     if (!canEdit) return;
@@ -164,27 +172,7 @@ export default function SkriningPreeklampsia() {
 
   const isRujukan = hitungRisiko() === "PERLU RUJUKAN";
 
-  // Breadcrumb component
-  const Breadcrumb = () => {
-    if (!kehamilan) return null;
-    return (
-      <div className="flex items-center gap-2 text-sm text-gray-500 mb-4 flex-wrap">
-        <Link to="/dashboard" className="hover:text-indigo-600 flex items-center gap-1">
-          <Home size={14} /> Beranda
-        </Link>
-        <span>/</span>
-        <Link to="/data-ibu" className="hover:text-indigo-600">Data Ibu</Link>
-        <span>/</span>
-        <Link to={`/data-ibu/${ibuId}?kehamilan_id=${kehamilan.id}`} className="hover:text-indigo-600">
-          Detail Ibu
-        </Link>
-        <span>/</span>
-        <span className="text-gray-700 font-medium">Skrining Preeklampsia</span>
-      </div>
-    );
-  };
-
-  // ResultView
+  // ResultView (tampilan hasil skrining)
   const ResultView = () => {
     if (!skrining) {
       return (
@@ -204,6 +192,9 @@ export default function SkriningPreeklampsia() {
               >
                 <Plus size={18} /> Mulai Skrining
               </button>
+            )}
+            {!canEdit && !isActive && (
+              <p className="text-gray-400 text-sm mt-2">Kehamilan sudah selesai (NON-AKTIF), tidak dapat menambahkan data baru.</p>
             )}
           </div>
         </div>
@@ -398,14 +389,18 @@ export default function SkriningPreeklampsia() {
 
   return (
     <MainLayout>
-      <div className="p-6 max-w-5xl ">
-        
-        <Breadcrumb />
+      <div className="p-6 max-w-5xl">
+        {/* Header dan banner peringatan */}
         <div className="mb-6">
           <h1 className="text-3xl font-extrabold text-gray-900">Skrining Preeklampsia</h1>
-          {!canEdit && (
+          {!isActive && (
+            <div className="mt-2 bg-gray-100 border-l-4 border-gray-500 p-3 rounded text-gray-700 text-sm flex items-center gap-2">
+              <EyeOff size={16} /> Kehamilan ini sudah selesai (NON-AKTIF). Data hanya dapat dilihat, tidak dapat diubah.
+            </div>
+          )}
+          {!canEdit && isActive && (
             <div className="mt-2 bg-blue-50 border border-blue-200 p-2 rounded-lg text-blue-700 text-sm flex items-center gap-2">
-              <Eye size={16} /> Anda dalam mode baca. Data hanya dapat dilihat, tidak dapat diubah.
+              <Eye size={16} /> Anda dalam mode baca (Bidan). Data hanya dapat dilihat, tidak dapat diubah.
             </div>
           )}
         </div>

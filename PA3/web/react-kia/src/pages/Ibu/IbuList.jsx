@@ -121,13 +121,13 @@ export default function IbuList() {
   };
 
   // Breadcrumb
-  const Breadcrumb = () => (
-    <div className="flex items-center gap-2 text-sm text-gray-500 mb-4">
-      <Link to="/dashboard" className="hover:text-indigo-600">🏠 Beranda</Link>
-      <span>/</span>
-      <span className="text-gray-700 font-medium">Data Ibu</span>
-    </div>
-  );
+  // const Breadcrumb = () => (
+  //   <div className="flex items-center gap-2 text-sm text-gray-500 mb-4">
+  //     <Link to="/dashboard" className="hover:text-indigo-600">🏠 Beranda</Link>
+  //     <span>/</span>
+  //     <span className="text-gray-700 font-medium">Data Ibu</span>
+  //   </div>
+  // );
 
   // Empty state
   const EmptyState = () => (
@@ -221,7 +221,7 @@ export default function IbuList() {
   return (
     <MainLayout>
       <div className="p-4 md:p-6">
-        <Breadcrumb />
+        {/* <Breadcrumb /> */}
 
         {/* STATS CARDS - hanya untuk kehamilan aktif */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">

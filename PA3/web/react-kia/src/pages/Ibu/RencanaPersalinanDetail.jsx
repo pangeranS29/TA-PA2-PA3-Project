@@ -41,25 +41,7 @@ export default function RencanaPersalinanDetail() {
 
   const handleExport = () => window.print();
 
-  // Breadcrumb component
-  const Breadcrumb = () => {
-    if (!data) return null;
-    return (
-      <div className="flex items-center gap-2 text-sm text-gray-500 mb-4 flex-wrap">
-        <Link to="/dashboard" className="hover:text-indigo-600 flex items-center gap-1">
-          <Home size={14} /> Beranda
-        </Link>
-        <span>/</span>
-        <Link to="/data-ibu" className="hover:text-indigo-600">Data Ibu</Link>
-        <span>/</span>
-        <Link to={`/data-ibu/${id}`} className="hover:text-indigo-600">
-          Detail Ibu
-        </Link>
-        <span>/</span>
-        <span className="text-gray-700 font-medium">Rencana Persalinan</span>
-      </div>
-    );
-  };
+
 
   if (loading) return <MainLayout><div className="p-6 text-center">Memuat data...</div></MainLayout>;
   if (error) return (
@@ -76,7 +58,7 @@ export default function RencanaPersalinanDetail() {
   return (
     <MainLayout>
       <div className="p-6 max-w-4xl mx-auto print:p-0">
-        <Breadcrumb />
+        {/* <Breadcrumb /> */}
         <div className="flex items-center justify-between mb-6 print:hidden">
           <div className="flex items-center gap-4">
             <button onClick={() => navigate(`/data-ibu/${id}`)} className="p-2 rounded-full hover:bg-gray-100"><ArrowLeft size={20} /></button>
