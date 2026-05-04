@@ -1,6 +1,6 @@
 // src/pages/Ibu/PelayananNifas.jsx
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import MainLayout from "../../components/Layout/MainLayout";
 import { getKehamilanByIbuId } from "../../services/kehamilan";
 import { getNifasByKehamilanId, createNifas, updateNifas } from "../../services/nifas";
@@ -10,7 +10,28 @@ import {
   updateCatatanNifas, 
   deleteCatatanNifas 
 } from "../../services/catatanNifas";
-import { Save, ArrowLeft, Edit2, CheckCircle, FileText, X, Trash2, Plus } from "lucide-react";
+import { Save, ArrowLeft, Edit2, CheckCircle, FileText, X, Trash2, Plus, Home } from "lucide-react";
+
+// ============================================================
+// KOMPONEN EMPTY STATE
+// ============================================================
+const EmptyState = ({ title, message, onAdd }) => (
+  <div className="bg-white rounded-xl shadow-sm p-8 text-center">
+    <div className="flex flex-col items-center gap-4">
+      <div className="p-4 bg-indigo-50 rounded-full">
+        <Plus size={40} className="text-indigo-400" />
+      </div>
+      <h3 className="text-xl font-semibold text-gray-800">{title}</h3>
+      <p className="text-gray-500 max-w-md">{message}</p>
+      <button
+        onClick={onAdd}
+        className="bg-indigo-600 text-white px-6 py-2.5 rounded-lg font-semibold flex items-center gap-2 hover:bg-indigo-700 transition"
+      >
+        <Plus size={18} /> Tambah Data
+      </button>
+    </div>
+  </div>
+);
 
 // ============================================================
 // KOMPONEN MODAL CATATAN
@@ -286,7 +307,7 @@ export default function PelayananNifas() {
   const [kehamilan, setKehamilan] = useState(null);
   const [nifas, setNifas] = useState([]);
   const [catatanList, setCatatanList] = useState([]);
-  const [mode, setMode] = useState("form");
+  const [mode, setMode] = useState("empty"); // "empty", "form", "detail"
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [savingCatatan, setSavingCatatan] = useState(false);
@@ -366,6 +387,26 @@ export default function PelayananNifas() {
     });
   };
 
+  // Breadcrumb component
+  const Breadcrumb = () => {
+    if (!kehamilan) return null;
+    return (
+      <div className="flex items-center gap-2 text-sm text-gray-500 mb-4 flex-wrap">
+        <Link to="/dashboard" className="hover:text-indigo-600 flex items-center gap-1">
+          <Home size={14} /> Beranda
+        </Link>
+        <span>/</span>
+        <Link to="/data-ibu" className="hover:text-indigo-600">Data Ibu</Link>
+        <span>/</span>
+        <Link to={`/data-ibu/${id}?kehamilan_id=${kehamilan.id}`} className="hover:text-indigo-600">
+          Detail Ibu
+        </Link>
+        <span>/</span>
+        <span className="text-gray-700 font-medium">Pelayanan Nifas</span>
+      </div>
+    );
+  };
+
   // Fetch data - HANYA SEKALI saat halaman dimuat
   useEffect(() => {
     const fetch = async () => {
@@ -392,7 +433,7 @@ export default function PelayananNifas() {
             setMode("detail");
             populateForm(existingNifas);
           } else {
-            setMode("form");
+            setMode("empty");
             setCurrentData(null);
             resetForm("KF1");
           }
@@ -420,6 +461,7 @@ export default function PelayananNifas() {
       setMode("detail");
       populateForm(currentData);
     } else {
+      setMode("empty");
       resetForm(selectedKunjungan);
     }
   };
@@ -435,50 +477,47 @@ export default function PelayananNifas() {
   };
 
   // Fungsi untuk menyimpan catatan
- const handleSaveCatatan = async (catatanForm) => {
-  if (!kehamilan) {
-    alert("Data kehamilan tidak ditemukan!");
-    return;
-  }
-  
-  setSavingCatatan(true);
-  try {
-    // BUAT ULANG PAYLOAD - JANGAN COPY DARI OBJEK LAIN
-    const payload = {
-      kehamilan_id: kehamilan.id,
-      kunjungan_ke: selectedKunjungan,
-      tanggal_periksa_stamp_paraf: catatanForm.tanggal_periksa_stamp_paraf,
-      keluhan_pemeriksaan_tindakan_saran: catatanForm.keluhan_pemeriksaan_tindakan_saran,
-      tanggal_kembali: catatanForm.tanggal_kembali || null,
-    };
-    
-    // HAPUS field id jika ada
-    delete payload.id_catatan_nifas;
-    delete payload.id;
-    
-    console.log("FINAL PAYLOAD:", payload);
-    
-    if (selectedCatatan && selectedCatatan.id_catatan_nifas) {
-      await updateCatatanNifas(selectedCatatan.id_catatan_nifas, payload);
-    } else {
-      await createCatatanNifas(payload);
+  const handleSaveCatatan = async (catatanForm) => {
+    if (!kehamilan) {
+      alert("Data kehamilan tidak ditemukan!");
+      return;
     }
     
-    // Refresh data
-    const dataCatatan = await getCatatanNifasByKehamilanId(kehamilan.id);
-    setCatatanList(dataCatatan);
-    
-    alert("Catatan berhasil disimpan!");
-    setIsModalCatatanOpen(false);
-    setSelectedCatatan(null);
-    
-  } catch (err) {
-    console.error("Error:", err);
-    alert("Gagal menyimpan catatan: " + (err.response?.data?.message || err.message));
-  } finally {
-    setSavingCatatan(false);
-  }
-};
+    setSavingCatatan(true);
+    try {
+      const payload = {
+        kehamilan_id: kehamilan.id,
+        kunjungan_ke: selectedKunjungan,
+        tanggal_periksa_stamp_paraf: catatanForm.tanggal_periksa_stamp_paraf,
+        keluhan_pemeriksaan_tindakan_saran: catatanForm.keluhan_pemeriksaan_tindakan_saran,
+        tanggal_kembali: catatanForm.tanggal_kembali || null,
+      };
+      
+      delete payload.id_catatan_nifas;
+      delete payload.id;
+      
+      if (selectedCatatan && selectedCatatan.id_catatan_nifas) {
+        await updateCatatanNifas(selectedCatatan.id_catatan_nifas, payload);
+      } else {
+        await createCatatanNifas(payload);
+      }
+      
+      // Refresh data
+      const dataCatatan = await getCatatanNifasByKehamilanId(kehamilan.id);
+      setCatatanList(dataCatatan);
+      
+      alert("Catatan berhasil disimpan!");
+      setIsModalCatatanOpen(false);
+      setSelectedCatatan(null);
+      
+    } catch (err) {
+      console.error("Error:", err);
+      alert("Gagal menyimpan catatan: " + (err.response?.data?.message || err.message));
+    } finally {
+      setSavingCatatan(false);
+    }
+  };
+  
   // Fungsi untuk menghapus catatan
   const handleDeleteCatatan = async (idCatatan) => {
     if (!confirm("Apakah Anda yakin ingin menghapus catatan ini?")) return;
@@ -576,7 +615,7 @@ export default function PelayananNifas() {
       populateForm(existingNifas);
     } else {
       setCurrentData(null);
-      setMode("form");
+      setMode("empty");
       resetForm(kunjungan);
     }
   };
@@ -601,7 +640,10 @@ export default function PelayananNifas() {
 
   return (
     <MainLayout>
-      <div className="p-6 max-w-5xl mx-auto">
+      <div className="p-6 max-w-5xl">
+        {/* Breadcrumb */}
+        <Breadcrumb />
+
         <div className="flex items-center gap-4 mb-6">
           <button onClick={() => navigate(-1)} className="p-2 rounded-full hover:bg-gray-100 transition-colors">
             <ArrowLeft size={20} />
@@ -642,42 +684,16 @@ export default function PelayananNifas() {
           })}
         </div>
         
-        {/* Tampilan Detail atau Form */}
-        {mode === "detail" && currentData ? (
-          <div className="space-y-6">
-            {/* Data Pelayanan Nifas */}
-            <DetailNifas 
-              data={currentData} 
-              onEdit={handleEdit} 
-              onOpenCatatan={handleOpenTambahCatatan}
-              kunjunganLabel={getKunjunganLabel()}
-            />
-            
-            {/* Daftar Riwayat Catatan - Ditampilkan DI BAWAH data pelayanan nifas */}
-            <div className="bg-white rounded-xl shadow-sm p-6">
-              <DaftarRiwayatCatatan 
-                catatanList={catatanForSelectedKunjungan}
-                onEdit={handleEditCatatan}
-                onDelete={handleDeleteCatatan}
-                kunjunganLabel={getKunjunganLabel()}
-              />
-            </div>
-            
-            {/* Modal Catatan */}
-            <ModalCatatan
-              isOpen={isModalCatatanOpen}
-              onClose={() => {
-                setIsModalCatatanOpen(false);
-                setSelectedCatatan(null);
-              }}
-              catatanData={selectedCatatan}
-              onSave={handleSaveCatatan}
-              onDelete={handleDeleteCatatan}
-              kunjunganLabel={getKunjunganLabel()}
-              saving={savingCatatan}
-            />
-          </div>
-        ) : (
+        {/* Tampilan berdasarkan mode */}
+        {mode === "empty" && (
+          <EmptyState
+            title={`Belum Ada Data Pelayanan Nifas - ${getKunjunganLabel()}`}
+            message="Silakan isi data pelayanan nifas untuk kunjungan ini."
+            onAdd={() => setMode("form")}
+          />
+        )}
+        
+        {mode === "form" && (
           <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm p-6 space-y-4">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg font-semibold text-indigo-700">
@@ -946,7 +962,40 @@ export default function PelayananNifas() {
             </div>
           </form>
         )}
+        
+        {mode === "detail" && currentData && (
+          <div className="space-y-6">
+            <DetailNifas 
+              data={currentData} 
+              onEdit={handleEdit} 
+              onOpenCatatan={handleOpenTambahCatatan}
+              kunjunganLabel={getKunjunganLabel()}
+            />
+            
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <DaftarRiwayatCatatan 
+                catatanList={catatanForSelectedKunjungan}
+                onEdit={handleEditCatatan}
+                onDelete={handleDeleteCatatan}
+                kunjunganLabel={getKunjunganLabel()}
+              />
+            </div>
+            
+            <ModalCatatan
+              isOpen={isModalCatatanOpen}
+              onClose={() => {
+                setIsModalCatatanOpen(false);
+                setSelectedCatatan(null);
+              }}
+              catatanData={selectedCatatan}
+              onSave={handleSaveCatatan}
+              onDelete={handleDeleteCatatan}
+              kunjunganLabel={getKunjunganLabel()}
+              saving={savingCatatan}
+            />
+          </div>
+        )}
       </div>
     </MainLayout>
   );
-} 
+}

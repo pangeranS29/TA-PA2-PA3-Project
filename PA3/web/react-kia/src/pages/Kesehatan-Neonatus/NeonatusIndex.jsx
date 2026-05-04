@@ -266,7 +266,7 @@ useEffect(() => {
         </div>
 
         {/* DEBUG PAYLOAD */}
-        <div className="mt-10 border-t border-dashed border-gray-200 pt-10">
+        {/* <div className="mt-10 border-t border-dashed border-gray-200 pt-10">
           <button onClick={() => setShowDebug(!showDebug)} className="text-[10px] font-black text-gray-400 uppercase flex items-center gap-2 mb-4 hover:text-blue-600">
             <Code size={14} /> {showDebug ? 'Sembunyikan Debug' : 'Tampilkan Debug'}
           </button>
@@ -281,7 +281,7 @@ useEffect(() => {
               </pre>
             </div>
           )}
-        </div>
+        </div> */}
       </div>
     </MainLayout>
   );

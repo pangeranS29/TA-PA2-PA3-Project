@@ -1,13 +1,13 @@
 // src/pages/Ibu/PemeriksaanKehamilanForm.jsx
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate, useSearchParams } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams, Link } from "react-router-dom";
 import MainLayout from "../../components/Layout/MainLayout";
 import { 
   getPemeriksaanKehamilanById, 
   createPemeriksaanKehamilan, 
   updatePemeriksaanKehamilan 
 } from "../../services/pemeriksaanKehamilan";
-import { Save, ArrowLeft, Loader2, ClipboardCheck, Activity, Beaker, MessageCircle, AlertCircle } from "lucide-react";
+import { Save, ArrowLeft, Loader2, ClipboardCheck, Activity, Beaker, MessageCircle, AlertCircle, Home } from "lucide-react";
 
 export default function PemeriksaanKehamilanForm() {
   const { id: ibuId, periksaId } = useParams();
@@ -38,17 +38,39 @@ export default function PemeriksaanKehamilanForm() {
     tes_lab_protein_urine: "negatif",
     tripel_eliminasi: "non reaktif",
     usg: "",
-    trimester: "T1",
+    trimester: "I",
     kunjungan_ke: "1",
     tanggal_periksa: new Date().toISOString().split("T")[0],
     tempat_periksa: "",
     letak_denyut_jantung_bayi: "",
-    status_imunisasi_tetanus: "T1",
+    status_imunisasi_tetanus: "Belum pernah imunisasi TT",
     konseling: "",
     skrining_dokter: "",
     tes_golongan_darah: "",
     tata_laksana_kasus: "",
   });
+
+  // Breadcrumb component
+  const Breadcrumb = () => {
+    if (!kehamilanId) return null;
+    return (
+      <div className="flex items-center gap-2 text-sm text-gray-500 mb-4 flex-wrap">
+        <Link to="/dashboard" className="hover:text-indigo-600 flex items-center gap-1">
+          <Home size={14} /> Beranda
+        </Link>
+        <span>/</span>
+        <Link to="/data-ibu" className="hover:text-indigo-600">Data Ibu</Link>
+        <span>/</span>
+        <Link to={`/data-ibu/${ibuId}?kehamilan_id=${kehamilanId}`} className="hover:text-indigo-600">
+          Detail Ibu
+        </Link>
+        <span>/</span>
+        <span className="text-gray-700 font-medium">
+          {isEdit ? "Edit Pemeriksaan ANC" : "Tambah Pemeriksaan ANC"}
+        </span>
+      </div>
+    );
+  };
 
   // ================= VALIDATION FUNCTIONS =================
   const validateNumber = (value, fieldName, min = 0, max = null, allowZero = false) => {
@@ -60,22 +82,22 @@ export default function PemeriksaanKehamilanForm() {
     return "";
   };
 
-const validateDate = (dateStr) => {
-  if (!dateStr) return "Tanggal periksa wajib diisi";
-  const selected = new Date(dateStr);
-  const today = new Date();
-  if (selected.getFullYear() > today.getFullYear()) return "Tanggal periksa tidak boleh melebihi hari ini";
-  if (selected.getFullYear() === today.getFullYear() && selected.getMonth() > today.getMonth()) return "Tanggal periksa tidak boleh melebihi hari ini";
-  if (selected.getFullYear() === today.getFullYear() && selected.getMonth() === today.getMonth() && selected.getDate() > today.getDate()) return "Tanggal periksa tidak boleh melebihi hari ini";
-  return "";
-};
+  const validateDate = (dateStr) => {
+    if (!dateStr) return "Tanggal periksa wajib diisi";
+    const selected = new Date(dateStr);
+    const today = new Date();
+    if (selected.getFullYear() > today.getFullYear()) return "Tanggal periksa tidak boleh melebihi hari ini";
+    if (selected.getFullYear() === today.getFullYear() && selected.getMonth() > today.getMonth()) return "Tanggal periksa tidak boleh melebihi hari ini";
+    if (selected.getFullYear() === today.getFullYear() && selected.getMonth() === today.getMonth() && selected.getDate() > today.getDate()) return "Tanggal periksa tidak boleh melebihi hari ini";
+    return "";
+  };
 
   const validateTrimesterMinggu = (minggu, trimester) => {
     const m = parseInt(minggu);
     if (isNaN(m)) return "";
-    if (trimester === "T1" && (m < 0 || m > 12)) return "Trimester 1 harus berisi minggu 0-12";
-    if (trimester === "T2" && (m < 13 || m > 24)) return "Trimester 2 harus berisi minggu 13-24";
-    if (trimester === "T3" && m < 25) return "Trimester 3 harus berisi minggu ≥25";
+    if (trimester === "I" && (m < 0 || m > 12)) return "Trimester 1 harus berisi minggu 0-12";
+    if (trimester === "II" && (m < 13 || m > 24)) return "Trimester 2 harus berisi minggu 13-24";
+    if (trimester === "III" && m < 25) return "Trimester 3 harus berisi minggu ≥25";
     return "";
   };
 
@@ -172,12 +194,12 @@ const validateDate = (dateStr) => {
             tes_lab_protein_urine: data.tes_lab_protein_urine || "negatif",
             tripel_eliminasi: data.tripel_eliminasi || "non reaktif",
             usg: data.usg || "",
-            trimester: data.trimester || "T1",
+            trimester: data.trimester || "I",
             kunjungan_ke: data.kunjungan_ke || "1",
             tanggal_periksa: data.tanggal_periksa ? data.tanggal_periksa.split("T")[0] : new Date().toISOString().split("T")[0],
             tempat_periksa: data.tempat_periksa || "",
             letak_denyut_jantung_bayi: data.letak_denyut_jantung_bayi || "",
-            status_imunisasi_tetanus: data.status_imunisasi_tetanus || "T1",
+            status_imunisasi_tetanus: data.status_imunisasi_tetanus || "Belum pernah imunisasi TT",
             konseling: data.konseling || "",
             skrining_dokter: data.skrining_dokter || "",
             tes_golongan_darah: data.tes_golongan_darah || "",
@@ -275,6 +297,9 @@ const validateDate = (dateStr) => {
   return (
     <MainLayout>
       <div className="p-4 md:p-6 max-w-7xl mx-auto">
+        {/* Breadcrumb */}
+        <Breadcrumb />
+
         <div className="flex items-center gap-4 mb-6">
           <button onClick={() => navigate(-1)} className="p-2 bg-white rounded-full shadow hover:shadow-md transition">
             <ArrowLeft size={24} />
