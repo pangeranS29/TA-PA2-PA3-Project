@@ -82,7 +82,21 @@ func (c *PemeriksaanDokterCombinedController) GetT1ByKehamilan(ctx echo.Context)
 		statusCode := customerror.GetStatusCode(err)
 		return ctx.JSON(statusCode, map[string]string{"message": err.Error()})
 	}
-	return ctx.JSON(http.StatusOK, list)
+
+	// Jika tidak ada data, return dengan struktur kosong
+	if len(list) == 0 {
+		return ctx.JSON(http.StatusOK, map[string]interface{}{
+			"dokter":   nil,
+			"lab_jiwa": nil,
+		})
+	}
+
+	// Return hanya data pertama dengan struktur yang sesuai frontend
+	firstData := list[0]
+	return ctx.JSON(http.StatusOK, map[string]interface{}{
+		"dokter":   firstData.Dokter,
+		"lab_jiwa": firstData.Lab,
+	})
 }
 
 func (c *PemeriksaanDokterCombinedController) DeleteT1(ctx echo.Context) error {
@@ -155,7 +169,21 @@ func (c *PemeriksaanDokterCombinedController) GetT3ByKehamilan(ctx echo.Context)
 		statusCode := customerror.GetStatusCode(err)
 		return ctx.JSON(statusCode, map[string]string{"message": err.Error()})
 	}
-	return ctx.JSON(http.StatusOK, list)
+
+	// Jika tidak ada data, return dengan struktur kosong
+	if len(list) == 0 {
+		return ctx.JSON(http.StatusOK, map[string]interface{}{
+			"dokter":   nil,
+			"lab_jiwa": nil,
+		})
+	}
+
+	// Return hanya data pertama dengan struktur yang sesuai frontend
+	firstData := list[0]
+	return ctx.JSON(http.StatusOK, map[string]interface{}{
+		"dokter":   firstData.Dokter,
+		"lab_jiwa": firstData.Lab,
+	})
 }
 
 func (c *PemeriksaanDokterCombinedController) DeleteT3(ctx echo.Context) error {

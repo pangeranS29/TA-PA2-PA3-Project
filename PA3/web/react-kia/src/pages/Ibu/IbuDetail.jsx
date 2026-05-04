@@ -1,16 +1,20 @@
 // src/pages/Ibu/IbuDetail.jsx
 import React, { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, useSearchParams, Link } from "react-router-dom";
 import MainLayout from "../../components/Layout/MainLayout";
 import { getIbuById } from "../../services/ibu";
 import { getKehamilanByIbuId } from "../../services/kehamilan";
-import { Calendar, MapPin, Phone, Users, Droplet, Clipboard, Heart, FileText } from "lucide-react";
+import { Users, Heart, Phone, MapPin, Clipboard, Home, ChevronRight } from "lucide-react";
 
 export default function IbuDetail() {
   const { id } = useParams();
+  const [searchParams] = useSearchParams();
+  const kehamilanId = searchParams.get("kehamilan_id");
+
   const [ibu, setIbu] = useState(null);
   const [kehamilan, setKehamilan] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -21,6 +25,7 @@ export default function IbuDetail() {
         if (kehamilanData.length > 0) setKehamilan(kehamilanData[0]);
       } catch (err) {
         console.error(err);
+        setError("Gagal memuat data.");
       } finally {
         setLoading(false);
       }
@@ -32,11 +37,17 @@ export default function IbuDetail() {
   if (!ibu) return <MainLayout><div className="p-6">Data tidak ditemukan</div></MainLayout>;
 
   const kependudukan = ibu.kependudukan || {};
-  const usiaKehamilan = kehamilan ? `${kehamilan.uk_kehamilan_saat_ini || 0} Minggu` : "-";
+  const usiaKehamilan = `${kehamilan.uk_kehamilan_saat_ini || 0} Minggu`;
+  const formatDate = (dateStr) => dateStr ? new Date(dateStr).toLocaleDateString("id-ID") : "-";
+
+  const withKehamilan = (path) => `${path}?kehamilan_id=${kehamilan.id}`;
 
   return (
     <MainLayout>
       <div className="p-6 max-w-7xl mx-auto">
+        {/* Breadcrumb */}
+        {/* <Breadcrumb /> */}
+
         {/* Header */}
         <div className="flex flex-wrap justify-between items-center mb-6">
           <div>
@@ -48,10 +59,11 @@ export default function IbuDetail() {
               Edit Profil Lengkap
             </Link>
           </div>
+          <Link to={`/data-ibu/${id}/edit`} className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm">Edit Profil</Link>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Column */}
+          {/* Kolom Kiri - Data Identitas dan Suami */}
           <div className="lg:col-span-2 space-y-6">
             {/* Data Identitas Utama */}
             <div className="bg-white rounded-xl shadow-sm p-6">
@@ -66,6 +78,7 @@ export default function IbuDetail() {
                 <div><span className="text-gray-500 text-sm">Pekerjaan</span><p className="font-medium">{kependudukan.pekerjaan || "-"}</p></div>
                 <div className="md:col-span-2"><span className="text-gray-500 text-sm">Alamat</span><p className="font-medium">{kependudukan.alamat || "-"}</p></div>
               </div>
+              <div className="mt-4"><span className="text-gray-500 text-sm">Alamat</span><p>{kependudukan.alamat || "-"}</p></div>
             </div>
 
             {/* Identitas Suami */}
@@ -119,15 +132,12 @@ export default function IbuDetail() {
 
                 {/* Step 3 */}
                 <div className="relative pl-8">
-                  <div className="absolute -left-[11px] top-1 h-5 w-5 rounded-full bg-emerald-400 border-4 border-white shadow-sm"></div>
-                  <h3 className="font-bold text-gray-800 text-lg">3. Analisis Grafik</h3>
-                  <div className="flex flex-col gap-2 mt-3">
-                    <Link to={`/data-ibu/${id}/grafik-evaluasi`} className="group flex items-center justify-between p-3 rounded-xl bg-emerald-50/50 hover:bg-emerald-100/50 border border-transparent hover:border-emerald-200 transition-all">
-                      <span className="text-sm font-medium text-emerald-800">📊 Grafik Evaluasi Kehamilan (TFU & DJJ)</span>
-                    </Link>
-                    <Link to={`/data-ibu/${id}/grafik-bb`} className="group flex items-center justify-between p-3 rounded-xl bg-emerald-50/50 hover:bg-emerald-100/50 border border-transparent hover:border-emerald-200 transition-all">
-                      <span className="text-sm font-medium text-emerald-800">⚖️ Grafik Peningkatan Berat Badan</span>
-                    </Link>
+                  <div className="absolute -left-[11px] top-1 h-5 w-5 rounded-full bg-rose-400 border-4 border-white"></div>
+                  <h3 className="font-bold text-gray-800">3. Persalinan & Nifas</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-2">
+                    <Link to={withKehamilan(`/data-ibu/${id}/rencana-persalinan`)} className="p-3 rounded-xl bg-gray-50 hover:bg-gray-100 text-center transition">🏥 Rencana Persalinan</Link>
+                    <Link to={withKehamilan(`/data-ibu/${id}/pelayanan-persalinan`)} className="p-3 rounded-xl bg-gray-50 hover:bg-gray-100 text-center transition">👶 Proses & Riwayat Melahirkan</Link>
+                    <Link to={withKehamilan(`/data-ibu/${id}/pelayanan-nifas`)} className="p-3 rounded-xl bg-gray-50 hover:bg-gray-100 text-center transition">🤱 Pelayanan Nifas</Link>
                   </div>
                 </div>
 
@@ -158,7 +168,7 @@ export default function IbuDetail() {
             </div>
           </div>
 
-          {/* Right Column */}
+          {/* Kolom Kanan */}
           <div className="space-y-6">
             <div className="bg-white rounded-xl shadow-sm p-6">
               <h2 className="text-lg font-semibold mb-4">Profil Lengkap</h2>
@@ -169,7 +179,6 @@ export default function IbuDetail() {
                 <p><strong>HPL:</strong> {kehamilan?.taksiran_persalinan ? new Date(kehamilan.taksiran_persalinan).toLocaleDateString("id-ID") : "-"}</p>
               </div>
             </div>
-
             <div className="bg-white rounded-xl shadow-sm p-6">
               <h2 className="text-lg font-semibold mb-4">Kontak Utama</h2>
               <div className="space-y-2">

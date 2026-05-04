@@ -1,6 +1,6 @@
 // src/pages/Ibu/PelayananPersalinan.jsx
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import MainLayout from "../../components/Layout/MainLayout";
 import { getKehamilanByIbuId } from "../../services/kehamilan";
 import {
@@ -34,6 +34,27 @@ const DetailItem = ({ label, value }) => (
     <span className="text-sm text-gray-800 font-semibold mt-0.5">{value ?? "-"}</span>
   </div>
 );
+// ============================================================
+// KOMPONEN EMPTY STATE
+// ============================================================
+const EmptyState = ({ title, message, onAdd }) => (
+  <div className="bg-white rounded-xl shadow-sm p-8 text-center">
+    <div className="flex flex-col items-center gap-4">
+      <div className="p-4 bg-indigo-50 rounded-full">
+        <Plus size={40} className="text-indigo-400" />
+      </div>
+      <h3 className="text-xl font-semibold text-gray-800">{title}</h3>
+      <p className="text-gray-500 max-w-md">{message}</p>
+      <button
+        onClick={onAdd}
+        className="bg-indigo-600 text-white px-6 py-2.5 rounded-lg font-semibold flex items-center gap-2 hover:bg-indigo-700 transition"
+      >
+        <Plus size={18} /> Tambah Data
+      </button>
+    </div>
+  </div>
+);
+
 // ============================================================
 // KOMPONEN SURAT KETERANGAN LAHIR
 // ============================================================
@@ -174,7 +195,7 @@ const SuratKeteranganLahir = ({ data }) => (
               {data?.alamat_orang_tua || ""}
             </span>
           </td>
-          <td className="py-1 px-2 whitespace-nowrap">RW/RW</td>
+          <td className="py-1 px-2 whitespace-nowrap">RW/RT</td>
           <td className="py-1" colSpan={2}>
             <span className="border-b border-dotted border-gray-400 block w-full"></span>
           </td>
@@ -302,6 +323,8 @@ export default function PelayananPersalinan() {
               asuhan_imd_1_jam_pertama: d.asuhan_imd_1_jam_pertama || false,
             });
             setModeRingkasan("detail");
+          } else {
+            setModeRingkasan("empty");
           }
           // Fetch Riwayat
           const dRiwayat = await getRiwayatMelahirkanByKehamilanId(aktif.id);
@@ -319,6 +342,8 @@ export default function PelayananPersalinan() {
               fasyankes_tempat_melahirkan: d.fasyankes_tempat_melahirkan || "",
             });
             setModeRiwayat("detail");
+          } else {
+            setModeRiwayat("empty");
           }
         }
         // Fetch Keterangan Lahir by Ibu ID
@@ -349,6 +374,8 @@ export default function PelayananPersalinan() {
             nama_penolong_kelahiran: d.nama_penolong_kelahiran || "",
           });
           setModeKeterangan("detail");
+        } else {
+          setModeKeterangan("empty");
         }
       } catch (err) {
         console.error(err);
