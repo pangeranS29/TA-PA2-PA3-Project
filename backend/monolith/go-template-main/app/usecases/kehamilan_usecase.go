@@ -70,9 +70,6 @@ func (u *kehamilanUsecase) Update(kehamilan *models.Kehamilan) error {
 	}
 
 	// UPDATE FIELD NON-IMT
-	existing.Gravida = kehamilan.Gravida
-	existing.Paritas = kehamilan.Paritas
-	existing.Abortus = kehamilan.Abortus
 	existing.HPHT = kehamilan.HPHT
 	existing.TaksiranPersalinan = kehamilan.TaksiranPersalinan
 	existing.UKKehamilanSaatIni = kehamilan.UKKehamilanSaatIni

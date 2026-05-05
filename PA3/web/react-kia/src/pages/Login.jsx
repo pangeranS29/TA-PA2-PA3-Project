@@ -16,8 +16,9 @@ const Login = () => {
     setError("");
     try {
       // Fungsi login di service sudah otomatis menyimpan ke localStorage
-      const response = await login(identifier, password);
-      const targetRoute = getUserRedirectRoute(response?.data);
+      await login(identifier, password);
+      const user = getCurrentUser();
+      const targetRoute = getUserRedirectRoute(user);
       navigate(targetRoute, { replace: true });
     } catch (err) {
       setError(err.response?.data?.message || "Login gagal");
