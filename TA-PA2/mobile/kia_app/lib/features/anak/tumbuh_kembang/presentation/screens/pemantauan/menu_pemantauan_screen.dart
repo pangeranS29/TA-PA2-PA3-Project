@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/screens/skrining/pemantauan_menu_screen.dart';
+import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/screens/pemantauan/skrining/pemantauan_menu_screen.dart';
 import 'warna_tinja_screen.dart';
 import 'warna_air_kencing_screen.dart';
 import 'tanda_bahaya_screen.dart';
