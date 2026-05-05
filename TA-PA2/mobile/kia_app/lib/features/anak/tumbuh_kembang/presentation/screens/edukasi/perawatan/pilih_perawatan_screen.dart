@@ -2,9 +2,17 @@ import 'package:flutter/material.dart';
 import 'perawatan_bayi_screen.dart';
 import 'perawatan_anak_bayi_screen.dart';
 import 'perawatan_anak_screen.dart';
+import 'perawatan_screen_integrated.dart';
 
 class PilihPerawatanScreen extends StatelessWidget {
-  const PilihPerawatanScreen({super.key});
+  final int? anakId;
+  final String? anakName;
+  
+  const PilihPerawatanScreen({
+    super.key,
+    this.anakId,
+    this.anakName,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -38,11 +46,27 @@ class PilihPerawatanScreen extends StatelessWidget {
               bgColor: const Color(0xFFEFF6FF),
               title: 'Bayi',
               subtitle: 'Panduan perawatan bayi usia 0 – 12 bulan',
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (_) => const PerawatanBayiScreen()),
-              ),
+              onTap: () {
+                if (anakId != null && anakName != null) {
+                  // Navigate to integrated screen with anak data
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => PerawatanScreenIntegrated(
+                        anakId: anakId!,
+                        anakName: anakName!,
+                      ),
+                    ),
+                  );
+                } else {
+                  // Navigate to static info screen
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) => const PerawatanBayiScreen()),
+                  );
+                }
+              },
             ),
             const SizedBox(height: 16),
             _buildCard(
@@ -52,11 +76,27 @@ class PilihPerawatanScreen extends StatelessWidget {
               bgColor: const Color(0xFFF0FDF4),
               title: 'Anak Bayi',
               subtitle: 'Panduan perawatan anak usia 1 tahun hingga 2 tahun',
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (_) => const PerawatanAnakBayiScreen()),
-              ),
+              onTap: () {
+                if (anakId != null && anakName != null) {
+                  // Navigate to integrated screen with anak data
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => PerawatanScreenIntegrated(
+                        anakId: anakId!,
+                        anakName: anakName!,
+                      ),
+                    ),
+                  );
+                } else {
+                  // Navigate to static info screen
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) => const PerawatanAnakBayiScreen()),
+                  );
+                }
+              },
             ),
             const SizedBox(height: 16),
             _buildCard(
@@ -66,11 +106,27 @@ class PilihPerawatanScreen extends StatelessWidget {
               bgColor: const Color(0xFFFFFBEB),
               title: 'Anak',
               subtitle: 'Panduan perawatan anak usia 2 tahun hingga 6 tahun',
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (_) => const PerawatanAnakScreen()),
-              ),
+              onTap: () {
+                if (anakId != null && anakName != null) {
+                  // Navigate to integrated screen with anak data
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => PerawatanScreenIntegrated(
+                        anakId: anakId!,
+                        anakName: anakName!,
+                      ),
+                    ),
+                  );
+                } else {
+                  // Navigate to static info screen
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) => const PerawatanAnakScreen()),
+                  );
+                }
+              },
             ),
           ],
         ),

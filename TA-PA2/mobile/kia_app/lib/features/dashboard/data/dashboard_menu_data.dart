@@ -76,12 +76,12 @@ class DashboardMenuData {
       'color': Colors.blue,
       'key': 'mpasi',
     },
-    {
-      'label': 'Edukasi',
-      'icon': Icons.menu_book,
-      'color': Colors.orange,
-      'key': 'edukasi',
-    },
+    // {
+    //   'label': 'Edukasi',
+    //   'icon': Icons.menu_book,
+    //   'color': Colors.orange,
+    //   'key': 'edukasi',
+    // },
     {
       'label': 'Catatan',
       'icon': Icons.note,
@@ -89,10 +89,10 @@ class DashboardMenuData {
       'key': 'catatan',
     },
     {
-      'label': 'Bahaya',
-      'icon': Icons.warning,
+      'label': 'Pemantauan',
+      'icon': Icons.pie_chart_sharp,
       'color': Colors.orange,
-      'key': 'bahaya',
+      'key': 'pemantauan',
     },
   ];
 

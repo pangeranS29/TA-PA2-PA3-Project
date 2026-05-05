@@ -11,18 +11,18 @@ type Main struct {
 	config   *config.Config
 
 	// Existing
-	Anak                   *AnakRepository
-	PelayananKesehatanAnak PelayananKesehatanAnakRepository
-	Neonatus               PelayananNeonatusRepository
-	KunjunganGizi          KunjunganGiziRepository
-	KunjunganVitamin       KunjunganVitaminRepository
-	KunjunganImunisasi     KunjunganImunisasiRepository
-	PemeriksaanGigi        PemeriksaanGigiRepository
-	PemantauanPertumbuhan  PemantauanPertumbuhanRepository
-	PengukuranLilA         PengukuranLilaRepository
-	CatatanPelayanan       CatatanPelayananRepository
+	Anak                        *AnakRepository
+	PelayananKesehatanAnak      PelayananKesehatanAnakRepository
+	Neonatus                    PelayananNeonatusRepository
+	KunjunganGizi               KunjunganGiziRepository
+	KunjunganVitamin            KunjunganVitaminRepository
+	KunjunganImunisasi          KunjunganImunisasiRepository
+	PemeriksaanGigi             PemeriksaanGigiRepository
+	PemantauanPertumbuhan       PemantauanPertumbuhanRepository
+	PengukuranLilA              PengukuranLilaRepository
+	CatatanPelayanan            CatatanPelayananRepository
 	ChecklistPemantauanIbuNifas ChecklistPemantauanIbuNifasRepository
-	InformasiUmum          *InformasiUmumRepository
+	InformasiUmum               *InformasiUmumRepository
 
 	// New repositories (semua pointer, mengikuti pola Anak)
 	User                          *UserRepository
@@ -59,6 +59,7 @@ type Main struct {
 	CatatanPelayananNifas         *CatatanPelayananNifasRepository
 	Rujukan                       *RujukanRepository
 	JenisPelayanan                JenisPelayananRepository
+	Perawatan                     PerawatanRepository
 	// MODUL IBU
 	LogTTDMMS            *LogTTDMMSRepository
 	PemantauanIbuHamil   *PemantauanIbuHamilRepository
@@ -128,6 +129,7 @@ func Init(opts Options) *Main {
 	m.CatatanPelayanan = NewCatatanPelayananRepository(opts.Postgres)
 	m.InformasiUmum = NewInformasiUmumRepository(opts.Postgres)
 	m.JenisPelayanan = NewJenisPelayananRepository(opts.Postgres)
+	m.Perawatan = NewPerawatanRepository(opts.Postgres)
 
 	// MODUL IBU
 	m.LogTTDMMS = NewLogTTDMMSRepository(opts.Postgres)

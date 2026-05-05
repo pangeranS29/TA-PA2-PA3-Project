@@ -492,10 +492,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     Navigator.push(context,
                         MaterialPageRoute(builder: (_) => const PilihAnakScreen(tujuan: 'bahaya')));
                     break;
-                  case 'catatan':
+                  case 'pemantauan':
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (_) => const PilihAnakScreen(tujuan: 'pemantauan')));
                     // TODO: Catatan tumbuh kembang — belum tersedia
-                    ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Catatan belum tersedia')));
+                    // ScaffoldMessenger.of(context).showSnackBar(
+                    //     const SnackBar(content: Text('Catatan belum tersedia')));
                     break;
                   default:
                     ScaffoldMessenger.of(context).showSnackBar(

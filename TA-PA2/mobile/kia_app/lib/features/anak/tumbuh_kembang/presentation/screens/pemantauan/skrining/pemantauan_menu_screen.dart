@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/screens/skrining/lembar_pemantauan_screen.dart';
+import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/screens/pemantauan/skrining/lembar_pemantauan_screen.dart';
 
 class PemantauanMenuScreen extends StatefulWidget {
   final Map<String, dynamic>? anak;
@@ -124,7 +124,7 @@ class _PemantauanMenuScreenState extends State<PemantauanMenuScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Pemantauan Anak',
+                  'Skrining tanda bahaya anak',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 24,
@@ -133,7 +133,7 @@ class _PemantauanMenuScreenState extends State<PemantauanMenuScreen> {
                 ),
                 SizedBox(height: 4),
                 Text(
-                  'Pilih fitur pemantauan yang dibutuhkan',
+                  'Pilih fitur skrining dengan usia anak',
                   style: TextStyle(color: Colors.white70, fontSize: 14),
                 ),
               ],
@@ -230,7 +230,7 @@ class _PemantauanMenuScreenState extends State<PemantauanMenuScreen> {
           SizedBox(width: 10),
           Expanded(
             child: Text(
-              'Pilih kelompok usia yang sesuai untuk membuka kategori pemantauan dan skrining tanda bahaya.',
+              'Pilih kelompok usia yang sesuai untuk membuka kategori skrining tanda bahaya.',
               style: TextStyle(
                 fontSize: 12.5,
                 height: 1.45,
