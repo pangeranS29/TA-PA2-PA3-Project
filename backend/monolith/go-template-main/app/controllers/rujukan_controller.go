@@ -12,10 +12,10 @@ import (
 )
 
 type RujukanController struct {
-	usecase usecases.RujukanUsecase
+	usecase usecases.RujukanUseCase
 }
 
-func NewRujukanController(u usecases.RujukanUsecase) *RujukanController {
+func NewRujukanController(u usecases.RujukanUseCase) *RujukanController {
 	return &RujukanController{usecase: u}
 }
 
@@ -97,6 +97,10 @@ func (c *RujukanController) Update(ctx echo.Context) error {
 	if err != nil {
 		return ctx.JSON(http.StatusNotFound, models.Response{StatusCode: http.StatusNotFound, Message: "Data tidak ditemukan"})
 	}
+	if req.RujukanResumePemeriksaanTatalaksana != "" {
+		existing.RujukanResumePemeriksaanTatalaksana = req.RujukanResumePemeriksaanTatalaksana
+	}
+	// ... update semua field
 	// Update semua field
 	existing.RujukanResumePemeriksaanTatalaksana = req.RujukanResumePemeriksaanTatalaksana
 	existing.RujukanDiagnosisAkhir = req.RujukanDiagnosisAkhir

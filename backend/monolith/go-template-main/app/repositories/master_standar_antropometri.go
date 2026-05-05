@@ -1,9 +1,14 @@
 package repositories
 
 import (
+	"fmt"
+	"sync"
+
 	"monitoring-service/app/models"
 	"monitoring-service/pkg/customerror"
 )
+
+var standarCache sync.Map
 
 func (m *Main) GetStandarAntropometri(parameter, jenisKelamin string, nilaiSumbuX float64) (*models.MasterStandarAntropometri, error) {
 	gender := normalizeGender(jenisKelamin)
@@ -59,6 +64,11 @@ func (m *Main) GetStandarAntropometri(parameter, jenisKelamin string, nilaiSumbu
 }
 
 func (m *Main) GetMasterStandarByFilter(parameter, jenisKelamin string) ([]models.MasterStandarAntropometri, error) {
+	cacheKey := fmt.Sprintf("std_%s_%s", parameter, jenisKelamin)
+	if val, ok := standarCache.Load(cacheKey); ok {
+		return val.([]models.MasterStandarAntropometri), nil
+	}
+
 	var result []models.MasterStandarAntropometri
 	q := m.postgres.Model(&models.MasterStandarAntropometri{})
 	if parameter != "" {
@@ -72,6 +82,7 @@ func (m *Main) GetMasterStandarByFilter(parameter, jenisKelamin string) ([]model
 		return nil, customerror.NewInternalServiceError("gagal mengambil master standar antropometri")
 	}
 
+	standarCache.Store(cacheKey, result)
 	return result, nil
 }
 

@@ -1,4 +1,3 @@
-// src/pages/Ibu/RencanaPersalinanForm.jsx
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import MainLayout from "../../components/Layout/MainLayout";
@@ -7,11 +6,10 @@ import { getRencanaById, createRencana, updateRencana, getRencanaByKehamilanId }
 import { Save, ArrowLeft, AlertCircle } from "lucide-react";
 
 export default function RencanaPersalinanForm() {
-  const { id: ibuId } = useParams();
+  const { id } = useParams(); // id ibu
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const rencanaId = searchParams.get("id");
-  const kehamilanIdQuery = searchParams.get("kehamilan_id");
-  const navigate = useNavigate();
 
   const [kehamilan, setKehamilan] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -39,26 +37,20 @@ export default function RencanaPersalinanForm() {
     const fetchData = async () => {
       try {
         setLoading(true);
-        if (!ibuId) {
+        if (!id) {
           setError("ID ibu tidak valid.");
           setLoading(false);
           return;
         }
-        const kehamilanList = await getKehamilanByIbuId(ibuId);
+        const kehamilanList = await getKehamilanByIbuId(id);
         if (kehamilanList.length === 0) {
           setError("Data kehamilan tidak ditemukan untuk ibu ini.");
           setLoading(false);
           return;
         }
-        // Pilih kehamilan berdasarkan query parameter, fallback ke pertama
-        let targetKehamilan = null;
-        if (kehamilanIdQuery) {
-          targetKehamilan = kehamilanList.find(k => k.id == kehamilanIdQuery);
-        }
-        if (!targetKehamilan) targetKehamilan = kehamilanList[0];
-        setKehamilan(targetKehamilan);
+        const aktif = kehamilanList[0];
+        setKehamilan(aktif);
 
-        // Jika ada rencanaId, ambil data untuk edit
         if (rencanaId && rencanaId !== "undefined" && rencanaId !== "null") {
           const data = await getRencanaById(rencanaId);
           setForm({
@@ -78,11 +70,10 @@ export default function RencanaPersalinanForm() {
             donor_rhesus: data.donor_rhesus || "",
           });
         } else {
-          // Cek apakah sudah ada rencana untuk kehamilan ini (supaya tidak duplikat)
-          const existing = await getRencanaByKehamilanId(targetKehamilan.id);
+          const existing = await getRencanaByKehamilanId(aktif.id);
           if (existing && existing.length > 0) {
             const idExisting = existing[0].id_rencana_persalinan || existing[0].id;
-            navigate(`/data-ibu/${ibuId}/rencana-persalinan/detail?id=${idExisting}&kehamilan_id=${targetKehamilan.id}`, { replace: true });
+            navigate(`/data-ibu/${id}/rencana-persalinan/detail?id=${idExisting}`, { replace: true });
             return;
           }
         }
@@ -94,7 +85,7 @@ export default function RencanaPersalinanForm() {
       }
     };
     fetchData();
-  }, [ibuId, kehamilanIdQuery, rencanaId, navigate]);
+  }, [id, rencanaId, navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -124,7 +115,7 @@ export default function RencanaPersalinanForm() {
         savedId = response.data?.data?.id_rencana_persalinan || response.data?.data?.id;
         if (!savedId) throw new Error("Server tidak mengembalikan ID");
       }
-      navigate(`/data-ibu/${ibuId}/rencana-persalinan/detail?id=${savedId}&kehamilan_id=${kehamilan.id}`, { replace: true });
+      navigate(`/data-ibu/${id}/rencana-persalinan/detail?id=${savedId}`, { replace: true });
     } catch (err) {
       console.error(err);
       setError("Gagal menyimpan: " + (err.response?.data?.message || err.message));
@@ -139,13 +130,12 @@ export default function RencanaPersalinanForm() {
     <MainLayout>
       <div className="p-6 max-w-4xl mx-auto">
         <div className="flex items-center gap-4 mb-6">
-          <button onClick={() => navigate(`/data-ibu/${ibuId}?kehamilan_id=${kehamilan?.id || ''}`)} className="p-2 rounded-full hover:bg-gray-100">
+          <button onClick={() => navigate(`/data-ibu/${id}`)} className="p-2 rounded-full hover:bg-gray-100">
             <ArrowLeft size={20} />
           </button>
           <div>
             <h1 className="text-2xl font-bold">{rencanaId && rencanaId !== "undefined" ? "Edit Rencana Persalinan" : "Tambah Rencana Persalinan"}</h1>
             <p className="text-gray-500">Isi data rencana persalinan ibu hamil.</p>
-            {kehamilan && <p className="text-xs text-gray-400">Kehamilan ID: {kehamilan.id}</p>}
           </div>
         </div>
 
@@ -174,7 +164,7 @@ export default function RencanaPersalinanForm() {
             <div><label className="block text-sm font-semibold text-gray-700 mb-1">Rhesus Donor</label><input name="donor_rhesus" value={form.donor_rhesus} onChange={handleChange} className="w-full border border-gray-300 rounded-lg px-4 py-2"/></div>
           </div>
           <div className="flex gap-4 justify-end pt-6 border-t">
-            <button type="button" onClick={() => navigate(`/data-ibu/${ibuId}?kehamilan_id=${kehamilan?.id || ''}`)} className="px-6 py-2 border rounded-lg bg-white text-gray-700 hover:bg-gray-50">Batal</button>
+            <button type="button" onClick={() => navigate(`/data-ibu/${id}`)} className="px-6 py-2 border rounded-lg bg-white text-gray-700 hover:bg-gray-50">Batal</button>
             <button type="submit" disabled={saving} className="px-8 py-2 bg-indigo-600 text-white rounded-lg flex items-center gap-2 hover:bg-indigo-700 disabled:opacity-50"><Save size={18} />{saving ? "Menyimpan..." : (rencanaId && rencanaId !== "undefined" ? "Perbarui" : "Simpan")}</button>
           </div>
         </form>

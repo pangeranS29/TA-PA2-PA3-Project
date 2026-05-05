@@ -120,7 +120,7 @@ const PelayananVitaminIndex = () => {
           
           <button 
             onClick={() => navigate(`/data-anak/pelayanan-vitamin/${anakId}/create`)}
-            className="bg-slate-900 hover:bg-pink-600 transition-all duration-300 text-white px-8 py-4 rounded-2xl font-black text-xs uppercase shadow-xl flex items-center gap-2 group"
+            className="bg-blue-600 hover:bg-blue-700 transition-all duration-300 text-white px-8 py-4 rounded-2xl font-black text-xs uppercase shadow-xl flex items-center gap-2 group"
           >
             <Plus size={16} className="group-hover:rotate-90 transition-transform" /> 
             Input Data Baru
@@ -137,14 +137,14 @@ const PelayananVitaminIndex = () => {
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="bg-slate-900 text-white text-[10px] uppercase tracking-widest text-center">
-                    <th rowSpan="2" className="p-6 border-r border-slate-800 text-left w-72">Jenis Layanan Kesehatan</th>
-                    <th className="p-3 border-b border-slate-800 bg-slate-800">Interval Umur</th>
-                    <th colSpan="5" className="p-3 border-b border-slate-800">Status Pemberian Berdasarkan Tahun</th>
+                  <tr className="bg-blue-700 text-white text-[10px] uppercase tracking-widest text-center">
+                    <th rowSpan="2" className="p-6 border-r border-blue-800 text-left w-72">Jenis Layanan Kesehatan</th>
+                    <th className="p-3 border-b border-blue-800 bg-blue-800">Interval Umur</th>
+                    <th colSpan="5" className="p-3 border-b border-blue-800">Status Pemberian Berdasarkan Tahun</th>
                   </tr>
-                  <tr className="bg-slate-800 text-white text-[9px] text-center">
+                  <tr className="bg-blue-800 text-white text-[9px] text-center">
                     {kolomUmur.map(k => (
-                      <th key={k.label} className="p-4 border-r border-slate-700 w-32">{k.label}</th>
+                      <th key={k.label} className="p-4 border-r border-blue-700 w-32">{k.label}</th>
                     ))}
                   </tr>
                 </thead>

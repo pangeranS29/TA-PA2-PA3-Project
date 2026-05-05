@@ -46,7 +46,7 @@ export default function Laporan() {
             <FileDown size={48} className="mx-auto text-indigo-600 mb-4" />
             <h2 className="text-xl font-semibold mb-2">Laporan Data Ibu</h2>
             <p className="text-gray-500 mb-4">Ekspor data ibu hamil beserta detail kehamilan</p>
-            <button onClick={() => handleExport("ibu")} disabled={loadingIbu} className="bg-indigo-600 text-white px-4 py-2 rounded-lg flex items-center justify-center gap-2 w-full">
+            <button onClick={() => handleExport("ibu")} disabled={loadingIbu} className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center justify-center gap-2 w-full">
               <Download size={18} /> {loadingIbu ? "Memproses..." : "Ekspor Laporan Ibu"}
             </button>
           </div>
@@ -54,7 +54,7 @@ export default function Laporan() {
             <FileDown size={48} className="mx-auto text-green-600 mb-4" />
             <h2 className="text-xl font-semibold mb-2">Laporan Data Anak</h2>
             <p className="text-gray-500 mb-4">Ekspor data anak beserta riwayat kesehatan</p>
-            <button onClick={() => handleExport("anak")} disabled={loadingAnak} className="bg-green-600 text-white px-4 py-2 rounded-lg flex items-center justify-center gap-2 w-full">
+            <button onClick={() => handleExport("anak")} disabled={loadingAnak} className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center justify-center gap-2 w-full">
               <Download size={18} /> {loadingAnak ? "Memproses..." : "Ekspor Laporan Anak"}
             </button>
           </div>

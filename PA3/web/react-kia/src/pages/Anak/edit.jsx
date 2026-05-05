@@ -139,7 +139,7 @@ export default function EditAnak() {
               </div>
               <div className="pt-6 border-t flex flex-col md:flex-row gap-4 justify-end">
                 <button type="button" onClick={() => navigate(-1)} className="px-6 py-3 rounded-lg font-bold text-gray-600 hover:bg-gray-50 border">Batal</button>
-                <button type="submit" disabled={loading} className={`flex items-center justify-center gap-2 px-8 py-3 rounded-lg font-bold text-white transition-all ${loading ? 'bg-indigo-400 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700'}`}>
+                <button type="submit" disabled={loading} className={`flex items-center justify-center gap-2 px-8 py-3 rounded-lg font-bold text-white transition-all ${loading ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}>
                   {loading ? <Loader2 className="animate-spin" size={20} /> : <Save size={20} />}
                   {loading ? "Menyimpan..." : "Simpan Perubahan"}
                 </button>

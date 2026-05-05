@@ -6,7 +6,7 @@ import (
 	"monitoring-service/app/repositories"
 )
 
-type RujukanUsecase interface {
+type RujukanUseCase interface {
 	Create(rj *models.Rujukan) error
 	GetByID(id int32) (*models.Rujukan, error)
 	GetByKehamilanID(kehamilanID int32) ([]models.Rujukan, error)
@@ -14,30 +14,30 @@ type RujukanUsecase interface {
 	Delete(id int32) error
 }
 
-type rujukanUsecase struct {
+type rujukanUseCase struct {
 	repo *repositories.RujukanRepository
 }
 
-func NewRujukanUsecase(repo *repositories.RujukanRepository) RujukanUsecase {
-	return &rujukanUsecase{repo: repo}
+func NewRujukanUseCase(repo *repositories.RujukanRepository) RujukanUseCase {
+	return &rujukanUseCase{repo: repo}
 }
 
-func (u *rujukanUsecase) Create(rj *models.Rujukan) error {
+func (u *rujukanUseCase) Create(rj *models.Rujukan) error {
 	if rj.KehamilanID == 0 {
 		return errors.New("kehamilan_id wajib diisi")
 	}
 	return u.repo.Create(rj)
 }
 
-func (u *rujukanUsecase) GetByID(id int32) (*models.Rujukan, error) {
+func (u *rujukanUseCase) GetByID(id int32) (*models.Rujukan, error) {
 	return u.repo.FindByID(id)
 }
 
-func (u *rujukanUsecase) GetByKehamilanID(kehamilanID int32) ([]models.Rujukan, error) {
+func (u *rujukanUseCase) GetByKehamilanID(kehamilanID int32) ([]models.Rujukan, error) {
 	return u.repo.FindByKehamilanID(kehamilanID)
 }
 
-func (u *rujukanUsecase) Update(rj *models.Rujukan) error {
+func (u *rujukanUseCase) Update(rj *models.Rujukan) error {
 	_, err := u.repo.FindByID(rj.ID)
 	if err != nil {
 		return errors.New("data rujukan tidak ditemukan")
@@ -45,6 +45,6 @@ func (u *rujukanUsecase) Update(rj *models.Rujukan) error {
 	return u.repo.Update(rj)
 }
 
-func (u *rujukanUsecase) Delete(id int32) error {
+func (u *rujukanUseCase) Delete(id int32) error {
 	return u.repo.Delete(id)
 }

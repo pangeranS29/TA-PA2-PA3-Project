@@ -50,6 +50,11 @@ func (r *AnakRepository) FindByID(id int32) (*models.Anak, error) {
 	err := r.db.
 		Preload("Penduduk").
 		Preload("Kehamilan").
+		Preload("Kehamilan.Ibu").
+		Preload("Kehamilan.Ibu.Kependudukan").
+		Preload("Pertumbuhan", func(db *gorm.DB) *gorm.DB {
+			return db.Order("usia_ukur_bulan ASC")
+		}).
 		Where("id = ?", id).
 		First(&anak).Error
 	if err != nil {

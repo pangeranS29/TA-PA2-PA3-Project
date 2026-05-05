@@ -87,11 +87,20 @@ func (r *pemantauanPertumbuhanRepository) Update(id int32, req models.UpdatePema
 		if req.Bulanke != 0 {
 			updates["bulanke"] = req.Bulanke
 		}
-		if !req.Tanggal.IsZero() {
-			updates["tanggal"] = req.Tanggal
+		if req.Tanggal != "" {
+			if t, err := time.Parse("2006-01-02", req.Tanggal); err == nil {
+				updates["tanggal"] = t
+			}
 		}
 		if req.TenagaKesehatanID != 0 {
 			updates["tenaga_kesehatan_id"] = req.TenagaKesehatanID
+		}
+
+		if req.BeratBadan > 0 {
+			updates["berat_badan"] = req.BeratBadan
+		}
+		if req.TinggiBadan > 0 {
+			updates["tinggi_badan"] = req.TinggiBadan
 		}
 
 		if req.BBperU != "" {
@@ -145,8 +154,10 @@ func (r *pemantauanPertumbuhanRepository) Update(id int32, req models.UpdatePema
 		if req.Tindakan != "" {
 			updates["tindakan"] = req.Tindakan
 		}
-		if !req.KunjunganUlang.IsZero() {
-			updates["kunjungan_ulang"] = req.KunjunganUlang
+		if req.KunjunganUlang != "" {
+			if ku, err := time.Parse("2006-01-02", req.KunjunganUlang); err == nil {
+				updates["kunjungan_ulang"] = ku
+			}
 		}
 
 		return tx.Model(&models.DeteksiDiniPenyimpangan{}).
