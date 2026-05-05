@@ -281,8 +281,10 @@ export default function SkriningPreeklampsia() {
             <div className="mt-2 bg-blue-50 border border-blue-200 p-2 rounded-lg text-blue-700 text-sm flex items-center gap-2">
               <Eye size={16} /> Anda dalam mode baca (Bidan). Data hanya dapat dilihat, tidak dapat diubah.
             </div>
-          </div>
+          )}
+        </div>
 
+        <form onSubmit={handleSubmit} className="space-y-8">
           {/* Anamnesis Risiko Tinggi */}
           <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 p-8 transition-all hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
             <h3 className="font-bold mb-4 text-lg text-rose-600 border-b border-rose-100 pb-2 flex items-center gap-2">

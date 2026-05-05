@@ -67,12 +67,7 @@ export default function IbuCreate() {
       updated.taksiran_persalinan = hpl.toISOString().split("T")[0];
     }
     setFormKehamilan(updated);
-  };
-
-    setFormKehamilan(prev => ({ ...prev, [name]: value }));
-
-    // hapus error saat user mulai isi ulang
-    setErrors(prev => ({ ...prev, [name]: "" }));
+    setErrors((prev) => ({ ...prev, [name]: "" }));
   };
   const handleSubmitStep1 = async (e) => {
     e.preventDefault();
