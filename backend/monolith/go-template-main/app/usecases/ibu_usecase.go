@@ -14,6 +14,7 @@ type IbuUsecase interface {
 	GetAll() ([]models.Ibu, error)
 	Update(ibu *models.Ibu) error
 	Delete(id int32) error
+	GetDashboard() ([]models.IbuDashboardDTO, error)
 }
 
 type ibuUsecase struct {
@@ -58,4 +59,8 @@ func (u *ibuUsecase) Update(ibu *models.Ibu) error {
 
 func (u *ibuUsecase) Delete(id int32) error {
 	return u.repo.Delete(id)
+}
+
+func (u *ibuUsecase) GetDashboard() ([]models.IbuDashboardDTO, error) {
+	return u.repo.GetDashboard()
 }

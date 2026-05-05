@@ -162,6 +162,7 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	// ==================== MODUL IBU & KEHAMILAN ====================
 	tenaga.POST("/ibu", controller.Ibu.Create)
 	tenaga.GET("/ibu", controller.Ibu.GetAll)
+	tenaga.GET("/ibuk", controller.Ibu.GetDashboard)
 	tenaga.GET("/ibu/:id", controller.Ibu.GetByID)
 	tenaga.PUT("/ibu/:id", controller.Ibu.Update)
 	tenaga.DELETE("/ibu/:id", controller.Ibu.Delete)
@@ -178,6 +179,7 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	tenaga.GET("/pemeriksaan-kehamilan", controller.PemeriksaanKehamilan.GetByKehamilanID)
 	tenaga.PUT("/pemeriksaan-kehamilan/:id", controller.PemeriksaanKehamilan.Update)
 	tenaga.DELETE("/pemeriksaan-kehamilan/:id", controller.PemeriksaanKehamilan.Delete)
+	tenaga.GET("/pemeriksaan-kehamilan/grafik-anc", controller.PemeriksaanKehamilan.GetGrafikANC)
 
 	// ==================== EVALUASI KESEHATAN IBU ====================
 	tenaga.POST("/evaluasi-kesehatan-ibu", controller.EvaluasiKesehatanIbu.Create)
@@ -236,12 +238,12 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	tenaga.DELETE("/catatan-pelayanan-nifas/:id", controller.CatatanPelayananNifas.Delete)
 
 	// ==================== GRAFIK EVALUASI KEHAMILAN ====================
-	tenaga.POST("/grafik-evaluasi-kehamilan", controller.GrafikEvaluasiKehamilan.Create)
-	tenaga.GET("/grafik-evaluasi-kehamilan/grafik", controller.GrafikEvaluasiKehamilan.GetGrafik)
-	tenaga.GET("/grafik-evaluasi-kehamilan/:id", controller.GrafikEvaluasiKehamilan.GetByID)
-	tenaga.GET("/grafik-evaluasi-kehamilan", controller.GrafikEvaluasiKehamilan.GetByKehamilanID)
-	tenaga.PUT("/grafik-evaluasi-kehamilan/:id", controller.GrafikEvaluasiKehamilan.Update)
-	tenaga.DELETE("/grafik-evaluasi-kehamilan/:id", controller.GrafikEvaluasiKehamilan.Delete)
+	// tenaga.POST("/grafik-evaluasi-kehamilan", controller.GrafikEvaluasiKehamilan.Create)
+	// tenaga.GET("/grafik-evaluasi-kehamilan/grafik", controller.GrafikEvaluasiKehamilan.GetGrafik)
+	// tenaga.GET("/grafik-evaluasi-kehamilan/:id", controller.GrafikEvaluasiKehamilan.GetByID)
+	// tenaga.GET("/grafik-evaluasi-kehamilan", controller.GrafikEvaluasiKehamilan.GetByKehamilanID)
+	// tenaga.PUT("/grafik-evaluasi-kehamilan/:id", controller.GrafikEvaluasiKehamilan.Update)
+	// tenaga.DELETE("/grafik-evaluasi-kehamilan/:id", controller.GrafikEvaluasiKehamilan.Delete)
 
 	// ==================== GRAFIK PENINGKATAN BERAT BADAN ====================
 	tenaga.POST("/grafik-peningkatan-bb", controller.GrafikPeningkatanBB.Create)
@@ -370,6 +372,7 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	// tenaga.GET("/kependudukan/kartu-keluarga/:kartu_keluarga_id", controller.Kependudukan.GetByKartuKeluargaID)
 	tenaga.PUT("/kependudukan/:id", controller.Kependudukan.Update)
 	tenaga.DELETE("/kependudukan/:id", controller.Kependudukan.Delete)
+	tenaga.GET("/penduduk/rekap-dusun", controller.Kependudukan.GetRekapPerDusun)
 
 	// ==================== EDUKASI DIGITAL ====================
 	tenaga.GET("/edukasi-informasi-umum", controller.EdukasiInformasiUmum.GetAll)
