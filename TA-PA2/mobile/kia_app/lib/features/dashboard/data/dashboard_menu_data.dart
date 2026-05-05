@@ -17,6 +17,7 @@ class DashboardMenuData {
     },
   ];
 
+  // Quick menu Hamil — 6 item, grid 3 kolom (sesuai desain lib_desain)
   static List<Map<String, dynamic>> hamilQuickMenuItems = [
     {
       'label': 'Grafik BB Ibu',
@@ -31,16 +32,28 @@ class DashboardMenuData {
       'key': 'djj_tfu',
     },
     {
-      'label': 'Absensi Kelas',
-      'icon': Icons.event_available_outlined,
-      'color': Colors.green,
-      'key': 'absensi',
-    },
-    {
       'label': 'Catatan',
       'icon': Icons.assignment_outlined,
       'color': Colors.indigo,
       'key': 'catatan',
+    },
+    {
+      'label': 'Log Minum TTD/MMS',
+      'icon': Icons.medication_outlined,
+      'color': Colors.red,
+      'key': 'log_ttd',
+    },
+    {
+      'label': 'Rujukan',
+      'icon': Icons.description_outlined,
+      'color': Colors.orange,
+      'key': 'rujukan',
+    },
+    {
+      'label': 'Pemantauan Ibu Hamil',
+      'icon': Icons.health_and_safety_outlined,
+      'color': Colors.teal,
+      'key': 'pemantauan',
     },
   ];
 
@@ -83,10 +96,10 @@ class DashboardMenuData {
     },
   ];
 
+  // Fase — hanya 3 fase (Menyusui dihapus sesuai desain lib_desain)
   static List<Map<String, dynamic>> phases = [
     {'label': 'Hamil', 'icon': Icons.favorite_border},
     {'label': 'Nifas', 'icon': Icons.person_outline},
-    {'label': 'Menyusui', 'icon': Icons.child_care},
     {'label': 'Tumbuh', 'icon': Icons.emoji_emotions_outlined},
   ];
 }

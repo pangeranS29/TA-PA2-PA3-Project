@@ -14,6 +14,11 @@ type GrafikEvaluasiKehamilanUsecase interface {
 	Update(g *models.GrafikEvaluasiKehamilan) error
 	Delete(id int32) error
 	GetGrafik(kehamilanID int32) (*GrafikResponse, error)
+
+	// Modul Ibu
+	GetMine(userID int32) ([]models.GrafikEvaluasiKehamilan, error)
+    GetByIDForOrangtua(id int32, userID int32) (*models.GrafikEvaluasiKehamilan, error)
+    GetGrafikForOrangtua(userID int32) (*GrafikResponse, error)
 }
 type GrafikTFUPoint struct {
 	Usia   int     `json:"usia"`
@@ -140,4 +145,76 @@ func (u *grafikEvaluasiKehamilanUsecase) GetGrafik(kehamilanID int32) (*GrafikRe
 		GrafikTFU: tfuResult,
 		GrafikDJJ: djjResult,
 	}, nil
+}
+
+//
+// ====================== MODUL IBU ======================
+
+func (u *grafikEvaluasiKehamilanUsecase) GetMine(userID int32) ([]models.GrafikEvaluasiKehamilan, error) {
+    return u.repo.FindMineByUserID(userID)
+}
+
+func (u *grafikEvaluasiKehamilanUsecase) GetByIDForOrangtua(id int32, userID int32) (*models.GrafikEvaluasiKehamilan, error) {
+    allowed, err := u.repo.IsOwnedByUser(id, userID)
+    if err != nil {
+        return nil, err
+    }
+    if !allowed {
+        return nil, errors.New("anda tidak memiliki akses ke data ini")
+    }
+    return u.repo.FindByID(id)
+}
+
+func (u *grafikEvaluasiKehamilanUsecase) GetGrafikForOrangtua(userID int32) (*GrafikResponse, error) {
+    // =========================
+    // TFU
+    // =========================
+    tfuData, err := u.repo.FindGrafikTFUByUserID(userID)
+    if err != nil {
+        return nil, err
+    }
+
+    var tfuResult []GrafikTFUPoint
+    for _, d := range tfuData {
+        if d.UsiaGestasiMinggu != nil && d.TinggiFundusUteriCm != nil {
+            usia := *d.UsiaGestasiMinggu
+            tfu := *d.TinggiFundusUteriCm
+
+            tfuResult = append(tfuResult, GrafikTFUPoint{
+                Usia:   usia,
+                TFU:    tfu,
+                Normal: float64(usia),
+                Upper:  float64(usia) + 2,
+                Lower:  float64(usia) - 2,
+            })
+        }
+    }
+
+    // =========================
+    // DJJ
+    // =========================
+    djjData, err := u.repo.FindGrafikDJJByUserID(userID)
+    if err != nil {
+        return nil, err
+    }
+
+    var djjResult []GrafikDJJPoint
+    for _, d := range djjData {
+        if d.UsiaGestasiMinggu != nil && d.DenyutJantungBayiXMenit != nil {
+            usia := *d.UsiaGestasiMinggu
+            djj := *d.DenyutJantungBayiXMenit
+
+            djjResult = append(djjResult, GrafikDJJPoint{
+                Usia:  usia,
+                DJJ:   djj,
+                Upper: 160,
+                Lower: 110,
+            })
+        }
+    }
+
+    return &GrafikResponse{
+        GrafikTFU: tfuResult,
+        GrafikDJJ: djjResult,
+    }, nil
 }

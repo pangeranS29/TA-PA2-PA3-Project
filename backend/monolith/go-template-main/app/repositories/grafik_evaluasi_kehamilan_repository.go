@@ -124,3 +124,77 @@ func (r *GrafikEvaluasiKehamilanRepository) FindGrafikDJJ(kehamilanID int32) ([]
 
 	return list, err
 }
+
+
+//
+// ====================== MODUL IBU ======================
+//
+
+func (r *GrafikEvaluasiKehamilanRepository) IsOwnedByUser(grafikID int32, userID int32) (bool, error) {
+    var count int64
+
+    err := r.db.
+        Model(&models.GrafikEvaluasiKehamilan{}).
+        Joins("JOIN kehamilan k ON k.id = grafik_evaluasi_kehamilan.kehamilan_id").
+        Joins("JOIN ibu i ON i.id = k.ibu_id").
+        Joins("JOIN penduduk pd ON pd.id = i.penduduk_id").
+        Joins("JOIN pengguna u ON u.penduduk_id = pd.id").
+        Where("grafik_evaluasi_kehamilan.id = ? AND u.id = ?", grafikID, userID).
+        Count(&count).Error
+
+    return count > 0, err
+}
+
+func (r *GrafikEvaluasiKehamilanRepository) FindMineByUserID(userID int32) ([]models.GrafikEvaluasiKehamilan, error) {
+    var list []models.GrafikEvaluasiKehamilan
+
+    err := r.db.
+        Model(&models.GrafikEvaluasiKehamilan{}).
+        Joins("JOIN kehamilan k ON k.id = grafik_evaluasi_kehamilan.kehamilan_id").
+        Joins("JOIN ibu i ON i.id = k.ibu_id").
+        Joins("JOIN penduduk pd ON pd.id = i.penduduk_id").
+        Joins("JOIN pengguna u ON u.id = pd.id").
+        Where("u.id = ?", userID).
+        Order("grafik_evaluasi_kehamilan.usia_gestasi_minggu ASC, grafik_evaluasi_kehamilan.tanggal_bulan_tahun ASC").
+        Find(&list).Error
+
+    return list, err
+}
+
+func (r *GrafikEvaluasiKehamilanRepository) FindGrafikTFUByUserID(userID int32) ([]models.GrafikEvaluasiKehamilan, error) {
+    var list []models.GrafikEvaluasiKehamilan
+
+    err := r.db.
+        Model(&models.GrafikEvaluasiKehamilan{}).
+        Select("grafik_evaluasi_kehamilan.usia_gestasi_minggu, grafik_evaluasi_kehamilan.tinggi_fundus_uteri_cm").
+        Joins("JOIN kehamilan k ON k.id = grafik_evaluasi_kehamilan.kehamilan_id").
+        Joins("JOIN ibu i ON i.id = k.ibu_id").
+        Joins("JOIN penduduk pd ON pd.id = i.penduduk_id").
+        Joins("JOIN pengguna u ON u.id = pd.id").
+        Where("u.id = ?", userID).
+        Where("grafik_evaluasi_kehamilan.usia_gestasi_minggu IS NOT NULL").
+        Where("grafik_evaluasi_kehamilan.tinggi_fundus_uteri_cm IS NOT NULL").
+        Order("grafik_evaluasi_kehamilan.usia_gestasi_minggu ASC").
+        Find(&list).Error
+
+    return list, err
+}
+
+func (r *GrafikEvaluasiKehamilanRepository) FindGrafikDJJByUserID(userID int32) ([]models.GrafikEvaluasiKehamilan, error) {
+    var list []models.GrafikEvaluasiKehamilan
+
+    err := r.db.
+        Model(&models.GrafikEvaluasiKehamilan{}).
+        Select("grafik_evaluasi_kehamilan.usia_gestasi_minggu, grafik_evaluasi_kehamilan.denyut_jantung_bayi_x_menit").
+        Joins("JOIN kehamilan k ON k.id = grafik_evaluasi_kehamilan.kehamilan_id").
+        Joins("JOIN ibu i ON i.id = k.ibu_id").
+        Joins("JOIN penduduk pd ON pd.id = i.penduduk_id").
+        Joins("JOIN pengguna u ON u.id = pd.id").
+        Where("u.id = ?", userID).
+        Where("grafik_evaluasi_kehamilan.usia_gestasi_minggu IS NOT NULL").
+        Where("grafik_evaluasi_kehamilan.denyut_jantung_bayi_x_menit IS NOT NULL").
+        Order("grafik_evaluasi_kehamilan.usia_gestasi_minggu ASC").
+        Find(&list).Error
+
+    return list, err
+}

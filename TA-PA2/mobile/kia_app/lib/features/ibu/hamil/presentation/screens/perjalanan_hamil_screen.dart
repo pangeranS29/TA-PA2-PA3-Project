@@ -13,6 +13,7 @@ class JourneyScreen extends StatefulWidget {
   final int abortus;
   final String hplText;
   final String hphtText;
+  final DateTime hpht;
 
   const JourneyScreen({
     super.key,
@@ -22,6 +23,7 @@ class JourneyScreen extends StatefulWidget {
     required this.abortus,
     required this.hplText,
     required this.hphtText,
+    required this.hpht,
   });
 
   @override
@@ -168,7 +170,7 @@ class _JourneyScreenState extends State<JourneyScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => const LogTTDMMSScreen(),
+                        builder: (_) => LogTTDMMSScreen(hpht: widget.hpht,),
                       ),
                     );
                   },
