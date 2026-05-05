@@ -2,7 +2,6 @@ package usecases
 
 import (
 	"errors"
-	"fmt"
 	"monitoring-service/app/models"
 	"monitoring-service/app/repositories"
 )
@@ -30,6 +29,9 @@ func NewGrafikPeningkatanBBUsecase(
 	}
 }
 
+//
+// 🔥 CORE LOGIC (dipakai Create & Update)
+//
 func (u *grafikPeningkatanBBUsecase) processGrafik(g *models.GrafikPeningkatanBB) error {
 
 	if g.KehamilanID == 0 {
@@ -39,6 +41,7 @@ func (u *grafikPeningkatanBBUsecase) processGrafik(g *models.GrafikPeningkatanBB
 		return errors.New("berat_badan dan minggu_kehamilan wajib diisi")
 	}
 
+	// 🔹 Ambil data kehamilan
 	kehamilan, err := u.kehamilanRepo.FindByID(g.KehamilanID)
 	if err != nil {
 		return errors.New("data kehamilan tidak ditemukan")
@@ -47,6 +50,7 @@ func (u *grafikPeningkatanBBUsecase) processGrafik(g *models.GrafikPeningkatanBB
 	bbAwal := kehamilan.BB_Awal
 	imt := kehamilan.IMT_Awal
 
+	// 🔹 Tentukan range berdasarkan IMT
 	var minTotal, maxTotal float64
 
 	switch {
@@ -60,71 +64,40 @@ func (u *grafikPeningkatanBBUsecase) processGrafik(g *models.GrafikPeningkatanBB
 		minTotal, maxTotal = 5, 9
 	}
 
+	// 🔹 Hitung batas minggu
 	minggu := float64(*g.MingguKehamilan)
 
+	minMinggu := minggu * (minTotal / 40)
+	maxMinggu := minggu * (maxTotal / 40)
+
+	// 🔹 Hitung kenaikan aktual
 	kenaikan := *g.BeratBadan - bbAwal
 
-	expectedMin := minTotal * (minggu / 40)
-	expectedMax := maxTotal * (minggu / 40)
-
-	if kenaikan < expectedMin {
-		kekurangan := expectedMin - kenaikan
-
-		g.Deviasi = -kekurangan
-		g.Status = "KURANG"
-
-		g.PenjelasanHasilGrafik = fmt.Sprintf(
-			"Kenaikan berat badan kurang %.2f kg dari standar",
-			kekurangan,
-		)
-
-	} else if kenaikan > expectedMax {
-		kelebihan := kenaikan - expectedMax
-
-		g.Deviasi = kelebihan
-		g.Status = "BERLEBIH"
-
-		g.PenjelasanHasilGrafik = fmt.Sprintf(
-			"Kenaikan berat badan berlebih %.2f kg dari standar",
-			kelebihan,
-		)
-
+	// 🔹 Generate penjelasan
+	if kenaikan < minMinggu {
+		g.PenjelasanHasilGrafik = "Kenaikan berat badan kurang dari standar"
+	} else if kenaikan > maxMinggu {
+		g.PenjelasanHasilGrafik = "Kenaikan berat badan berlebih dari standar"
 	} else {
-		g.Deviasi = 0
-		g.Status = "NORMAL"
-
 		g.PenjelasanHasilGrafik = "Kenaikan berat badan sesuai standar"
 	}
 
 	return nil
 }
 
+//
 // CREATE
+//
 func (u *grafikPeningkatanBBUsecase) Create(g *models.GrafikPeningkatanBB) error {
-
-	// VALIDASI AWAL (hindari panic)
-	if g.MingguKehamilan == nil {
-		return errors.New("minggu_kehamilan wajib diisi")
-	}
-
-	// CEK DUPLIKAT
-	existing, err := u.repo.FindByKehamilanIDAndMinggu(g.KehamilanID, *g.MingguKehamilan)
-	if err != nil {
-		return err
-	}
-	if existing != nil {
-		return errors.New("data minggu ini sudah ada")
-	}
-
-	// PROCESS
 	if err := u.processGrafik(g); err != nil {
 		return err
 	}
-
 	return u.repo.Create(g)
 }
 
+//
 // GET
+//
 func (u *grafikPeningkatanBBUsecase) GetByID(id int32) (*models.GrafikPeningkatanBB, error) {
 	return u.repo.FindByID(id)
 }
@@ -133,9 +106,10 @@ func (u *grafikPeningkatanBBUsecase) GetByKehamilanID(kehamilanID int32) ([]mode
 	return u.repo.FindByKehamilanID(kehamilanID)
 }
 
+//
 // UPDATE
+//
 func (u *grafikPeningkatanBBUsecase) Update(g *models.GrafikPeningkatanBB) error {
-
 	existing, err := u.repo.FindByID(g.ID)
 	if err != nil {
 		return errors.New("data grafik peningkatan berat badan tidak ditemukan")
@@ -144,19 +118,6 @@ func (u *grafikPeningkatanBBUsecase) Update(g *models.GrafikPeningkatanBB) error
 	// 🔹 Pastikan kehamilan tidak berubah
 	g.KehamilanID = existing.KehamilanID
 
-	//  CEK DUPLIKAT MINGGU (PENTING)
-	if g.MingguKehamilan != nil {
-		existingMinggu, err := u.repo.FindByKehamilanIDAndMinggu(g.KehamilanID, *g.MingguKehamilan)
-		if err != nil {
-			return err
-		}
-
-		// pastikan bukan data yang sama
-		if existingMinggu != nil && existingMinggu.ID != g.ID {
-			return errors.New("data minggu ini sudah ada")
-		}
-	}
-
 	if err := u.processGrafik(g); err != nil {
 		return err
 	}
@@ -164,7 +125,9 @@ func (u *grafikPeningkatanBBUsecase) Update(g *models.GrafikPeningkatanBB) error
 	return u.repo.Update(g)
 }
 
+//
 // DELETE
+//
 func (u *grafikPeningkatanBBUsecase) Delete(id int32) error {
 	return u.repo.Delete(id)
 }

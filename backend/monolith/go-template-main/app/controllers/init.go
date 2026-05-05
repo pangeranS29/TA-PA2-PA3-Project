@@ -49,7 +49,7 @@ type Main struct {
 	CatatanPelayananTrimester2    *CatatanPelayananTrimester2Controller
 	CatatanPelayananTrimester3    *CatatanPelayananTrimester3Controller
 	CatatanPelayananNifas         *CatatanPelayananNifasController
-	// GrafikEvaluasiKehamilan       *GrafikEvaluasiKehamilanController
+	GrafikEvaluasiKehamilan       *GrafikEvaluasiKehamilanController
 	GrafikPeningkatanBB           *GrafikPeningkatanBBController
 	PenjelasanHasilGrafik         *PenjelasanHasilGrafikController
 	RencanaPersalinan             *RencanaPersalinanController
@@ -60,6 +60,8 @@ type Main struct {
 	PemantauanAnak                *PemantauanAnakController
 	SkriningDMGestasional         *SkriningDMGestasionalController
 	SkriningPreeklampsia          *SkriningPreeklampsiaController
+	SkriningPemantauan            *SkriningPemantauanController
+	KategoriTandaBahaya           *KategoriTandaBahayaController
 	PelayananIbuNifas             *PelayananIbuNifasController
 	RiwayatKehamilanLalu          *RiwayatKehamilanLaluController
 	PemantauanIndikator           *PemantauanIndikatorController
@@ -125,7 +127,7 @@ func Init(opts Options) *Main {
 	m.CatatanPelayananTrimester2 = NewCatatanPelayananTrimester2Controller(opts.UseCases.CatatanPelayananTrimester2)
 	m.CatatanPelayananTrimester3 = NewCatatanPelayananTrimester3Controller(opts.UseCases.CatatanPelayananTrimester3)
 	m.CatatanPelayananNifas = NewCatatanPelayananNifasController(opts.UseCases.CatatanPelayananNifas)
-	// m.GrafikEvaluasiKehamilan = NewGrafikEvaluasiKehamilanController(opts.UseCases.GrafikEvaluasiKehamilan)
+	m.GrafikEvaluasiKehamilan = NewGrafikEvaluasiKehamilanController(opts.UseCases.GrafikEvaluasiKehamilan)
 	m.GrafikPeningkatanBB = NewGrafikPeningkatanBBController(opts.UseCases.GrafikPeningkatanBB)
 	m.PenjelasanHasilGrafik = NewPenjelasanHasilGrafikController(opts.UseCases.PenjelasanHasilGrafik)
 	m.RencanaPersalinan = NewRencanaPersalinanController(opts.UseCases.RencanaPersalinan)
@@ -136,6 +138,8 @@ func Init(opts Options) *Main {
 	m.PemantauanAnak = NewPemantauanAnakController(opts.UseCases.PemantauanAnak)
 	m.SkriningDMGestasional = NewSkriningDMGestasionalController(opts.UseCases.SkriningDMGestasional)
 	m.SkriningPreeklampsia = NewSkriningPreeklampsiaController(opts.UseCases.SkriningPreeklampsia)
+	m.SkriningPemantauan = NewSkriningPemantauanController(opts.UseCases.SkriningPemantauan)
+	m.KategoriTandaBahaya = NewKategoriTandaBahayaController(opts.UseCases.KategoriTandaBahaya)
 	m.PelayananIbuNifas = NewPelayananIbuNifasController(opts.UseCases.PelayananIbuNifas)
 	m.RiwayatKehamilanLalu = NewRiwayatKehamilanLaluController(opts.UseCases.RiwayatKehamilanLalu)
 	m.KeteranganLahir = NewKeteranganLahirController(opts.UseCases.KeteranganLahir)

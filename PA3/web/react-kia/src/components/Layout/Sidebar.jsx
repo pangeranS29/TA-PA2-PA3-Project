@@ -1,7 +1,7 @@
 // src/components/Layout/Sidebar.jsx
 import { useMemo, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
-import { getCurrentUser, getUserRedirectRoute, isAdminUser, isBidanUser, isDokterUser } from "../../services/auth";
+import { getCurrentUser, getUserRedirectRoute, isAdminUser } from "../../services/auth";
 import {
   ChevronDown,
   LayoutGrid,
@@ -25,9 +25,6 @@ import {
 const Sidebar = () => {
   const user = getCurrentUser();
   const isAdmin = isAdminUser(user);
-  const isBidan = isBidanUser(user);
-  const isDokter = isDokterUser(user);
-  
   const dashboardPath = getUserRedirectRoute(user);
   const location = useLocation();
 
@@ -42,13 +39,6 @@ const Sidebar = () => {
     setDropdownOpen((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
-  // Menu untuk dokter (hanya Data Ibu & Laporan)
-  const dokterMenuItems = [
-    { path: "/data-ibu", name: "Data Ibu", icon: Users },
-    { path: "/laporan", name: "Laporan", icon: BarChart3 },
-  ];
-
-  // Menu admin (kelola keluarga)
   const adminFamilyMenuItems = useMemo(
     () => [
       { path: "/dashboard/admin/manajemen-keluarga", name: "Manajemen KK", icon: UserCheck },

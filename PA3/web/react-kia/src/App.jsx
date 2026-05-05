@@ -1,3 +1,4 @@
+// src/App.jsx
 import React from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { getPostLoginRoute, isAuthenticated } from "./services/auth";
@@ -20,7 +21,6 @@ import IbuCreate from "./pages/Ibu/IbuCreate";
 import IbuDetail from "./pages/Ibu/IbuDetail";
 import IbuEdit from "./pages/Ibu/IbuEdit";
 import SkriningPreeklampsia from "./pages/Ibu/SkriningPreeklampsia";
-import SkriningDMG from"./pages/Ibu/SkriningDMG";
 import PemeriksaanFisik from "./pages/Ibu/PemeriksaanFisik";
 import GrafikEvaluasiKehamilan from "./pages/Ibu/GrafikEvaluasiKehamilan";
 import GrafikPeningkatanBB from "./pages/Ibu/GrafikPeningkatanBB";
@@ -111,10 +111,6 @@ import KelolaPerkembangan from "./pages/penanda-perkembangan-anak/KelolaPerkemba
 import KelolaLingkungan from "./pages/KesehatanLingkungan/KelolaLingkungan";
 import DataLingkungan from "./pages/KesehatanLingkungan/DataLingkungan";
 
-//Dokter
-import ProtectedRoute from "./components/ProtectedRoute";
-import DokterDashboard from "./pages/Dokter/index";
-
 const HomeRedirect = () => {
   if (!isAuthenticated()) {
     return <Navigate to="/login" replace />;
@@ -132,7 +128,6 @@ function App() {
         {/* PROTECTED (Bidan/Kader) */}
         <Route element={<PrivateRoute />}>
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/dashboard/bidan" element={<Dashboard />} />
 
           {/* Kependudukan */}
           <Route path="/kependudukan" element={<KependudukanList />} />
@@ -145,7 +140,6 @@ function App() {
           <Route path="/data-ibu/:id" element={<IbuDetail />} />
           <Route path="/data-ibu/:id/edit" element={<IbuEdit />} />
           <Route path="/data-ibu/:id/skrining-preeklampsia" element={<SkriningPreeklampsia />} />
-          <Route path="/data-ibu/:id/Skrining-Diabetes-Melitus-Gestasional" element={<SkriningDMG />} />
           <Route path="/data-ibu/:id/skrining-dashboard" element={<SkriningDashboard />} />
           <Route path="/data-ibu/:id/pemeriksaan-fisik" element={<PemeriksaanFisik />} />
           <Route path="/data-ibu/:id/grafik-evaluasi" element={<GrafikEvaluasiKehamilan />} />
@@ -236,9 +230,6 @@ function App() {
           <Route path="/dashboard/admin/tenaga-kesehatan" element={<TenagaKesehatanManagement />} />
           <Route path="/dashboard/admin/jadwal-layanan" element={<JadwalLayanan />} />
         </Route>
-
-        {/* DOKTER ROUTES */}
-        <Route path="/dashboard/dokter" element={<DokterDashboard />} />
 
         {/* Rute Anak (tanpa auth wrapper - bisa diakses langsung) */}
         <Route path="/data-anak/dashboard/:id" element={<AnakDashboard />} />
