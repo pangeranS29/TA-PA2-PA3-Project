@@ -301,70 +301,141 @@ const DetailNifas = ({ data, onEdit, onOpenCatatan, kunjunganLabel }) => (
   </div>
 );
 
-const emptyForm = (kunjungan) => ({
-  kunjungan_ke: kunjungan,
-  tanggal_periksa: "",
-  tanda_vital_tekanan_darah: "",
-  tanda_vital_suhu_tubuh: "",
-  pelayanan_involusi_uteri: "",
-  pelayanan_cairan_pervaginam: "",
-  pelayanan_periksa_jalan_lahir: "",
-  pelayanan_periksa_payudara: "",
-  pelayanan_asi_eksklusif: "",
-  pemberian_kapsul_vitamin_a: false,
-  pemberian_tablet_tambah_darah_jumlah: "",
-  pelayanan_skrining_depresi_nifas: "",
-  pelayanan_kontrasepsi_pasca_persalinan: "",
-  pelayanan_penanganan_risiko_malaria: "",
-  komplikasi_nifas: "",
-  tindakan_saran: "",
-  nama_pemeriksa_paraf: "",
-  tanggal_kembali: "",
-});
-
 export default function PelayananNifas() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [kehamilan, setKehamilan] = useState(null);
   const [nifas, setNifas] = useState([]);
-  const [selectedKunjungan, setSelectedKunjungan] = useState("KF1");
-  const [form, setForm] = useState(emptyForm("KF1"));
+  const [catatanList, setCatatanList] = useState([]);
+  const [mode, setMode] = useState("empty"); // "empty", "form", "detail"
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [savingCatatan, setSavingCatatan] = useState(false);
+  const [selectedKunjungan, setSelectedKunjungan] = useState("KF1");
+  const [currentData, setCurrentData] = useState(null);
+  const [selectedCatatan, setSelectedCatatan] = useState(null);
+  const [isModalCatatanOpen, setIsModalCatatanOpen] = useState(false);
+  
+  const [form, setForm] = useState({
+    kunjungan_ke: "KF1",
+    tanggal_periksa: "",
+    tanda_vital_tekanan_darah: "",
+    tanda_vital_suhu_tubuh: "",
+    pelayanan_involusi_uteri: "",
+    pelayanan_cairan_pervaginam: "",
+    pelayanan_periksa_jalan_lahir: "",
+    pelayanan_periksa_payudara: "",
+    pelayanan_asi_eksklusif: "",
+    pemberian_kapsul_vitamin_a: false,
+    pemberian_tablet_tambah_darah_jumlah: "",
+    pelayanan_skrining_depresi_nifas: "",
+    pelayanan_kontrasepsi_pasca_persalinan: "",
+    pelayanan_penanganan_risiko_malaria: "",
+    komplikasi_nifas: "",
+    tindakan_saran: "",
+    nama_pemeriksa_paraf: "",
+    tanggal_kembali: "",
+  });
 
+  // Filter catatan berdasarkan kunjungan yang dipilih
+  const catatanForSelectedKunjungan = catatanList.filter((c) => c.kunjungan_ke === selectedKunjungan);
+
+  // Fungsi populate form
+  const populateForm = (data) => {
+    setForm({
+      kunjungan_ke: data.kunjungan_ke,
+      tanggal_periksa: data.tanggal_periksa ? new Date(data.tanggal_periksa).toISOString().split("T")[0] : "",
+      tanda_vital_tekanan_darah: data.tanda_vital_tekanan_darah || "",
+      tanda_vital_suhu_tubuh: data.tanda_vital_suhu_tubuh || "",
+      pelayanan_involusi_uteri: data.pelayanan_involusi_uteri || "",
+      pelayanan_cairan_pervaginam: data.pelayanan_cairan_pervaginam || "",
+      pelayanan_periksa_jalan_lahir: data.pelayanan_periksa_jalan_lahir || "",
+      pelayanan_periksa_payudara: data.pelayanan_periksa_payudara || "",
+      pelayanan_asi_eksklusif: data.pelayanan_asi_eksklusif || "",
+      pemberian_kapsul_vitamin_a: data.pemberian_kapsul_vitamin_a || false,
+      pemberian_tablet_tambah_darah_jumlah: data.pemberian_tablet_tambah_darah_jumlah || "",
+      pelayanan_skrining_depresi_nifas: data.pelayanan_skrining_depresi_nifas || "",
+      pelayanan_kontrasepsi_pasca_persalinan: data.pelayanan_kontrasepsi_pasca_persalinan || "",
+      pelayanan_penanganan_risiko_malaria: data.pelayanan_penanganan_risiko_malaria || "",
+      komplikasi_nifas: data.komplikasi_nifas || "",
+      tindakan_saran: data.tindakan_saran || "",
+      nama_pemeriksa_paraf: data.nama_pemeriksa_paraf || "",
+      tanggal_kembali: data.tanggal_kembali ? new Date(data.tanggal_kembali).toISOString().split("T")[0] : "",
+    });
+  };
+
+  const resetForm = (kunjungan) => {
+    setForm({
+      kunjungan_ke: kunjungan,
+      tanggal_periksa: "",
+      tanda_vital_tekanan_darah: "",
+      tanda_vital_suhu_tubuh: "",
+      pelayanan_involusi_uteri: "",
+      pelayanan_cairan_pervaginam: "",
+      pelayanan_periksa_jalan_lahir: "",
+      pelayanan_periksa_payudara: "",
+      pelayanan_asi_eksklusif: "",
+      pemberian_kapsul_vitamin_a: false,
+      pemberian_tablet_tambah_darah_jumlah: "",
+      pelayanan_skrining_depresi_nifas: "",
+      pelayanan_kontrasepsi_pasca_persalinan: "",
+      pelayanan_penanganan_risiko_malaria: "",
+      komplikasi_nifas: "",
+      tindakan_saran: "",
+      nama_pemeriksa_paraf: "",
+      tanggal_kembali: "",
+    });
+  };
+
+  // Breadcrumb component
+  // const Breadcrumb = () => {
+  //   if (!kehamilan) return null;
+  //   return (
+  //     <div className="flex items-center gap-2 text-sm text-gray-500 mb-4 flex-wrap">
+  //       <Link to="/dashboard" className="hover:text-indigo-600 flex items-center gap-1">
+  //         <Home size={14} /> Beranda
+  //       </Link>
+  //       <span>/</span>
+  //       <Link to="/data-ibu" className="hover:text-indigo-600">Data Ibu</Link>
+  //       <span>/</span>
+  //       <Link to={`/data-ibu/${id}?kehamilan_id=${kehamilan.id}`} className="hover:text-indigo-600">
+  //         Detail Ibu
+  //       </Link>
+  //       <span>/</span>
+  //       <span className="text-gray-700 font-medium">Pelayanan Nifas</span>
+  //     </div>
+  //   );
+  // };
+
+  // Fetch data - HANYA SEKALI saat halaman dimuat
   useEffect(() => {
-    const fetchData = async () => {
+    const fetch = async () => {
       try {
+        setLoading(true);
         const kehamilanList = await getKehamilanByIbuId(id);
         if (kehamilanList.length > 0) {
           const aktif = kehamilanList[0];
           setKehamilan(aktif);
-          const data = await getNifasByKehamilanId(aktif.id);
-          setNifas(data);
-          const existing = data.find((n) => n.kunjungan_ke === selectedKunjungan);
-          if (existing) {
-            setForm({
-              kunjungan_ke: existing.kunjungan_ke,
-              tanggal_periksa: existing.tanggal_periksa ? new Date(existing.tanggal_periksa).toISOString().split("T")[0] : "",
-              tanda_vital_tekanan_darah: existing.tanda_vital_tekanan_darah || "",
-              tanda_vital_suhu_tubuh: existing.tanda_vital_suhu_tubuh || "",
-              pelayanan_involusi_uteri: existing.pelayanan_involusi_uteri || "",
-              pelayanan_cairan_pervaginam: existing.pelayanan_cairan_pervaginam || "",
-              pelayanan_periksa_jalan_lahir: existing.pelayanan_periksa_jalan_lahir || "",
-              pelayanan_periksa_payudara: existing.pelayanan_periksa_payudara || "",
-              pelayanan_asi_eksklusif: existing.pelayanan_asi_eksklusif || "",
-              pemberian_kapsul_vitamin_a: existing.pemberian_kapsul_vitamin_a || false,
-              pemberian_tablet_tambah_darah_jumlah: existing.pemberian_tablet_tambah_darah_jumlah || "",
-              pelayanan_skrining_depresi_nifas: existing.pelayanan_skrining_depresi_nifas || "",
-              pelayanan_kontrasepsi_pasca_persalinan: existing.pelayanan_kontrasepsi_pasca_persalinan || "",
-              pelayanan_penanganan_risiko_malaria: existing.pelayanan_penanganan_risiko_malaria || "",
-              komplikasi_nifas: existing.komplikasi_nifas || "",
-              tindakan_saran: existing.tindakan_saran || "",
-              nama_pemeriksa_paraf: existing.nama_pemeriksa_paraf || "",
-              tanggal_kembali: existing.tanggal_kembali ? new Date(existing.tanggal_kembali).toISOString().split("T")[0] : "",
-            });
+          
+          const dataNifas = await getNifasByKehamilanId(aktif.id);
+          const nifasArray = Array.isArray(dataNifas) ? dataNifas : [];
+          setNifas(nifasArray);
+          
+          const dataCatatan = await getCatatanNifasByKehamilanId(aktif.id);
+          const catatanArray = Array.isArray(dataCatatan) ? dataCatatan : [];
+          setCatatanList(catatanArray);
+          
+          // Cek data untuk kunjungan default (KF1)
+          const existingNifas = nifasArray.find((n) => n.kunjungan_ke === "KF1");
+          
+          if (existingNifas) {
+            setCurrentData(existingNifas);
+            setMode("detail");
+            populateForm(existingNifas);
           } else {
-            setForm(emptyForm(selectedKunjungan));
+            setMode("empty");
+            setCurrentData(null);
+            resetForm("KF1");
           }
         }
       } catch (err) {
@@ -373,8 +444,8 @@ export default function PelayananNifas() {
         setLoading(false);
       }
     };
-    fetchData();
-  }, [id, selectedKunjungan]);
+    fetch();
+  }, [id]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -526,14 +597,46 @@ export default function PelayananNifas() {
       }
       
     } catch (err) {
-      alert("Gagal menyimpan data nifas");
-      console.error(err);
+      console.error("Error detail:", err);
+      alert("Gagal menyimpan data nifas: " + (err.response?.data?.message || err.message));
     } finally {
       setSaving(false);
     }
   };
 
-  if (loading) return <MainLayout><div className="p-6">Memuat...</div></MainLayout>;
+  const handleKunjunganChange = (kunjungan) => {
+    setSelectedKunjungan(kunjungan);
+    
+    const existingNifas = nifas.find((n) => n.kunjungan_ke === kunjungan);
+    
+    if (existingNifas) {
+      setCurrentData(existingNifas);
+      setMode("detail");
+      populateForm(existingNifas);
+    } else {
+      setCurrentData(null);
+      setMode("empty");
+      resetForm(kunjungan);
+    }
+  };
+
+  const getKunjunganLabel = () => {
+    switch(selectedKunjungan) {
+      case "KF1": return "6-48 Jam";
+      case "KF2": return "3-7 Hari";
+      case "KF3": return "8-28 Hari";
+      case "KF4": return "29-42 Hari";
+      default: return selectedKunjungan;
+    }
+  };
+
+  if (loading) {
+    return (
+      <MainLayout>
+        <div className="p-6">Memuat...</div>
+      </MainLayout>
+    );
+  }
 
   return (
     <MainLayout>
@@ -542,52 +645,356 @@ export default function PelayananNifas() {
         {/* <Breadcrumb /> */}
 
         <div className="flex items-center gap-4 mb-6">
-          <button type="button" onClick={() => navigate(-1)} className="p-2 rounded-full hover:bg-gray-100 transition-colors">
+          <button onClick={() => navigate(-1)} className="p-2 rounded-full hover:bg-gray-100 transition-colors">
             <ArrowLeft size={20} />
           </button>
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Pelayanan Nifas</h1>
-            <p className="text-gray-500">Pencatatan pelayanan pasca persalinan.</p>
+            <p className="text-gray-500">Pencatatan pelayanan masa nifas ibu.</p>
           </div>
         </div>
-
-        <div className="flex gap-2 mb-6">
-          {["KF1", "KF2", "KF3", "KF4"].map((k) => (
-            <button key={k} type="button" onClick={() => setSelectedKunjungan(k)}
-              className={`px-4 py-2 rounded-lg ${selectedKunjungan === k ? "bg-indigo-600 text-white" : "bg-gray-100"}`}>
-              {k === "KF1" ? "6-48 Jam" : k === "KF2" ? "3-7 Hari" : k === "KF3" ? "8-28 Hari" : "29-42 Hari"}
-            </button>
-          ))}
+        
+        {/* Tombol Pilih Kunjungan */}
+        <div className="flex gap-2 mb-6 flex-wrap">
+          {["KF1", "KF2", "KF3", "KF4"].map((k) => {
+            const hasData = nifas.some((n) => n.kunjungan_ke === k);
+            const hasCatatan = catatanList.some((c) => c.kunjungan_ke === k);
+            const kunjunganLabel = k === "KF1" ? "6-48 Jam" : k === "KF2" ? "3-7 Hari" : k === "KF3" ? "8-28 Hari" : "29-42 Hari";
+            
+            return (
+              <button 
+                key={k} 
+                type="button"
+                onClick={() => handleKunjunganChange(k)} 
+                className={`px-4 py-2 rounded-lg transition-colors flex items-center gap-2 ${
+                  selectedKunjungan === k 
+                    ? "bg-indigo-600 text-white" 
+                    : hasData 
+                      ? "bg-green-100 text-green-700 border border-green-300" 
+                      : "bg-gray-100 text-gray-700"
+                }`}
+              >
+                {kunjunganLabel}
+                {hasData && selectedKunjungan !== k && <CheckCircle size={14} />}
+                {hasCatatan && selectedKunjungan !== k && (
+                  <FileText size={12} className="text-blue-500" />
+                )}
+              </button>
+            );
+          })}
         </div>
-
-        <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm p-6 space-y-4">
-          <h2 className="text-lg font-semibold text-indigo-700">Kunjungan {selectedKunjungan}</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div><label className="block text-sm font-medium mb-1">Tanggal Periksa</label><input type="date" name="tanggal_periksa" value={form.tanggal_periksa} onChange={handleChange} className="w-full border rounded px-3 py-2" /></div>
-            <div><label className="block text-sm font-medium mb-1">Tekanan Darah</label><input name="tanda_vital_tekanan_darah" value={form.tanda_vital_tekanan_darah} onChange={handleChange} className="w-full border rounded px-3 py-2" /></div>
-            <div><label className="block text-sm font-medium mb-1">Suhu Tubuh</label><input type="number" step="0.1" name="tanda_vital_suhu_tubuh" value={form.tanda_vital_suhu_tubuh} onChange={handleChange} className="w-full border rounded px-3 py-2" /></div>
-            <div><label className="block text-sm font-medium mb-1">Involusi Uteri</label><input name="pelayanan_involusi_uteri" value={form.pelayanan_involusi_uteri} onChange={handleChange} className="w-full border rounded px-3 py-2" /></div>
-            <div><label className="block text-sm font-medium mb-1">Cairan Pervaginam</label><input name="pelayanan_cairan_pervaginam" value={form.pelayanan_cairan_pervaginam} onChange={handleChange} className="w-full border rounded px-3 py-2" /></div>
-            <div><label className="block text-sm font-medium mb-1">Periksa Jalan Lahir</label><input name="pelayanan_periksa_jalan_lahir" value={form.pelayanan_periksa_jalan_lahir} onChange={handleChange} className="w-full border rounded px-3 py-2" /></div>
-            <div><label className="block text-sm font-medium mb-1">Periksa Payudara</label><input name="pelayanan_periksa_payudara" value={form.pelayanan_periksa_payudara} onChange={handleChange} className="w-full border rounded px-3 py-2" /></div>
-            <div><label className="block text-sm font-medium mb-1">ASI Eksklusif</label><input name="pelayanan_asi_eksklusif" value={form.pelayanan_asi_eksklusif} onChange={handleChange} className="w-full border rounded px-3 py-2" /></div>
-            <div className="flex items-center gap-2 mt-2">
-              <input type="checkbox" name="pemberian_kapsul_vitamin_a" checked={form.pemberian_kapsul_vitamin_a} onChange={handleChange} />
-              <label className="text-sm font-medium">Vitamin A</label>
+        
+        {/* Tampilan berdasarkan mode */}
+        {mode === "empty" && (
+          <EmptyState
+            title={`Belum Ada Data Pelayanan Nifas - ${getKunjunganLabel()}`}
+            message="Silakan isi data pelayanan nifas untuk kunjungan ini."
+            onAdd={() => setMode("form")}
+          />
+        )}
+        
+        {mode === "form" && (
+          <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm p-6 space-y-4">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-semibold text-indigo-700">
+                Form Pelayanan Nifas - {getKunjunganLabel()}
+              </h2>
+              <div className="flex gap-2">
+                {currentData && (
+                  <button 
+                    type="button"
+                    onClick={handleCancel}
+                    className="flex items-center gap-2 text-sm text-gray-600 border border-gray-300 px-3 py-1.5 rounded-lg hover:bg-gray-50"
+                  >
+                    <X size={14} /> Batal
+                  </button>
+                )}
+              </div>
             </div>
-            <div><label className="block text-sm font-medium mb-1">Tablet Tambah Darah</label><input type="number" name="pemberian_tablet_tambah_darah_jumlah" value={form.pemberian_tablet_tambah_darah_jumlah} onChange={handleChange} className="w-full border rounded px-3 py-2" /></div>
-            <div><label className="block text-sm font-medium mb-1">Skrining Depresi Nifas</label><input name="pelayanan_skrining_depresi_nifas" value={form.pelayanan_skrining_depresi_nifas} onChange={handleChange} className="w-full border rounded px-3 py-2" /></div>
-            <div><label className="block text-sm font-medium mb-1">Kontrasepsi Pasca Persalinan</label><input name="pelayanan_kontrasepsi_pasca_persalinan" value={form.pelayanan_kontrasepsi_pasca_persalinan} onChange={handleChange} className="w-full border rounded px-3 py-2" /></div>
-            <div><label className="block text-sm font-medium mb-1">Penanganan Risiko Malaria</label><input name="pelayanan_penanganan_risiko_malaria" value={form.pelayanan_penanganan_risiko_malaria} onChange={handleChange} className="w-full border rounded px-3 py-2" /></div>
-            <div className="md:col-span-2"><label className="block text-sm font-medium mb-1">Komplikasi Nifas</label><textarea name="komplikasi_nifas" value={form.komplikasi_nifas} onChange={handleChange} className="w-full border rounded px-3 py-2" rows="2" /></div>
-            <div className="md:col-span-2"><label className="block text-sm font-medium mb-1">Tindakan/Saran</label><textarea name="tindakan_saran" value={form.tindakan_saran} onChange={handleChange} className="w-full border rounded px-3 py-2" rows="2" /></div>
-            <div><label className="block text-sm font-medium mb-1">Nama Pemeriksa/Paraf</label><input name="nama_pemeriksa_paraf" value={form.nama_pemeriksa_paraf} onChange={handleChange} className="w-full border rounded px-3 py-2" /></div>
-            <div><label className="block text-sm font-medium mb-1">Tanggal Kembali</label><input type="date" name="tanggal_kembali" value={form.tanggal_kembali} onChange={handleChange} className="w-full border rounded px-3 py-2" /></div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Tanggal Periksa</label>
+                <input 
+                  type="date" 
+                  name="tanggal_periksa" 
+                  value={form.tanggal_periksa} 
+                  onChange={handleChange} 
+                  className="w-full border rounded-lg px-3 py-2 focus:ring-indigo-500 focus:border-indigo-500" 
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium mb-1">Tekanan Darah</label>
+                <input 
+                  name="tanda_vital_tekanan_darah" 
+                  value={form.tanda_vital_tekanan_darah} 
+                  onChange={handleChange} 
+                  placeholder="Contoh: 120/80"
+                  className="w-full border rounded-lg px-3 py-2 focus:ring-indigo-500 focus:border-indigo-500" 
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium mb-1">Suhu Tubuh (°C)</label>
+                <input 
+                  type="number" 
+                  step="0.1" 
+                  name="tanda_vital_suhu_tubuh" 
+                  value={form.tanda_vital_suhu_tubuh} 
+                  onChange={handleChange} 
+                  placeholder="Contoh: 36.5"
+                  className="w-full border rounded-lg px-3 py-2 focus:ring-indigo-500 focus:border-indigo-500" 
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium mb-1">Involusi Uteri</label>
+                <select 
+                  name="pelayanan_involusi_uteri" 
+                  value={form.pelayanan_involusi_uteri} 
+                  onChange={handleChange}
+                  className="w-full border rounded-lg px-3 py-2 focus:ring-indigo-500 focus:border-indigo-500"
+                >
+                  <option value="">-- Pilih --</option>
+                  <option value="baik">Baik (normal)</option>
+                  <option value="lambat">Lambat (subinvolusi)</option>
+                  <option value="cepat">Cepat</option>
+                </select>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium mb-1">Cairan Pervaginam (Lochia)</label>
+                <select 
+                  name="pelayanan_cairan_pervaginam" 
+                  value={form.pelayanan_cairan_pervaginam} 
+                  onChange={handleChange}
+                  className="w-full border rounded-lg px-3 py-2 focus:ring-indigo-500 focus:border-indigo-500"
+                >
+                  <option value="">-- Pilih --</option>
+                  <option value="normal">Normal (tidak berbau)</option>
+                  <option value="sedikit">Sedikit</option>
+                  <option value="banyak">Banyak</option>
+                  <option value="berbau">Berbau (infeksi)</option>
+                </select>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium mb-1">Periksa Jalan Lahir</label>
+                <select 
+                  name="pelayanan_periksa_jalan_lahir" 
+                  value={form.pelayanan_periksa_jalan_lahir} 
+                  onChange={handleChange}
+                  className="w-full border rounded-lg px-3 py-2 focus:ring-indigo-500 focus:border-indigo-500"
+                >
+                  <option value="">-- Pilih --</option>
+                  <option value="normal">Normal (baik)</option>
+                  <option value="laserasi">Laserasi/jahitan</option>
+                  <option value="infeksi">Infeksi</option>
+                </select>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium mb-1">Periksa Payudara</label>
+                <select 
+                  name="pelayanan_periksa_payudara" 
+                  value={form.pelayanan_periksa_payudara} 
+                  onChange={handleChange}
+                  className="w-full border rounded-lg px-3 py-2 focus:ring-indigo-500 focus:border-indigo-500"
+                >
+                  <option value="">-- Pilih --</option>
+                  <option value="normal">Normal</option>
+                  <option value="bengkak">Bengkak</option>
+                  <option value="lecet">Puting lecet</option>
+                  <option value="asi_keluar">ASI keluar lancar</option>
+                </select>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium mb-1">ASI Eksklusif</label>
+                <select 
+                  name="pelayanan_asi_eksklusif" 
+                  value={form.pelayanan_asi_eksklusif} 
+                  onChange={handleChange}
+                  className="w-full border rounded-lg px-3 py-2 focus:ring-indigo-500 focus:border-indigo-500"
+                >
+                  <option value="">-- Pilih --</option>
+                  <option value="ya">Ya</option>
+                  <option value="tidak">Tidak</option>
+                  <option value="sebagian">Sebagian</option>
+                </select>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input 
+                    type="checkbox" 
+                    name="pemberian_kapsul_vitamin_a" 
+                    checked={form.pemberian_kapsul_vitamin_a} 
+                    onChange={handleChange} 
+                    className="w-4 h-4 text-indigo-600"
+                  /> 
+                  <span className="text-sm font-medium">Kapsul Vitamin A</span>
+                </label>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium mb-1">Tablet Tambah Darah (jumlah)</label>
+                <input 
+                  type="number" 
+                  name="pemberian_tablet_tambah_darah_jumlah" 
+                  value={form.pemberian_tablet_tambah_darah_jumlah} 
+                  onChange={handleChange} 
+                  placeholder="Jumlah tablet"
+                  className="w-full border rounded-lg px-3 py-2 focus:ring-indigo-500 focus:border-indigo-500" 
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium mb-1">Skrining Depresi Nifas</label>
+                <select 
+                  name="pelayanan_skrining_depresi_nifas" 
+                  value={form.pelayanan_skrining_depresi_nifas} 
+                  onChange={handleChange}
+                  className="w-full border rounded-lg px-3 py-2 focus:ring-indigo-500 focus:border-indigo-500"
+                >
+                  <option value="">-- Pilih --</option>
+                  <option value="negatif">Negatif (skor &lt; 10)</option>
+                  <option value="positif_ringan">Positif Ringan (skor 10-12)</option>
+                  <option value="positif_berat">Positif Berat (skor &gt; 13)</option>
+                </select>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium mb-1">Kontrasepsi Pasca Persalinan (KB)</label>
+                <select 
+                  name="pelayanan_kontrasepsi_pasca_persalinan" 
+                  value={form.pelayanan_kontrasepsi_pasca_persalinan} 
+                  onChange={handleChange}
+                  className="w-full border rounded-lg px-3 py-2 focus:ring-indigo-500 focus:border-indigo-500"
+                >
+                  <option value="">-- Pilih --</option>
+                  <option value="tidak_ada">Tidak ada</option>
+                  <option value="pil">Pil KB</option>
+                  <option value="suntik">Suntik (1/3 bulan)</option>
+                  <option value="implan">Implan (KB batang)</option>
+                  <option value="iud">IUD/AKBK</option>
+                  <option value="kondom">Kondom</option>
+                </select>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium mb-1">Penanganan Risiko Malaria</label>
+                <select 
+                  name="pelayanan_penanganan_risiko_malaria" 
+                  value={form.pelayanan_penanganan_risiko_malaria} 
+                  onChange={handleChange}
+                  className="w-full border rounded-lg px-3 py-2 focus:ring-indigo-500 focus:border-indigo-500"
+                >
+                  <option value="">-- Pilih --</option>
+                  <option value="tidak">Tidak</option>
+                  <option value="kelambu">Menggunakan kelambu</option>
+                  <option value="obat">Mendapat profilaksis</option>
+                </select>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium mb-1">Komplikasi Nifas</label>
+                <select 
+                  name="komplikasi_nifas" 
+                  value={form.komplikasi_nifas} 
+                  onChange={handleChange}
+                  className="w-full border rounded-lg px-3 py-2 focus:ring-indigo-500 focus:border-indigo-500"
+                >
+                  <option value="">-- Pilih --</option>
+                  <option value="tidak_ada">Tidak ada</option>
+                  <option value="perdarahan">Perdarahan postpartum</option>
+                  <option value="infeksi">Infeksi nifas</option>
+                  <option value="hipertensi">Hipertensi/PE eklampsia</option>
+                  <option value="trombosis">Trombosis</option>
+                </select>
+              </div>
+              
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium mb-1">Tindakan/Saran</label>
+                <textarea 
+                  name="tindakan_saran" 
+                  value={form.tindakan_saran} 
+                  onChange={handleChange} 
+                  rows="2"
+                  placeholder="Contoh: Istirahat cukup, konsumsi makanan bergizi, perbanyak ASI"
+                  className="w-full border rounded-lg px-3 py-2 focus:ring-indigo-500 focus:border-indigo-500" 
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium mb-1">Nama Pemeriksa/Paraf</label>
+                <input 
+                  name="nama_pemeriksa_paraf" 
+                  value={form.nama_pemeriksa_paraf} 
+                  onChange={handleChange} 
+                  placeholder="dr. Siti Aminah"
+                  className="w-full border rounded-lg px-3 py-2 focus:ring-indigo-500 focus:border-indigo-500" 
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium mb-1">Tanggal Kembali (Kontrol Ulang)</label>
+                <input 
+                  type="date" 
+                  name="tanggal_kembali" 
+                  value={form.tanggal_kembali} 
+                  onChange={handleChange} 
+                  className="w-full border rounded-lg px-3 py-2 focus:ring-indigo-500 focus:border-indigo-500" 
+                />
+                <p className="text-xs text-gray-500 mt-1">Kosongkan jika tidak ada jadwal kontrol</p>
+              </div>
+            </div>
+            
+            <div className="flex gap-3">
+              <button 
+                type="submit" 
+                disabled={saving} 
+                className="bg-indigo-600 text-white px-6 py-2 rounded-lg flex items-center gap-2 hover:bg-indigo-700 disabled:opacity-50"
+              >
+                <Save size={18} /> {saving ? "Menyimpan..." : "Simpan Nifas"}
+              </button>
+            </div>
+          </form>
+        )}
+        
+        {mode === "detail" && currentData && (
+          <div className="space-y-6">
+            <DetailNifas 
+              data={currentData} 
+              onEdit={handleEdit} 
+              onOpenCatatan={handleOpenTambahCatatan}
+              kunjunganLabel={getKunjunganLabel()}
+            />
+            
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <DaftarRiwayatCatatan 
+                catatanList={catatanForSelectedKunjungan}
+                onEdit={handleEditCatatan}
+                onDelete={handleDeleteCatatan}
+                kunjunganLabel={getKunjunganLabel()}
+              />
+            </div>
+            
+            <ModalCatatan
+              isOpen={isModalCatatanOpen}
+              onClose={() => {
+                setIsModalCatatanOpen(false);
+                setSelectedCatatan(null);
+              }}
+              catatanData={selectedCatatan}
+              onSave={handleSaveCatatan}
+              onDelete={handleDeleteCatatan}
+              kunjunganLabel={getKunjunganLabel()}
+              saving={savingCatatan}
+            />
           </div>
-          <button type="submit" disabled={saving} className="bg-indigo-600 text-white px-6 py-2 rounded-lg flex items-center gap-2">
-            <Save size={18} /> {saving ? "Menyimpan..." : "Simpan Nifas"}
-          </button>
-        </form>
+        )}
       </div>
     </MainLayout>
   );

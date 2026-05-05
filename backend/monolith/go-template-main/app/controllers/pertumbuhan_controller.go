@@ -1,105 +1,98 @@
 package controllers
 
-import (
-	"net/http"
-	"strconv"
+// import (
+// 	"net/http"
+// 	"strconv"
 
-	"monitoring-service/app/models"
-	"monitoring-service/app/usecases"
+// 	"monitoring-service/app/constants"
+// 	"monitoring-service/app/helpers"
+// 	"monitoring-service/app/models"
+// 	"monitoring-service/pkg/customerror"
 
-	"github.com/labstack/echo/v4"
-)
+// 	"github.com/labstack/echo/v4"
+// )
 
-type PertumbuhanController struct {
-	usecase usecases.PertumbuhanUseCase
-}
+// // CREATE
+// func (m *Main) AddCatatanPertumbuhan(c echo.Context) error {
 
-func NewPertumbuhanController(u usecases.PertumbuhanUseCase) *PertumbuhanController {
-	return &PertumbuhanController{usecase: u}
-}
+// 	var req models.CreatePertumbuhanRequest
+// 	if err := c.Bind(&req); err != nil {
+// 		return helpers.Response(c, http.StatusBadRequest, []string{"format request tidak valid"})
+// 	}
 
-func (c *PertumbuhanController) Create(ctx echo.Context) error {
-	var req models.CreatePertumbuhanRequest
-	if err := ctx.Bind(&req); err != nil {
-		return ctx.JSON(http.StatusBadRequest, models.Response{StatusCode: http.StatusBadRequest, Message: err.Error()})
-	}
+// 	if err := m.usecases.AddCatatanPertumbuhan(&req); err != nil {
+// 		return helpers.Response(c, customerror.GetStatusCode(err), []string{err.Error()})
+// 	}
 
-	if err := c.usecase.AddCatatanPertumbuhan(&req); err != nil {
-		return ctx.JSON(http.StatusInternalServerError, models.Response{StatusCode: http.StatusInternalServerError, Message: err.Error()})
-	}
+// 	return helpers.StandardResponse(c, http.StatusCreated, []string{constants.SUCCESS_RESPONSE_MESSAGE}, map[string]string{
+// 		"message": "catatan pertumbuhan berhasil ditambahkan",
+// 	}, nil)
+// }
 
-	return ctx.JSON(http.StatusCreated, models.Response{StatusCode: http.StatusCreated, Message: "Berhasil menambahkan catatan pertumbuhan"})
-}
+// // GET
+// func (m *Main) GetRiwayatPertumbuhan(c echo.Context) error {
 
-func (c *PertumbuhanController) GetRiwayat(ctx echo.Context) error {
-	anakID, err := strconv.ParseInt(ctx.Param("anak_id"), 10, 32)
-	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, models.Response{StatusCode: http.StatusBadRequest, Message: "anak_id tidak valid"})
-	}
+// 	anakID, err := strconv.ParseUint(c.Param("anak_id"), 10, 64)
+// 	if err != nil || anakID <= 0 {
+// 		return helpers.Response(c, http.StatusBadRequest, []string{"anak_id tidak valid"})
+// 	}
+// 	data, usecaseErr := m.usecases.GetRiwayatPertumbuhan(uint(anakID))
+// 	if usecaseErr != nil {
+// 		return helpers.Response(c, customerror.GetStatusCode(usecaseErr), []string{usecaseErr.Error()})
+// 	}
 
-	data, err := c.usecase.GetRiwayatPertumbuhan(int32(anakID))
-	if err != nil {
-		return ctx.JSON(http.StatusInternalServerError, models.Response{StatusCode: http.StatusInternalServerError, Message: err.Error()})
-	}
+// 	return helpers.StandardResponse(c, http.StatusOK, []string{constants.SUCCESS_RESPONSE_MESSAGE}, data, nil)
+// }
 
-	return ctx.JSON(http.StatusOK, models.Response{StatusCode: http.StatusOK, Data: data})
-}
+// // GET/:id
+// func (m *Main) GetDetailCatatanPertumbuhan(c echo.Context) error {
 
-func (c *PertumbuhanController) GetDetail(ctx echo.Context) error {
-	id, err := strconv.ParseInt(ctx.Param("id"), 10, 32)
-	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, models.Response{StatusCode: http.StatusBadRequest, Message: "id tidak valid"})
-	}
+// 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
+// 	if err != nil || id == 0 {
+// 		return helpers.Response(c, http.StatusBadRequest, []string{"id tidak valid"})
+// 	}
+// 	data, usecaseErr := m.usecases.GetDetailCatatanPertumbuhan(uint(id))
+// 	if usecaseErr != nil {
+// 		return helpers.Response(c, customerror.GetStatusCode(usecaseErr), []string{usecaseErr.Error()})
+// 	}
 
-	data, err := c.usecase.GetDetailCatatanPertumbuhan(int32(id))
-	if err != nil {
-		return ctx.JSON(http.StatusNotFound, models.Response{StatusCode: http.StatusNotFound, Message: err.Error()})
-	}
+// 	return helpers.StandardResponse(c, http.StatusOK, []string{constants.SUCCESS_RESPONSE_MESSAGE}, data, nil)
+// }
 
-	return ctx.JSON(http.StatusOK, models.Response{StatusCode: http.StatusOK, Data: data})
-}
+// // UPDATE
+// func (m *Main) UpdateCatatanPertumbuhan(c echo.Context) error {
+// 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
+// 	if err != nil || id == 0 {
+// 		return helpers.Response(c, http.StatusBadRequest, []string{"id tidak valid"})
+// 	}
 
-func (c *PertumbuhanController) Update(ctx echo.Context) error {
-	id, err := strconv.ParseInt(ctx.Param("id"), 10, 32)
-	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, models.Response{StatusCode: http.StatusBadRequest, Message: "id tidak valid"})
-	}
+// 	var req models.UpdatePertumbuhanRequest
+// 	if bindErr := c.Bind(&req); bindErr != nil {
+// 		return helpers.Response(c, http.StatusBadRequest, []string{"format request tidak valid"})
+// 	}
 
-	var req models.UpdatePertumbuhanRequest
-	if err := ctx.Bind(&req); err != nil {
-		return ctx.JSON(http.StatusBadRequest, models.Response{StatusCode: http.StatusBadRequest, Message: err.Error()})
-	}
+// 	if usecaseErr := m.usecases.UpdateCatatanPertumbuhan(uint(id), &req); usecaseErr != nil {
+// 		return helpers.Response(c, customerror.GetStatusCode(usecaseErr), []string{usecaseErr.Error()})
+// 	}
 
-	if err := c.usecase.UpdateCatatanPertumbuhan(int32(id), &req); err != nil {
-		return ctx.JSON(http.StatusInternalServerError, models.Response{StatusCode: http.StatusInternalServerError, Message: err.Error()})
-	}
+// 	return helpers.StandardResponse(c, http.StatusOK, []string{constants.SUCCESS_RESPONSE_MESSAGE}, map[string]string{
+// 		"message": "catatan pertumbuhan berhasil diubah",
+// 	}, nil)
+// }
 
-	return ctx.JSON(http.StatusOK, models.Response{StatusCode: http.StatusOK, Message: "Berhasil memperbarui catatan pertumbuhan"})
-}
+// // DELETE
+// func (m *Main) DeleteCatatanPertumbuhan(c echo.Context) error {
 
-func (c *PertumbuhanController) Delete(ctx echo.Context) error {
-	id, err := strconv.ParseInt(ctx.Param("id"), 10, 32)
-	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, models.Response{StatusCode: http.StatusBadRequest, Message: "id tidak valid"})
-	}
+// 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
+// 	if err != nil || id == 0 {
+// 		return helpers.Response(c, http.StatusBadRequest, []string{"id tidak valid"})
+// 	}
 
-	if err := c.usecase.DeleteCatatanPertumbuhan(int32(id)); err != nil {
-		return ctx.JSON(http.StatusInternalServerError, models.Response{StatusCode: http.StatusInternalServerError, Message: err.Error()})
-	}
+// 	if usecaseErr := m.usecases.DeleteCatatanPertumbuhan(uint(id)); usecaseErr != nil {
+// 		return helpers.Response(c, customerror.GetStatusCode(usecaseErr), []string{usecaseErr.Error()})
+// 	}
 
-	return ctx.JSON(http.StatusOK, models.Response{StatusCode: http.StatusOK, Message: "Berhasil menghapus catatan pertumbuhan"})
-}
-
-func (c *PertumbuhanController) GetChartData(ctx echo.Context) error {
-	anakID, err := strconv.ParseInt(ctx.Param("anak_id"), 10, 32)
-	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, models.Response{StatusCode: http.StatusBadRequest, Message: "anak_id tidak valid"})
-	}
-
-	data, err := c.usecase.GetChartData(int32(anakID))
-	if err != nil {
-		return ctx.JSON(http.StatusInternalServerError, models.Response{StatusCode: http.StatusInternalServerError, Message: err.Error()})
-	}
-
-	return ctx.JSON(http.StatusOK, models.Response{StatusCode: http.StatusOK, Data: data})
-}
+// 	return helpers.StandardResponse(c, http.StatusOK, []string{constants.SUCCESS_RESPONSE_MESSAGE}, map[string]string{
+// 		"message": "catatan pertumbuhan berhasil dihapus",
+// 	}, nil)
+// }

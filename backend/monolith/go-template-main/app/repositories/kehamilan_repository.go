@@ -22,10 +22,7 @@ func (r *KehamilanRepository) Create(kehamilan *models.Kehamilan) error {
 
 func (r *KehamilanRepository) FindByID(id int32) (*models.Kehamilan, error) {
 	var kehamilan models.Kehamilan
-	err := r.db.Preload("Ibu.Kependudukan").
-		Preload("Anak").
-		First(&kehamilan, id).Error
-
+	err := r.db.Preload("Ibu.Kependudukan").Preload("Anak").First(&kehamilan, id).Error
 	if err != nil {
 		return nil, err
 	}
@@ -40,9 +37,7 @@ func (r *KehamilanRepository) FindByIbuID(ibuID int32) ([]models.Kehamilan, erro
 
 func (r *KehamilanRepository) GetAll() ([]models.Kehamilan, error) {
 	var list []models.Kehamilan
-	err := r.db.Preload("Ibu.Kependudukan").
-		Preload("Anak").
-		Find(&list).Error
+	err := r.db.Preload("Ibu.Kependudukan").Preload("Anak").Find(&list).Error
 	return list, err
 }
 

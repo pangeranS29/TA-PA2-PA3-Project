@@ -1,5 +1,5 @@
 // src/pages/Ibu/IbuCreate.jsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import MainLayout from "../../components/Layout/MainLayout";
 import { createIbu } from "../../services/ibu";
@@ -30,9 +30,9 @@ export default function IbuCreate() {
     taksiran_persalinan: "",
     // uk_kehamilan_saat_ini: "",
     jarak_kehamilan_sebelumnya: "",
-    status_kehamilan: "TRIMESTER 1",
-    bb_awal: "",
-    tb: "",
+    // status_kehamilan: "TRIMESTER 1",
+    bb_awal: "",      // <-- tambahan
+    tb: "",           // <-- tambahan
   });
 
   useEffect(() => {
@@ -49,25 +49,24 @@ export default function IbuCreate() {
     fetchKK();
   }, []);
 
+  useEffect(() => {
+    if (formKehamilan.hpht) {
+      const hpht = new Date(formKehamilan.hpht);
+      const hpl = new Date(hpht);
+      hpl.setDate(hpl.getDate() + 7);
+      hpl.setMonth(hpl.getMonth() + 9);
+      setFormKehamilan(prev => ({ ...prev, taksiran_persalinan: hpl.toISOString().split("T")[0] }));
+    }
+  }, [formKehamilan.hpht]);
 
   const handleChangeIbu = (e) => {
     const { name, value } = e.target;
-    setFormIbu((prev) => ({ ...prev, [name]: value }));
+    setFormIbu(prev => ({ ...prev, [name]: value }));
     if (errorMessage) setErrorMessage("");
   };
 
   const handleChangeKehamilan = (e) => {
     const { name, value } = e.target;
-    const updated = { ...formKehamilan, [name]: value };
-    if (name === "hpht" && value) {
-      const hphtDate = new Date(value);
-      const hpl = new Date(hphtDate);
-      hpl.setDate(hpl.getDate() + 7);
-      hpl.setMonth(hpl.getMonth() + 9);
-      updated.taksiran_persalinan = hpl.toISOString().split("T")[0];
-    }
-    setFormKehamilan(updated);
-  };
 
     setFormKehamilan(prev => ({ ...prev, [name]: value }));
 
@@ -83,10 +82,14 @@ export default function IbuCreate() {
     setLoading(true);
     try {
       const idKependudukan = Number(formIbu.id_kependudukan);
-      if (isNaN(idKependudukan) || idKependudukan <= 0) throw new Error("ID Penduduk tidak valid");
-      const ibu = await createIbu({ id_kependudukan: idKependudukan, status_kehamilan: formIbu.status_kehamilan });
+      if (isNaN(idKependudukan) || idKependudukan <= 0) {
+        throw new Error("ID Penduduk tidak valid");
+      }
+      const ibu = await createIbu({
+        id_kependudukan: idKependudukan,
+        status_kehamilan: formIbu.status_kehamilan,
+      });
       setCreatedIbu(ibu);
-      setFormKehamilan((prev) => ({ ...prev, status_kehamilan: formIbu.status_kehamilan }));
       setStep(2);
     } catch (err) {
       const msg = err.response?.data?.message || err.message || "Gagal menambahkan data ibu";
@@ -98,24 +101,57 @@ export default function IbuCreate() {
 
   const handleSubmitStep2 = async (e) => {
     e.preventDefault();
-    if (!createdIbu) { setErrorMessage("Data ibu belum dibuat."); return; }
+
+    let newErrors = {};
+
+    // HPHT wajib
+    if (!formKehamilan.hpht) {
+      newErrors.hpht = "Silakan pilih tanggal HPHT terlebih dahulu";
+    }
+
+    // HPHT tidak boleh masa depan
+    if (formKehamilan.hpht && formKehamilan.hpht > today) {
+      newErrors.hpht = "Tanggal HPHT tidak boleh melebihi hari ini";
+    }
+
+    // BB wajib & tidak boleh minus
+    if (!formKehamilan.bb_awal) {
+      newErrors.bb_awal = "Berat badan wajib diisi";
+    } else if (parseFloat(formKehamilan.bb_awal) <= 0) {
+      newErrors.bb_awal = "Berat badan harus lebih dari 0 kg";
+    }
+
+    // TB wajib & tidak boleh minus
+    if (!formKehamilan.tb) {
+      newErrors.tb = "Tinggi badan wajib diisi";
+    } else if (parseFloat(formKehamilan.tb) <= 0) {
+      newErrors.tb = "Tinggi badan harus lebih dari 0 cm";
+    }
+
+    setErrors(newErrors);
+
+    // hentikan submit kalau ada error
+    if (Object.keys(newErrors).length > 0) return;
+
+    if (!createdIbu) {
+      setErrorMessage("Data ibu belum dibuat.");
+      return;
+    }
+
     setLoading(true);
     try {
       const ibuId = createdIbu.id_ibu || createdIbu.id;
-      const payload = {
+
+      await createKehamilan({
         ibu_id: Number(ibuId),
-        gravida: parseInt(formKehamilan.gravida) || 0,
-        paritas: parseInt(formKehamilan.paritas) || 0,
-        abortus: parseInt(formKehamilan.abortus) || 0,
-        hpht: formKehamilan.hpht || "",
-        taksiran_persalinan: formKehamilan.taksiran_persalinan || "",
-        uk_kehamilan_saat_ini: parseInt(formKehamilan.uk_kehamilan_saat_ini) || 0,
-        jarak_kehamilan_sebelumnya: parseInt(formKehamilan.jarak_kehamilan_sebelumnya) || 0,
-        status_kehamilan: formKehamilan.status_kehamilan,
-        bb_awal: parseFloat(formKehamilan.bb_awal) || 0,
-        tb: parseFloat(formKehamilan.tb) || 0,
-      };
-      await createKehamilan(payload);
+        hpht: formKehamilan.hpht,
+        taksiran_persalinan: formKehamilan.taksiran_persalinan,
+        jarak_kehamilan_sebelumnya:
+          parseInt(formKehamilan.jarak_kehamilan_sebelumnya) || 0,
+        bb_awal: parseFloat(formKehamilan.bb_awal),
+        tb: parseFloat(formKehamilan.tb),
+      });
+
       setStep(3);
       setTimeout(() => navigate(`/data-ibu/${ibuId}`), 2000);
     } catch (err) {
@@ -141,26 +177,21 @@ export default function IbuCreate() {
     { num: 3, label: "Selesai", icon: CheckCircle2 },
   ];
 
-  const selectedPenduduk = kkList.find(
-    (kk) => String(kk.id_kependudukan ?? kk.id) === String(formIbu.id_kependudukan)
-  );
+  const selectedPenduduk = useMemo(() => {
+    if (!formIbu.id_kependudukan) return null;
+    return kkList.find(kk => String(kk.id_kependudukan ?? kk.id) === String(formIbu.id_kependudukan));
+  }, [formIbu.id_kependudukan, kkList]);
 
   return (
     <MainLayout>
       <div className="p-6 max-w-3xl mx-auto">
-        {/* Header */}
         <div className="flex items-center gap-4 mb-8">
-          <button type="button" onClick={() => navigate(-1)} className="p-2 rounded-full hover:bg-gray-100 transition-colors">
-            <ArrowLeft size={20} />
-          </button>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Tambah Data Ibu Baru</h1>
-            <p className="text-gray-500 text-sm">Isi data identitas ibu dan informasi kehamilan</p>
-          </div>
+          <button onClick={() => navigate(-1)}><ArrowLeft size={20} /></button>
+          <div><h1 className="text-2xl font-bold">Tambah Data Ibu Baru</h1></div>
         </div>
 
         {/* Stepper */}
-        <div className="flex items-center justify-center mb-10 px-4">
+        <div className="flex items-center justify-center mb-10">
           {steps.map((s, idx) => {
             const Icon = s.icon;
             const isActive = step === s.num;
@@ -168,124 +199,108 @@ export default function IbuCreate() {
             return (
               <React.Fragment key={s.num}>
                 <div className="flex flex-col items-center">
-                  <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${isDone ? "bg-green-500 text-white shadow-lg shadow-green-200" : isActive ? "bg-blue-600 text-white shadow-lg shadow-blue-200 scale-110" : "bg-gray-100 text-gray-400"}`}>
+                  <div className={`w-12 h-12 rounded-full flex items-center justify-center ${isDone ? "bg-green-500 text-white" : isActive ? "bg-indigo-600 text-white" : "bg-gray-100 text-gray-400"}`}>
                     {isDone ? <CheckCircle2 size={22} /> : <Icon size={20} />}
                   </div>
-                  <span className={`text-xs mt-2 font-medium ${isActive ? "text-blue-600" : isDone ? "text-green-600" : "text-gray-400"}`}>
-                    {s.label}
-                  </span>
+                  <span className={`text-xs mt-2 ${isActive ? "text-indigo-600" : isDone ? "text-green-600" : "text-gray-400"}`}>{s.label}</span>
                 </div>
-                {idx < steps.length - 1 && (
-                  <div className={`flex-1 h-1 mx-3 rounded-full transition-all duration-500 ${step > s.num ? "bg-green-400" : "bg-gray-200"}`} />
-                )}
+                {idx < steps.length - 1 && <div className={`flex-1 h-1 mx-3 ${step > s.num ? "bg-green-400" : "bg-gray-200"}`} />}
               </React.Fragment>
             );
           })}
         </div>
 
-        {errorMessage && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">{errorMessage}</div>
-        )}
+        {errorMessage && <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">{errorMessage}</div>}
 
-        {/* Step 1: Data Ibu */}
         {step === 1 && (
-          <form onSubmit={handleSubmitStep1} className="space-y-6">
-            <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-sm border border-white/50 p-8">
-              <h3 className="font-semibold text-lg text-blue-700 mb-6 flex items-center gap-2">
-                <Users size={20} /> Pilih Data Penduduk
-              </h3>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium mb-2 text-gray-700">
-                    Penduduk (KK / NIK) <span className="text-red-500">*</span>
-                  </label>
-                  <select
-                    name="id_kependudukan"
-                    value={formIbu.id_kependudukan}
-                    onChange={handleChangeIbu}
-                    className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                    required
-                  >
-                    <option value="">-- Pilih Data Penduduk --</option>
-                    {kkList.map((kk) => {
-                      const idPenduduk = kk.id_kependudukan ?? kk.id;
-                      return (
-                        <option key={idPenduduk} value={String(idPenduduk)}>
-                          {kk.nama_lengkap} — NIK: {kk.nik} — KK: {kk.no_kk}
-                        </option>
-                      );
-                    })}
-                  </select>
-                  <p className="text-xs text-gray-500 mt-2">
-                    Belum ada data penduduk?{" "}
-                    <Link to="/kependudukan/create" className="text-blue-600 hover:underline font-medium">
-                      + Tambah Data Penduduk
-                    </Link>
-                  </p>
+          <form onSubmit={handleSubmitStep1}>
+            <div className="bg-white rounded-2xl p-6 shadow-sm">
+              <h3 className="font-semibold mb-4">Pilih Data Penduduk</h3>
+              <select name="id_kependudukan" value={formIbu.id_kependudukan} onChange={handleChangeIbu} className="w-full border rounded-xl p-3" required>
+                <option value="">-- Pilih Data Penduduk --</option>
+                {kkList.map(kk => {
+                  const idPenduduk = kk.id_kependudukan ?? kk.id;
+                  return (
+                    <option key={idPenduduk} value={String(idPenduduk)}>
+                      {kk.nama_lengkap} — NIK: {kk.nik} — KK: {kk.no_kk}
+                    </option>
+                  );
+                })}
+              </select>
+              {selectedPenduduk && (
+                <div className="mt-4 p-3 bg-indigo-50 rounded-lg">
+                  <p><strong>Nama:</strong> {selectedPenduduk.nama_lengkap}</p>
+                  <p><strong>NIK:</strong> {selectedPenduduk.nik}</p>
                 </div>
-
-                {selectedPenduduk && (
-                  <div className="bg-blue-50/50 rounded-xl p-5 border border-blue-100 mt-4">
-                    <h4 className="text-sm font-semibold text-blue-800 mb-3">Data Penduduk Terpilih</h4>
-                    <div className="grid grid-cols-2 gap-3 text-sm">
-                      <div><span className="text-gray-500">Nama:</span> <span className="font-medium">{selectedPenduduk.nama_lengkap}</span></div>
-                      <div><span className="text-gray-500">NIK:</span> <span className="font-medium">{selectedPenduduk.nik}</span></div>
-                      <div><span className="text-gray-500">No KK:</span> <span className="font-medium">{selectedPenduduk.no_kk}</span></div>
-                      <div><span className="text-gray-500">Dusun:</span> <span className="font-medium">{selectedPenduduk.dusun || "-"}</span></div>
-                    </div>
-                  </div>
-                )}
-
-                <div>
-                  <label className="block text-sm font-medium mb-2 text-gray-700">Status Kehamilan</label>
-                  <select
-                    name="status_kehamilan"
-                    value={formIbu.status_kehamilan}
-                    onChange={handleChangeIbu}
-                    className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                  >
-                    <option>TRIMESTER 1</option>
-                    <option>TRIMESTER 2</option>
-                    <option>TRIMESTER 3</option>
-                    <option>NIFAS</option>
+              )}
+              {/* <div className="mt-4">
+                  <label>Status Kehamilan</label>
+                  <select name="status_kehamilan" value={formIbu.status_kehamilan} onChange={handleChangeIbu} className="w-full border rounded-xl p-3 mt-1">
+                    <option>TRIMESTER 1</option><option>TRIMESTER 2</option><option>TRIMESTER 3</option><option>NIFAS</option>
                   </select>
-                </div>
-              </div>
+                </div> */}
             </div>
-            <div className="flex justify-end">
-              <button
-                type="submit"
-                disabled={loading}
-                className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-8 py-3 rounded-xl font-semibold shadow-lg hover:shadow-blue-300/40 transform transition-all hover:-translate-y-0.5 flex items-center gap-2 disabled:opacity-50"
-              >
-                {loading ? <Loader2 className="animate-spin" size={18} /> : <ArrowRight size={18} />}
-                {loading ? "Menyimpan..." : "Simpan & Lanjut"}
+            <div className="flex justify-end mt-6">
+              <button type="submit" disabled={loading} className="bg-indigo-600 text-white px-6 py-2 rounded-xl flex items-center gap-2">
+                {loading ? <Loader2 className="animate-spin" /> : <ArrowRight />} {loading ? "Menyimpan..." : "Simpan & Lanjut"}
               </button>
             </div>
           </form>
         )}
 
-        {/* Step 2: Data Kehamilan */}
         {step === 2 && (
-          <form onSubmit={handleSubmitStep2} className="space-y-6">
-            <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-sm border border-white/50 p-8">
-              <h3 className="font-semibold text-lg text-blue-700 mb-2 flex items-center gap-2">
-                <ClipboardList size={20} /> Riwayat Obstetri
-              </h3>
-              <p className="text-gray-500 text-sm mb-6">Data riwayat kehamilan ibu (Gravida, Paritas, Abortus)</p>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <form onSubmit={handleSubmitStep2} noValidate>
+            <div className="bg-white rounded-2xl p-6 shadow-sm space-y-6">
+
+              <div>
+                <h3 className="font-semibold text-lg">Data Kehamilan</h3>
+                <p className="text-sm text-gray-500">
+                  Isi informasi dasar kehamilan ibu untuk pemantauan kesehatan
+                </p>
+              </div>
+
+              {/* Tanggal */}
+              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-2 text-gray-700">Gravida (G)</label>
-                  <input type="number" name="gravida" value={formKehamilan.gravida} onChange={handleChangeKehamilan} placeholder="Jumlah kehamilan" min="0" className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none" />
+                  <label className="block text-sm font-medium text-gray-700">
+                    HPHT (Hari Pertama Haid Terakhir)
+                  </label>
+                  <input
+                    type="date"
+                    name="hpht"
+                    max={today}
+                    value={formKehamilan.hpht}
+                    onChange={handleChangeKehamilan}
+                    className={`w-full border rounded p-2 mt-1 ${errors.hpht ? "border-red-500" : ""
+                      }`}
+                  />
+
+                  {errors.hpht && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.hpht}
+                    </p>
+                  )}
+
+
+                  <p className="text-xs text-gray-400 mt-1">
+                    Digunakan untuk menghitung usia kehamilan
+                  </p>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-2 text-gray-700">Paritas (P)</label>
-                  <input type="number" name="paritas" value={formKehamilan.paritas} onChange={handleChangeKehamilan} placeholder="Jumlah persalinan" min="0" className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2 text-gray-700">Abortus (A)</label>
-                  <input type="number" name="abortus" value={formKehamilan.abortus} onChange={handleChangeKehamilan} placeholder="Jumlah keguguran" min="0" className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none" />
+                  <label className="block text-sm font-medium text-gray-700">
+                    Taksiran Persalinan (HPL)
+                  </label>
+                  <input
+                    type="date"
+                    name="taksiran_persalinan"
+                    value={formKehamilan.taksiran_persalinan}
+                    readOnly
+                    className="w-full border rounded p-2 mt-1 bg-gray-100"
+                  />
+                  <p className="text-xs text-gray-400 mt-1">
+                    Otomatis dihitung dari HPHT
+                  </p>
                 </div>
               </div>
 
@@ -363,61 +378,36 @@ export default function IbuCreate() {
 
             </div>
 
-            <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-sm border border-white/50 p-8">
-              <h3 className="font-semibold text-lg text-blue-700 mb-2 flex items-center gap-2">
-                <Baby size={20} /> Data Kehamilan Saat Ini
-              </h3>
-              <p className="text-gray-500 text-sm mb-6">Informasi kehamilan yang sedang berjalan</p>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <div>
-                  <label className="block text-sm font-medium mb-2 text-gray-700">HPHT (Hari Pertama Haid Terakhir)</label>
-                  <input type="date" name="hpht" value={formKehamilan.hpht} onChange={handleChangeKehamilan} className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2 text-gray-700">Taksiran Persalinan (HPL)</label>
-                  <input type="date" name="taksiran_persalinan" value={formKehamilan.taksiran_persalinan} onChange={handleChangeKehamilan} className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none bg-gray-50" />
-                  <p className="text-xs text-gray-400 mt-1">Otomatis dihitung dari HPHT (Rumus Naegele)</p>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2 text-gray-700">Usia Kehamilan Saat Ini (minggu)</label>
-                  <input type="number" name="uk_kehamilan_saat_ini" value={formKehamilan.uk_kehamilan_saat_ini} onChange={handleChangeKehamilan} placeholder="Contoh: 12" min="0" max="45" className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2 text-gray-700">Jarak Kehamilan Sebelumnya (bulan)</label>
-                  <input type="number" name="jarak_kehamilan_sebelumnya" value={formKehamilan.jarak_kehamilan_sebelumnya} onChange={handleChangeKehamilan} placeholder="Contoh: 24" min="0" className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2 text-gray-700">Berat Badan Awal (kg)</label>
-                  <input type="number" name="bb_awal" step="0.1" placeholder="Contoh: 50.5" value={formKehamilan.bb_awal} onChange={handleChangeKehamilan} className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2 text-gray-700">Tinggi Badan (cm)</label>
-                  <input type="number" name="tb" step="0.1" placeholder="Contoh: 160" value={formKehamilan.tb} onChange={handleChangeKehamilan} className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none" />
-                </div>
-              </div>
-            </div>
+            {/* Action */}
+            <div className="flex justify-between mt-6">
+  {/* Tombol Kembali */}
+  <button
+    type="button"
+    onClick={() => setStep(1)}
+    className="px-6 py-2 rounded-xl border text-gray-600 flex items-center gap-2 hover:bg-gray-50"
+  >
+    <ArrowLeft size={18} />
+    Kembali
+  </button>
 
-            <div className="flex justify-between">
-              <button type="button" onClick={handleSkipKehamilan} className="text-gray-500 hover:text-gray-700 px-6 py-3 rounded-xl font-medium transition-colors">
-                Lewati, isi nanti →
-              </button>
-              <button type="submit" disabled={loading} className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-8 py-3 rounded-xl font-semibold shadow-lg hover:shadow-blue-300/40 transform transition-all hover:-translate-y-0.5 flex items-center gap-2 disabled:opacity-50">
-                {loading ? <Loader2 className="animate-spin" size={18} /> : <Save size={18} />}
-                {loading ? "Menyimpan..." : "Simpan Data Kehamilan"}
-              </button>
-            </div>
+  {/* Tombol Simpan */}
+  <button
+    type="submit"
+    disabled={loading}
+    className="bg-indigo-600 text-white px-6 py-2 rounded-xl flex items-center gap-2"
+  >
+    {loading ? <Loader2 className="animate-spin" /> : <Save />}
+    {loading ? "Menyimpan..." : "Simpan & Lanjut"}
+  </button>
+</div>
           </form>
         )}
 
-        {/* Step 3: Success */}
         {step === 3 && (
-          <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-sm border border-white/50 p-12 text-center">
-            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <CheckCircle2 size={40} className="text-green-500" />
-            </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Data Berhasil Disimpan!</h2>
-            <p className="text-gray-500 mb-8">Data ibu dan kehamilan telah berhasil ditambahkan ke sistem.</p>
-            <p className="text-sm text-gray-400">Mengalihkan ke halaman detail...</p>
+          <div className="bg-white rounded-2xl p-12 text-center">
+            <CheckCircle2 size={48} className="mx-auto text-green-500 mb-4" />
+            <h2 className="text-2xl font-bold">Data Berhasil Disimpan!</h2>
+            <p className="text-gray-500">Mengalihkan ke halaman detail...</p>
           </div>
         )}
       </div>

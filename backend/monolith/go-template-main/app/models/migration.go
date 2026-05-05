@@ -8,32 +8,14 @@ func AutoMigrate(db *gorm.DB) error {
 	// Semua model dalam satu slice
 	models := []interface{}{
 		// Master
-		// &KartuKeluarga{},
-		// &Kependudukan{},
-		// Pemantauan Ibu Nifas
-		// &KategoriPemantauanIbu{},
-		// &LembarPemantauanIbu{},
-		// &DetailPemantauanIbu{},
-
-		// Pemantauan Anak
-		&RentangUsia{},
-		&KategoriTandaSakit{},
-		&LembarPemantauanAnak{},
-		&DetailPemantauanAnak{},
-
-		// Perkembangan Anak
-		&RentangUsiaPerkembangan{},
-		&KategoriPerkembangan{},
-		&LembarPerkembanganAnak{},
-		&DetailPerkembanganAnak{},
-
-		&Ibu{},
-		&KategoriTandaBahaya{},
-		&SkriningPemantauan{},
 		&KartuKeluarga{},
 		&Kependudukan{},
+		&Ibu{},
+		// &KategoriTandaBahaya{},
+		&SkriningPemantauan{},
+		// &KartuKeluarga{},
+		// &Kependudukan{},
 
-		// Relasi utama
 		// Relasi utama
 		// &ibu
 		&Kehamilan{},
@@ -43,86 +25,59 @@ func AutoMigrate(db *gorm.DB) error {
 		&Bidan{},
 		&Kader{},
 
-		// &Anak{},
+		&Anak{},
 
 		// Evaluasi & riwayat
-		// &EvaluasiKesehatanIbu{},
-		// &RiwayatKehamilanLalu{},
+		&EvaluasiKesehatanIbu{},
+		&RiwayatKehamilanLalu{},
 
 		// Pelayanan & lainnya
-		// &JenisPelayanan{},
-		// &JenisPelayananKategori{},
-		// &KunjunganAnak{},
-		// &AturanPelayanan{},
-		// &KunjunganGizi{},
-		// &KunjunganVitamin{},
-		// &Neonatus{},
-		// &DetailPelayananNeonatus{},
-		// &DetailPelayananVitamin{},
-		// &ASI{},
-		// &MPASI{},
-		// &CatatanPelayanan{},
-		// &KehadiranImunisasi{},
-		// &DetailPelayananImunisasi{},
+		&JenisPelayanan{},
+		&JenisPelayananKategori{},
+		&KunjunganAnak{},
+		&AturanPelayanan{},
+		&KunjunganGizi{},
+		&KunjunganVitamin{},
+		&Neonatus{},
+		&DetailPelayananNeonatus{},
+		&DetailPelayananVitamin{},
+		&ASI{},
+		&MPASI{},
+		&CatatanPelayanan{},
+		&KehadiranImunisasi{},
+		&DetailPelayananImunisasi{},
 		&PeriksaGigi{},
 		&DeteksiDiniPenyimpangan{},
 		&PengukuranLila{},
-		&CatatanPertumbuhan{},
-		&MasterStandarAntropometri{},
-
-		// Prediksi Stunting (ML Service)
-		&PrediksiStunting{},
+		&Pertumbuhan{},
 
 		// Kehamilan detail
-		// &PemeriksaanKehamilan{},
-		// &PemeriksaanDokterTrimester1{},
-		// &PemeriksaanLaboratoriumJiwa{},
-		// &CatatanPelayananTrimester1{},
-		// &SkriningPreeklampsia{},
+		&PemeriksaanKehamilan{},
+		&PemeriksaanDokterTrimester1{},
+		&PemeriksaanLaboratoriumJiwa{},
+		&CatatanPelayananTrimester1{},
+		&SkriningPreeklampsia{},
 		&SkriningDMGestasional{},
-		// &CatatanPelayananTrimester2{},
-		// &PemeriksaanDokterTrimester3{},
-		// &PemeriksaanLanjutanTrimester3{},
-		// &CatatanPelayananTrimester3{},
+		&CatatanPelayananTrimester2{},
+		&PemeriksaanDokterTrimester3{},
+		&PemeriksaanLanjutanTrimester3{},
+		&CatatanPelayananTrimester3{},
 
 		// Grafik & hasil
-		// &GrafikEvaluasiKehamilan{},
-		// &GrafikPeningkatanBB{},
-		// &PenjelasanHasilGrafik{},
+		&GrafikEvaluasiKehamilan{},
+		&GrafikPeningkatanBB{},
+		&PenjelasanHasilGrafik{},
 
 		// Persalinan
-		// &RencanaPersalinan{},
-		// &RingkasanPelayananPersalinan{},
-		// &KeteranganLahir{},
-		// &RiwayatProsesMelahirkan{},
+		&RencanaPersalinan{},
+		&RingkasanPelayananPersalinan{},
+		&KeteranganLahir{},
+		&RiwayatProsesMelahirkan{},
 
 		// Nifas & rujukan
-		// &PelayananIbuNifas{},
-		// &CatatanPelayananNifas{},
-		// &Rujukan{},
-
-		// Edukasi Digital
-		// &EdukasiInformasiUmum{},
-		// &EdukasiIMD{},
-		// &EdukasiKesehatanMental{},
-		// &EdukasiMenyusuiASI{},
-		// &EdukasiPolaAsuh{},
-		// &EdukasiSetelahMelahirkan{},
-		// &EdukasiTandaBahayaTrimester{},
-		// &EdukasiTandaMelahirkan{},
-		&EdukasiPerawatanAnak{},
-		&EdukasiMPASI{},
-		// &KategoriPemantauanIbu{},
-		// &LembarPemantauanIbu{},
-		// &DetailPemantauanIbu{},
-		&DetailPemantauanAnak{},
-		&KeluhanAnak{},
-		&MasterStandarAntropometri{},
-		&KesehatanLingkunganDanCatatanKader{},
-		&KategoriLingkungan{},
-		&IndikatorLingkungan{},
-		&LembarLingkungan{},
-		&DetailLingkungan{},
+		&PelayananIbuNifas{},
+		&CatatanPelayananNifas{},
+		&Rujukan{},
 	}
 
 	// Jalankan automigrate sekali saja

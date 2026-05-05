@@ -14,18 +14,9 @@ import {
   createKeteranganLahir,
   updateKeteranganLahir,
 } from "../../services/prosesMelahirkan";
-import { Save, ArrowLeft, Edit2, CheckCircle, Printer } from "lucide-react";
+import { Save, ArrowLeft, Edit2, CheckCircle, Printer, Plus, Home } from "lucide-react";
+
 // ============================================================
-
-const TabButton = ({ id, label, activeTab, setActiveTab }) => (
-  <button onClick={() => setActiveTab(id)}
-    className={`py-3 px-6 text-sm font-medium border-b-2 transition-colors ${activeTab === id
-      ? "border-indigo-600 text-indigo-600 bg-indigo-50"
-      : "border-transparent text-gray-500 hover:text-gray-700"}`}>
-    {label}
-  </button>
-);
-
 // KOMPONEN DETAIL ITEM
 // ============================================================
 const DetailItem = ({ label, value }) => (
@@ -34,6 +25,7 @@ const DetailItem = ({ label, value }) => (
     <span className="text-sm text-gray-800 font-semibold mt-0.5">{value ?? "-"}</span>
   </div>
 );
+
 // ============================================================
 // KOMPONEN EMPTY STATE
 // ============================================================
@@ -66,6 +58,7 @@ const SuratKeteranganLahir = ({ data }) => (
     <div className="text-center text-xs text-green-700 font-sans mb-2 print:hidden">
       Diisi oleh Tenaga Kesehatan
     </div>
+
     <h1 className="text-center text-xl font-bold tracking-widest mb-1">KETERANGAN LAHIR</h1>
     <div className="flex justify-center mb-4">
       <span className="text-sm">
@@ -75,7 +68,9 @@ const SuratKeteranganLahir = ({ data }) => (
         </span>
       </span>
     </div>
+
     <p className="mb-4">Yang bertandatangan di bawah ini, menerangkan bahwa;</p>
+
     <div className="flex gap-2 mb-4 flex-wrap items-end">
       <span>Pada hari ini</span>
       <span className="border-b border-dotted border-gray-400 flex-1 min-w-16">{data?.hari_lahir || ""}</span>
@@ -84,7 +79,9 @@ const SuratKeteranganLahir = ({ data }) => (
       <span>Pukul</span>
       <span className="border-b border-dotted border-gray-400 flex-1 min-w-16">{data?.pukul_lahir || ""}</span>
     </div>
+
     <p className="font-bold mb-3">Telah lahir seorang bayi:</p>
+
     <table className="w-full mb-4 text-sm">
       <tbody>
         <tr>
@@ -132,13 +129,16 @@ const SuratKeteranganLahir = ({ data }) => (
         </tr>
       </tbody>
     </table>
+
     <div className="flex gap-2 mb-1 flex-wrap items-end">
       <span>Di Rumah Sakit/Puskesmas/Rumah Bersalin/Praktik Mandiri Bidan/di</span>
       <span className="border-b border-dotted border-gray-400 flex-1 min-w-24">
         {data?.lokasi_persalinan || ""}
       </span>
     </div>
+
     <hr className="border-gray-400 my-4" />
+
     <div className="mb-1 font-semibold">Alamat</div>
     <div className="border border-gray-300 rounded p-3 min-h-16 mb-2 text-sm">
       <p className="text-gray-400 text-xs">Diberi Nama</p>
@@ -147,7 +147,9 @@ const SuratKeteranganLahir = ({ data }) => (
     <div className="border-b border-dotted border-gray-400 mb-4 w-full min-h-4">
       {data?.alamat_lokasi_persalinan || ""}
     </div>
+
     <hr className="border-gray-400 my-4" />
+
     <p className="font-bold mb-3">Dari Orang Tua;</p>
     <table className="w-full text-sm mb-6">
       <tbody>
@@ -212,12 +214,14 @@ const SuratKeteranganLahir = ({ data }) => (
         </tr>
       </tbody>
     </table>
+
     <div className="flex justify-end mb-8 gap-2 items-end">
       <span>Tanggal</span>
       <span className="border-b border-dotted border-gray-400 w-24"></span>
       <span>20</span>
       <span className="border-b border-dotted border-gray-400 w-12"></span>
     </div>
+
     <div className="grid grid-cols-3 text-center gap-4 mt-4">
       {["Saksi I", "Saksi II", "Penolong Kelahiran"].map((label, i) => (
         <div key={i}>
@@ -232,6 +236,7 @@ const SuratKeteranganLahir = ({ data }) => (
     </div>
   </div>
 );
+
 // ============================================================
 // HALAMAN UTAMA
 // ============================================================
@@ -242,73 +247,77 @@ export default function PelayananPersalinan() {
   const [kehamilan, setKehamilan] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [modeRingkasan, setModeRingkasan] = useState("form");
-    const [modeRiwayat, setModeRiwayat] = useState("form");
-    const [modeKeterangan, setModeKeterangan] = useState("form");
-    const [ringkasan, setRingkasan] = useState(null);
-    const [formRingkasan, setFormRingkasan] = useState({
-      tanggal_melahirkan: "", umur_kehamilan_minggu: "",
-      penolong_proses_melahirkan: "", cara_melahirkan: "",
-      keadaan_ibu: "", kb_pasca_melahirkan: "",
-      bayi_anak_ke: "", bayi_berat_lahir_gram: "",
-      bayi_panjang_badan_cm: "", bayi_lingkar_kepala_cm: "",
-      bayi_jenis_kelamin: "",
-      kondisi_bayi_segera_menangis: false,
-      asuhan_imd_1_jam_pertama: false,
-    });
-    const [riwayat, setRiwayat] = useState(null);
-    const [formRiwayat, setFormRiwayat] = useState({
-      g_gravida: "",
-      p_partus: "",
-      a_abortus: "",
-      hari_melahirkan: "",
-      tanggal_melahirkan: "",
-      pukul_melahirkan: "",
-      cara_melahirkan_spontan: false,
-      tindakan_sc: false,
-      penolong_bidan: false,
-      penolong_dokter: false,
-      taksiran_melahirkan: "",
-      fasyankes_tempat_melahirkan: "",
-      inisiasi_menyusu_dini_keterangan: ""
-    });
-    const [keterangan, setKeterangan] = useState(null);
-    const [formKeterangan, setFormKeterangan] = useState({
-      nomor_surat: "",
-      hari_lahir: "",
-      tanggal_lahir: "",
-      pukul_lahir: "",
-      jenis_kelamin: "",
-      jenis_kelahiran: "",
-      anak_ke: "",
-      usia_gestasi_minggu: "",
-      berat_lahir_gram: "",
-      panjang_badan_cm: "",
-      lingkar_kepala_cm: "",
-      lokasi_persalinan: "",
-      alamat_lokasi_persalinan: "",
-      nama_bayi_diberi_nama: "",
-      nama_ibu: "",
-      nik_ibu: "",
-      nama_ayah: "",
-      pekerjaan_orang_tua: "",
-      nama_penolong_kelahiran: ""
-    });
-    useEffect(() => {
+
+  // Mode: "empty" -> belum ada data, "detail" -> tampilkan data, "form" -> tampilkan form input
+  const [modeRingkasan, setModeRingkasan] = useState("empty");
+  const [modeRiwayat, setModeRiwayat] = useState("empty");
+  const [modeKeterangan, setModeKeterangan] = useState("empty");
+
+  const [ringkasan, setRingkasan] = useState(null);
+  const [formRingkasan, setFormRingkasan] = useState({
+    tanggal_melahirkan: "", umur_kehamilan_minggu: "",
+    penolong_proses_melahirkan: "", cara_melahirkan: "",
+    keadaan_ibu: "", kb_pasca_melahirkan: "",
+    bayi_anak_ke: "", bayi_berat_lahir_gram: "",
+    bayi_panjang_badan_cm: "", bayi_lingkar_kepala_cm: "",
+    bayi_jenis_kelamin: "",
+    kondisi_bayi_segera_menangis: false,
+    asuhan_imd_1_jam_pertama: false,
+  });
+
+  const [riwayat, setRiwayat] = useState(null);
+  const [formRiwayat, setFormRiwayat] = useState({
+    g_gravida: "", p_partus: "", a_abortus: "",
+    tanggal_melahirkan: "", fasyankes_tempat_melahirkan: "",
+    cara_melahirkan_spontan: false, tindakan_sc: false,
+  });
+
+  const [keterangan, setKeterangan] = useState(null);
+  const [formKeterangan, setFormKeterangan] = useState({
+    nomor_surat: "", hari_lahir: "", tanggal_lahir: "",
+    pukul_lahir: "", jenis_kelamin: "", jenis_kelahiran: "",
+    anak_ke: "", usia_gestasi_minggu: "",
+    berat_lahir_gram: "", panjang_badan_cm: "", lingkar_kepala_cm: "",
+    lokasi_persalinan: "", alamat_lokasi_persalinan: "",
+    nama_bayi_diberi_nama: "", nama_ibu: "", nik_ibu: "",
+    nama_ayah: "", pekerjaan_orang_tua: "", alamat_orang_tua: "",
+    nama_penolong_kelahiran: "",
+  });
+
+  // Breadcrumb component
+  const Breadcrumb = () => {
+    if (!kehamilan) return null;
+    return (
+      <div className="flex items-center gap-2 text-sm text-gray-500 mb-4 flex-wrap">
+        <Link to="/dashboard" className="hover:text-indigo-600 flex items-center gap-1">
+          <Home size={14} /> Beranda
+        </Link>
+        <span>/</span>
+        <Link to="/data-ibu" className="hover:text-indigo-600">Data Ibu</Link>
+        <span>/</span>
+        <Link to={`/data-ibu/${id}?kehamilan_id=${kehamilan.id}`} className="hover:text-indigo-600">
+          Detail Ibu
+        </Link>
+        <span>/</span>
+        <span className="text-gray-700 font-medium">Proses & Riwayat Melahirkan</span>
+      </div>
+    );
+  };
+
+  useEffect(() => {
     const fetchData = async () => {
       try {
         const kehamilanList = await getKehamilanByIbuId(id);
         if (kehamilanList.length > 0) {
           const aktif = kehamilanList[0];
           setKehamilan(aktif);
-          // Fetch Ringkasan
+
           const dRingkasan = await getRingkasanPersalinanByKehamilanId(aktif.id);
           if (dRingkasan && dRingkasan.length > 0) {
             const d = dRingkasan[0];
             setRingkasan(d);
             setFormRingkasan({
               tanggal_melahirkan: d.tanggal_melahirkan ? d.tanggal_melahirkan.split("T")[0] : "",
-              pukul_melahirkan: d.pukul_melahirkan ? new Date(d.pukul_melahirkan).toTimeString().substring(0, 5) : "",
               umur_kehamilan_minggu: d.umur_kehamilan_minggu ?? "",
               penolong_proses_melahirkan: d.penolong_proses_melahirkan || "",
               cara_melahirkan: d.cara_melahirkan || "",
@@ -326,7 +335,7 @@ export default function PelayananPersalinan() {
           } else {
             setModeRingkasan("empty");
           }
-          // Fetch Riwayat
+
           const dRiwayat = await getRiwayatMelahirkanByKehamilanId(aktif.id);
           if (dRiwayat && dRiwayat.length > 0) {
             const d = dRiwayat[0];
@@ -335,18 +344,17 @@ export default function PelayananPersalinan() {
               g_gravida: d.g_gravida ?? "",
               p_partus: d.p_partus ?? "",
               a_abortus: d.a_abortus ?? "",
-              hari_melahirkan: d.hari_melahirkan || "",
               tanggal_melahirkan: d.tanggal_melahirkan ? d.tanggal_melahirkan.split("T")[0] : "",
+              fasyankes_tempat_melahirkan: d.fasyankes_tempat_melahirkan || "",
               cara_melahirkan_spontan: d.cara_melahirkan_spontan || false,
               tindakan_sc: d.tindakan_sc || false,
-              fasyankes_tempat_melahirkan: d.fasyankes_tempat_melahirkan || "",
             });
             setModeRiwayat("detail");
           } else {
             setModeRiwayat("empty");
           }
         }
-        // Fetch Keterangan Lahir by Ibu ID
+
         const dKeterangan = await getKeteranganLahirByIbuId(id);
         if (dKeterangan && dKeterangan.length > 0) {
           const d = dKeterangan[0];
@@ -385,135 +393,208 @@ export default function PelayananPersalinan() {
     };
     fetchData();
   }, [id]);
+
   const handleChange = (e, setForm) => {
     const { name, value, type, checked } = e.target;
     setForm((prev) => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
   };
-    const submitRingkasan = async (e) => {
-      e.preventDefault();
-      if (!kehamilan) { alert("Data kehamilan tidak ditemukan!"); return; }
-      setSaving(true);
-      try {
-        const payload = { ...formRingkasan, kehamilan_id: kehamilan.id };
-        payload.umur_kehamilan_minggu = parseInt(payload.umur_kehamilan_minggu) || 0;
-        payload.bayi_anak_ke = parseInt(payload.bayi_anak_ke) || 0;
-        payload.bayi_berat_lahir_gram = parseInt(payload.bayi_berat_lahir_gram) || 0;
-        payload.bayi_panjang_badan_cm = parseInt(payload.bayi_panjang_badan_cm) || 0;
-        payload.bayi_lingkar_kepala_cm = parseInt(payload.bayi_lingkar_kepala_cm) || 0;
-        if (ringkasan) {
-          const idRingkasan = ringkasan.id_ringkasan || ringkasan.id || ringkasan.ID;
-          await updateRingkasanPersalinan(idRingkasan, payload);
-        } else {
-          const saved = await createRingkasanPersalinan(payload);
-          setRingkasan(saved);
-        }
-        setModeRingkasan("detail");
-        alert("Ringkasan Persalinan berhasil disimpan!");
-      } catch (err) {
-        const msg = err.response?.data?.message || err.response?.data?.error || err.message;
-        alert(`Gagal menyimpan.\nError: ${msg}`);
-      } finally {
-        setSaving(false);
-      }
-    };
-    const submitRiwayat = async (e) => {
-      e.preventDefault();
-      if (!kehamilan) return;
-      setSaving(true);
-      try {
-        const payload = { ...formRiwayat, kehamilan_id: kehamilan.id };
-        payload.g_gravida = parseInt(payload.g_gravida) || 0;
-        payload.p_partus = parseInt(payload.p_partus) || 0;
-        payload.a_abortus = parseInt(payload.a_abortus) || 0;
-        if (riwayat) {
-          const idRiwayat = riwayat.id_riwayat_melahirkan || riwayat.id || riwayat.ID;
-          await updateRiwayatMelahirkan(idRiwayat, payload);
-        } else {
-          const saved = await createRiwayatMelahirkan(payload);
-          setRiwayat(saved);
-        }
-        setModeRiwayat("detail");
-        alert("Riwayat Proses Melahirkan berhasil disimpan!");
-      } catch (err) {
-        const msg = err.response?.data?.message || err.response?.data?.error || err.message;
-        alert(`Gagal menyimpan.\nError: ${msg}`);
-      } finally {
-        setSaving(false);
-      }
-    };
-    const submitKeterangan = async (e) => {
-      e.preventDefault();
-      setSaving(true);
-      try {
-        const payload = { ...formKeterangan, id_ibu_relasi: parseInt(id) };
-        payload.anak_ke = parseInt(payload.anak_ke) || 0;
-        payload.berat_lahir_gram = parseInt(payload.berat_lahir_gram) || 0;
-        payload.panjang_badan_cm = parseInt(payload.panjang_badan_cm) || 0;
-        payload.lingkar_kepala_cm = parseInt(payload.lingkar_kepala_cm) || 0;
-        payload.usia_gestasi_minggu = parseInt(payload.usia_gestasi_minggu) || 0;
-        if (keterangan) {
-          const idKeterangan = keterangan.id_keterangan_lahir || keterangan.id || keterangan.ID;
-          await updateKeteranganLahir(idKeterangan, payload);
-        } else {
-          const saved = await createKeteranganLahir(payload);
-          setKeterangan(saved);
-        }
-        setModeKeterangan("detail");
-        alert("Keterangan Lahir berhasil disimpan!");
-      } catch (err) {
-        const msg = err.response?.data?.message || err.response?.data?.error || err.message;
-        alert(`Gagal menyimpan.\nError: ${msg}`);
-      } finally {
-        setSaving(false);
-      }
-    };
-    const handlePrint = () => {
-      const printContents = document.getElementById("surat-keterangan-lahir").innerHTML;
-      const w = window.open("", "_blank");
-      w.document.write(`
-        <html><head><title>Surat Keterangan Lahir</title>
-          <style>
-            body {font-family: serif; font-size: 13px; padding: 40px; color: #111; }
-            table {width: 100%; border-collapse: collapse; }
-            td {padding: 3px 2px; vertical-align: top; }
-            .border-dotted {border-bottom: 1px dotted #555; display: inline-block; min-width: 60px; }
-            .grid-3 {display: grid; grid-template-columns: 1fr 1fr 1fr; text-align: center; gap: 16px; margin-top: 16px; }
-            hr {border: 1px solid #555; margin: 16px 0; }
-            h1 {text-align: center; letter-spacing: 6px; }
-          </style>
-        </head><body>${printContents}</body></html>
-      `);
-      w.document.close();
-      w.print();
-    };
-    
-          if (loading) return <MainLayout><div className="p-6">Memuat...</div></MainLayout>;
-          return (
-          <MainLayout>
-            <div className="p-6 max-w-5xl mx-auto">
-              {/* Header */}
-              <div className="flex items-center gap-4 mb-6">
-                <button onClick={() => navigate(-1)} className="p-2 rounded-full hover:bg-gray-100">
-                  <ArrowLeft size={20} />
-                </button>
-                <div>
-                  <h1 className="text-2xl font-bold">Layanan Proses Melahirkan</h1>
-                  <p className="text-gray-500">Pendataan Riwayat, Ringkasan, dan Surat Keterangan Lahir Anak.</p>
-                </div>
-              </div>
-              <h1 className="text-2xl font-bold text-gray-900">Proses & Riwayat Melahirkan</h1>
-              <p className="text-gray-500">Pencatatan proses persalinan hingga bayi lahir.</p>
 
-          {/* Tabs */}
-          <div className="w-full border-b border-gray-200 mb-6 flex overflow-x-auto mt-6">
-            <TabButton id="ringkasan" label="Ringkasan Melahirkan" activeTab={activeTab} setActiveTab={setActiveTab} />
-            <TabButton id="riwayat" label="Riwayat Melahirkan" activeTab={activeTab} setActiveTab={setActiveTab} />
-            <TabButton id="keterangan" label="Surat Keterangan Lahir" activeTab={activeTab} setActiveTab={setActiveTab} />
+  const submitRingkasan = async (e) => {
+    e.preventDefault();
+    if (!kehamilan) { alert("Data kehamilan tidak ditemukan!"); return; }
+    setSaving(true);
+    try {
+      const payload = { ...formRingkasan, kehamilan_id: kehamilan.id };
+      payload.umur_kehamilan_minggu = parseInt(payload.umur_kehamilan_minggu) || 0;
+      payload.bayi_anak_ke = parseInt(payload.bayi_anak_ke) || 0;
+      payload.bayi_berat_lahir_gram = parseInt(payload.bayi_berat_lahir_gram) || 0;
+      payload.bayi_panjang_badan_cm = parseInt(payload.bayi_panjang_badan_cm) || 0;
+      payload.bayi_lingkar_kepala_cm = parseInt(payload.bayi_lingkar_kepala_cm) || 0;
+      if (ringkasan) {
+        const idRingkasan = ringkasan.id_ringkasan || ringkasan.id || ringkasan.ID;
+        await updateRingkasanPersalinan(idRingkasan, payload);
+      } else {
+        const saved = await createRingkasanPersalinan(payload);
+        setRingkasan(saved);
+      }
+      setModeRingkasan("detail");
+      // Refresh data agar tampilan detail terbaru
+      const dRingkasan = await getRingkasanPersalinanByKehamilanId(kehamilan.id);
+      if (dRingkasan && dRingkasan.length > 0) {
+        const d = dRingkasan[0];
+        setFormRingkasan({
+          tanggal_melahirkan: d.tanggal_melahirkan ? d.tanggal_melahirkan.split("T")[0] : "",
+          umur_kehamilan_minggu: d.umur_kehamilan_minggu ?? "",
+          penolong_proses_melahirkan: d.penolong_proses_melahirkan || "",
+          cara_melahirkan: d.cara_melahirkan || "",
+          keadaan_ibu: d.keadaan_ibu || "",
+          kb_pasca_melahirkan: d.kb_pasca_melahirkan || "",
+          bayi_anak_ke: d.bayi_anak_ke ?? "",
+          bayi_berat_lahir_gram: d.bayi_berat_lahir_gram ?? "",
+          bayi_panjang_badan_cm: d.bayi_panjang_badan_cm ?? "",
+          bayi_lingkar_kepala_cm: d.bayi_lingkar_kepala_cm ?? "",
+          bayi_jenis_kelamin: d.bayi_jenis_kelamin || "",
+          kondisi_bayi_segera_menangis: d.kondisi_bayi_segera_menangis || false,
+          asuhan_imd_1_jam_pertama: d.asuhan_imd_1_jam_pertama || false,
+        });
+      }
+    } catch (err) {
+      const msg = err.response?.data?.message || err.response?.data?.error || err.message;
+      alert(`Gagal menyimpan.\nError: ${msg}`);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const submitRiwayat = async (e) => {
+    e.preventDefault();
+    if (!kehamilan) return;
+    setSaving(true);
+    try {
+      const payload = { ...formRiwayat, kehamilan_id: kehamilan.id };
+      payload.g_gravida = parseInt(payload.g_gravida) || 0;
+      payload.p_partus = parseInt(payload.p_partus) || 0;
+      payload.a_abortus = parseInt(payload.a_abortus) || 0;
+      if (riwayat) {
+        const idRiwayat = riwayat.id_riwayat_melahirkan || riwayat.id || riwayat.ID;
+        await updateRiwayatMelahirkan(idRiwayat, payload);
+      } else {
+        const saved = await createRiwayatMelahirkan(payload);
+        setRiwayat(saved);
+      }
+      setModeRiwayat("detail");
+      const dRiwayat = await getRiwayatMelahirkanByKehamilanId(kehamilan.id);
+      if (dRiwayat && dRiwayat.length > 0) {
+        const d = dRiwayat[0];
+        setFormRiwayat({
+          g_gravida: d.g_gravida ?? "",
+          p_partus: d.p_partus ?? "",
+          a_abortus: d.a_abortus ?? "",
+          tanggal_melahirkan: d.tanggal_melahirkan ? d.tanggal_melahirkan.split("T")[0] : "",
+          fasyankes_tempat_melahirkan: d.fasyankes_tempat_melahirkan || "",
+          cara_melahirkan_spontan: d.cara_melahirkan_spontan || false,
+          tindakan_sc: d.tindakan_sc || false,
+        });
+      }
+    } catch (err) {
+      const msg = err.response?.data?.message || err.response?.data?.error || err.message;
+      alert(`Gagal menyimpan.\nError: ${msg}`);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const submitKeterangan = async (e) => {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      const payload = { ...formKeterangan, id_ibu_relasi: parseInt(id) };
+      payload.berat_lahir_gram = parseInt(payload.berat_lahir_gram) || 0;
+      payload.panjang_badan_cm = parseInt(payload.panjang_badan_cm) || 0;
+      payload.lingkar_kepala_cm = parseInt(payload.lingkar_kepala_cm) || 0;
+      payload.usia_gestasi_minggu = parseInt(payload.usia_gestasi_minggu) || 0;
+      payload.anak_ke = parseInt(payload.anak_ke) || 0;
+      if (keterangan) {
+        const idKeterangan = keterangan.id_keterangan_lahir || keterangan.id || keterangan.ID;
+        await updateKeteranganLahir(idKeterangan, payload);
+      } else {
+        const saved = await createKeteranganLahir(payload);
+        setKeterangan(saved);
+      }
+      setModeKeterangan("detail");
+      const dKeterangan = await getKeteranganLahirByIbuId(id);
+      if (dKeterangan && dKeterangan.length > 0) {
+        const d = dKeterangan[0];
+        setFormKeterangan({
+          nomor_surat: d.nomor_surat || "",
+          hari_lahir: d.hari_lahir || "",
+          tanggal_lahir: d.tanggal_lahir ? d.tanggal_lahir.split("T")[0] : "",
+          pukul_lahir: d.pukul_lahir || "",
+          jenis_kelamin: d.jenis_kelamin || "",
+          jenis_kelahiran: d.jenis_kelahiran || "",
+          anak_ke: d.anak_ke ?? "",
+          usia_gestasi_minggu: d.usia_gestasi_minggu ?? "",
+          berat_lahir_gram: d.berat_lahir_gram ?? "",
+          panjang_badan_cm: d.panjang_badan_cm ?? "",
+          lingkar_kepala_cm: d.lingkar_kepala_cm ?? "",
+          lokasi_persalinan: d.lokasi_persalinan || "",
+          alamat_lokasi_persalinan: d.alamat_lokasi_persalinan || "",
+          nama_bayi_diberi_nama: d.nama_bayi_diberi_nama || "",
+          nama_ibu: d.nama_ibu || "",
+          nik_ibu: d.nik_ibu || "",
+          nama_ayah: d.nama_ayah || "",
+          pekerjaan_orang_tua: d.pekerjaan_orang_tua || "",
+          alamat_orang_tua: d.alamat_orang_tua || "",
+          nama_penolong_kelahiran: d.nama_penolong_kelahiran || "",
+        });
+      }
+    } catch (err) {
+      const msg = err.response?.data?.message || err.response?.data?.error || err.message;
+      alert(`Gagal menyimpan.\nError: ${msg}`);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handlePrint = () => {
+    const printContents = document.getElementById("surat-keterangan-lahir").innerHTML;
+    const w = window.open("", "_blank");
+    w.document.write(`
+      <html><head><title>Surat Keterangan Lahir</title>
+      <style>
+        body { font-family: serif; font-size: 13px; padding: 40px; color: #111; }
+        table { width: 100%; border-collapse: collapse; }
+        td { padding: 3px 2px; vertical-align: top; }
+        .border-dotted { border-bottom: 1px dotted #555; display: inline-block; min-width: 60px; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; text-align: center; gap: 16px; margin-top: 16px; }
+        hr { border: 1px solid #555; margin: 16px 0; }
+        h1 { text-align: center; letter-spacing: 6px; }
+      </style>
+      </head><body>${printContents}</body></html>
+    `);
+    w.document.close();
+    w.print();
+  };
+
+  const TabButton = ({ id, label }) => (
+    <button onClick={() => setActiveTab(id)}
+      className={`py-3 px-6 text-sm font-medium border-b-2 transition-colors ${activeTab === id
+        ? "border-indigo-600 text-indigo-600 bg-indigo-50"
+        : "border-transparent text-gray-500 hover:text-gray-700"}`}>
+      {label}
+    </button>
+  );
+
+  if (loading) return <MainLayout><div className="p-6">Memuat...</div></MainLayout>;
+
+  return (
+    <MainLayout>
+      <div className="p-6 max-w-5xl">
+        {/* Breadcrumb */}
+        <Breadcrumb />
+
+        {/* Header */}
+        <div className="flex items-center gap-4 mb-6">
+          <button onClick={() => navigate(-1)} className="p-2 rounded-full hover:bg-gray-100">
+            <ArrowLeft size={20} />
+          </button>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Proses & Riwayat Melahirkan</h1>
+            <p className="text-gray-500">Pencatatan proses persalinan hingga bayi lahir.</p>
           </div>
+        </div>
+
+        {/* Tabs */}
+        <div className="w-full border-b border-gray-200 mb-6 flex overflow-x-auto">
+          <TabButton id="ringkasan" label="Ringkasan Melahirkan" />
+          <TabButton id="riwayat" label="Riwayat Melahirkan" />
+          <TabButton id="keterangan" label="Surat Keterangan Lahir" />
+        </div>
 
         {/* ===== RINGKASAN ===== */}
-          {activeTab === "ringkasan" && (
-            modeRingkasan === "detail" ? (
+        {activeTab === "ringkasan" && (
+          <>
+            {modeRingkasan === "detail" && (
               <div className="bg-white rounded-xl shadow-sm p-6 space-y-5">
                 <div className="flex justify-between items-center">
                   <div className="flex items-center gap-2 text-green-600">
@@ -545,7 +626,15 @@ export default function PelayananPersalinan() {
                   <DetailItem label="IMD 1 Jam Pertama" value={formRingkasan.asuhan_imd_1_jam_pertama ? "Ya" : "Tidak"} />
                 </div>
               </div>
-            ) : (
+            )}
+            {modeRingkasan === "empty" && (
+              <EmptyState
+                title="Belum Ada Ringkasan Persalinan"
+                message="Silakan isi ringkasan pelayanan persalinan untuk ibu ini."
+                onAdd={() => setModeRingkasan("form")}
+              />
+            )}
+            {modeRingkasan === "form" && (
               <form onSubmit={submitRingkasan} className="bg-white rounded-xl shadow-sm p-6 space-y-6">
                 <h2 className="text-lg font-semibold text-indigo-700">Ringkasan Pelayanan Persalinan</h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -610,11 +699,14 @@ export default function PelayananPersalinan() {
                   <Save size={18} /> {saving ? "Menyimpan..." : "Simpan Ringkasan"}
                 </button>
               </form>
-            )
-          )}
-          {/* ===== RIWAYAT ===== */}
-          {activeTab === "riwayat" && (
-            modeRiwayat === "detail" ? (
+            )}
+          </>
+        )}
+
+        {/* ===== RIWAYAT ===== */}
+        {activeTab === "riwayat" && (
+          <>
+            {modeRiwayat === "detail" && (
               <div className="bg-white rounded-xl shadow-sm p-6 space-y-5">
                 <div className="flex justify-between items-center">
                   <div className="flex items-center gap-2 text-green-600">
@@ -634,11 +726,19 @@ export default function PelayananPersalinan() {
                   <DetailItem label="Faskes / Tempat Melahirkan" value={formRiwayat.fasyankes_tempat_melahirkan} />
                   <DetailItem label="Cara Melahirkan" value={
                     formRiwayat.cara_melahirkan_spontan ? "Spontan/Normal" :
-                      formRiwayat.tindakan_sc ? "Operasi Caesar" : "-"
+                    formRiwayat.tindakan_sc ? "Operasi Caesar" : "-"
                   } />
                 </div>
               </div>
-            ) : (
+            )}
+            {modeRiwayat === "empty" && (
+              <EmptyState
+                title="Belum Ada Riwayat Melahirkan"
+                message="Silakan isi riwayat proses melahirkan untuk ibu ini."
+                onAdd={() => setModeRiwayat("form")}
+              />
+            )}
+            {modeRiwayat === "form" && (
               <form onSubmit={submitRiwayat} className="bg-white rounded-xl shadow-sm p-6 space-y-6">
                 <h2 className="text-lg font-semibold text-indigo-700">Riwayat Proses Melahirkan</h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -673,13 +773,15 @@ export default function PelayananPersalinan() {
                   <Save size={18} /> {saving ? "Menyimpan..." : "Simpan Riwayat"}
                 </button>
               </form>
-            )
-          )}
-          {/* ===== KETERANGAN LAHIR ===== */}
-          {activeTab === "keterangan" && (
-            modeKeterangan === "detail" ? (
+            )}
+          </>
+        )}
+
+        {/* ===== KETERANGAN LAHIR ===== */}
+        {activeTab === "keterangan" && (
+          <>
+            {modeKeterangan === "detail" && (
               <div className="space-y-4">
-                {/* Tombol aksi */}
                 <div className="flex justify-between items-center">
                   <button onClick={() => setModeKeterangan("form")}
                     className="flex items-center gap-2 text-sm text-indigo-600 border border-indigo-300 px-3 py-1.5 rounded-lg hover:bg-indigo-50">
@@ -690,10 +792,17 @@ export default function PelayananPersalinan() {
                     <Printer size={16} /> Cetak Surat
                   </button>
                 </div>
-                {/* Surat */}
                 <SuratKeteranganLahir data={formKeterangan} />
               </div>
-            ) : (
+            )}
+            {modeKeterangan === "empty" && (
+              <EmptyState
+                title="Belum Ada Surat Keterangan Lahir"
+                message="Silakan isi data untuk membuat Surat Keterangan Lahir."
+                onAdd={() => setModeKeterangan("form")}
+              />
+            )}
+            {modeKeterangan === "form" && (
               <form onSubmit={submitKeterangan} className="bg-white rounded-xl shadow-sm p-6 space-y-6">
                 <h2 className="text-lg font-semibold text-indigo-700">Surat Keterangan Lahir (Model A.B)</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -771,9 +880,10 @@ export default function PelayananPersalinan() {
                   <Save size={18} /> {saving ? "Menyimpan..." : "Simpan Keterangan Lahir"}
                 </button>
               </form>
-            )
-          )}
-        </div>
+            )}
+          </>
+        )}
+      </div>
     </MainLayout>
   );
 }

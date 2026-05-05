@@ -8,7 +8,7 @@ import (
 	"monitoring-service/app/repositories"
 	"monitoring-service/app/routes"
 
-	"monitoring-service/app/seeders"
+	// "monitoring-service/app/seed"
 	"monitoring-service/app/usecases"
 	"monitoring-service/pkg/config"
 	"monitoring-service/pkg/database"
@@ -62,13 +62,15 @@ func (m *Main) Init() (err error) {
 	//comment sementara
 
 	// Migrate Tabel
-		// err = models.AutoMigrate(m.database.Postgres)
-		// if err != nil {
-		// 	return
-		// }
-
-	// Seeder
+	// err = models.AutoMigrate(m.database.Postgres)
 	// if err != nil {
+	// 	return
+	// }
+
+	// // Seeder
+	// err = seed.RunAllSeed(m.database.Postgres)
+	// if err != nil {
+	// 	return
 	// }
 
 	// SEEDER setelah migrate
@@ -78,7 +80,7 @@ func (m *Main) Init() (err error) {
 	// 	return err
 	// }
 
-	// seeder master standar TBU
+	// // seeder master standar TBU
 	// masterTBUSeeder := seeders.NewMasterStandarTBUSeeder(m.database.Postgres)
 	// if err := masterTBUSeeder.Seed(); err != nil {
 	// 	return err
@@ -103,14 +105,6 @@ func (m *Main) Init() (err error) {
 	// if err := kategoriCapaianSeeder.Seed(); err != nil {
 	// 	return err
 	// }
-
-	// pemantauanAnakSeeder := seeders.NewPemantauanAnakSeeder(m.database.Postgres)
-	// if err := pemantauanAnakSeeder.Seed(); err != nil {
-	// 	return err
-	// }
-
-	seeders.PerkembanganAnakSeeder(m.database.Postgres)
-	seeders.KesehatanLingkunganSeeder(m.database.Postgres)
 
 	m.repo = repositories.Init(repositories.Options{
 		Config:   m.cfg,

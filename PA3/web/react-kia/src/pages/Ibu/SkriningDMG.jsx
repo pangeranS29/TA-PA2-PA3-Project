@@ -26,7 +26,7 @@ export default function SkriningPreeklampsia() {
   const [isEditing, setIsEditing] = useState(false);
   const [isActive, setIsActive] = useState(true); // ✅ status aktif kehamilan
 
-  // Hak edit: dokter DAN kehamilan aktif (bukan NON-AKTIF)
+  
   const canEdit = isDokter && isActive;
 
   const [form, setForm] = useState({

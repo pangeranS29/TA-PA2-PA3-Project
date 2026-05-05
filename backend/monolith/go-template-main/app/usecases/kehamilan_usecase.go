@@ -26,6 +26,7 @@ func NewKehamilanUsecase(repo *repositories.KehamilanRepository) KehamilanUsecas
 	return &kehamilanUsecase{repo: repo}
 }
 
+// hitung IMT hanya jika BB_Awal dan TB diisi
 func calculateIMT(bb, tb float64) float64 {
 	if tb <= 0 {
 		return 0
@@ -39,11 +40,30 @@ func (u *kehamilanUsecase) Create(kehamilan *models.Kehamilan) error {
 	if kehamilan.IbuID == 0 {
 		return errors.New("ibu_id wajib diisi")
 	}
-	if kehamilan.BB_Awal <= 0 {
-		return errors.New("bb_awal tidak valid")
+
+	if kehamilan.HPHT.IsZero() {
+		return errors.New("HPHT wajib diisi")
 	}
 
-	// Hitung IMT jika BB_Awal dan TB diisi
+	if kehamilan.HPHT.After(time.Now()) {
+		return errors.New("HPHT tidak boleh di masa depan")
+	}
+
+	// validasi kehamilan aktif
+	exists, err := u.repo.ExistsActiveByIbuID(kehamilan.IbuID)
+	if err != nil {
+		return err
+	}
+	if exists {
+		return errors.New("ibu masih memiliki kehamilan aktif")
+	}
+
+	// 🔥 hitung otomatis
+	usia := calculateUsiaKehamilan(kehamilan.HPHT)
+	kehamilan.UKKehamilanSaatIni = int32(usia)
+	kehamilan.StatusKehamilan = determineTrimester(usia)
+
+	// IMT
 	if kehamilan.BB_Awal > 0 && kehamilan.TB > 0 {
 		kehamilan.IMT_Awal = calculateIMT(kehamilan.BB_Awal, kehamilan.TB)
 	}
@@ -69,18 +89,6 @@ func (u *kehamilanUsecase) Update(kehamilan *models.Kehamilan) error {
 		return errors.New("data kehamilan tidak ditemukan")
 	}
 
-	// UPDATE FIELD NON-IMT
-	existing.Gravida = kehamilan.Gravida
-	existing.Paritas = kehamilan.Paritas
-	existing.Abortus = kehamilan.Abortus
-	existing.HPHT = kehamilan.HPHT
-	existing.TaksiranPersalinan = kehamilan.TaksiranPersalinan
-	existing.UKKehamilanSaatIni = kehamilan.UKKehamilanSaatIni
-	existing.JarakKehamilanSebelumnya = kehamilan.JarakKehamilanSebelumnya
-	existing.StatusKehamilan = kehamilan.StatusKehamilan
-
-	// UPDATE BB & TB
-	// Update field yang diisi (tidak nol/nil)
 	if kehamilan.IbuID != 0 {
 		existing.IbuID = kehamilan.IbuID
 	}
@@ -104,11 +112,7 @@ func (u *kehamilanUsecase) Update(kehamilan *models.Kehamilan) error {
 		existing.TB = kehamilan.TB
 	}
 
-	// RECALCULATE IMT
-	imt := calculateIMT(existing.BB_Awal, existing.TB)
-	existing.IMT_Awal = imt
-
-	// Rekalkulasi IMT jika BB_Awal atau TB berubah
+	// IMT
 	if kehamilan.BB_Awal > 0 || kehamilan.TB > 0 {
 		existing.IMT_Awal = calculateIMT(existing.BB_Awal, existing.TB)
 	}
