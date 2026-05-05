@@ -132,6 +132,7 @@ function App() {
         {/* PROTECTED (Bidan/Kader) */}
         <Route element={<PrivateRoute />}>
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/dashboard/bidan" element={<Dashboard />} />
 
           {/* Kependudukan */}
           <Route path="/kependudukan" element={<KependudukanList />} />
@@ -235,6 +236,9 @@ function App() {
           <Route path="/dashboard/admin/tenaga-kesehatan" element={<TenagaKesehatanManagement />} />
           <Route path="/dashboard/admin/jadwal-layanan" element={<JadwalLayanan />} />
         </Route>
+
+        {/* DOKTER ROUTES */}
+        <Route path="/dashboard/dokter" element={<DokterDashboard />} />
 
         {/* Rute Anak (tanpa auth wrapper - bisa diakses langsung) */}
         <Route path="/data-anak/dashboard/:id" element={<AnakDashboard />} />
