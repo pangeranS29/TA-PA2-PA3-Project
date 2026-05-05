@@ -25,9 +25,6 @@ import {
 const Sidebar = () => {
   const user = getCurrentUser();
   const isAdmin = isAdminUser(user);
-  const isBidan = isBidanUser(user);
-  const isDokter = isDokterUser(user);
-  
   const dashboardPath = getUserRedirectRoute(user);
   const location = useLocation();
 
@@ -42,13 +39,6 @@ const Sidebar = () => {
     setDropdownOpen((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
-  // Menu untuk dokter (hanya Data Ibu & Laporan)
-  const dokterMenuItems = [
-    { path: "/data-ibu", name: "Data Ibu", icon: Users },
-    { path: "/laporan", name: "Laporan", icon: BarChart3 },
-  ];
-
-  // Menu admin (kelola keluarga)
   const adminFamilyMenuItems = useMemo(
     () => [
       { path: "/dashboard/admin/manajemen-keluarga", name: "Manajemen KK", icon: UserCheck },
@@ -259,7 +249,7 @@ const Sidebar = () => {
             Desa Suka Maju · 4 posyandu aktif · sinkron terakhir 08.10 WIB
           </p>
         </div>
-      )}
+      </div>
     </aside>
   );
 };

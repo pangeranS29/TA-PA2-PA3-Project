@@ -14,8 +14,6 @@ export default function IbuCreate() {
   const [step, setStep] = useState(1);
   const [createdIbu, setCreatedIbu] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
-  const [errors, setErrors] = useState({});
-  const today = new Date().toISOString().split("T")[0];
 
   const [formIbu, setFormIbu] = useState({
     id_kependudukan: "",
@@ -23,12 +21,12 @@ export default function IbuCreate() {
   });
 
   const [formKehamilan, setFormKehamilan] = useState({
-    // gravida: "",
-    // paritas: "",
-    // abortus: "",
+    gravida: "",
+    paritas: "",
+    abortus: "",
     hpht: "",
     taksiran_persalinan: "",
-    // uk_kehamilan_saat_ini: "",
+    uk_kehamilan_saat_ini: "",
     jarak_kehamilan_sebelumnya: "",
     status_kehamilan: "TRIMESTER 1",
     bb_awal: "",
@@ -69,11 +67,6 @@ export default function IbuCreate() {
     setFormKehamilan(updated);
   };
 
-    setFormKehamilan(prev => ({ ...prev, [name]: value }));
-
-    // hapus error saat user mulai isi ulang
-    setErrors(prev => ({ ...prev, [name]: "" }));
-  };
   const handleSubmitStep1 = async (e) => {
     e.preventDefault();
     if (!formIbu.id_kependudukan) {
@@ -119,10 +112,7 @@ export default function IbuCreate() {
       setStep(3);
       setTimeout(() => navigate(`/data-ibu/${ibuId}`), 2000);
     } catch (err) {
-      const msg =
-        err.response?.data?.message ||
-        err.message ||
-        "Gagal menyimpan data kehamilan";
+      const msg = err.response?.data?.message || err.message || "Gagal menyimpan data kehamilan";
       setErrorMessage(msg);
     } finally {
       setLoading(false);
@@ -278,7 +268,6 @@ export default function IbuCreate() {
                   <label className="block text-sm font-medium mb-2 text-gray-700">Gravida (G)</label>
                   <input type="number" name="gravida" value={formKehamilan.gravida} onChange={handleChangeKehamilan} placeholder="Jumlah kehamilan" min="0" className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none" />
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium mb-2 text-gray-700">Paritas (P)</label>
                   <input type="number" name="paritas" value={formKehamilan.paritas} onChange={handleChangeKehamilan} placeholder="Jumlah persalinan" min="0" className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none" />
@@ -288,79 +277,6 @@ export default function IbuCreate() {
                   <input type="number" name="abortus" value={formKehamilan.abortus} onChange={handleChangeKehamilan} placeholder="Jumlah keguguran" min="0" className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none" />
                 </div>
               </div>
-
-              {/* Jarak Kehamilan */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Jarak dengan Kehamilan Sebelumnya (bulan)
-                </label>
-                <input
-                  name="jarak_kehamilan_sebelumnya"
-                  type="number"
-                  placeholder="Contoh: 24"
-                  value={formKehamilan.jarak_kehamilan_sebelumnya}
-                  onChange={handleChangeKehamilan}
-                  className="w-full border rounded p-2 mt-1"
-                />
-                <p className="text-xs text-gray-400 mt-1">
-                  Kosongkan jika ini kehamilan pertama
-                </p>
-              </div>
-
-              {/* Kondisi Fisik */}
-              <div>
-                <h4 className="font-medium text-gray-800">Kondisi Fisik Awal</h4>
-                <div className="grid grid-cols-2 gap-4 mt-2">
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">
-                      Berat Badan Awal (kg)
-                    </label>
-                    <input
-                      name="bb_awal"
-                      type="number"
-                      min="0"
-                      step="0.1"
-                      placeholder="Contoh: 50.5"
-                      value={formKehamilan.bb_awal}
-                      onChange={handleChangeKehamilan}
-                      className={`w-full border rounded p-2 mt-1 ${errors.bb_awal ? "border-red-500" : ""
-                        }`}
-                    />
-
-                    {errors.bb_awal && (
-                      <p className="text-red-500 text-xs mt-1">
-                        {errors.bb_awal}
-                      </p>
-                    )}
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">
-                      Tinggi Badan (cm)
-                    </label>
-                    <input
-                      name="tb"
-                      type="number"
-                      min="0"
-                      step="0.1"
-                      placeholder="Contoh: 160"
-                      value={formKehamilan.tb}
-                      onChange={handleChangeKehamilan}
-                      className={`w-full border rounded p-2 mt-1 ${errors.tb ? "border-red-500" : ""
-                        }`}
-                    />
-
-                    {errors.tb && (
-                      <p className="text-red-500 text-xs mt-1">
-                        {errors.tb}
-                      </p>
-                    )}
-                  </div>
-
-                </div>
-              </div>
-
             </div>
 
             <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-sm border border-white/50 p-8">

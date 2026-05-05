@@ -1,13 +1,12 @@
-// src/services/pemeriksaanDokter.js
 import api from "./api";
 
-// ========== ENDPOINT LAMA (kompatibilitas) ==========
+// ========== ENDPOINT LAMA (jika masih ada komponen yang menggunakannya) ==========
 const BASE_DOKTER_T1 = "/tenaga-kesehatan/pemeriksaan-dokter-t1";
 const BASE_DOKTER_T3 = "/tenaga-kesehatan/pemeriksaan-dokter-t3";
 const BASE_LAB_JIWA = "/tenaga-kesehatan/pemeriksaan-lab-jiwa";
 const BASE_LANJUTAN_T3 = "/tenaga-kesehatan/pemeriksaan-lanjutan-t3";
 
-// TRI 1 (lama) – untuk kompatibilitas jika masih ada komponen lain
+// Tri 1 (lama) – mungkin masih dipakai oleh komponen lain
 export const getDokterT1ByKehamilanId = async (kehamilanId) => {
   const res = await api.get(`${BASE_DOKTER_T1}?kehamilan_id=${kehamilanId}`);
   return res.data.data;
@@ -29,7 +28,7 @@ export const deleteDokterT1 = async (id) => {
   return res.data.data;
 };
 
-// TRI 3 (lama) - TIDAK DIPAKAI LAGI, gunakan T3 Complete di bawah
+// Tri 3 (lama)
 export const getDokterT3ByKehamilanId = async (kehamilanId) => {
   const res = await api.get(`${BASE_DOKTER_T3}?kehamilan_id=${kehamilanId}`);
   return res.data.data;
