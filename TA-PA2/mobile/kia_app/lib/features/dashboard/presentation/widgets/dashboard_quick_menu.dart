@@ -8,8 +8,8 @@ class DashboardQuickMenu extends StatelessWidget {
   const DashboardQuickMenu({
     super.key,
     required this.items,
-    this.crossAxisCount = 2,
-    this.childAspectRatio = 2.0,
+    this.crossAxisCount = 3,
+    this.childAspectRatio = 1.0,
   });
 
   @override
@@ -19,8 +19,8 @@ class DashboardQuickMenu extends StatelessWidget {
       physics: const NeverScrollableScrollPhysics(),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: crossAxisCount,
-        mainAxisSpacing: 10,
-        crossAxisSpacing: 10,
+        mainAxisSpacing: 12,
+        crossAxisSpacing: 12,
         childAspectRatio: childAspectRatio,
       ),
       itemCount: items.length,
@@ -47,14 +47,14 @@ class DashboardQuickMenu extends StatelessWidget {
                 Icon(
                   item['icon'] as IconData,
                   color: item['color'] as Color,
-                  size: 24,
+                  size: 22,
                 ),
                 const SizedBox(height: 6),
                 Text(
                   item['label'] as String,
                   textAlign: TextAlign.center,
                   style: const TextStyle(
-                    fontSize: 10.5,
+                    fontSize: 9,
                     fontWeight: FontWeight.w600,
                   ),
                 ),

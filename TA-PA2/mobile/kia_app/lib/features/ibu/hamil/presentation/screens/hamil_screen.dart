@@ -72,6 +72,7 @@ class _HamilScreenState extends State<HamilScreen> {
           abortus: kehamilan.abortus,
           hplText: _formatDate(kehamilan.taksiranPersalinan),
           hphtText: _formatDate(kehamilan.hpht),
+          hpht: kehamilan.hpht!,
         );
       },
     );
