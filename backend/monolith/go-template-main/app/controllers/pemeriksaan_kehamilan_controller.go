@@ -19,55 +19,65 @@ func NewPemeriksaanKehamilanController(u usecases.PemeriksaanKehamilanUsecase) *
 	return &PemeriksaanKehamilanController{usecase: u}
 }
 
-// ================= REQUEST =================
-
 type createPemeriksaanKehamilanRequest struct {
 	KehamilanID            int32   `json:"kehamilan_id"`
-	KunjunganKe            int32   `json:"kunjungan_ke"`
-	MingguKehamilan        int32   `json:"minggu_kehamilan"`
+	Trimester              string  `json:"trimester"`
+	KunjunganKe            int     `json:"kunjungan_ke"`
 	TanggalPeriksa         string  `json:"tanggal_periksa"`
 	TempatPeriksa          string  `json:"tempat_periksa"`
-	BeratBadan             *float64 `json:"berat_badan"`
-	TinggiBadan            *float64 `json:"tinggi_badan"`
-	LingkarLenganAtas      *float64 `json:"lingkar_lengan_atas"`
-	Sistole                int32   `json:"sistole"`
-	Diastole               int32   `json:"diastole"`
-	TinggiRahim            *float64 `json:"tinggi_rahim"`
-	DenyutJantungJanin     int32   `json:"denyut_jantung_janin"`
+	BeratBadan             float64 `json:"berat_badan"`
+	TinggiBadan            float64 `json:"tinggi_badan"`
+	LingkarLenganAtas      float64 `json:"lingkar_lengan_atas"`
+	TekananDarah           string  `json:"tekanan_darah"`
+	TinggiRahim            float64 `json:"tinggi_rahim"`
+	LetakDenyutJantungBayi string  `json:"letak_denyut_jantung_bayi"`
 	StatusImunisasiTetanus string  `json:"status_imunisasi_tetanus"`
-	TabletTambahDarah      *int32  `json:"tablet_tambah_darah"`
-	TesLabHb               *float64 `json:"tes_lab_hb"`
+	Konseling              string  `json:"konseling"`
+	SkriningDokter         string  `json:"skrining_dokter"`
+	TabletTambahDarah      int     `json:"tablet_tambah_darah"`
+	TesLabHb               float64 `json:"tes_lab_hb"`
+	TesGolonganDarah       string  `json:"tes_golongan_darah"`
 	TesLabProteinUrine     string  `json:"tes_lab_protein_urine"`
-	TesLabGulaDarah        *int32  `json:"tes_lab_gula_darah"`
+	TesLabGulaDarah        int     `json:"tes_lab_gula_darah"`
 	USG                    string  `json:"usg"`
 	TripelEliminasi        string  `json:"tripel_eliminasi"`
 	TataLaksanaKasus       string  `json:"tata_laksana_kasus"`
 }
 
 type updatePemeriksaanKehamilanRequest struct {
-	KunjunganKe        *int32   `json:"kunjungan_ke"`
-	MingguKehamilan    *int32   `json:"minggu_kehamilan"`
-	TanggalPeriksa     *string  `json:"tanggal_periksa"`
-	TempatPeriksa      *string  `json:"tempat_periksa"`
-	BeratBadan         *float64 `json:"berat_badan"`
-	TinggiBadan        *float64 `json:"tinggi_badan"`
-	LingkarLenganAtas  *float64 `json:"lingkar_lengan_atas"`
-	Sistole            *int32   `json:"sistole"`
-	Diastole           *int32   `json:"diastole"`
-	TinggiRahim        *float64 `json:"tinggi_rahim"`
-	DenyutJantungJanin *int32   `json:"denyut_jantung_janin"`
-	TesLabHb           *float64 `json:"tes_lab_hb"`
-	TesLabProteinUrine *string  `json:"tes_lab_protein_urine"`
-	TesLabGulaDarah    *int32   `json:"tes_lab_gula_darah"`
-	USG                *string  `json:"usg"`
-	TripelEliminasi    *string  `json:"tripel_eliminasi"`
+	Trimester              string  `json:"trimester"`
+	KunjunganKe            int     `json:"kunjungan_ke"`
+	TanggalPeriksa         string  `json:"tanggal_periksa"`
+	TempatPeriksa          string  `json:"tempat_periksa"`
+	BeratBadan             float64 `json:"berat_badan"`
+	TinggiBadan            float64 `json:"tinggi_badan"`
+	LingkarLenganAtas      float64 `json:"lingkar_lengan_atas"`
+	TekananDarah           string  `json:"tekanan_darah"`
+	TinggiRahim            float64 `json:"tinggi_rahim"`
+	LetakDenyutJantungBayi string  `json:"letak_denyut_jantung_bayi"`
+	StatusImunisasiTetanus string  `json:"status_imunisasi_tetanus"`
+	Konseling              string  `json:"konseling"`
+	SkriningDokter         string  `json:"skrining_dokter"`
+	TabletTambahDarah      int     `json:"tablet_tambah_darah"`
+	TesLabHb               float64 `json:"tes_lab_hb"`
+	TesGolonganDarah       string  `json:"tes_golongan_darah"`
+	TesLabProteinUrine     string  `json:"tes_lab_protein_urine"`
+	TesLabGulaDarah        int     `json:"tes_lab_gula_darah"`
+	USG                    string  `json:"usg"`
+	TripelEliminasi        string  `json:"tripel_eliminasi"`
+	TataLaksanaKasus       string  `json:"tata_laksana_kasus"`
 }
 
-// ================= CREATE =================
-
 func (c *PemeriksaanKehamilanController) Create(ctx echo.Context) error {
-	var req createPemeriksaanKehamilanRequest
+	claims, ok := ctx.Get("auth_claims").(*models.AuthClaims)
+	if !ok || claims == nil {
+		return ctx.JSON(http.StatusUnauthorized, models.Response{
+			StatusCode: http.StatusUnauthorized,
+			Message:    "Unauthorized",
+		})
+	}
 
+	var req createPemeriksaanKehamilanRequest
 	if err := ctx.Bind(&req); err != nil {
 		return ctx.JSON(http.StatusBadRequest, models.Response{
 			StatusCode: http.StatusBadRequest,
@@ -75,35 +85,38 @@ func (c *PemeriksaanKehamilanController) Create(ctx echo.Context) error {
 		})
 	}
 
-	p := &models.PemeriksaanKehamilan{
+	pemeriksaan := &models.PemeriksaanKehamilan{
 		KehamilanID:            req.KehamilanID,
+		Trimester:              req.Trimester,
 		KunjunganKe:            req.KunjunganKe,
-		MingguKehamilan:        req.MingguKehamilan,
 		TempatPeriksa:          req.TempatPeriksa,
-		BeratBadan:             req.BeratBadan,
-		TinggiBadan:            req.TinggiBadan,
-		LingkarLenganAtas:      req.LingkarLenganAtas,
-		Sistole:                req.Sistole,
-		Diastole:               req.Diastole,
-		TinggiRahim:            req.TinggiRahim,
-		DenyutJantungJanin:     req.DenyutJantungJanin,
+		BeratBadan:             &req.BeratBadan,
+		TinggiBadan:            &req.TinggiBadan,
+		LingkarLenganAtas:      &req.LingkarLenganAtas,
+		TekananDarah:           req.TekananDarah,
+		TinggiRahim:            &req.TinggiRahim,
+		LetakDenyutJantungBayi: req.LetakDenyutJantungBayi,
 		StatusImunisasiTetanus: req.StatusImunisasiTetanus,
-		TabletTambahDarah:      req.TabletTambahDarah,
-		TesLabHb:               req.TesLabHb,
+		Konseling:              req.Konseling,
+		SkriningDokter:         req.SkriningDokter,
+		TabletTambahDarah:      &req.TabletTambahDarah,
+		TesLabHb:               &req.TesLabHb,
+		TesGolonganDarah:       req.TesGolonganDarah,
 		TesLabProteinUrine:     req.TesLabProteinUrine,
-		TesLabGulaDarah:        req.TesLabGulaDarah,
+		TesLabGulaDarah:        &req.TesLabGulaDarah,
 		USG:                    req.USG,
 		TripelEliminasi:        req.TripelEliminasi,
 		TataLaksanaKasus:       req.TataLaksanaKasus,
 	}
 
+	// Parse tanggal
 	if req.TanggalPeriksa != "" {
 		if t, err := time.Parse("2006-01-02", req.TanggalPeriksa); err == nil {
-			p.TanggalPeriksa = &t
+			pemeriksaan.TanggalPeriksa = &t
 		}
 	}
 
-	if err := c.usecase.Create(p); err != nil {
+	if err := c.usecase.Create(pemeriksaan); err != nil {
 		return ctx.JSON(http.StatusInternalServerError, models.Response{
 			StatusCode: http.StatusInternalServerError,
 			Message:    err.Error(),
@@ -112,11 +125,9 @@ func (c *PemeriksaanKehamilanController) Create(ctx echo.Context) error {
 
 	return ctx.JSON(http.StatusCreated, models.Response{
 		StatusCode: http.StatusCreated,
-		Data:       p,
+		Data:       pemeriksaan,
 	})
 }
-
-// ================= GET BY ID =================
 
 func (c *PemeriksaanKehamilanController) GetByID(ctx echo.Context) error {
 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 32)
@@ -126,7 +137,6 @@ func (c *PemeriksaanKehamilanController) GetByID(ctx echo.Context) error {
 			Message:    "invalid id",
 		})
 	}
-
 	data, err := c.usecase.GetByID(int32(id))
 	if err != nil {
 		return ctx.JSON(http.StatusNotFound, models.Response{
@@ -134,14 +144,11 @@ func (c *PemeriksaanKehamilanController) GetByID(ctx echo.Context) error {
 			Message:    err.Error(),
 		})
 	}
-
 	return ctx.JSON(http.StatusOK, models.Response{
 		StatusCode: http.StatusOK,
 		Data:       data,
 	})
 }
-
-// ================= GET BY KEHAMILAN =================
 
 func (c *PemeriksaanKehamilanController) GetByKehamilanID(ctx echo.Context) error {
 	kehamilanID, err := strconv.ParseInt(ctx.QueryParam("kehamilan_id"), 10, 32)
@@ -151,7 +158,6 @@ func (c *PemeriksaanKehamilanController) GetByKehamilanID(ctx echo.Context) erro
 			Message:    "kehamilan_id required",
 		})
 	}
-
 	list, err := c.usecase.GetByKehamilanID(int32(kehamilanID))
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, models.Response{
@@ -159,14 +165,11 @@ func (c *PemeriksaanKehamilanController) GetByKehamilanID(ctx echo.Context) erro
 			Message:    err.Error(),
 		})
 	}
-
 	return ctx.JSON(http.StatusOK, models.Response{
 		StatusCode: http.StatusOK,
 		Data:       list,
 	})
 }
-
-// ================= UPDATE =================
 
 func (c *PemeriksaanKehamilanController) Update(ctx echo.Context) error {
 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 32)
@@ -189,59 +192,75 @@ func (c *PemeriksaanKehamilanController) Update(ctx echo.Context) error {
 	if err != nil {
 		return ctx.JSON(http.StatusNotFound, models.Response{
 			StatusCode: http.StatusNotFound,
-			Message:    "data tidak ditemukan",
+			Message:    "Data tidak ditemukan",
 		})
 	}
 
-	if req.KunjunganKe != nil {
-		existing.KunjunganKe = *req.KunjunganKe
+	// Update field yang dikirim (hanya yang tidak zero value)
+	if req.Trimester != "" {
+		existing.Trimester = req.Trimester
 	}
-	if req.MingguKehamilan != nil {
-		existing.MingguKehamilan = *req.MingguKehamilan
+	if req.KunjunganKe != 0 {
+		existing.KunjunganKe = req.KunjunganKe
 	}
-	if req.TanggalPeriksa != nil {
-		if t, err := time.Parse("2006-01-02", *req.TanggalPeriksa); err == nil {
+	if req.TanggalPeriksa != "" {
+		if t, err := time.Parse("2006-01-02", req.TanggalPeriksa); err == nil {
 			existing.TanggalPeriksa = &t
 		}
 	}
-	if req.TempatPeriksa != nil {
-		existing.TempatPeriksa = *req.TempatPeriksa
+	if req.TempatPeriksa != "" {
+		existing.TempatPeriksa = req.TempatPeriksa
 	}
-	if req.BeratBadan != nil {
-		existing.BeratBadan = req.BeratBadan
+	if req.BeratBadan != 0 {
+		existing.BeratBadan = &req.BeratBadan
 	}
-	if req.TinggiBadan != nil {
-		existing.TinggiBadan = req.TinggiBadan
+	if req.TinggiBadan != 0 {
+		existing.TinggiBadan = &req.TinggiBadan
 	}
-	if req.LingkarLenganAtas != nil {
-		existing.LingkarLenganAtas = req.LingkarLenganAtas
+	if req.LingkarLenganAtas != 0 {
+		existing.LingkarLenganAtas = &req.LingkarLenganAtas
 	}
-	if req.Sistole != nil {
-		existing.Sistole = *req.Sistole
+	if req.TekananDarah != "" {
+		existing.TekananDarah = req.TekananDarah
 	}
-	if req.Diastole != nil {
-		existing.Diastole = *req.Diastole
+	if req.TinggiRahim != 0 {
+		existing.TinggiRahim = &req.TinggiRahim
 	}
-	if req.TinggiRahim != nil {
-		existing.TinggiRahim = req.TinggiRahim
+	if req.LetakDenyutJantungBayi != "" {
+		existing.LetakDenyutJantungBayi = req.LetakDenyutJantungBayi
 	}
-	if req.DenyutJantungJanin != nil {
-		existing.DenyutJantungJanin = *req.DenyutJantungJanin
+	if req.StatusImunisasiTetanus != "" {
+		existing.StatusImunisasiTetanus = req.StatusImunisasiTetanus
 	}
-	if req.TesLabHb != nil {
-		existing.TesLabHb = req.TesLabHb
+	if req.Konseling != "" {
+		existing.Konseling = req.Konseling
 	}
-	if req.TesLabProteinUrine != nil {
-		existing.TesLabProteinUrine = *req.TesLabProteinUrine
+	if req.SkriningDokter != "" {
+		existing.SkriningDokter = req.SkriningDokter
 	}
-	if req.TesLabGulaDarah != nil {
-		existing.TesLabGulaDarah = req.TesLabGulaDarah
+	if req.TabletTambahDarah != 0 {
+		existing.TabletTambahDarah = &req.TabletTambahDarah
 	}
-	if req.USG != nil {
-		existing.USG = *req.USG
+	if req.TesLabHb != 0 {
+		existing.TesLabHb = &req.TesLabHb
 	}
-	if req.TripelEliminasi != nil {
-		existing.TripelEliminasi = *req.TripelEliminasi
+	if req.TesGolonganDarah != "" {
+		existing.TesGolonganDarah = req.TesGolonganDarah
+	}
+	if req.TesLabProteinUrine != "" {
+		existing.TesLabProteinUrine = req.TesLabProteinUrine
+	}
+	if req.TesLabGulaDarah != 0 {
+		existing.TesLabGulaDarah = &req.TesLabGulaDarah
+	}
+	if req.USG != "" {
+		existing.USG = req.USG
+	}
+	if req.TripelEliminasi != "" {
+		existing.TripelEliminasi = req.TripelEliminasi
+	}
+	if req.TataLaksanaKasus != "" {
+		existing.TataLaksanaKasus = req.TataLaksanaKasus
 	}
 
 	if err := c.usecase.Update(existing); err != nil {
@@ -257,43 +276,22 @@ func (c *PemeriksaanKehamilanController) Update(ctx echo.Context) error {
 	})
 }
 
-// ================= DELETE =================
-
 func (c *PemeriksaanKehamilanController) Delete(ctx echo.Context) error {
-	id, _ := strconv.ParseInt(ctx.Param("id"), 10, 32)
-
+	id, err := strconv.ParseInt(ctx.Param("id"), 10, 32)
+	if err != nil {
+		return ctx.JSON(http.StatusBadRequest, models.Response{
+			StatusCode: http.StatusBadRequest,
+			Message:    "invalid id",
+		})
+	}
 	if err := c.usecase.Delete(int32(id)); err != nil {
 		return ctx.JSON(http.StatusInternalServerError, models.Response{
 			StatusCode: http.StatusInternalServerError,
 			Message:    err.Error(),
 		})
 	}
-
 	return ctx.JSON(http.StatusOK, models.Response{
 		StatusCode: http.StatusOK,
 		Message:    "deleted",
-	})
-}
-func (c *PemeriksaanKehamilanController) GetGrafikANC(ctx echo.Context) error {
-
-	kehamilanID, err := strconv.ParseInt(ctx.QueryParam("kehamilan_id"), 10, 32)
-	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, models.Response{
-			StatusCode: http.StatusBadRequest,
-			Message:    "kehamilan_id required",
-		})
-	}
-
-	data, err := c.usecase.GetGrafikANC(int32(kehamilanID))
-	if err != nil {
-		return ctx.JSON(http.StatusInternalServerError, models.Response{
-			StatusCode: http.StatusInternalServerError,
-			Message:    err.Error(),
-		})
-	}
-
-	return ctx.JSON(http.StatusOK, models.Response{
-		StatusCode: http.StatusOK,
-		Data:       data,
 	})
 }
