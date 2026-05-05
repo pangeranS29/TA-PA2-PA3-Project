@@ -14,7 +14,6 @@ type CatatanPertumbuhan struct {
 	BeratBadan    float64   `gorm:"column:berat_badan;type:decimal(5,2)" db:"berat_badan" json:"berat_badan"`
 	TinggiBadan   float64   `gorm:"column:tinggi_badan;type:decimal(5,2)" db:"tinggi_badan" json:"tinggi_badan"`
 	LingkarKepala float64   `gorm:"column:lingkar_kepala;type:decimal(5,2)" db:"lingkar_kepala" json:"lingkar_kepala,omitempty"`
-	HasilLila     float64   `gorm:"column:hasil_lila;type:decimal(5,2)" db:"hasil_lila" json:"hasil_lila,omitempty"`
 	IMT           float64   `gorm:"column:imt;type:decimal(5,2)" db:"imt" json:"imt,omitempty"`
 
 	// Status gizi (hasil perhitungan)
@@ -35,13 +34,6 @@ type CatatanPertumbuhan struct {
 	UsiaUkurBulan int    `gorm:"column:usia_ukur_bulan;type:int;not null;index" db:"usia_ukur_bulan" json:"usia_ukur_bulan"`
 	CatatanNakes  string `gorm:"column:catatan_nakes;type:text" db:"catatan_nakes" json:"catatan_nakes,omitempty"`
 	Anak          *Anak  `gorm:"foreignKey:AnakID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT" json:"anak,omitempty"`
-
-	// KMS
-	StatusNaik        string `gorm:"type:char(1)"` // N / T
-	KBMMinGram        int
-	KenaikanGram      float64
-	StatusBGM         string
-	IsGrowthFaltering bool
 
 	CreatedAt time.Time      `gorm:"column:created_at" db:"created_at" json:"created_at"`
 	UpdatedAt time.Time      `gorm:"column:updated_at" db:"updated_at" json:"updated_at"`

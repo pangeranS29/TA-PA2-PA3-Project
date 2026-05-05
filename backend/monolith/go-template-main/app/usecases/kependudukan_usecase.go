@@ -15,6 +15,7 @@ type KependudukanUsecase interface {
 	ListEligibleForRole(role, search, kecamatan, desa string) ([]repositories.EligiblePendudukItem, error)
 	Update(k *models.Kependudukan) error
 	Delete(id int32) error
+	GetRekapPerDusun(kecamatan, desa string) ([]repositories.RekapDusun, error)
 }
 
 type kependudukanUsecase struct {
@@ -71,4 +72,7 @@ func (u *kependudukanUsecase) Update(k *models.Kependudukan) error {
 
 func (u *kependudukanUsecase) Delete(id int32) error {
 	return u.repo.Delete(id)
+}
+func (u *kependudukanUsecase) GetRekapPerDusun(kecamatan, desa string) ([]repositories.RekapDusun, error) {
+	return u.repo.GetRekapPerDusun(kecamatan, desa)
 }

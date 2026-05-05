@@ -29,7 +29,12 @@ type PosyanduItem struct {
 	ID   int64  `json:"id"`
 	Nama string `json:"nama"`
 }
-
+type RekapDusun struct {
+	Kecamatan string `json:"kecamatan"`
+	Desa      string `json:"desa"`
+	Dusun     string `json:"dusun"`
+	Total     int64  `json:"total"`
+}
 func NewKependudukanRepository(db *gorm.DB) *KependudukanRepository {
 	return &KependudukanRepository{db: db}
 }
@@ -227,4 +232,28 @@ func (r *KependudukanRepository) SoftDeleteByKartuKeluargaID(kartuKeluargaID int
 			"deleted_at": now,
 			"updated_at": now,
 		}).Error
+}
+func (r *KependudukanRepository) GetRekapPerDusun(kecamatan, desa string) ([]RekapDusun, error) {
+	var result []RekapDusun
+
+	query := r.db.
+		Model(&models.Kependudukan{}).
+		Select("kecamatan, desa, dusun, COUNT(*) as total").
+		Where("deleted_at IS NULL")
+
+	// filter opsional
+	if kecamatan != "" {
+		query = query.Where("LOWER(TRIM(kecamatan)) = LOWER(TRIM(?))", kecamatan)
+	}
+
+	if desa != "" {
+		query = query.Where("LOWER(TRIM(desa)) = LOWER(TRIM(?))", desa)
+	}
+
+	err := query.
+		Group("kecamatan, desa, dusun").
+		Order("total DESC").
+		Scan(&result).Error
+
+	return result, err
 }

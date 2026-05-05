@@ -10,6 +10,7 @@ import { CheckCircle2, AlertCircle, ShieldAlert, Pill, Heart, ClipboardList, Edi
 export default function SkriningDashboard() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [kehamilan, setKehamilan] = useState(null);
   const [skrining, setSkrining] = useState(null);
   const [skriningDMG, setSkriningDMG] = useState(null);
   const [rujukan, setRujukan] = useState(null);
@@ -21,6 +22,7 @@ export default function SkriningDashboard() {
         const kehamilanList = await getKehamilanByIbuId(id);
         if (kehamilanList.length > 0) {
           const aktif = kehamilanList[0];
+          setKehamilan(aktif);
 
           // Fetch Skrining Preeklampsia
           const skriningData = await getSkriningByKehamilanId(aktif.id);
@@ -42,7 +44,7 @@ export default function SkriningDashboard() {
             if (rujukanData && rujukanData.length > 0) {
               setRujukan(rujukanData[0]);
             }
-          } catch {
+          } catch (err) {
             console.log("Belum ada data rujukan");
           }
         }

@@ -148,14 +148,24 @@ export default function IbuEdit() {
     }
   };
 
-  if (fetching) return <MainLayout><div className="p-6">Memuat...</div></MainLayout>;
-  if (!ibu) return <MainLayout><div className="p-6">Data tidak ditemukan</div></MainLayout>;
+  if (fetching)
+    return (
+      <MainLayout>
+        <div className="p-6">Memuat...</div>
+      </MainLayout>
+    );
+  if (!ibu)
+    return (
+      <MainLayout>
+        <div className="p-6">Data tidak ditemukan</div>
+      </MainLayout>
+    );
 
   return (
     <MainLayout>
       <div className="p-6 max-w-4xl mx-auto">
         <div className="flex items-center gap-4 mb-6">
-          <button type="button" onClick={() => navigate(-1)} className="p-2 rounded-full hover:bg-gray-100">
+          <button onClick={() => navigate(-1)} className="p-2 rounded-full hover:bg-gray-100">
             <ArrowLeft size={20} />
           </button>
           <div>
@@ -170,11 +180,15 @@ export default function IbuEdit() {
             <h2 className="text-lg font-semibold mb-4 text-indigo-700">Data Kependudukan</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium mb-1">Nama Lengkap <span className="text-red-500">*</span></label>
+                <label className="block text-sm font-medium mb-1">
+                  Nama Lengkap <span className="text-red-500">*</span>
+                </label>
                 <input name="nama_lengkap" value={form.nama_lengkap} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" required />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">NIK <span className="text-red-500">*</span></label>
+                <label className="block text-sm font-medium mb-1">
+                  NIK <span className="text-red-500">*</span>
+                </label>
                 <input name="nik" value={form.nik} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" required />
               </div>
               <div>
