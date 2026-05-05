@@ -6,6 +6,7 @@ import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/data/models/pert
 import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/data/repositories/pertumbuhan_repository.dart';
 import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/widgets/index.dart';
 import 'input_catatan_pertumbuhan_screen.dart';
+import '../edukasi/perawatan/perawatan_screen_integrated.dart';
 
 class DetailPertumbuhanScreen extends StatefulWidget {
   final AnakSearchModel anak;
@@ -357,6 +358,47 @@ class _DetailPertumbuhanScreenState extends State<DetailPertumbuhanScreen> {
                 ),
                 label: const Text(
                   'Tambah data pertumbuhan',
+                  style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            
+            /// 🔹 BUTTON PERAWATAN
+            SizedBox(
+              width: double.infinity,
+              height: 56,
+              child: FilledButton.icon(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => PerawatanScreenIntegrated(
+                        anakId: widget.anak.id,
+                        anakName: widget.anak.namaAnak,
+                      ),
+                    ),
+                  );
+                },
+                style: FilledButton.styleFrom(
+                  backgroundColor: const Color(0xFFD97706),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16)),
+                ),
+                icon: Container(
+                  width: 24,
+                  height: 24,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white, width: 2),
+                  ),
+                  child: const Icon(Icons.check_circle, color: Colors.white, size: 14),
+                ),
+                label: const Text(
+                  'Lihat perawatan & milestone',
                   style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
