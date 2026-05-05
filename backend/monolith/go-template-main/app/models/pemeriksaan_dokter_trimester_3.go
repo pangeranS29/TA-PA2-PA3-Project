@@ -22,21 +22,22 @@ type PemeriksaanDokterTrimester3 struct {
 	FisikPerut       string `gorm:"type:varchar(20)" json:"fisik_perut"`
 	FisikTungkai     string `gorm:"type:varchar(20)" json:"fisik_tungkai"`
 
-	// USG Trimester 3
-	USGTrimester3Dilakukan                   string   `gorm:"type:varchar(10)" json:"usg_trimester_3_dilakukan"`
-	UKBerdasarkanUSGTrimester1Minggu         *int     `json:"uk_berdasarkan_usg_trimester_1_minggu"`
-	UKBerdasarkanHPHTMinggu                  *int     `json:"uk_berdasarkan_hpht_minggu"`
-	UKBerdasarkanBiometriUSGTrimester3Minggu *int     `json:"uk_berdasarkan_biometri_usg_trimester_3_minggu"`
-	SelisihUK3MingguAtauLebih                string   `gorm:"type:varchar(10)" json:"selisih_uk_3_minggu_atau_lebih"`
-	USGJumlahBayi                            string   `gorm:"type:varchar(20)" json:"usg_jumlah_bayi"`
-	USGLetakBayi                             string   `gorm:"type:varchar(50)" json:"usg_letak_bayi"`
-	USGPresentasiBayi                        string   `gorm:"type:varchar(50)" json:"usg_presentasi_bayi"`
-	USGKeadaanBayi                           string   `gorm:"type:varchar(20)" json:"usg_keadaan_bayi"`
-	USGDJNilai                               *int     `json:"usg_djj_nilai"`
-	USGDJJStatus                             string   `gorm:"type:varchar(20)" json:"usg_djj_status"`
-	USGLokasiPlasenta                        string   `gorm:"type:varchar(50)" json:"usg_lokasi_plasenta"`
-	USGCairanKetubanSDPCm                    *float64 `gorm:"type:decimal(5,2)" json:"usg_cairan_ketuban_sdp_cm"`
-	USGCairanKetubanStatus                   string   `gorm:"type:varchar(20)" json:"usg_cairan_ketuban_status"`
+	USGTrimester3Dilakukan                   string `gorm:"type:varchar(10)" json:"usg_trimester_3_dilakukan"`
+	UKBerdasarkanUSGTrimester1Minggu         *int   `json:"uk_berdasarkan_usg_trimester_1_minggu"`
+	UKBerdasarkanHPHTMinggu                  *int   `json:"uk_berdasarkan_hpht_minggu"`
+	UKBerdasarkanBiometriUSGTrimester3Minggu *int   `json:"uk_berdasarkan_biometri_usg_trimester_3_minggu"`
+	SelisihUK3MingguAtauLebih                string `gorm:"type:varchar(10)" json:"selisih_uk_3_minggu_atau_lebih"`
+
+	USGJumlahBayi     string `gorm:"type:varchar(20)" json:"usg_jumlah_bayi"`
+	USGLetakBayi      string `gorm:"type:varchar(50)" json:"usg_letak_bayi"`
+	USGPresentasiBayi string `gorm:"type:varchar(50)" json:"usg_presentasi_bayi"`
+	USGKeadaanBayi    string `gorm:"type:varchar(20)" json:"usg_keadaan_bayi"`
+	USGDJNilai        *int   `json:"usg_djj_nilai"`
+	USGDJJStatus      string `gorm:"type:varchar(20)" json:"usg_djj_status"`
+	USGLokasiPlasenta string `gorm:"type:varchar(50)" json:"usg_lokasi_plasenta"`
+
+	USGCairanKetubanSDPCm  *float64 `gorm:"type:decimal(5,2)" json:"usg_cairan_ketuban_sdp_cm"`
+	USGCairanKetubanStatus string   `gorm:"type:varchar(20)" json:"usg_cairan_ketuban_status"`
 
 	BiometriBPDCm        *float64 `gorm:"type:decimal(5,2)" json:"biometri_bpd_cm"`
 	BiometriBPDMinggu    *int     `json:"biometri_bpd_minggu"`

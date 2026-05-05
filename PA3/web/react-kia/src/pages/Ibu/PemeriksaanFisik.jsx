@@ -97,7 +97,7 @@ export default function PemeriksaanFisik() {
         await createPemeriksaan(payload);
       }
       alert("Pemeriksaan berhasil disimpan");
-    } catch (err) {
+    } catch {
       alert("Gagal menyimpan pemeriksaan");
     } finally {
       setSaving(false);

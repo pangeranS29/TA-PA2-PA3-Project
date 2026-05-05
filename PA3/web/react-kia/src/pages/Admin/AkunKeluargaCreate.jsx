@@ -397,7 +397,7 @@ const AdminAkunKeluargaCreate = () => {
             <button
               type="submit"
               disabled={submitting}
-              className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 text-white px-5 py-2.5 font-medium hover:bg-indigo-700 disabled:opacity-60"
+              className="inline-flex items-center gap-2 rounded-xl bg-blue-600 text-white px-5 py-2.5 font-medium hover:bg-blue-700 disabled:opacity-60"
             >
               <Send size={16} />
               {submitting ? "Menyimpan..." : "Simpan Akun Keluarga"}

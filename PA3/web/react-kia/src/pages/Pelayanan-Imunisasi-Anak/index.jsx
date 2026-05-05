@@ -11,6 +11,8 @@ const PelayananImunisasi = () => {
   
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [lastSaved, setLastSaved] = useState(null);
   const [formData, setFormData] = useState({
     bulan_ke: "0",
     selected_vax_ids: [],
@@ -105,9 +107,17 @@ const PelayananImunisasi = () => {
       };
       
       await immunizationService.createPelayanan(payload);
+      
+      // Feedback sukses
+      setShowSuccess(true);
+      setLastSaved(new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }));
+      
       setIsModalOpen(false);
       setFormData(prev => ({ ...prev, selected_vax_ids: [], keterangan: "" }));
       fetchData();
+
+      // Sembunyikan banner setelah 5 detik
+      setTimeout(() => setShowSuccess(false), 5000);
     } catch (err) {
       alert("Gagal menyimpan data.");
     } finally {
@@ -121,7 +131,14 @@ const PelayananImunisasi = () => {
         <div className="max-w-7xl mx-auto bg-white shadow-xl border border-gray-300 rounded-sm overflow-hidden">
           
           <div className="flex justify-between items-center p-4 border-b-2 border-gray-800 bg-white">
-            <h1 className="text-2xl font-bold text-gray-800 uppercase tracking-tighter italic">Pelayanan Imunisasi</h1>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-800 uppercase tracking-tighter italic">Pelayanan Imunisasi</h1>
+              {lastSaved && (
+                <p className="text-[9px] font-bold text-green-600 mt-1">
+                  ✓ PEMBARUAN TERAKHIR: {lastSaved}
+                </p>
+              )}
+            </div>
             <button 
               onClick={() => setIsModalOpen(true)}
               className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded font-bold text-xs uppercase shadow-md transition-all active:scale-95"
@@ -129,6 +146,22 @@ const PelayananImunisasi = () => {
               <Plus size={16} /> TAMBAH CATATAN
             </button>
           </div>
+
+          {/* NOTIFICATION BANNER */}
+          {showSuccess && (
+            <div className="bg-green-600 text-white px-6 py-4 flex items-center justify-between animate-in slide-in-from-top-2 duration-300">
+              <div className="flex items-center gap-3">
+                <CheckCircle2 size={20} />
+                <div>
+                  <p className="font-bold text-xs uppercase">Berhasil Disimpan!</p>
+                  <p className="text-[10px] opacity-90">Data imunisasi anak telah berhasil dicatat ke dalam buku KIA digital.</p>
+                </div>
+              </div>
+              <button onClick={() => setShowSuccess(false)}>
+                <X size={18} />
+              </button>
+            </div>
+          )}
 
           <div className="overflow-x-auto">
             {loading ? (

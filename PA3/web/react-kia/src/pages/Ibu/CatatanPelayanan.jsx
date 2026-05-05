@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom";
 import MainLayout from "../../components/Layout/MainLayout";
 import { getKehamilanByIbuId } from "../../services/kehamilan";
 import { catatanT1, catatanT2, catatanT3, catatanNifas } from "../../services/catatanPelayanan";
-import { Save, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 
 const services = { T1: catatanT1, T2: catatanT2, T3: catatanT3, Nifas: catatanNifas };
 const tabLabels = { T1: "Trimester 1", T2: "Trimester 2", T3: "Trimester 3", Nifas: "Nifas" };

@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"log"
 	"monitoring-service/app/models"
 	"monitoring-service/app/usecases"
 	"net/http"
@@ -25,10 +26,11 @@ func (c *PemantauanPertumbuhanController) Create(ctx echo.Context) error {
 	}
 
 	if err := c.usecase.Create(req); err != nil {
-		return errorResponse(ctx, http.StatusInternalServerError, "failed to create pemeriksaaan Gigi", err)
+		log.Printf("[PemantauanPertumbuhan] Create error: %v | payload: %+v", err, req)
+		return errorResponse(ctx, http.StatusInternalServerError, "failed to create pemantauan pertumbuhan", err)
 	}
 
-	return success(ctx, http.StatusCreated, "success create Pemeriksaan Gigi", nil)
+	return success(ctx, http.StatusCreated, "success create pemantauan pertumbuhan", nil)
 }
 
 func (c *PemantauanPertumbuhanController) Update(ctx echo.Context) error {
@@ -43,10 +45,10 @@ func (c *PemantauanPertumbuhanController) Update(ctx echo.Context) error {
 	}
 
 	if err := c.usecase.Update(int32(id), req); err != nil {
-		return errorResponse(ctx, http.StatusInternalServerError, "failed to update pemeriksaan gigi", err)
+		return errorResponse(ctx, http.StatusInternalServerError, "failed to update pemantauan pertumbuhan", err)
 	}
 
-	return success(ctx, http.StatusOK, "success update pemeriksaan gigi", nil)
+	return success(ctx, http.StatusOK, "success update pemantauan pertumbuhan", nil)
 }
 func (c *PemantauanPertumbuhanController) GetByAnakID(ctx echo.Context) error {
 	param := ctx.QueryParam("anak_id")
@@ -105,8 +107,8 @@ func (c *PemantauanPertumbuhanController) Delete(ctx echo.Context) error {
 	}
 
 	if err := c.usecase.Delete(int32(id)); err != nil {
-		return errorResponse(ctx, http.StatusInternalServerError, "failed to delete pemeriksaan gigi", err)
+		return errorResponse(ctx, http.StatusInternalServerError, "failed to delete pemantauan pertumbuhan", err)
 	}
 
-	return success(ctx, http.StatusOK, "success delete pemeriksaan gigi", nil)
+	return success(ctx, http.StatusOK, "success delete pemantauan pertumbuhan", nil)
 }

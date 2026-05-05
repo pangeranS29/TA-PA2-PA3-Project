@@ -28,6 +28,14 @@ type createGrafikBBRequest struct {
 // CREATE
 //
 func (c *GrafikPeningkatanBBController) Create(ctx echo.Context) error {
+	claims, ok := ctx.Get("auth_claims").(*models.AuthClaims)
+	if !ok || claims == nil {
+		return ctx.JSON(http.StatusUnauthorized, models.Response{
+			StatusCode: http.StatusUnauthorized,
+			Message:    "Unauthorized",
+		})
+	}
+
 	var req createGrafikBBRequest
 	if err := ctx.Bind(&req); err != nil {
 		return ctx.JSON(http.StatusBadRequest, models.Response{
@@ -36,7 +44,7 @@ func (c *GrafikPeningkatanBBController) Create(ctx echo.Context) error {
 		})
 	}
 
-	// VALIDASI
+	// ✅ VALIDASI DASAR
 	if req.KehamilanID == 0 {
 		return ctx.JSON(http.StatusBadRequest, models.Response{
 			StatusCode: http.StatusBadRequest,
@@ -64,19 +72,9 @@ func (c *GrafikPeningkatanBBController) Create(ctx echo.Context) error {
 		MingguKehamilan: &req.MingguKehamilan,
 	}
 
-	err := c.usecase.Create(g)
-	if err != nil {
-
-		// 🔥 HANDLE ERROR BISNIS
-		if err.Error() == "data minggu ini sudah ada" {
-			return ctx.JSON(http.StatusConflict, models.Response{
-				StatusCode: http.StatusConflict,
-				Message:    err.Error(),
-			})
-		}
-
-		return ctx.JSON(http.StatusBadRequest, models.Response{
-			StatusCode: http.StatusBadRequest,
+	if err := c.usecase.Create(g); err != nil {
+		return ctx.JSON(http.StatusInternalServerError, models.Response{
+			StatusCode: http.StatusInternalServerError,
 			Message:    err.Error(),
 		})
 	}
@@ -86,6 +84,7 @@ func (c *GrafikPeningkatanBBController) Create(ctx echo.Context) error {
 		Data:       g,
 	})
 }
+
 //
 // GET BY ID
 //
@@ -166,7 +165,6 @@ func (c *GrafikPeningkatanBBController) Update(ctx echo.Context) error {
 		})
 	}
 
-	// VALIDASI & UPDATE FIELD
 	if req.BeratBadan > 0 {
 		existing.BeratBadan = &req.BeratBadan
 	}
@@ -175,18 +173,9 @@ func (c *GrafikPeningkatanBBController) Update(ctx echo.Context) error {
 		existing.MingguKehamilan = &req.MingguKehamilan
 	}
 
-	err = c.usecase.Update(existing)
-	if err != nil {
-
-		if err.Error() == "data minggu ini sudah ada" {
-			return ctx.JSON(http.StatusConflict, models.Response{
-				StatusCode: http.StatusConflict,
-				Message:    err.Error(),
-			})
-		}
-
-		return ctx.JSON(http.StatusBadRequest, models.Response{
-			StatusCode: http.StatusBadRequest,
+	if err := c.usecase.Update(existing); err != nil {
+		return ctx.JSON(http.StatusInternalServerError, models.Response{
+			StatusCode: http.StatusInternalServerError,
 			Message:    err.Error(),
 		})
 	}
@@ -218,6 +207,6 @@ func (c *GrafikPeningkatanBBController) Delete(ctx echo.Context) error {
 
 	return ctx.JSON(http.StatusOK, models.Response{
 		StatusCode: http.StatusOK,
-		Message:    "data berhasil dihapus",
+		Message:    "deleted",
 	})
 }
