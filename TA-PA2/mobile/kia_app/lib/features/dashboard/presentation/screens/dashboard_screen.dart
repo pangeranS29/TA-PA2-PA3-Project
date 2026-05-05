@@ -14,7 +14,6 @@ import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/absen
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/rujukan_list_screen.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/pemantauan_ibu_hamil_screen.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/edukasi_explore_screen.dart';
-import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/catatan_pelayanan_menu_screen.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/nifas/presentation/screens/nifas_screen.dart';
 // MODUL ANAK
 import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/screens/anak/pilih_anak_screen.dart';
@@ -22,6 +21,8 @@ import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/scr
 import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/screens/anak/cari_anak_screen.dart';
 import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/screens/edukasi/edukasi_screen.dart';
 // import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/screens/skrining/skrining_bahaya.dart';
+// MODUL CATATAN
+import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/screens/catatan/index.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -101,8 +102,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
     if (_selectedNavIndex == 0) {
       body = _buildHomeBody();
     } else if (_selectedNavIndex == 1) {
-      // body = const Center(child: Text('Catatan - segera hadir'));
-      body = const CatatanPelayananMenuScreen();
+      body = const Center(
+        child: Padding(
+          padding: EdgeInsets.all(20),
+          child: Text(
+            'Menu Catatan dapat diakses dari Menu Cepat di halaman Beranda',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 16),
+          ),
+        ),
+      );
     } else if (_selectedNavIndex == 2) {
       body = const PilihAnakScreen(tujuan: 'imunisasi');
     } else if (_selectedNavIndex == 3) {
@@ -285,6 +294,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       MaterialPageRoute(builder: (_) => const AbsensiKelasIbuHamilScreen()));
                   return;
                 }
+                if (item['key'] == 'catatan') {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (_) => const CatatanMenuScreen()));
+                  return;
+                }
                 ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text('${item['label']} belum tersedia')));
               },
@@ -422,9 +436,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   case 'pemantauan':
                     Navigator.push(context,
                         MaterialPageRoute(builder: (_) => const PilihAnakScreen(tujuan: 'pemantauan')));
-                    // TODO: Catatan tumbuh kembang — belum tersedia
-                    // ScaffoldMessenger.of(context).showSnackBar(
-                    //     const SnackBar(content: Text('Catatan belum tersedia')));
+                    break;
+                  case 'catatan':
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (_) => const CatatanMenuScreen()));
                     break;
                   default:
                     ScaffoldMessenger.of(context).showSnackBar(
