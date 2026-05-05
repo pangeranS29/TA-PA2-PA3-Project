@@ -4,6 +4,7 @@ import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/data/datasources
 import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/data/models/ibu_anak_model.dart';
 import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/screens/imunisasi/imunisasi_screen.dart';
 import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/screens/mpasi/halaman_utama_mpasi.dart';
+import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/screens/pemantauan/menu_pemantauan_screen.dart';
 import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/screens/pertumbuhan/detail_pertumbuhan_dummy_screen.dart';
 import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/screens/skrining/pemantauan_menu_screen.dart';
 
@@ -176,6 +177,13 @@ class _PilihAnakScreenState extends State<PilihAnakScreen> {
                   context,
                   MaterialPageRoute(
                     builder: (_) => HalamanUtamaMpasiScreen(anak: anakMap),
+                  ),
+                );
+              } else if (widget.tujuan == 'pemantauan') {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => MenuPemantauanScreen(anak: anakMap),
                   ),
                 );
               } else {

@@ -1,11 +1,18 @@
 import 'package:flutter/material.dart';
 import 'pola_asuh_screen.dart';
 import '../informasi_umum/informasi_umum_screen.dart';
-import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/screens/perawatan/pilih_perawatan_screen.dart';
+import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/screens/edukasi/perawatan/pilih_perawatan_screen.dart';
 import 'pedoman/pedoman_ibu_bayi_screen.dart';
 
 class EdukasiScreen extends StatelessWidget {
-  const EdukasiScreen({Key? key}) : super(key: key);
+  final int? anakId;
+  final String? anakName;
+  
+  const EdukasiScreen({
+    Key? key,
+    this.anakId,
+    this.anakName,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -160,7 +167,10 @@ class EdukasiScreen extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const PilihPerawatanScreen(),
+                          builder: (context) => PilihPerawatanScreen(
+                            anakId: anakId,
+                            anakName: anakName,
+                          ),
                         ),
                       );
                     },

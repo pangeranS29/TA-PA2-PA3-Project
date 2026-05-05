@@ -166,6 +166,16 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	tenaga.PUT("/Catatan-Pelayanan/:id", controller.CatatanPelayanan.Update)
 	tenaga.DELETE("/Catatan-Pelayanan/:id", controller.CatatanPelayanan.Delete)
 
+	// ==================== PERAWATAN ANAK (MILESTONE/PERKEMBANGAN) ====================
+	tenaga.GET("/kategori-capaian", controller.GetAllKategoriCapaian)
+	tenaga.GET("/kategori-capaian/rentang-usia/:rentang_usia", controller.GetKategoriCapaianByRentangUsia)
+	tenaga.GET("/perawatan/:id", controller.GetPerawatanByID)
+	tenaga.GET("/perawatan/anak/:anak_id", controller.GetPerawatanByAnakID)
+	tenaga.GET("/perawatan/anak/:anak_id/rentang-usia/:rentang_usia", controller.GetPerawatanByAnakIDAndRentangUsia)
+	tenaga.POST("/perawatan", controller.CreatePerawatan)
+	tenaga.PUT("/perawatan/:id", controller.UpdatePerawatan)
+	tenaga.DELETE("/perawatan/:id", controller.DeletePerawatan)
+
 	// ==================== LEMBAR PEMANTAUAN ANAK ====================
 	tenaga.GET("/lembar-pemantauan", controller.LembarPemantauan.GetByAnakID)
 	tenaga.GET("/lembar-pemantauan/:id", controller.LembarPemantauan.GetByID)
@@ -444,6 +454,16 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	ibu.GET("/lembar-pemantauan/kategori-tanda-sakit", controller.LembarPemantauan.GetKategoriByRentangUsiaForIbu)
 	ibu.POST("/lembar-pemantauan", controller.LembarPemantauan.CreateForIbu)
 	ibu.GET("/lembar-pemantauan", controller.LembarPemantauan.GetByAnakIDForIbu)
+
+	// ==================== PERAWATAN/MILESTONE (IBU) ====================
+	ibu.GET("/kategori-capaian", controller.GetAllKategoriCapaian)
+	ibu.GET("/kategori-capaian/rentang-usia/:rentang_usia", controller.GetKategoriCapaianByRentangUsia)
+	ibu.GET("/perawatan/:id", controller.GetPerawatanByID)
+	ibu.GET("/perawatan/anak/:anak_id", controller.GetPerawatanByAnakID)
+	ibu.GET("/perawatan/anak/:anak_id/rentang-usia/:rentang_usia", controller.GetPerawatanByAnakIDAndRentangUsia)
+	ibu.POST("/perawatan", controller.CreatePerawatan)
+	ibu.PUT("/perawatan/:id", controller.UpdatePerawatan)
+	ibu.DELETE("/perawatan/:id", controller.DeletePerawatan)
 	// Catatan: Ibu tidak memiliki akses UPDATE/DELETE/VERIFY untuk menjaga integritas rekam medis
 
 }

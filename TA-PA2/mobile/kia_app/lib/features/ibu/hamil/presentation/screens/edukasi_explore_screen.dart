@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:ta_pa2_pa3_project/core/themes/app_theme.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/widgets/edukasi_card.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/edukasi_detail_screen.dart';
+import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/data/datasources/informasi_umum_api_service.dart';
+import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/data/models/informasi_umum_model.dart';
+import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/screens/informasi_umum/informasi_umum_detail_screen.dart';
 
 class EdukasiExploreScreen extends StatefulWidget {
   const EdukasiExploreScreen({Key? key}) : super(key: key);
@@ -13,6 +16,7 @@ class EdukasiExploreScreen extends StatefulWidget {
 class _EdukasiExploreScreenState extends State<EdukasiExploreScreen> {
   String _category = 'ibu'; // 'ibu' or 'anak'
   String _sub = 'Kehamilan Trimester 1';
+  String _anakSub = 'Bayi'; // untuk kategori anak
   final Color _primary = TrimesterTheme.t1Primary;
 
   final List<String> ibuSubs = [
@@ -24,6 +28,47 @@ class _EdukasiExploreScreenState extends State<EdukasiExploreScreen> {
     'Setelah Melahirkan',
     'Menyusui dan ASI',
   ];
+
+  final List<String> anakSubs = ['Bayi', 'Anak Bayi', 'Anak'];
+
+  late InformasiUmumApiService _apiService;
+  late Future<List<InformasiUmumModel>> _informasiUmumFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _apiService = InformasiUmumApiService();
+    _informasiUmumFuture = _apiService.listInformasiUmum();
+  }
+
+  @override
+  void dispose() {
+    _apiService.dispose();
+    super.dispose();
+  }
+
+  List<InformasiUmumModel> _filterInformasiUmumByCategory(
+      List<InformasiUmumModel> items, String category) {
+    return items.where((item) {
+      final umurTarget = item.umurTarget.toLowerCase();
+      switch (category) {
+        case 'Bayi':
+          return umurTarget.contains('bayi') ||
+              umurTarget.contains('0-12') ||
+              umurTarget.contains('bulan');
+        case 'Anak Bayi':
+          return umurTarget.contains('1-2') ||
+              umurTarget.contains('tahun') ||
+              umurTarget.contains('anak bayi');
+        case 'Anak':
+          return umurTarget.contains('2-6') ||
+              umurTarget.contains('3-6') ||
+              (umurTarget.contains('tahun') && !umurTarget.contains('bayi'));
+        default:
+          return true;
+      }
+    }).toList();
+  }
 
   // Mock data keyed by subcategory (simple)
   final Map<String, List<Map<String,String>>> mock = {
@@ -172,23 +217,229 @@ class _EdukasiExploreScreenState extends State<EdukasiExploreScreen> {
                 ),
               ),
             ] else ...[
-              // Anak: placeholder UI only (no data)
-              const SizedBox(height: 6),
+              // Anak: dengan struktur sama seperti Ibu (category selector + list informasi umum)
+              SizedBox(
+                height: 44,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: anakSubs.length,
+                  separatorBuilder: (_, __) => const SizedBox(width: 10),
+                  itemBuilder: (context, idx) {
+                    final s = anakSubs[idx];
+                    final selected = s == _anakSub;
+                    return GestureDetector(
+                      onTap: () => setState(() => _anakSub = s),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: selected ? Colors.white : Colors.white,
+                          borderRadius: BorderRadius.circular(22),
+                          border: Border.all(
+                            color: selected ? _primary : Colors.grey.shade300,
+                            width: selected ? 2 : 1,
+                          ),
+                          boxShadow: selected
+                              ? [
+                                  BoxShadow(
+                                    color: _primary.withOpacity(0.06),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 2),
+                                  )
+                                ]
+                              : null,
+                        ),
+                        child: Center(
+                          child: Text(
+                            s,
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
+                              color: selected ? _primary : const Color(0xFF374151),
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(height: 12),
+
+              // List label
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 6),
+                child: Text(
+                  _anakSub,
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                ),
+              ),
+
+              // Cards list dari Informasi Umum
               Expanded(
-                child: Container(
-                  width: double.infinity,
-                  decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14)),
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.child_care, size: 56, color: _primary.withOpacity(0.9)),
-                      const SizedBox(height: 16),
-                      Text('Konten Edukasi untuk Anak', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
-                      const SizedBox(height: 8),
-                      Text('UI placeholder — belum ada konten. Tim backend akan menambahkan data nanti.', textAlign: TextAlign.center, style: TextStyle(color: Colors.grey.shade600)),
-                    ],
-                  ),
+                child: FutureBuilder<List<InformasiUmumModel>>(
+                  future: _informasiUmumFuture,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+
+                    if (snapshot.hasError) {
+                      return Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.error_outline,
+                                size: 48, color: Colors.grey.shade400),
+                            const SizedBox(height: 12),
+                            Text('Gagal memuat data',
+                                style: TextStyle(color: Colors.grey.shade600)),
+                          ],
+                        ),
+                      );
+                    }
+
+                    final filteredItems =
+                        _filterInformasiUmumByCategory(snapshot.data ?? [], _anakSub);
+
+                    if (filteredItems.isEmpty) {
+                      return Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.info_outline,
+                                size: 48, color: Colors.grey.shade400),
+                            const SizedBox(height: 12),
+                            Text('Tidak ada konten untuk kategori ini',
+                                style: TextStyle(color: Colors.grey.shade600)),
+                          ],
+                        ),
+                      );
+                    }
+
+                    return Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: ListView.separated(
+                        itemCount: filteredItems.length,
+                        separatorBuilder: (_, __) => const SizedBox(height: 10),
+                        itemBuilder: (context, idx) {
+                          final item = filteredItems[idx];
+                          return GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => InformasiUmumDetailScreen(
+                                    item: item,
+                                  ),
+                                ),
+                              );
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                border: Border.all(color: Colors.grey.shade200),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 60,
+                                    height: 60,
+                                    decoration: BoxDecoration(
+                                      color: item.isVideo
+                                          ? const Color(0xFFE6EFFF)
+                                          : const Color(0xFFFFF0D4),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: item.thumbnailUrl.trim().isNotEmpty
+                                        ? ClipRRect(
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                            child: Image.network(
+                                              item.thumbnailUrl,
+                                              fit: BoxFit.cover,
+                                              errorBuilder: (_, __, ___) =>
+                                                  Center(
+                                                child: Icon(
+                                                  item.isVideo
+                                                      ? Icons.play_circle
+                                                      : Icons.article,
+                                                  color: _primary,
+                                                ),
+                                              ),
+                                            ),
+                                          )
+                                        : Center(
+                                            child: Icon(
+                                              item.isVideo
+                                                  ? Icons.play_circle
+                                                  : Icons.article,
+                                              color: _primary,
+                                            ),
+                                          ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          item.judul,
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: const TextStyle(
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w700,
+                                            color: Color(0xFF0F172A),
+                                          ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Row(
+                                          children: [
+                                            Container(
+                                              padding: const EdgeInsets.symmetric(
+                                                  horizontal: 6, vertical: 2),
+                                              decoration: BoxDecoration(
+                                                color: _primary.withOpacity(0.1),
+                                                borderRadius:
+                                                    BorderRadius.circular(4),
+                                              ),
+                                              child: Text(
+                                                item.tipe.toUpperCase(),
+                                                style: TextStyle(
+                                                  fontSize: 10,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: _primary,
+                                                ),
+                                              ),
+                                            ),
+                                            const SizedBox(width: 6),
+                                            Text(
+                                              item.displayDurationText,
+                                              style: TextStyle(
+                                                fontSize: 10,
+                                                color: Colors.grey.shade600,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    );
+                  },
                 ),
               ),
             ],

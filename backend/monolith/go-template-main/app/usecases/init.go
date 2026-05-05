@@ -25,7 +25,7 @@ type Main struct {
 
 	// Usecase baru terkait kehamilan
 	// Usecase baru (terkait kehamilan)
-	// KartuKeluarga 
+	// KartuKeluarga
 	Kehamilan                     KehamilanUsecase
 	PemeriksaanKehamilan          PemeriksaanKehamilanUsecase
 	EvaluasiKesehatanIbu          EvaluasiKesehatanIbuUsecase
@@ -53,19 +53,20 @@ type Main struct {
 	RiwayatKehamilanLalu          RiwayatKehamilanLaluUsecase
 	KeteranganLahir               KeteranganLahirUsecase
 	JenisPelayanan                JenisPelayananUsecase
+	Perawatan                     PerawatanUsecase
 
 	AdminAkunKeluarga    *AdminAkunKeluargaUsecase
 	AdminTenagaKesehatan *AdminTenagaKesehatanUsecase
 
 	// MODUL IBU
-	LogTTDMMS                    LogTTDMMSUsecase
+	LogTTDMMS                   LogTTDMMSUsecase
 	PemantauanIbuHamil          PemantauanIbuHamilUsecase
 	PersiapanMelahirkan         PersiapanMelahirkanUsecase
 	ProsesMelahirkan            ProsesMelahirkanUsecase
 	AbsensiKelasIbuHamil        AbsensiKelasIbuHamilUsecase
 	ChecklistPemantauanIbuNifas *ChecklistPemantauanIbuNifasUsecase
 
-	LembarPemantauan              LembarPemantauanUsecase
+	LembarPemantauan LembarPemantauanUsecase
 	// RegisterOrangTua              *RegisterOrangTuaUsecase
 	// AdminAkunKeluarga    *AdminAkunKeluargaUsecase
 	// AdminTenagaKesehatan *AdminTenagaKesehatanUsecase
@@ -128,7 +129,8 @@ func Init(opts Options) *Main {
 	m.LembarPemantauan = NewLembarPemantauanUsecase(opts.Repository.LembarPemantauan)
 	m.Kependudukan = NewKependudukanUsecase(opts.Repository.Kependudukan)
 	m.KeteranganLahir = NewKeteranganLahirUsecase(opts.Repository.KeteranganLahir)
-		// m.RegisterOrangTua = NewRegisterOrangTuaUsecase(
+	m.Perawatan = NewPerawatanUsecase(opts.Repository)
+	// m.RegisterOrangTua = NewRegisterOrangTuaUsecase(
 	// 	opts.Repository.User,
 	// 	opts.Repository.Role,
 	// 	opts.Repository.KartuKeluarga,
