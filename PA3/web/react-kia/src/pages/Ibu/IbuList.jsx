@@ -62,7 +62,6 @@ export default function IbuList() {
   const filtered = ibuList.filter((ibu) =>
     ibu.kependudukan?.nama_lengkap?.toLowerCase().includes(search.toLowerCase())
   );
-  const totalPages = Math.ceil(filtered.length / itemsPerPage);
   const currentItems = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   // Reset page saat filter/search/toggle berubah
@@ -288,39 +287,33 @@ export default function IbuList() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                {loading ? (
-                  <tr><td colSpan="7" className="p-6 text-center">Memuat...</td></tr>
-                ) : currentItems.length === 0 ? (
-                  <tr><td colSpan="7" className="p-6 text-center">Tidak ada data</td></tr>
-                ) : (
-                  currentItems.map((ibu) => (
-                    <tr key={ibu.id_ibu} className="hover:bg-gray-50">
-                      <td className="px-6 py-4">
-                        <div className="font-medium text-gray-900">{ibu.kependudukan?.nama_lengkap || "-"}</div>
-                        <div className="text-xs text-gray-500">ID: {ibu.id_ibu}</div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className={`px-2 py-1 text-xs rounded-full ${statusBadge(ibu.status_kehamilan)}`}>
-                          {ibu.status_kehamilan || "-"}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className={`px-2 py-1 text-xs rounded-full ${riskBadge(ibu.risiko_tinggi ? "TINGGI" : "RENDAH")}`}>
-                          {ibu.risiko_tinggi ? "TINGGI" : "RENDAH"}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-sm">
-                        {ibu.kependudukan?.tanggal_lahir ? hitungUsia(ibu.kependudukan.tanggal_lahir) + " Tahun" : "-"}
-                      </td>
-                      <td className="px-6 py-4 text-sm">{ibu.status_kehamilan || "-"}</td>
-                      <td className="px-6 py-4 text-sm">{ibu.kependudukan?.dusun || "-"}</td>
-                      <td className="px-6 py-4 text-right">
-                        <Link to={`/data-ibu/${ibu.id_ibu}`} className="text-indigo-600 hover:text-indigo-800 text-sm font-medium mr-2">Detail</Link>
-                        <Link to={`/data-ibu/${ibu.id_ibu}/edit`} className="text-amber-600 hover:text-amber-800 text-sm font-medium">Edit</Link>
-                      </td>
-                    </tr>
-                  );
-                })}
+                {paginatedData.map((ibu) => (
+                  <tr key={ibu.id_ibu} className="hover:bg-gray-50">
+                    <td className="px-6 py-4">
+                      <div className="font-medium text-gray-900">{ibu.kependudukan?.nama_lengkap || "-"}</div>
+                      <div className="text-xs text-gray-500">ID: {ibu.id_ibu}</div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className={`px-2 py-1 text-xs rounded-full ${statusBadge(ibu.status_kehamilan)}`}>
+                        {ibu.status_kehamilan || "-"}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className={`px-2 py-1 text-xs rounded-full ${riskBadge(ibu.risiko_tinggi ? "TINGGI" : "RENDAH")}`}>
+                        {ibu.risiko_tinggi ? "TINGGI" : "RENDAH"}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-sm">
+                      {ibu.kependudukan?.tanggal_lahir ? hitungUsia(ibu.kependudukan.tanggal_lahir) + " Tahun" : "-"}
+                    </td>
+                    <td className="px-6 py-4 text-sm">{ibu.status_kehamilan || "-"}</td>
+                    <td className="px-6 py-4 text-sm">{ibu.kependudukan?.dusun || "-"}</td>
+                    <td className="px-6 py-4 text-right">
+                      <Link to={`/data-ibu/${ibu.id_ibu}`} className="text-indigo-600 hover:text-indigo-800 text-sm font-medium mr-2">Detail</Link>
+                      <Link to={`/data-ibu/${ibu.id_ibu}/edit`} className="text-amber-600 hover:text-amber-800 text-sm font-medium">Edit</Link>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
@@ -328,7 +321,7 @@ export default function IbuList() {
 
           {/* Pagination */}
           <div className="px-6 py-4 border-t flex justify-between items-center">
-            <span className="text-sm text-gray-500">Menampilkan {currentItems.length} dari {filtered.length} data</span>
+            <span className="text-sm text-gray-500">Menampilkan {paginatedData.length} dari {displayedData.length} data</span>
             <div className="flex gap-2 items-center">
               <button onClick={() => setCurrentPage((p) => Math.max(1, p - 1))} disabled={currentPage === 1} className="p-2 rounded-lg border disabled:opacity-50">
                 <ChevronLeft size={16} />
@@ -339,7 +332,6 @@ export default function IbuList() {
               </button>
             </div>
           </div>
-        )}
       </div>
     </MainLayout>
   );

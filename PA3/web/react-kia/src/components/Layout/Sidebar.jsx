@@ -259,7 +259,7 @@ const Sidebar = () => {
             Desa Suka Maju · 4 posyandu aktif · sinkron terakhir 08.10 WIB
           </p>
         </div>
-      )}
+      </div>
     </aside>
   );
 };
