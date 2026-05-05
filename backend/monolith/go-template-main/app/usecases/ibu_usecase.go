@@ -4,8 +4,6 @@ import (
 	"errors"
 	"monitoring-service/app/models"
 	"monitoring-service/app/repositories"
-
-	"gorm.io/gorm"
 )
 
 type IbuUsecase interface {
@@ -14,29 +12,35 @@ type IbuUsecase interface {
 	GetAll() ([]models.Ibu, error)
 	Update(ibu *models.Ibu) error
 	Delete(id int32) error
+	GetDashboard() ([]models.IbuDashboardDTO, error)
 }
 
 type ibuUsecase struct {
-	repo                  *repositories.IbuRepository
-	kependudukanRepo      *repositories.KependudukanRepository
+	repo *repositories.IbuRepository
 }
 
-func NewIbuUsecase(repo *repositories.IbuRepository, kependudukanRepo *repositories.KependudukanRepository) IbuUsecase {
-	return &ibuUsecase{repo: repo, kependudukanRepo: kependudukanRepo}
+func NewIbuUsecase(repo *repositories.IbuRepository) IbuUsecase {
+	return &ibuUsecase{repo: repo}
 }
 
 func (u *ibuUsecase) Create(ibu *models.Ibu) error {
-	if ibu.PendudukID == 0 {
+	if ibu.IDKependudukan == 0 {
 		return errors.New("id_kependudukan wajib diisi")
 	}
-	// Validasi apakah penduduk_id ada di tabel kependudukan
-	_, err := u.kependudukanRepo.FindByID(ibu.PendudukID)
+
+	// 🔥 CEK DULU
+	existing, err := u.repo.FindByPendudukID(ibu.IDKependudukan)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return errors.New("data penduduk dengan id tersebut tidak ditemukan")
-		}
 		return err
 	}
+
+	// kalau sudah ada → pakai yang lama (JANGAN INSERT)
+	if existing != nil {
+		ibu.IDIbu = existing.IDIbu
+		return nil
+	}
+
+	// kalau belum ada → baru insert
 	return u.repo.Create(ibu)
 }
 
@@ -58,4 +62,8 @@ func (u *ibuUsecase) Update(ibu *models.Ibu) error {
 
 func (u *ibuUsecase) Delete(id int32) error {
 	return u.repo.Delete(id)
+}
+
+func (u *ibuUsecase) GetDashboard() ([]models.IbuDashboardDTO, error) {
+	return u.repo.GetDashboard()
 }

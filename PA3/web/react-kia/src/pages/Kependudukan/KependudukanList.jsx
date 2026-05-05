@@ -49,7 +49,7 @@ export default function KependudukanList() {
       <div className="p-6">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">Manajemen Kartu Keluarga (KK)</h1>
-          <Link to="/kependudukan/create" className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2">
+          <Link to="/kependudukan/create" className="bg-indigo-600 text-white px-4 py-2 rounded-lg flex items-center gap-2">
             <Plus size={18} /> Tambah KK
           </Link>
         </div>
@@ -97,7 +97,7 @@ export default function KependudukanList() {
                         <button onClick={() => handleDelete(item.id_kependudukan, item.nama_lengkap)} className="text-red-600 hover:text-red-800">
                           <Trash2 size={18} />
                         </button>
-                      </td>
+                      </td> 
                     </tr>
                   ))
                 )}
@@ -107,9 +107,9 @@ export default function KependudukanList() {
           <div className="px-4 py-3 border-t flex justify-between items-center">
             <span className="text-sm text-gray-500">Menampilkan {currentItems.length} dari {filtered.length}</span>
             <div className="flex gap-2">
-              <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1} className="p-1 rounded border disabled:opacity-50"><ChevronLeft size={18} /></button>
+              <button onClick={() => setCurrentPage(p => Math.max(1, p-1))} disabled={currentPage === 1} className="p-1 rounded border disabled:opacity-50"><ChevronLeft size={18} /></button>
               <span>Halaman {currentPage} dari {totalPages || 1}</span>
-              <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages} className="p-1 rounded border disabled:opacity-50"><ChevronRight size={18} /></button>
+              <button onClick={() => setCurrentPage(p => Math.min(totalPages, p+1))} disabled={currentPage === totalPages} className="p-1 rounded border disabled:opacity-50"><ChevronRight size={18} /></button>
             </div>
           </div>
         </div>

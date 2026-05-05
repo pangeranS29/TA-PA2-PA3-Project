@@ -28,23 +28,9 @@ type createKehamilanRequest struct {
 	Abortus                  int32   `json:"abortus,omitempty"`
 	HPHT                     string  `json:"hpht,omitempty"`
 	TaksiranPersalinan       string  `json:"taksiran_persalinan,omitempty"`
-	UKKehamilanSaatIni       int32   `json:"uk_kehamilan_saat_ini,omitempty"`
+	// UKKehamilanSaatIni       int32   `json:"uk_kehamilan_saat_ini,omitempty"`
 	JarakKehamilanSebelumnya int32   `json:"jarak_kehamilan_sebelumnya,omitempty"`
-	StatusKehamilan          string  `json:"status_kehamilan,omitempty"`
-	BB_Awal                  float64 `json:"bb_awal,omitempty"`
-	TB                       float64 `json:"tb,omitempty"`
-}
-
-type updateKehamilanRequest struct {
-	IbuID                    int32   `json:"ibu_id,omitempty"`
-	Gravida                  int32   `json:"gravida,omitempty"`
-	Paritas                  int32   `json:"paritas,omitempty"`
-	Abortus                  int32   `json:"abortus,omitempty"`
-	HPHT                     string  `json:"hpht,omitempty"`
-	TaksiranPersalinan       string  `json:"taksiran_persalinan,omitempty"`
-	UKKehamilanSaatIni       int32   `json:"uk_kehamilan_saat_ini,omitempty"`
-	JarakKehamilanSebelumnya int32   `json:"jarak_kehamilan_sebelumnya,omitempty"`
-	StatusKehamilan          string  `json:"status_kehamilan,omitempty"`
+	// StatusKehamilan          string  `json:"status_kehamilan,omitempty"`
 	BB_Awal                  float64 `json:"bb_awal,omitempty"`
 	TB                       float64 `json:"tb,omitempty"`
 }
@@ -59,12 +45,12 @@ func (c *KehamilanController) Create(ctx echo.Context) error {
 	}
 	kehamilan := &models.Kehamilan{
 		IbuID:                    req.IbuID,
-		Gravida:                  req.Gravida,
-		Paritas:                  req.Paritas,
-		Abortus:                  req.Abortus,
-		UKKehamilanSaatIni:       req.UKKehamilanSaatIni,
+		// Gravida:                  req.Gravida,
+		// Paritas:                  req.Paritas,
+		// Abortus:                  req.Abortus,
+		// UKKehamilanSaatIni:       req.UKKehamilanSaatIni,
 		JarakKehamilanSebelumnya: req.JarakKehamilanSebelumnya,
-		StatusKehamilan:          req.StatusKehamilan,
+		// StatusKehamilan:          req.StatusKehamilan,
 		BB_Awal:                  req.BB_Awal,
 		TB:                       req.TB,
 	}
@@ -78,12 +64,10 @@ func (c *KehamilanController) Create(ctx echo.Context) error {
 			kehamilan.TaksiranPersalinan = t
 		}
 	}
-
 	if err := c.usecase.Create(kehamilan); err != nil {
 		statusCode := customerror.GetStatusCode(err)
 		return helpers.Response(ctx, statusCode, []string{err.Error()})
 	}
-
 	return helpers.StandardResponse(ctx, http.StatusCreated, []string{"Kehamilan berhasil ditambahkan"}, kehamilan, nil)
 }
 
@@ -127,30 +111,27 @@ func (c *KehamilanController) Update(ctx echo.Context) error {
 	if err != nil {
 		return helpers.Response(ctx, http.StatusBadRequest, []string{"id tidak valid"})
 	}
-
-	var req updateKehamilanRequest
+	var req createKehamilanRequest
 	if err := ctx.Bind(&req); err != nil {
 		return helpers.Response(ctx, http.StatusBadRequest, []string{"format request tidak valid"})
 	}
-
 	existing, err := c.usecase.GetByID(int32(id))
 	if err != nil {
 		return helpers.Response(ctx, http.StatusNotFound, []string{"Kehamilan tidak ditemukan"})
 	}
-
-	// Update hanya field yang dikirim (nullable fields dengan zero-value check)
+	// Update hanya field yang dikirim (bukan zero value)
 	if req.IbuID != 0 {
 		existing.IbuID = req.IbuID
 	}
-	if req.Gravida != 0 {
-		existing.Gravida = req.Gravida
-	}
-	if req.Paritas != 0 {
-		existing.Paritas = req.Paritas
-	}
-	if req.Abortus != 0 {
-		existing.Abortus = req.Abortus
-	}
+	// if req.Gravida != 0 {
+	// 	existing.Gravida = req.Gravida
+	// }
+	// if req.Paritas != 0 {
+	// 	existing.Paritas = req.Paritas
+	// }
+	// if req.Abortus != 0 {
+	// 	existing.Abortus = req.Abortus
+	// }
 	if req.HPHT != "" {
 		if t, err := time.Parse("2006-01-02", req.HPHT); err == nil {
 			existing.HPHT = t
@@ -161,22 +142,21 @@ func (c *KehamilanController) Update(ctx echo.Context) error {
 			existing.TaksiranPersalinan = t
 		}
 	}
-	if req.UKKehamilanSaatIni != 0 {
-		existing.UKKehamilanSaatIni = req.UKKehamilanSaatIni
-	}
+	// if req.UKKehamilanSaatIni != 0 {
+	// 	existing.UKKehamilanSaatIni = req.UKKehamilanSaatIni
+	// }
 	if req.JarakKehamilanSebelumnya != 0 {
 		existing.JarakKehamilanSebelumnya = req.JarakKehamilanSebelumnya
 	}
-	if req.StatusKehamilan != "" {
-		existing.StatusKehamilan = req.StatusKehamilan
-	}
+	// if req.StatusKehamilan != "" {
+	// 	existing.StatusKehamilan = req.StatusKehamilan
+	// }
 	if req.BB_Awal > 0 {
 		existing.BB_Awal = req.BB_Awal
 	}
 	if req.TB > 0 {
 		existing.TB = req.TB
 	}
-
 	if err := c.usecase.Update(existing); err != nil {
 		statusCode := customerror.GetStatusCode(err)
 		return helpers.Response(ctx, statusCode, []string{err.Error()})
@@ -194,4 +174,37 @@ func (c *KehamilanController) Delete(ctx echo.Context) error {
 		return helpers.Response(ctx, statusCode, []string{err.Error()})
 	}
 	return helpers.StandardResponse(ctx, http.StatusOK, []string{"Kehamilan berhasil dihapus"}, nil, nil)
+}
+
+func (c *KehamilanController) GetDashboard(ctx echo.Context) error {
+	data, err := c.usecase.GetDashboardIbuHamil()
+	if err != nil {
+		statusCode := customerror.GetStatusCode(err)
+		return helpers.Response(ctx, statusCode, []string{err.Error()})
+	}
+
+	return helpers.StandardResponse(ctx, http.StatusOK, []string{"Dashboard ibu hamil"}, data, nil)
+}
+func (c *KehamilanController) CheckActiveByIbuID(ctx echo.Context) error {
+	ibuIDParam := ctx.Param("ibu_id")
+
+	ibuID, err := strconv.ParseInt(ibuIDParam, 10, 32)
+	if err != nil {
+		return helpers.Response(ctx, http.StatusBadRequest, []string{"ID ibu tidak valid"})
+	}
+
+	isActive, err := c.usecase.ExistsActiveByIbuID(int32(ibuID))
+	if err != nil {
+		statusCode := customerror.GetStatusCode(err)
+		return helpers.Response(ctx, statusCode, []string{"Gagal melakukan pengecekan"})
+	}
+
+	message := "Ibu siap didaftarkan"
+	if isActive {
+		message = "Ibu ini masih dalam masa kehamilan, silakan lanjutkan data yang sudah ada"
+	}
+
+	return helpers.StandardResponse(ctx, http.StatusOK, []string{message}, map[string]bool{
+		"is_active": isActive,
+	}, nil)
 }
