@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import MainLayout from "../../components/Layout/MainLayout";
-import Breadcrumbs from "../../components/Breadcrumbs";
+// import Breadcrumb from "../../components/Breadcrumb";
 import { getIbuList } from "../../services/ibu";
 import { Plus, Search, ChevronLeft, ChevronRight } from "lucide-react";
 
@@ -63,7 +63,7 @@ export default function IbuList() {
   return (
     <MainLayout>
       <div className="p-6 bg-[#f8fafc] min-h-screen">
-        <Breadcrumbs />
+        {/* <Breadcrumb /> */}
         {/* Header Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <div className="bg-white rounded-xl shadow-sm p-4 border-l-4 border-indigo-500">

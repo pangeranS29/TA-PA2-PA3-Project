@@ -22,20 +22,20 @@ type Main struct {
 	CatatanPelayanan       *CatatanPelayananController
 
 	// Controller baru untuk edukasi informasi umum
-	EdukasiInformasiUmum        *EdukasiInformasiUmumController
-	EdukasiTandaBahayaTrimester *EdukasiTandaBahayaTrimesterController
-	EdukasiTandaMelahirkan      *EdukasiTandaMelahirkanController
-	EdukasiImd                  *EdukasiIMDController
-	EdukasiSetelahMelahirkan    *EdukasiSetelahMelahirkanController
-	EdukasiMenyusuiAsi          *EdukasiMenyusuiASIController
-	EdukasiPolaAsuh             *EdukasiPolaAsuhController
-	EdukasiKesehatanMental      *EdukasiKesehatanMentalController
-	EdukasiPerawatanAnak        *EdukasiPerawatanAnakController
-	KeluhanAnak                 *KeluhanAnakController
+	EdukasiInformasiUmum               *EdukasiInformasiUmumController
+	EdukasiTandaBahayaTrimester        *EdukasiTandaBahayaTrimesterController
+	EdukasiTandaMelahirkan             *EdukasiTandaMelahirkanController
+	EdukasiImd                         *EdukasiIMDController
+	EdukasiSetelahMelahirkan           *EdukasiSetelahMelahirkanController
+	EdukasiMenyusuiAsi                 *EdukasiMenyusuiASIController
+	EdukasiPolaAsuh                    *EdukasiPolaAsuhController
+	EdukasiKesehatanMental             *EdukasiKesehatanMentalController
+	EdukasiPerawatanAnak               *EdukasiPerawatanAnakController
+	KeluhanAnak                        *KeluhanAnakController
 	KesehatanLingkunganDanCatatanKader *KesehatanLingkunganDanCatatanKaderController
 
 	// Controller baru untuk struktur kehamilan
-	Ibu                           *IbuController
+	Ibu *IbuController
 	// KartuKeluarga                 *KartuKeluargaController
 	Kehamilan                     *KehamilanController
 	PemeriksaanKehamilan          *PemeriksaanKehamilanController
@@ -68,10 +68,10 @@ type Main struct {
 	KeteranganLahir               *KeteranganLahirController // <-- TAMBAHKAN INI
 	Kependudukan                  *KependudukanController
 	JenisPelayanan                *JenisPelayananController
-	Pertumbuhan                   *PertumbuhanController
-	PerkembanganAnak              *PerkembanganAnakController
-	EdukasiMPASI                  *EdukasiMPASIController
-	KesehatanLingkungan           *KesehatanLingkunganController
+	// Pertumbuhan                   *PertumbuhanController
+	PerkembanganAnak    *PerkembanganAnakController
+	EdukasiMPASI        *EdukasiMPASIController
+	KesehatanLingkungan *KesehatanLingkunganController
 }
 
 type Options struct {
@@ -146,7 +146,7 @@ func Init(opts Options) *Main {
 	m.PemantauanIndikator = NewPemantauanIndikatorController(opts.UseCases.PemantauanIndikator)
 	m.Kependudukan = NewKependudukanController(opts.UseCases.Kependudukan)
 	m.JenisPelayanan = NewJenisPelayananController(opts.UseCases.JenisPelayanan)
-	m.Pertumbuhan = NewPertumbuhanController(opts.UseCases.Pertumbuhan)
+	// m.Pertumbuhan = NewPertumbuhanController(opts.UseCases.Pertumbuhan)
 	m.PerkembanganAnak = NewPerkembanganAnakController(opts.UseCases.PerkembanganAnak)
 	m.EdukasiMPASI = NewEdukasiMPASIController(opts.UseCases.EdukasiMPASI)
 	m.KesehatanLingkungan = NewKesehatanLingkunganController(opts.UseCases.KesehatanLingkungan)
