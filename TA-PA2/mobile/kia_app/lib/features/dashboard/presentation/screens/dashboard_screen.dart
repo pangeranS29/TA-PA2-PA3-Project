@@ -23,6 +23,8 @@ import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/scr
 import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/screens/anak/cari_anak_screen.dart';
 import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/screens/edukasi/edukasi_screen.dart';
 // import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/screens/skrining/skrining_bahaya.dart';
+// MODUL CATATAN
+import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/screens/catatan/index.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -142,6 +144,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
       body = _buildHomeBody();
     } else if (_selectedNavIndex == 1) {
       body = const AbsensiKelasIbuHamilScreen();
+      // body = const Center(
+      //   child: Padding(
+      //     padding: EdgeInsets.all(20),
+      //     child: Text(
+      //       'Menu Catatan dapat diakses dari Menu Cepat di halaman Beranda',
+      //       textAlign: TextAlign.center,
+      //       style: TextStyle(fontSize: 16),
+      //     ),
+      //   ),
+      // );
     } else if (_selectedNavIndex == 2) {
       body = const EdukasiExploreScreen();
     } else {
@@ -294,6 +306,57 @@ class _DashboardScreenState extends State<DashboardScreen> {
             style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey)),
         const SizedBox(height: 16),
 
+        // DISINI TADINYA YANG QUICK MENU YANG MENIMPA ITU
+
+        // Menu Hamil — card navigasi
+        const Text('Menu Hamil',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87)),
+        const SizedBox(height: 16),
+
+        DashboardMenuCard(
+          title: 'Kehamilan Trimester 1–3',
+          subtitle: 'Pantau perkembangan kehamilan',
+          icon: Icons.favorite_outline,
+          iconColor: Colors.pink,
+          onTap: _openHamilJourney,
+        ),
+        DashboardMenuCard(
+          title: 'Persalinan',
+          subtitle: 'Persiapan & proses persalinan',
+          icon: Icons.child_care_outlined,
+          iconColor: Colors.blue,
+          onTap: () {},
+        ),
+        const SizedBox(height: 32),
+
+        const Text('MENU CEPAT',
+            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey)),
+        const SizedBox(height: 16),
+
+        // [WIDGET: DashboardQuickMenu] — Menu cepat modul ibu
+        // DashboardQuickMenu(
+        //   items: DashboardMenuData.hamilQuickMenuItems.map((item) {
+        //     return {
+        //       ...item,
+        //       'onTap': () {
+        //         if (item['key'] == 'absensi') {
+        //           Navigator.push(context,
+        //               MaterialPageRoute(builder: (_) => const AbsensiKelasIbuHamilScreen()));
+        //           return;
+        //         }
+        //         if (item['key'] == 'catatan') {
+        //           Navigator.push(context,
+        //               MaterialPageRoute(builder: (_) => const CatatanMenuScreen()));
+        //           return;
+        //         }
+        //         ScaffoldMessenger.of(context).showSnackBar(
+        //             SnackBar(content: Text('${item['label']} belum tersedia')));
+        //       },
+        //     };
+        //   }).toList(),
+        // ),
+        // const SizedBox(height: 32),
+
         DashboardQuickMenu(
           crossAxisCount: 3,
           childAspectRatio: 1.0,
@@ -345,28 +408,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ),
         const SizedBox(height: 32),
 
-        // Menu Hamil — card navigasi
-        const Text('Menu Hamil',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87)),
-        const SizedBox(height: 16),
-
-        DashboardMenuCard(
-          title: 'Kehamilan Trimester 1–3',
-          subtitle: 'Pantau perkembangan kehamilan',
-          icon: Icons.favorite_outline,
-          iconColor: Colors.pink,
-          onTap: _openHamilJourney,
-        ),
-        DashboardMenuCard(
-          title: 'Persalinan',
-          subtitle: 'Persiapan & proses persalinan',
-          icon: Icons.child_care_outlined,
-          iconColor: Colors.blue,
-          onTap: () {},
-        ),
-        const SizedBox(height: 32),
-
-        // [MODUL: IBU] Banner surat rujukan
+        // [MODUL: IBU] Surat rujukan
         _buildDangerAlert(),
         const SizedBox(height: 40),
       ],
@@ -495,9 +537,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   case 'pemantauan':
                     Navigator.push(context,
                         MaterialPageRoute(builder: (_) => const PilihAnakScreen(tujuan: 'pemantauan')));
-                    // TODO: Catatan tumbuh kembang — belum tersedia
-                    // ScaffoldMessenger.of(context).showSnackBar(
-                    //     const SnackBar(content: Text('Catatan belum tersedia')));
+                    break;
+                  case 'catatan':
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (_) => const CatatanMenuScreen()));
                     break;
                   default:
                     ScaffoldMessenger.of(context).showSnackBar(
