@@ -1,7 +1,7 @@
 // src/components/Layout/MainLayout.jsx
 import Header from "./Header";
 import Sidebar from "./Sidebar";
-import Breadcrumbs from "../Breadcrumbs";
+// import Breadcrumb from "../Breadcrumb";
 
 export default function MainLayout({ children }) {
   return (
@@ -21,7 +21,7 @@ export default function MainLayout({ children }) {
         {/* Content */}
         <main className="flex-1 overflow-y-auto p-4 md:p-8">
           <div className="max-w-7xl mx-auto">
-            <Breadcrumbs />
+            {/* <Breadcrumb /> */}
             {children}
           </div>
         </main>

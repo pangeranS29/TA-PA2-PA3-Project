@@ -220,9 +220,9 @@ func (u *AnakUseCase) toAnakResponse(anak *models.Anak) models.AnakResponse {
 		resp.GolonganDarah = anak.Penduduk.GolonganDarah
 
 		// Hitung usia dari tanggal lahir penduduk
-		usiaBulan := HitungUsiaBulan(anak.Penduduk.TanggalLahir)
-		resp.UsiaBulan = usiaBulan
-		resp.UsiaTeks = FormatUsiaTeks(usiaBulan)
+		// usiaBulan := HitungUsiaBulan(anak.Penduduk.TanggalLahir)
+		// // resp.UsiaBulan = usiaBulan
+		// // resp.UsiaTeks = FormatUsiaTeks(usiaBulan)
 	}
 
 	// Ambil data Kehamilan
@@ -237,16 +237,16 @@ func (u *AnakUseCase) toAnakResponse(anak *models.Anak) models.AnakResponse {
 	}
 
 	// Map data Pertumbuhan
-	if len(anak.Pertumbuhan) > 0 {
-		resp.Pertumbuhan = make([]models.PertumbuhanSimple, 0, len(anak.Pertumbuhan))
-		for _, p := range anak.Pertumbuhan {
-			resp.Pertumbuhan = append(resp.Pertumbuhan, models.PertumbuhanSimple{
-				Bulan:       p.UsiaUkurBulan,
-				BeratBadan:  p.BeratBadan,
-				TinggiBadan: p.TinggiBadan,
-			})
-		}
-	}
+	// if len(anak.Pertumbuhan) > 0 {
+	// 	resp.Pertumbuhan = make([]models.PertumbuhanSimple, 0, len(anak.Pertumbuhan))
+	// 	for _, p := range anak.Pertumbuhan {
+	// 		resp.Pertumbuhan = append(resp.Pertumbuhan, models.PertumbuhanSimple{
+	// 			Bulan:       p.UsiaUkurBulan,
+	// 			BeratBadan:  p.BeratBadan,
+	// 			TinggiBadan: p.TinggiBadan,
+	// 		})
+	// 	}
+	// }
 
 	return resp
 }

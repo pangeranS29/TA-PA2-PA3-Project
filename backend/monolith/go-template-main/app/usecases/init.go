@@ -68,10 +68,10 @@ type Main struct {
 	KeluhanAnak                        KeluhanAnakUseCase
 	KesehatanLingkunganDanCatatanKader KesehatanLingkunganDanCatatanKaderUsecase
 	JenisPelayanan                     JenisPelayananUsecase
-	Pertumbuhan                        PertumbuhanUseCase
-	PerkembanganAnak                   PerkembanganAnakUseCase
-	EdukasiMPASI                       EdukasiMPASIUsecase
-	KesehatanLingkungan                KesehatanLingkunganUsecase
+	// Pertumbuhan                        PertumbuhanUseCase
+	PerkembanganAnak    PerkembanganAnakUseCase
+	EdukasiMPASI        EdukasiMPASIUsecase
+	KesehatanLingkungan KesehatanLingkunganUsecase
 }
 
 type Options struct {
@@ -93,8 +93,8 @@ func Init(opts Options) *Main {
 	m.KunjunganVitamin = NewKunjunganVitaminUseCase(opts.Repository.KunjunganVitamin)
 	m.KunjunganImunisasi = NewKunjunganImunisasiUseCase(opts.Repository.KunjunganImunisasi)
 	m.PemeriksaanGigi = NewPemeriksaanGigiUseCase(opts.Repository.PemeriksaanGigi)
-	m.PemantauanPertumbuhan = NewPemantauanPertumbuhanUseCase(opts.Repository.PemantauanPertumbuhan, 
-		opts.Repository.Anak, 
+	m.PemantauanPertumbuhan = NewPemantauanPertumbuhanUseCase(opts.Repository.PemantauanPertumbuhan,
+		opts.Repository.Anak,
 		opts.Repository,
 	)
 	m.PengukuranLilA = NewPengukuranLilAUseCase(opts.Repository.PengukuranLilA)
@@ -164,7 +164,7 @@ func Init(opts Options) *Main {
 	)
 	m.KeteranganLahir = NewKeteranganLahirUsecase(opts.Repository.KeteranganLahir) // <-- TAMBAHKAN INI
 	m.JenisPelayanan = NewJenisPelayananUsecase(opts.Repository.JenisPelayanan)
-	m.Pertumbuhan = NewPertumbuhanUseCase(opts.Repository)
+	// m.Pertumbuhan = NewPertumbuhanUseCase(opts.Repository)
 	m.PerkembanganAnak = NewPerkembanganAnakUseCase(opts.Repository.PerkembanganAnak)
 	m.EdukasiMPASI = NewEdukasiMPASIUsecase(opts.Repository.EdukasiMPASI)
 	m.KesehatanLingkungan = NewKesehatanLingkunganUsecase(opts.Repository.KesehatanLingkungan)
