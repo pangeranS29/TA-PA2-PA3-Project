@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/screens/skrining/lembar_pemantauan_screen.dart';
+import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/screens/pemantauan/skrining/lembar_pemantauan_screen.dart';
 
 class PemantauanMenuScreen extends StatefulWidget {
   final Map<String, dynamic>? anak;

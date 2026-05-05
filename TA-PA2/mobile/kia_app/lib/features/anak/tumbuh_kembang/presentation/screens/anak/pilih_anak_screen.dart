@@ -6,7 +6,7 @@ import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/scr
 import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/screens/mpasi/halaman_utama_mpasi.dart';
 import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/screens/pemantauan/menu_pemantauan_screen.dart';
 import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/screens/pertumbuhan/detail_pertumbuhan_dummy_screen.dart';
-import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/screens/skrining/pemantauan_menu_screen.dart';
+import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/screens/pemantauan/skrining/pemantauan_menu_screen.dart';
 
 /// [tujuan] menentukan halaman tujuan setelah anak dipilih.
 /// Gunakan 'pertumbuhan' (default) atau 'imunisasi'.
