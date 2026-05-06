@@ -55,12 +55,18 @@ type Main struct {
 	AdminTenagaKesehatan *AdminTenagaKesehatanUsecase
 
 	// MODUL IBU
-	LogTTDMMS                    LogTTDMMSUsecase
+	LogTTDMMS                   LogTTDMMSUsecase
 	PemantauanIbuHamil          PemantauanIbuHamilUsecase
 	PersiapanMelahirkan         PersiapanMelahirkanUsecase
 	ProsesMelahirkan            ProsesMelahirkanUsecase
 	AbsensiKelasIbuHamil        AbsensiKelasIbuHamilUsecase
 	ChecklistPemantauanIbuNifas *ChecklistPemantauanIbuNifasUsecase
+	EdukasiImd                  EdukasiImdUsecase
+	EdukasiSetelahMelahirkan    EdukasiSetelahMelahirkanUsecase
+	EdukasiMenyusuiAsi          EdukasiMenyusuiASIUsecase
+	EdukasiKesehatanMental      EdukasiKesehatanMentalUsecase
+	EdukasiTrimester            EdukasiTrimesterUsecase
+	EdukasiTandaMelahirkan      EdukasiTandaMelahirkanUsecase
 }
 
 type Options struct {
@@ -140,6 +146,31 @@ func Init(opts Options) *Main {
 	m.ChecklistPemantauanIbuNifas = NewChecklistPemantauanIbuNifasUsecase(
 		opts.Repository.ChecklistPemantauanIbuNifas,
 		opts.Repository.Kehamilan,
+	)
+
+	// EDUKASI
+	m.EdukasiImd = NewEdukasiImdUsecase(
+		opts.Repository.EdukasiImd,
+	)
+
+	m.EdukasiSetelahMelahirkan = NewEdukasiSetelahMelahirkanUsecase(
+		opts.Repository.EdukasiSetelahMelahirkan,
+	)
+
+	m.EdukasiMenyusuiAsi = NewEdukasiMenyusuiASIUsecase(
+		opts.Repository.EdukasiMenyusuiAsi,
+	)
+
+	m.EdukasiKesehatanMental = NewEdukasiKesehatanMentalUsecase(
+		opts.Repository.EdukasiKesehatanMental,
+	)
+
+	m.EdukasiTrimester = NewEdukasiTrimesterUsecase(
+		opts.Repository.EdukasiTrimester,
+	)
+
+	m.EdukasiTandaMelahirkan = NewEdukasiTandaMelahirkanUsecase(
+		opts.Repository.EdukasiTandaMelahirkan,
 	)
 	return m
 }
