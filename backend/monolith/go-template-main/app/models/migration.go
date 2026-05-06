@@ -1,102 +1,57 @@
 package models
 
-// import (
-// 	"gorm.io/gorm"
-// )
+import (
+	"gorm.io/gorm"
+)
 
-// func AutoMigrate(db *gorm.DB) error {
-// 	// Semua model dalam satu slice
-// 	models := []interface{}{
-// 		// Master
-// 		// &KategoriTandaBahaya{},
-// 		&SkriningPemantauan{},
-// 		// &KartuKeluarga{},
-// 		// &Kependudukan{},
+// AutoMigrateEdukasi runs AutoMigrate for the edukasi-related models
+// and inserts a minimal sample row per table if the table is empty.
+func AutoMigrateEdukasi(db *gorm.DB) error {
+	models := []interface{}{
+		&EdukasiImd{},
+		&EdukasiTrimester{},
+		&EdukasiKesehatanMental{},
+		&EdukasiMenyusuiASI{},
+		&EdukasiSetelahMelahirkan{},
+		&EdukasiTandaMelahirkan{},
+	}
 
-// 		// Relasi utama
-// 		// &ibu
-// 		&Kehamilan{},
-// 		&Anak{},
-// 		&Role{},
-// 		&User{},
-// 		&Bidan{},
-// 		&Kader{},
-// 		&KartuKeluarga{},
-// 		&Kependudukan{},
-// 		&Ibu{},
-// 		&Anak{},
+	if err := db.AutoMigrate(models...); err != nil {
+		return err
+	}
 
-// 		// Evaluasi & riwayat
-// 		&EvaluasiKesehatanIbu{},
-// 		&RiwayatKehamilanLalu{},
+	// Seed minimal sample data if tables are empty (used as proof of connection)
+	var cnt int64
 
-// 		// Pelayanan & lainnya
-// 		&JenisPelayanan{},
-// 		&JenisPelayananKategori{},
-// 		&KunjunganAnak{},
-// 		&AturanPelayanan{},
-// 		&KunjunganGizi{},
-// 		&KunjunganVitamin{},
-// 		&Neonatus{},
-// 		&DetailPelayananNeonatus{},
-// 		&DetailPelayananVitamin{},
-// 		&ASI{},
-// 		&MPASI{},
-// 		&CatatanPelayanan{},
-// 		&KehadiranImunisasi{},
-// 		&DetailPelayananImunisasi{},
-// 		&PeriksaGigi{},
-// 		&DeteksiDiniPenyimpangan{},
-// 		&PengukuranLila{},
-// 		&Pertumbuhan{},
+	db.Model(&EdukasiImd{}).Count(&cnt)
+	if cnt == 0 {
+		db.Create(&EdukasiImd{Judul: "Contoh IMD", GambarURL: "", Isi: "Isi contoh edukasi IMD"})
+	}
 
-// 		// Kehamilan detail
-// 		&PemeriksaanKehamilan{},
-// 		&PemeriksaanDokterTrimester1{},
-// 		&PemeriksaanLaboratoriumJiwa{},
-// 		&CatatanPelayananTrimester1{},
-// 		&SkriningPreeklampsia{},
-// 		&SkriningDMGestasional{},
-// 		&CatatanPelayananTrimester2{},
-// 		&PemeriksaanDokterTrimester3{},
-// 		&PemeriksaanLanjutanTrimester3{},
-// 		&CatatanPelayananTrimester3{},
+	db.Model(&EdukasiTrimester{}).Count(&cnt)
+	if cnt == 0 {
+		db.Create(&EdukasiTrimester{Judul: "Contoh Trimester", GambarURL: "", IsiKonten: "Isi contoh edukasi trimester"})
+	}
 
-// 		// Grafik & hasil
-// 		&GrafikEvaluasiKehamilan{},
-// 		&GrafikPeningkatanBB{},
-// 		&PenjelasanHasilGrafik{},
+	db.Model(&EdukasiKesehatanMental{}).Count(&cnt)
+	if cnt == 0 {
+		db.Create(&EdukasiKesehatanMental{Judul: "Contoh Kesehatan Mental", GambarURL: "", Deskripsi: "Ringkasan", Isi: "Isi contoh"})
+	}
 
-// 		// Persalinan
-// 		&RencanaPersalinan{},
-// 		&RingkasanPelayananPersalinan{},
-// 		&KeteranganLahir{},
-// 		&RiwayatProsesMelahirkan{},
+	db.Model(&EdukasiMenyusuiASI{}).Count(&cnt)
+	if cnt == 0 {
+		db.Create(&EdukasiMenyusuiASI{Judul: "Contoh Menyusui ASI", GambarURL: "", Isi: "Isi contoh"})
+	}
 
-// 		// Nifas & rujukan
-// 		&PelayananIbuNifas{},
-// 		&CatatanPelayananNifas{},
-// 		&Rujukan{},
+	db.Model(&EdukasiSetelahMelahirkan{}).Count(&cnt)
+	if cnt == 0 {
+		db.Create(&EdukasiSetelahMelahirkan{Judul: "Contoh Setelah Melahirkan", GambarURL: "", Isi: "Isi contoh"})
+	}
 
-// 		// MODUL IBU
-// 		&LogTTDMMS{},
-// 		&PersiapanMelahirkan{},
-// 		&ProsesMelahirkan{},
-// 		&PemantauanIbuHamil{},
-// 		&PemantauanIbuNifas{},
-// 	}
+	db.Model(&EdukasiTandaMelahirkan{}).Count(&cnt)
+	if cnt == 0 {
+		db.Create(&EdukasiTandaMelahirkan{Judul: "Contoh Tanda Melahirkan", GambarURL: "", Ringkasan: "Ringkasan contoh", Isi: "Isi contoh"})
+	}
 
-// 	// Jalankan automigrate sekali saja
-// 	if err := db.AutoMigrate(models...); err != nil {
-// 		return err
-// 	}
-
-// 	// seeder
-// 	// log.Println("AutoMigrate selesai. Menjalankan Seeder...")
-// 	// seeder := seeders.NewSeeder(db)
-// 	// if err := seeder.Run(); err != nil {
-// 	// 	println("Error: seeder gagal dijalankan:", err.Error())
-// 	// }
-
-// 	return nil
-// }
+	return nil
+}
