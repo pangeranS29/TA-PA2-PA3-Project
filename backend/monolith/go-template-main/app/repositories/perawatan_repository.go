@@ -14,13 +14,14 @@ type PerawatanRepository interface {
 	// Perawatan operations
 	CreatePerawatan(perawatan *models.Perawatan) error
 	GetPerawatanByID(id uint) (*models.Perawatan, error)
-	GetPerawatanByAnakID(anakID int) ([]models.Perawatan, error)
-	GetPerawatanByAnakIDAndRentangUsia(anakID int, rentangUsia string) ([]models.Perawatan, error)
+	GetPerawatanByAnakID(anakID int32) ([]models.Perawatan, error)
+	GetPerawatanByAnakIDAndRentangUsia(anakID int32, rentangUsia string) ([]models.Perawatan, error)
 	UpdatePerawatan(perawatan *models.Perawatan) error
 	DeletePerawatan(id uint) error
-	IsAnakOwnedByIbu(anakID int, userID int32) (bool, error)
-	GetPerawatanByAnakIDForIbu(anakID int, userID int32) ([]models.Perawatan, error)
-	GetPerawatanByAnakIDAndRentangUsiaForIbu(anakID int, rentangUsia string, userID int32) ([]models.Perawatan, error)
+	IsAnakExist(anakID int32) (bool, error)
+	IsAnakOwnedByIbu(anakID int32, userID int32) (bool, error)
+	GetPerawatanByAnakIDForIbu(anakID int32, userID int32) ([]models.Perawatan, error)
+	GetPerawatanByAnakIDAndRentangUsiaForIbu(anakID int32, rentangUsia string, userID int32) ([]models.Perawatan, error)
 
 	// KategoriCapaian operations
 	GetAllKategoriCapaian() ([]models.KategoriCapaian, error)
@@ -69,7 +70,7 @@ func (r *perawatanRepository) GetPerawatanByID(id uint) (*models.Perawatan, erro
 }
 
 // GetPerawatanByAnakID retrieves all perawatan records for a specific child
-func (r *perawatanRepository) GetPerawatanByAnakID(anakID int) ([]models.Perawatan, error) {
+func (r *perawatanRepository) GetPerawatanByAnakID(anakID int32) ([]models.Perawatan, error) {
 	var result []models.Perawatan
 	if err := r.db.
 		Preload("KategoriCapaian").
@@ -82,7 +83,7 @@ func (r *perawatanRepository) GetPerawatanByAnakID(anakID int) ([]models.Perawat
 }
 
 // GetPerawatanByAnakIDAndRentangUsia retrieves perawatan for a child with specific age range
-func (r *perawatanRepository) GetPerawatanByAnakIDAndRentangUsia(anakID int, rentangUsia string) ([]models.Perawatan, error) {
+func (r *perawatanRepository) GetPerawatanByAnakIDAndRentangUsia(anakID int32, rentangUsia string) ([]models.Perawatan, error) {
 	var result []models.Perawatan
 	if err := r.db.
 		Joins("JOIN kategori_capaian ON kategori_capaian.id = perawatan.kategori_capaian_id").
@@ -162,8 +163,23 @@ func (r *perawatanRepository) GetKategoriCapaianByID(id uint) (*models.KategoriC
 // ACCESS CONTROL OPERATIONS
 // ─────────────────────────────────────────────────────────
 
+// IsAnakExist checks if an anak exists
+func (r *perawatanRepository) IsAnakExist(anakID int32) (bool, error) {
+	var count int64
+	err := r.db.
+		Model(&models.Anak{}).
+		Where("id = ? AND deleted_at IS NULL", anakID).
+		Count(&count).Error
+
+	if err != nil {
+		return false, customerror.NewInternalServiceError("gagal memverifikasi anak")
+	}
+
+	return count > 0, nil
+}
+
 // IsAnakOwnedByIbu checks if a child belongs to a specific ibu (user)
-func (r *perawatanRepository) IsAnakOwnedByIbu(anakID int, userID int32) (bool, error) {
+func (r *perawatanRepository) IsAnakOwnedByIbu(anakID int32, userID int32) (bool, error) {
 	var count int64
 	err := r.db.
 		Model(&models.Anak{}).
@@ -182,7 +198,7 @@ func (r *perawatanRepository) IsAnakOwnedByIbu(anakID int, userID int32) (bool, 
 }
 
 // GetPerawatanByAnakIDForIbu retrieves perawatan for a child with ownership check
-func (r *perawatanRepository) GetPerawatanByAnakIDForIbu(anakID int, userID int32) ([]models.Perawatan, error) {
+func (r *perawatanRepository) GetPerawatanByAnakIDForIbu(anakID int32, userID int32) ([]models.Perawatan, error) {
 	// First, verify ownership
 	owned, err := r.IsAnakOwnedByIbu(anakID, userID)
 	if err != nil {
@@ -206,7 +222,7 @@ func (r *perawatanRepository) GetPerawatanByAnakIDForIbu(anakID int, userID int3
 }
 
 // GetPerawatanByAnakIDAndRentangUsiaForIbu retrieves perawatan with ownership check and age range filter
-func (r *perawatanRepository) GetPerawatanByAnakIDAndRentangUsiaForIbu(anakID int, rentangUsia string, userID int32) ([]models.Perawatan, error) {
+func (r *perawatanRepository) GetPerawatanByAnakIDAndRentangUsiaForIbu(anakID int32, rentangUsia string, userID int32) ([]models.Perawatan, error) {
 	// First, verify ownership
 	owned, err := r.IsAnakOwnedByIbu(anakID, userID)
 	if err != nil {

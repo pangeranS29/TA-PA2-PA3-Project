@@ -23,8 +23,8 @@ func (KategoriCapaian) TableName() string {
 
 type Perawatan struct {
 	ID                uint           `gorm:"primaryKey;column:id" db:"id" json:"id"`
-	AnakID            int            `gorm:"column:anak_id" db:"anak_id" json:"anak_id"`
-	KategoriCapaianID int            `gorm:"column:kategori_capaian_id" db:"kategori_capaian_id" json:"kategori_capaian_id"`
+	AnakID            int32          `gorm:"column:anak_id" db:"anak_id" json:"anak_id"`
+	KategoriCapaianID uint           `gorm:"column:kategori_capaian_id" db:"kategori_capaian_id" json:"kategori_capaian_id"`
 	Jawaban           *bool          `gorm:"column:jawaban" db:"jawaban" json:"jawaban,omitempty"`
 	TanggalPeriksa    *time.Time     `gorm:"column:tanggal_periksa" db:"tanggal_periksa" json:"tanggal_periksa,omitempty"`
 	CreatedAt         time.Time      `gorm:"column:created_at" db:"created_at" json:"created_at"`
@@ -46,14 +46,14 @@ func (Perawatan) TableName() string {
 
 // CreatePerawatanRequest is body request for POST /perawatan
 type CreatePerawatanRequest struct {
-	AnakID            int        `json:"anak_id" validate:"required"`
-	KategoriCapaianID int        `json:"kategori_capaian_id" validate:"required"`
-	Jawaban           *bool      `json:"jawaban,omitempty"`
-	TanggalPeriksa    *time.Time `json:"tanggal_periksa,omitempty"`
+	AnakID            int32  `json:"anak_id" validate:"required"`
+	KategoriCapaianID uint   `json:"kategori_capaian_id" validate:"required"`
+	Jawaban           *bool  `json:"jawaban,omitempty"`
+	TanggalPeriksa    string `json:"tanggal_periksa,omitempty"`
 }
 
 // UpdatePerawatanRequest is body request for PUT /perawatan/:id
 type UpdatePerawatanRequest struct {
-	Jawaban        *bool      `json:"jawaban,omitempty"`
-	TanggalPeriksa *time.Time `json:"tanggal_periksa,omitempty"`
+	Jawaban        *bool  `json:"jawaban,omitempty"`
+	TanggalPeriksa string `json:"tanggal_periksa,omitempty"`
 }

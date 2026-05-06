@@ -77,6 +77,7 @@ class PerawatanApiService {
   // Create perawatan
   Future<PerawatanModel> createPerawatan(CreatePerawatanRequest request) async {
     try {
+      print('POST perawatan payload: ${request.toJson()}');
       final response = await dio.post(
         '$baseUrl/perawatan',
         data: request.toJson(),
@@ -88,6 +89,9 @@ class PerawatanApiService {
             response.data['data'] as Map<String, dynamic>);
       }
       throw Exception('Failed to create perawatan: ${response.statusMessage}');
+    } on DioException catch (e) {
+      final detail = _extractErrorDetail(e);
+      throw Exception('Error creating perawatan: $detail');
     } catch (e) {
       throw Exception('Error creating perawatan: $e');
     }
@@ -160,6 +164,7 @@ class PerawatanApiService {
   Future<PerawatanModel> updatePerawatan(
       int id, UpdatePerawatanRequest request) async {
     try {
+      print('PUT perawatan payload: ${request.toJson()}');
       final response = await dio.put(
         '$baseUrl/perawatan/$id',
         data: request.toJson(),
@@ -170,6 +175,9 @@ class PerawatanApiService {
             response.data['data'] as Map<String, dynamic>);
       }
       throw Exception('Failed to update perawatan');
+    } on DioException catch (e) {
+      final detail = _extractErrorDetail(e);
+      throw Exception('Error updating perawatan: $detail');
     } catch (e) {
       throw Exception('Error updating perawatan: $e');
     }
@@ -187,5 +195,22 @@ class PerawatanApiService {
     } catch (e) {
       throw Exception('Error deleting perawatan: $e');
     }
+  }
+
+  String _extractErrorDetail(DioException error) {
+    final data = error.response?.data;
+    if (data is Map<String, dynamic>) {
+      final messages = data['messages'];
+      if (messages is List && messages.isNotEmpty) {
+        return messages.first.toString();
+      }
+
+      final message = data['message'];
+      if (message != null) {
+        return message.toString();
+      }
+    }
+
+    return error.message ?? 'request gagal';
   }
 }
