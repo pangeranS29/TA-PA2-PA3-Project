@@ -48,17 +48,25 @@ type Main struct {
 	KategoriTandaBahaya           *KategoriTandaBahayaController
 	PelayananIbuNifas             *PelayananIbuNifasController
 	RiwayatKehamilanLalu          *RiwayatKehamilanLaluController
-	KeteranganLahir               *KeteranganLahirController // <-- TAMBAHKAN INI
+	KeteranganLahir               *KeteranganLahirController
 	Kependudukan                  *KependudukanController
 	JenisPelayanan                *JenisPelayananController
 
 	// MODUL IBU
-	PemantauanIbuHamil   *PemantauanIbuHamilController
-	LogTTDMMS            *LogTTDMMSController
-	PersiapanMelahirkan  *PersiapanMelahirkanController
-	ProsesMelahirkan     *ProsesMelahirkanController
-	AbsensiKelasIbuHamil *AbsensiKelasIbuHamilController
+	PemantauanIbuHamil          *PemantauanIbuHamilController
+	LogTTDMMS                   *LogTTDMMSController
+	PersiapanMelahirkan         *PersiapanMelahirkanController
+	ProsesMelahirkan            *ProsesMelahirkanController
+	AbsensiKelasIbuHamil        *AbsensiKelasIbuHamilController
 	ChecklistPemantauanIbuNifas *ChecklistPemantauanIbuNifasController
+
+	// EDUKASI
+	EdukasiImd               *EdukasiImdController
+	EdukasiSetelahMelahirkan *EdukasiSetelahMelahirkanController
+	EdukasiMenyusuiAsi       *EdukasiMenyusuiASIController
+	EdukasiKesehatanMental   *EdukasiKesehatanMentalController
+	EdukasiTrimester         *EdukasiTrimesterController
+	EdukasiTandaMelahirkan   *EdukasiTandaMelahirkanController
 }
 
 type Options struct {
@@ -86,7 +94,6 @@ func Init(opts Options) *Main {
 
 	// Controller baru
 	m.Ibu = NewIbuController(opts.UseCases.Ibu)
-	// m.KartuKeluarga = NewKartuKeluargaController(opts.UseCases.KartuKeluarga)
 	m.Kehamilan = NewKehamilanController(opts.UseCases.Kehamilan)
 	m.PemeriksaanKehamilan = NewPemeriksaanKehamilanController(opts.UseCases.PemeriksaanKehamilan)
 	m.EvaluasiKesehatanIbu = NewEvaluasiKesehatanIbuController(opts.UseCases.EvaluasiKesehatanIbu)
@@ -111,18 +118,45 @@ func Init(opts Options) *Main {
 	m.KategoriTandaBahaya = NewKategoriTandaBahayaController(opts.UseCases.KategoriTandaBahaya)
 	m.PelayananIbuNifas = NewPelayananIbuNifasController(opts.UseCases.PelayananIbuNifas)
 	m.RiwayatKehamilanLalu = NewRiwayatKehamilanLaluController(opts.UseCases.RiwayatKehamilanLalu)
-	m.KeteranganLahir = NewKeteranganLahirController(opts.UseCases.KeteranganLahir) // <-- TAMBAHKAN INI
+	m.KeteranganLahir = NewKeteranganLahirController(opts.UseCases.KeteranganLahir)
 	m.Kependudukan = NewKependudukanController(opts.UseCases.Kependudukan)
 	m.JenisPelayanan = NewJenisPelayananController(opts.UseCases.JenisPelayanan)
 
-	// MODEL IBU
+	// MODUL IBU
 	m.LogTTDMMS = NewLogTTDMMSController(opts.UseCases.LogTTDMMS)
 	m.PemantauanIbuHamil = NewPemantauanIbuHamilController(opts.UseCases.PemantauanIbuHamil)
 	m.PersiapanMelahirkan = NewPersiapanMelahirkanController(opts.UseCases.PersiapanMelahirkan)
 	m.ProsesMelahirkan = NewProsesMelahirkanController(opts.UseCases.ProsesMelahirkan)
 	m.AbsensiKelasIbuHamil = NewAbsensiKelasIbuHamilController(opts.UseCases.AbsensiKelasIbuHamil)
 	m.ChecklistPemantauanIbuNifas = NewChecklistPemantauanIbuNifasController(
-	opts.UseCases.ChecklistPemantauanIbuNifas,)
+		opts.UseCases.ChecklistPemantauanIbuNifas,
+	)
+
+	// EDUKASI
+	m.EdukasiImd = NewEdukasiImdController(
+		opts.UseCases.EdukasiImd,
+	)
+
+	m.EdukasiSetelahMelahirkan = NewEdukasiSetelahMelahirkanController(
+		opts.UseCases.EdukasiSetelahMelahirkan,
+	)
+
+	m.EdukasiMenyusuiAsi = NewEdukasiMenyusuiASIController(
+		opts.UseCases.EdukasiMenyusuiAsi,
+	)
+
+	m.EdukasiKesehatanMental = NewEdukasiKesehatanMentalController(
+		opts.UseCases.EdukasiKesehatanMental,
+	)
+
+	m.EdukasiTrimester = NewEdukasiTrimesterController(
+		opts.UseCases.EdukasiTrimester,
+	)
+
+	m.EdukasiTandaMelahirkan = NewEdukasiTandaMelahirkanController(
+		opts.UseCases.EdukasiTandaMelahirkan,
+	)
+
 	return m
 }
 

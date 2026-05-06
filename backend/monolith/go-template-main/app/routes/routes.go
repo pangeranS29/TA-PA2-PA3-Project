@@ -419,4 +419,22 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	ibu.GET("/catatan-pelayanan-t2", controller.CatatanPelayananTrimester2.GetByKehamilanID)
 	ibu.GET("/catatan-pelayanan-t3", controller.CatatanPelayananTrimester3.GetByKehamilanID)
 	ibu.GET("/rujukan", controller.Rujukan.GetByKehamilanID)
+
+	ibu.GET("/edukasi-imd", controller.EdukasiImd.GetAll)
+	ibu.GET("/edukasi-imd/:id", controller.EdukasiImd.GetByID)
+	
+	ibu.GET("/edukasi-setelah-melahirkan", controller.EdukasiSetelahMelahirkan.GetAll)
+	ibu.GET("/edukasi-setelah-melahirkan/:id", controller.EdukasiSetelahMelahirkan.GetByID)
+
+	ibu.GET("/edukasi-menyusui-asi", controller.EdukasiMenyusuiAsi.GetAll)
+	ibu.GET("/edukasi-menyusui-asi/:id", controller.EdukasiMenyusuiAsi.GetByID)
+
+	ibu.GET("/edukasi-kesehatan-mental", controller.EdukasiKesehatanMental.GetAll)
+	ibu.GET("/edukasi-kesehatan-mental/:id", controller.EdukasiKesehatanMental.GetByID)
+
+	ibu.GET("/edukasi-trimester", controller.EdukasiTrimester.GetAll)
+	ibu.GET("/edukasi-trimester/:id", controller.EdukasiTrimester.GetByID)
+
+	ibu.GET("/edukasi-tanda-melahirkan", controller.EdukasiTandaMelahirkan.GetAll)
+	ibu.GET("/edukasi-tanda-melahirkan/:id", controller.EdukasiTandaMelahirkan.GetByID)
 }

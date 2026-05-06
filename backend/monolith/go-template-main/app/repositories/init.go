@@ -11,16 +11,16 @@ type Main struct {
 	config   *config.Config
 
 	// Existing
-	Anak                   *AnakRepository
-	PelayananKesehatanAnak PelayananKesehatanAnakRepository
-	Neonatus               PelayananNeonatusRepository
-	KunjunganGizi          KunjunganGiziRepository
-	KunjunganVitamin       KunjunganVitaminRepository
-	KunjunganImunisasi     KunjunganImunisasiRepository
-	PemeriksaanGigi        PemeriksaanGigiRepository
-	PemantauanPertumbuhan  PemantauanPertumbuhanRepository
-	PengukuranLilA         PengukuranLilaRepository
-	CatatanPelayanan       CatatanPelayananRepository
+	Anak                        *AnakRepository
+	PelayananKesehatanAnak      PelayananKesehatanAnakRepository
+	Neonatus                    PelayananNeonatusRepository
+	KunjunganGizi               KunjunganGiziRepository
+	KunjunganVitamin            KunjunganVitaminRepository
+	KunjunganImunisasi          KunjunganImunisasiRepository
+	PemeriksaanGigi             PemeriksaanGigiRepository
+	PemantauanPertumbuhan       PemantauanPertumbuhanRepository
+	PengukuranLilA              PengukuranLilaRepository
+	CatatanPelayanan            CatatanPelayananRepository
 	ChecklistPemantauanIbuNifas ChecklistPemantauanIbuNifasRepository
 
 	// New repositories (semua pointer, mengikuti pola Anak)
@@ -58,11 +58,17 @@ type Main struct {
 	Rujukan                       *RujukanRepository
 	JenisPelayanan                JenisPelayananRepository
 	// MODUL IBU
-	LogTTDMMS            *LogTTDMMSRepository
-	PemantauanIbuHamil   *PemantauanIbuHamilRepository
-	PersiapanMelahirkan  *PersiapanMelahirkanRepository
-	ProsesMelahirkan     *ProsesMelahirkanRepository
-	AbsensiKelasIbuHamil *AbsensiKelasIbuHamilRepository
+	LogTTDMMS                *LogTTDMMSRepository
+	PemantauanIbuHamil       *PemantauanIbuHamilRepository
+	PersiapanMelahirkan      *PersiapanMelahirkanRepository
+	ProsesMelahirkan         *ProsesMelahirkanRepository
+	AbsensiKelasIbuHamil     *AbsensiKelasIbuHamilRepository
+	EdukasiImd               EdukasiImdRepository
+	EdukasiSetelahMelahirkan EdukasiSetelahMelahirkanRepository
+	EdukasiMenyusuiAsi       EdukasiMenyusuiASIRepository
+	EdukasiKesehatanMental   EdukasiKesehatanMentalRepository
+	EdukasiTrimester         EdukasiTrimesterRepository
+	EdukasiTandaMelahirkan   EdukasiTandaMelahirkanRepository
 }
 
 type Options struct {
@@ -132,5 +138,12 @@ func Init(opts Options) *Main {
 	m.ProsesMelahirkan = NewProsesMelahirkanRepository(opts.Postgres)
 	m.AbsensiKelasIbuHamil = NewAbsensiKelasIbuHamilRepository(opts.Postgres)
 
+	// EDUKASI
+	m.EdukasiImd = NewEdukasiImdRepository(opts.Postgres)
+	m.EdukasiSetelahMelahirkan = NewEdukasiSetelahMelahirkanRepository(opts.Postgres)
+	m.EdukasiMenyusuiAsi = NewEdukasiMenyusuiASIRepository(opts.Postgres)
+	m.EdukasiKesehatanMental = NewEdukasiKesehatanMentalRepository(opts.Postgres)
+	m.EdukasiTrimester = NewEdukasiTrimesterRepository(opts.Postgres)
+	m.EdukasiTandaMelahirkan = NewEdukasiTandaMelahirkanRepository(opts.Postgres)
 	return m
 }
