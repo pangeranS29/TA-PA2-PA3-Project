@@ -14,6 +14,8 @@ import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/absen
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/rujukan_list_screen.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/pemantauan_ibu_hamil_screen.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/edukasi_explore_screen.dart';
+import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/catatan_pelayanan_menu_screen.dart';
+import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/log_ttd_mms_screen.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/nifas/presentation/screens/nifas_screen.dart';
 // MODUL ANAK
 import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/screens/anak/pilih_anak_screen.dart';
@@ -23,6 +25,9 @@ import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/scr
 // import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/screens/skrining/skrining_bahaya.dart';
 // MODUL CATATAN
 import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/screens/catatan/index.dart';
+// import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/grafik_evaluasi_kehamilan_screen.dart';
+import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/grafik_evaluasi_kehamilan_screen.dart';
+import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/grafik_peningkatan_bb_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -53,12 +58,52 @@ class _DashboardScreenState extends State<DashboardScreen> {
     } catch (_) {}
   }
 
+  // Future<void> _openHamilJourney() async {
+  //   if (_loadingKehamilan) return;
+  //   setState(() => _loadingKehamilan = true);
+  //   try {
+  //     final kehamilan = await _kehamilanService.getKehamilanAktif();
+  //     if (!mounted) return;
+  //     Navigator.push(
+  //       context,
+  //       MaterialPageRoute(
+  //         builder: (_) => JourneyScreen(
+  //           currentWeek: kehamilan.ukKehamilanSaatIni,
+  //           gravida: kehamilan.gravida,
+  //           paritas: kehamilan.paritas,
+  //           abortus: kehamilan.abortus,
+  //           hplText: kehamilan.taksiranPersalinan != null
+  //               ? '${kehamilan.taksiranPersalinan!.day} / ${kehamilan.taksiranPersalinan!.month} / ${kehamilan.taksiranPersalinan!.year}'
+  //               : '-',
+  //           hphtText: kehamilan.hpht != null
+  //               ? '${kehamilan.hpht!.day} / ${kehamilan.hpht!.month} / ${kehamilan.hpht!.year}'
+  //               : '-',
+  //         ),
+  //       ),
+  //     );
+  //   } catch (e) {
+  //     if (!mounted) return;
+  //     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+  //   } finally {
+  //     if (mounted) setState(() => _loadingKehamilan = false);
+  //   }
+  // }
+
   Future<void> _openHamilJourney() async {
     if (_loadingKehamilan) return;
     setState(() => _loadingKehamilan = true);
     try {
       final kehamilan = await _kehamilanService.getKehamilanAktif();
       if (!mounted) return;
+
+      // Safety check: pastikan hpht tidak null
+      if (kehamilan.hpht == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Data HPHT belum tersedia')),
+        );
+        return;
+      }
+
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -70,15 +115,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
             hplText: kehamilan.taksiranPersalinan != null
                 ? '${kehamilan.taksiranPersalinan!.day} / ${kehamilan.taksiranPersalinan!.month} / ${kehamilan.taksiranPersalinan!.year}'
                 : '-',
-            hphtText: kehamilan.hpht != null
-                ? '${kehamilan.hpht!.day} / ${kehamilan.hpht!.month} / ${kehamilan.hpht!.year}'
-                : '-',
+            hphtText:
+                '${kehamilan.hpht!.day} / ${kehamilan.hpht!.month} / ${kehamilan.hpht!.year}',
+            hpht: kehamilan.hpht!, // ✅ pakai kehamilan, bukan _kehamilanAktif
           ),
         ),
       );
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(e.toString())));
     } finally {
       if (mounted) setState(() => _loadingKehamilan = false);
     }
@@ -92,7 +138,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   String _formatDate(DateTime? date) {
     if (date == null) return '-';
-    const months = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agt','Sep','Okt','Nov','Des'];
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'Mei',
+      'Jun',
+      'Jul',
+      'Agt',
+      'Sep',
+      'Okt',
+      'Nov',
+      'Des'
+    ];
     return '${date.day} ${months[date.month - 1]} ${date.year}';
   }
 
@@ -102,19 +161,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
     if (_selectedNavIndex == 0) {
       body = _buildHomeBody();
     } else if (_selectedNavIndex == 1) {
-      body = const Center(
-        child: Padding(
-          padding: EdgeInsets.all(20),
-          child: Text(
-            'Menu Catatan dapat diakses dari Menu Cepat di halaman Beranda',
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 16),
-          ),
-        ),
-      );
+      body = const AbsensiKelasIbuHamilScreen();
+      // body = const Center(
+      //   child: Padding(
+      //     padding: EdgeInsets.all(20),
+      //     child: Text(
+      //       'Menu Catatan dapat diakses dari Menu Cepat di halaman Beranda',
+      //       textAlign: TextAlign.center,
+      //       style: TextStyle(fontSize: 16),
+      //     ),
+      //   ),
+      // );
     } else if (_selectedNavIndex == 2) {
-      body = const PilihAnakScreen(tujuan: 'imunisasi');
-    } else if (_selectedNavIndex == 3) {
       body = const EdukasiExploreScreen();
     } else {
       body = const Center(child: Text('Profil'));
@@ -126,19 +184,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
       bottomNavigationBar: DashboardBottomNav(
         currentIndex: _selectedNavIndex,
         onTap: (i) => setState(() => _selectedNavIndex = i),
-      ),
-    );
-  }
-
-  Widget _buildNifasShortcut() {
-    return DashboardMenuCard(
-      title: 'Nifas',
-      subtitle: 'Pantau masa nifas pasca persalinan',
-      icon: Icons.person_outline,
-      iconColor: Colors.teal,
-      onTap: () => Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const NifasScreen()),
       ),
     );
   }
@@ -157,7 +202,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 // [WIDGET: DashboardPhaseSelector]
                 DashboardPhaseSelector(
                   selectedPhase: _selectedPhase,
-                  onPhaseSelected: (phase) => setState(() => _selectedPhase = phase),
+                  onPhaseSelected: (phase) =>
+                      setState(() => _selectedPhase = phase),
                 ),
                 const SizedBox(height: 32),
                 if (_selectedPhase == 'Hamil') _buildHamilContent(),
@@ -175,8 +221,27 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
+  Widget _buildNifasShortcut() {
+    return DashboardMenuCard(
+      title: 'Nifas',
+      subtitle: 'Pantau masa nifas pasca persalinan',
+      icon: Icons.person_outline,
+      iconColor: Colors.teal,
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const NifasScreen()),
+      ),
+    );
+  }
+
   // ─────────────────────────────────────────────
   // [MODUL: IBU - Hamil] Konten tab Hamil
+  // Urutan sesuai desain lib_desain:
+  //   1. Card progress kehamilan
+  //   2. Card buah janin
+  //   3. MENU CEPAT (6 item, 3 kolom)
+  //   4. Menu Hamil (card navigasi)
+  //   5. Banner surat rujukan
   // ─────────────────────────────────────────────
   Widget _buildHamilContent() {
     return Column(
@@ -200,7 +265,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     children: [
                       Text(
                         week > 0 ? 'Kehamilan $week Minggu' : 'Kehamilan Aktif',
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 16),
                       ),
                       const Icon(Icons.chevron_right, color: Colors.grey),
                     ],
@@ -218,8 +284,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   const Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Minggu 1', style: TextStyle(fontSize: 10, color: Colors.grey)),
-                      Text('Minggu 40', style: TextStyle(fontSize: 10, color: Colors.grey)),
+                      Text('Minggu 1',
+                          style: TextStyle(fontSize: 10, color: Colors.grey)),
+                      Text('Minggu 40',
+                          style: TextStyle(fontSize: 10, color: Colors.grey)),
                     ],
                   ),
                 ],
@@ -227,10 +295,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
             }),
           ),
         ),
-        const SizedBox(height: 16),
-
-        // [MODUL: IBU] Card Pemantauan Ibu Hamil
-        _buildPemantauanIbuHamilCard(),
         const SizedBox(height: 16),
 
         // Info insight janin
@@ -259,8 +323,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ),
         const SizedBox(height: 32),
 
+        // [WIDGET: DashboardQuickMenu] — 6 item, 3 kolom (sesuai desain lib_desain)
+        const Text('MENU CEPAT',
+            style: TextStyle(
+                fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey)),
+        const SizedBox(height: 16),
+
+        // DISINI TADINYA YANG QUICK MENU YANG MENIMPA ITU
+
+        // Menu Hamil — card navigasi
         const Text('Menu Hamil',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87)),
+            style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87)),
         const SizedBox(height: 16),
 
         DashboardMenuCard(
@@ -277,30 +353,117 @@ class _DashboardScreenState extends State<DashboardScreen> {
           iconColor: Colors.blue,
           onTap: () {},
         ),
+        // DashboardMenuCard(
+        //   title: 'Grafik Evaluasi Kehamilan',
+        //   subtitle: 'Pantau TFU & DJJ selama kehamilan',
+        //   icon: Icons.show_chart_outlined,
+        //   iconColor: Colors.purple,
+        //   onTap: () => Navigator.push(
+        //     context,
+        //     MaterialPageRoute(
+        //       builder: (_) => const GrafikEvaluasiKehamilanScreen(),
+        //     ),
+        //   ),
+        // ),
         const SizedBox(height: 32),
 
         const Text('MENU CEPAT',
-            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey)),
+            style: TextStyle(
+                fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey)),
         const SizedBox(height: 16),
 
         // [WIDGET: DashboardQuickMenu] — Menu cepat modul ibu
+        // DashboardQuickMenu(
+        //   items: DashboardMenuData.hamilQuickMenuItems.map((item) {
+        //     return {
+        //       ...item,
+        //       'onTap': () {
+        //         if (item['key'] == 'absensi') {
+        //           Navigator.push(context,
+        //               MaterialPageRoute(builder: (_) => const AbsensiKelasIbuHamilScreen()));
+        //           return;
+        //         }
+        //         if (item['key'] == 'catatan') {
+        //           Navigator.push(context,
+        //               MaterialPageRoute(builder: (_) => const CatatanMenuScreen()));
+        //           return;
+        //         }
+        //         ScaffoldMessenger.of(context).showSnackBar(
+        //             SnackBar(content: Text('${item['label']} belum tersedia')));
+        //       },
+        //     };
+        //   }).toList(),
+        // ),
+        // const SizedBox(height: 32),
+
         DashboardQuickMenu(
+          crossAxisCount: 3,
+          childAspectRatio: 1.0,
           items: DashboardMenuData.hamilQuickMenuItems.map((item) {
             return {
               ...item,
               'onTap': () {
-                if (item['key'] == 'absensi') {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (_) => const AbsensiKelasIbuHamilScreen()));
-                  return;
+                switch (item['key']) {
+                  case 'rujukan':
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const RujukanListScreen()));
+                    break;
+                  case 'bb_ibu':
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) =>
+                                // const GrafikEvaluasiKehamilanScreen()));
+                                const GrafikPeningkatanBBScreen()));
+                    break;
+                  case 'djj_tfu':
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) =>
+                                const GrafikEvaluasiKehamilanScreen()));
+                    break;
+                  case 'pemantauan':
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const PemantauanIbuHamilScreen()));
+                    break;
+                  case 'catatan':
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) =>
+                                const CatatanPelayananMenuScreen()));
+                    break;
+                  // case 'log_ttd':
+                  //   Navigator.push(context,
+                  //       MaterialPageRoute(builder: (_) => const LogTTDMMSScreen()));
+                  //   break;
+                  case 'log_ttd':
+                    // Safety: cek dulu apakah data kehamilan tersedia
+                    if (_kehamilanAktif?.hpht == null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                            content: Text('Data kehamilan belum tersedia')),
+                      );
+                      break;
+                    }
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => LogTTDMMSScreen(
+                          hpht: _kehamilanAktif!.hpht!,
+                        ),
+                      ),
+                    );
+                    break;
+                  default:
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: Text('${item['label']} belum tersedia')));
                 }
-                if (item['key'] == 'catatan') {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (_) => const CatatanMenuScreen()));
-                  return;
-                }
-                ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('${item['label']} belum tersedia')));
               },
             };
           }).toList(),
@@ -321,11 +484,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-
         // Tombol cari anak — untuk petugas/bidan cari by nama/NIK/no KK
         GestureDetector(
-          onTap: () => Navigator.push(
-              context, MaterialPageRoute(builder: (_) => const CariAnakScreen())),
+          onTap: () => Navigator.push(context,
+              MaterialPageRoute(builder: (_) => const CariAnakScreen())),
           child: Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
@@ -342,17 +504,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('Cari Data Anak',
-                          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                          style: TextStyle(
+                              fontWeight: FontWeight.w600, fontSize: 14)),
                       SizedBox(height: 4),
                       Text('Cari by nama, nama ibu, atau no. KK',
-                          style: TextStyle(fontSize: 12, color: Colors.black54)),
+                          style:
+                              TextStyle(fontSize: 12, color: Colors.black54)),
                     ],
                   ),
                 ),
                 CircleAvatar(
                   radius: 14,
                   backgroundColor: Colors.green,
-                  child: Icon(Icons.arrow_forward, size: 16, color: Colors.white),
+                  child:
+                      Icon(Icons.arrow_forward, size: 16, color: Colors.white),
                 ),
               ],
             ),
@@ -362,8 +527,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
         // Tombol request tambah profil anak
         GestureDetector(
-          onTap: () => Navigator.push(
-              context, MaterialPageRoute(builder: (_) => InputProfilAnakScreen())),
+          onTap: () => Navigator.push(context,
+              MaterialPageRoute(builder: (_) => InputProfilAnakScreen())),
           child: Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
@@ -380,10 +545,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('Request Tambah Profil Anak',
-                          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                          style: TextStyle(
+                              fontWeight: FontWeight.w600, fontSize: 14)),
                       SizedBox(height: 4),
                       Text('Mulai pantau tumbuh kembang si kecil',
-                          style: TextStyle(fontSize: 12, color: Colors.black54)),
+                          style:
+                              TextStyle(fontSize: 12, color: Colors.black54)),
                     ],
                   ),
                 ),
@@ -410,40 +577,58 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 switch (item['key']) {
                   case 'pertumbuhan':
                     // [MODUL: ANAK] Pilih anak → DetailPertumbuhanScreen
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (_) => const PilihAnakScreen()));
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const PilihAnakScreen()));
                     break;
                   case 'imunisasi':
                     // [MODUL: ANAK] Pilih anak → ImunisasiScreen
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (_) => const PilihAnakScreen(tujuan: 'imunisasi')));
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) =>
+                                const PilihAnakScreen(tujuan: 'imunisasi')));
                     break;
                   case 'mpasi':
                     // [MODUL: ANAK] Pilih anak → HalamanUtamaMpasiScreen
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (_) => const PilihAnakScreen(tujuan: 'mpasi')));
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) =>
+                                const PilihAnakScreen(tujuan: 'mpasi')));
                     break;
                   case 'edukasi':
                     // [MODUL: ANAK] Langsung ke EdukasiScreen (tidak butuh pilih anak)
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (_) => const EdukasiScreen()));
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const EdukasiScreen()));
                     break;
                   case 'bahaya':
                     // [MODUL: ANAK] Pilih anak → SkriningBahayaScreen
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (_) => const PilihAnakScreen(tujuan: 'bahaya')));
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) =>
+                                const PilihAnakScreen(tujuan: 'bahaya')));
                     break;
                   case 'pemantauan':
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (_) => const PilihAnakScreen(tujuan: 'pemantauan')));
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) =>
+                                const PilihAnakScreen(tujuan: 'pemantauan')));
                     break;
                   case 'catatan':
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (_) => const CatatanMenuScreen()));
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const CatatanMenuScreen()));
                     break;
                   default:
-                    ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('${item['label']} belum tersedia')));
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: Text('${item['label']} belum tersedia')));
                 }
               },
             };
@@ -455,7 +640,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
         GestureDetector(
           onTap: () => Navigator.push(
             context,
-            MaterialPageRoute(builder: (_) => const PilihAnakScreen(tujuan: 'bahaya')),
+            MaterialPageRoute(
+                builder: (_) => const PilihAnakScreen(tujuan: 'bahaya')),
           ),
           child: Container(
             padding: const EdgeInsets.all(14),
@@ -485,69 +671,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Widget _buildPlaceholderContent() {
     return const Center(
-      child: Padding(padding: EdgeInsets.all(40), child: Text('Konten fase ini segera hadir!')),
-    );
-  }
-
-  // ─────────────────────────────────────────────
-  // [MODUL: IBU - Hamil] Card Pemantauan Ibu Hamil
-  // ─────────────────────────────────────────────
-  Widget _buildPemantauanIbuHamilCard() {
-    return InkWell(
-      borderRadius: BorderRadius.circular(20),
-      onTap: () => Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const PemantauanIbuHamilScreen()),
-      ),
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: const Color(0xFFFFF7ED),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: const Color(0xFFFFD7A8)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.04),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 52,
-              height: 52,
-              decoration: BoxDecoration(
-                color: const Color(0xFFFFEDD5),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: const Icon(
-                Icons.health_and_safety_outlined,
-                color: Color(0xFFF97316),
-                size: 28,
-              ),
-            ),
-            const SizedBox(width: 14),
-            const Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Pemantauan Ibu Hamil',
-                      style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w800,
-                          color: Color(0xFF172033))),
-                  SizedBox(height: 5),
-                  Text('Catat tanda bahaya dan keluhan minggu ini',
-                      style: TextStyle(fontSize: 12, color: Color(0xFF7B8798))),
-                ],
-              ),
-            ),
-            const Icon(Icons.chevron_right, color: Color(0xFFF97316)),
-          ],
-        ),
-      ),
+      child: Padding(
+          padding: EdgeInsets.all(40),
+          child: Text('Konten fase ini segera hadir!')),
     );
   }
 

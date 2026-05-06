@@ -42,6 +42,7 @@ class ApiConstants {
   static const String checklistNifasFilledDays = '/modul-ibu/checklist-pemantauan-ibu-nifas/filled-days';
   static const String checklistNifasSave = '/modul-ibu/checklist-pemantauan-ibu-nifas';
   static const String checklistNifasMe = '/modul-ibu/checklist-pemantauan-ibu-nifas/me';
+  static const String grafikEvaluasiKehamilanV2 = '/modul-ibu/grafik-evaluasi-kehamilan/v2';
 
   /*
    *
@@ -71,6 +72,7 @@ class ApiConstants {
       // Informasi Umum
   static const String masterStandar = '/master-standar';
   static const String informasiUmum = '/informasi-umum';
+  
   static String informasiUmumById(int id) => '/informasi-umum/$id';
       // Perawatan (Milestone/Perkembangan)
   static const String ibuKategoriCapaian = '/ibu/kategori-capaian';
@@ -82,4 +84,5 @@ class ApiConstants {
   static String ibuPerawatanByAnakIdAndRentangUsia(int anakId, String rentangUsia) =>
       '/ibu/perawatan/anak/$anakId/rentang-usia/${Uri.encodeComponent(rentangUsia)}';
 
+  static const String grafikPeningkatanBBV2 = '/modul-ibu/grafik-peningkatan-bb/v2';
 }
