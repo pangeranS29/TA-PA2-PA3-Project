@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ta_pa2_pa3_project/core/themes/app_theme.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/widgets/edukasi_card.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/edukasi_detail_screen.dart';
-import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/data/datasources/informasi_umum_api_service.dart';
+import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/data/services/informasi_umum_api_service.dart';
 import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/data/models/informasi_umum_model.dart';
 import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/screens/informasi_umum/informasi_umum_detail_screen.dart';
 

@@ -72,10 +72,11 @@ func (m *Main) Init() (err error) {
 	// 	return
 	// }
 
-	// // Seeder
+	// Seeder
 	// err = seed.RunAllSeed(m.database.Postgres)
 	// if err != nil {
 	// 	return
+	// }
 	// SEEDER setelah migrate
 	// seeder kependudukan + anak
 	// kependudukanSeeder := seeders.NewKependudukanSeeder(m.database.Postgres)

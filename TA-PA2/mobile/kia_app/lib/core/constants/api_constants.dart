@@ -72,4 +72,14 @@ class ApiConstants {
   static const String masterStandar = '/master-standar';
   static const String informasiUmum = '/informasi-umum';
   static String informasiUmumById(int id) => '/informasi-umum/$id';
+      // Perawatan (Milestone/Perkembangan)
+  static const String ibuKategoriCapaian = '/ibu/kategori-capaian';
+  static String ibuKategoriCapaianByRentangUsia(String rentangUsia) =>
+      '/ibu/kategori-capaian/rentang-usia/${Uri.encodeComponent(rentangUsia)}';
+  static const String ibuPerawatan = '/ibu/perawatan';
+  static String ibuPerawatanById(int id) => '/ibu/perawatan/$id';
+  static String ibuPerawatanByAnakId(int anakId) => '/ibu/perawatan/anak/$anakId';
+  static String ibuPerawatanByAnakIdAndRentangUsia(int anakId, String rentangUsia) =>
+      '/ibu/perawatan/anak/$anakId/rentang-usia/${Uri.encodeComponent(rentangUsia)}';
+
 }
