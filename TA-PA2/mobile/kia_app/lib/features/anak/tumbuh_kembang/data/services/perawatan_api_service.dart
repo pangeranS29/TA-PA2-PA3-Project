@@ -50,19 +50,25 @@ class PerawatanApiService {
       String rentangUsia) async {
     try {
       final encodedUsia = Uri.encodeComponent(rentangUsia);
+      print('Fetching: $baseUrl/kategori-capaian/rentang-usia/$encodedUsia');
+      
       final response = await dio.get(
         '$baseUrl/kategori-capaian/rentang-usia/$encodedUsia',
       );
       
+      print('Response status: ${response.statusCode}');
+      print('Response data: ${response.data}');
+      
       if (response.statusCode == 200 && response.data != null) {
         final data = response.data['data'] as List?;
-        if (data != null) {
+        if (data != null && data.isNotEmpty) {
           return data
               .map((item) => KategoriCapaianModel.fromJson(item as Map<String, dynamic>))
               .toList();
         }
+        return [];
       }
-      throw Exception('Failed to load kategori capaian for $rentangUsia');
+      throw Exception('Failed to load kategori capaian for $rentangUsia: ${response.statusCode}');
     } catch (e) {
       throw Exception('Error loading kategori capaian: $e');
     }
@@ -127,20 +133,24 @@ class PerawatanApiService {
       int anakId, String rentangUsia) async {
     try {
       final encodedUsia = Uri.encodeComponent(rentangUsia);
-      final response = await dio.get(
-        '$baseUrl/perawatan/anak/$anakId/rentang-usia/$encodedUsia',
-      );
+      final url = '$baseUrl/perawatan/anak/$anakId/rentang-usia/$encodedUsia';
+      print('Fetching perawatan: $url');
+      
+      final response = await dio.get(url);
+      
+      print('Response status: ${response.statusCode}');
+      print('Response data: ${response.data}');
       
       if (response.statusCode == 200 && response.data != null) {
         final data = response.data['data'] as List?;
-        if (data != null) {
+        if (data != null && data.isNotEmpty) {
           return data
               .map((item) => PerawatanModel.fromJson(item as Map<String, dynamic>))
               .toList();
         }
         return [];
       }
-      throw Exception('Failed to load perawatan');
+      throw Exception('Failed to load perawatan: ${response.statusCode}');
     } catch (e) {
       throw Exception('Error loading perawatan: $e');
     }

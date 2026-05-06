@@ -4,6 +4,7 @@ import 'warna_tinja_screen.dart';
 import 'warna_air_kencing_screen.dart';
 import 'tanda_bahaya_screen.dart';
 import 'lila_screen.dart';
+import 'perawatan/perawatan_screen_integrated.dart';
 
 class MenuPemantauanScreen extends StatelessWidget {
   // const MenuPemantauanScreen({Key? key}) : super(key: key);
@@ -178,6 +179,29 @@ class MenuPemantauanScreen extends StatelessWidget {
                       color: const Color(0xFFF5F3FF),
                       iconBgColor: const Color(0xFFEDE9FE),
                       iconColor: const Color(0xFF7C3AED),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+
+                  // MENU 5: PERAWATAN
+                  InkWell(
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => PerawatanScreenIntegrated(
+                          anakId: anak['id'] ?? 0,
+                          anakName: anak['nama'] ?? 'Anak',
+                        ),
+                      ),
+                    ),
+                    borderRadius: BorderRadius.circular(16),
+                    child: _menuCard(
+                      icon: Icons.medical_services_outlined,
+                      title: 'Perawatan Perkembangan',
+                      subtitle: 'Pantau perkembangan dan pola asuh anak',
+                      color: const Color(0xFFF0FDF4),
+                      iconBgColor: const Color(0xFFD1FAE5),
+                      iconColor: const Color(0xFF10B981),
                     ),
                   ),
                 ],

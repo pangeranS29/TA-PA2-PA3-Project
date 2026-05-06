@@ -28,6 +28,7 @@ class _PerawatanScreenIntegratedState extends State<PerawatanScreenIntegrated>
   Map<String, List<KategoriCapaianModel>> _kategoriByCageRange = {};
   Map<int, bool?> _checklist = {};
   Map<String, bool> _loadingStatus = {};
+  Map<String, String> _errorStatus = {};
   bool _isSubmitting = false;
 
   @override
@@ -47,22 +48,45 @@ class _PerawatanScreenIntegratedState extends State<PerawatanScreenIntegrated>
     _loadKategoriCapaian();
   }
 
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
   Future<void> _loadKategoriCapaian() async {
-    try {
-      for (final range in _ageRanges) {
-        _loadingStatus[range] = true;
+    // Initialize all ranges as loading
+    for (final range in _ageRanges) {
+      _loadingStatus[range] = true;
+      _errorStatus[range] = '';
+    }
+    
+    if (mounted) {
+      setState(() {});
+    }
+
+    for (final range in _ageRanges) {
+      try {
+        print('Loading kategori capaian for: $range, anakId: ${widget.anakId}');
+        
+        // Load kategori capaian
         final kategori =
             await _apiService.getKategoriCapaianByRentangUsia(range);
+        print('✓ Loaded ${kategori.length} kategori for $range');
+        
         _kategoriByCageRange[range] = kategori;
 
         // Load existing perawatan data
         try {
           final perawatan = await _apiService
               .getPerawatanByAnakIdAndRentangUsia(widget.anakId, range);
+          print('✓ Loaded ${perawatan.length} perawatan data for $range');
+          
           for (final item in perawatan) {
             _checklist[item.kategoriCapaianId] = item.jawaban;
           }
         } catch (e) {
+          print('⚠ No perawatan data for $range: $e');
           // No existing data, continue
         }
 
@@ -71,12 +95,14 @@ class _PerawatanScreenIntegratedState extends State<PerawatanScreenIntegrated>
             _loadingStatus[range] = false;
           });
         }
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error loading data: $e')),
-        );
+      } catch (e) {
+        print('✗ Error loading $range: $e');
+        if (mounted) {
+          setState(() {
+            _loadingStatus[range] = false;
+            _errorStatus[range] = e.toString();
+          });
+        }
       }
     }
   }
@@ -156,28 +182,87 @@ class _PerawatanScreenIntegratedState extends State<PerawatanScreenIntegrated>
           tabs: _ageRanges.map((range) => Tab(text: range)).toList(),
         ),
       ),
-      body: TabBarView(
-        controller: _tabController,
-        children: _ageRanges.map((range) {
-          return _buildAgeRangeTab(range);
-        }).toList(),
+      body: RefreshIndicator(
+        onRefresh: _loadKategoriCapaian,
+        child: TabBarView(
+          controller: _tabController,
+          children: _ageRanges.map((range) {
+            return _buildAgeRangeTab(range);
+          }).toList(),
+        ),
       ),
     );
   }
 
   Widget _buildAgeRangeTab(String rentangUsia) {
     final isLoading = _loadingStatus[rentangUsia] ?? false;
+    final error = _errorStatus[rentangUsia] ?? '';
     final kategori = _kategoriByCageRange[rentangUsia] ?? [];
 
     if (isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircularProgressIndicator(),
+            SizedBox(height: 16),
+            Text('Memuat data...'),
+          ],
+        ),
+      );
+    }
+
+    if (error.isNotEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error_outline, color: Colors.red, size: 48),
+              const SizedBox(height: 16),
+              Text(
+                'Gagal memuat data untuk $rentangUsia',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                error,
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: Colors.red, fontSize: 12),
+              ),
+              const SizedBox(height: 16),
+              FilledButton(
+                onPressed: _loadKategoriCapaian,
+                child: const Text('Coba Lagi'),
+              ),
+            ],
+          ),
+        ),
+      );
     }
 
     if (kategori.isEmpty) {
       return Center(
-        child: Text(
-          'Tidak ada data untuk $rentangUsia',
-          style: const TextStyle(color: Colors.grey),
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.info_outline, color: Colors.orange, size: 48),
+              const SizedBox(height: 16),
+              Text(
+                'Tidak ada data untuk $rentangUsia',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'Data kategori capaian belum tersedia untuk usia ini',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.grey),
+              ),
+            ],
+          ),
         ),
       );
     }
@@ -412,9 +497,9 @@ class _PerawatanScreenIntegratedState extends State<PerawatanScreenIntegrated>
     );
   }
 
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
-  }
+  // @override
+  // void dispose() {
+  //   _tabController.dispose();
+  //   super.dispose();
+  // }
 }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'pola_asuh_screen.dart';
 import '../informasi_umum/informasi_umum_screen.dart';
-import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/screens/edukasi/perawatan/pilih_perawatan_screen.dart';
+import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/screens/pemantauan/perawatan/pilih_perawatan_screen.dart';
 import 'pedoman/pedoman_ibu_bayi_screen.dart';
 
 class EdukasiScreen extends StatelessWidget {
