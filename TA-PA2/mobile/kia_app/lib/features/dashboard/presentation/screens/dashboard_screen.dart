@@ -25,6 +25,9 @@ import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/scr
 // import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/screens/skrining/skrining_bahaya.dart';
 // MODUL CATATAN
 import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/screens/catatan/index.dart';
+// import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/grafik_evaluasi_kehamilan_screen.dart';
+import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/grafik_evaluasi_kehamilan_screen.dart';
+import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/grafik_peningkatan_bb_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -92,7 +95,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     try {
       final kehamilan = await _kehamilanService.getKehamilanAktif();
       if (!mounted) return;
-      
+
       // Safety check: pastikan hpht tidak null
       if (kehamilan.hpht == null) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -100,7 +103,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         );
         return;
       }
-      
+
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -112,14 +115,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
             hplText: kehamilan.taksiranPersalinan != null
                 ? '${kehamilan.taksiranPersalinan!.day} / ${kehamilan.taksiranPersalinan!.month} / ${kehamilan.taksiranPersalinan!.year}'
                 : '-',
-            hphtText: '${kehamilan.hpht!.day} / ${kehamilan.hpht!.month} / ${kehamilan.hpht!.year}',
-            hpht: kehamilan.hpht!,  // ✅ pakai kehamilan, bukan _kehamilanAktif
+            hphtText:
+                '${kehamilan.hpht!.day} / ${kehamilan.hpht!.month} / ${kehamilan.hpht!.year}',
+            hpht: kehamilan.hpht!, // ✅ pakai kehamilan, bukan _kehamilanAktif
           ),
         ),
       );
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(e.toString())));
     } finally {
       if (mounted) setState(() => _loadingKehamilan = false);
     }
@@ -133,7 +138,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   String _formatDate(DateTime? date) {
     if (date == null) return '-';
-    const months = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agt','Sep','Okt','Nov','Des'];
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'Mei',
+      'Jun',
+      'Jul',
+      'Agt',
+      'Sep',
+      'Okt',
+      'Nov',
+      'Des'
+    ];
     return '${date.day} ${months[date.month - 1]} ${date.year}';
   }
 
@@ -184,7 +202,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 // [WIDGET: DashboardPhaseSelector]
                 DashboardPhaseSelector(
                   selectedPhase: _selectedPhase,
-                  onPhaseSelected: (phase) => setState(() => _selectedPhase = phase),
+                  onPhaseSelected: (phase) =>
+                      setState(() => _selectedPhase = phase),
                 ),
                 const SizedBox(height: 32),
                 if (_selectedPhase == 'Hamil') _buildHamilContent(),
@@ -246,7 +265,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     children: [
                       Text(
                         week > 0 ? 'Kehamilan $week Minggu' : 'Kehamilan Aktif',
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 16),
                       ),
                       const Icon(Icons.chevron_right, color: Colors.grey),
                     ],
@@ -264,8 +284,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   const Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Minggu 1', style: TextStyle(fontSize: 10, color: Colors.grey)),
-                      Text('Minggu 40', style: TextStyle(fontSize: 10, color: Colors.grey)),
+                      Text('Minggu 1',
+                          style: TextStyle(fontSize: 10, color: Colors.grey)),
+                      Text('Minggu 40',
+                          style: TextStyle(fontSize: 10, color: Colors.grey)),
                     ],
                   ),
                 ],
@@ -303,14 +325,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
         // [WIDGET: DashboardQuickMenu] — 6 item, 3 kolom (sesuai desain lib_desain)
         const Text('MENU CEPAT',
-            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey)),
+            style: TextStyle(
+                fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey)),
         const SizedBox(height: 16),
 
         // DISINI TADINYA YANG QUICK MENU YANG MENIMPA ITU
 
         // Menu Hamil — card navigasi
         const Text('Menu Hamil',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87)),
+            style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87)),
         const SizedBox(height: 16),
 
         DashboardMenuCard(
@@ -327,10 +353,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
           iconColor: Colors.blue,
           onTap: () {},
         ),
+        // DashboardMenuCard(
+        //   title: 'Grafik Evaluasi Kehamilan',
+        //   subtitle: 'Pantau TFU & DJJ selama kehamilan',
+        //   icon: Icons.show_chart_outlined,
+        //   iconColor: Colors.purple,
+        //   onTap: () => Navigator.push(
+        //     context,
+        //     MaterialPageRoute(
+        //       builder: (_) => const GrafikEvaluasiKehamilanScreen(),
+        //     ),
+        //   ),
+        // ),
         const SizedBox(height: 32),
 
         const Text('MENU CEPAT',
-            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey)),
+            style: TextStyle(
+                fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey)),
         const SizedBox(height: 16),
 
         // [WIDGET: DashboardQuickMenu] — Menu cepat modul ibu
@@ -366,16 +405,38 @@ class _DashboardScreenState extends State<DashboardScreen> {
               'onTap': () {
                 switch (item['key']) {
                   case 'rujukan':
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (_) => const RujukanListScreen()));
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const RujukanListScreen()));
+                    break;
+                  case 'bb_ibu':
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) =>
+                                // const GrafikEvaluasiKehamilanScreen()));
+                                const GrafikPeningkatanBBScreen()));
+                    break;
+                  case 'djj_tfu':
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) =>
+                                const GrafikEvaluasiKehamilanScreen()));
                     break;
                   case 'pemantauan':
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (_) => const PemantauanIbuHamilScreen()));
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const PemantauanIbuHamilScreen()));
                     break;
                   case 'catatan':
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (_) => const CatatanPelayananMenuScreen()));
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) =>
+                                const CatatanPelayananMenuScreen()));
                     break;
                   // case 'log_ttd':
                   //   Navigator.push(context,
@@ -385,7 +446,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     // Safety: cek dulu apakah data kehamilan tersedia
                     if (_kehamilanAktif?.hpht == null) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Data kehamilan belum tersedia')),
+                        const SnackBar(
+                            content: Text('Data kehamilan belum tersedia')),
                       );
                       break;
                     }
@@ -393,14 +455,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       context,
                       MaterialPageRoute(
                         builder: (_) => LogTTDMMSScreen(
-                          hpht: _kehamilanAktif!.hpht!,  // ✅ kirim hpht
+                          hpht: _kehamilanAktif!.hpht!,
                         ),
                       ),
                     );
                     break;
                   default:
-                    ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('${item['label']} belum tersedia')));
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: Text('${item['label']} belum tersedia')));
                 }
               },
             };
@@ -422,11 +484,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-
         // Tombol cari anak — untuk petugas/bidan cari by nama/NIK/no KK
         GestureDetector(
-          onTap: () => Navigator.push(
-              context, MaterialPageRoute(builder: (_) => const CariAnakScreen())),
+          onTap: () => Navigator.push(context,
+              MaterialPageRoute(builder: (_) => const CariAnakScreen())),
           child: Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
@@ -443,17 +504,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('Cari Data Anak',
-                          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                          style: TextStyle(
+                              fontWeight: FontWeight.w600, fontSize: 14)),
                       SizedBox(height: 4),
                       Text('Cari by nama, nama ibu, atau no. KK',
-                          style: TextStyle(fontSize: 12, color: Colors.black54)),
+                          style:
+                              TextStyle(fontSize: 12, color: Colors.black54)),
                     ],
                   ),
                 ),
                 CircleAvatar(
                   radius: 14,
                   backgroundColor: Colors.green,
-                  child: Icon(Icons.arrow_forward, size: 16, color: Colors.white),
+                  child:
+                      Icon(Icons.arrow_forward, size: 16, color: Colors.white),
                 ),
               ],
             ),
@@ -463,8 +527,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
         // Tombol request tambah profil anak
         GestureDetector(
-          onTap: () => Navigator.push(
-              context, MaterialPageRoute(builder: (_) => InputProfilAnakScreen())),
+          onTap: () => Navigator.push(context,
+              MaterialPageRoute(builder: (_) => InputProfilAnakScreen())),
           child: Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
@@ -481,10 +545,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('Request Tambah Profil Anak',
-                          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                          style: TextStyle(
+                              fontWeight: FontWeight.w600, fontSize: 14)),
                       SizedBox(height: 4),
                       Text('Mulai pantau tumbuh kembang si kecil',
-                          style: TextStyle(fontSize: 12, color: Colors.black54)),
+                          style:
+                              TextStyle(fontSize: 12, color: Colors.black54)),
                     ],
                   ),
                 ),
@@ -511,40 +577,58 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 switch (item['key']) {
                   case 'pertumbuhan':
                     // [MODUL: ANAK] Pilih anak → DetailPertumbuhanScreen
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (_) => const PilihAnakScreen()));
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const PilihAnakScreen()));
                     break;
                   case 'imunisasi':
                     // [MODUL: ANAK] Pilih anak → ImunisasiScreen
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (_) => const PilihAnakScreen(tujuan: 'imunisasi')));
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) =>
+                                const PilihAnakScreen(tujuan: 'imunisasi')));
                     break;
                   case 'mpasi':
                     // [MODUL: ANAK] Pilih anak → HalamanUtamaMpasiScreen
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (_) => const PilihAnakScreen(tujuan: 'mpasi')));
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) =>
+                                const PilihAnakScreen(tujuan: 'mpasi')));
                     break;
                   case 'edukasi':
                     // [MODUL: ANAK] Langsung ke EdukasiScreen (tidak butuh pilih anak)
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (_) => const EdukasiScreen()));
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const EdukasiScreen()));
                     break;
                   case 'bahaya':
                     // [MODUL: ANAK] Pilih anak → SkriningBahayaScreen
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (_) => const PilihAnakScreen(tujuan: 'bahaya')));
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) =>
+                                const PilihAnakScreen(tujuan: 'bahaya')));
                     break;
                   case 'pemantauan':
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (_) => const PilihAnakScreen(tujuan: 'pemantauan')));
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) =>
+                                const PilihAnakScreen(tujuan: 'pemantauan')));
                     break;
                   case 'catatan':
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (_) => const CatatanMenuScreen()));
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const CatatanMenuScreen()));
                     break;
                   default:
-                    ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('${item['label']} belum tersedia')));
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: Text('${item['label']} belum tersedia')));
                 }
               },
             };
@@ -556,7 +640,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
         GestureDetector(
           onTap: () => Navigator.push(
             context,
-            MaterialPageRoute(builder: (_) => const PilihAnakScreen(tujuan: 'bahaya')),
+            MaterialPageRoute(
+                builder: (_) => const PilihAnakScreen(tujuan: 'bahaya')),
           ),
           child: Container(
             padding: const EdgeInsets.all(14),
@@ -586,7 +671,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Widget _buildPlaceholderContent() {
     return const Center(
-      child: Padding(padding: EdgeInsets.all(40), child: Text('Konten fase ini segera hadir!')),
+      child: Padding(
+          padding: EdgeInsets.all(40),
+          child: Text('Konten fase ini segera hadir!')),
     );
   }
 

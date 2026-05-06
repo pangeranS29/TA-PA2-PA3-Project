@@ -388,3 +388,38 @@ func (c *GrafikEvaluasiKehamilanController) GetGrafikForOrangtua(ctx echo.Contex
         Data:       data,
     })
 }
+
+//
+// ====================== MODUL IBU ======================
+//
+
+func (c *GrafikEvaluasiKehamilanController) GetGrafikOnTheFlyForOrangtua(ctx echo.Context) error {
+    claims, ok := ctx.Get("auth_claims").(*models.AuthClaims)
+    if !ok || claims == nil {
+        return ctx.JSON(http.StatusUnauthorized, models.Response{
+            StatusCode: http.StatusUnauthorized,
+            Message:    "token tidak valid",
+        })
+    }
+
+    data, err := c.usecase.GetGrafikOnTheFlyForOrangtua(claims.UserID)
+    if err != nil {
+        // Handle error spesifik untuk kehamilan tidak ditemukan
+        if err.Error() == "kehamilan aktif tidak ditemukan" {
+            return ctx.JSON(http.StatusNotFound, models.Response{
+                StatusCode: http.StatusNotFound,
+                Message:    err.Error(),
+            })
+        }
+
+        return ctx.JSON(http.StatusInternalServerError, models.Response{
+            StatusCode: http.StatusInternalServerError,
+            Message:    err.Error(),
+        })
+    }
+
+    return ctx.JSON(http.StatusOK, models.Response{
+        StatusCode: http.StatusOK,
+        Data:       data,
+    })
+}

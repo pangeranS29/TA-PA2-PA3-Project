@@ -449,7 +449,10 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	// Grafik Evaluasi Kehamilan
     ibuk.GET("/grafik-evaluasi-kehamilan/grafik", controller.GrafikEvaluasiKehamilan.GetGrafikForOrangtua)
     ibuk.GET("/grafik-evaluasi-kehamilan/me", controller.GrafikEvaluasiKehamilan.GetMine)
-    ibuk.GET("/grafik-evaluasi-kehamilan/:id", controller.GrafikEvaluasiKehamilan.GetByIDForOrangtua)
+		// Baru
+	ibuk.GET("/grafik-evaluasi-kehamilan/v2", controller.GrafikEvaluasiKehamilan.GetGrafikOnTheFlyForOrangtua)
+	ibuk.GET("/grafik-evaluasi-kehamilan/:id", controller.GrafikEvaluasiKehamilan.GetByIDForOrangtua)
+	ibuk.GET("/grafik-peningkatan-bb/v2", controller.GrafikPeningkatanBB.GetGrafikBBForOrangtua)
 
 	ibu := e.Group("/ibu")
 	ibu.Use(middlewares.JWTAuth(controller.JWTSecret()))
