@@ -307,3 +307,119 @@ func (c *GrafikEvaluasiKehamilanController) GetGrafik(ctx echo.Context) error {
 		Data:       data,
 	})
 }
+
+//
+// ====================== MODUL IBU ====================
+//
+
+func (c *GrafikEvaluasiKehamilanController) GetMine(ctx echo.Context) error {
+    claims, ok := ctx.Get("auth_claims").(*models.AuthClaims)
+    if !ok || claims == nil {
+        return ctx.JSON(http.StatusUnauthorized, models.Response{
+            StatusCode: http.StatusUnauthorized,
+            Message:    "token tidak valid",
+        })
+    }
+
+    data, err := c.usecase.GetMine(claims.UserID)
+    if err != nil {
+        return ctx.JSON(http.StatusInternalServerError, models.Response{
+            StatusCode: http.StatusInternalServerError,
+            Message:    err.Error(),
+        })
+    }
+
+    return ctx.JSON(http.StatusOK, models.Response{
+        StatusCode: http.StatusOK,
+        Data:       data,
+    })
+}
+
+func (c *GrafikEvaluasiKehamilanController) GetByIDForOrangtua(ctx echo.Context) error {
+    id, err := strconv.Atoi(ctx.Param("id"))
+    if err != nil {
+        return ctx.JSON(http.StatusBadRequest, models.Response{
+            StatusCode: http.StatusBadRequest,
+            Message:    "invalid id",
+        })
+    }
+
+    claims, ok := ctx.Get("auth_claims").(*models.AuthClaims)
+    if !ok || claims == nil {
+        return ctx.JSON(http.StatusUnauthorized, models.Response{
+            StatusCode: http.StatusUnauthorized,
+            Message:    "token tidak valid",
+        })
+    }
+
+    data, err := c.usecase.GetByIDForOrangtua(int32(id), claims.UserID)
+    if err != nil {
+        return ctx.JSON(http.StatusForbidden, models.Response{
+            StatusCode: http.StatusForbidden,
+            Message:    err.Error(),
+        })
+    }
+
+    return ctx.JSON(http.StatusOK, models.Response{
+        StatusCode: http.StatusOK,
+        Data:       data,
+    })
+}
+
+func (c *GrafikEvaluasiKehamilanController) GetGrafikForOrangtua(ctx echo.Context) error {
+    claims, ok := ctx.Get("auth_claims").(*models.AuthClaims)
+    if !ok || claims == nil {
+        return ctx.JSON(http.StatusUnauthorized, models.Response{
+            StatusCode: http.StatusUnauthorized,
+            Message:    "token tidak valid",
+        })
+    }
+
+    data, err := c.usecase.GetGrafikForOrangtua(claims.UserID)
+    if err != nil {
+        return ctx.JSON(http.StatusInternalServerError, models.Response{
+            StatusCode: http.StatusInternalServerError,
+            Message:    err.Error(),
+        })
+    }
+
+    return ctx.JSON(http.StatusOK, models.Response{
+        StatusCode: http.StatusOK,
+        Data:       data,
+    })
+}
+
+//
+// ====================== MODUL IBU ======================
+//
+
+func (c *GrafikEvaluasiKehamilanController) GetGrafikOnTheFlyForOrangtua(ctx echo.Context) error {
+    claims, ok := ctx.Get("auth_claims").(*models.AuthClaims)
+    if !ok || claims == nil {
+        return ctx.JSON(http.StatusUnauthorized, models.Response{
+            StatusCode: http.StatusUnauthorized,
+            Message:    "token tidak valid",
+        })
+    }
+
+    data, err := c.usecase.GetGrafikOnTheFlyForOrangtua(claims.UserID)
+    if err != nil {
+        // Handle error spesifik untuk kehamilan tidak ditemukan
+        if err.Error() == "kehamilan aktif tidak ditemukan" {
+            return ctx.JSON(http.StatusNotFound, models.Response{
+                StatusCode: http.StatusNotFound,
+                Message:    err.Error(),
+            })
+        }
+
+        return ctx.JSON(http.StatusInternalServerError, models.Response{
+            StatusCode: http.StatusInternalServerError,
+            Message:    err.Error(),
+        })
+    }
+
+    return ctx.JSON(http.StatusOK, models.Response{
+        StatusCode: http.StatusOK,
+        Data:       data,
+    })
+}

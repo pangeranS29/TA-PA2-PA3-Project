@@ -22,23 +22,19 @@ class DashboardBottomNav extends StatelessWidget {
       items: const [
         BottomNavigationBarItem(
           icon: Icon(Icons.home_filled),
-          label: "Beranda",
+          label: 'Beranda',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.assignment_outlined),
-          label: "Catatan",
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.security_outlined),
-          label: "Imunisasi",
+          icon: Icon(Icons.event_available_outlined),
+          label: 'Absensi',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.book_outlined),
-          label: "Edukasi",
+          label: 'Edukasi',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.person_outline),
-          label: "Profil",
+          label: 'Profil',
         ),
       ],
     );

@@ -440,11 +440,19 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	ibuk.POST("/checklist-pemantauan-ibu-nifas", controller.ChecklistPemantauanIbuNifas.SaveMine)
 	ibuk.GET("/checklist-pemantauan-ibu-nifas/filled-days", controller.ChecklistPemantauanIbuNifas.GetFilledDays)
 
-	// ==================== CATATAN PELAYANAN IBU (READ ONLY) ====================
+	// Catatan Pelayanan Ibu
 	ibuk.GET("/catatan-pelayanan-t1", controller.CatatanPelayananTrimester1.GetByKehamilanID)
 	ibuk.GET("/catatan-pelayanan-t2", controller.CatatanPelayananTrimester2.GetByKehamilanID)
 	ibuk.GET("/catatan-pelayanan-t3", controller.CatatanPelayananTrimester3.GetByKehamilanID)
 	ibuk.GET("/rujukan", controller.Rujukan.GetByKehamilanID)
+
+	// Grafik Evaluasi Kehamilan
+    ibuk.GET("/grafik-evaluasi-kehamilan/grafik", controller.GrafikEvaluasiKehamilan.GetGrafikForOrangtua)
+    ibuk.GET("/grafik-evaluasi-kehamilan/me", controller.GrafikEvaluasiKehamilan.GetMine)
+		// Baru
+	ibuk.GET("/grafik-evaluasi-kehamilan/v2", controller.GrafikEvaluasiKehamilan.GetGrafikOnTheFlyForOrangtua)
+	ibuk.GET("/grafik-evaluasi-kehamilan/:id", controller.GrafikEvaluasiKehamilan.GetByIDForOrangtua)
+	ibuk.GET("/grafik-peningkatan-bb/v2", controller.GrafikPeningkatanBB.GetGrafikBBForOrangtua)
 
 	ibu := e.Group("/ibu")
 	ibu.Use(middlewares.JWTAuth(controller.JWTSecret()))
