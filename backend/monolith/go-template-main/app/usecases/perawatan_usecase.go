@@ -2,6 +2,7 @@ package usecases
 
 import (
 	"errors"
+	"strings"
 	"time"
 
 	"monitoring-service/app/models"
@@ -13,8 +14,8 @@ type PerawatanUsecase interface {
 	// Perawatan operations
 	CreatePerawatan(req models.CreatePerawatanRequest) (*models.Perawatan, error)
 	GetPerawatanByID(id uint) (*models.Perawatan, error)
-	GetPerawatanByAnakID(anakID int) ([]models.Perawatan, error)
-	GetPerawatanByAnakIDAndRentangUsia(anakID int, rentangUsia string) ([]models.Perawatan, error)
+	GetPerawatanByAnakID(anakID int32) ([]models.Perawatan, error)
+	GetPerawatanByAnakIDAndRentangUsia(anakID int32, rentangUsia string) ([]models.Perawatan, error)
 	UpdatePerawatan(id uint, req models.UpdatePerawatanRequest) (*models.Perawatan, error)
 	DeletePerawatan(id uint) error
 
@@ -24,8 +25,8 @@ type PerawatanUsecase interface {
 
 	// Access control operations for ibu
 	CreatePerawatanForIbu(req models.CreatePerawatanRequest, userID int32) (*models.Perawatan, error)
-	GetPerawatanByAnakIDForIbu(anakID int, userID int32) ([]models.Perawatan, error)
-	GetPerawatanByAnakIDAndRentangUsiaForIbu(anakID int, rentangUsia string, userID int32) ([]models.Perawatan, error)
+	GetPerawatanByAnakIDForIbu(anakID int32, userID int32) ([]models.Perawatan, error)
+	GetPerawatanByAnakIDAndRentangUsiaForIbu(anakID int32, rentangUsia string, userID int32) ([]models.Perawatan, error)
 	UpdatePerawatanForIbu(id uint, req models.UpdatePerawatanRequest, userID int32) (*models.Perawatan, error)
 	DeletePerawatanForIbu(id uint, userID int32) error
 }
@@ -46,6 +47,24 @@ func NewPerawatanUsecase(repo *repositories.Main) PerawatanUsecase {
 // PERAWATAN OPERATIONS
 // ─────────────────────────────────────────────────────────
 
+func parsePerawatanTanggalPeriksa(value string) (*time.Time, error) {
+	if strings.TrimSpace(value) == "" {
+		return nil, nil
+	}
+
+	dateValue := strings.TrimSpace(value)
+	if len(dateValue) >= 10 {
+		dateValue = dateValue[:10]
+	}
+
+	parsed, err := time.Parse("2006-01-02", dateValue)
+	if err != nil {
+		return nil, errors.New("format tanggal_periksa tidak valid")
+	}
+
+	return &parsed, nil
+}
+
 // CreatePerawatan creates a new perawatan record with validation
 func (u *perawatanUsecase) CreatePerawatan(req models.CreatePerawatanRequest) (*models.Perawatan, error) {
 	// Validate required fields
@@ -57,9 +76,17 @@ func (u *perawatanUsecase) CreatePerawatan(req models.CreatePerawatanRequest) (*
 	}
 
 	// Verify anak exists
-	_, err := u.repo.GetAnakByID(uint(req.AnakID))
+	exists, err := u.repo.Perawatan.IsAnakExist(req.AnakID)
 	if err != nil {
+		return nil, err
+	}
+	if !exists {
 		return nil, errors.New("anak tidak ditemukan")
+	}
+
+	tanggalPeriksa, err := parsePerawatanTanggalPeriksa(req.TanggalPeriksa)
+	if err != nil {
+		return nil, err
 	}
 
 	// Verify kategori capaian exists
@@ -74,7 +101,7 @@ func (u *perawatanUsecase) CreatePerawatan(req models.CreatePerawatanRequest) (*
 		AnakID:            req.AnakID,
 		KategoriCapaianID: req.KategoriCapaianID,
 		Jawaban:           req.Jawaban,
-		TanggalPeriksa:    req.TanggalPeriksa,
+		TanggalPeriksa:    tanggalPeriksa,
 		CreatedAt:         now,
 		UpdatedAt:         now,
 	}
@@ -96,14 +123,17 @@ func (u *perawatanUsecase) GetPerawatanByID(id uint) (*models.Perawatan, error) 
 }
 
 // GetPerawatanByAnakID retrieves all perawatan for a child
-func (u *perawatanUsecase) GetPerawatanByAnakID(anakID int) ([]models.Perawatan, error) {
+func (u *perawatanUsecase) GetPerawatanByAnakID(anakID int32) ([]models.Perawatan, error) {
 	if anakID <= 0 {
 		return nil, errors.New("anak_id tidak valid")
 	}
 
 	// Verify anak exists
-	_, err := u.repo.GetAnakByID(uint(anakID))
+	exists, err := u.repo.Perawatan.IsAnakExist(anakID)
 	if err != nil {
+		return nil, err
+	}
+	if !exists {
 		return nil, errors.New("anak tidak ditemukan")
 	}
 
@@ -111,7 +141,7 @@ func (u *perawatanUsecase) GetPerawatanByAnakID(anakID int) ([]models.Perawatan,
 }
 
 // GetPerawatanByAnakIDAndRentangUsia retrieves perawatan for a child with specific age range
-func (u *perawatanUsecase) GetPerawatanByAnakIDAndRentangUsia(anakID int, rentangUsia string) ([]models.Perawatan, error) {
+func (u *perawatanUsecase) GetPerawatanByAnakIDAndRentangUsia(anakID int32, rentangUsia string) ([]models.Perawatan, error) {
 	if anakID <= 0 {
 		return nil, errors.New("anak_id tidak valid")
 	}
@@ -120,8 +150,11 @@ func (u *perawatanUsecase) GetPerawatanByAnakIDAndRentangUsia(anakID int, rentan
 	}
 
 	// Verify anak exists
-	_, err := u.repo.GetAnakByID(uint(anakID))
+	exists, err := u.repo.Perawatan.IsAnakExist(anakID)
 	if err != nil {
+		return nil, err
+	}
+	if !exists {
 		return nil, errors.New("anak tidak ditemukan")
 	}
 
@@ -144,8 +177,12 @@ func (u *perawatanUsecase) UpdatePerawatan(id uint, req models.UpdatePerawatanRe
 	if req.Jawaban != nil {
 		perawatan.Jawaban = req.Jawaban
 	}
-	if req.TanggalPeriksa != nil {
-		perawatan.TanggalPeriksa = req.TanggalPeriksa
+	if strings.TrimSpace(req.TanggalPeriksa) != "" {
+		parsedTanggal, err := parsePerawatanTanggalPeriksa(req.TanggalPeriksa)
+		if err != nil {
+			return nil, err
+		}
+		perawatan.TanggalPeriksa = parsedTanggal
 	}
 
 	// Save updated perawatan
@@ -204,8 +241,11 @@ func (u *perawatanUsecase) CreatePerawatanForIbu(req models.CreatePerawatanReque
 	}
 
 	// Verify anak exists
-	_, err := u.repo.GetAnakByID(uint(req.AnakID))
+	exists, err := u.repo.Perawatan.IsAnakExist(req.AnakID)
 	if err != nil {
+		return nil, err
+	}
+	if !exists {
 		return nil, errors.New("anak tidak ditemukan")
 	}
 
@@ -216,6 +256,11 @@ func (u *perawatanUsecase) CreatePerawatanForIbu(req models.CreatePerawatanReque
 	}
 	if !owned {
 		return nil, errors.New("Anda tidak memiliki akses ke anak ini")
+	}
+
+	tanggalPeriksa, err := parsePerawatanTanggalPeriksa(req.TanggalPeriksa)
+	if err != nil {
+		return nil, err
 	}
 
 	// Verify kategori capaian exists
@@ -230,7 +275,7 @@ func (u *perawatanUsecase) CreatePerawatanForIbu(req models.CreatePerawatanReque
 		AnakID:            req.AnakID,
 		KategoriCapaianID: req.KategoriCapaianID,
 		Jawaban:           req.Jawaban,
-		TanggalPeriksa:    req.TanggalPeriksa,
+		TanggalPeriksa:    tanggalPeriksa,
 		CreatedAt:         now,
 		UpdatedAt:         now,
 	}
@@ -244,14 +289,17 @@ func (u *perawatanUsecase) CreatePerawatanForIbu(req models.CreatePerawatanReque
 }
 
 // GetPerawatanByAnakIDForIbu retrieves perawatan with ownership check
-func (u *perawatanUsecase) GetPerawatanByAnakIDForIbu(anakID int, userID int32) ([]models.Perawatan, error) {
+func (u *perawatanUsecase) GetPerawatanByAnakIDForIbu(anakID int32, userID int32) ([]models.Perawatan, error) {
 	if anakID <= 0 {
 		return nil, errors.New("anak_id tidak valid")
 	}
 
 	// Verify anak exists
-	_, err := u.repo.GetAnakByID(uint(anakID))
+	exists, err := u.repo.Perawatan.IsAnakExist(anakID)
 	if err != nil {
+		return nil, err
+	}
+	if !exists {
 		return nil, errors.New("anak tidak ditemukan")
 	}
 
@@ -264,11 +312,11 @@ func (u *perawatanUsecase) GetPerawatanByAnakIDForIbu(anakID int, userID int32) 
 		return nil, errors.New("Anda tidak memiliki akses ke anak ini")
 	}
 
-	return u.repo.Perawatan.GetPerawatanByAnakID(anakID)
+	return u.repo.Perawatan.GetPerawatanByAnakIDForIbu(anakID, userID)
 }
 
 // GetPerawatanByAnakIDAndRentangUsiaForIbu retrieves perawatan with ownership check and age range filter
-func (u *perawatanUsecase) GetPerawatanByAnakIDAndRentangUsiaForIbu(anakID int, rentangUsia string, userID int32) ([]models.Perawatan, error) {
+func (u *perawatanUsecase) GetPerawatanByAnakIDAndRentangUsiaForIbu(anakID int32, rentangUsia string, userID int32) ([]models.Perawatan, error) {
 	if anakID <= 0 {
 		return nil, errors.New("anak_id tidak valid")
 	}
@@ -277,8 +325,11 @@ func (u *perawatanUsecase) GetPerawatanByAnakIDAndRentangUsiaForIbu(anakID int, 
 	}
 
 	// Verify anak exists
-	_, err := u.repo.GetAnakByID(uint(anakID))
+	exists, err := u.repo.Perawatan.IsAnakExist(anakID)
 	if err != nil {
+		return nil, err
+	}
+	if !exists {
 		return nil, errors.New("anak tidak ditemukan")
 	}
 
@@ -291,7 +342,7 @@ func (u *perawatanUsecase) GetPerawatanByAnakIDAndRentangUsiaForIbu(anakID int, 
 		return nil, errors.New("Anda tidak memiliki akses ke anak ini")
 	}
 
-	return u.repo.Perawatan.GetPerawatanByAnakIDAndRentangUsia(anakID, rentangUsia)
+	return u.repo.Perawatan.GetPerawatanByAnakIDAndRentangUsiaForIbu(anakID, rentangUsia, userID)
 }
 
 // UpdatePerawatanForIbu updates perawatan with ownership validation
@@ -319,8 +370,12 @@ func (u *perawatanUsecase) UpdatePerawatanForIbu(id uint, req models.UpdatePeraw
 	if req.Jawaban != nil {
 		perawatan.Jawaban = req.Jawaban
 	}
-	if req.TanggalPeriksa != nil {
-		perawatan.TanggalPeriksa = req.TanggalPeriksa
+	if strings.TrimSpace(req.TanggalPeriksa) != "" {
+		parsedTanggal, err := parsePerawatanTanggalPeriksa(req.TanggalPeriksa)
+		if err != nil {
+			return nil, err
+		}
+		perawatan.TanggalPeriksa = parsedTanggal
 	}
 
 	// Save updated perawatan

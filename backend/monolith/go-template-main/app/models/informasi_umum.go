@@ -21,6 +21,19 @@ type InformasiUmum struct {
 	DeletedAt    gorm.DeletedAt `gorm:"column:deleted_at;index" json:"-"`
 }
 
+// yang tidak ada dimiliki oleh pa 2
+// materiinti
+// halpenting
+
+// yang tidak ada dimiliki oleh pa 3
+// tipe, umurtarget, durasibaca,
+// is active
+
+// yang mirip tapi beda
+// ringkasan -> deskripsi
+// thumbnailurl -> gambarurl
+// konten ->isikonten
+
 func (InformasiUmum) TableName() string {
 	return "informasi_umum"
 }

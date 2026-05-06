@@ -30,11 +30,6 @@ func (m *Main) CreatePerawatan(c echo.Context) error {
 		return helpers.Response(c, http.StatusBadRequest, []string{"format request tidak valid"})
 	}
 
-	// Validate request
-	if err := c.Validate(req); err != nil {
-		return helpers.Response(c, http.StatusBadRequest, []string{err.Error()})
-	}
-
 	// Get auth claims for access control
 	var data *models.Perawatan
 	var usecaseErr error
@@ -108,10 +103,10 @@ func (m *Main) GetPerawatanByAnakID(c echo.Context) error {
 	claims, ok := c.Get("auth_claims").(*models.AuthClaims)
 	if ok && claims != nil && claims.Role == "ibu" {
 		// For ibu, use access control method
-		data, usecaseErr = m.usecases.Perawatan.GetPerawatanByAnakIDForIbu(anakID, claims.UserID)
+		data, usecaseErr = m.usecases.Perawatan.GetPerawatanByAnakIDForIbu(int32(anakID), claims.UserID)
 	} else {
 		// For nakes, use regular method
-		data, usecaseErr = m.usecases.Perawatan.GetPerawatanByAnakID(anakID)
+		data, usecaseErr = m.usecases.Perawatan.GetPerawatanByAnakID(int32(anakID))
 	}
 
 	if usecaseErr != nil {
@@ -153,10 +148,10 @@ func (m *Main) GetPerawatanByAnakIDAndRentangUsia(c echo.Context) error {
 	claims, ok := c.Get("auth_claims").(*models.AuthClaims)
 	if ok && claims != nil && claims.Role == "ibu" {
 		// For ibu, use access control method
-		data, usecaseErr = m.usecases.Perawatan.GetPerawatanByAnakIDAndRentangUsiaForIbu(anakID, rentangUsia, claims.UserID)
+		data, usecaseErr = m.usecases.Perawatan.GetPerawatanByAnakIDAndRentangUsiaForIbu(int32(anakID), rentangUsia, claims.UserID)
 	} else {
 		// For nakes, use regular method
-		data, usecaseErr = m.usecases.Perawatan.GetPerawatanByAnakIDAndRentangUsia(anakID, rentangUsia)
+		data, usecaseErr = m.usecases.Perawatan.GetPerawatanByAnakIDAndRentangUsia(int32(anakID), rentangUsia)
 	}
 
 	if usecaseErr != nil {

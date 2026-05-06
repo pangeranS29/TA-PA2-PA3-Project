@@ -4,7 +4,7 @@ import 'warna_tinja_screen.dart';
 import 'warna_air_kencing_screen.dart';
 import 'tanda_bahaya_screen.dart';
 import 'lila_screen.dart';
-import 'perawatan/perawatan_screen_integrated.dart';
+import 'perawatan/perawatan_perkembangan_screen.dart';
 
 class MenuPemantauanScreen extends StatelessWidget {
   // const MenuPemantauanScreen({Key? key}) : super(key: key);
@@ -188,10 +188,7 @@ class MenuPemantauanScreen extends StatelessWidget {
                     onTap: () => Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => PerawatanScreenIntegrated(
-                          anakId: anak['id'] ?? 0,
-                          anakName: anak['nama'] ?? 'Anak',
-                        ),
+                        builder: (_) => PerawatanPerkembanganScreen(anak: anak),
                       ),
                     ),
                     borderRadius: BorderRadius.circular(16),
