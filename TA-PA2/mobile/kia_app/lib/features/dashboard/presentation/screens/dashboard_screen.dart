@@ -112,9 +112,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 _buildPhaseSelector(),
                 const SizedBox(height: 32),
                 if (selectedPhase == "Hamil") _buildHamilContent(),
+
                 if (selectedPhase == "Nifas") const NifasScreen(),
+
+                if (selectedPhase == "Menyusui")
+                  _buildMenyusuiContent(),
                 if (selectedPhase == "Tumbuh") _buildTumbuhContent(),
-                if (selectedPhase != "Hamil" && selectedPhase != "Nifas" && selectedPhase != "Tumbuh") _buildPlaceholderContent(),
+
+                if (selectedPhase != "Hamil" &&
+                    selectedPhase != "Nifas" &&
+                    selectedPhase != "Menyusui" &&
+                    selectedPhase != "Tumbuh")
+                  _buildPlaceholderContent(),
               ],
             ),
           ),
@@ -200,6 +209,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final List<Map<String, dynamic>> phases = [
       {'label': 'Hamil', 'icon': Icons.favorite_border},
       {'label': 'Nifas', 'icon': Icons.person_outline},
+      {'label': 'Menyusui', 'icon': Icons.child_care_outlined},
       {'label': 'Tumbuh', 'icon': Icons.emoji_emotions_outlined},
     ];
 
@@ -298,8 +308,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ],
                 ),
               ),
-              Image.network('https://cdn-icons-png.flaticon.com/512/1141/1141771.png', width: 40),
-            ],
+          Image.network(
+            'https://cdn-icons-png.flaticon.com/512/1141/1141771.png',
+            width: 40,
+            errorBuilder: (_, __, ___) {
+              return const Icon(Icons.image);
+            },
+          )            
+          ],
           ),
         ),
         const SizedBox(height: 32),
@@ -310,19 +326,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
         const Text('Menu Hamil', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87)),
         const SizedBox(height: 16),
         _buildMenuCard(title: 'Kehamilan Trimester 1–3', subtitle: 'Pantau perkembangan kehamilan', icon: Icons.favorite_outline, iconColor: Colors.pink, onTap: _openHamilJourney),
-_buildMenuCard(
-  title: 'Persiapan Melahirkan',
-  subtitle: 'Checklist persiapan sebelum melahirkan',
-  icon: Icons.child_care_outlined,
-  iconColor: Colors.blue,
-  onTap: () {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => const PersiapanMelahirkanScreen(),
-      ),
-    );
-  },
+        _buildMenuCard(
+          title: 'Persiapan Melahirkan',
+          subtitle: 'Checklist persiapan sebelum melahirkan',
+          icon: Icons.child_care_outlined,
+          iconColor: Colors.blue,
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const PersiapanMelahirkanScreen(),
+              ),
+            );
+          },
 ),
         const SizedBox(height: 32),
         const SizedBox(height: 40),
@@ -330,6 +346,27 @@ _buildMenuCard(
     );
   }
 
+    Widget _buildMenyusuiContent() {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildMenuCard(
+            title: 'Edukasi Menyusui',
+            subtitle: 'Pelajari tips dan edukasi menyusui ibu dan bayi',
+            icon: Icons.child_care_outlined,
+            iconColor: Colors.pink,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const EdukasiExploreScreen(),
+                ),
+              );
+            },
+          ),
+        ],
+      );
+    }
   Widget _buildMenuCard({required String title, required String subtitle, required IconData icon, required Color iconColor, required VoidCallback onTap}) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -418,7 +455,6 @@ _buildMenuCard(
             }
 
 ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$label belum tersedia')));
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$label belum tersedia')));
           },
           child: Container(
             padding: const EdgeInsets.all(10),
