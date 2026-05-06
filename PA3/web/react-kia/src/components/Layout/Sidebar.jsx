@@ -1,21 +1,21 @@
 // src/components/Layout/Sidebar.jsx
-import { useMemo, useState } from "react";
-import { NavLink } from "react-router-dom";
-import { 
-  getCurrentUser, 
-  getUserRedirectRoute, 
-  isAdminUser, 
-  isBidanUser, 
-  isDokterUser 
+import { useEffect, useMemo, useState } from "react";
+import { NavLink, useLocation } from "react-router-dom";
+import {
+  getCurrentUser,
+  getUserRedirectRoute,
+  isAdminUser,
+  isBidanUser,
+  isDokterUser
 } from "../../services/auth";
 import {
   ChevronDown,
-  LayoutGrid, 
-  Users, 
-  Baby, 
-  Activity, 
-  BarChart3, 
-  Settings, 
+  LayoutGrid,
+  Users,
+  Baby,
+  Activity,
+  BarChart3,
+  Settings,
   ShieldPlus,
   UserCheck,
   UserPlus,
@@ -28,20 +28,33 @@ import {
   Ruler
 } from "lucide-react";
 
+const baseItemClass = (isActive) =>
+  `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${isActive
+    ? "bg-blue-50 text-blue-600 font-semibold"
+    : "text-slate-500 hover:bg-gray-50 hover:text-slate-700"
+  }`;
+
 const Sidebar = () => {
   const user = getCurrentUser();
   const isAdmin = isAdminUser(user);
   const isBidan = isBidanUser(user);
   const isDokter = isDokterUser(user);
-  
+  const location = useLocation();
+
   const dashboardPath = getUserRedirectRoute(user);
   const [isFamilyMenuOpen, setIsFamilyMenuOpen] = useState(false);
 
-   const [dropdownOpen, setDropdownOpen] = useState({
-    monitoring: location.pathname.startsWith("/monitoring") || location.pathname.startsWith("/pemantauan"),
-    edukasiDigital: location.pathname.startsWith("/edukasi-digital"),
-    kesehatanLingkungan: location.pathname.startsWith("/pencatatan/kesehatan-lingkungan"),
+  const getDropdownOpenState = (pathname) => ({
+    monitoring: pathname.startsWith("/monitoring") || pathname.startsWith("/pemantauan"),
+    edukasiDigital: pathname.startsWith("/edukasi-digital"),
+    kesehatanLingkungan: pathname.startsWith("/pencatatan/kesehatan-lingkungan"),
   });
+
+  const [dropdownOpen, setDropdownOpen] = useState(() => getDropdownOpenState(location.pathname));
+
+  useEffect(() => {
+    setDropdownOpen(getDropdownOpenState(location.pathname));
+  }, [location.pathname]);
 
   const toggleDropdown = (key) => {
     setDropdownOpen((prev) => ({ ...prev, [key]: !prev[key] }));
@@ -54,13 +67,13 @@ const Sidebar = () => {
   //   ],
   //   []
   // );
-  
+
   // Menu untuk bidan (lengkap)
   const bidanMenuItems = [
     { path: "/data-ibu", name: "Data Ibu", icon: Users },
     { path: "/daftar-anak", name: "Data Anak", icon: Baby },
     { path: "/kependudukan", name: "Manajemen KK", icon: UserCheck },
-    { path: "/monitoring", name: "Monitoring", icon: Activity },
+    // { path: "/monitoring", name: "Monitoring", icon: Activity },
     {
       name: "Kesehatan Lingkungan",
       icon: ClipboardList,
@@ -143,6 +156,55 @@ const Sidebar = () => {
 
   const settingsMenu = { path: "/pengaturan", name: "Pengaturan", icon: Settings };
 
+  const renderNavLink = (item, className = "text-base") => (
+    <NavLink
+      key={item.path}
+      to={item.path}
+      className={({ isActive }) => `${baseItemClass(isActive)} ${className}`}
+    >
+      {({ isActive }) => (
+        <>
+          <item.icon
+            size={20}
+            className={isActive ? "text-blue-600" : "text-slate-400 group-hover:text-slate-600"}
+          />
+          <span className="truncate">{item.name}</span>
+        </>
+      )}
+    </NavLink>
+  );
+
+  const renderDropdown = (item) => {
+    const isOpen = dropdownOpen[item.dropdownKey];
+    const hasActiveChild = item.children?.some((child) => location.pathname.startsWith(child.path));
+
+    return (
+      <div key={item.dropdownKey} className="space-y-1">
+        <button
+          type="button"
+          onClick={() => toggleDropdown(item.dropdownKey)}
+          className={`${baseItemClass(isOpen || hasActiveChild)} w-full`}
+        >
+          <item.icon
+            size={20}
+            className={(isOpen || hasActiveChild) ? "text-blue-600" : "text-slate-400 group-hover:text-slate-600"}
+          />
+          <span className="flex-1 text-left truncate">{item.name}</span>
+          <ChevronDown
+            size={16}
+            className={`transition-transform duration-200 ${(isOpen || hasActiveChild) ? "rotate-180" : "rotate-0"}`}
+          />
+        </button>
+
+        {(isOpen || hasActiveChild) && (
+          <div className="ml-5 pl-4 space-y-1 border-l border-slate-200">
+            {item.children.map((child) => renderNavLink(child, "text-sm px-3 py-2 rounded-lg"))}
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
     <aside className="w-72 h-screen bg-white border-r border-gray-100 flex flex-col p-6">
       {/* Header Logo */}
@@ -162,29 +224,9 @@ const Sidebar = () => {
 
       {/* Navigasi */}
       <nav className="flex-1 space-y-1 overflow-y-auto pr-2 custom-scrollbar">
-        {menuItems.map((item) => (
-          <NavLink
-            key={item.path}
-            to={item.path}
-            className={({ isActive }) =>
-              `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${
-                isActive 
-                  ? "bg-blue-50 text-blue-600 font-semibold" 
-                  : "text-slate-500 hover:bg-gray-50 hover:text-slate-700"
-              }`
-            }
-          >
-            {({ isActive }) => (
-              <>
-                <item.icon 
-                  size={20} 
-                  className={isActive ? "text-blue-600" : "text-slate-400 group-hover:text-slate-600"} 
-                />
-                <span className="truncate">{item.name}</span>
-              </>
-            )}
-          </NavLink>
-        ))}
+        {menuItems.map((item) =>
+          item.isDropdown ? renderDropdown(item) : renderNavLink(item)
+        )}
 
         {/* Menu khusus admin */}
         {isAdmin && (
@@ -192,10 +234,9 @@ const Sidebar = () => {
             <NavLink
               to="/dashboard/admin/tenaga-kesehatan"
               className={({ isActive }) =>
-                `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${
-                  isActive
-                    ? "bg-blue-50 text-blue-600 font-semibold"
-                    : "text-slate-500 hover:bg-gray-50 hover:text-slate-700"
+                `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${isActive
+                  ? "bg-blue-50 text-blue-600 font-semibold"
+                  : "text-slate-500 hover:bg-gray-50 hover:text-slate-700"
                 }`
               }
             >
@@ -230,10 +271,9 @@ const Sidebar = () => {
                     key={item.path}
                     to={item.path}
                     className={({ isActive }) =>
-                      `flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 group text-sm ${
-                        isActive
-                          ? "bg-blue-50 text-blue-600 font-semibold"
-                          : "text-slate-500 hover:bg-gray-50 hover:text-slate-700"
+                      `flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 group text-sm ${isActive
+                        ? "bg-blue-50 text-blue-600 font-semibold"
+                        : "text-slate-500 hover:bg-gray-50 hover:text-slate-700"
                       }`
                     }
                   >
@@ -255,50 +295,17 @@ const Sidebar = () => {
 
         {/* Menu Jadwal Layanan hanya untuk bidan & admin (opsional, bisa untuk dokter juga) */}
         {(isBidan || isAdmin) && (
-          <NavLink
-            to={isAdmin ? "/dashboard/admin/jadwal-layanan" : "/jadwal-layanan"}
-            className={({ isActive }) =>
-              `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${
-                isActive
-                  ? "bg-blue-50 text-blue-600 font-semibold"
-                  : "text-slate-500 hover:bg-gray-50 hover:text-slate-700"
-              }`
+          renderNavLink(
+            {
+              path: isAdmin ? "/dashboard/admin/jadwal-layanan" : "/jadwal-layanan",
+              name: "Jadwal Layanan",
+              icon: CalendarDays,
             }
-          >
-            {({ isActive }) => (
-              <>
-                <CalendarDays
-                  size={20}
-                  className={isActive ? "text-blue-600" : "text-slate-400 group-hover:text-slate-600"}
-                />
-                <span className="truncate">Jadwal Layanan</span>
-              </>
-            )}
-          </NavLink>
+          )
         )}
 
         {/* Menu Pengaturan untuk semua role */}
-        <NavLink
-          key={settingsMenu.path}
-          to={settingsMenu.path}
-          className={({ isActive }) =>
-            `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${
-              isActive
-                ? "bg-blue-50 text-blue-600 font-semibold"
-                : "text-slate-500 hover:bg-gray-50 hover:text-slate-700"
-            }`
-          }
-        >
-          {({ isActive }) => (
-            <>
-              <settingsMenu.icon
-                size={20}
-                className={isActive ? "text-blue-600" : "text-slate-400 group-hover:text-slate-600"}
-              />
-              <span className="truncate">{settingsMenu.name}</span>
-            </>
-          )}
-        </NavLink>
+        {renderNavLink(settingsMenu)}
       </nav>
 
       {/* Footer Info Wilayah (hanya untuk bidan) */}

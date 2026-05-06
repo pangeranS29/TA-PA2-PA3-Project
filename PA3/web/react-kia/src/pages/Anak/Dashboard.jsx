@@ -28,7 +28,10 @@ export default function AnakDashboard() {
         setError(null);
         const [resAnak, resChart] = await Promise.all([
           getAnakById(id),
-          getPertumbuhanChart(id)
+          getPertumbuhanChart(id).catch(err => {
+            console.warn("Error fetching chart data:", err);
+            return { data: null };
+          })
         ]);
 
         if (isMounted) {

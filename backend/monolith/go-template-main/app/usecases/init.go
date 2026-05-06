@@ -4,7 +4,6 @@ import (
 	"monitoring-service/app/repositories"
 	"monitoring-service/pkg/config"
 )
-
 type Main struct {
 	repository *repositories.Main
 	config     *config.Config
@@ -36,40 +35,32 @@ type Main struct {
 	CatatanPelayananTrimester3    CatatanPelayananTrimester3Usecase
 	CatatanPelayananNifas         CatatanPelayananNifasUsecase
 	// GrafikEvaluasiKehamilan       GrafikEvaluasiKehamilanUsecase
-	GrafikPeningkatanBB          GrafikPeningkatanBBUsecase
-	PenjelasanHasilGrafik        PenjelasanHasilGrafikUsecase
-	RencanaPersalinan            RencanaPersalinanUsecase
-	RingkasanPelayananPersalinan RingkasanPelayananPersalinanUsecase
-	RiwayatProsesMelahirkan      RiwayatProsesMelahirkanUsecase
-	Rujukan                      RujukanUsecase
-	SkriningDMGestasional        SkriningDMGestasionalUsecase
-	SkriningPreeklampsia         SkriningPreeklampsiaUsecase
-	SkriningPemantauan           SkriningPemantauanUsecase
-	KategoriTandaBahaya          KategoriTandaBahayaUsecase
-	PelayananIbuNifas            PelayananIbuNifasUsecase
-	Ibu                          IbuUsecase
-	RiwayatKehamilanLalu         RiwayatKehamilanLaluUsecase
+	GrafikPeningkatanBB           GrafikPeningkatanBBUsecase
+	PenjelasanHasilGrafik         PenjelasanHasilGrafikUsecase
+	RencanaPersalinan             RencanaPersalinanUsecase
+	RingkasanPelayananPersalinan  RingkasanPelayananPersalinanUsecase
+	RiwayatProsesMelahirkan       RiwayatProsesMelahirkanUsecase
+	Rujukan                       RujukanUsecase
+	SkriningDMGestasional         SkriningDMGestasionalUsecase
+	SkriningPreeklampsia          SkriningPreeklampsiaUsecase
+	SkriningPemantauan            SkriningPemantauanUsecase
+	KategoriTandaBahaya           KategoriTandaBahayaUsecase
+	PelayananIbuNifas             PelayananIbuNifasUsecase
+	Ibu                           IbuUsecase
+	RiwayatKehamilanLalu          RiwayatKehamilanLaluUsecase
 	// RegisterOrangTua              *RegisterOrangTuaUsecase
-	AdminAkunKeluarga                  *AdminAkunKeluargaUsecase
-	AdminTenagaKesehatan               *AdminTenagaKesehatanUsecase
-	KeteranganLahir                    KeteranganLahirUsecase // <-- TAMBAHKAN INI
-	JenisPelayanan                     JenisPelayananUsecase
-	PemantauanIndikator                PemantauanIndikatorUsecase
-	EdukasiInformasiUmum               EdukasiInformasiUmumUsecase
-	EdukasiTandaBahayaTrimester        EdukasiTandaBahayaTrimesterUsecase
-	EdukasiTandaMelahirkan             EdukasiTandaMelahirkanUsecase
-	EdukasiImd                         EdukasiIMDUsecase
-	EdukasiSetelahMelahirkan           EdukasiSetelahMelahirkanUsecase
-	EdukasiMenyusuiAsi                 EdukasiMenyusuiASIUsecase
-	EdukasiPolaAsuh                    EdukasiPolaAsuhUsecase
-	EdukasiKesehatanMental             EdukasiKesehatanMentalUsecase
-	EdukasiPerawatanAnak               EdukasiPerawatanAnakUseCase
+	AdminAkunKeluarga    *AdminAkunKeluargaUsecase
+	AdminTenagaKesehatan *AdminTenagaKesehatanUsecase
+	KeteranganLahir      KeteranganLahirUsecase
+	JenisPelayanan       JenisPelayananUsecase
+
+	// Usecase tambahan
 	KeluhanAnak                        KeluhanAnakUseCase
-	KesehatanLingkunganDanCatatanKader KesehatanLingkunganDanCatatanKaderUsecase
-	PerkembanganAnak                   PerkembanganAnakUseCase
-	EdukasiMPASI                       EdukasiMPASIUsecase
 	KesehatanLingkungan                KesehatanLingkunganUsecase
+	KesehatanLingkunganDanCatatanKader KesehatanLingkunganDanCatatanKaderUsecase
 	PemantauanAnak                     PemantauanAnakUseCase
+	PerkembanganAnak                   PerkembanganAnakUseCase
+	PemantauanIndikator                PemantauanIndikatorUsecase
 }
 
 type Options struct {
@@ -84,7 +75,7 @@ func Init(opts Options) *Main {
 	}
 
 	// Inisialisasi usecase yang sudah ada
-	m.Anak = NewAnakUseCase(opts.Repository.Anak)
+	m.Anak = NewAnakUseCase(opts.Repository.Anak, opts.Repository.Kependudukan)
 	m.PelayananKesehatanAnak = NewPelayananKesehatanAnakUseCase(opts.Repository.PelayananKesehatanAnak)
 	m.Neonatus = NewPelayananNeonatusUseCase(opts.Repository.Neonatus)
 	m.KunjunganGizi = NewKunjunganGiziUseCase(opts.Repository.KunjunganGizi)
@@ -152,19 +143,15 @@ func Init(opts Options) *Main {
 		opts.Repository.User,
 		opts.Repository.Role,
 	)
-	m.KeteranganLahir = NewKeteranganLahirUsecase(opts.Repository.KeteranganLahir) // <-- TAMBAHKAN INI
+	m.KeteranganLahir = NewKeteranganLahirUsecase(opts.Repository.KeteranganLahir)
 	m.JenisPelayanan = NewJenisPelayananUsecase(opts.Repository.JenisPelayanan)
-	m.EdukasiInformasiUmum = NewEdukasiInformasiUmumUsecase(opts.Repository.EdukasiInformasiUmum)
-	m.EdukasiTandaBahayaTrimester = NewEdukasiTandaBahayaTrimesterUsecase(opts.Repository.EdukasiTandaBahayaTrimester)
-	m.EdukasiTandaMelahirkan = NewEdukasiTandaMelahirkanUsecase(opts.Repository.EdukasiTandaMelahirkan)
-	m.EdukasiImd = NewEdukasiIMDUsecase(opts.Repository.EdukasiImd)
-	m.EdukasiSetelahMelahirkan = NewEdukasiSetelahMelahirkanUsecase(opts.Repository.EdukasiSetelahMelahirkan)
-	m.EdukasiMenyusuiAsi = NewEdukasiMenyusuiASIUsecase(opts.Repository.EdukasiMenyusuiAsi)
-	m.EdukasiPolaAsuh = NewEdukasiPolaAsuhUsecase(opts.Repository.EdukasiPolaAsuh)
-	m.EdukasiKesehatanMental = NewEdukasiKesehatanMentalUsecase(opts.Repository.EdukasiKesehatanMental)
-	m.EdukasiPerawatanAnak = NewEdukasiPerawatanAnakUseCase(opts.Repository.EdukasiPerawatanAnak)
+
+	// Usecase tambahan
 	m.KeluhanAnak = NewKeluhanAnakUseCase(opts.Repository.KeluhanAnak)
+	m.KesehatanLingkungan = NewKesehatanLingkunganUsecase(opts.Repository.KesehatanLingkungan)
 	m.KesehatanLingkunganDanCatatanKader = NewKesehatanLingkunganDanCatatanKaderUsecase(opts.Repository.KesehatanLingkunganDanCatatanKader)
+	m.PemantauanAnak = NewPemantauanAnakUseCase(opts.Repository.PemantauanAnak)
+	m.PerkembanganAnak = NewPerkembanganAnakUseCase(opts.Repository.PerkembanganAnak)
 	m.PemantauanIndikator = NewPemantauanIndikatorUsecase(opts.Repository.PemantauanIndikator)
 
 	return m

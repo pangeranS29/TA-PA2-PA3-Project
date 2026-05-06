@@ -51,9 +51,10 @@ export default function AnakListNakes() {
   };
 
   // --- LOGIC FILTER & PAGINATION ---
+  const normalizedSearch = searchTerm.toLowerCase();
   const filteredChildren = children.filter((c) =>
-    c.nama?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    c.kehamilan?.ibu?.nama_ibu?.toLowerCase().includes(searchTerm.toLowerCase())
+    (c.nama || "").toLowerCase().includes(normalizedSearch) ||
+    (c.kehamilan?.ibu?.nama_ibu || "").toLowerCase().includes(normalizedSearch)
   );
 
   // Hitung index data
@@ -167,7 +168,7 @@ export default function AnakListNakes() {
         {/* --- UI CONTROLS PAGINATION --- */}
         <div className="flex items-center justify-between px-6 py-4 bg-gray-50/50 border-t border-gray-100">
           <p className="text-xs text-gray-500 font-medium">
-            Menampilkan <span className="text-indigo-600">{indexOfFirstItem + 1}</span> - <span className="text-indigo-600">{Math.min(indexOfLastItem, filteredChildren.length)}</span> dari <span className="text-indigo-600">{filteredChildren.length}</span> data
+            Menampilkan <span className="text-indigo-600">{filteredChildren.length === 0 ? 0 : indexOfFirstItem + 1}</span> - <span className="text-indigo-600">{Math.min(indexOfLastItem, filteredChildren.length)}</span> dari <span className="text-indigo-600">{filteredChildren.length}</span> data
           </p>
           
           <div className="flex items-center gap-2">
