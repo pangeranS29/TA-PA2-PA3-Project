@@ -11,10 +11,10 @@ import (
 func (m *Main) GetAllAnak() ([]models.Anak, error) {
 	var data []models.Anak
 	err := m.postgres.
-		Preload("Kependudukan").
-		Preload("Ibu").
-		Preload("Ibu.Kependudukan").
-		Preload("Ibu.Kependudukan.NoKartuKeluarga").
+		Preload("Penduduk").
+		Preload("Kehamilan").
+		Preload("Kehamilan.Ibu").
+		Preload("Kehamilan.Ibu.Kependudukan").
 		Find(&data).Error
 	if err != nil {
 		return nil, customerror.NewInternalServiceError("gagal mengambil data anak")
@@ -49,10 +49,10 @@ func (m *Main) SearchAnak(namaAnak, namaIbu, noKK string) ([]models.Anak, error)
 	}
 
 	err := query.
-		Preload("Kependudukan").
-		Preload("Ibu").
-		Preload("Ibu.Kependudukan").
-		Preload("Ibu.Kependudukan.NoKartuKeluarga").
+		Preload("Penduduk").
+		Preload("Kehamilan").
+		Preload("Kehamilan.Ibu").
+		Preload("Kehamilan.Ibu.Kependudukan").
 		Order("anak.created_at DESC").
 		Find(&data).Error
 
@@ -66,10 +66,10 @@ func (m *Main) SearchAnak(namaAnak, namaIbu, noKK string) ([]models.Anak, error)
 func (m *Main) GetAnakByID(anakID uint) (*models.Anak, error) {
 	var data models.Anak
 	err := m.postgres.
-		Preload("Kependudukan").
-		Preload("Ibu").
-		Preload("Ibu.Kependudukan").
-		Preload("Ibu.Kependudukan.NoKartuKeluarga").
+		Preload("Penduduk").
+		Preload("Kehamilan").
+		Preload("Kehamilan.Ibu").
+		Preload("Kehamilan.Ibu.Kependudukan").
 		Where("id = ?", anakID).
 		First(&data).Error
 	if err != nil {
