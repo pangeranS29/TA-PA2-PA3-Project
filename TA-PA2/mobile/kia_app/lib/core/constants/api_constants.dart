@@ -42,6 +42,7 @@ class ApiConstants {
   static const String checklistNifasFilledDays = '/modul-ibu/checklist-pemantauan-ibu-nifas/filled-days';
   static const String checklistNifasSave = '/modul-ibu/checklist-pemantauan-ibu-nifas';
   static const String checklistNifasMe = '/modul-ibu/checklist-pemantauan-ibu-nifas/me';
+  static const String grafikEvaluasiKehamilanV2 = '/modul-ibu/grafik-evaluasi-kehamilan/v2';
 
   /*
    *
@@ -71,5 +72,6 @@ class ApiConstants {
       // Informasi Umum
   static const String masterStandar = '/master-standar';
   static const String informasiUmum = '/informasi-umum';
-  static String informasiUmumById(int id) => '/informasi-umum/$id';
+  static String informasiUmumById(int id) => '/ informasi-umum/$id';
+  static const String grafikPeningkatanBBV2 = '/modul-ibu/grafik-peningkatan-bb/v2';
 }
