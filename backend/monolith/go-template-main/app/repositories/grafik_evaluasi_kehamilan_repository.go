@@ -5,6 +5,7 @@ import (
 	"monitoring-service/app/models"
 
 	"gorm.io/gorm"
+	"time"
 )
 
 type GrafikEvaluasiKehamilanRepository struct {
@@ -197,4 +198,158 @@ func (r *GrafikEvaluasiKehamilanRepository) FindGrafikDJJByUserID(userID int32) 
         Find(&list).Error
 
     return list, err
+}
+
+//
+// ====================== MODUL IBU ======================
+//
+
+// Struct internal untuk data mentah dari masing-masing tabel
+type PemeriksaanGrafikRaw struct {
+	KehamilanID        int32      `gorm:"column:kehamilan_id"`
+	TanggalPeriksa     *time.Time `gorm:"column:tanggal_periksa"`
+	TinggiRahim        *float64   `gorm:"column:tinggi_rahim"`
+	TekananDarah       string     `gorm:"column:tekanan_darah"`
+	TesLabProteinUrine string     `gorm:"column:tes_lab_protein_urine"`
+	TesLabHb           *float64   `gorm:"column:tes_lab_hb"`
+	TabletTambahDarah  *int       `gorm:"column:tablet_tambah_darah"`
+}
+
+type DJJGrafikRaw struct {
+	KehamilanID    int32      `gorm:"column:kehamilan_id"`
+	TanggalPeriksa *time.Time `gorm:"column:tanggal_periksa"`
+	USGDJNilai     *int       `gorm:"column:usg_djj_nilai"`
+}
+
+type GerakanBayiGrafikRaw struct {
+	KehamilanID       int32 `gorm:"column:kehamilan_id"`
+	MingguKehamilan   int   `gorm:"column:minggu_kehamilan"`
+	GerakanBayiKurang bool  `gorm:"column:gerakan_bayi_kurang"`
+}
+
+type UrinReduksiGrafikRaw struct {
+	KehamilanID         int32      `gorm:"column:kehamilan_id"`
+	TanggalLab          *time.Time `gorm:"column:tanggal_lab"`
+	LabUrinReduksiHasil string     `gorm:"column:lab_urin_reduksi_hasil"`
+}
+
+// FindKehamilanAktifByUserID - ambil kehamilan aktif untuk user
+// func (r *GrafikEvaluasiKehamilanRepository) FindKehamilanAktifByUserID(userID int32) (*models.Kehamilan, error) {
+//     var kehamilan models.Kehamilan
+
+//     err := r.db.
+//         Model(&models.Kehamilan{}).
+//         Joins("JOIN ibu i ON i.id = kehamilan.ibu_id").
+//         Joins("JOIN penduduk pd ON pd.id = i.penduduk_id").
+//         Joins("JOIN pengguna u ON u.penduduk_id = pd.id").
+//         Where("u.id = ?", userID).
+//         Where("kehamilan.status_kehamilan LIKE ?", "%TRIMESTER%").
+//         Order("kehamilan.created_at DESC").
+//         First(&kehamilan).Error
+
+//     if err != nil {
+//         return nil, err
+//     }
+
+//     return &kehamilan, nil
+// }
+
+// FindKehamilanAktifByUserID - ambil kehamilan aktif untuk user
+func (r *GrafikEvaluasiKehamilanRepository) FindKehamilanAktifByUserID(userID int32) (*models.Kehamilan, error) {
+    var kehamilan models.Kehamilan
+
+    err := r.db.
+        Table("kehamilan").
+        Select("kehamilan.*").
+        Joins("JOIN ibu i ON i.id = kehamilan.ibu_id").
+        Joins("JOIN penduduk pd ON pd.id = i.penduduk_id").
+        Joins("JOIN pengguna u ON u.penduduk_id = pd.id").
+        Where("u.id = ?", userID).
+        Where("kehamilan.status_kehamilan LIKE ?", "%TRIMESTER%").
+        Where("kehamilan.deleted_at IS NULL").
+        Order("kehamilan.created_at DESC").
+        First(&kehamilan).Error
+
+    if err != nil {
+        return nil, err
+    }
+
+    return &kehamilan, nil
+}
+
+// FindPemeriksaanForGrafik - ambil data pemeriksaan kehamilan untuk grafik
+func (r *GrafikEvaluasiKehamilanRepository) FindPemeriksaanForGrafik(kehamilanID int32) ([]PemeriksaanGrafikRaw, error) {
+    var result []PemeriksaanGrafikRaw
+
+    err := r.db.
+        Table("pemeriksaan_kehamilan").
+        Select("kehamilan_id, tanggal_periksa, tinggi_rahim, tekanan_darah, tes_lab_protein_urine, tes_lab_hb, tablet_tambah_darah").
+        Where("kehamilan_id = ?", kehamilanID).
+        Where("tanggal_periksa IS NOT NULL").
+        Order("tanggal_periksa ASC").
+        Find(&result).Error
+
+    return result, err
+}
+
+func (r *GrafikEvaluasiKehamilanRepository) FindDJJForGrafik(kehamilanID int32) ([]DJJGrafikRaw, error) {
+    var result []DJJGrafikRaw
+
+    err := r.db.
+        Table("pemeriksaan_dokter_trimester_3").
+        Select("kehamilan_id, tanggal_periksa, usg_djj_nilai").
+        Where("kehamilan_id = ?", kehamilanID).
+        Where("tanggal_periksa IS NOT NULL").
+        Where("usg_djj_nilai IS NOT NULL").
+        Order("tanggal_periksa ASC").
+        Find(&result).Error
+
+    return result, err
+}
+
+// FindGerakanBayiForGrafik - ambil gerakan bayi dari pemantauan ibu hamil
+func (r *GrafikEvaluasiKehamilanRepository) FindGerakanBayiForGrafik(kehamilanID int32) ([]GerakanBayiGrafikRaw, error) {
+    var result []GerakanBayiGrafikRaw
+
+    err := r.db.
+        Table("pemantauan_ibu_hamil").
+        Select("kehamilan_id, minggu_kehamilan, gerakan_bayi_kurang").
+        Where("kehamilan_id = ?", kehamilanID).
+        Order("minggu_kehamilan ASC").
+        Find(&result).Error
+
+    return result, err
+}
+
+// FindUrinReduksiForGrafik - ambil urin reduksi dari pemeriksaan lanjutan trimester 3
+func (r *GrafikEvaluasiKehamilanRepository) FindUrinReduksiForGrafik(kehamilanID int32) ([]UrinReduksiGrafikRaw, error) {
+    var result []UrinReduksiGrafikRaw
+
+    err := r.db.
+        Table("pemeriksaan_lanjutan_trimester_3").
+        Select("kehamilan_id, tanggal_lab, lab_urin_reduksi_hasil").
+        Where("kehamilan_id = ?", kehamilanID).
+        Where("tanggal_lab IS NOT NULL").
+        Where("lab_urin_reduksi_hasil IS NOT NULL").
+        Where("lab_urin_reduksi_hasil != ''").
+        Order("tanggal_lab ASC").
+        Find(&result).Error
+
+    return result, err
+}
+
+// FindPenjelasanForGrafik - ambil penjelasan grafik (1 record per kehamilan)
+func (r *GrafikEvaluasiKehamilanRepository) FindPenjelasanForGrafik(kehamilanID int32) (*models.PenjelasanHasilGrafik, error) {
+    var result models.PenjelasanHasilGrafik
+
+    err := r.db.
+        Where("kehamilan_id = ?", kehamilanID).
+        First(&result).Error
+
+    if err != nil {
+        // Jika tidak ditemukan, return nil tanpa error (bukan error fatal)
+        return nil, nil
+    }
+
+    return &result, nil
 }
