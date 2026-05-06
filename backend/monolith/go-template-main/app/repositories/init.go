@@ -56,6 +56,21 @@ type Main struct {
 	CatatanPelayananNifas         *CatatanPelayananNifasRepository
 	Rujukan                       *RujukanRepository
 	JenisPelayanan                JenisPelayananRepository
+	EdukasiInformasiUmum               EdukasiInformasiUmumRepository
+	EdukasiTandaBahayaTrimester        EdukasiTandaBahayaTrimesterRepository
+	EdukasiTandaMelahirkan             EdukasiTandaMelahirkanRepository
+	EdukasiImd                         EdukasiIMDRepository
+	EdukasiSetelahMelahirkan           EdukasiSetelahMelahirkanRepository
+	EdukasiMenyusuiAsi                 EdukasiMenyusuiASIRepository
+	EdukasiPolaAsuh                    EdukasiPolaAsuhRepository
+	EdukasiKesehatanMental             EdukasiKesehatanMentalRepository
+	EdukasiPerawatanAnak               EdukasiPerawatanAnakRepository
+	KeluhanAnak                        KeluhanAnakRepository
+	KesehatanLingkunganDanCatatanKader *KesehatanLingkunganDanCatatanKaderRepository
+	PemantauanIndikator                *PemantauanIndikatorRepository
+	PerkembanganAnak                   PerkembanganAnakRepository
+	EdukasiMPASI                       EdukasiMPASIRepository
+	KesehatanLingkungan                KesehatanLingkunganRepository
 }
 
 type Options struct {
@@ -116,6 +131,22 @@ func Init(opts Options) *Main {
 	m.PengukuranLilA = NewPengukuranLilaRepository(opts.Postgres)
 	m.CatatanPelayanan = NewCatatanPelayananRepository(opts.Postgres)
 	m.JenisPelayanan = NewJenisPelayananRepository(opts.Postgres)
+
+	m.EdukasiInformasiUmum = NewEdukasiInformasiUmumRepository(opts.Postgres)
+	m.EdukasiTandaBahayaTrimester = NewEdukasiTandaBahayaTrimesterRepository(opts.Postgres)
+	m.EdukasiTandaMelahirkan = NewEdukasiTandaMelahirkanRepository(opts.Postgres)
+	m.EdukasiImd = NewEdukasiIMDRepository(opts.Postgres)
+	m.EdukasiSetelahMelahirkan = NewEdukasiSetelahMelahirkanRepository(opts.Postgres)
+	m.EdukasiMenyusuiAsi = NewEdukasiMenyusuiASIRepository(opts.Postgres)
+	m.EdukasiPolaAsuh = NewEdukasiPolaAsuhRepository(opts.Postgres)
+	m.EdukasiKesehatanMental = NewEdukasiKesehatanMentalRepository(opts.Postgres)
+	m.EdukasiPerawatanAnak = NewEdukasiPerawatanAnakRepository(opts.Postgres)
+	m.KeluhanAnak = NewKeluhanAnakRepository(opts.Postgres)
+	m.KesehatanLingkunganDanCatatanKader = NewKesehatanLingkunganDanCatatanKaderRepository(opts.Postgres)
+	m.PemantauanIndikator = NewPemantauanIndikatorRepository(opts.Postgres)
+	m.PerkembanganAnak = NewPerkembanganAnakRepository(opts.Postgres)
+	m.EdukasiMPASI = NewEdukasiMPASIRepository(opts.Postgres)
+	m.KesehatanLingkungan = NewKesehatanLingkunganRepository(opts.Postgres)
 
 	return m
 }
