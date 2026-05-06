@@ -71,6 +71,55 @@ import PemeriksaanDokterT3Complete from "./pages/Ibu/PemeriksaanDokterT3Complete
 //Dokter
 import ProtectedRoute from "./components/ProtectedRoute";
 import DokterDashboard from "./pages/Dokter/index";
+// import PelayananGiziIndex from "./pages/Pelayanan-Gizi-Anak/index";
+// import PelayananGiziCreate from "./pages/Pelayanan-Gizi-Anak/create";
+import PelayananVitaminIndex from "./pages/Pelayanan-Vitamin-Anak/index";
+import PelayananVitaminCreate from "./pages/Pelayanan-Vitamin-Anak/create";
+import PelayananImunisasiIndex from "./pages/Pelayanan-Imunisasi-Anak/index";
+import PelayananGigiIndex from "./pages/PelayananGigi/index";
+import TumbuhKembangAnak from "./pages/SDIDTK/index";
+// import NeonatusIndex from "./pages/Kesehatan-Neonatus/NeonatusIndex";
+
+// Pelayanan LILA Anak
+import PelayananLilaGlobalList from "./pages/Pelayanan-LILA-Anak/GlobalList";
+import PelayananLilaIndex from "./pages/Pelayanan-LILA-Anak/index";
+import PelayananLilaCreate from "./pages/Pelayanan-LILA-Anak/create";
+import PelayananLilaEdit from "./pages/Pelayanan-LILA-Anak/edit";
+
+// Pemantauan
+import KelolaPemantauan from "./pages/Pemantauan-anak/KelolaPemantauan";
+import LihatDataPemantauan from "./pages/Pemantauan-anak/LihatDataPemantauan";
+
+// Pencatatan
+import KesehatanLingkunganCatatanPage from "./pages/Pencatatan/KesehatanLingkunganCatatan";
+import InformasiUmumPage from "./pages/edukasi-digital/InformasiUmumPage";
+import InformasiUmumFormPage from "./pages/edukasi-digital/InformasiUmumFormPage";
+import TandaBahayaTrimesterPage from "./pages/edukasi-digital/TandaBahayaTrimesterPage";
+import TandaBahayaTrimesterFormPage from "./pages/edukasi-digital/TandaBahayaTrimesterFormPage";
+import TandaMelahirkanPage from "./pages/edukasi-digital/TandaMelahirkanPage";
+import TandaMelahirkanFormPage from "./pages/edukasi-digital/TandaMelahirkanFormPage";
+import ImdPage from "./pages/edukasi-digital/ImdPage";
+import ImdFormPage from "./pages/edukasi-digital/ImdFormPage";
+import SetelahMelahirkanPage from "./pages/edukasi-digital/SetelahMelahirkanPage";
+import SetelahMelahirkanFormPage from "./pages/edukasi-digital/SetelahMelahirkanFormPage";
+import MenyusuiAsiPage from "./pages/edukasi-digital/MenyusuiAsiPage";
+import MenyusuiAsiFormPage from "./pages/edukasi-digital/MenyusuiAsiFormPage";
+import PolaAsuhPage from "./pages/edukasi-digital/PolaAsuhPage";
+import PolaAsuhFormPage from "./pages/edukasi-digital/PolaAsuhFormPage";
+import KesehatanMentalPage from "./pages/edukasi-digital/KesehatanMentalPage";
+import KesehatanMentalFormPage from "./pages/edukasi-digital/KesehatanMentalFormPage";
+import PerawatanAnakPage from "./pages/edukasi-digital/PerawatanAnakPage";
+import PerawatanAnakFormPage from "./pages/edukasi-digital/PerawatanAnakFormPage";
+import MpasiPage from "./pages/edukasi-digital/MpasiPage";
+import MpasiFormPage from "./pages/edukasi-digital/MpasiFormPage";
+import KeluhanAnak from "./pages/Anak/Keluhan/KeluhanAnak";
+import PemantauanAnakPage from "./pages/Anak/Pemantauan/PemantauanAnakPage";
+import PerkembanganAnakPage from "./pages/Anak/Perkembangan/PerkembanganAnakPage";
+import LihatDataPerkembangan from "./pages/penanda-perkembangan-anak/LihatDataPerkembangan";
+import KelolaPerkembangan from "./pages/penanda-perkembangan-anak/KelolaPerkembangan";
+import KelolaLingkungan from "./pages/KesehatanLingkungan/KelolaLingkungan";
+import DataLingkungan from "./pages/KesehatanLingkungan/DataLingkungan";
+import PertumbuhanIndex from "./pages/Pertumbuhan/index";
 
 const HomeRedirect = () => {
   if (!isAuthenticated()) {
@@ -162,7 +211,67 @@ function App() {
         <Route path="/dashboard/dokter" element={<ProtectedRoute allowedRoles={["dokter"]}> <DokterDashboard /></ProtectedRoute>}/>
         <Route path="/" element={<HomeRedirect />} />
         <Route path="*" element={<HomeRedirect />} />
-      </Routes>
+      {/* </Routes> */}
+
+       {/* Pemantauan */}
+          <Route path="/pemantauan/lihat" element={<LihatDataPemantauan />} />
+          <Route path="/pemantauan/perkembangan" element={<LihatDataPerkembangan />} />
+          <Route path="/pemantauan/kelola-perkembangan" element={<KelolaPerkembangan />} />
+          <Route path="/pemantauan/kelola" element={<KelolaPemantauan />} />
+
+          {/* Pencatatan */}
+          <Route path="/pencatatan/kesehatan-lingkungan" element={<DataLingkungan />} />
+          <Route path="/pencatatan/kesehatan-lingkungan/kelola" element={<KelolaLingkungan />} />
+
+          {/* Edukasi Digital */}
+          <Route path="/edukasi-digital/informasi-umum" element={<InformasiUmumPage />} />
+          <Route path="/edukasi-digital/informasi-umum/form" element={<InformasiUmumFormPage />} />
+          <Route path="/edukasi-digital/informasi-umum/form/:id" element={<InformasiUmumFormPage />} />
+          <Route path="/edukasi-digital/tanda-bahaya-trimester" element={<TandaBahayaTrimesterPage />} />
+          <Route path="/edukasi-digital/tanda-bahaya-trimester/form" element={<TandaBahayaTrimesterFormPage />} />
+          <Route path="/edukasi-digital/tanda-bahaya-trimester/form/:id" element={<TandaBahayaTrimesterFormPage />} />
+          <Route path="/edukasi-digital/tanda-melahirkan" element={<TandaMelahirkanPage />} />
+          <Route path="/edukasi-digital/tanda-melahirkan/form" element={<TandaMelahirkanFormPage />} />
+          <Route path="/edukasi-digital/tanda-melahirkan/form/:id" element={<TandaMelahirkanFormPage />} />
+          <Route path="/edukasi-digital/imd" element={<ImdPage />} />
+          <Route path="/edukasi-digital/imd/form" element={<ImdFormPage />} />
+          <Route path="/edukasi-digital/imd/form/:id" element={<ImdFormPage />} />
+          <Route path="/edukasi-digital/setelah-melahirkan" element={<SetelahMelahirkanPage />} />
+          <Route path="/edukasi-digital/setelah-melahirkan/form" element={<SetelahMelahirkanFormPage />} />
+          <Route path="/edukasi-digital/setelah-melahirkan/form/:id" element={<SetelahMelahirkanFormPage />} />
+          <Route path="/edukasi-digital/menyusui-asi" element={<MenyusuiAsiPage />} />
+          <Route path="/edukasi-digital/menyusui-asi/form" element={<MenyusuiAsiFormPage />} />
+          <Route path="/edukasi-digital/menyusui-asi/form/:id" element={<MenyusuiAsiFormPage />} />
+          <Route path="/edukasi-digital/pola-asuh" element={<PolaAsuhPage />} />
+          <Route path="/edukasi-digital/pola-asuh/form" element={<PolaAsuhFormPage />} />
+          <Route path="/edukasi-digital/pola-asuh/form/:id" element={<PolaAsuhFormPage />} />
+          <Route path="/edukasi-digital/kesehatan-mental" element={<KesehatanMentalPage />} />
+          <Route path="/edukasi-digital/kesehatan-mental/form" element={<KesehatanMentalFormPage />} />
+          <Route path="/edukasi-digital/kesehatan-mental/form/:id" element={<KesehatanMentalFormPage />} />
+          <Route path="/edukasi-digital/perawatan-anak" element={<PerawatanAnakPage />} />
+          <Route path="/edukasi-digital/perawatan-anak/form" element={<PerawatanAnakFormPage />} />
+          <Route path="/edukasi-digital/perawatan-anak/form/:id" element={<PerawatanAnakFormPage />} />
+          <Route path="/edukasi-digital/mpasi" element={<MpasiPage />} />
+          <Route path="/edukasi-digital/mpasi/form" element={<MpasiFormPage />} />
+          <Route path="/edukasi-digital/mpasi/form/:id" element={<MpasiFormPage />} />
+           {/* Pelayanan LILA Anak */}
+          <Route path="/data-anak/lila" element={<PelayananLilaGlobalList />} />
+          <Route path="/data-anak/lila/:id" element={<PelayananLilaIndex />} />
+          <Route path="/data-anak/lila/:id/create" element={<PelayananLilaCreate />} />
+          <Route path="/data-anak/lila/:id/edit/:lilaId" element={<PelayananLilaEdit />} />
+
+
+          <Route path="/data-anak/dashboard/:id" element={<AnakDashboard />} />
+        <Route path="/data-anak/pertumbuhan/:id" element={<PertumbuhanIndex />} />
+        <Route path="/data-anak/neonatus/:id" element={<NeonatusIndex />} />
+        <Route path="/data-anak/pelayanan-gizi/:id" element={<PelayananGiziIndex />} />
+        <Route path="/data-anak/pelayanan-gizi/:id/create" element={<PelayananGiziCreate />} />
+        <Route path="/data-anak/pelayanan-vitamin/:id" element={<PelayananVitaminIndex />} />
+        <Route path="/data-anak/pelayanan-vitamin/:id/create" element={<PelayananVitaminCreate />} />
+        <Route path="/data-anak/pelayanan-Imunisasi/:id" element={<PelayananImunisasiIndex />} />
+        <Route path="/data-anak/pelayanan-Gigi/:id" element={<PelayananGigiIndex />} />
+        <Route path="/data-anak/Tumbuh-kembang-Anak/:id" element={<TumbuhKembangAnak />} />
+        </Routes>
     </BrowserRouter>
   );
 }

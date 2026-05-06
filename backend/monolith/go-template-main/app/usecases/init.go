@@ -36,24 +36,40 @@ type Main struct {
 	CatatanPelayananTrimester3    CatatanPelayananTrimester3Usecase
 	CatatanPelayananNifas         CatatanPelayananNifasUsecase
 	// GrafikEvaluasiKehamilan       GrafikEvaluasiKehamilanUsecase
-	GrafikPeningkatanBB           GrafikPeningkatanBBUsecase
-	PenjelasanHasilGrafik         PenjelasanHasilGrafikUsecase
-	RencanaPersalinan             RencanaPersalinanUsecase
-	RingkasanPelayananPersalinan  RingkasanPelayananPersalinanUsecase
-	RiwayatProsesMelahirkan       RiwayatProsesMelahirkanUsecase
-	Rujukan                       RujukanUsecase
-	SkriningDMGestasional         SkriningDMGestasionalUsecase
-	SkriningPreeklampsia          SkriningPreeklampsiaUsecase
-	SkriningPemantauan            SkriningPemantauanUsecase
-	KategoriTandaBahaya           KategoriTandaBahayaUsecase
-	PelayananIbuNifas             PelayananIbuNifasUsecase
-	Ibu                           IbuUsecase
-	RiwayatKehamilanLalu          RiwayatKehamilanLaluUsecase
+	GrafikPeningkatanBB          GrafikPeningkatanBBUsecase
+	PenjelasanHasilGrafik        PenjelasanHasilGrafikUsecase
+	RencanaPersalinan            RencanaPersalinanUsecase
+	RingkasanPelayananPersalinan RingkasanPelayananPersalinanUsecase
+	RiwayatProsesMelahirkan      RiwayatProsesMelahirkanUsecase
+	Rujukan                      RujukanUsecase
+	SkriningDMGestasional        SkriningDMGestasionalUsecase
+	SkriningPreeklampsia         SkriningPreeklampsiaUsecase
+	SkriningPemantauan           SkriningPemantauanUsecase
+	KategoriTandaBahaya          KategoriTandaBahayaUsecase
+	PelayananIbuNifas            PelayananIbuNifasUsecase
+	Ibu                          IbuUsecase
+	RiwayatKehamilanLalu         RiwayatKehamilanLaluUsecase
 	// RegisterOrangTua              *RegisterOrangTuaUsecase
-	AdminAkunKeluarga    *AdminAkunKeluargaUsecase
-	AdminTenagaKesehatan *AdminTenagaKesehatanUsecase
-	KeteranganLahir      KeteranganLahirUsecase // <-- TAMBAHKAN INI
-	JenisPelayanan       JenisPelayananUsecase
+	AdminAkunKeluarga                  *AdminAkunKeluargaUsecase
+	AdminTenagaKesehatan               *AdminTenagaKesehatanUsecase
+	KeteranganLahir                    KeteranganLahirUsecase // <-- TAMBAHKAN INI
+	JenisPelayanan                     JenisPelayananUsecase
+	PemantauanIndikator                PemantauanIndikatorUsecase
+	EdukasiInformasiUmum               EdukasiInformasiUmumUsecase
+	EdukasiTandaBahayaTrimester        EdukasiTandaBahayaTrimesterUsecase
+	EdukasiTandaMelahirkan             EdukasiTandaMelahirkanUsecase
+	EdukasiImd                         EdukasiIMDUsecase
+	EdukasiSetelahMelahirkan           EdukasiSetelahMelahirkanUsecase
+	EdukasiMenyusuiAsi                 EdukasiMenyusuiASIUsecase
+	EdukasiPolaAsuh                    EdukasiPolaAsuhUsecase
+	EdukasiKesehatanMental             EdukasiKesehatanMentalUsecase
+	EdukasiPerawatanAnak               EdukasiPerawatanAnakUseCase
+	KeluhanAnak                        KeluhanAnakUseCase
+	KesehatanLingkunganDanCatatanKader KesehatanLingkunganDanCatatanKaderUsecase
+	PerkembanganAnak                   PerkembanganAnakUseCase
+	EdukasiMPASI                       EdukasiMPASIUsecase
+	KesehatanLingkungan                KesehatanLingkunganUsecase
+	PemantauanAnak                     PemantauanAnakUseCase
 }
 
 type Options struct {
@@ -138,6 +154,18 @@ func Init(opts Options) *Main {
 	)
 	m.KeteranganLahir = NewKeteranganLahirUsecase(opts.Repository.KeteranganLahir) // <-- TAMBAHKAN INI
 	m.JenisPelayanan = NewJenisPelayananUsecase(opts.Repository.JenisPelayanan)
+	m.EdukasiInformasiUmum = NewEdukasiInformasiUmumUsecase(opts.Repository.EdukasiInformasiUmum)
+	m.EdukasiTandaBahayaTrimester = NewEdukasiTandaBahayaTrimesterUsecase(opts.Repository.EdukasiTandaBahayaTrimester)
+	m.EdukasiTandaMelahirkan = NewEdukasiTandaMelahirkanUsecase(opts.Repository.EdukasiTandaMelahirkan)
+	m.EdukasiImd = NewEdukasiIMDUsecase(opts.Repository.EdukasiImd)
+	m.EdukasiSetelahMelahirkan = NewEdukasiSetelahMelahirkanUsecase(opts.Repository.EdukasiSetelahMelahirkan)
+	m.EdukasiMenyusuiAsi = NewEdukasiMenyusuiASIUsecase(opts.Repository.EdukasiMenyusuiAsi)
+	m.EdukasiPolaAsuh = NewEdukasiPolaAsuhUsecase(opts.Repository.EdukasiPolaAsuh)
+	m.EdukasiKesehatanMental = NewEdukasiKesehatanMentalUsecase(opts.Repository.EdukasiKesehatanMental)
+	m.EdukasiPerawatanAnak = NewEdukasiPerawatanAnakUseCase(opts.Repository.EdukasiPerawatanAnak)
+	m.KeluhanAnak = NewKeluhanAnakUseCase(opts.Repository.KeluhanAnak)
+	m.KesehatanLingkunganDanCatatanKader = NewKesehatanLingkunganDanCatatanKaderUsecase(opts.Repository.KesehatanLingkunganDanCatatanKader)
+	m.PemantauanIndikator = NewPemantauanIndikatorUsecase(opts.Repository.PemantauanIndikator)
 
 	return m
 }

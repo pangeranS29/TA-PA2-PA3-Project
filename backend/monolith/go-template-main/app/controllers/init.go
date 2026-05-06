@@ -52,6 +52,22 @@ type Main struct {
 	KeteranganLahir               *KeteranganLahirController // <-- TAMBAHKAN INI
 	Kependudukan                  *KependudukanController
 	JenisPelayanan                *JenisPelayananController
+	// Controller baru untuk edukasi informasi umum
+	EdukasiInformasiUmum               *EdukasiInformasiUmumController
+	EdukasiTandaBahayaTrimester        *EdukasiTandaBahayaTrimesterController
+	EdukasiTandaMelahirkan             *EdukasiTandaMelahirkanController
+	EdukasiImd                         *EdukasiIMDController
+	EdukasiSetelahMelahirkan           *EdukasiSetelahMelahirkanController
+	EdukasiMenyusuiAsi                 *EdukasiMenyusuiASIController
+	EdukasiPolaAsuh                    *EdukasiPolaAsuhController
+	EdukasiKesehatanMental             *EdukasiKesehatanMentalController
+	EdukasiPerawatanAnak               *EdukasiPerawatanAnakController
+	KeluhanAnak                        *KeluhanAnakController
+	KesehatanLingkunganDanCatatanKader *KesehatanLingkunganDanCatatanKaderController
+	PerkembanganAnak    *PerkembanganAnakController
+	EdukasiMPASI        *EdukasiMPASIController
+	KesehatanLingkungan *KesehatanLingkunganController
+	PemantauanAnak                *PemantauanAnakController
 }
 
 type Options struct {
@@ -114,6 +130,22 @@ func Init(opts Options) *Main {
 		opts.UseCases.PemeriksaanDokterTrimester1,
 		opts.UseCases.PemeriksaanDokterTrimester3,
 	)
+	m.EdukasiInformasiUmum = NewEdukasiInformasiUmumController(opts.UseCases.EdukasiInformasiUmum)
+	m.EdukasiTandaBahayaTrimester = NewEdukasiTandaBahayaTrimesterController(opts.UseCases.EdukasiTandaBahayaTrimester)
+	m.EdukasiTandaMelahirkan = NewEdukasiTandaMelahirkanController(opts.UseCases.EdukasiTandaMelahirkan)
+	m.EdukasiImd = NewEdukasiIMDController(opts.UseCases.EdukasiImd)
+	m.EdukasiSetelahMelahirkan = NewEdukasiSetelahMelahirkanController(opts.UseCases.EdukasiSetelahMelahirkan)
+	m.EdukasiMenyusuiAsi = NewEdukasiMenyusuiASIController(opts.UseCases.EdukasiMenyusuiAsi)
+	m.EdukasiPolaAsuh = NewEdukasiPolaAsuhController(opts.UseCases.EdukasiPolaAsuh)
+	m.EdukasiKesehatanMental = NewEdukasiKesehatanMentalController(opts.UseCases.EdukasiKesehatanMental)
+	m.EdukasiPerawatanAnak = NewEdukasiPerawatanAnakController(opts.UseCases.EdukasiPerawatanAnak)
+	m.KeluhanAnak = NewKeluhanAnakController(opts.UseCases.KeluhanAnak)
+	m.KesehatanLingkunganDanCatatanKader = NewKesehatanLingkunganDanCatatanKaderController(opts.UseCases.KesehatanLingkunganDanCatatanKader, opts.UseCases.Ibu)
+	m.PerkembanganAnak = NewPerkembanganAnakController(opts.UseCases.PerkembanganAnak)
+	m.EdukasiMPASI = NewEdukasiMPASIController(opts.UseCases.EdukasiMPASI)
+	m.KesehatanLingkungan = NewKesehatanLingkunganController(opts.UseCases.KesehatanLingkungan)
+	m.PemantauanAnak = NewPemantauanAnakController(opts.UseCases.PemantauanAnak)
+
 	return m
 }
 

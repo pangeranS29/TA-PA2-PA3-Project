@@ -20,7 +20,12 @@ import {
   UserCheck,
   UserPlus,
   BriefcaseMedical,
-  CalendarDays
+  CalendarDays,
+  ClipboardEdit,
+  TableProperties,
+  ClipboardList,
+  BookOpenCheck,
+  Ruler
 } from "lucide-react";
 
 const Sidebar = () => {
@@ -32,13 +37,73 @@ const Sidebar = () => {
   const dashboardPath = getUserRedirectRoute(user);
   const [isFamilyMenuOpen, setIsFamilyMenuOpen] = useState(false);
 
+   const [dropdownOpen, setDropdownOpen] = useState({
+    monitoring: location.pathname.startsWith("/monitoring") || location.pathname.startsWith("/pemantauan"),
+    edukasiDigital: location.pathname.startsWith("/edukasi-digital"),
+    kesehatanLingkungan: location.pathname.startsWith("/pencatatan/kesehatan-lingkungan"),
+  });
+
+  const toggleDropdown = (key) => {
+    setDropdownOpen((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  // const adminFamilyMenuItems = useMemo(
+  //   () => [
+  //     { path: "/dashboard/admin/manajemen-keluarga", name: "Manajemen KK", icon: UserCheck },
+  //     { path: "/dashboard/admin/akun-keluarga", name: "Buat Akun", icon: UserPlus },
+  //   ],
+  //   []
+  // );
+  
   // Menu untuk bidan (lengkap)
   const bidanMenuItems = [
     { path: "/data-ibu", name: "Data Ibu", icon: Users },
     { path: "/daftar-anak", name: "Data Anak", icon: Baby },
     { path: "/kependudukan", name: "Manajemen KK", icon: UserCheck },
     { path: "/monitoring", name: "Monitoring", icon: Activity },
+    {
+      name: "Kesehatan Lingkungan",
+      icon: ClipboardList,
+      isDropdown: true,
+      dropdownKey: "kesehatanLingkungan",
+      children: [
+        { path: "/pencatatan/kesehatan-lingkungan", name: "Data Pencatatan", icon: TableProperties },
+        { path: "/pencatatan/kesehatan-lingkungan/kelola", name: "Kelola Indikator", icon: ClipboardEdit },
+      ],
+    },
+    {
+      name: "Monitoring",
+      icon: Activity,
+      isDropdown: true,
+      dropdownKey: "monitoring",
+      children: [
+        { path: "/monitoring", name: "Rekap Wilayah", icon: BarChart3 },
+        { path: "/pemantauan/lihat", name: "Data Pemantauan Anak", icon: TableProperties },
+        { path: "/pemantauan/perkembangan", name: "Data Perkembangan Anak", icon: TableProperties },
+        { path: "/pemantauan/kelola-perkembangan", name: "Kelola Penanda Perkembangan Anak", icon: ClipboardEdit },
+        { path: "/pemantauan/kelola", name: "Kelola Pemantauan Anak", icon: ClipboardEdit },
+      ],
+    },
+    {
+      name: "Edukasi Digital",
+      icon: BookOpenCheck,
+      isDropdown: true,
+      dropdownKey: "edukasiDigital",
+      children: [
+        { path: "/edukasi-digital/informasi-umum", name: "Informasi Umum", icon: ClipboardList },
+        { path: "/edukasi-digital/tanda-bahaya-trimester", name: "Tanda Bahaya Trimester", icon: ClipboardList },
+        { path: "/edukasi-digital/tanda-melahirkan", name: "Tanda Melahirkan", icon: ClipboardList },
+        { path: "/edukasi-digital/imd", name: "Edukasi IMD", icon: ClipboardList },
+        { path: "/edukasi-digital/setelah-melahirkan", name: "Setelah Melahirkan", icon: ClipboardList },
+        { path: "/edukasi-digital/menyusui-asi", name: "Menyusui & ASI", icon: ClipboardList },
+        { path: "/edukasi-digital/pola-asuh", name: "Pola Asuh", icon: ClipboardList },
+        { path: "/edukasi-digital/kesehatan-mental", name: "Kesehatan Mental", icon: ClipboardList },
+        { path: "/edukasi-digital/perawatan-anak", name: "Perawatan Anak", icon: ClipboardList },
+        { path: "/edukasi-digital/mpasi", name: "MPASI", icon: ClipboardList },
+      ],
+    },
     { path: "/laporan", name: "Laporan", icon: BarChart3 },
+
   ];
 
   // Menu untuk dokter (hanya Data Ibu & Laporan)
