@@ -29,7 +29,10 @@ func GetConnection(arg *Args) (db *gorm.DB, err error) {
 	urlStr := GetURLString(arg)
 	switch driver {
 	case postgresDriverName:
-		db, err = gorm.Open(postgres.Open(urlStr), &gorm.Config{})
+		db, err = gorm.Open(postgres.New(postgres.Config{
+			DSN:                  urlStr,
+			PreferSimpleProtocol: true,
+		}), &gorm.Config{})
 		if err != nil {
 			return
 		}
