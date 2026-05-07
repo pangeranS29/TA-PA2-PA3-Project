@@ -62,6 +62,7 @@ type Main struct {
 	AbsensiKelasIbuHamil        *AbsensiKelasIbuHamilController
 	ChecklistPemantauanIbuNifas *ChecklistPemantauanIbuNifasController
 	WarnaTinja                  *WarnaTinjaController
+	KeluhanAnak                 *KeluhanAnakController
 }
 
 type Options struct {
@@ -119,6 +120,7 @@ func Init(opts Options) *Main {
 	m.KeteranganLahir = NewKeteranganLahirController(opts.UseCases.KeteranganLahir) // <-- TAMBAHKAN INI
 	m.Kependudukan = NewKependudukanController(opts.UseCases.Kependudukan)
 	m.JenisPelayanan = NewJenisPelayananController(opts.UseCases.JenisPelayanan)
+	m.KeluhanAnak = NewKeluhanAnakController(opts.UseCases.KeluhanAnak)
 
 	// MODEL IBU
 	m.LogTTDMMS = NewLogTTDMMSController(opts.UseCases.LogTTDMMS)
