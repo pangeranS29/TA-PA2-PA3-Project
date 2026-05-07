@@ -73,8 +73,19 @@ export default function LembarPemantauanTable({
                 );
               })}
               <td className="p-4 text-center">
-                <div className="h-10 border-b border-dashed border-gray-300 flex items-end justify-center text-[10px] text-gray-400">
-                  {history.find(r => r.periode_waktu === week)?.pemeriksa || "...................."}
+                <div className="flex flex-col items-center justify-center gap-1">
+                  <div className="h-6 border-b border-dashed border-gray-300 flex items-end justify-center text-[10px] text-gray-500 w-full px-2">
+                    {history.find(r => r.periode_waktu === week)?.nama_pemeriksa || "...................."}
+                  </div>
+                  {history.find(r => r.periode_waktu === week) && (
+                    <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${
+                      history.find(r => r.periode_waktu === week)?.status === 'Diterima' ? 'bg-green-100 text-green-700' :
+                      history.find(r => r.periode_waktu === week)?.status === 'Ditolak' ? 'bg-red-100 text-red-700' :
+                      'bg-yellow-100 text-yellow-700'
+                    }`}>
+                      {history.find(r => r.periode_waktu === week)?.status || "Menunggu Verifikasi"}
+                    </span>
+                  )}
                 </div>
               </td>
             </tr>

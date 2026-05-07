@@ -321,6 +321,7 @@ func (m *Main) AddCatatanPertumbuhan(req *models.CreatePertumbuhanRequest) error
 		BeratBadan:    req.BeratBadan,
 		TinggiBadan:   req.TinggiBadan,
 		LingkarKepala: req.LingkarKepala,
+		HasilLila:     req.HasilLila,
 		CatatanNakes:  req.CatatanNakes,
 	}
 
@@ -366,6 +367,60 @@ func (m *Main) AddCatatanPertumbuhan(req *models.CreatePertumbuhanRequest) error
 	return nil
 }
 
+// GetPertumbuhanChart returns riwayat + standar data for the frontend GrowthChart component.
+// Response shape: { riwayat: [...], standar_bb_u: [...], standar_tb_u: [...] }
+func (m *Main) GetPertumbuhanChart(anakID uint) (map[string]interface{}, error) {
+	dataAnak, err := m.repository.GetAnakByID(anakID)
+	if err != nil {
+		return nil, err
+	}
+
+	_, rawGender, err := extractAnakTanggalLahirDanGender(dataAnak)
+	if err != nil {
+		return nil, err
+	}
+	gender := sanitizeGender(rawGender)
+	genderNorm := normalizeGenderStr(gender)
+
+	riwayat, _ := m.repository.GetRiwayatPertumbuhanByAnakID(anakID)
+
+	type RiwayatItem struct {
+		UsiaUkurBulan int     `json:"usia_ukur_bulan"`
+		BeratBadan    float64 `json:"berat_badan"`
+		TinggiBadan   float64 `json:"tinggi_badan"`
+		TglUkur       string  `json:"tgl_ukur"`
+	}
+	riwayatList := make([]RiwayatItem, 0, len(riwayat))
+	for _, r := range riwayat {
+		riwayatList = append(riwayatList, RiwayatItem{
+			UsiaUkurBulan: r.UsiaUkurBulan,
+			BeratBadan:    r.BeratBadan,
+			TinggiBadan:   r.TinggiBadan,
+			TglUkur:       r.TglUkur.Format("2006-01-02"),
+		})
+	}
+
+	standarBBU, _ := m.repository.GetMasterStandarByFilter(ParamBBU, genderNorm)
+	standarTBU, _ := m.repository.GetMasterStandarByFilter(ParamTBU, genderNorm)
+
+	return map[string]interface{}{
+		"riwayat":      riwayatList,
+		"standar_bb_u": standarBBU,
+		"standar_tb_u": standarTBU,
+	}, nil
+}
+
+func normalizeGenderStr(gender string) string {
+	v := strings.TrimSpace(strings.ToLower(gender))
+	if v == "m" || v == "male" || v == "l" || strings.Contains(v, "laki") {
+		return "Laki-laki"
+	}
+	if v == "f" || v == "female" || v == "p" || strings.Contains(v, "perem") {
+		return "Perempuan"
+	}
+	return gender
+}
+
 func (m *Main) GetRiwayatPertumbuhan(anakID uint) ([]models.CatatanPertumbuhanResponse, error) {
 	data, err := m.repository.GetRiwayatPertumbuhanByAnakID(anakID)
 	if err != nil {
@@ -401,6 +456,7 @@ func (m *Main) GetRiwayatPertumbuhan(anakID uint) ([]models.CatatanPertumbuhanRe
 			BeratBadan:    val.BeratBadan,
 			TinggiBadan:   val.TinggiBadan,
 			LingkarKepala: val.LingkarKepala,
+			HasilLila:     val.HasilLila,
 			IMT:           math.Round(val.IMT*100) / 100,
 			StatusBBU:     val.StatusBBU,
 			StatusTBU:     val.StatusTBU,
@@ -463,6 +519,7 @@ func (m *Main) GetDetailCatatanPertumbuhan(id uint) (*models.CatatanPertumbuhanR
 		BeratBadan:    data.BeratBadan,
 		TinggiBadan:   data.TinggiBadan,
 		LingkarKepala: data.LingkarKepala,
+		HasilLila:     data.HasilLila,
 		IMT:           math.Round(data.IMT*100) / 100,
 		StatusBBU:     data.StatusBBU,
 		StatusTBU:     data.StatusTBU,
@@ -502,8 +559,11 @@ func (m *Main) UpdateCatatanPertumbuhan(id uint, req *models.UpdatePertumbuhanRe
 	if req.TinggiBadan > 0 {
 		data.TinggiBadan = req.TinggiBadan
 	}
-	if req.LingkarKepala > 0 {
+	if req.LingkarKepala != 0 {
 		data.LingkarKepala = req.LingkarKepala
+	}
+	if req.HasilLila != 0 {
+		data.HasilLila = req.HasilLila
 	}
 	if req.CatatanNakes != "" {
 		data.CatatanNakes = req.CatatanNakes

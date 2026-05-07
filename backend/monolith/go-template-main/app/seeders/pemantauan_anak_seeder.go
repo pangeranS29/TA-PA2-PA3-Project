@@ -19,22 +19,21 @@ func (s *PemantauanAnakSeeder) Seed() error {
 	log.Println("Reseting Pemantauan Anak data (Truncating tables)...")
 
 	// Pembersihan total untuk mereset data yang berantakan
-	s.db.Exec("TRUNCATE TABLE detail_pemantauan_anak RESTART IDENTITY CASCADE")
-	s.db.Exec("TRUNCATE TABLE lembar_pemantauan_anak RESTART IDENTITY CASCADE")
+	s.db.Exec("TRUNCATE TABLE detail_pemantauan RESTART IDENTITY CASCADE")
+	s.db.Exec("TRUNCATE TABLE lembar_pemantauan RESTART IDENTITY CASCADE")
 	s.db.Exec("TRUNCATE TABLE kategori_tanda_sakit RESTART IDENTITY CASCADE")
 	s.db.Exec("TRUNCATE TABLE rentang_usia RESTART IDENTITY CASCADE")
 
-	// Cleanup existing duplicates if any (Optional: but good for fixing user's current state)
-	// We only do this if you want to reset, but better to just use robust FirstOrCreate.
-	
 	rentangData := []struct {
 		Nama        string
 		Satuan      string
+		MaxPeriode  int
 		Indikators  []string
 	}{
 		{
-			Nama:   "29 Hari - 3 Bulan",
-			Satuan: "Minggu",
+			Nama:       "29 Hari - 3 Bulan",
+			Satuan:     "Minggu",
+			MaxPeriode: 12,
 			Indikators: []string{
 				"Sesak napas / cuping hidung kembang kempis / dada tertarik ke dalam",
 				"Batuk dengan bunyi grok-grok/mengi",
@@ -48,8 +47,9 @@ func (s *PemantauanAnakSeeder) Seed() error {
 			},
 		},
 		{
-			Nama:   "3 - 6 Bulan",
-			Satuan: "Bulan",
+			Nama:       "3 - 6 Bulan",
+			Satuan:     "Bulan",
+			MaxPeriode: 6,
 			Indikators: []string{
 				"Tidak mau menyusu",
 				"Kejang",
@@ -62,8 +62,9 @@ func (s *PemantauanAnakSeeder) Seed() error {
 			},
 		},
 		{
-			Nama:   "6 - 12 Bulan",
-			Satuan: "Bulan",
+			Nama:       "6 - 12 Bulan",
+			Satuan:     "Bulan",
+			MaxPeriode: 12,
 			Indikators: []string{
 				"Kenaikan berat badan tidak sesuai",
 				"Diare",
@@ -73,8 +74,9 @@ func (s *PemantauanAnakSeeder) Seed() error {
 			},
 		},
 		{
-			Nama:   "12 - 24 Bulan",
-			Satuan: "Bulan",
+			Nama:       "12 - 24 Bulan",
+			Satuan:     "Bulan",
+			MaxPeriode: 24,
 			Indikators: []string{
 				"Kenaikan berat badan tidak sesuai",
 				"Diare",
@@ -84,8 +86,9 @@ func (s *PemantauanAnakSeeder) Seed() error {
 			},
 		},
 		{
-			Nama:   "2 - 6 Tahun",
-			Satuan: "Bulan",
+			Nama:       "2 - 6 Tahun",
+			Satuan:     "Tahun",
+			MaxPeriode: 6,
 			Indikators: []string{
 				"Kenaikan berat badan tidak sesuai",
 				"Diare",
@@ -98,10 +101,10 @@ func (s *PemantauanAnakSeeder) Seed() error {
 
 	for _, rd := range rentangData {
 		var rentang models.RentangUsia
-		// Use struct in Where for safer matching
 		err := s.db.Where(models.RentangUsia{NamaRentang: rd.Nama}).FirstOrCreate(&rentang, models.RentangUsia{
 			NamaRentang: rd.Nama,
 			SatuanWaktu: rd.Satuan,
+			MaxPeriode:  rd.MaxPeriode,
 		}).Error
 		if err != nil {
 			return err
@@ -112,6 +115,7 @@ func (s *PemantauanAnakSeeder) Seed() error {
 			err := s.db.Where(models.KategoriTandaSakit{RentangUsiaID: rentang.ID, Gejala: gej}).FirstOrCreate(&kategori, models.KategoriTandaSakit{
 				RentangUsiaID: rentang.ID,
 				Gejala:        gej,
+				IsActive:      true,
 			}).Error
 			if err != nil {
 				return err

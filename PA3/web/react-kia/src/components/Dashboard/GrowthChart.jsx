@@ -13,9 +13,9 @@ import {
 } from "recharts";
 
 const GrowthChart = ({ data, type = "bb_u", gender = "Laki-laki" }) => {
-  if (!data || !data.riwayat) return <div className="text-center py-10 text-gray-400">Data tidak tersedia</div>;
+  if (!data || !data.standar_bb_u) return <div className="text-center py-10 text-gray-400">Data tidak tersedia</div>;
 
-  const isLaki = gender === "Laki-laki";
+  const isLaki = gender?.toLowerCase().includes("laki");
   const standar = type === "bb_u" ? data.standar_bb_u : data.standar_tb_u;
 
   if (!standar || !Array.isArray(standar) || standar.length === 0) {
@@ -25,12 +25,15 @@ const GrowthChart = ({ data, type = "bb_u", gender = "Laki-laki" }) => {
   const dataKey = type === "bb_u" ? "berat_badan" : "tinggi_badan";
   const title = type === "bb_u" ? "Grafik Berat Badan (BB/U)" : "Grafik Tinggi Badan (TB/U)";
   const unit = type === "bb_u" ? "kg" : "cm";
+  const riwayat = data.riwayat || [];
 
   // Merge standard curves with child data
+  // nilai_sumbu_x comes as float (e.g. 0.0, 1.0) — use Number() to normalize comparison
   const chartData = standar.map((s) => {
-    const point = data.riwayat.find((r) => r.usia_ukur_bulan === s.nilai_sumbu_x);
+    const month = Number(s.nilai_sumbu_x);
+    const point = riwayat.find((r) => Number(r.usia_ukur_bulan) === month);
     return {
-      month: s.nilai_sumbu_x,
+      month,
       sd_3_neg: s.sd_3_neg,
       sd_2_neg: s.sd_2_neg,
       sd_1_neg: s.sd_1_neg,

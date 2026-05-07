@@ -90,7 +90,7 @@ export default function PemantauanAnakPage() {
         rentang_usia_id: Number(selectedRentangId),
         periode_waktu: week,
         tanggal_periksa: new Date().toISOString().split('T')[0],
-        pemeriksa: "Bidan/Kader", // Should be from auth context ideally
+        nama_pemeriksa: "Bidan/Kader", // Should be from auth context ideally
         detail_gejala: updatedDetails.map(d => ({
           kategori_tanda_sakit_id: d.kategori_tanda_sakit_id,
           is_terjadi: d.is_terjadi

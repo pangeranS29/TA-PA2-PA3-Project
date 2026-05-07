@@ -88,7 +88,7 @@ func (r *pengukuranLilaRepository) Update(id int32, req models.UpdatePengukuranL
 		if req.Bulanke != 0 {
 			updates["bulanke"] = req.Bulanke
 		}
-		if !req.Tanggal.IsZero() {
+		if req.Tanggal != "" {
 			updates["tanggal"] = req.Tanggal
 		}
 		if req.HasilLila != 0 {

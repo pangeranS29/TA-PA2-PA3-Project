@@ -31,16 +31,24 @@ type KehamilanSimple struct {
 	} `json:"ibu"`
 }
 type AnakResponse struct {
-	ID            int32            `json:"id"`
-	KehamilanID   int32            `json:"kehamilan_id"`
-	PendudukID    int32            `json:"penduduk_id"`
-	Nama          string           `json:"nama"`
-	TanggalLahir  string           `json:"tanggal_lahir"` // "YYYY-MM-DD"
-	JenisKelamin  string           `json:"jenis_kelamin"`
-	UsiaBulan     int              `json:"usia_bulan"`
-	UsiaTeks      string           `json:"usia_teks"`
-	BeratLahirKg  *float64         `json:"berat_lahir_kg,omitempty"`
-	TinggiLahirCm *float64         `json:"tinggi_lahir_cm,omitempty"`
-	GolonganDarah string           `json:"golongan_darah,omitempty"`
-	Kehamilan     *KehamilanSimple `json:"kehamilan,omitempty"`
+	ID            int32               `json:"id"`
+	KehamilanID   int32               `json:"kehamilan_id"`
+	PendudukID    int32               `json:"penduduk_id"`
+	Nama          string              `json:"nama"`
+	TanggalLahir  string              `json:"tanggal_lahir"` // "YYYY-MM-DD"
+	JenisKelamin  string              `json:"jenis_kelamin"`
+	UsiaBulan     int                 `json:"usia_bulan"`
+	UsiaTeks      string              `json:"usia_teks"`
+	BeratLahirKg  *float64            `json:"berat_lahir_kg,omitempty"`
+	TinggiLahirCm *float64            `json:"tinggi_lahir_cm,omitempty"`
+	GolonganDarah string              `json:"golongan_darah,omitempty"`
+	Kehamilan     *KehamilanSimple    `json:"kehamilan,omitempty"`
+	Pertumbuhan   []PertumbuhanSimple `json:"pertumbuhan,omitempty"`
+}
+
+type PertumbuhanSimple struct {
+	Bulan       int     `json:"usia_ukur_bulan"`
+	BeratBadan  float64 `json:"berat_badan"`
+	TinggiBadan float64 `json:"tinggi_badan"`
+	HasilLila   float64 `json:"hasil_lila,omitempty"`
 }

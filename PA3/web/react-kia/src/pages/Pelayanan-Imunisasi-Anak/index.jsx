@@ -97,11 +97,11 @@ const PelayananImunisasi = () => {
       const payload = {
         anak_id: parseInt(id),
         bulan_ke: parseInt(formData.bulan_ke),
+        tanggal: new Date(formData.tanggal).toISOString(),
         detail: formData.selected_vax_ids.map(vaxId => ({
           jenis_pelayanan_id: vaxId,
           keterangan: formData.keterangan
         })),
-        created_at: new Date(formData.tanggal).toISOString()
       };
       
       await immunizationService.createPelayanan(payload);

@@ -7,14 +7,15 @@ import (
 )
 
 type PemantauanAnakUseCase interface {
-	SavePemantauan(req *models.LembarPemantauanAnakRequest) error
-	GetHistory(anakID int32, rentangID int32) ([]models.LembarPemantauanAnak, error)
+	SavePemantauan(req *models.LembarPemantauanRequest) error
+	GetHistory(anakID uint, rentangID uint) ([]models.LembarPemantauan, error)
 	GetRentangUsia() ([]models.RentangUsia, error)
-	GetKategoriByRentang(rentangID int32) ([]models.KategoriTandaSakit, error)
-	DeletePemantauan(id int32) error
+	GetKategoriByRentang(rentangID uint) ([]models.KategoriTandaSakit, error)
+	DeletePemantauan(id uint) error
 	CreateKategori(data *models.KategoriTandaSakit) error
-	UpdateKategori(id int32, data *models.KategoriTandaSakit) error
-	DeleteKategori(id int32) error
+	UpdateKategori(id uint, data *models.KategoriTandaSakit) error
+	DeleteKategori(id uint) error
+	VerifikasiPemantauan(id uint, req *models.LembarPemantauanVerifikasiRequest) error
 }
 
 type pemantauanAnakUseCase struct {
@@ -25,15 +26,15 @@ func NewPemantauanAnakUseCase(repo repositories.PemantauanAnakRepository) Pemant
 	return &pemantauanAnakUseCase{repo}
 }
 
-func (u *pemantauanAnakUseCase) SavePemantauan(req *models.LembarPemantauanAnakRequest) error {
+func (u *pemantauanAnakUseCase) SavePemantauan(req *models.LembarPemantauanRequest) error {
 	tgl, err := time.Parse("2006-01-02", req.TanggalPeriksa)
 	if err != nil {
 		return err
 	}
 
-	details := make([]models.DetailPemantauanAnak, len(req.DetailGejala))
+	details := make([]models.DetailPemantauan, len(req.DetailGejala))
 	for i, d := range req.DetailGejala {
-		details[i] = models.DetailPemantauanAnak{
+		details[i] = models.DetailPemantauan{
 			KategoriTandaSakitID: d.KategoriTandaSakitID,
 			IsTerjadi:            d.IsTerjadi,
 		}
@@ -41,25 +42,29 @@ func (u *pemantauanAnakUseCase) SavePemantauan(req *models.LembarPemantauanAnakR
 
 	existing, _ := u.repo.GetByPeriode(req.AnakID, req.RentangUsiaID, req.PeriodeWaktu)
 	if existing != nil {
-		existing.TanggalPeriksa = tgl
-		existing.Pemeriksa = req.Pemeriksa
+		existing.TanggalPeriksa = &tgl
+		existing.NamaPemeriksa = req.NamaPemeriksa
 		existing.DetailGejala = details
+		// If it's being updated, maybe we reset the status or keep it?
+		// We'll reset it to 'Menunggu Verifikasi' if it's updated by kader/bidan again.
+		existing.Status = "Menunggu Verifikasi"
 		return u.repo.Update(existing)
 	}
 
-	record := &models.LembarPemantauanAnak{
+	record := &models.LembarPemantauan{
 		AnakID:         req.AnakID,
 		RentangUsiaID:  req.RentangUsiaID,
 		PeriodeWaktu:   req.PeriodeWaktu,
-		TanggalPeriksa: tgl,
-		Pemeriksa:      req.Pemeriksa,
+		TanggalPeriksa: &tgl,
+		NamaPemeriksa:  req.NamaPemeriksa,
+		Status:         "Menunggu Verifikasi",
 		DetailGejala:   details,
 	}
 
 	return u.repo.Create(record)
 }
 
-func (u *pemantauanAnakUseCase) GetHistory(anakID int32, rentangID int32) ([]models.LembarPemantauanAnak, error) {
+func (u *pemantauanAnakUseCase) GetHistory(anakID uint, rentangID uint) ([]models.LembarPemantauan, error) {
 	return u.repo.FindByChildAndRange(anakID, rentangID)
 }
 
@@ -67,11 +72,11 @@ func (u *pemantauanAnakUseCase) GetRentangUsia() ([]models.RentangUsia, error) {
 	return u.repo.GetRentangUsia()
 }
 
-func (u *pemantauanAnakUseCase) GetKategoriByRentang(rentangID int32) ([]models.KategoriTandaSakit, error) {
+func (u *pemantauanAnakUseCase) GetKategoriByRentang(rentangID uint) ([]models.KategoriTandaSakit, error) {
 	return u.repo.GetKategoriByRentang(rentangID)
 }
 
-func (u *pemantauanAnakUseCase) DeletePemantauan(id int32) error {
+func (u *pemantauanAnakUseCase) DeletePemantauan(id uint) error {
 	return u.repo.Delete(id)
 }
 
@@ -79,11 +84,16 @@ func (u *pemantauanAnakUseCase) CreateKategori(data *models.KategoriTandaSakit) 
 	return u.repo.CreateKategori(data)
 }
 
-func (u *pemantauanAnakUseCase) UpdateKategori(id int32, data *models.KategoriTandaSakit) error {
+func (u *pemantauanAnakUseCase) UpdateKategori(id uint, data *models.KategoriTandaSakit) error {
 	data.ID = id
 	return u.repo.UpdateKategori(data)
 }
 
-func (u *pemantauanAnakUseCase) DeleteKategori(id int32) error {
+func (u *pemantauanAnakUseCase) DeleteKategori(id uint) error {
 	return u.repo.DeleteKategori(id)
+}
+
+func (u *pemantauanAnakUseCase) VerifikasiPemantauan(id uint, req *models.LembarPemantauanVerifikasiRequest) error {
+	// Pengecekan ada tidaknya data mungkin dilakukan di controller/repo
+	return u.repo.UpdateStatus(id, req.Status, req.NamaPemeriksa)
 }

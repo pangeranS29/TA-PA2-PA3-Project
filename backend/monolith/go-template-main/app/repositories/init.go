@@ -39,8 +39,6 @@ type Main struct {
 	CatatanPelayananTrimester1    *CatatanPelayananTrimester1Repository
 	SkriningPreeklampsia          *SkriningPreeklampsiaRepository
 	SkriningDMGestasional         *SkriningDMGestasionalRepository
-	SkriningPemantauan            *SkriningPemantauanRepository
-	KategoriTandaBahaya           *KategoriTandaBahayaRepository
 	CatatanPelayananTrimester2    *CatatanPelayananTrimester2Repository
 	PemeriksaanDokterTrimester3   *PemeriksaanDokterTrimester3Repository
 	PemeriksaanLanjutanTrimester3 *PemeriksaanLanjutanTrimester3Repository
@@ -64,6 +62,18 @@ type Main struct {
 	PemantauanAnak                     PemantauanAnakRepository
 	PerkembanganAnak                   PerkembanganAnakRepository
 	PemantauanIndikator                *PemantauanIndikatorRepository
+
+	// Edukasi Digital
+	EdukasiInformasiUmum           EdukasiInformasiUmumRepository
+	EdukasiTandaBahayaTrimester    EdukasiTandaBahayaTrimesterRepository
+	EdukasiTandaMelahirkan        EdukasiTandaMelahirkanRepository
+	EdukasiImd                    EdukasiIMDRepository
+	EdukasiSetelahMelahirkan      EdukasiSetelahMelahirkanRepository
+	EdukasiMenyusuiAsi            EdukasiMenyusuiASIRepository
+	EdukasiPolaAsuh               EdukasiPolaAsuhRepository
+	EdukasiKesehatanMental        EdukasiKesehatanMentalRepository
+	EdukasiPerawatanAnak          EdukasiPerawatanAnakRepository
+	EdukasiMPASI                  EdukasiMPASIRepository
 }
 
 type Options struct {
@@ -98,8 +108,6 @@ func Init(opts Options) *Main {
 	m.CatatanPelayananTrimester1 = NewCatatanPelayananTrimester1Repository(opts.Postgres)
 	m.SkriningPreeklampsia = NewSkriningPreeklampsiaRepository(opts.Postgres)
 	m.SkriningDMGestasional = NewSkriningDMGestasionalRepository(opts.Postgres)
-	m.SkriningPemantauan = NewSkriningPemantauanRepository(opts.Postgres)
-	m.KategoriTandaBahaya = NewKategoriTandaBahayaRepository(opts.Postgres)
 	m.CatatanPelayananTrimester2 = NewCatatanPelayananTrimester2Repository(opts.Postgres)
 	m.PemeriksaanDokterTrimester3 = NewPemeriksaanDokterTrimester3Repository(opts.Postgres)
 	m.PemeriksaanLanjutanTrimester3 = NewPemeriksaanLanjutanTrimester3Repository(opts.Postgres)
@@ -133,5 +141,18 @@ func Init(opts Options) *Main {
 	m.PerkembanganAnak = NewPerkembanganAnakRepository(opts.Postgres)
 	m.PemantauanIndikator = NewPemantauanIndikatorRepository(opts.Postgres)
 
+	// Edukasi Digital
+	m.EdukasiInformasiUmum = NewEdukasiInformasiUmumRepository(opts.Postgres)
+	m.EdukasiTandaBahayaTrimester = NewEdukasiTandaBahayaTrimesterRepository(opts.Postgres)
+	m.EdukasiTandaMelahirkan = NewEdukasiTandaMelahirkanRepository(opts.Postgres)
+	m.EdukasiImd = NewEdukasiIMDRepository(opts.Postgres)
+	m.EdukasiSetelahMelahirkan = NewEdukasiSetelahMelahirkanRepository(opts.Postgres)
+	m.EdukasiMenyusuiAsi = NewEdukasiMenyusuiASIRepository(opts.Postgres)
+	m.EdukasiPolaAsuh = NewEdukasiPolaAsuhRepository(opts.Postgres)
+	m.EdukasiKesehatanMental = NewEdukasiKesehatanMentalRepository(opts.Postgres)
+	m.EdukasiPerawatanAnak = NewEdukasiPerawatanAnakRepository(opts.Postgres)
+	m.EdukasiMPASI = NewEdukasiMPASIRepository(opts.Postgres)
+
 	return m
 }
+

@@ -101,8 +101,26 @@ export default function AnakDashboard() {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
           <StatCard icon={<Calendar size={20} />} label="Usia" value={child.usia_teks || "-"} color="blue" />
           <StatCard icon={<User size={20} />} label="Ibu" value={child.kehamilan?.ibu?.nama_ibu || "-"} color="blue" />
-          <StatCard icon={<Activity size={20} />} label="BB" value={`${growthData[growthData.length - 1]?.berat_badan || 0} kg`} color="blue" />
-          <StatCard icon={<Ruler size={20} />} label="TB" value={`${growthData[growthData.length - 1]?.tinggi_badan || 0} cm`} color="blue" />
+          <StatCard
+            icon={<Activity size={20} />}
+            label="BB"
+            value={
+              growthData.length > 0
+                ? `${growthData[growthData.length - 1]?.berat_badan ?? 0} kg`
+                : "- kg"
+            }
+            color="blue"
+          />
+          <StatCard
+            icon={<Ruler size={20} />}
+            label="TB"
+            value={
+              growthData.length > 0
+                ? `${growthData[growthData.length - 1]?.tinggi_badan ?? 0} cm`
+                : "- cm"
+            }
+            color="blue"
+          />
         </div>
 
         {/* GRAFIK: Ukuran standar */}
