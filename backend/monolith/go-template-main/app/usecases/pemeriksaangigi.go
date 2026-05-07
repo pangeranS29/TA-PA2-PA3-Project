@@ -31,17 +31,25 @@ func (u *pemeriksaangigiUseCase) Create(req models.CreatePemeriksaanGigiRequest)
 	}
 
 	now := time.Now()
+	tgl := now
+	if req.Tanggal != "" {
+		if t, err := time.Parse("2006-01-02", req.Tanggal); err == nil {
+			tgl = t
+		} else if t, err := time.Parse(time.RFC3339, req.Tanggal); err == nil {
+			tgl = t
+		}
+	}
 
 	pemeriksaan := models.PeriksaGigi{
-		AnakID:    req.AnakID,
-		Bulanke:   req.Bulanke,
-		Tanggal:   req.Tanggal,
-		Jumlahgigi: req.Jumlahgigi,
-		GigiBerlubang: req.GigiBerlubang,
-		StatusPlak: req.StatusPlak,
+		AnakID:              req.AnakID,
+		Bulanke:             req.Bulanke,
+		Tanggal:             tgl,
+		Jumlahgigi:          req.Jumlahgigi,
+		GigiBerlubang:       req.GigiBerlubang,
+		StatusPlak:          req.StatusPlak,
 		ResikoGigiBerlubang: req.ResikoGigiBerlubang,
-		CreatedAt: now,
-		UpdatedAt: now,
+		CreatedAt:           now,
+		UpdatedAt:           now,
 	}
 
 	return u.repo.Create(&pemeriksaan)

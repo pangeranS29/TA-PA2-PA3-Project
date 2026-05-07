@@ -30,29 +30,62 @@ func (u *pemantauanpertumbuhanUseCase) Create(req models.CreatePemantauanPemerik
 		return errors.New("anak_id wajib diisi")
 	}
 
+	if req.TenagaKesehatanID == 0 {
+		return errors.New("tenaga_kesehatan_id wajib diisi")
+	}
+
 	now := time.Now()
 
+	// Parse tanggal
+	tgl := now
+	if req.Tanggal != "" {
+		if t, err := time.Parse(time.RFC3339, req.Tanggal); err == nil {
+			tgl = t
+		} else if t, err := time.Parse("2006-01-02", req.Tanggal); err == nil {
+			tgl = t
+		}
+	}
+
+	// Parse kunjungan ulang
+	var kunjunganUlang time.Time
+	if req.KunjunganUlang != "" {
+		if ku, err := time.Parse(time.RFC3339, req.KunjunganUlang); err == nil {
+			kunjunganUlang = ku
+		} else if ku, err := time.Parse("2006-01-02", req.KunjunganUlang); err == nil {
+			kunjunganUlang = ku
+		}
+	}
+
+	hasilPKAT := req.HasilPKAT
+	if hasilPKAT == "" {
+		hasilPKAT = "Normal"
+	}
+	tindakan := req.Tindakan
+	if tindakan == "" {
+		tindakan = "Pemberian stimulasi sesuai usia"
+	}
+
 	pemeriksaan := models.DeteksiDiniPenyimpangan{
-		AnakID:    req.AnakID,
-		BulanKe:   req.Bulanke,
-		Tanggal:   req.Tanggal,
+		AnakID:            req.AnakID,
+		BulanKe:           req.Bulanke,
+		Tanggal:           tgl,
 		TenagaKesehatanID: req.TenagaKesehatanID,
-		BBperU: req.BBperU,
-		BBperTB: req.BBperTB,
-		TBperU: req.TBperU,
-		LKperU: req.LKperU,
-		LILA: req.LILA,
-		KPSP: req.KPSP,
-		TDD: req.TDD,
-		TDL: req.TDL,
-		KMPE: req.KMPE,
-		MCHATRevised: req.MCHATRevised,
-		ACTRS: req.ACTRS,
-		HasilPKAT: req.HasilPKAT,
-		Tindakan: req.Tindakan,
-		KunjunganUlang: req.KunjunganUlang,
-		CreatedAt: now,
-		UpdatedAt: now,
+		BBperU:            req.BBperU,
+		BBperTB:           req.BBperTB,
+		TBperU:            req.TBperU,
+		LKperU:            req.LKperU,
+		LILA:              req.LILA,
+		KPSP:              req.KPSP,
+		TDD:               req.TDD,
+		TDL:               req.TDL,
+		KMPE:              req.KMPE,
+		MCHATRevised:      req.MCHATRevised,
+		ACTRS:             req.ACTRS,
+		HasilPKAT:         hasilPKAT,
+		Tindakan:          tindakan,
+		KunjunganUlang:    kunjunganUlang,
+		CreatedAt:         now,
+		UpdatedAt:         now,
 	}
 
 	return u.repo.Create(&pemeriksaan)
