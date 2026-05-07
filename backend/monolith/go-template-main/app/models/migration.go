@@ -9,8 +9,8 @@ func AutoMigrate(db *gorm.DB) error {
 	models := []interface{}{
 		// Master
 		&KartuKeluarga{},
-		&Kependudukan{},
-		&Ibu{},
+		// &Kependudukan{},
+		// &Ibu{},
 		// &KategoriTandaBahaya{},
 		&SkriningPemantauan{},
 		// &KartuKeluarga{},
