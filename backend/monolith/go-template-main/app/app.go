@@ -2,7 +2,9 @@ package app
 
 import (
 	"fmt"
+	"log"
 	"monitoring-service/app/controllers"
+	"time"
 
 	// "monitoring-service/app/models"
 	"monitoring-service/app/repositories"
@@ -15,6 +17,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/robfig/cron/v3"
 	"github.com/spf13/viper"
 	"gorm.io/gorm"
 )
@@ -26,6 +29,7 @@ type Main struct {
 	usecase    *usecases.Main
 	controller *controllers.Main
 	router     *echo.Echo
+	cron       *cron.Cron
 }
 
 type Database struct {
@@ -35,6 +39,28 @@ type Database struct {
 
 func New() *Main {
 	return new(Main)
+}
+func (m *Main) startCronJob() {
+	// Asumsikan usecase.KehamilanUsecase memiliki method UpdateAllActiveGestationalAge()
+	kehamilanUC := m.usecase.Kehamilan // atau m.usecase.KehUsecase, sesuaikan dengan field di usecases.Main
+
+	c := cron.New(cron.WithLocation(time.Local))
+	// Jadwalkan setiap hari jam 01:00
+	_, err := c.AddFunc("0 1 * * *", func() {
+		log.Println("[CRON] Memulai update otomatis usia kehamilan...")
+		if err := kehamilanUC.UpdateAllActiveGestationalAge(); err != nil {
+			log.Printf("[CRON] Gagal update: %v", err)
+		} else {
+			log.Println("[CRON] Update usia kehamilan selesai.")
+		}
+	})
+	if err != nil {
+		log.Fatalf("[CRON] Gagal menjadwalkan job: %v", err)
+	}
+
+	c.Start()
+	m.cron = c
+	log.Println("[CRON] Scheduler berjalan (setiap hari pukul 01:00).")
 }
 
 func (m *Main) Init() (err error) {
@@ -120,6 +146,7 @@ func (m *Main) Init() (err error) {
 	})
 
 	m.router = e
+	go m.startCronJob()
 
 	routes.ConfigureRouter(e, m.controller)
 	return err

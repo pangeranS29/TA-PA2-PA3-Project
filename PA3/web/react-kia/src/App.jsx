@@ -159,7 +159,7 @@ function App() {
         <Route path="/data-anak/pelayanan-gizi/:id" element={<PelayananGiziIndex />} />
         <Route path="/data-anak/pelayanan-gizi/:id/create" element={<PelayananGiziCreate />} />
 
-        <Route path="/dashboard/dokter" element={<ProtectedRoute allowedRoles={["dokter"]}> <DokterDashboard /></ProtectedRoute>}/>
+        <Route path="/dashboard/dokter" element={<ProtectedRoute allowedRoles={["dokter"]}> <Dashboard /></ProtectedRoute>}/>
         <Route path="/" element={<HomeRedirect />} />
         <Route path="*" element={<HomeRedirect />} />
       </Routes>

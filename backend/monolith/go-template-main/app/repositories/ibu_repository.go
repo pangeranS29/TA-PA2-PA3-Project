@@ -125,6 +125,7 @@ func (r *IbuRepository) GetDashboard() ([]models.IbuDashboardDTO, error) {
 			kp.dusun,
 
 			k.status_kehamilan,
+			k.hpht,
 			k.uk_kehamilan_saat_ini as usia_kehamilan,
 
 			p.tanggal_periksa,
@@ -140,20 +141,20 @@ func (r *IbuRepository) GetDashboard() ([]models.IbuDashboardDTO, error) {
 			k.id as kehamilan_id
 		`).
 
-		// ✅ JOIN DATA IBU
+		// JOIN DATA IBU
 		Joins(`
 			JOIN penduduk kp 
 			ON kp.id = i.penduduk_id
 		`).
 
-		// ✅ SEMUA KEHAMILAN (tanpa soft delete)
+		//  SEMUA KEHAMILAN (tanpa soft delete)
 		Joins(`
 			LEFT JOIN kehamilan k 
 			ON k.ibu_id = i.id 
 			AND k.deleted_at IS NULL
 		`).
 
-		// ✅ AMBIL 1 PEMERIKSAAN TERAKHIR PER KEHAMILAN (FIXED)
+		//  AMBIL 1 PEMERIKSAAN TERAKHIR PER KEHAMILAN (FIXED)
 		Joins(`
 			LEFT JOIN pemeriksaan_kehamilan p 
 			ON p.id_periksa = (

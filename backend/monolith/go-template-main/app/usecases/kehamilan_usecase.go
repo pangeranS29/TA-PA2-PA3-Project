@@ -2,8 +2,10 @@ package usecases
 
 import (
 	"errors"
+	"log"
 	"monitoring-service/app/models"
 	"monitoring-service/app/repositories"
+	"monitoring-service/app/utils"
 	"time"
 )
 
@@ -16,6 +18,7 @@ type KehamilanUsecase interface {
 	Delete(id int32) error
 	GetDashboardIbuHamil() ([]repositories.KehamilanDashboardDTO, error)
 	ExistsActiveByIbuID(ibuID int32) (bool, error)
+	 UpdateAllActiveGestationalAge() error
 }
 
 type kehamilanUsecase struct {
@@ -159,4 +162,39 @@ func (u *kehamilanUsecase) GetDashboardIbuHamil() ([]repositories.KehamilanDashb
 }
 func (u *kehamilanUsecase) ExistsActiveByIbuID(ibuID int32) (bool, error) {
 	return u.repo.ExistsActiveByIbuID(ibuID)
+}
+
+// UpdateAllActiveGestationalAge menghitung ulang usia dan status untuk semua kehamilan aktif
+func (u *kehamilanUsecase) UpdateAllActiveGestationalAge() error {
+    log.Println("[CRON] Memulai update usia kehamilan dan status trimester...")
+
+    kehamilans, err := u.repo.GetActiveKehamilanList()
+    if err != nil {
+        log.Printf("Gagal mengambil data kehamilan aktif: %v", err)
+        return err
+    }
+
+    if len(kehamilans) == 0 {
+        log.Println("Tidak ada kehamilan aktif yang perlu diupdate.")
+        return nil
+    }
+
+    updated := 0
+    for _, k := range kehamilans {
+        // Hitung usia dari HPHT
+        usia := int32(utils.HitungUsiaKehamilanFromTime(k.HPHT))
+        // Tentukan trimester berdasarkan usia
+        status := utils.DetermineTrimester(int(usia))
+
+        // Update ke database
+        err := u.repo.UpdateUsiaDanStatusKehamilan(k.ID, usia, status)
+        if err != nil {
+            log.Printf("Gagal update kehamilan ID %d: %v", k.ID, err)
+        } else {
+            updated++
+        }
+    }
+
+    log.Printf("Selesai. Berhasil update %d dari %d kehamilan.", updated, len(kehamilans))
+    return nil
 }
