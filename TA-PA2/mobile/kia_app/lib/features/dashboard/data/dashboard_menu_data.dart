@@ -100,6 +100,7 @@ class DashboardMenuData {
   static List<Map<String, dynamic>> phases = [
     {'label': 'Hamil', 'icon': Icons.favorite_border},
     {'label': 'Nifas', 'icon': Icons.person_outline},
+    {'label': 'Menyusui','icon': Icons.child_care_outlined,},
     {'label': 'Tumbuh', 'icon': Icons.emoji_emotions_outlined},
   ];
 }
