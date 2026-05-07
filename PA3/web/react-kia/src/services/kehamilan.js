@@ -35,8 +35,8 @@ export const deleteKehamilan = async (id) => {
   return res.data;
 };
 
-// Ambil semua data kehamilan (tanpa filter ibu) – optional
+// Ambil SEMUA data kehamilan dari semua ibu
 export const getKehamilanList = async () => {
-  const response = await api.get(BASE);
+  const response = await api.get(`${BASE}/all`);
   return response.data.data;
 };

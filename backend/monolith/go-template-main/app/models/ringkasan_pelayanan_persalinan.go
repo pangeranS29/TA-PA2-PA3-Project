@@ -17,11 +17,11 @@ type RingkasanPelayananPersalinan struct {
 	KBPascaMelahirkan        string     `gorm:"type:varchar(100)" json:"kb_pasca_melahirkan"`
 	KeteranganTambahanIbu    string     `json:"keterangan_tambahan_ibu"`
 
-	BayiAnakKe          int    `json:"bayi_anak_ke"`
-	BayiBeratLahirGram  int    `json:"bayi_berat_lahir_gram"`
-	BayiPanjangBadanCm  int    `json:"bayi_panjang_badan_cm"`
-	BayiLingkarKepalaCm int    `json:"bayi_lingkar_kepala_cm"`
-	BayiJenisKelamin    string `gorm:"type:varchar(50)" json:"bayi_jenis_kelamin"`
+	BayiAnakKe          int       `json:"bayi_anak_ke"`
+	BayiBeratLahirGram  *float64  `json:"bayi_berat_lahir_gram"`
+	BayiPanjangBadanCm  *float64  `json:"bayi_panjang_badan_cm"`
+	BayiLingkarKepalaCm *float64  `json:"bayi_lingkar_kepala_cm"`
+	BayiJenisKelamin    string    `gorm:"type:varchar(50)" json:"bayi_jenis_kelamin"`
 
 	KondisiBayiSegeraMenangis        bool   `json:"kondisi_bayi_segera_menangis"`
 	KondisiBayiMenangisBeberapaSaat  bool   `json:"kondisi_bayi_menangis_beberapa_saat"`

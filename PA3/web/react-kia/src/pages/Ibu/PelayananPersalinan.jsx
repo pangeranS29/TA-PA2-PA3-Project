@@ -2,7 +2,8 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import MainLayout from "../../components/Layout/MainLayout";
-import { getKehamilanByIbuId } from "../../services/kehamilan";
+import { getKehamilanByIbuId, updateKehamilan } from "../../services/kehamilan";
+import { getIbuById } from "../../services/ibu";
 import {
   getRingkasanPersalinanByKehamilanId,
   createRingkasanPersalinan,
@@ -14,11 +15,9 @@ import {
   createKeteranganLahir,
   updateKeteranganLahir,
 } from "../../services/prosesMelahirkan";
-import { Save, ArrowLeft, Edit2, CheckCircle, Printer, Plus, Home } from "lucide-react";
+import { Save, ArrowLeft, Edit2, CheckCircle, Printer, Home, Plus } from "lucide-react";
+import { createAnakDenganPenduduk } from "../../services/Anak";
 
-// ============================================================
-// KOMPONEN DETAIL ITEM
-// ============================================================
 const DetailItem = ({ label, value }) => (
   <div className="flex flex-col">
     <span className="text-xs text-gray-500 font-medium uppercase tracking-wide">{label}</span>
@@ -245,6 +244,7 @@ export default function PelayananPersalinan() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("ringkasan");
   const [kehamilan, setKehamilan] = useState(null);
+  const [ibu, setIbu] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -257,12 +257,27 @@ export default function PelayananPersalinan() {
   const [formRingkasan, setFormRingkasan] = useState({
     tanggal_melahirkan: "", umur_kehamilan_minggu: "",
     penolong_proses_melahirkan: "", cara_melahirkan: "",
-    keadaan_ibu: "", kb_pasca_melahirkan: "",
-    bayi_anak_ke: "", bayi_berat_lahir_gram: "",
-    bayi_panjang_badan_cm: "", bayi_lingkar_kepala_cm: "",
-    bayi_jenis_kelamin: "",
+    keadaan_ibu: "", keadaan_ibu_detail_sakit: "", keterangan_tambahan_ibu: "",
+    kb_pasca_melahirkan: "",
+    gravida: "", paritas: "", abortus: "",
     kondisi_bayi_segera_menangis: false,
+    kondisi_bayi_menangis_beberapa_saat: false,
+    kondisi_bayi_tidak_menangis: false,
+    kondisi_bayi_seluruh_tubuh_kemerahan: false,
+    kondisi_bayi_anggota_gerak_kebiruan: false,
+    kondisi_bayi_seluruh_tubuh_biru: false,
+    kondisi_bayi_kelainan_bawaan: false,
+    kondisi_bayi_kelainan_bawaan_detail: "",
+    kondisi_bayi_meninggal: false,
     asuhan_imd_1_jam_pertama: false,
+    asuhan_suntikan_vitamin_k1: false,
+    asuhan_salep_mata_antibiotika: false,
+    asuhan_imunisasi_hb0: false,
+    keterangan_tambahan_bayi: "",
+    // Data Anak Lahir
+    nama_anak: "", anak_tanggal_lahir: "", anak_jenis_kelamin: "",
+    bayi_anak_ke: "", bayi_berat_lahir_gram: "", bayi_panjang_badan_cm: "", bayi_lingkar_kepala_cm: "",
+    anak_nama_ibu: "", anak_nama_ayah: "",
   });
 
   const [riwayat, setRiwayat] = useState(null);
@@ -271,7 +286,12 @@ export default function PelayananPersalinan() {
     tanggal_melahirkan: "", fasyankes_tempat_melahirkan: "",
     cara_melahirkan_spontan: false, tindakan_sc: false,
   });
+  const [editRiwayatGpa, setEditRiwayatGpa] = useState(false);
 
+  
+  const [daftarAnak, setDaftarAnak] = useState([]);
+
+  
   const [keterangan, setKeterangan] = useState(null);
   const [formKeterangan, setFormKeterangan] = useState({
     nomor_surat: "", hari_lahir: "", tanggal_lahir: "",
@@ -311,6 +331,22 @@ export default function PelayananPersalinan() {
         if (kehamilanList.length > 0) {
           const aktif = kehamilanList[0];
           setKehamilan(aktif);
+          
+          // Fetch ibu data untuk mendapatkan penduduk_id
+          if (aktif.ibu_id) {
+            try {
+              const ibuData = await getIbuById(aktif.ibu_id);
+              setIbu(ibuData);
+            } catch (err) {
+              console.error("Failed to fetch ibu data:", err);
+            }
+          }
+          
+          const gpaAktif = {
+            gravida: aktif.gravida ?? "",
+            paritas: aktif.paritas ?? "",
+            abortus: aktif.abortus ?? "",
+          };
 
           const dRingkasan = await getRingkasanPersalinanByKehamilanId(aktif.id);
           if (dRingkasan && dRingkasan.length > 0) {
@@ -322,14 +358,37 @@ export default function PelayananPersalinan() {
               penolong_proses_melahirkan: d.penolong_proses_melahirkan || "",
               cara_melahirkan: d.cara_melahirkan || "",
               keadaan_ibu: d.keadaan_ibu || "",
+              keadaan_ibu_detail_sakit: d.keadaan_ibu_detail_sakit || "",
+              keterangan_tambahan_ibu: d.keterangan_tambahan_ibu || "",
               kb_pasca_melahirkan: d.kb_pasca_melahirkan || "",
+              gravida: gpaAktif.gravida,
+              paritas: gpaAktif.paritas,
+              abortus: gpaAktif.abortus,
+              // Keadaan Bayi (sesuai DB)
+              kondisi_bayi_segera_menangis: d.kondisi_bayi_segera_menangis || false,
+              kondisi_bayi_menangis_beberapa_saat: d.kondisi_bayi_menangis_beberapa_saat || false,
+              kondisi_bayi_tidak_menangis: d.kondisi_bayi_tidak_menangis || false,
+              kondisi_bayi_seluruh_tubuh_kemerahan: d.kondisi_bayi_seluruh_tubuh_kemerahan || false,
+              kondisi_bayi_anggota_gerak_kebiruan: d.kondisi_bayi_anggota_gerak_kebiruan || false,
+              kondisi_bayi_seluruh_tubuh_biru: d.kondisi_bayi_seluruh_tubuh_biru || false,
+              kondisi_bayi_kelainan_bawaan: d.kondisi_bayi_kelainan_bawaan || false,
+              kondisi_bayi_kelainan_bawaan_detail: d.kondisi_bayi_kelainan_bawaan_detail || "",
+              kondisi_bayi_meninggal: d.kondisi_bayi_meninggal || false,
+              // Asuhan Bayi Baru Lahir (sesuai DB)
+              asuhan_imd_1_jam_pertama: d.asuhan_imd_1_jam_pertama || false,
+              asuhan_suntikan_vitamin_k1: d.asuhan_suntikan_vitamin_k1 || false,
+              asuhan_salep_mata_antibiotika: d.asuhan_salep_mata_antibiotika || false,
+              asuhan_imunisasi_hb0: d.asuhan_imunisasi_hb0 || false,
+              keterangan_tambahan_bayi: d.keterangan_tambahan_bayi || "",
+              nama_anak: "",
+              anak_tanggal_lahir: "",
+              anak_jenis_kelamin: "",
               bayi_anak_ke: d.bayi_anak_ke ?? "",
               bayi_berat_lahir_gram: d.bayi_berat_lahir_gram ?? "",
               bayi_panjang_badan_cm: d.bayi_panjang_badan_cm ?? "",
               bayi_lingkar_kepala_cm: d.bayi_lingkar_kepala_cm ?? "",
-              bayi_jenis_kelamin: d.bayi_jenis_kelamin || "",
-              kondisi_bayi_segera_menangis: d.kondisi_bayi_segera_menangis || false,
-              asuhan_imd_1_jam_pertama: d.asuhan_imd_1_jam_pertama || false,
+              anak_nama_ibu: "",
+              anak_nama_ayah: "",
             });
             setModeRingkasan("detail");
           } else {
@@ -341,9 +400,9 @@ export default function PelayananPersalinan() {
             const d = dRiwayat[0];
             setRiwayat(d);
             setFormRiwayat({
-              g_gravida: d.g_gravida ?? "",
-              p_partus: d.p_partus ?? "",
-              a_abortus: d.a_abortus ?? "",
+              g_gravida: d.g_gravida ?? gpaAktif.gravida ?? "",
+              p_partus: d.p_partus ?? gpaAktif.paritas ?? "",
+              a_abortus: d.a_abortus ?? gpaAktif.abortus ?? "",
               tanggal_melahirkan: d.tanggal_melahirkan ? d.tanggal_melahirkan.split("T")[0] : "",
               fasyankes_tempat_melahirkan: d.fasyankes_tempat_melahirkan || "",
               cara_melahirkan_spontan: d.cara_melahirkan_spontan || false,
@@ -399,24 +458,109 @@ export default function PelayananPersalinan() {
     setForm((prev) => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
   };
 
+  
+
+  const resetFormAnakRingkasan = () => {
+    setFormRingkasan((prev) => ({
+      ...prev,
+      nama_anak: "", anak_tanggal_lahir: "", anak_jenis_kelamin: "",
+      anak_berat_lahir_kg: "", anak_tinggi_lahir_cm: "", anak_lingkar_kepala_cm: "",
+      anak_nama_ibu: "", anak_nama_ayah: "",
+    }));
+  };
+
+  
+
   const submitRingkasan = async (e) => {
     e.preventDefault();
     if (!kehamilan) { alert("Data kehamilan tidak ditemukan!"); return; }
     setSaving(true);
     try {
-      const payload = { ...formRingkasan, kehamilan_id: kehamilan.id };
-      payload.umur_kehamilan_minggu = parseInt(payload.umur_kehamilan_minggu) || 0;
-      payload.bayi_anak_ke = parseInt(payload.bayi_anak_ke) || 0;
-      payload.bayi_berat_lahir_gram = parseInt(payload.bayi_berat_lahir_gram) || 0;
-      payload.bayi_panjang_badan_cm = parseInt(payload.bayi_panjang_badan_cm) || 0;
-      payload.bayi_lingkar_kepala_cm = parseInt(payload.bayi_lingkar_kepala_cm) || 0;
+      // Persiapan payload ringkasan + data anak dalam satu submit
+      const payloadRingkasan = { 
+        kehamilan_id: kehamilan.id,
+        tanggal_melahirkan: formRingkasan.tanggal_melahirkan,
+        umur_kehamilan_minggu: formRingkasan.umur_kehamilan_minggu,
+        penolong_proses_melahirkan: formRingkasan.penolong_proses_melahirkan,
+        cara_melahirkan: formRingkasan.cara_melahirkan,
+        keadaan_ibu: formRingkasan.keadaan_ibu,
+        keadaan_ibu_detail_sakit: formRingkasan.keadaan_ibu_detail_sakit,
+        keterangan_tambahan_ibu: formRingkasan.keterangan_tambahan_ibu,
+        kb_pasca_melahirkan: formRingkasan.kb_pasca_melahirkan,
+        gravida: formRingkasan.gravida,
+        paritas: formRingkasan.paritas,
+        abortus: formRingkasan.abortus,
+        kondisi_bayi_segera_menangis: formRingkasan.kondisi_bayi_segera_menangis,
+        kondisi_bayi_menangis_beberapa_saat: formRingkasan.kondisi_bayi_menangis_beberapa_saat,
+        kondisi_bayi_tidak_menangis: formRingkasan.kondisi_bayi_tidak_menangis,
+        kondisi_bayi_seluruh_tubuh_kemerahan: formRingkasan.kondisi_bayi_seluruh_tubuh_kemerahan,
+        kondisi_bayi_anggota_gerak_kebiruan: formRingkasan.kondisi_bayi_anggota_gerak_kebiruan,
+        kondisi_bayi_seluruh_tubuh_biru: formRingkasan.kondisi_bayi_seluruh_tubuh_biru,
+        kondisi_bayi_kelainan_bawaan: formRingkasan.kondisi_bayi_kelainan_bawaan,
+        kondisi_bayi_kelainan_bawaan_detail: formRingkasan.kondisi_bayi_kelainan_bawaan_detail,
+        kondisi_bayi_meninggal: formRingkasan.kondisi_bayi_meninggal,
+        asuhan_imd_1_jam_pertama: formRingkasan.asuhan_imd_1_jam_pertama,
+        asuhan_suntikan_vitamin_k1: formRingkasan.asuhan_suntikan_vitamin_k1,
+        asuhan_salep_mata_antibiotika: formRingkasan.asuhan_salep_mata_antibiotika,
+        asuhan_imunisasi_hb0: formRingkasan.asuhan_imunisasi_hb0,
+        keterangan_tambahan_bayi: formRingkasan.keterangan_tambahan_bayi,
+        bayi_anak_ke: formRingkasan.bayi_anak_ke,
+        bayi_berat_lahir_gram: formRingkasan.bayi_berat_lahir_gram,
+        bayi_panjang_badan_cm: formRingkasan.bayi_panjang_badan_cm,
+        bayi_lingkar_kepala_cm: formRingkasan.bayi_lingkar_kepala_cm,
+        bayi_jenis_kelamin: formRingkasan.anak_jenis_kelamin,
+      };
+      payloadRingkasan.umur_kehamilan_minggu = parseInt(payloadRingkasan.umur_kehamilan_minggu) || 0;
+      payloadRingkasan.gravida = parseInt(payloadRingkasan.gravida) || 0;
+      payloadRingkasan.paritas = parseInt(payloadRingkasan.paritas) || 0;
+      payloadRingkasan.abortus = parseInt(payloadRingkasan.abortus) || 0;
+      payloadRingkasan.bayi_anak_ke = parseInt(payloadRingkasan.bayi_anak_ke) || 0;
+      payloadRingkasan.bayi_berat_lahir_gram = parseFloat(payloadRingkasan.bayi_berat_lahir_gram) || 0;
+      payloadRingkasan.bayi_panjang_badan_cm = parseFloat(payloadRingkasan.bayi_panjang_badan_cm) || 0;
+      payloadRingkasan.bayi_lingkar_kepala_cm = parseFloat(payloadRingkasan.bayi_lingkar_kepala_cm) || 0;
+      
+      // Simpan ringkasan
       if (ringkasan) {
         const idRingkasan = ringkasan.id_ringkasan || ringkasan.id || ringkasan.ID;
-        await updateRingkasanPersalinan(idRingkasan, payload);
+        await updateRingkasanPersalinan(idRingkasan, payloadRingkasan);
       } else {
-        const saved = await createRingkasanPersalinan(payload);
+        const saved = await createRingkasanPersalinan(payloadRingkasan);
         setRingkasan(saved);
       }
+      
+      // Update kehamilan dengan G/P/A
+      await updateKehamilan(kehamilan.id, {
+        gravida: payloadRingkasan.gravida,
+        paritas: payloadRingkasan.paritas,
+        abortus: payloadRingkasan.abortus,
+      });
+      setFormRiwayat((prev) => ({
+        ...prev,
+        g_gravida: payloadRingkasan.gravida,
+        p_partus: payloadRingkasan.paritas,
+        a_abortus: payloadRingkasan.abortus,
+      }));
+      
+      // Jika ada nama anak, buat record Anak baru
+      if (formRingkasan.nama_anak && formRingkasan.nama_anak.trim()) {
+        const payloadAnak = {
+          kehamilan_id: kehamilan.id,
+          ibu_id: kehamilan.ibu_id,
+          nama: formRingkasan.nama_anak,
+          jenis_kelamin: formRingkasan.anak_jenis_kelamin || "",
+          tanggal_lahir: formRingkasan.anak_tanggal_lahir || "",
+          anak_ke: parseInt(formRingkasan.bayi_anak_ke) || 0,
+          berat_lahir_kg: formRingkasan.bayi_berat_lahir_gram ? parseFloat(formRingkasan.bayi_berat_lahir_gram) / 1000 : null,
+          tinggi_lahir_cm: formRingkasan.bayi_panjang_badan_cm ? parseFloat(formRingkasan.bayi_panjang_badan_cm) : null,
+          lingkar_kepala_cm: formRingkasan.bayi_lingkar_kepala_cm ? parseFloat(formRingkasan.bayi_lingkar_kepala_cm) : null,
+          nama_ibu: formRingkasan.anak_nama_ibu || "",
+          nama_ayah: formRingkasan.anak_nama_ayah || "",
+        };
+        const savedAnak = await createAnakDenganPenduduk(payloadAnak);
+        setDaftarAnak((prev) => [savedAnak.data || savedAnak, ...prev]);
+        resetFormAnakRingkasan();
+      }
+      
       setModeRingkasan("detail");
       // Refresh data agar tampilan detail terbaru
       const dRingkasan = await getRingkasanPersalinanByKehamilanId(kehamilan.id);
@@ -434,8 +578,25 @@ export default function PelayananPersalinan() {
           bayi_panjang_badan_cm: d.bayi_panjang_badan_cm ?? "",
           bayi_lingkar_kepala_cm: d.bayi_lingkar_kepala_cm ?? "",
           bayi_jenis_kelamin: d.bayi_jenis_kelamin || "",
+          nama_anak: d.nama_bayi || "",
+          anak_tanggal_lahir: d.anak_tanggal_lahir ? d.anak_tanggal_lahir.split("T")[0] : "",
+          anak_jenis_kelamin: d.bayi_jenis_kelamin || "",
+          anak_nama_ibu: d.nama_ibu_anak || "",
+          anak_nama_ayah: d.nama_ayah_anak || "",
           kondisi_bayi_segera_menangis: d.kondisi_bayi_segera_menangis || false,
+          kondisi_bayi_menangis_beberapa_saat: d.kondisi_bayi_menangis_beberapa_saat || false,
+          kondisi_bayi_tidak_menangis: d.kondisi_bayi_tidak_menangis || false,
+          kondisi_bayi_seluruh_tubuh_kemerahan: d.kondisi_bayi_seluruh_tubuh_kemerahan || false,
+          kondisi_bayi_anggota_gerak_kebiruan: d.kondisi_bayi_anggota_gerak_kebiruan || false,
+          kondisi_bayi_seluruh_tubuh_biru: d.kondisi_bayi_seluruh_tubuh_biru || false,
+          kondisi_bayi_kelainan_bawaan: d.kondisi_bayi_kelainan_bawaan || false,
+          kondisi_bayi_kelainan_bawaan_detail: d.kondisi_bayi_kelainan_bawaan_detail || "",
+          kondisi_bayi_meninggal: d.kondisi_bayi_meninggal || false,
           asuhan_imd_1_jam_pertama: d.asuhan_imd_1_jam_pertama || false,
+          asuhan_suntikan_vitamin_k1: d.asuhan_suntikan_vitamin_k1 || false,
+          asuhan_salep_mata_antibiotika: d.asuhan_salep_mata_antibiotika || false,
+          asuhan_imunisasi_hb0: d.asuhan_imunisasi_hb0 || false,
+          keterangan_tambahan_bayi: d.keterangan_tambahan_bayi || "",
         });
       }
     } catch (err) {
@@ -452,15 +613,23 @@ export default function PelayananPersalinan() {
     setSaving(true);
     try {
       const payload = { ...formRiwayat, kehamilan_id: kehamilan.id };
-      payload.g_gravida = parseInt(payload.g_gravida) || 0;
-      payload.p_partus = parseInt(payload.p_partus) || 0;
-      payload.a_abortus = parseInt(payload.a_abortus) || 0;
+      const sourceGpa = editRiwayatGpa ? formRiwayat : formRingkasan;
+      payload.g_gravida = parseInt(sourceGpa.g_gravida ?? sourceGpa.gravida) || 0;
+      payload.p_partus = parseInt(sourceGpa.p_partus ?? sourceGpa.paritas) || 0;
+      payload.a_abortus = parseInt(sourceGpa.a_abortus ?? sourceGpa.abortus) || 0;
+      await updateKehamilan(kehamilan.id, {
+        gravida: payload.g_gravida,
+        paritas: payload.p_partus,
+        abortus: payload.a_abortus,
+      });
       if (riwayat) {
         const idRiwayat = riwayat.id_riwayat_melahirkan || riwayat.id || riwayat.ID;
         await updateRiwayatMelahirkan(idRiwayat, payload);
+        setEditRiwayatGpa(false);
       } else {
         const saved = await createRiwayatMelahirkan(payload);
         setRiwayat(saved);
+        setEditRiwayatGpa(false);
       }
       setModeRiwayat("detail");
       const dRiwayat = await getRiwayatMelahirkanByKehamilanId(kehamilan.id);
@@ -591,6 +760,8 @@ export default function PelayananPersalinan() {
           <TabButton id="keterangan" label="Surat Keterangan Lahir" />
         </div>
 
+        {/* (Child fields moved into ringkasan form) */}
+
         {/* ===== RINGKASAN ===== */}
         {activeTab === "ringkasan" && (
           <>
@@ -613,17 +784,6 @@ export default function PelayananPersalinan() {
                   <DetailItem label="Cara Melahirkan" value={formRingkasan.cara_melahirkan} />
                   <DetailItem label="Keadaan Ibu" value={formRingkasan.keadaan_ibu} />
                   <DetailItem label="KB Pasca Salin" value={formRingkasan.kb_pasca_melahirkan} />
-                </div>
-                <hr />
-                <p className="font-semibold text-gray-700">Keadaan Bayi Saat Lahir</p>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-5 bg-gray-50 rounded-lg p-4">
-                  <DetailItem label="Anak Ke" value={formRingkasan.bayi_anak_ke} />
-                  <DetailItem label="Berat (gram)" value={formRingkasan.bayi_berat_lahir_gram} />
-                  <DetailItem label="Panjang (cm)" value={formRingkasan.bayi_panjang_badan_cm} />
-                  <DetailItem label="Lingkar Kepala (cm)" value={formRingkasan.bayi_lingkar_kepala_cm} />
-                  <DetailItem label="Jenis Kelamin" value={formRingkasan.bayi_jenis_kelamin} />
-                  <DetailItem label="Segera Menangis" value={formRingkasan.kondisi_bayi_segera_menangis ? "Ya" : "Tidak"} />
-                  <DetailItem label="IMD 1 Jam Pertama" value={formRingkasan.asuhan_imd_1_jam_pertama ? "Ya" : "Tidak"} />
                 </div>
               </div>
             )}
@@ -661,39 +821,101 @@ export default function PelayananPersalinan() {
                       onChange={(e) => handleChange(e, setFormRingkasan)} className="w-full border rounded px-3 py-2" /></div>
                 </div>
                 <hr />
-                <h3 className="font-semibold text-gray-800">Keadaan Bayi Saat Lahir</h3>
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  <div><label className="block text-sm font-medium mb-1">Anak Ke</label>
-                    <input type="number" name="bayi_anak_ke" value={formRingkasan.bayi_anak_ke}
-                      onChange={(e) => handleChange(e, setFormRingkasan)} className="w-full border rounded px-3 py-2" /></div>
-                  <div><label className="block text-sm font-medium mb-1">Berat (gram)</label>
-                    <input type="number" name="bayi_berat_lahir_gram" value={formRingkasan.bayi_berat_lahir_gram}
-                      onChange={(e) => handleChange(e, setFormRingkasan)} className="w-full border rounded px-3 py-2" /></div>
-                  <div><label className="block text-sm font-medium mb-1">Panjang (cm)</label>
-                    <input type="number" name="bayi_panjang_badan_cm" value={formRingkasan.bayi_panjang_badan_cm}
-                      onChange={(e) => handleChange(e, setFormRingkasan)} className="w-full border rounded px-3 py-2" /></div>
-                  <div><label className="block text-sm font-medium mb-1">Lingkar Kepala (cm)</label>
-                    <input type="number" name="bayi_lingkar_kepala_cm" value={formRingkasan.bayi_lingkar_kepala_cm}
-                      onChange={(e) => handleChange(e, setFormRingkasan)} className="w-full border rounded px-3 py-2" /></div>
-                  <div><label className="block text-sm font-medium mb-1">Jenis Kelamin</label>
-                    <select name="bayi_jenis_kelamin" value={formRingkasan.bayi_jenis_kelamin}
-                      onChange={(e) => handleChange(e, setFormRingkasan)} className="w-full border rounded px-3 py-2">
-                      <option value="">-- Pilih --</option>
-                      <option>Laki-laki</option><option>Perempuan</option>
-                    </select></div>
+                {/* Data Anak Lahir */}
+                <div className="bg-white border rounded-lg p-4">
+                  <h3 className="font-semibold mb-3">Data Anak Lahir (opsional)</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Nama Anak</label>
+                      <input name="nama_anak" value={formRingkasan.nama_anak}
+                        onChange={(e)=>handleChange(e, setFormRingkasan)} className="w-full border rounded px-3 py-2" />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Tanggal Lahir</label>
+                      <input type="date" name="anak_tanggal_lahir" value={formRingkasan.anak_tanggal_lahir}
+                        onChange={(e)=>handleChange(e, setFormRingkasan)} className="w-full border rounded px-3 py-2" />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Jenis Kelamin</label>
+                      <select name="anak_jenis_kelamin" value={formRingkasan.anak_jenis_kelamin}
+                        onChange={(e)=>handleChange(e, setFormRingkasan)} className="w-full border rounded px-3 py-2">
+                        <option value="">-- Pilih --</option>
+                        <option value="Laki-laki">Laki-laki</option>
+                        <option value="Perempuan">Perempuan</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-3">
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Anak Ke</label>
+                      <input type="number" name="bayi_anak_ke" value={formRingkasan.bayi_anak_ke}
+                        onChange={(e)=>handleChange(e, setFormRingkasan)} className="w-full border rounded px-3 py-2" />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Berat (gram)</label>
+                      <input type="number" name="bayi_berat_lahir_gram" value={formRingkasan.bayi_berat_lahir_gram}
+                        onChange={(e)=>handleChange(e, setFormRingkasan)} className="w-full border rounded px-3 py-2" />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Panjang (cm)</label>
+                      <input type="number" name="bayi_panjang_badan_cm" value={formRingkasan.bayi_panjang_badan_cm}
+                        onChange={(e)=>handleChange(e, setFormRingkasan)} className="w-full border rounded px-3 py-2" />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Lingkar Kepala (cm)</label>
+                      <input type="number" name="bayi_lingkar_kepala_cm" value={formRingkasan.bayi_lingkar_kepala_cm}
+                        onChange={(e)=>handleChange(e, setFormRingkasan)} className="w-full border rounded px-3 py-2" />
+                    </div>
+                  </div>
                 </div>
-                <div className="flex gap-6">
-                  <label className="flex items-center gap-2">
-                    <input type="checkbox" name="kondisi_bayi_segera_menangis"
-                      checked={formRingkasan.kondisi_bayi_segera_menangis}
-                      onChange={(e) => handleChange(e, setFormRingkasan)} className="w-4 h-4" /> Segera Menangis
-                  </label>
-                  <label className="flex items-center gap-2">
-                    <input type="checkbox" name="asuhan_imd_1_jam_pertama"
-                      checked={formRingkasan.asuhan_imd_1_jam_pertama}
-                      onChange={(e) => handleChange(e, setFormRingkasan)} className="w-4 h-4" /> IMD 1 Jam Pertama
-                  </label>
+
+                <div className="bg-white border rounded-lg p-4 space-y-6">
+                  <div>
+                    <h3 className="font-semibold mb-3">Kondisi Bayi Saat Lahir**</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                      <label className="flex items-center gap-2"><input type="checkbox" name="kondisi_bayi_segera_menangis" checked={formRingkasan.kondisi_bayi_segera_menangis} onChange={(e) => handleChange(e, setFormRingkasan)} /> Segera menangis</label>
+                      <label className="flex items-center gap-2"><input type="checkbox" name="kondisi_bayi_anggota_gerak_kebiruan" checked={formRingkasan.kondisi_bayi_anggota_gerak_kebiruan} onChange={(e) => handleChange(e, setFormRingkasan)} /> Anggota gerak kebiruan</label>
+                      <label className="flex items-center gap-2"><input type="checkbox" name="kondisi_bayi_menangis_beberapa_saat" checked={formRingkasan.kondisi_bayi_menangis_beberapa_saat} onChange={(e) => handleChange(e, setFormRingkasan)} /> Menangis beberapa saat</label>
+                      <label className="flex items-center gap-2"><input type="checkbox" name="kondisi_bayi_seluruh_tubuh_biru" checked={formRingkasan.kondisi_bayi_seluruh_tubuh_biru} onChange={(e) => handleChange(e, setFormRingkasan)} /> Seluruh tubuh biru</label>
+                      <label className="flex items-center gap-2"><input type="checkbox" name="kondisi_bayi_tidak_menangis" checked={formRingkasan.kondisi_bayi_tidak_menangis} onChange={(e) => handleChange(e, setFormRingkasan)} /> Tidak menangis</label>
+                      <label className="flex items-center gap-2"><input type="checkbox" name="kondisi_bayi_kelainan_bawaan" checked={formRingkasan.kondisi_bayi_kelainan_bawaan} onChange={(e) => handleChange(e, setFormRingkasan)} /> Kelainan bawaan</label>
+                      <label className="flex items-center gap-2"><input type="checkbox" name="kondisi_bayi_seluruh_tubuh_kemerahan" checked={formRingkasan.kondisi_bayi_seluruh_tubuh_kemerahan} onChange={(e) => handleChange(e, setFormRingkasan)} /> Seluruh tubuh kemerahan</label>
+                      <label className="flex items-center gap-2"><input type="checkbox" name="kondisi_bayi_meninggal" checked={formRingkasan.kondisi_bayi_meninggal} onChange={(e) => handleChange(e, setFormRingkasan)} /> Meninggal</label>
+                    </div>
+                    <div className="mt-3">
+                      <label className="block text-sm font-medium mb-1">Detail Kelainan Bawaan</label>
+                      <input
+                        name="kondisi_bayi_kelainan_bawaan_detail"
+                        value={formRingkasan.kondisi_bayi_kelainan_bawaan_detail}
+                        onChange={(e) => handleChange(e, setFormRingkasan)}
+                        className="w-full border rounded px-3 py-2"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <h3 className="font-semibold mb-3">Asuhan Bayi Baru Lahir**</h3>
+                    <div className="grid grid-cols-1 gap-3 text-sm">
+                      <label className="flex items-center gap-2"><input type="checkbox" name="asuhan_imd_1_jam_pertama" checked={formRingkasan.asuhan_imd_1_jam_pertama} onChange={(e) => handleChange(e, setFormRingkasan)} /> Inisiasi menyusu dini (IMD) dalam 1 jam pertama kelahiran bayi</label>
+                      <label className="flex items-center gap-2"><input type="checkbox" name="asuhan_suntikan_vitamin_k1" checked={formRingkasan.asuhan_suntikan_vitamin_k1} onChange={(e) => handleChange(e, setFormRingkasan)} /> Suntikan Vitamin K1</label>
+                      <label className="flex items-center gap-2"><input type="checkbox" name="asuhan_salep_mata_antibiotika" checked={formRingkasan.asuhan_salep_mata_antibiotika} onChange={(e) => handleChange(e, setFormRingkasan)} /> Salep mata Antibiotika Profilaksis</label>
+                      <label className="flex items-center gap-2"><input type="checkbox" name="asuhan_imunisasi_hb0" checked={formRingkasan.asuhan_imunisasi_hb0} onChange={(e) => handleChange(e, setFormRingkasan)} /> Imunisasi HB0</label>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Keterangan Tambahan</label>
+                    <textarea
+                      name="keterangan_tambahan_bayi"
+                      value={formRingkasan.keterangan_tambahan_bayi}
+                      onChange={(e) => handleChange(e, setFormRingkasan)}
+                      rows={3}
+                      className="w-full border rounded px-3 py-2"
+                    />
+                  </div>
                 </div>
+
                 <button type="submit" disabled={saving}
                   className="bg-indigo-600 text-white px-6 py-2 rounded-lg flex items-center gap-2 hover:bg-indigo-700">
                   <Save size={18} /> {saving ? "Menyimpan..." : "Simpan Ringkasan"}
@@ -701,6 +923,37 @@ export default function PelayananPersalinan() {
               </form>
             )}
           </>
+        )}
+
+        {/* ===== PREVIEW DAFTAR ANAK RINGKASAN ===== */}
+        {activeTab === "ringkasan" && daftarAnak.length > 0 && (
+          <div className="bg-white rounded-xl shadow-sm p-6 mt-6 space-y-4">
+            <h3 className="text-lg font-semibold text-indigo-700 flex items-center gap-2">
+              Anak yang Ditambahkan ({daftarAnak.length})
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {daftarAnak.map((anak) => (
+                <div key={anak.id || `${anak.nama}-${anak.tanggal_lahir}`} className="rounded-lg border border-indigo-100 bg-indigo-50/50 p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="font-semibold text-gray-800">{anak.nama || "Tanpa Nama"}</p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Anak ke-{anak.anak_ke ?? "-"} • {anak.jenis_kelamin || "-"}
+                      </p>
+                    </div>
+                    <div className="text-right text-xs text-gray-500">
+                      <p>Lahir: {anak.tanggal_lahir || "-"}</p>
+                    </div>
+                  </div>
+                  <div className="mt-3 grid grid-cols-3 gap-2 text-xs text-gray-600">
+                    <div className="rounded bg-white px-2 py-1 border">BB: {anak.berat_lahir_kg ?? "-"} kg</div>
+                    <div className="rounded bg-white px-2 py-1 border">PB: {anak.tinggi_lahir_cm ?? "-"} cm</div>
+                    <div className="rounded bg-white px-2 py-1 border">LK: {anak.lingkar_kepala_cm ?? "-"} cm</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         )}
 
         {/* ===== RIWAYAT ===== */}
@@ -883,6 +1136,8 @@ export default function PelayananPersalinan() {
             )}
           </>
         )}
+
+        
       </div>
     </MainLayout>
   );

@@ -228,7 +228,8 @@ func (u *AdminAkunKeluargaUsecase) CreateAkunKeluarga(req *AdminCreateAkunKeluar
 		}
 		nikSeen[anggota.NIK] = struct{}{}
 
-		if _, err := u.kependudukanRepo.FindByNIK(anggota.NIK); err == nil {
+	nikPtr := &anggota.NIK
+	if _, err := u.kependudukanRepo.FindByNIK(nikPtr); err == nil {
 			return nil, customerror.NewBadRequestError("NIK sudah terdaftar: " + anggota.NIK)
 		}
 	}
@@ -269,9 +270,10 @@ func (u *AdminAkunKeluargaUsecase) CreateAkunKeluarga(req *AdminCreateAkunKeluar
 			return nil, customerror.NewBadRequestError("format tanggal_lahir harus YYYY-MM-DD")
 		}
 
+		nikPtr := &anggota.NIK
 		penduduk := &models.Kependudukan{
 			KartuKeluargaID:    &kk.ID,
-			NIK:                anggota.NIK,
+			NIK:                nikPtr,
 			Dusun:              anggota.Dusun,
 			NamaLengkap:        anggota.NamaLengkap,
 			GolonganDarah:      anggota.GolonganDarah,
@@ -306,7 +308,7 @@ func (u *AdminAkunKeluargaUsecase) CreateAkunKeluarga(req *AdminCreateAkunKeluar
 	if req.AkunPendudukNIK != "" {
 		found := false
 		for _, p := range createdPenduduk {
-			if p.NIK == req.AkunPendudukNIK {
+			if p.NIK != nil && *p.NIK == req.AkunPendudukNIK {
 				selectedPenduduk = p
 				found = true
 				break
@@ -352,6 +354,10 @@ func (u *AdminAkunKeluargaUsecase) CreateAkunKeluarga(req *AdminCreateAkunKeluar
 		return nil, err
 	}
 
+	nik := ""
+	if selectedPenduduk.NIK != nil {
+		nik = *selectedPenduduk.NIK
+	}
 	return &AdminCreateAkunKeluargaResponse{
 		KartuKeluargaID: kk.ID,
 		PendudukID:      selectedPenduduk.IDKependudukan,
@@ -359,7 +365,7 @@ func (u *AdminAkunKeluargaUsecase) CreateAkunKeluarga(req *AdminCreateAkunKeluar
 		UserID:          user.ID,
 		Role:            req.Role,
 		NoKK:            req.NoKK,
-		NIK:             selectedPenduduk.NIK,
+		NIK:             nik,
 		NomorTelepon:    normalizedPhoneNumber,
 		DefaultPassword: defaultAdminAkunKeluargaPassword,
 	}, nil
@@ -391,18 +397,26 @@ func (u *AdminAkunKeluargaUsecase) ListKartuKeluarga(search string, page int, li
 		var kepala interface{}
 		for _, a := range anggota {
 			if strings.EqualFold(strings.TrimSpace(a.KedudukanKeluarga), "Kepala Keluarga") {
+				nik := ""
+				if a.NIK != nil {
+					nik = *a.NIK
+				}
 				kepala = AdminKepalaKeluarga{
 					PendudukID:  a.IDKependudukan,
-					NIK:         a.NIK,
+					NIK:         nik,
 					NamaLengkap: a.NamaLengkap,
 				}
 				break
 			}
 		}
 		if kepala == nil && len(anggota) > 0 {
+			nik := ""
+			if anggota[0].NIK != nil {
+				nik = *anggota[0].NIK
+			}
 			kepala = AdminKepalaKeluarga{
 				PendudukID:  anggota[0].IDKependudukan,
-				NIK:         anggota[0].NIK,
+				NIK:         nik,
 				NamaLengkap: anggota[0].NamaLengkap,
 			}
 		}
@@ -465,8 +479,8 @@ func (u *AdminAkunKeluargaUsecase) DetailKartuKeluarga(kartuKeluargaID int64) (*
 		akunPendudukNIK := ""
 		if user.PendudukID != nil {
 			penduduk, pendudukErr := u.kependudukanRepo.FindByID(int32(*user.PendudukID))
-			if pendudukErr == nil {
-				akunPendudukNIK = penduduk.NIK
+			if pendudukErr == nil && penduduk.NIK != nil {
+				akunPendudukNIK = *penduduk.NIK
 			}
 		}
 
@@ -555,7 +569,8 @@ func (u *AdminAkunKeluargaUsecase) UpdateKartuKeluarga(kartuKeluargaID int64, re
 	selectedPendudukID := user.PendudukID
 	selectedName := user.Name
 	if req.AkunPendudukNIK != "" {
-		penduduk, err := u.kependudukanRepo.FindByNIK(req.AkunPendudukNIK)
+		reqNIKPtr := &req.AkunPendudukNIK
+		penduduk, err := u.kependudukanRepo.FindByNIK(reqNIKPtr)
 		if err != nil {
 			if err == gorm.ErrRecordNotFound {
 				return nil, customerror.NewNotFoundError("akun_penduduk_nik tidak ditemukan")
@@ -633,7 +648,8 @@ func (u *AdminAkunKeluargaUsecase) UpdateAnggotaKeluarga(kartuKeluargaID int64, 
 		anggota.TanggalLahir = parsedTanggalLahir
 	}
 
-	anggota.NIK = req.NIK
+	nikPtr := &req.NIK
+	anggota.NIK = nikPtr
 	anggota.NamaLengkap = req.NamaLengkap
 	anggota.JenisKelamin = req.JenisKelamin
 	anggota.TempatLahir = req.TempatLahir
@@ -703,7 +719,8 @@ func (u *AdminAkunKeluargaUsecase) AddAnggotaKeluarga(kartuKeluargaID int64, req
 		return nil, customerror.NewBadRequestError("nik, nama_lengkap, dan tanggal_lahir wajib diisi")
 	}
 
-	if _, err := u.kependudukanRepo.FindByNIK(req.NIK); err == nil {
+	reqNIKPtr := &req.NIK
+	if _, err := u.kependudukanRepo.FindByNIK(reqNIKPtr); err == nil {
 		return nil, customerror.NewConflictError("nik sudah dipakai")
 	} else if err != gorm.ErrRecordNotFound {
 		return nil, customerror.NewInternalServiceError("gagal validasi nik")
@@ -716,7 +733,7 @@ func (u *AdminAkunKeluargaUsecase) AddAnggotaKeluarga(kartuKeluargaID int64, req
 
 	anggota := &models.Kependudukan{
 		KartuKeluargaID:    &kartuKeluargaID,
-		NIK:                req.NIK,
+		NIK:                reqNIKPtr,
 		NamaLengkap:        req.NamaLengkap,
 		JenisKelamin:       strings.TrimSpace(req.JenisKelamin),
 		TanggalLahir:       tanggalLahir,
@@ -795,9 +812,13 @@ func (u *AdminAkunKeluargaUsecase) DeleteKartuKeluarga(kartuKeluargaID int64) er
 }
 
 func mapPendudukToAnggota(a models.Kependudukan) AdminDetailKartuKeluargaAnggota {
+	nik := ""
+	if a.NIK != nil {
+		nik = *a.NIK
+	}
 	return AdminDetailKartuKeluargaAnggota{
 		PendudukID:         a.IDKependudukan,
-		NIK:                a.NIK,
+		NIK:                nik,
 		NamaLengkap:        a.NamaLengkap,
 		JenisKelamin:       a.JenisKelamin,
 		TanggalLahir:       a.TanggalLahir.Format("2006-01-02"),

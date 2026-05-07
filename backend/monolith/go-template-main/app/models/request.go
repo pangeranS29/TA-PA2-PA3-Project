@@ -7,12 +7,43 @@ type CreateAnakRequest struct {
 	PendudukID    int32    `json:"penduduk_id" validate:"required"`
 	BeratLahirKg  *float64 `json:"berat_lahir_kg,omitempty"`
 	TinggiLahirCm *float64 `json:"tinggi_lahir_cm,omitempty"`
+	AnakKe        int32    `json:"anak_ke"`
+	LingkarKepalaCm *float64 `json:"lingkar_kepala_cm,omitempty"`
+	NamaIbu       string   `json:"nama_ibu"`
+	NamaAyah      string   `json:"nama_ayah"`
+	IbuID         int32    `json:"ibu_id"`
+}
+
+// CreateAnakDenganPendudukRequest: create anak + bikin penduduk baru sekaligus
+type CreateAnakDenganPendudukRequest struct {
+	// Data kehamilan dan ibu
+	KehamilanID int32  `json:"kehamilan_id" validate:"required"`
+	IbuID       int32  `json:"ibu_id" validate:"required"`
+	NamaIbu     string `json:"nama_ibu"`
+	NamaAyah    string `json:"nama_ayah"`
+	
+	// Data anak (measurement)
+	AnakKe          int32    `json:"anak_ke"`
+	BeratLahirKg    *float64 `json:"berat_lahir_kg,omitempty"`
+	TinggiLahirCm   *float64 `json:"tinggi_lahir_cm,omitempty"`
+	LingkarKepalaCm *float64 `json:"lingkar_kepala_cm,omitempty"`
+	
+	// Data penduduk baru (anak)
+	Nama          string `json:"nama" validate:"required"`
+	TanggalLahir  string `json:"tanggal_lahir" validate:"required,datetime=2006-01-02"`
+	JenisKelamin  string `json:"jenis_kelamin" validate:"required"`
+	TempatLahir   string `json:"tempat_lahir,omitempty"`
+	GolonganDarah string `json:"golongan_darah,omitempty"`
 }
 
 // UpdateAnakRequest adalah body request untuk PUT /anak/:id.
 type UpdateAnakRequest struct {
-	BeratLahirKg  *float64 `json:"berat_lahir_kg,omitempty"`
-	TinggiLahirCm *float64 `json:"tinggi_lahir_cm,omitempty"`
+	BeratLahirKg    *float64 `json:"berat_lahir_kg,omitempty"`
+	TinggiLahirCm   *float64 `json:"tinggi_lahir_cm,omitempty"`
+	AnakKe          *int32   `json:"anak_ke,omitempty"`
+	LingkarKepalaCm *float64 `json:"lingkar_kepala_cm,omitempty"`
+	NamaIbu         *string  `json:"nama_ibu,omitempty"`
+	NamaAyah        *string  `json:"nama_ayah,omitempty"`
 }
 
 type DetailPelayananRequest struct {

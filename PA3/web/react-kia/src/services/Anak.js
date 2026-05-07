@@ -8,8 +8,21 @@ export const getAnak = async () => {
   return res.data;
 };
 
+// Get anak by kehamilan ID
+export const getAnakByKehamilanId = async (kehamilanId) => {
+  const res = await api.get(BASE, {
+    params: { kehamilan_id: kehamilanId }
+  });
+  return res.data.data || [];
+};
+
 export const createAnak = async (data) => {
   const res = await api.post(BASE, data);
+  return res.data;
+};
+
+export const createAnakDenganPenduduk = async (data) => {
+  const res = await api.post(`${BASE}/dengan-penduduk`, data);
   return res.data;
 };
 
