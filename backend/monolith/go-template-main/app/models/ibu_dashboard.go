@@ -11,7 +11,9 @@ type IbuDashboardDTO struct {
 	UsiaKehamilan   int32  `json:"usia_kehamilan"`
 
 	TanggalPeriksa *time.Time `json:"tanggal_periksa"`
-	TempatPeriksa  string     `json:"tempat_periksa"`
+
+	Hpht          *time.Time `json:"hpht"`
+	TempatPeriksa string     `json:"tempat_periksa"`
 
 	Trimester   string `json:"trimester"`
 	KunjunganKe int32  `json:"kunjungan_ke"`

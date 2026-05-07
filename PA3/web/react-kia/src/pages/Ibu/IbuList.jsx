@@ -360,7 +360,7 @@ export default function IbuList() {
                   <th>Risiko</th>
                   <th>Usia Hamil</th>
                   <th>Dusun</th>
-                  <th>Skor</th>
+                  {/* <th>Skor</th> */}
                   <th>Aksi</th>
                 </tr>
               </thead>
@@ -387,7 +387,7 @@ export default function IbuList() {
                       </td>
                       <td>{ibu.usia_kehamilan} Minggu</td>
                       <td>{ibu.dusun || "-"}</td>
-                      <td>{ibu.skor_risiko || "-"}</td>
+                      {/* <td>{ibu.skor_risiko || "-"}</td> */}
                       <td className="flex gap-2">
                         <Link
                           to={ibu.kehamilan_id ? `/data-ibu/${ibu.id_ibu}?kehamilan_id=${ibu.kehamilan_id}` : '#'}
