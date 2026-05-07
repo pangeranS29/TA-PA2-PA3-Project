@@ -55,12 +55,13 @@ type Main struct {
 	JenisPelayanan                *JenisPelayananController
 
 	// MODUL IBU
-	PemantauanIbuHamil   *PemantauanIbuHamilController
-	LogTTDMMS            *LogTTDMMSController
-	PersiapanMelahirkan  *PersiapanMelahirkanController
-	ProsesMelahirkan     *ProsesMelahirkanController
-	AbsensiKelasIbuHamil *AbsensiKelasIbuHamilController
+	PemantauanIbuHamil          *PemantauanIbuHamilController
+	LogTTDMMS                   *LogTTDMMSController
+	PersiapanMelahirkan         *PersiapanMelahirkanController
+	ProsesMelahirkan            *ProsesMelahirkanController
+	AbsensiKelasIbuHamil        *AbsensiKelasIbuHamilController
 	ChecklistPemantauanIbuNifas *ChecklistPemantauanIbuNifasController
+	WarnaTinja                  *WarnaTinjaController
 }
 
 type Options struct {
@@ -126,7 +127,8 @@ func Init(opts Options) *Main {
 	m.ProsesMelahirkan = NewProsesMelahirkanController(opts.UseCases.ProsesMelahirkan)
 	m.AbsensiKelasIbuHamil = NewAbsensiKelasIbuHamilController(opts.UseCases.AbsensiKelasIbuHamil)
 	m.ChecklistPemantauanIbuNifas = NewChecklistPemantauanIbuNifasController(
-	opts.UseCases.ChecklistPemantauanIbuNifas,)
+		opts.UseCases.ChecklistPemantauanIbuNifas)
+	m.WarnaTinja = NewWarnaTinjaController(opts.UseCases.WarnaTinja)
 	return m
 }
 

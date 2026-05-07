@@ -65,6 +65,7 @@ type Main struct {
 	ProsesMelahirkan            ProsesMelahirkanUsecase
 	AbsensiKelasIbuHamil        AbsensiKelasIbuHamilUsecase
 	ChecklistPemantauanIbuNifas *ChecklistPemantauanIbuNifasUsecase
+	WarnaTinja                  WarnaTinjaUsecase
 
 	LembarPemantauan LembarPemantauanUsecase
 	// RegisterOrangTua              *RegisterOrangTuaUsecase
@@ -178,5 +179,6 @@ func Init(opts Options) *Main {
 		opts.Repository.ChecklistPemantauanIbuNifas,
 		opts.Repository.Kehamilan,
 	)
+	m.WarnaTinja = NewWarnaTinjaUsecase(opts.Repository.WarnaTinja)
 	return m
 }
