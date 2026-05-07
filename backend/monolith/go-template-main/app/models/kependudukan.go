@@ -5,7 +5,7 @@ import "time"
 type Kependudukan struct {
 	IDKependudukan     int32      `gorm:"primaryKey;column:id;autoIncrement" json:"id"`
 	KartuKeluargaID    *int64     `gorm:"column:kartu_keluarga_id" json:"kartu_keluarga_id,omitempty"`
-	NIK                string     `gorm:"column:nik;type:varchar(30);uniqueIndex;not null" json:"nik"`
+	NIK                *string    `gorm:"column:nik;type:varchar(30);uniqueIndex" json:"nik,omitempty"`
 	NamaLengkap        string     `gorm:"column:nama_lengkap;type:text;not null" json:"nama_lengkap"`
 	JenisKelamin       string     `gorm:"column:jenis_kelamin;type:text" json:"jenis_kelamin"`
 	TanggalLahir       time.Time  `gorm:"column:tanggal_lahir" json:"tanggal_lahir"`

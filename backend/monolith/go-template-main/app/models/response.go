@@ -31,16 +31,21 @@ type KehamilanSimple struct {
 	} `json:"ibu"`
 }
 type AnakResponse struct {
-	ID            int32            `json:"id"`
-	KehamilanID   int32            `json:"kehamilan_id"`
-	PendudukID    int32            `json:"penduduk_id"`
-	Nama          string           `json:"nama"`
-	TanggalLahir  string           `json:"tanggal_lahir"` // "YYYY-MM-DD"
-	JenisKelamin  string           `json:"jenis_kelamin"`
-	UsiaBulan     int              `json:"usia_bulan"`
-	UsiaTeks      string           `json:"usia_teks"`
-	BeratLahirKg  *float64         `json:"berat_lahir_kg,omitempty"`
-	TinggiLahirCm *float64         `json:"tinggi_lahir_cm,omitempty"`
-	GolonganDarah string           `json:"golongan_darah,omitempty"`
-	Kehamilan     *KehamilanSimple `json:"kehamilan,omitempty"`
+	ID              int32            `json:"id"`
+	KehamilanID     int32            `json:"kehamilan_id"`
+	PendudukID      int32            `json:"penduduk_id"`
+	Nama            string           `json:"nama"`
+	TanggalLahir    string           `json:"tanggal_lahir"` // "YYYY-MM-DD"
+	JenisKelamin    string           `json:"jenis_kelamin"`
+	UsiaBulan       int              `json:"usia_bulan"`
+	UsiaTeks        string           `json:"usia_teks"`
+	BeratLahirKg    *float64         `json:"berat_lahir_kg,omitempty"`
+	TinggiLahirCm   *float64         `json:"tinggi_lahir_cm,omitempty"`
+	AnakKe          int32            `json:"anak_ke"`
+	LingkarKepalaCm *float64         `json:"lingkar_kepala_cm,omitempty"`
+	NamaIbu         string           `json:"nama_ibu"`
+	NamaAyah        string           `json:"nama_ayah"`
+	IbuID           int32            `json:"ibu_id"`
+	GolonganDarah   string           `json:"golongan_darah,omitempty"`
+	Kehamilan       *KehamilanSimple `json:"kehamilan,omitempty"`
 }

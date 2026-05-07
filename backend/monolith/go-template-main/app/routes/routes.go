@@ -101,6 +101,7 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	// ==================== MODUL ANAK & PELAYANAN ANAK (yang sudah ada) ====================
 	tenaga.GET("/anak", controller.Anak.AdminList)
 	tenaga.POST("/anak", controller.Anak.Create)
+	tenaga.POST("/anak/dengan-penduduk", controller.Anak.CreateDenganPenduduk)
 	tenaga.GET("/anak/:id", controller.Anak.Detail)
 	tenaga.PUT("/anak/:id", controller.Anak.Update)
 	tenaga.DELETE("/anak/:id", controller.Anak.Delete)
@@ -168,6 +169,7 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	tenaga.DELETE("/ibu/:id", controller.Ibu.Delete)
 
 	tenaga.POST("/kehamilan", controller.Kehamilan.Create)
+	tenaga.GET("/kehamilan/all", controller.Kehamilan.GetAll)
 	tenaga.GET("/kehamilan/:id", controller.Kehamilan.GetByID)
 	tenaga.GET("/kehamilan", controller.Kehamilan.GetByIbuID)
 	tenaga.PUT("/kehamilan/:id", controller.Kehamilan.Update)
@@ -384,6 +386,7 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	ibu.Use(middlewares.IbuOnly())
 
 	//untuk pencatatan kesehatan ANC
+	ibu.GET("/dashboard", controller.Ibu.GetDashboard)
 	ibu.GET("/pemeriksaan-kehamilan/:id", controller.PemeriksaanKehamilan.GetByID)
 	ibu.GET("/pemeriksaan-kehamilan", controller.PemeriksaanKehamilan.GetByKehamilanID)
 	ibu.GET("/pemeriksaan-kehamilan/grafik-anc", controller.PemeriksaanKehamilan.GetGrafikANC)

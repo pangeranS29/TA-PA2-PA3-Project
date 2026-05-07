@@ -68,7 +68,7 @@ func Init(opts Options) *Main {
 	}
 
 	// Inisialisasi usecase yang sudah ada
-	m.Anak = NewAnakUseCase(opts.Repository.Anak)
+	m.Anak = NewAnakUseCase(opts.Repository.Anak, opts.Repository.Kependudukan)
 	m.PelayananKesehatanAnak = NewPelayananKesehatanAnakUseCase(opts.Repository.PelayananKesehatanAnak)
 	m.Neonatus = NewPelayananNeonatusUseCase(opts.Repository.Neonatus)
 	m.KunjunganGizi = NewKunjunganGiziUseCase(opts.Repository.KunjunganGizi)

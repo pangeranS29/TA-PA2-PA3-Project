@@ -54,8 +54,8 @@ func (c *KependudukanController) Create(ctx echo.Context) error {
 	}
 
 	// Validasi field wajib
-	if req.NamaLengkap == "" || req.NIK == "" || req.TanggalLahir == "" {
-		return ctx.JSON(http.StatusBadRequest, models.Response{StatusCode: http.StatusBadRequest, Message: "nama_lengkap, nik, dan tanggal_lahir wajib diisi"})
+	if req.NamaLengkap == "" || req.TanggalLahir == "" {
+		return ctx.JSON(http.StatusBadRequest, models.Response{StatusCode: http.StatusBadRequest, Message: "nama_lengkap dan tanggal_lahir wajib diisi"})
 	}
 
 	// Parse tanggal lahir
@@ -64,9 +64,15 @@ func (c *KependudukanController) Create(ctx echo.Context) error {
 		return ctx.JSON(http.StatusBadRequest, models.Response{StatusCode: http.StatusBadRequest, Message: "format tanggal_lahir harus YYYY-MM-DD"})
 	}
 
+	// Convert NIK string to *string (nil jika kosong)
+	var nikPtr *string
+	if req.NIK != "" {
+		nikPtr = &req.NIK
+	}
+
 	k := &models.Kependudukan{
 		KartuKeluargaID:    req.KartuKeluargaID,
-		NIK:                req.NIK,
+		NIK:                nikPtr,
 		Dusun:              req.Dusun,
 		Kecamatan:          req.Kecamatan,
 		Desa:               req.Desa,
@@ -133,7 +139,10 @@ func (c *KependudukanController) Update(ctx echo.Context) error {
 		existing.KartuKeluargaID = req.KartuKeluargaID
 	}
 	if req.NIK != "" {
-		existing.NIK = req.NIK
+		existing.NIK = &req.NIK
+	} else if req.NIK == "" {
+		// Jika NIK kosong dalam request, set ke nil
+		existing.NIK = nil
 	}
 	if req.Dusun != "" {
 		existing.Dusun = req.Dusun

@@ -49,9 +49,12 @@ func (r *KependudukanRepository) FindByID(id int32) (*models.Kependudukan, error
 	return &k, err
 }
 
-func (r *KependudukanRepository) FindByNIK(nik string) (*models.Kependudukan, error) {
+func (r *KependudukanRepository) FindByNIK(nik *string) (*models.Kependudukan, error) {
+	if nik == nil || *nik == "" {
+		return nil, errors.New("nik tidak boleh kosong")
+	}
 	var k models.Kependudukan
-	err := r.db.Where("nik = ? AND deleted_at IS NULL", nik).First(&k).Error
+	err := r.db.Where("nik = ? AND deleted_at IS NULL", *nik).First(&k).Error
 	return &k, err
 }
 
@@ -100,6 +103,9 @@ func (r *KependudukanRepository) FindByIDAndKartuKeluargaID(id int32, kartuKelua
 }
 
 func (r *KependudukanRepository) FindByNIKExceptID(nik string, exceptID int32) (*models.Kependudukan, error) {
+	if nik == "" {
+		return nil, errors.New("nik tidak boleh kosong")
+	}
 	var k models.Kependudukan
 	err := r.db.Where("nik = ? AND id <> ? AND deleted_at IS NULL", nik, exceptID).First(&k).Error
 	return &k, err
