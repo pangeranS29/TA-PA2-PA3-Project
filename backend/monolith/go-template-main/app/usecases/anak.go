@@ -56,13 +56,13 @@ func (u *AnakUseCase) CreateAnak(req models.CreateAnakRequest) (*models.AnakResp
 		nik := fmt.Sprintf("A%d", time.Now().UnixNano())
 
 		newPenduduk := &models.Kependudukan{
-			NIK:          nik,
+			NIK:          &nik,
 			NamaLengkap:  req.Nama,
 			JenisKelamin: req.JenisKelamin,
 			TanggalLahir: tglLahir,
 		}
 
-		if err := u.pendudukRepo.Create(newPenduduk); err != nil {
+		if err := u.kependudukanRepo.Create(newPenduduk); err != nil {
 			return nil, fmt.Errorf("gagal membuat data penduduk: %v", err)
 		}
 		pendudukID = newPenduduk.IDKependudukan
@@ -336,17 +336,17 @@ func (u *AnakUseCase) toAnakResponse(anak *models.Anak) models.AnakResponse {
 	}
 
 	// Map data Pertumbuhan
-	if len(anak.Pertumbuhan) > 0 {
-		resp.Pertumbuhan = make([]models.PertumbuhanSimple, 0, len(anak.Pertumbuhan))
-		for _, p := range anak.Pertumbuhan {
-			resp.Pertumbuhan = append(resp.Pertumbuhan, models.PertumbuhanSimple{
-				Bulan:       p.UsiaUkurBulan,
-				BeratBadan:  p.BeratBadan,
-				TinggiBadan: p.TinggiBadan,
-				HasilLila:   p.HasilLila,
-			})
-		}
-	}
+	// if len(anak.Pertumbuhan) > 0 {
+	// 	resp.Pertumbuhan = make([]models.PertumbuhanSimple, 0, len(anak.Pertumbuhan))
+	// 	for _, p := range anak.Pertumbuhan {
+	// 		resp.Pertumbuhan = append(resp.Pertumbuhan, models.PertumbuhanSimple{
+	// 			Bulan:       p.UsiaUkurBulan,
+	// 			BeratBadan:  p.BeratBadan,
+	// 			TinggiBadan: p.TinggiBadan,
+	// 			HasilLila:   p.HasilLila,
+	// 		})
+	// 	}
+	// }
 
 	return resp
 }
