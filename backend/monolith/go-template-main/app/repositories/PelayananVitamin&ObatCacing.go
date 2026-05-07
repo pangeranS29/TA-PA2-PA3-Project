@@ -88,7 +88,7 @@ func (r *kunjunganVitaminRepository) Update(id int32, req models.UpdateKunjungan
 		if req.AnakID != 0 {
 			updates["anak_id"] = req.AnakID
 		}
-		if !req.Tanggal.IsZero() {
+		if req.Tanggal != "" {
 			updates["tanggal"] = req.Tanggal
 		}
 

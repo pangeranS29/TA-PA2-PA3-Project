@@ -43,17 +43,19 @@ export default function AnakListNakes() {
   };
 
   const formatDate = (dateString) => {
-    if (!dateString) return "-";
+    if (!dateString || dateString.startsWith("0001")) return "-";
     const date = new Date(dateString);
+    if (isNaN(date.getTime()) || date.getFullYear() < 1900) return "-";
     return date.toLocaleDateString("id-ID", {
       day: "numeric", month: "long", year: "numeric",
     });
   };
 
   // --- LOGIC FILTER & PAGINATION ---
+  const normalizedSearch = searchTerm.toLowerCase();
   const filteredChildren = children.filter((c) =>
-    c.nama?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    c.kehamilan?.ibu?.nama_ibu?.toLowerCase().includes(searchTerm.toLowerCase())
+    (c.nama || "").toLowerCase().includes(normalizedSearch) ||
+    (c.kehamilan?.ibu?.nama_ibu || "").toLowerCase().includes(normalizedSearch)
   );
 
   // Hitung index data
@@ -70,14 +72,7 @@ export default function AnakListNakes() {
 
   return (
     <MainLayout>
-      {/* BREADCRUMB */}
-      <nav className="flex items-center text-sm text-gray-500 mb-6 gap-2 bg-white p-3 rounded-lg shadow-sm border border-gray-100 w-fit">
-        <Link to="/dashboard" className="hover:text-indigo-600 flex items-center gap-1">
-          Dashboard
-        </Link>
-        <ChevronRight size={14} />
-        <span className="font-semibold text-indigo-700">Rekam Medis Anak</span>
-      </nav>
+      <div className="p-4 md:p-8 bg-[#f8fafc] min-h-screen">
 
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
         <div>
@@ -85,7 +80,7 @@ export default function AnakListNakes() {
           <p className="text-gray-500 text-sm">Rekam data pertumbuhan anak secara terpusat.</p>
         </div>
         
-        <div className="bg-indigo-600 text-white px-6 py-3 rounded-2xl shadow-lg shadow-indigo-100 flex items-center gap-4">
+        <div className="bg-blue-600 text-white px-6 py-3 rounded-2xl shadow-lg shadow-blue-100 flex items-center gap-4">
           <div className="p-2 bg-white/20 rounded-xl">
             <Baby size={24} />
           </div>
@@ -109,7 +104,7 @@ export default function AnakListNakes() {
           </div>
           <Link
             to="/data-anak/create"
-            className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-xl flex items-center justify-center gap-2 font-bold transition-all shadow-md active:scale-95"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl flex items-center justify-center gap-2 font-bold transition-all shadow-md active:scale-95"
           >
             <Plus size={20} /> Tambah Data Anak
           </Link>
@@ -158,7 +153,7 @@ export default function AnakListNakes() {
                   <td className="px-6 py-4 text-sm font-semibold">{child.kehamilan?.ibu?.nama_ibu || "-"}</td>
                   <td className="px-6 py-4">
                     <div className="flex items-center justify-center gap-2">
-                       <Link to={`/data-anak/dashboard/${child.id}`} className="bg-indigo-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow-sm active:scale-95">
+                       <Link to={`/data-anak/dashboard/${child.id}`} className="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow-sm active:scale-95">
                          Pantau
                        </Link>
                        <Link to={`/data-anak/edit/${child.id}`} className="p-1.5 text-gray-400 hover:text-amber-600"><Pencil size={14}/></Link>
@@ -174,7 +169,7 @@ export default function AnakListNakes() {
         {/* --- UI CONTROLS PAGINATION --- */}
         <div className="flex items-center justify-between px-6 py-4 bg-gray-50/50 border-t border-gray-100">
           <p className="text-xs text-gray-500 font-medium">
-            Menampilkan <span className="text-indigo-600">{indexOfFirstItem + 1}</span> - <span className="text-indigo-600">{Math.min(indexOfLastItem, filteredChildren.length)}</span> dari <span className="text-indigo-600">{filteredChildren.length}</span> data
+            Menampilkan <span className="text-indigo-600">{filteredChildren.length === 0 ? 0 : indexOfFirstItem + 1}</span> - <span className="text-indigo-600">{Math.min(indexOfLastItem, filteredChildren.length)}</span> dari <span className="text-indigo-600">{filteredChildren.length}</span> data
           </p>
           
           <div className="flex items-center gap-2">
@@ -211,6 +206,7 @@ export default function AnakListNakes() {
             </button>
           </div>
         </div>
+      </div>
       </div>
     </MainLayout>
   );

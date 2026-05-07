@@ -31,15 +31,48 @@ func (u *pengukuranlilaUseCase) Create(req models.CreatePengukuranLilARequest) e
 	}
 
 	now := time.Now()
+	tgl := now
+	if req.Tanggal != "" {
+		if t, err := time.Parse("2006-01-02", req.Tanggal); err == nil {
+			tgl = t
+		} else if t, err := time.Parse(time.RFC3339, req.Tanggal); err == nil {
+			tgl = t
+		}
+	}
+
+	kategori := req.KategoriRisiko
+	if kategori == "" {
+		// Auto-klasifikasi berdasarkan usia dan hasil LILA
+		switch {
+		case req.HasilLila <= 0:
+			kategori = ""
+		case req.Bulanke < 6:
+			if req.HasilLila < 9.5 {
+				kategori = "Gizi Buruk"
+			} else if req.HasilLila < 11.5 {
+				kategori = "Gizi Kurang"
+			} else {
+				kategori = "Normal"
+			}
+		default:
+			if req.HasilLila < 11.5 {
+				kategori = "Gizi Buruk"
+			} else if req.HasilLila < 12.5 {
+				kategori = "Gizi Kurang"
+			} else {
+				kategori = "Normal"
+			}
+		}
+	}
 
 	pemeriksaan := models.PengukuranLila{
-		AnakID:    req.AnakID,
-		Bulanke:   req.Bulanke,
-		Tanggal:   req.Tanggal,
-		HasilLila: req.HasilLila,
-		KategoriRisiko: req.KategoriRisiko,
-		CreatedAt: now,
-		UpdatedAt: now,
+		AnakID:         req.AnakID,
+		Bulanke:        req.Bulanke,
+		Tanggal:        tgl,
+		HasilLila:      req.HasilLila,
+		KategoriRisiko: kategori,
+		CreatedAt:      now,
+		UpdatedAt:      now,
 	}
 
 	return u.repo.Create(&pemeriksaan)
