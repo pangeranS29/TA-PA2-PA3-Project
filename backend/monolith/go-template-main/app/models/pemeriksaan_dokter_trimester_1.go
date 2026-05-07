@@ -5,10 +5,11 @@ import "time"
 type PemeriksaanDokterTrimester1 struct {
 	ID                        int32      `gorm:"primaryKey" json:"id"`
 	KehamilanID               int32      `gorm:"not null;index" json:"kehamilan_id"`
-	Kehamilan                 *Kehamilan `gorm:"foreignKey:KehamilanID;references:ID" json:"kehamilan,omitempty"`
+	Kehamilan                 *Kehamilan `gorm:"foreignKey:KehamilanID;references:ID;onDelete:CASCADE" json:"kehamilan,omitempty"`
 	NamaDokter                string     `gorm:"type:varchar(255)" json:"nama_dokter"`
 	TanggalPeriksa            *time.Time `gorm:"type:date" json:"tanggal_periksa"`
 	KonsepAnamnesaPemeriksaan string     `json:"konsep_anamnesa_pemeriksaan"`
+	GambarUSG                 string     `gorm:"column:gambar_usg;type:text" json:"gambar_usg"` // Base64 image data
 
 	FisikKonjungtiva string `gorm:"type:varchar(20)" json:"fisik_konjungtiva"`
 	FisikSklera      string `gorm:"type:varchar(20)" json:"fisik_sklera"`

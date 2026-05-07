@@ -37,21 +37,21 @@ type Main struct {
 	CatatanPelayananTrimester3    *CatatanPelayananTrimester3Controller
 	CatatanPelayananNifas         *CatatanPelayananNifasController
 	// GrafikEvaluasiKehamilan       *GrafikEvaluasiKehamilanController
-	GrafikPeningkatanBB           *GrafikPeningkatanBBController
-	PenjelasanHasilGrafik         *PenjelasanHasilGrafikController
-	RencanaPersalinan             *RencanaPersalinanController
-	RingkasanPelayananPersalinan  *RingkasanPelayananPersalinanController
-	RiwayatProsesMelahirkan       *RiwayatProsesMelahirkanController
-	Rujukan                       *RujukanController
-	SkriningDMGestasional         *SkriningDMGestasionalController
-	SkriningPreeklampsia          *SkriningPreeklampsiaController
-	SkriningPemantauan            *SkriningPemantauanController
-	KategoriTandaBahaya           *KategoriTandaBahayaController
-	PelayananIbuNifas             *PelayananIbuNifasController
-	RiwayatKehamilanLalu          *RiwayatKehamilanLaluController
-	KeteranganLahir               *KeteranganLahirController // <-- TAMBAHKAN INI
-	Kependudukan                  *KependudukanController
-	JenisPelayanan                *JenisPelayananController
+	GrafikPeningkatanBB          *GrafikPeningkatanBBController
+	PenjelasanHasilGrafik        *PenjelasanHasilGrafikController
+	RencanaPersalinan            *RencanaPersalinanController
+	RingkasanPelayananPersalinan *RingkasanPelayananPersalinanController
+	RiwayatProsesMelahirkan      *RiwayatProsesMelahirkanController
+	Rujukan                      *RujukanController
+	SkriningDMGestasional        *SkriningDMGestasionalController
+	SkriningPreeklampsia         *SkriningPreeklampsiaController
+	SkriningPemantauan           *SkriningPemantauanController
+	KategoriTandaBahaya          *KategoriTandaBahayaController
+	PelayananIbuNifas            *PelayananIbuNifasController
+	RiwayatKehamilanLalu         *RiwayatKehamilanLaluController
+	KeteranganLahir              *KeteranganLahirController // <-- TAMBAHKAN INI
+	Kependudukan                 *KependudukanController
+	JenisPelayanan               *JenisPelayananController
 }
 
 type Options struct {
