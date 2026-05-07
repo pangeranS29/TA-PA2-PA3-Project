@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ta_pa2_pa3_project/core/services/auth_session.dart';
 import 'package:ta_pa2_pa3_project/core/themes/app_theme.dart';
-import 'package:ta_pa2_pa3_project/features/auth/presentation/screens/login_screen.dart';
 
 class DashboardHeader extends StatelessWidget {
   const DashboardHeader({super.key});
@@ -11,7 +10,12 @@ class DashboardHeader extends StatelessWidget {
     final name = AuthSession.userName ?? 'Bunda';
 
     return Container(
-      padding: const EdgeInsets.only(top: 60, left: 24, right: 24, bottom: 32),
+      padding: const EdgeInsets.only(
+        top: 60,
+        left: 24,
+        right: 24,
+        bottom: 32,
+      ),
       decoration: const BoxDecoration(
         gradient: LinearGradient(
           colors: TrimesterTheme.t1Gradient,
@@ -31,7 +35,10 @@ class DashboardHeader extends StatelessWidget {
             children: [
               const Text(
                 "Selamat Pagi ✨",
-                style: TextStyle(color: Colors.white70, fontSize: 16),
+                style: TextStyle(
+                  color: Colors.white70,
+                  fontSize: 16,
+                ),
               ),
               Text(
                 "Halo, $name!",
@@ -44,16 +51,24 @@ class DashboardHeader extends StatelessWidget {
               const SizedBox(height: 8),
               const Row(
                 children: [
-                  Icon(Icons.calendar_today, color: Colors.white70, size: 14),
+                  Icon(
+                    Icons.calendar_today,
+                    color: Colors.white70,
+                    size: 14,
+                  ),
                   SizedBox(width: 4),
                   Text(
                     "Trimester 2 • Bebas keluhan berat",
-                    style: TextStyle(color: Colors.white, fontSize: 12),
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                    ),
                   ),
                 ],
               ),
             ],
           ),
+
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
@@ -62,21 +77,39 @@ class DashboardHeader extends StatelessWidget {
             ),
             child: PopupMenuButton<String>(
               padding: EdgeInsets.zero,
-              icon: const Icon(Icons.notifications_none, color: Colors.white),
-              onSelected: (value) async {
-                if (value == 'logout') {
-                  await AuthSession.clear();
-                  if (!context.mounted) return;
-                  Navigator.of(context).pushAndRemoveUntil(
-                    MaterialPageRoute(builder: (_) => const LoginScreen()),
-                    (route) => false,
-                  );
-                }
-              },
-              itemBuilder: (context) => const [
-                PopupMenuItem<String>(
-                  value: 'logout',
-                  child: Text('Logout'),
+              color: Colors.white,
+              elevation: 6,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              icon: const Icon(
+                Icons.notifications_none,
+                color: Colors.white,
+              ),
+              onSelected: (value) {},
+              itemBuilder: (context) => [
+                const PopupMenuItem(
+                  value: 'notif',
+                  enabled: false,
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.notifications_off_outlined,
+                        size: 18,
+                        color: Colors.grey,
+                      ),
+                      SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Belum ada notifikasi',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
