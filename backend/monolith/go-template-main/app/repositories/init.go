@@ -66,6 +66,7 @@ type Main struct {
 	PersiapanMelahirkan  *PersiapanMelahirkanRepository
 	ProsesMelahirkan     *ProsesMelahirkanRepository
 	AbsensiKelasIbuHamil *AbsensiKelasIbuHamilRepository
+	WarnaTinja           WarnaTinjaRepository
 }
 
 type Options struct {
@@ -137,6 +138,7 @@ func Init(opts Options) *Main {
 	m.PersiapanMelahirkan = NewPersiapanMelahirkanRepository(opts.Postgres)
 	m.ProsesMelahirkan = NewProsesMelahirkanRepository(opts.Postgres)
 	m.AbsensiKelasIbuHamil = NewAbsensiKelasIbuHamilRepository(opts.Postgres)
+	m.WarnaTinja = NewWarnaTinjaRepository(opts.Postgres)
 
 	return m
 }

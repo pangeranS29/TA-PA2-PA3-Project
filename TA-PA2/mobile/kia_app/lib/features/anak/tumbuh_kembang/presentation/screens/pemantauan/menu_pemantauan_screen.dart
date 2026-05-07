@@ -17,7 +17,6 @@ class MenuPemantauanScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
@@ -112,7 +111,9 @@ class MenuPemantauanScreen extends StatelessWidget {
                   InkWell(
                     onTap: () => Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => const WarnaTinjaScreen()),
+                      MaterialPageRoute(
+                        builder: (_) => WarnaTinjaScreen(anak: anak),
+                      ),
                     ),
                     borderRadius: BorderRadius.circular(16),
                     child: _menuCard(
@@ -130,7 +131,8 @@ class MenuPemantauanScreen extends StatelessWidget {
                   InkWell(
                     onTap: () => Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => const WarnaAirKencingScreen()),
+                      MaterialPageRoute(
+                          builder: (_) => const WarnaAirKencingScreen()),
                     ),
                     borderRadius: BorderRadius.circular(16),
                     child: _menuCard(
