@@ -54,6 +54,7 @@ type Main struct {
 	KeteranganLahir               KeteranganLahirUsecase
 	JenisPelayanan                JenisPelayananUsecase
 	Perawatan                     PerawatanUsecase
+	KeluhanAnak                   KeluhanAnakUseCase
 
 	AdminAkunKeluarga    *AdminAkunKeluargaUsecase
 	AdminTenagaKesehatan *AdminTenagaKesehatanUsecase
