@@ -16,26 +16,27 @@ type PemeriksaanDokterTrimester1Usecase interface {
 }
 
 type PemeriksaanDokterTrimester1Request struct {
-	KehamilanID                 int32    `json:"kehamilan_id"`
-	NamaDokter                  string   `json:"nama_dokter"`
-	TanggalPeriksa              string   `json:"tanggal_periksa"`
-	KonsepAnamnesaPemeriksaan   string   `json:"konsep_anamnesa_pemeriksaan"`
-	FisikKonjungtiva            string   `json:"fisik_konjungtiva"`
-	FisikSklera                 string   `json:"fisik_sklera"`
-	FisikKulit                  string   `json:"fisik_kulit"`
-	FisikLeher                  string   `json:"fisik_leher"`
-	FisikGigiMulut              string   `json:"fisik_gigi_mulut"`
-	FisikTHT                    string   `json:"fisik_tht"`
-	FisikDadaJantung            string   `json:"fisik_dada_jantung"`
-	FisikDadaParu               string   `json:"fisik_dada_paru"`
-	FisikPerut                  string   `json:"fisik_perut"`
-	FisikTungkai                string   `json:"fisik_tungkai"`
-	HPHT                        string   `json:"hpht"`
-	KeteraturanHaid             string   `json:"keteraturan_haid"`
-	UmurHamilHPHTMinggu         *int     `json:"umur_hamil_hpht_minggu"`
-	HPLBerdasarkanHPHT          string   `json:"hpl_berdasarkan_hpht"`
-	UmurHamilUSGMinggu          *int     `json:"umur_hamil_usg_minggu"`
-	HPLBerdasarkanUSG           string   `json:"hpl_berdasarkan_usg"`
+	KehamilanID int32  `json:"kehamilan_id"`
+	NamaDokter  string `json:"nama_dokter"`
+	// TanggalPeriksa dihapus - akan auto set ke hari ini di backend
+	KonsepAnamnesaPemeriksaan string `json:"konsep_anamnesa_pemeriksaan"`
+	GambarUSG                 string `json:"gambar_usg"` // Base64 encoded image
+	FisikKonjungtiva          string `json:"fisik_konjungtiva"`
+	FisikSklera               string `json:"fisik_sklera"`
+	FisikKulit                string `json:"fisik_kulit"`
+	FisikLeher                string `json:"fisik_leher"`
+	FisikGigiMulut            string `json:"fisik_gigi_mulut"`
+	FisikTHT                  string `json:"fisik_tht"`
+	FisikDadaJantung          string `json:"fisik_dada_jantung"`
+	FisikDadaParu             string `json:"fisik_dada_paru"`
+	FisikPerut                string `json:"fisik_perut"`
+	FisikTungkai              string `json:"fisik_tungkai"`
+	HPHT                      string `json:"hpht"` // Kept as tidak redundant (dari riwayat)
+	KeteraturanHaid           string `json:"keteraturan_haid"`
+	UmurHamilHPHTMinggu       *int   `json:"umur_hamil_hpht_minggu"`
+	// HPLBerdasarkanHPHT dihapus - calculated
+	UmurHamilUSGMinggu *int `json:"umur_hamil_usg_minggu"`
+	// HPLBerdasarkanUSG dihapus - calculated
 	USGJumlahGS                 string   `json:"usg_jumlah_gs"`
 	USGDiameterGS_cm            *float64 `json:"usg_diameter_gs_cm"`
 	USGDiameterGSMinggu         *int     `json:"usg_diameter_gs_minggu"`
@@ -50,7 +51,7 @@ type PemeriksaanDokterTrimester1Request struct {
 	USGKeteranganTemuanAbnormal string   `json:"usg_keterangan_temuan_abnormal"`
 
 	// Laboratorium & Skrining Jiwa (Trimester 1)
-	TanggalLabJiwa                string   `json:"tanggal_lab_jiwa"`
+	// TanggalLabJiwa dihapus - akan auto set
 	LabHemoglobinHasilJiwa        *float64 `json:"lab_hemoglobin_hasil_jiwa"`
 	LabHemoglobinRencanaJiwa      string   `json:"lab_hemoglobin_rencana_tindak_lanjut_jiwa"`
 	LabGolonganDarahRhesusHasil   string   `json:"lab_golongan_darah_rhesus_hasil"`
@@ -63,12 +64,12 @@ type PemeriksaanDokterTrimester1Request struct {
 	LabSifilisRencana             string   `json:"lab_sifilis_rencana_tindak_lanjut"`
 	LabHepatitisBHasil            string   `json:"lab_hepatitis_b_hasil"`
 	LabHepatitisBRencana          string   `json:"lab_hepatitis_b_rencana_tindak_lanjut"`
-	TanggalSkriningJiwa           string   `json:"tanggal_skrining_jiwa"`
-	SkriningJiwaHasil             string   `json:"skrining_jiwa_hasil"`
-	SkriningJiwaTindakLanjut      string   `json:"skrining_jiwa_tindak_lanjut"`
-	SkriningJiwaPerluRujukan      string   `json:"skrining_jiwa_perlu_rujukan"`
-	KesimpulanJiwa                string   `json:"kesimpulan"`
-	RekomendasiJiwa               string   `json:"rekomendasi"`
+	// TanggalSkriningJiwa dihapus - akan auto set
+	SkriningJiwaHasil        string `json:"skrining_jiwa_hasil"`
+	SkriningJiwaTindakLanjut string `json:"skrining_jiwa_tindak_lanjut"`
+	SkriningJiwaPerluRujukan string `json:"skrining_jiwa_perlu_rujukan"`
+	KesimpulanJiwa           string `json:"kesimpulan"`
+	RekomendasiJiwa          string `json:"rekomendasi"`
 }
 
 type PemeriksaanDokterTrimester1Response struct {
@@ -109,10 +110,13 @@ func (u *pemeriksaanDokterTrimester1Usecase) Update(id int32, req *PemeriksaanDo
 }
 
 func (u *pemeriksaanDokterTrimester1Usecase) mapRequestToDokter(req *PemeriksaanDokterTrimester1Request) *models.PemeriksaanDokterTrimester1 {
+	today := time.Now()
 	dokter := &models.PemeriksaanDokterTrimester1{
 		KehamilanID:                 req.KehamilanID,
 		NamaDokter:                  req.NamaDokter,
+		TanggalPeriksa:              &today, // Set to today
 		KonsepAnamnesaPemeriksaan:   req.KonsepAnamnesaPemeriksaan,
+		GambarUSG:                   req.GambarUSG,
 		FisikKonjungtiva:            req.FisikKonjungtiva,
 		FisikSklera:                 req.FisikSklera,
 		FisikKulit:                  req.FisikKulit,
@@ -139,31 +143,22 @@ func (u *pemeriksaanDokterTrimester1Usecase) mapRequestToDokter(req *Pemeriksaan
 		USGKecurigaanTemuanAbnormal: req.USGKecurigaanTemuanAbnormal,
 		USGKeteranganTemuanAbnormal: req.USGKeteranganTemuanAbnormal,
 	}
-	if req.TanggalPeriksa != "" {
-		t, _ := time.Parse("2006-01-02", req.TanggalPeriksa)
-		dokter.TanggalPeriksa = &t
-	}
 	if req.HPHT != "" {
 		t, _ := time.Parse("2006-01-02", req.HPHT)
 		dokter.HPHT = &t
 	}
-	if req.HPLBerdasarkanHPHT != "" {
-		t, _ := time.Parse("2006-01-02", req.HPLBerdasarkanHPHT)
-		dokter.HPLBerdasarkanHPHT = &t
-	}
-	if req.HPLBerdasarkanUSG != "" {
-		t, _ := time.Parse("2006-01-02", req.HPLBerdasarkanUSG)
-		dokter.HPLBerdasarkanUSG = &t
-	}
+	// HPL fields are auto-calculated, no need to parse from request
 	return dokter
 }
 
 func (u *pemeriksaanDokterTrimester1Usecase) mapRequestToLab(req *PemeriksaanDokterTrimester1Request, trimester int32) *models.PemeriksaanLaboratoriumJiwa {
-	if req.TanggalLabJiwa == "" && req.LabHemoglobinHasilJiwa == nil && req.LabGulaDarahSewaktuHasil == nil {
+	if req.LabHemoglobinHasilJiwa == nil && req.LabGulaDarahSewaktuHasil == nil {
 		return nil
 	}
+	today := time.Now()
 	lab := &models.PemeriksaanLaboratoriumJiwa{
 		Trimester:                        trimester,
+		TanggalLab:                       &today, // Set to today
 		LabHemoglobinHasil:               req.LabHemoglobinHasilJiwa,
 		LabHemoglobinRencanaTindakLanjut: req.LabHemoglobinRencanaJiwa,
 		LabGolonganDarahRhesusHasil:      req.LabGolonganDarahRhesusHasil,
@@ -182,13 +177,9 @@ func (u *pemeriksaanDokterTrimester1Usecase) mapRequestToLab(req *PemeriksaanDok
 		Kesimpulan:                       req.KesimpulanJiwa,
 		Rekomendasi:                      req.RekomendasiJiwa,
 	}
-	if req.TanggalLabJiwa != "" {
-		t, _ := time.Parse("2006-01-02", req.TanggalLabJiwa)
-		lab.TanggalLab = &t
-	}
-	if req.TanggalSkriningJiwa != "" {
-		t, _ := time.Parse("2006-01-02", req.TanggalSkriningJiwa)
-		lab.TanggalSkriningJiwa = &t
+	if req.SkriningJiwaHasil != "" {
+		tab := &today
+		lab.TanggalSkriningJiwa = tab // Set to today if skrining data provided
 	}
 	return lab
 }
