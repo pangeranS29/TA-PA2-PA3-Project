@@ -29,6 +29,20 @@ func (m *Main) AddCatatanPertumbuhan(c echo.Context) error {
 	}, nil)
 }
 
+// GET - chart data (riwayat + standar WHO)
+func (m *Main) GetPertumbuhanChart(c echo.Context) error {
+	anakID, err := strconv.ParseUint(c.Param("anak_id"), 10, 64)
+	if err != nil || anakID <= 0 {
+		return helpers.Response(c, http.StatusBadRequest, []string{"anak_id tidak valid"})
+	}
+	data, usecaseErr := m.usecases.GetPertumbuhanChart(uint(anakID))
+	if usecaseErr != nil {
+		return helpers.Response(c, customerror.GetStatusCode(usecaseErr), []string{usecaseErr.Error()})
+	}
+
+	return helpers.StandardResponse(c, http.StatusOK, []string{constants.SUCCESS_RESPONSE_MESSAGE}, data, nil)
+}
+
 // GET
 func (m *Main) GetRiwayatPertumbuhan(c echo.Context) error {
 

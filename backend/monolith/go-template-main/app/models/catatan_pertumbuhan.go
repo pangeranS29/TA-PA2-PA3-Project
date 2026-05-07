@@ -14,6 +14,7 @@ type CatatanPertumbuhan struct {
 	BeratBadan    float64   `gorm:"column:berat_badan;type:decimal(5,2)" db:"berat_badan" json:"berat_badan"`
 	TinggiBadan   float64   `gorm:"column:tinggi_badan;type:decimal(5,2)" db:"tinggi_badan" json:"tinggi_badan"`
 	LingkarKepala float64   `gorm:"column:lingkar_kepala;type:decimal(5,2)" db:"lingkar_kepala" json:"lingkar_kepala,omitempty"`
+	HasilLila     float64   `gorm:"column:hasil_lila;type:decimal(5,2)" db:"hasil_lila" json:"hasil_lila,omitempty"`
 	IMT           float64   `gorm:"column:imt;type:decimal(5,2)" db:"imt" json:"imt,omitempty"`
 
 	// Status gizi (hasil perhitungan)

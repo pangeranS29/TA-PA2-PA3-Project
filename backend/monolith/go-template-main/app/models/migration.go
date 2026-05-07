@@ -13,6 +13,8 @@ func AutoMigrate(db *gorm.DB) error {
 		&Ibu{},
 		// &KategoriTandaBahaya{},
 		&SkriningPemantauan{},
+		&RentangUsia{},
+		&KategoriTandaSakit{},
 		// &KartuKeluarga{},
 		// &Kependudukan{},
 
@@ -50,6 +52,8 @@ func AutoMigrate(db *gorm.DB) error {
 		&DeteksiDiniPenyimpangan{},
 		&PengukuranLila{},
 		&Pertumbuhan{},
+		&LembarPemantauan{},
+		&DetailPemantauan{},
 
 		// Kehamilan detail
 		&PemeriksaanKehamilan{},

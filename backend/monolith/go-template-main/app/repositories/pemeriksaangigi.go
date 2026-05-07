@@ -88,7 +88,7 @@ func (r *pemeriksaanGigiRepository) Update(id int32, req models.UpdatePemeriksaa
 		if req.Bulanke != 0 {
 			updates["bulanke"] = req.Bulanke
 		}
-		if !req.Tanggal.IsZero() {
+		if req.Tanggal != "" {
 			updates["tanggal"] = req.Tanggal
 		}
 		if req.Jumlahgigi != 0 {

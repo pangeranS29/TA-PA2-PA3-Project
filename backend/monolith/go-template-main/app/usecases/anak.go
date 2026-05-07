@@ -43,13 +43,34 @@ func (u *AnakUseCase) CreateAnak(req models.CreateAnakRequest) (*models.AnakResp
 	if req.KehamilanID == 0 {
 		return nil, errors.New("kehamilan_id wajib diisi")
 	}
-	if req.PendudukID == 0 {
-		return nil, errors.New("penduduk_id wajib diisi")
+
+	pendudukID := req.PendudukID
+	if pendudukID == 0 {
+		// Jika penduduk_id tidak ada, buat penduduk baru dari data yang dikirim
+		if req.Nama == "" {
+			return nil, errors.New("nama anak wajib diisi jika penduduk_id tidak ada")
+		}
+
+		tglLahir, _ := time.Parse("2006-01-02", req.TanggalLahir)
+		// Generate NIK sementara jika tidak ada (karena NOT NULL di DB)
+		nik := fmt.Sprintf("A%d", time.Now().UnixNano())
+
+		newPenduduk := &models.Kependudukan{
+			NIK:          nik,
+			NamaLengkap:  req.Nama,
+			JenisKelamin: req.JenisKelamin,
+			TanggalLahir: tglLahir,
+		}
+
+		if err := u.pendudukRepo.Create(newPenduduk); err != nil {
+			return nil, fmt.Errorf("gagal membuat data penduduk: %v", err)
+		}
+		pendudukID = newPenduduk.IDKependudukan
 	}
 
 	anak := &models.Anak{
 		KehamilanID:   req.KehamilanID,
-		PendudukID:    req.PendudukID,
+		PendudukID:    pendudukID,
 		BeratLahirKg:  req.BeratLahirKg,
 		TinggiLahirCm: req.TinggiLahirCm,
 	}
@@ -83,15 +104,28 @@ func (u *AnakUseCase) UpdateAnak(id int32, req models.UpdateAnakRequest) (*model
 		anak.TinggiLahirCm = req.TinggiLahirCm
 	}
 
-	if err := u.anakRepo.Update(anak); err != nil {
-		return nil, err
-	}
-
 	// Update data Penduduk jika relasi ada
 	if anak.Penduduk != nil {
+		if req.Nama != "" {
+			anak.Penduduk.NamaLengkap = req.Nama
+		}
+		if req.JenisKelamin != "" {
+			anak.Penduduk.JenisKelamin = req.JenisKelamin
+		}
+		if req.TanggalLahir != "" {
+			t, err := time.Parse("2006-01-02", req.TanggalLahir)
+			if err == nil {
+				anak.Penduduk.TanggalLahir = t
+			}
+		}
+
 		if err := u.pendudukRepo.Update(anak.Penduduk); err != nil {
 			return nil, err
 		}
+	}
+
+	if err := u.anakRepo.Update(anak); err != nil {
+		return nil, err
 	}
 
 	resp := u.toAnakResponse(anak)
@@ -135,7 +169,7 @@ func (u *AnakUseCase) AdminListAnak(kehamilanID int32) ([]models.AnakResponse, e
 func HitungUsiaBulan(tanggalLahir time.Time) int {
 	now := time.Now()
 
-	if tanggalLahir.After(now) {
+	if tanggalLahir.IsZero() || tanggalLahir.Year() < 1900 || tanggalLahir.After(now) {
 		return 0
 	}
 
@@ -203,14 +237,19 @@ func (u *AnakUseCase) toAnakResponse(anak *models.Anak) models.AnakResponse {
 	// Ambil data dari Penduduk (Kependudukan)
 	if anak.Penduduk != nil {
 		resp.Nama = anak.Penduduk.NamaLengkap
-		resp.TanggalLahir = anak.Penduduk.TanggalLahir.Format("2006-01-02")
+		if !anak.Penduduk.TanggalLahir.IsZero() && anak.Penduduk.TanggalLahir.Year() >= 1900 {
+			resp.TanggalLahir = anak.Penduduk.TanggalLahir.Format("2006-01-02")
+			// Hitung usia dari tanggal lahir penduduk
+			usiaBulan := HitungUsiaBulan(anak.Penduduk.TanggalLahir)
+			resp.UsiaBulan = usiaBulan
+			resp.UsiaTeks = FormatUsiaTeks(usiaBulan)
+		} else {
+			resp.TanggalLahir = ""
+			resp.UsiaBulan = 0
+			resp.UsiaTeks = "-"
+		}
 		resp.JenisKelamin = anak.Penduduk.JenisKelamin
 		resp.GolonganDarah = anak.Penduduk.GolonganDarah
-
-		// Hitung usia dari tanggal lahir penduduk
-		// usiaBulan := HitungUsiaBulan(anak.Penduduk.TanggalLahir)
-		// // resp.UsiaBulan = usiaBulan
-		// // resp.UsiaTeks = FormatUsiaTeks(usiaBulan)
 	}
 
 	// Ambil data Kehamilan
@@ -225,16 +264,17 @@ func (u *AnakUseCase) toAnakResponse(anak *models.Anak) models.AnakResponse {
 	}
 
 	// Map data Pertumbuhan
-	// if len(anak.Pertumbuhan) > 0 {
-	// 	resp.Pertumbuhan = make([]models.PertumbuhanSimple, 0, len(anak.Pertumbuhan))
-	// 	for _, p := range anak.Pertumbuhan {
-	// 		resp.Pertumbuhan = append(resp.Pertumbuhan, models.PertumbuhanSimple{
-	// 			Bulan:       p.UsiaUkurBulan,
-	// 			BeratBadan:  p.BeratBadan,
-	// 			TinggiBadan: p.TinggiBadan,
-	// 		})
-	// 	}
-	// }
+	if len(anak.Pertumbuhan) > 0 {
+		resp.Pertumbuhan = make([]models.PertumbuhanSimple, 0, len(anak.Pertumbuhan))
+		for _, p := range anak.Pertumbuhan {
+			resp.Pertumbuhan = append(resp.Pertumbuhan, models.PertumbuhanSimple{
+				Bulan:       p.UsiaUkurBulan,
+				BeratBadan:  p.BeratBadan,
+				TinggiBadan: p.TinggiBadan,
+				HasilLila:   p.HasilLila,
+			})
+		}
+	}
 
 	return resp
 }

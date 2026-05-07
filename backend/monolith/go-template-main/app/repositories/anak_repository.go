@@ -6,6 +6,7 @@ import (
 	"monitoring-service/app/constants"
 	"monitoring-service/app/models"
 	"monitoring-service/pkg/customerror"
+	"gorm.io/gorm"
 )
 
 func (m *Main) GetAllAnak() ([]models.Anak, error) {
@@ -15,6 +16,9 @@ func (m *Main) GetAllAnak() ([]models.Anak, error) {
 		Preload("Kehamilan").
 		Preload("Kehamilan.Ibu").
 		Preload("Kehamilan.Ibu.Kependudukan").
+		Preload("Pertumbuhan", func(db *gorm.DB) *gorm.DB {
+			return db.Order("tgl_ukur ASC")
+		}).
 		Find(&data).Error
 	if err != nil {
 		return nil, customerror.NewInternalServiceError("gagal mengambil data anak")
@@ -27,25 +31,27 @@ func (m *Main) SearchAnak(namaAnak, namaIbu, noKK string) ([]models.Anak, error)
 	var data []models.Anak
 
 	query := m.postgres.Model(&models.Anak{}).
-		Joins("LEFT JOIN ibu i ON i.id = anak.ibu_id").
-		Joins("LEFT JOIN kependudukan ki ON ki.id = i.kependudukan_id").
-		Joins("LEFT JOIN kartu_keluarga kk ON kk.id = ki.no_kartu_keluarga_id")
+		Joins("LEFT JOIN penduduk p ON p.id = anak.penduduk_id").
+		Joins("LEFT JOIN kehamilan k ON k.id = anak.kehamilan_id").
+		Joins("LEFT JOIN ibu i ON i.id = k.ibu_id").
+		Joins("LEFT JOIN penduduk pi ON pi.id = i.penduduk_id").
+		Joins("LEFT JOIN kartu_keluarga kk ON kk.id = p.kartu_keluarga_id")
 
 	namaAnak = strings.TrimSpace(namaAnak)
 	namaIbu = strings.TrimSpace(namaIbu)
 	noKK = strings.TrimSpace(noKK)
 
 	if namaAnak != "" {
-		query = query.Where("anak.nama_anak ILIKE ?", "%"+namaAnak+"%")
+		query = query.Where("p.nama_lengkap ILIKE ?", "%"+namaAnak+"%")
 	}
 
 	if namaIbu != "" {
-		query = query.Where("ki.nama ILIKE ?", "%"+namaIbu+"%")
+		query = query.Where("pi.nama_lengkap ILIKE ?", "%"+namaIbu+"%")
 	}
 
 	if noKK != "" {
 		searchNoKK := "%" + noKK + "%"
-		query = query.Where("CAST(anak.no_kartu_keluarga AS TEXT) ILIKE ? OR CAST(kk.no_kartu_keluarga AS TEXT) ILIKE ?", searchNoKK, searchNoKK)
+		query = query.Where("kk.no_kartu_keluarga ILIKE ?", searchNoKK)
 	}
 
 	err := query.
@@ -53,6 +59,9 @@ func (m *Main) SearchAnak(namaAnak, namaIbu, noKK string) ([]models.Anak, error)
 		Preload("Kehamilan").
 		Preload("Kehamilan.Ibu").
 		Preload("Kehamilan.Ibu.Kependudukan").
+		Preload("Pertumbuhan", func(db *gorm.DB) *gorm.DB {
+			return db.Order("tgl_ukur ASC")
+		}).
 		Order("anak.created_at DESC").
 		Find(&data).Error
 
@@ -70,6 +79,9 @@ func (m *Main) GetAnakByID(anakID uint) (*models.Anak, error) {
 		Preload("Kehamilan").
 		Preload("Kehamilan.Ibu").
 		Preload("Kehamilan.Ibu.Kependudukan").
+		Preload("Pertumbuhan", func(db *gorm.DB) *gorm.DB {
+			return db.Order("tgl_ukur ASC")
+		}).
 		Where("id = ?", anakID).
 		First(&data).Error
 	if err != nil {

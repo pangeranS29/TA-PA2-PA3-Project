@@ -43,8 +43,9 @@ export default function AnakListNakes() {
   };
 
   const formatDate = (dateString) => {
-    if (!dateString) return "-";
+    if (!dateString || dateString.startsWith("0001")) return "-";
     const date = new Date(dateString);
+    if (isNaN(date.getTime()) || date.getFullYear() < 1900) return "-";
     return date.toLocaleDateString("id-ID", {
       day: "numeric", month: "long", year: "numeric",
     });

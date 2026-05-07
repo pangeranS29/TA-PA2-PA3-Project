@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import MainLayout from "../../components/Layout/MainLayout";
 import {
@@ -112,8 +112,10 @@ export default function PertumbuhanIndex() {
       setIsModalOpen(false);
       fetchData();
       fetchPrediksi();
-    } catch {
-      alert("Gagal menyimpan data");
+    } catch (err) {
+      console.error("Save Error:", err);
+      const msg = err.response?.data?.message || err.message || "Gagal menyimpan data";
+      alert(msg);
     }
   };
 
