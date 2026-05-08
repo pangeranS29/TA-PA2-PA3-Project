@@ -8,8 +8,11 @@ import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/scr
 import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/screens/pertumbuhan/detail_pertumbuhan_dummy_screen.dart';
 import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/screens/pemantauan/skrining/pemantauan_menu_screen.dart';
 
+// Import CatatanMenuScreen (Sesuaikan path-nya jika berbeda)
+import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/screens/catatan/catatan_menu_screen.dart';
+
 /// [tujuan] menentukan halaman tujuan setelah anak dipilih.
-/// Gunakan 'pertumbuhan' (default) atau 'imunisasi'.
+/// Gunakan 'pertumbuhan' (default), 'imunisasi', 'pemantauan', atau 'catatan'.
 class PilihAnakScreen extends StatefulWidget {
   final String tujuan;
 
@@ -172,13 +175,13 @@ class _PilihAnakScreenState extends State<PilihAnakScreen> {
                     builder: (_) => PemantauanMenuScreen(anak: anakMap),
                   ),
                 );
-              } else if (widget.tujuan == 'mpasi') {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => HalamanUtamaMpasiScreen(anak: anakMap),
-                  ),
-                );
+              // } else if (widget.tujuan == 'mpasi') {
+              //   Navigator.push(
+              //     context,
+              //     MaterialPageRoute(
+              //       builder: (_) => HalamanUtamaMpasiScreen(anak: anakMap),
+              //     ),
+              //   );
               } else if (widget.tujuan == 'pemantauan') {
                 Navigator.push(
                   context,
@@ -186,7 +189,23 @@ class _PilihAnakScreenState extends State<PilihAnakScreen> {
                     builder: (_) => MenuPemantauanScreen(anak: anakMap),
                   ),
                 );
-              } else {
+              } 
+              // --- TAMBAHAN KONDISI UNTUK CATATAN ---
+              else if (widget.tujuan == 'catatan') {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => CatatanMenuScreen(
+                      // Pastikan model anak memiliki properti id dan nama
+                      // Kita gunakan tryParse untuk memastikan tipenya int
+                      anakId: int.tryParse(anak.id.toString()) ?? 0, 
+                      anakName: anak.nama,
+                    ),
+                  ),
+                );
+              } 
+              // --------------------------------------
+              else {
                 Navigator.push(
                   context,
                   MaterialPageRoute(

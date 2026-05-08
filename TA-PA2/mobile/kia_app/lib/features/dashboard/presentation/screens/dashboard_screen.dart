@@ -237,19 +237,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildMenyusuiShortcut() {
-  return DashboardMenuCard(
-    title: 'Menyusui',
-    subtitle: 'Lihat edukasi menyusui dan ASI',
-    icon: Icons.child_care_outlined,
-    iconColor: Colors.orange,
-    onTap: () => Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => const EdukasiExploreScreen(),
+    return DashboardMenuCard(
+      title: 'Menyusui',
+      subtitle: 'Lihat edukasi menyusui dan ASI',
+      icon: Icons.child_care_outlined,
+      iconColor: Colors.orange,
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const EdukasiExploreScreen(),
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   // ─────────────────────────────────────────────
   // [MODUL: IBU - Hamil] Konten tab Hamil
@@ -502,84 +502,84 @@ class _DashboardScreenState extends State<DashboardScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Tombol cari anak — untuk petugas/bidan cari by nama/NIK/no KK
-        GestureDetector(
-          onTap: () => Navigator.push(context,
-              MaterialPageRoute(builder: (_) => const CariAnakScreen())),
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.green.shade200),
-              borderRadius: BorderRadius.circular(16),
-              color: Colors.green.shade50,
-            ),
-            child: const Row(
-              children: [
-                Icon(Icons.search, color: Colors.green, size: 28),
-                SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Cari Data Anak',
-                          style: TextStyle(
-                              fontWeight: FontWeight.w600, fontSize: 14)),
-                      SizedBox(height: 4),
-                      Text('Cari by nama, nama ibu, atau no. KK',
-                          style:
-                              TextStyle(fontSize: 12, color: Colors.black54)),
-                    ],
-                  ),
-                ),
-                CircleAvatar(
-                  radius: 14,
-                  backgroundColor: Colors.green,
-                  child:
-                      Icon(Icons.arrow_forward, size: 16, color: Colors.white),
-                ),
-              ],
-            ),
-          ),
-        ),
+        // GestureDetector(
+        //   onTap: () => Navigator.push(context,
+        //       MaterialPageRoute(builder: (_) => const CariAnakScreen())),
+        //   child: Container(
+        //     padding: const EdgeInsets.all(16),
+        //     decoration: BoxDecoration(
+        //       border: Border.all(color: Colors.green.shade200),
+        //       borderRadius: BorderRadius.circular(16),
+        //       color: Colors.green.shade50,
+        //     ),
+        //     child: const Row(
+        //       children: [
+        //         Icon(Icons.search, color: Colors.green, size: 28),
+        //         SizedBox(width: 12),
+        //         Expanded(
+        //           child: Column(
+        //             crossAxisAlignment: CrossAxisAlignment.start,
+        //             children: [
+        //               Text('Cari Data Anak',
+        //                   style: TextStyle(
+        //                       fontWeight: FontWeight.w600, fontSize: 14)),
+        //               SizedBox(height: 4),
+        //               Text('Cari by nama, nama ibu, atau no. KK',
+        //                   style:
+        //                       TextStyle(fontSize: 12, color: Colors.black54)),
+        //             ],
+        //           ),
+        //         ),
+        //         CircleAvatar(
+        //           radius: 14,
+        //           backgroundColor: Colors.green,
+        //           child:
+        //               Icon(Icons.arrow_forward, size: 16, color: Colors.white),
+        //         ),
+        //       ],
+        //     ),
+        //   ),
+        // ),
         const SizedBox(height: 12),
 
         // Tombol request tambah profil anak
-        GestureDetector(
-          onTap: () => Navigator.push(context,
-              MaterialPageRoute(builder: (_) => InputProfilAnakScreen())),
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.blue.shade200),
-              borderRadius: BorderRadius.circular(16),
-              color: Colors.blue.shade50,
-            ),
-            child: const Row(
-              children: [
-                Icon(Icons.person_add, color: Colors.blue, size: 28),
-                SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Request Tambah Profil Anak',
-                          style: TextStyle(
-                              fontWeight: FontWeight.w600, fontSize: 14)),
-                      SizedBox(height: 4),
-                      Text('Mulai pantau tumbuh kembang si kecil',
-                          style:
-                              TextStyle(fontSize: 12, color: Colors.black54)),
-                    ],
-                  ),
-                ),
-                CircleAvatar(
-                  radius: 14,
-                  backgroundColor: Colors.blue,
-                  child: Icon(Icons.add, size: 16, color: Colors.white),
-                ),
-              ],
-            ),
-          ),
-        ),
+        // GestureDetector(
+        //   onTap: () => Navigator.push(context,
+        //       MaterialPageRoute(builder: (_) => InputProfilAnakScreen())),
+        //   child: Container(
+        //     padding: const EdgeInsets.all(16),
+        //     decoration: BoxDecoration(
+        //       border: Border.all(color: Colors.blue.shade200),
+        //       borderRadius: BorderRadius.circular(16),
+        //       color: Colors.blue.shade50,
+        //     ),
+        //     child: const Row(
+        //       children: [
+        //         Icon(Icons.person_add, color: Colors.blue, size: 28),
+        //         SizedBox(width: 12),
+        //         Expanded(
+        //           child: Column(
+        //             crossAxisAlignment: CrossAxisAlignment.start,
+        //             children: [
+        //               Text('Request Tambah Profil Anak',
+        //                   style: TextStyle(
+        //                       fontWeight: FontWeight.w600, fontSize: 14)),
+        //               SizedBox(height: 4),
+        //               Text('Mulai pantau tumbuh kembang si kecil',
+        //                   style:
+        //                       TextStyle(fontSize: 12, color: Colors.black54)),
+        //             ],
+        //           ),
+        //         ),
+        //         CircleAvatar(
+        //           radius: 14,
+        //           backgroundColor: Colors.blue,
+        //           child: Icon(Icons.add, size: 16, color: Colors.white),
+        //         ),
+        //       ],
+        //     ),
+        //   ),
+        // ),
         const SizedBox(height: 24),
 
         const Text('Menu Cepat', style: TextStyle(fontWeight: FontWeight.bold)),
@@ -639,9 +639,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     break;
                   case 'catatan':
                     Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (_) => const CatatanMenuScreen()));
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const PilihAnakScreen(
+                          tujuan: 'catatan', // Arahkan tujuannya ke catatan
+                        ),
+                      ),
+                    );
                     break;
                   default:
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
