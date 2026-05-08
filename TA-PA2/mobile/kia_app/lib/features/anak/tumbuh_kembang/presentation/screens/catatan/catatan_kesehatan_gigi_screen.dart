@@ -1,8 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/data/models/pemeriksaan_gigi_model.dart';
+import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/data/services/pemeriksaan_gigi_api_service.dart';
 import 'catatan_detail_screen.dart';
 
 class CatatanKesehataanGigiScreen extends StatefulWidget {
-  const CatatanKesehataanGigiScreen({super.key});
+  final int anakId;
+  final String anakName;
+
+  const CatatanKesehataanGigiScreen({
+    super.key,
+    required this.anakId,
+    required this.anakName,
+  });
 
   @override
   State<CatatanKesehataanGigiScreen> createState() =>
@@ -11,67 +21,45 @@ class CatatanKesehataanGigiScreen extends StatefulWidget {
 
 class _CatatanKesehataanGigiScreenState
     extends State<CatatanKesehataanGigiScreen> {
-  bool isLoading = false;
+  final PemeriksaanGigiApiService _apiService = PemeriksaanGigiApiService();
+  bool isLoading = true;
+  String errorMsg = '';
+  List<PemeriksaanGigiModel> catatanList = [];
 
-  // Sample data for UI - Updated with KIA 2024 dental screening standards
-  List<Map<String, dynamic>> catatanList = [
-    {
-      'date': '10 Jan 2026',
-      'bulanke': 6,
-      'kategoriUmur': '3-6 Bulan',
-      'jumlahGigi': 0,
-      'gigiBerlubang': 0,
-      'statusPlak': 'Tidak ada',
-      'kondisi': 'Sehat',
-      'resikoGigiBerlubang': 'Rendah',
-      'tindakan': 'Pemeriksaan rutin',
-      'catatan': 'Belum ada gigi yang tumbuh. Oral hygiene baik.',
-      'rekomendasi': 'Lanjutkan perawatan oral, edukasi pemberian makan',
-      'status': 'normal'
-    },
-    {
-      'date': '15 Apr 2026',
-      'bulanke': 9,
-      'kategoriUmur': '6-12 Bulan',
-      'jumlahGigi': 4,
-      'gigiBerlubang': 0,
-      'statusPlak': 'Minimal',
-      'kondisi': 'Sehat',
-      'resikoGigiBerlubang': 'Rendah',
-      'tindakan': 'Pemeriksaan berkala',
-      'catatan': '4 gigi susu sudah tumbuh (2 atas, 2 bawah). Gigi bersih, tidak ada karies.',
-      'rekomendasi': 'Mulai pembersihan gigi dengan kain lembab, kontrol 6 bulan lagi',
-      'status': 'normal'
-    },
-    {
-      'date': '10 Jun 2026',
-      'bulanke': 12,
-      'kategoriUmur': '6-12 Bulan',
-      'jumlahGigi': 8,
-      'gigiBerlubang': 0,
-      'statusPlak': 'Ada (minor)',
-      'kondisi': 'Plak ringan',
-      'resikoGigiBerlubang': 'Sedang',
-      'tindakan': 'Edukasi & tindakan preventif',
-      'catatan': '8 gigi sudah tumbuh. Plak ringan terlihat pada permukaan awal. Anak sering dikasih minuman manis.',
-      'rekomendasi': 'Kurangi minuman/makanan manis, mulai sikat gigi 2x sehari, kontrol 3 bulan',
-      'status': 'attention'
-    },
-    {
-      'date': '10 Aug 2026',
-      'bulanke': 14,
-      'kategoriUmur': '1-2 Tahun',
-      'jumlahGigi': 12,
-      'gigiBerlubang': 1,
-      'statusPlak': 'Ada',
-      'kondisi': 'Karies D1 (email)',
-      'resikoGigiBerlubang': 'Tinggi',
-      'tindakan': 'Edukasi intensif & fluoride topical',
-      'catatan': '12 gigi sudah tumbuh. Ditemukan karies pada gigi molar ke-1. Plak sedang. Kebiasaan minum susu sebelum tidur.',
-      'rekomendasi': 'Aplikasi fluoride topical, edukasi diet anak, sikat gigi 2x dengan bantuan orang tua, kontrol 1 bulan',
-      'status': 'attention'
-    },
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  @override
+  void dispose() {
+    _apiService.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadData() async {
+    setState(() {
+      isLoading = true;
+      errorMsg = '';
+    });
+    try {
+      final data = await _apiService.getByAnakID(widget.anakId);
+      if (mounted) {
+        setState(() {
+          catatanList = data;
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          errorMsg = e.toString();
+          isLoading = false;
+        });
+      }
+    }
+  }
 
   Color _statusColor(String status) {
     switch (status) {
@@ -107,7 +95,7 @@ class _CatatanKesehataanGigiScreenState
     if (type == 'gigi_berlubang' && int.tryParse(value) != null && int.parse(value) == 0) {
       bgColor = const Color(0xFFD4EDDA);
       textColor = const Color(0xFF155724);
-    } else if (type == 'status_plak' && (value.toLowerCase().contains('tidak') || value.toLowerCase().contains('minimal'))) {
+    } else if (type == 'status_plak' && (value.toLowerCase().contains('tidak') || value.toLowerCase().contains('bersih'))) {
       bgColor = const Color(0xFFD4EDDA);
       textColor = const Color(0xFF155724);
     } else if (type == 'risiko' && value.toLowerCase().contains('rendah')) {
@@ -119,7 +107,7 @@ class _CatatanKesehataanGigiScreenState
     } else if (type == 'risiko' && value.toLowerCase().contains('tinggi')) {
       bgColor = const Color(0xFFF8D7DA);
       textColor = const Color(0xFF721C24);
-    } else if (type == 'status_plak' && value.toLowerCase().contains('ada')) {
+    } else if (type == 'status_plak' && (value.toLowerCase().contains('ada') || value.toLowerCase().contains('kotor'))) {
       bgColor = const Color(0xFFFFF3CD);
       textColor = const Color(0xFF856404);
     } else {
@@ -147,10 +135,10 @@ class _CatatanKesehataanGigiScreenState
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        title: const Column(
+        title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            const Text(
               'Kesehatan Gigi',
               style: TextStyle(
                 color: Color(0xFF172033),
@@ -158,10 +146,10 @@ class _CatatanKesehataanGigiScreenState
                 fontWeight: FontWeight.w700,
               ),
             ),
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
             Text(
-              'Pantau kesehatan gigi dan mulut anak',
-              style: TextStyle(
+              'Pantau kesehatan gigi ${widget.anakName}',
+              style: const TextStyle(
                 color: Color(0xFF7B8798),
                 fontSize: 13,
               ),
@@ -187,10 +175,10 @@ class _CatatanKesehataanGigiScreenState
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
-                      Text('Kontrol gigi: 6 bulan lagi', style: TextStyle(fontWeight: FontWeight.w600)),
-                      SizedBox(height: 4),
-                      Text('Imunisasi berikutnya: 20 Mei 2026', style: TextStyle(color: Color(0xFF7B8798))),
+                    children: [
+                      Text('Catatan gigi untuk ${widget.anakName}', style: const TextStyle(fontWeight: FontWeight.w600)),
+                      const SizedBox(height: 4),
+                      const Text('Jaga selalu kebersihan mulut anak', style: TextStyle(color: Color(0xFF7B8798))),
                     ],
                   ),
                 ),
@@ -201,95 +189,116 @@ class _CatatanKesehataanGigiScreenState
           Expanded(
             child: isLoading
                 ? const Center(child: CircularProgressIndicator())
-                : ListView.separated(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: catatanList.length + 1,
-                    separatorBuilder: (_, __) => const SizedBox(height: 10),
-                    itemBuilder: (context, index) {
-                      if (index == catatanList.length) {
-                        return ElevatedButton.icon(
-                          onPressed: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Tambah catatan belum tersedia'))),
-                          icon: const Icon(Icons.add),
-                          label: const Text('Tambah Catatan'),
-                          style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFD32F2F)),
-                        );
-                      }
-
-                      final item = catatanList[index];
-                      return Card(
-                        child: ListTile(
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                          title: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(item['date'] ?? '', style: const TextStyle(fontWeight: FontWeight.w600)),
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    'Usia: ${item['bulanke']} bulan (${item['kategoriUmur']})',
-                                    style: const TextStyle(fontSize: 12, color: Color(0xFF7B8798)),
-                                  ),
-                                ],
-                              ),
-                              Chip(
-                                label: Text(_statusLabel(item['status'] ?? '-')),
-                                backgroundColor: _statusColor(item['status'] ?? '').withOpacity(0.12),
-                                labelStyle: TextStyle(color: _statusColor(item['status'] ?? '')),
-                              ),
-                            ],
-                          ),
-                          subtitle: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const SizedBox(height: 8),
-                              Text(
-                                'Kondisi: ${item['kondisi'] ?? ''}',
-                                style: const TextStyle(fontWeight: FontWeight.w500),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                'Gigi: ${item['jumlahGigi'] ?? 0} | Berlubang: ${item['gigiBerlubang'] ?? 0}',
-                                style: const TextStyle(color: Color(0xFF7B8798), fontSize: 12),
-                              ),
-                              const SizedBox(height: 6),
-                              // Dental parameters tags
-                              Wrap(
-                                spacing: 8,
-                                children: [
-                                  _buildDentalStatusTag(
-                                    'Plak: ${item['statusPlak']}',
-                                    item['statusPlak'] ?? '',
-                                    'status_plak',
-                                  ),
-                                  _buildDentalStatusTag(
-                                    'Risiko: ${item['resikoGigiBerlubang']}',
-                                    item['resikoGigiBerlubang'] ?? '',
-                                    'risiko',
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                          trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                          isThreeLine: true,
-                          onTap: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (_) => CatatanDetailScreen(data: item, title: 'Detail Kesehatan Gigi')),
-                          ),
+                : errorMsg.isNotEmpty
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(errorMsg, style: const TextStyle(color: Colors.red)),
+                            const SizedBox(height: 16),
+                            ElevatedButton(
+                              onPressed: _loadData,
+                              child: const Text('Coba Lagi'),
+                            ),
+                          ],
                         ),
-                      );
-                    },
-                  ),
+                      )
+                    : catatanList.isEmpty
+                        ? const Center(child: Text('Belum ada catatan kesehatan gigi.'))
+                        : ListView.separated(
+                            padding: const EdgeInsets.all(16),
+                            itemCount: catatanList.length,
+                            separatorBuilder: (_, __) => const SizedBox(height: 10),
+                            itemBuilder: (context, index) {
+                              final item = catatanList[index];
+                              
+                              final dateStr = DateFormat('dd MMM yyyy').format(item.tanggal);
+                              final kondisi = item.gigiBerlubang > 0 ? 'Ada Gigi Berlubang' : 'Sehat';
+                              final status = item.gigiBerlubang > 0 || item.resikoGigiBerlubang.toLowerCase() == 'tinggi' ? 'attention' : 'normal';
+
+                              // Convert model to Map for existing CatatanDetailScreen
+                              final mapItem = {
+                                'date': dateStr,
+                                'bulanke': item.bulan,
+                                'jumlahGigi': item.jumlahGigi,
+                                'gigiBerlubang': item.gigiBerlubang,
+                                'statusPlak': item.statusPlak,
+                                'kondisi': kondisi,
+                                'resikoGigiBerlubang': item.resikoGigiBerlubang,
+                                'tindakan': '-',
+                                'catatan': '-',
+                                'rekomendasi': '-',
+                                'status': status
+                              };
+
+                              return Card(
+                                child: ListTile(
+                                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                  title: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(dateStr, style: const TextStyle(fontWeight: FontWeight.w600)),
+                                          const SizedBox(height: 2),
+                                          Text(
+                                            'Usia: ${item.bulan} bulan',
+                                            style: const TextStyle(fontSize: 12, color: Color(0xFF7B8798)),
+                                          ),
+                                        ],
+                                      ),
+                                      Chip(
+                                        label: Text(_statusLabel(status)),
+                                        backgroundColor: _statusColor(status).withOpacity(0.12),
+                                        labelStyle: TextStyle(color: _statusColor(status)),
+                                      ),
+                                    ],
+                                  ),
+                                  subtitle: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        'Kondisi: $kondisi',
+                                        style: const TextStyle(fontWeight: FontWeight.w500),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        'Gigi: ${item.jumlahGigi} | Berlubang: ${item.gigiBerlubang}',
+                                        style: const TextStyle(color: Color(0xFF7B8798), fontSize: 12),
+                                      ),
+                                      const SizedBox(height: 6),
+                                      // Dental parameters tags
+                                      Wrap(
+                                        spacing: 8,
+                                        children: [
+                                          _buildDentalStatusTag(
+                                            'Plak: ${item.statusPlak}',
+                                            item.statusPlak,
+                                            'status_plak',
+                                          ),
+                                          _buildDentalStatusTag(
+                                            'Risiko: ${item.resikoGigiBerlubang}',
+                                            item.resikoGigiBerlubang,
+                                            'risiko',
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                  trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                                  isThreeLine: true,
+                                  onTap: () => Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (_) => CatatanDetailScreen(data: mapItem, title: 'Detail Kesehatan Gigi')),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
           ),
         ],
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Tambah catatan belum tersedia'))),
-        icon: const Icon(Icons.add),
-        label: const Text('Tambah Catatan'),
-        backgroundColor: const Color(0xFFD32F2F),
       ),
     );
   }
