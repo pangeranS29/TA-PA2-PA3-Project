@@ -22,6 +22,8 @@ import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/scr
 import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/screens/anak/input_profil_anak_screen.dart';
 import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/screens/anak/cari_anak_screen.dart';
 import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/screens/edukasi/edukasi_screen.dart';
+import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/data/models/ibu_anak_model.dart';
+import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/data/services/ibu_api_service.dart';
 // import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/screens/skrining/skrining_bahaya.dart';
 // MODUL CATATAN
 import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/screens/catatan/index.dart';
@@ -44,10 +46,36 @@ class _DashboardScreenState extends State<DashboardScreen> {
   bool _loadingKehamilan = false;
   KehamilanAktifModel? _kehamilanAktif;
 
+  final _ibuApiService = IbuApiService();
+  bool _loadingAnak = false;
+  List<IbuAnakModel>? _anakSaya;
+
   @override
   void initState() {
     super.initState();
     _loadKehamilanAktif();
+    _loadDataAnak();
+  }
+
+  Future<void> _loadDataAnak() async {
+    setState(() => _loadingAnak = true);
+    try {
+      final anak = await _ibuApiService.getAnakSaya();
+      if (!mounted) return;
+      setState(() {
+        _anakSaya = anak;
+        _loadingAnak = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _loadingAnak = false);
+    }
+  }
+
+  @override
+  void dispose() {
+    _ibuApiService.dispose();
+    super.dispose();
   }
 
   Future<void> _loadKehamilanAktif() async {
@@ -501,89 +529,68 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Tombol cari anak — untuk petugas/bidan cari by nama/NIK/no KK
-        // GestureDetector(
-        //   onTap: () => Navigator.push(context,
-        //       MaterialPageRoute(builder: (_) => const CariAnakScreen())),
-        //   child: Container(
-        //     padding: const EdgeInsets.all(16),
-        //     decoration: BoxDecoration(
-        //       border: Border.all(color: Colors.green.shade200),
-        //       borderRadius: BorderRadius.circular(16),
-        //       color: Colors.green.shade50,
-        //     ),
-        //     child: const Row(
-        //       children: [
-        //         Icon(Icons.search, color: Colors.green, size: 28),
-        //         SizedBox(width: 12),
-        //         Expanded(
-        //           child: Column(
-        //             crossAxisAlignment: CrossAxisAlignment.start,
-        //             children: [
-        //               Text('Cari Data Anak',
-        //                   style: TextStyle(
-        //                       fontWeight: FontWeight.w600, fontSize: 14)),
-        //               SizedBox(height: 4),
-        //               Text('Cari by nama, nama ibu, atau no. KK',
-        //                   style:
-        //                       TextStyle(fontSize: 12, color: Colors.black54)),
-        //             ],
-        //           ),
-        //         ),
-        //         CircleAvatar(
-        //           radius: 14,
-        //           backgroundColor: Colors.green,
-        //           child:
-        //               Icon(Icons.arrow_forward, size: 16, color: Colors.white),
-        //         ),
-        //       ],
-        //     ),
-        //   ),
-        // ),
-        const SizedBox(height: 12),
-
-        // Tombol request tambah profil anak
-        // GestureDetector(
-        //   onTap: () => Navigator.push(context,
-        //       MaterialPageRoute(builder: (_) => InputProfilAnakScreen())),
-        //   child: Container(
-        //     padding: const EdgeInsets.all(16),
-        //     decoration: BoxDecoration(
-        //       border: Border.all(color: Colors.blue.shade200),
-        //       borderRadius: BorderRadius.circular(16),
-        //       color: Colors.blue.shade50,
-        //     ),
-        //     child: const Row(
-        //       children: [
-        //         Icon(Icons.person_add, color: Colors.blue, size: 28),
-        //         SizedBox(width: 12),
-        //         Expanded(
-        //           child: Column(
-        //             crossAxisAlignment: CrossAxisAlignment.start,
-        //             children: [
-        //               Text('Request Tambah Profil Anak',
-        //                   style: TextStyle(
-        //                       fontWeight: FontWeight.w600, fontSize: 14)),
-        //               SizedBox(height: 4),
-        //               Text('Mulai pantau tumbuh kembang si kecil',
-        //                   style:
-        //                       TextStyle(fontSize: 12, color: Colors.black54)),
-        //             ],
-        //           ),
-        //         ),
-        //         CircleAvatar(
-        //           radius: 14,
-        //           backgroundColor: Colors.blue,
-        //           child: Icon(Icons.add, size: 16, color: Colors.white),
-        //         ),
-        //       ],
-        //     ),
-        //   ),
-        // ),
+        if (_loadingAnak)
+          const Center(
+            child: Padding(
+              padding: EdgeInsets.all(20),
+              child: CircularProgressIndicator(),
+            ),
+          )
+        else if (_anakSaya != null && _anakSaya!.isNotEmpty)
+          SizedBox(
+            height: 100,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              clipBehavior: Clip.none, // Supaya bayangan card tidak terpotong
+              itemCount: _anakSaya!.length,
+              itemBuilder: (context, index) {
+                return _buildAnakCard(_anakSaya![index]);
+              },
+            ),
+          )
+        else
+          // Tampilkan tombol request tambah jika belum ada data anak
+          GestureDetector(
+            onTap: () => Navigator.push(context,
+                MaterialPageRoute(builder: (_) => const InputProfilAnakScreen())),
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.blue.shade200),
+                borderRadius: BorderRadius.circular(16),
+                color: Colors.blue.shade50,
+              ),
+              child: const Row(
+                children: [
+                  Icon(Icons.person_add, color: Colors.blue, size: 28),
+                  SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Request Tambah Profil Anak',
+                            style: TextStyle(
+                                fontWeight: FontWeight.w600, fontSize: 14)),
+                        SizedBox(height: 4),
+                        Text('Mulai pantau tumbuh kembang si kecil',
+                            style:
+                                TextStyle(fontSize: 12, color: Colors.black54)),
+                      ],
+                    ),
+                  ),
+                  CircleAvatar(
+                    radius: 14,
+                    backgroundColor: Colors.blue,
+                    child: Icon(Icons.add, size: 16, color: Colors.white),
+                  ),
+                ],
+              ),
+            ),
+          ),
         const SizedBox(height: 24),
 
-        const Text('Menu Cepat', style: TextStyle(fontWeight: FontWeight.bold)),
-        const SizedBox(height: 12),
+        const Text('MENU CEPAT', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey)),
+        const SizedBox(height: 16),
 
         // [WIDGET: DashboardTumbuhQuickMenu] — 6 menu cepat modul anak
         DashboardTumbuhQuickMenu(
@@ -695,6 +702,67 @@ class _DashboardScreenState extends State<DashboardScreen> {
       child: Padding(
           padding: EdgeInsets.all(40),
           child: Text('Konten fase ini segera hadir!')),
+    );
+  }
+
+  Widget _buildAnakCard(IbuAnakModel anak) {
+    return Container(
+      margin: const EdgeInsets.only(right: 16),
+      padding: const EdgeInsets.all(16),
+      width: MediaQuery.of(context).size.width * 0.75, // Biar card berikutnya ngintip
+      decoration: BoxDecoration(
+        color: const Color(0xFFEFF6FF), // Background biru sangat muda
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+        border: Border.all(color: Colors.blue.shade100, width: 1),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 60,
+            height: 60,
+            decoration: BoxDecoration(
+              color: const Color(0xFF1E52A8), // Warna biru box icon
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: const Icon(Icons.person_outline, color: Colors.white, size: 32),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  anak.nama,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    color: Color(0xFF1E3A8A), // Biru gelap untuk teks nama
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  anak.usiaTeks,
+                  style: const TextStyle(fontSize: 13, color: Colors.black54),
+                ),
+                Text(
+                  anak.jenisKelamin,
+                  style: const TextStyle(fontSize: 13, color: Colors.black54),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
