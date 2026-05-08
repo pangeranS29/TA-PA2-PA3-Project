@@ -52,12 +52,10 @@ class ApiConstants {
       '/modul-ibu/checklist-pemantauan-ibu-nifas/filled-days';
   static const String checklistNifasSave =
       '/modul-ibu/checklist-pemantauan-ibu-nifas';
-  static const String checklistNifasMe =
-      '/modul-ibu/checklist-pemantauan-ibu-nifas/me';
-  static const String grafikEvaluasiKehamilanV2 =
-      '/modul-ibu/grafik-evaluasi-kehamilan/v2';
-  static const String grafikPeningkatanBBV2 =
-      '/modul-ibu/grafik-peningkatan-bb/v2';
+  static const String checklistNifasMe = '/modul-ibu/checklist-pemantauan-ibu-nifas/me';
+  static const String grafikEvaluasiKehamilanV2 = '/modul-ibu/grafik-evaluasi-kehamilan/v2';
+  static const String grafikPeningkatanBBV2 = '/modul-ibu/grafik-peningkatan-bb/v2';
+  static const String keteranganLahir = '/modul-ibu/keterangan-lahir/me';
 
   /*
    *

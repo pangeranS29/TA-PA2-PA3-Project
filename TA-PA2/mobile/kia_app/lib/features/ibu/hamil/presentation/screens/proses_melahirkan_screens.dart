@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ta_pa2_pa3_project/core/themes/app_theme.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/data/models/proses_melahirkan_model.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/data/repositories/proses_melahirkan_repository.dart';
+import 'package:ta_pa2_pa3_project/features/ibu/hamil/data/repositories/keterangan_lahir_repository.dart';
 
 // ─── Screen 1: Ringkasan Pelayanan ───────────────────────────────────────────
 
@@ -119,59 +120,148 @@ class RiwayatProsesMelahirkanScreen extends StatelessWidget {
 
 // ─── Screen 3: Keterangan Lahir ──────────────────────────────────────────────
 
-class KeteranganLahirScreen extends StatelessWidget {
+// class KeteranganLahirScreen extends StatelessWidget {
+//   const KeteranganLahirScreen({super.key});
+
+//   @override
+//   Widget build(BuildContext context) => _DataScreen(
+//         title: 'Keterangan Lahir',
+//         subtitle: 'Informasi keterangan kelahiran bayi dan data orang tua',
+//         icon: Icons.child_friendly_outlined,
+//         builder: (data) {
+//           final k = data.keteranganLahir;
+//           return Column(children: [
+//             _InfoCard(title: 'Identitas Surat', children: [
+//               _InfoRow(label: 'Nomor', value: k.nomor),
+//               _InfoRow(label: 'Pada hari ini', value: k.hari),
+//               _InfoRow(label: 'Tanggal', value: k.tanggal),
+//               _InfoRow(label: 'Pukul', value: k.pukul),
+//             ]),
+//             const SizedBox(height: 16),
+//             _InfoCard(title: 'Telah Lahir Seorang Bayi', children: [
+//               _InfoRow(label: 'Jenis Kelamin', value: k.jenisKelamin),
+//               _InfoRow(label: 'Jenis Kelahiran', value: k.jenisKelahiran),
+//               _InfoRow(label: 'Anak ke', value: k.anakKe),
+//               _InfoRow(label: 'Berat Lahir', value: _withSuffix(k.beratLahir, 'g')),
+//               _InfoRow(label: 'Panjang Badan', value: _withSuffix(k.panjangBadan, 'cm')),
+//               _InfoRow(label: 'Lingkar Kepala', value: _withSuffix(k.lingkarKepala, 'cm')),
+//               _InfoRow(label: 'Tempat Lahir', value: k.tempatLahir),
+//               _InfoRow(label: 'Alamat', value: k.alamatTempatLahir),
+//             ]),
+//             const SizedBox(height: 16),
+//             _InfoCard(title: 'Dari Orang Tua', children: [
+//               _InfoRow(label: 'Nama Ibu', value: k.namaIbu),
+//               _InfoRow(label: 'Umur', value: _withSuffix(k.umurIbu, 'tahun')),
+//               _InfoRow(label: 'NIK Ibu', value: k.nikIbu),
+//               _InfoRow(label: 'Nama Ayah', value: k.namaAyah),
+//               _InfoRow(label: 'NIK Ayah', value: k.nikAyah),
+//               _InfoRow(label: 'Pekerjaan', value: k.pekerjaan),
+//               _InfoRow(label: 'Alamat', value: k.alamat),
+//               _InfoRow(label: 'RT/RW', value: k.rtRw),
+//               _InfoRow(label: 'Kecamatan', value: k.kecamatan),
+//               _InfoRow(label: 'Kab./Kota', value: k.kabKota),
+//             ]),
+//             const SizedBox(height: 16),
+//             _InfoCard(title: 'Tanda Tangan', children: [
+//               Row(children: [
+//                 Expanded(child: _SignatureBox(label: 'Saksi I', value: k.saksi1)),
+//                 const SizedBox(width: 10),
+//                 Expanded(child: _SignatureBox(label: 'Saksi II', value: k.saksi2)),
+//                 const SizedBox(width: 10),
+//                 Expanded(child: _SignatureBox(label: 'Penolong Kelahiran', value: k.penolongKelahiran)),
+//               ]),
+//             ]),
+//           ]);
+//         },
+//       );
+// }
+
+class KeteranganLahirScreen extends StatefulWidget {
   const KeteranganLahirScreen({super.key});
 
   @override
-  Widget build(BuildContext context) => _DataScreen(
+  State<KeteranganLahirScreen> createState() => _KeteranganLahirScreenState();
+}
+
+class _KeteranganLahirScreenState extends State<KeteranganLahirScreen> {
+  late final KeteranganLahirRepository _repository;
+  late Future<KeteranganLahirModel> _future;
+
+  @override
+  void initState() {
+    super.initState();
+    _repository = KeteranganLahirRepository();
+    _future = _repository.getMe();
+  }
+
+  @override
+  void dispose() {
+    _repository.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => _BaseBirthScreen(
         title: 'Keterangan Lahir',
         subtitle: 'Informasi keterangan kelahiran bayi dan data orang tua',
         icon: Icons.child_friendly_outlined,
-        builder: (data) {
-          final k = data.keteranganLahir;
-          return Column(children: [
-            _InfoCard(title: 'Identitas Surat', children: [
-              _InfoRow(label: 'Nomor', value: k.nomor),
-              _InfoRow(label: 'Pada hari ini', value: k.hari),
-              _InfoRow(label: 'Tanggal', value: k.tanggal),
-              _InfoRow(label: 'Pukul', value: k.pukul),
-            ]),
-            const SizedBox(height: 16),
-            _InfoCard(title: 'Telah Lahir Seorang Bayi', children: [
-              _InfoRow(label: 'Jenis Kelamin', value: k.jenisKelamin),
-              _InfoRow(label: 'Jenis Kelahiran', value: k.jenisKelahiran),
-              _InfoRow(label: 'Anak ke', value: k.anakKe),
-              _InfoRow(label: 'Berat Lahir', value: _withSuffix(k.beratLahir, 'g')),
-              _InfoRow(label: 'Panjang Badan', value: _withSuffix(k.panjangBadan, 'cm')),
-              _InfoRow(label: 'Lingkar Kepala', value: _withSuffix(k.lingkarKepala, 'cm')),
-              _InfoRow(label: 'Tempat Lahir', value: k.tempatLahir),
-              _InfoRow(label: 'Alamat', value: k.alamatTempatLahir),
-            ]),
-            const SizedBox(height: 16),
-            _InfoCard(title: 'Dari Orang Tua', children: [
-              _InfoRow(label: 'Nama Ibu', value: k.namaIbu),
-              _InfoRow(label: 'Umur', value: _withSuffix(k.umurIbu, 'tahun')),
-              _InfoRow(label: 'NIK Ibu', value: k.nikIbu),
-              _InfoRow(label: 'Nama Ayah', value: k.namaAyah),
-              _InfoRow(label: 'NIK Ayah', value: k.nikAyah),
-              _InfoRow(label: 'Pekerjaan', value: k.pekerjaan),
-              _InfoRow(label: 'Alamat', value: k.alamat),
-              _InfoRow(label: 'RT/RW', value: k.rtRw),
-              _InfoRow(label: 'Kecamatan', value: k.kecamatan),
-              _InfoRow(label: 'Kab./Kota', value: k.kabKota),
-            ]),
-            const SizedBox(height: 16),
-            _InfoCard(title: 'Tanda Tangan', children: [
-              Row(children: [
-                Expanded(child: _SignatureBox(label: 'Saksi I', value: k.saksi1)),
-                const SizedBox(width: 10),
-                Expanded(child: _SignatureBox(label: 'Saksi II', value: k.saksi2)),
-                const SizedBox(width: 10),
-                Expanded(child: _SignatureBox(label: 'Penolong Kelahiran', value: k.penolongKelahiran)),
+        child: FutureBuilder<KeteranganLahirModel>(
+          future: _future,
+          builder: (context, snap) {
+            if (snap.connectionState == ConnectionState.waiting) {
+              return const _LoadingCard();
+            }
+            if (snap.hasError) {
+              return _ErrorCard(
+                message: snap.error.toString(),
+                onRetry: () => setState(() => _future = _repository.getMe()),
+              );
+            }
+            final k = snap.data ?? KeteranganLahirModel.empty();
+            return Column(children: [
+              _InfoCard(title: 'Identitas Surat', children: [
+                _InfoRow(label: 'Nomor', value: k.nomor),
+                _InfoRow(label: 'Pada hari ini', value: k.hari),
+                _InfoRow(label: 'Tanggal', value: k.tanggal),
+                _InfoRow(label: 'Pukul', value: k.pukul),
               ]),
-            ]),
-          ]);
-        },
+              const SizedBox(height: 16),
+              _InfoCard(title: 'Telah Lahir Seorang Bayi', children: [
+                _InfoRow(label: 'Jenis Kelamin', value: k.jenisKelamin),
+                _InfoRow(label: 'Jenis Kelahiran', value: k.jenisKelahiran),
+                _InfoRow(label: 'Anak ke', value: k.anakKe),
+                _InfoRow(label: 'Berat Lahir', value: _withSuffix(k.beratLahir, 'g')),
+                _InfoRow(label: 'Panjang Badan', value: _withSuffix(k.panjangBadan, 'cm')),
+                _InfoRow(label: 'Lingkar Kepala', value: _withSuffix(k.lingkarKepala, 'cm')),
+                _InfoRow(label: 'Tempat Lahir', value: k.tempatLahir),
+                _InfoRow(label: 'Alamat', value: k.alamatTempatLahir),
+              ]),
+              const SizedBox(height: 16),
+              _InfoCard(title: 'Dari Orang Tua', children: [
+                _InfoRow(label: 'Nama Ibu', value: k.namaIbu),
+                _InfoRow(label: 'Umur', value: _withSuffix(k.umurIbu, 'tahun')),
+                _InfoRow(label: 'NIK Ibu', value: k.nikIbu),
+                _InfoRow(label: 'Nama Ayah', value: k.namaAyah),
+                _InfoRow(label: 'NIK Ayah', value: k.nikAyah),
+                _InfoRow(label: 'Pekerjaan', value: k.pekerjaan),
+                _InfoRow(label: 'Alamat', value: k.alamat),
+                _InfoRow(label: 'RT/RW', value: k.rtRw),
+                _InfoRow(label: 'Kecamatan', value: k.kecamatan),
+                _InfoRow(label: 'Kab./Kota', value: k.kabKota),
+              ]),
+              const SizedBox(height: 16),
+              _InfoCard(title: 'Tanda Tangan', children: [
+                Row(children: [
+                  Expanded(child: _SignatureBox(label: 'Saksi I', value: k.saksi1)),
+                  const SizedBox(width: 10),
+                  Expanded(child: _SignatureBox(label: 'Saksi II', value: k.saksi2)),
+                  const SizedBox(width: 10),
+                  Expanded(child: _SignatureBox(label: 'Penolong Kelahiran', value: k.penolongKelahiran)),
+                ]),
+              ]),
+            ]);
+          },
+        ),
       );
 }
 

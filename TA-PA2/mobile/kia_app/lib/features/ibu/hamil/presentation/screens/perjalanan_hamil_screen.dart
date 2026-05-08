@@ -137,7 +137,8 @@ class _JourneyScreenState extends State<JourneyScreen> {
                   onTap: () => Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => const RingkasanPelayananProsesMelahirkanScreen(),
+                      // builder: (_) => const RingkasanPelayananProsesMelahirkanScreen(),
+                      builder: (_) => const KeteranganLahirScreen(),
                     ),
                   ),
                 ),
