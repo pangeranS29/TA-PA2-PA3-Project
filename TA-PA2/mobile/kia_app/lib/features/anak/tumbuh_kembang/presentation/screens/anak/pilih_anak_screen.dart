@@ -175,13 +175,13 @@ class _PilihAnakScreenState extends State<PilihAnakScreen> {
                     builder: (_) => PemantauanMenuScreen(anak: anakMap),
                   ),
                 );
-              } else if (widget.tujuan == 'mpasi') {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => HalamanUtamaMpasiScreen(anak: anakMap),
-                  ),
-                );
+              // } else if (widget.tujuan == 'mpasi') {
+              //   Navigator.push(
+              //     context,
+              //     MaterialPageRoute(
+              //       builder: (_) => HalamanUtamaMpasiScreen(anak: anakMap),
+              //     ),
+              //   );
               } else if (widget.tujuan == 'pemantauan') {
                 Navigator.push(
                   context,
