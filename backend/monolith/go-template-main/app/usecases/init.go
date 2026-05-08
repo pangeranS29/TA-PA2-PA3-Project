@@ -154,6 +154,7 @@ func Init(opts Options) *Main {
 	)
 	m.KeteranganLahir = NewKeteranganLahirUsecase(opts.Repository.KeteranganLahir) // <-- TAMBAHKAN INI
 	m.JenisPelayanan = NewJenisPelayananUsecase(opts.Repository.JenisPelayanan)
+	m.KeluhanAnak = NewKeluhanAnakUseCase(opts.Repository.KeluhanAnak)
 
 	m.AdminAkunKeluarga = NewAdminAkunKeluargaUsecase(
 		opts.Repository.User,

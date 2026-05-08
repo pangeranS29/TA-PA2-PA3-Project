@@ -60,6 +60,7 @@ type Main struct {
 	Rujukan                       *RujukanRepository
 	JenisPelayanan                JenisPelayananRepository
 	Perawatan                     PerawatanRepository
+	KeluhanAnak                   KeluhanAnakRepository
 	// MODUL IBU
 	LogTTDMMS            *LogTTDMMSRepository
 	PemantauanIbuHamil   *PemantauanIbuHamilRepository
@@ -131,6 +132,7 @@ func Init(opts Options) *Main {
 	m.InformasiUmum = NewInformasiUmumRepository(opts.Postgres)
 	m.JenisPelayanan = NewJenisPelayananRepository(opts.Postgres)
 	m.Perawatan = NewPerawatanRepository(opts.Postgres)
+	m.KeluhanAnak = NewKeluhanAnakRepository(opts.Postgres)
 
 	// MODUL IBU
 	m.LogTTDMMS = NewLogTTDMMSRepository(opts.Postgres)

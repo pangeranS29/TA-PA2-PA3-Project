@@ -101,4 +101,5 @@ class ApiConstants {
   static String ibuPerawatanByAnakIdAndRentangUsia(
           int anakId, String rentangUsia) =>
       '/ibu/perawatan/anak/$anakId/rentang-usia/${Uri.encodeComponent(rentangUsia)}';
+  static const String ibuKeluhanAnak = '/ibu/keluhan-anak';
 }
