@@ -1,100 +1,84 @@
 import 'package:flutter/material.dart';
-import 'catatan_detail_screen.dart';
+import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/data/models/keluhan_anak_model.dart';
+import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/data/services/keluhan_anak_api_service.dart';
+
+// Catatan: Pastikan import CatatanDetailScreen disesuaikan agar menerima KeluhanAnakModel
+// import 'catatan_detail_screen.dart'; 
 
 class CatatanKesehataanAnakScreen extends StatefulWidget {
-  const CatatanKesehataanAnakScreen({super.key});
+  final int anakId;
+  final String anakName;
+
+  const CatatanKesehataanAnakScreen({
+    super.key, 
+    required this.anakId, 
+    required this.anakName,
+  });
 
   @override
   State<CatatanKesehataanAnakScreen> createState() =>
       _CatatanKesehataanAnakScreenState();
 }
 
-class _CatatanKesehataanAnakScreenState
-    extends State<CatatanKesehataanAnakScreen> {
-  bool isLoading = false;
-
-  // Sample data to demonstrate UI (replace with API data later)
-  // Data now includes KIA 2024 standards: age categories, growth indicators, screening
-  List<Map<String, dynamic>> catatanList = [
-    {
-      'date': '12 Jan 2026',
-      'kategoriUmur': '0-28 Hari (Neonatus)',
-      'periode': 'Kunjungan ke-1',
-      'jenis': 'Imunisasi DPT',
-      'tempat': 'Puskesmas',
-      'tenaga': 'Bidan',
-      'bb': '3.5 kg',
-      'tb': '50 cm',
-      'lk': '34 cm',
-      'bbU_status': 'Normal',
-      'tbU_status': 'Normal',
-      'imtU_status': 'Normal',
-      'bbTb_status': 'Normal',
-      'lkU_status': 'Normal',
-      'kpsp': 'Normal',
-      'mchat': 'Normal',
-      'catatan': 'Anak sehat, tidak ada keluhan. Perkembangan sesuai umur.',
-      'rekomendasi': 'Kontrol ulang 2 minggu (usia 2 minggu)',
-      'status': 'normal'
-    },
-    {
-      'date': '03 Feb 2026',
-      'kategoriUmur': '1-3 Bulan (Bayi)',
-      'periode': 'Kunjungan ke-2',
-      'jenis': 'Pemeriksaan Rutin & Vaksin',
-      'tempat': 'Posyandu',
-      'tenaga': 'Bidan',
-      'bb': '5.2 kg',
-      'tb': '57 cm',
-      'lk': '38 cm',
-      'bbU_status': 'Normal',
-      'tbU_status': 'Normal',
-      'imtU_status': 'Normal',
-      'bbTb_status': 'Normal',
-      'lkU_status': 'Normal',
-      'kpsp': 'Normal',
-      'mchat': 'Normal',
-      'catatan': 'Perkembangan baik, reaksi mata mengikuti gerakan, bersuara.',
-      'rekomendasi': 'Lanjutkan vaksinasi sesuai jadwal, kontrol 1 bulan lagi',
-      'status': 'normal'
-    },
-    {
-      'date': '15 Mar 2026',
-      'kategoriUmur': '3-6 Bulan (Bayi)',
-      'periode': 'Kunjungan ke-3',
-      'jenis': 'Pemeriksaan Lanjutan',
-      'tempat': 'Puskesmas',
-      'tenaga': 'Dokter',
-      'bb': '6.8 kg',
-      'tb': '63 cm',
-      'lk': '40 cm',
-      'bbU_status': 'Normal',
-      'tbU_status': 'Perhatian',
-      'imtU_status': 'Normal',
-      'bbTb_status': 'Normal',
-      'lkU_status': 'Normal',
-      'kpsp': 'Normal',
-      'mchat': 'Normal',
-      'catatan': 'Pertumbuhan TB sedikit melambat, pemberian ASI ditingkatkan.',
-      'rekomendasi': 'Monitoring TB setiap bulan, edukasi pemberian MPASI persiapan',
-      'status': 'attention'
-    },
-  ];
+class _CatatanKesehataanAnakScreenState extends State<CatatanKesehataanAnakScreen> {
+  final _service = KeluhanAnakApiService();
+  
+  bool _isLoading = true;
+  String? _errorMessage;
+  List<KeluhanAnakModel> _catatanList = [];
 
   @override
   void initState() {
     super.initState();
-    // In real app, fetch data here. We show sample data for UI.
+    _fetchData();
   }
 
+  Future<void> _fetchData() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final data = await _service.getByAnakId(widget.anakId);
+      setState(() {
+        _catatanList = data;
+      });
+    } catch (e) {
+      setState(() {
+        _errorMessage = e.toString();
+      });
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _service.dispose();
+    super.dispose();
+  }
+
+  // --- Helper Formatting ---
+  String _fmtDate(DateTime? d) {
+    if (d == null) return '-';
+    return '${d.day.toString().padLeft(2, '0')} ${_monthName(d.month)} ${d.year}';
+  }
+
+  String _monthName(int m) {
+    const names = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agt', 'Sep', 'Okt', 'Nov', 'Des'];
+    return names[(m - 1).clamp(0, 11)];
+  }
+
+  // --- Helper UI ---
   Color _statusColor(String status) {
     switch (status) {
-      case 'normal':
+      case 'selesai':
         return Colors.green;
-      case 'attention':
+      case 'perlu_kontrol':
         return Colors.orange;
-      case 'late':
-        return Colors.red;
       default:
         return Colors.grey;
     }
@@ -102,12 +86,10 @@ class _CatatanKesehataanAnakScreenState
 
   String _statusLabel(String status) {
     switch (status) {
-      case 'normal':
-        return 'Normal';
-      case 'attention':
-        return 'Perlu perhatian';
-      case 'late':
-        return 'Terlambat';
+      case 'selesai':
+        return 'Selesai';
+      case 'perlu_kontrol':
+        return 'Perlu Kontrol';
       default:
         return '-';
     }
@@ -117,15 +99,12 @@ class _CatatanKesehataanAnakScreenState
     Color bgColor;
     Color textColor;
 
-    if (status.toLowerCase() == 'normal') {
+    if (status == 'selesai' || status == 'normal') {
       bgColor = const Color(0xFFD4EDDA);
       textColor = const Color(0xFF155724);
-    } else if (status.toLowerCase().contains('perhatian') || status.toLowerCase().contains('penuh perhatian')) {
+    } else if (status == 'perlu_kontrol' || status == 'attention') {
       bgColor = const Color(0xFFFFF3CD);
       textColor = const Color(0xFF856404);
-    } else if (status.toLowerCase().contains('berat')) {
-      bgColor = const Color(0xFFF8D7DA);
-      textColor = const Color(0xFF721C24);
     } else {
       bgColor = const Color(0xFFE2E3E5);
       textColor = const Color(0xFF383D41);
@@ -144,6 +123,39 @@ class _CatatanKesehataanAnakScreenState
     );
   }
 
+  void _showDetail(KeluhanAnakModel item) {
+    // Karena Anda menggunakan CatatanDetailScreen sebelumnya dengan Map,
+    // Jika CatatanDetailScreen belum diubah untuk menerima Model, gunakan dialog ini sementara.
+    showDialog(context: context, builder: (_) {
+      return AlertDialog(
+        title: const Text('Detail Catatan / Keluhan'),
+        content: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Tanggal: ${_fmtDate(item.tanggal)}', style: const TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              Text('Keluhan:\n${item.keluhan}'),
+              const SizedBox(height: 8),
+              if (item.tindakan != null) ...[
+                Text('Tindakan:\n${item.tindakan}'),
+                const SizedBox(height: 8),
+              ],
+              Text('Pemeriksa: ${item.pemeriksa ?? "-"}'),
+              const SizedBox(height: 8),
+              if (item.tanggalKembali != null)
+                Text('Tanggal Kembali (Kontrol): ${_fmtDate(item.tanggalKembali)}', 
+                     style: const TextStyle(color: Colors.red)),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Tutup')),
+        ],
+      );
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -151,10 +163,10 @@ class _CatatanKesehataanAnakScreenState
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        title: const Column(
+        title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            const Text(
               'Catatan Kesehatan Anak',
               style: TextStyle(
                 color: Color(0xFF172033),
@@ -162,10 +174,10 @@ class _CatatanKesehataanAnakScreenState
                 fontWeight: FontWeight.w700,
               ),
             ),
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
             Text(
-              'Aisyah (2 Tahun)',
-              style: TextStyle(
+              widget.anakName, // Menggunakan nama anak dinamis dari parameter
+              style: const TextStyle(
                 color: Color(0xFF7B8798),
                 fontSize: 13,
               ),
@@ -192,9 +204,9 @@ class _CatatanKesehataanAnakScreenState
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: const [
-                      Text('Imunisasi berikutnya: 20 Mei 2026', style: TextStyle(fontWeight: FontWeight.w600)),
+                      Text('Perbarui catatan kesehatan anak secara berkala', style: TextStyle(fontWeight: FontWeight.w600)),
                       SizedBox(height: 4),
-                      Text('Kontrol gigi: 6 bulan lagi', style: TextStyle(color: Color(0xFF7B8798))),
+                      Text('Pastikan jadwal kontrol terpenuhi', style: TextStyle(color: Color(0xFF7B8798), fontSize: 12)),
                     ],
                   ),
                 ),
@@ -203,84 +215,97 @@ class _CatatanKesehataanAnakScreenState
           ),
           const SizedBox(height: 10),
           Expanded(
-            child: isLoading
+            child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
-                : ListView.separated(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: catatanList.length + 1,
-                    separatorBuilder: (_, __) => const SizedBox(height: 10),
-                    itemBuilder: (context, index) {
-                      if (index == catatanList.length) {
-                        return ElevatedButton.icon(
-                          onPressed: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Tambah catatan belum tersedia'))),
-                          icon: const Icon(Icons.add),
-                          label: const Text('Tambah Catatan'),
-                          style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF2F80ED)),
-                        );
-                      }
+                : _errorMessage != null
+                    ? Center(child: Text('Gagal memuat data:\n$_errorMessage', textAlign: TextAlign.center))
+                    : _catatanList.isEmpty
+                        ? const Center(child: Text('Belum ada catatan kesehatan untuk anak ini.'))
+                        : ListView.separated(
+                            padding: const EdgeInsets.all(16),
+                            itemCount: _catatanList.length,
+                            separatorBuilder: (_, __) => const SizedBox(height: 10),
+                            itemBuilder: (context, index) {
+                              final item = _catatanList[index];
+                              
+                              // Logika status: Jika ada tanggal kembali, berarti perlu kontrol
+                              final statusType = item.tanggalKembali != null ? 'perlu_kontrol' : 'selesai';
 
-                      final item = catatanList[index];
-                      return Card(
-                        child: ListTile(
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                          title: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(item['date'] ?? '', style: const TextStyle(fontWeight: FontWeight.w600)),
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    item['kategoriUmur'] ?? '',
-                                    style: const TextStyle(fontSize: 12, color: Color(0xFF7B8798)),
+                              return Card(
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                child: InkWell(
+                                  borderRadius: BorderRadius.circular(8),
+                                  onTap: () {
+                                    // Panggil detail bottomsheet / dialog / screen baru
+                                    _showDetail(item);
+                                  },
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              _fmtDate(item.tanggal), 
+                                              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)
+                                            ),
+                                            Chip(
+                                              label: Text(_statusLabel(statusType), style: const TextStyle(fontSize: 11)),
+                                              backgroundColor: _statusColor(statusType).withOpacity(0.12),
+                                              labelStyle: TextStyle(color: _statusColor(statusType)),
+                                              visualDensity: VisualDensity.compact,
+                                              padding: EdgeInsets.zero,
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          item.keluhan, 
+                                          style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 15),
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Row(
+                                          children: [
+                                            const Icon(Icons.person_outline, size: 14, color: Color(0xFF7B8798)),
+                                            const SizedBox(width: 4),
+                                            Text(
+                                              'Pemeriksa: ${item.pemeriksa ?? "-"}', 
+                                              style: const TextStyle(color: Color(0xFF7B8798), fontSize: 12)
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Wrap(
+                                          spacing: 8,
+                                          runSpacing: 4,
+                                          children: [
+                                            if (item.tindakan != null && item.tindakan!.isNotEmpty)
+                                              _buildStatusTag('Ada Tindakan', 'normal'),
+                                            if (item.tanggalKembali != null)
+                                              _buildStatusTag('Kontrol: ${_fmtDate(item.tanggalKembali)}', 'attention'),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ],
-                              ),
-                              Chip(
-                                label: Text(_statusLabel(item['status'] ?? '-')),
-                                backgroundColor: _statusColor(item['status'] ?? '').withOpacity(0.12),
-                                labelStyle: TextStyle(color: _statusColor(item['status'] ?? '')),
-                              ),
-                            ],
+                                ),
+                              );
+                            },
                           ),
-                          subtitle: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const SizedBox(height: 8),
-                              Text(item['jenis'] ?? '', style: const TextStyle(fontWeight: FontWeight.w500)),
-                              const SizedBox(height: 4),
-                              Text(item['tempat'] ?? '', style: const TextStyle(color: Color(0xFF7B8798), fontSize: 12)),
-                              const SizedBox(height: 6),
-                              // Growth indicators summary
-                              Wrap(
-                                spacing: 8,
-                                children: [
-                                  if (item['bbU_status'] != null)
-                                    _buildStatusTag('BB-U: ${item['bbU_status']}', item['bbU_status']),
-                                  if (item['tbU_status'] != null)
-                                    _buildStatusTag('TB-U: ${item['tbU_status']}', item['tbU_status']),
-                                  if (item['kpsp'] != null)
-                                    _buildStatusTag('KPSP: ${item['kpsp']}', item['kpsp']),
-                                ],
-                              ),
-                            ],
-                          ),
-                          trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                          isThreeLine: true,
-                          onTap: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (_) => CatatanDetailScreen(data: item, title: 'Detail Catatan')),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
           ),
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Tambah catatan belum tersedia'))),
+        onPressed: () {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Fitur tambah catatan belum tersedia'))
+          );
+        },
         icon: const Icon(Icons.add),
         label: const Text('Tambah Catatan'),
         backgroundColor: const Color(0xFF2F80ED),

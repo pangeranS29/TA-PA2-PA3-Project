@@ -237,19 +237,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildMenyusuiShortcut() {
-  return DashboardMenuCard(
-    title: 'Menyusui',
-    subtitle: 'Lihat edukasi menyusui dan ASI',
-    icon: Icons.child_care_outlined,
-    iconColor: Colors.orange,
-    onTap: () => Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => const EdukasiExploreScreen(),
+    return DashboardMenuCard(
+      title: 'Menyusui',
+      subtitle: 'Lihat edukasi menyusui dan ASI',
+      icon: Icons.child_care_outlined,
+      iconColor: Colors.orange,
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const EdukasiExploreScreen(),
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   // ─────────────────────────────────────────────
   // [MODUL: IBU - Hamil] Konten tab Hamil
@@ -639,9 +639,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     break;
                   case 'catatan':
                     Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (_) => const CatatanMenuScreen()));
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const PilihAnakScreen(
+                          tujuan: 'catatan', // Arahkan tujuannya ke catatan
+                        ),
+                      ),
+                    );
                     break;
                   default:
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
