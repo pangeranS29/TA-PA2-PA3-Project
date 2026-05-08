@@ -186,6 +186,115 @@ export default function IbuDetail() {
           </Link>
         </div>
 
+        {/* ─── Jalur Pelayanan KIA (Horizontal Menu Style) ─── */}
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
+          {/* Group 1: Evaluasi */}
+          <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+            <h3 className="text-xs font-bold text-indigo-600 uppercase mb-3 flex items-center gap-2">
+              <div className="w-1.5 h-1.5 rounded-full bg-indigo-600"></div> Skrining & Evaluasi
+            </h3>
+            <div className="space-y-2">
+              <Link
+                to={withKehamilan(`/data-ibu/${id}/evaluasi-kesehatan`)}
+                className="block p-3 rounded-xl bg-gray-50 hover:bg-indigo-50 text-sm font-medium transition border border-transparent hover:border-indigo-200"
+              >
+                📋 Evaluasi Kesehatan
+              </Link>
+              <Link
+                to={withKehamilan(`/data-ibu/${id}/skrining-preeklampsia`)}
+                className="block p-3 rounded-xl bg-gray-50 hover:bg-indigo-50 text-sm font-medium transition border border-transparent hover:border-indigo-200"
+              >
+                🔍 Skrining Preeklampsia
+              </Link>
+              <Link
+                to={withKehamilan(`/data-ibu/${id}/Skrining-Diabetes-Melitus-Gestasional`)}
+                className="block p-3 rounded-xl bg-gray-50 hover:bg-indigo-50 text-sm font-medium transition border border-transparent hover:border-indigo-200"
+              >
+                🔍 Skrining DMG
+              </Link>
+            </div>
+          </div>
+
+          {/* Group 2: ANC */}
+          <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+            <h3 className="text-xs font-bold text-blue-600 uppercase mb-3 flex items-center gap-2">
+              <div className="w-1.5 h-1.5 rounded-full bg-blue-600"></div> Pemantauan ANC
+            </h3>
+            <div className="space-y-2">
+              <Link
+                to={withKehamilan(`/data-ibu/${id}/pemeriksaan-rutin`)}
+                className="block p-3 rounded-xl bg-blue-50 hover:bg-blue-100 text-sm font-bold text-blue-700 transition border border-blue-100"
+              >
+                🩺 Input ANC Rutin
+              </Link>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  onClick={handleT1Click}
+                  disabled={checkingT1}
+                  className="text-xs p-2.5 rounded-xl bg-gray-50 hover:bg-gray-100 transition disabled:opacity-50 flex items-center justify-center gap-1 border border-transparent hover:border-gray-200"
+                >
+                  {checkingT1 ? <Loader2 size={12} className="animate-spin" /> : "👩‍⚕️"} T1
+                </button>
+                <button
+                  onClick={handleT3Click}
+                  disabled={checkingT3}
+                  className="text-xs p-2.5 rounded-xl bg-gray-50 hover:bg-gray-100 transition disabled:opacity-50 flex items-center justify-center gap-1 border border-transparent hover:border-gray-200"
+                >
+                  {checkingT3 ? <Loader2 size={12} className="animate-spin" /> : "👩‍⚕️"} T3
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Group 3: Persalinan */}
+          <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+            <h3 className="text-xs font-bold text-rose-600 uppercase mb-3 flex items-center gap-2">
+              <div className="w-1.5 h-1.5 rounded-full bg-rose-600"></div> Persalinan & Nifas
+            </h3>
+            <div className="space-y-2">
+              <Link
+                to={withKehamilan(`/data-ibu/${id}/rencana-persalinan`)}
+                className="block p-3 rounded-xl bg-gray-50 hover:bg-rose-50 text-sm font-medium transition border border-transparent hover:border-rose-200"
+              >
+                🏥 Rencana Persalinan
+              </Link>
+              <Link
+                to={withKehamilan(`/data-ibu/${id}/pelayanan-persalinan`)}
+                className="block p-3 rounded-xl bg-gray-50 hover:bg-rose-50 text-sm font-medium transition border border-transparent hover:border-rose-200"
+              >
+                👶 Riwayat Melahirkan
+              </Link>
+              <Link
+                to={withKehamilan(`/data-ibu/${id}/pelayanan-nifas`)}
+                className="block p-3 rounded-xl bg-gray-50 hover:bg-rose-50 text-sm font-medium transition border border-transparent hover:border-rose-200"
+              >
+                🤱 Pelayanan Nifas
+              </Link>
+            </div>
+          </div>
+
+          {/* Group 4: Rujukan */}
+          <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+            <h3 className="text-xs font-bold text-amber-600 uppercase mb-3 flex items-center gap-2">
+              <div className="w-1.5 h-1.5 rounded-full bg-amber-600"></div> Rujukan Medis
+            </h3>
+            <div className="space-y-2">
+              <Link
+                to={withKehamilan(`/data-ibu/${id}/rujukan`)}
+                className="block p-3 rounded-xl bg-amber-50 hover:bg-amber-100 text-sm font-bold text-amber-700 transition border border-amber-100"
+              >
+                ⚠️ Buat / Lihat Rujukan
+              </Link>
+              <Link
+                to="/daftar-rujukan"
+                className="block text-center text-xs text-amber-700 mt-2 hover:underline"
+              >
+                Daftar Semua Rujukan
+              </Link>
+            </div>
+          </div>
+        </div>  
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Kolom Kiri - Data Identitas dan Suami */}
           <div className="lg:col-span-2 space-y-6">
@@ -270,148 +379,6 @@ export default function IbuDetail() {
                 </div>
               </div>
             </div>
-
-            {/* Timeline Layanan KIA */}
-            <div className="bg-white rounded-2xl shadow-sm p-6 border">
-              <h2 className="text-xl font-bold mb-6 border-b pb-4">
-                Jalur Pelayanan KIA
-              </h2>
-              <div className="relative border-l-2 border-indigo-100 ml-3 space-y-8 pb-4">
-                {/* Step 1: Evaluasi & Skrining */}
-                <div className="relative pl-8">
-                  <div className="absolute -left-[11px] top-1 h-5 w-5 rounded-full bg-indigo-600 border-4 border-white"></div>
-                  <h3 className="font-bold text-indigo-900">
-                    1. Evaluasi & Skrining Awal
-                  </h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 mt-2">
-                    <Link
-                      to={withKehamilan(
-                        `/data-ibu/${id}/evaluasi-kesehatan`
-                      )}
-                      className="p-3 rounded-xl bg-gray-50 hover:bg-indigo-50 text-center transition"
-                    >
-                      📋 Evaluasi Kesehatan Ibu
-                    </Link>
-                    <Link
-                      to={withKehamilan(
-                        `/data-ibu/${id}/skrining-preeklampsia`
-                      )}
-                      className="p-3 rounded-xl bg-gray-50 hover:bg-indigo-50 text-center transition"
-                    >
-                      🔍 Skrining Preeklampsia
-                    </Link>
-                    <Link
-                      to={withKehamilan(
-                        `/data-ibu/${id}/Skrining-Diabetes-Melitus-Gestasional`
-                      )}
-                      className="p-3 rounded-xl bg-gray-50 hover:bg-indigo-50 text-center transition"
-                    >
-                      🔍 Skrining Diabetes Melitus Gestasional
-                    </Link>
-                  </div>
-                </div>
-
-                {/* Step 2: Pemantauan ANC */}
-                <div className="relative pl-8">
-                  <div className="absolute -left-[11px] top-1 h-5 w-5 rounded-full bg-blue-400 border-4 border-white"></div>
-                  <h3 className="font-bold text-gray-800">
-                    2. Pemantauan & ANC
-                  </h3>
-                  <div className="space-y-2 mt-2">
-                    <Link
-                      to={withKehamilan(
-                        `/data-ibu/${id}/pemeriksaan-rutin`
-                      )}
-                      className="block p-3 rounded-xl bg-blue-50 hover:bg-blue-100 transition text-center"
-                    >
-                      🩺 Input Pemeriksaan ANC Rutin
-                    </Link>
-                    <div className="flex gap-2">
-                      {/* TOMBOL T1 YANG SUDAH DIPERBAIKI */}
-                      <button
-                        onClick={handleT1Click}
-                        disabled={checkingT1}
-                        className="flex-1 text-center text-xs p-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition disabled:opacity-50 flex items-center justify-center gap-1"
-                      >
-                        {checkingT1 ? (
-                          <Loader2 size={14} className="animate-spin" />
-                        ) : (
-                          "👩‍⚕️"
-                        )}{" "}
-                        Dokter T1
-                      </button>
-                      {/* TOMBOL T3 YANG SUDAH DIPERBAIKI */}
-                      <button
-                        onClick={handleT3Click}
-                        disabled={checkingT3}
-                        className="flex-1 text-center text-xs p-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition disabled:opacity-50 flex items-center justify-center gap-1"
-                      >
-                        {checkingT3 ? (
-                          <Loader2 size={14} className="animate-spin" />
-                        ) : (
-                          "👩‍⚕️"
-                        )}{" "}
-                        Dokter T3
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Step 3: Persalinan & Nifas */}
-                <div className="relative pl-8">
-                  <div className="absolute -left-[11px] top-1 h-5 w-5 rounded-full bg-rose-400 border-4 border-white"></div>
-                  <h3 className="font-bold text-gray-800">
-                    3. Persalinan & Nifas
-                  </h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-2">
-                    <Link
-                      to={withKehamilan(
-                        `/data-ibu/${id}/rencana-persalinan`
-                      )}
-                      className="p-3 rounded-xl bg-gray-50 hover:bg-gray-100 text-center transition"
-                    >
-                      🏥 Rencana Persalinan
-                    </Link>
-                    <Link
-                      to={withKehamilan(
-                        `/data-ibu/${id}/pelayanan-persalinan`
-                      )}
-                      className="p-3 rounded-xl bg-gray-50 hover:bg-gray-100 text-center transition"
-                    >
-                      👶 Proses & Riwayat Melahirkan
-                    </Link>
-                    <Link
-                      to={withKehamilan(
-                        `/data-ibu/${id}/pelayanan-nifas`
-                      )}
-                      className="p-3 rounded-xl bg-gray-50 hover:bg-gray-100 text-center transition"
-                    >
-                      🤱 Pelayanan Nifas
-                    </Link>
-                  </div>
-                </div>
-
-                {/* Rujukan */}
-                <div className="relative pl-8 mt-6">
-                  <div className="absolute -left-[11px] top-1 h-5 w-5 rounded-full bg-amber-400 border-4 border-white"></div>
-                  <h3 className="font-bold text-gray-800">⚠️ Rujukan Medis</h3>
-                  <div className="mt-2 space-y-2">
-                    <Link
-                      to={withKehamilan(`/data-ibu/${id}/rujukan`)}
-                      className="block p-3 rounded-xl bg-amber-50 hover:bg-amber-100 transition text-center"
-                    >
-                      Buat / Lihat Rujukan
-                    </Link>
-                    <Link
-                      to="/daftar-rujukan"
-                      className="block text-xs text-center text-amber-700 mt-1 hover:underline"
-                    >
-                      Lihat Dashboard Semua Rujukan
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
 
           {/* Kolom Kanan */}
@@ -441,18 +408,22 @@ export default function IbuDetail() {
                 </p>
               </div>
             </div>
-            <div className="bg-white rounded-xl shadow-sm p-6">
-              <h2 className="text-lg font-semibold mb-4">Kontak Utama</h2>
-              <p>
-                <Phone size={16} className="inline mr-2" /> {ibu.telepon || "-"}
-              </p>
-              <p>
-                <MapPin size={16} className="inline mr-2" /> Puskesmas Jatiasih
-              </p>
-              <p>
-                <Clipboard size={16} className="inline mr-2" /> RSUD dr. Chasbullah
-                Abdulmadjid
-              </p>
+
+            {/* Widget Fasilitas & Kontak */}
+            <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6">
+              <h2 className="text-md font-bold text-gray-800 mb-6 flex items-center gap-2">
+                🏥 Fasilitas Kesehatan
+              </h2>
+              <div className="space-y-4">
+                <div className="flex items-start gap-3">
+                  <div className="p-2 bg-emerald-50 rounded-lg text-emerald-600"><MapPin size={18} /></div>
+                  <div><p className="text-xs font-bold text-gray-800">Puskesmas Domisili</p><p className="text-xs text-gray-500">Puskesmas Jatiasih</p></div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="p-2 bg-blue-50 rounded-lg text-blue-600"><Phone size={18} /></div>
+                  <div><p className="text-xs font-bold text-gray-800">Kontak Darurat</p><p className="text-xs text-gray-500">{ibu.telepon || "-"}</p></div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
