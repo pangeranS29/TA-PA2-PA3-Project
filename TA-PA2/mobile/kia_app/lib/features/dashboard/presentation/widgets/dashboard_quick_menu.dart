@@ -75,38 +75,45 @@ class DashboardTumbuhQuickMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GridView.count(
-      shrinkWrap: true,
-      crossAxisCount: 3,
-      physics: const NeverScrollableScrollPhysics(),
-      mainAxisSpacing: 12,
-      crossAxisSpacing: 12,
+    final screenWidth = MediaQuery.of(context).size.width;
+    // Menggunakan (screenWidth - margin horizontal (40) - 2 * spacing (24)) / 3
+    final itemWidth = (screenWidth - 40 - 24) / 3;
+
+    return Wrap(
+      alignment: WrapAlignment.center,
+      spacing: 12,
+      runSpacing: 12,
       children: items.map((item) {
-        return InkWell(
-          onTap: item['onTap'] as VoidCallback? ?? () {},
-          borderRadius: BorderRadius.circular(16),
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 6,
-                ),
-              ],
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(item['icon'] as IconData,
-                    color: item['color'] as Color),
-                const SizedBox(height: 6),
-                Text(
-                  item['label'] as String,
-                  style: const TextStyle(fontSize: 12),
-                ),
-              ],
+        return SizedBox(
+          width: itemWidth,
+          height: itemWidth, // asumsikan tinggi sama dengan lebar seperti di GridView
+          child: InkWell(
+            onTap: item['onTap'] as VoidCallback? ?? () {},
+            borderRadius: BorderRadius.circular(16),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 6,
+                  ),
+                ],
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(item['icon'] as IconData,
+                      color: item['color'] as Color),
+                  const SizedBox(height: 6),
+                  Text(
+                    item['label'] as String,
+                    style: const TextStyle(fontSize: 12),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
             ),
           ),
         );

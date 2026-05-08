@@ -300,16 +300,16 @@ class _CatatanKesehataanAnakScreenState extends State<CatatanKesehataanAnakScree
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Fitur tambah catatan belum tersedia'))
-          );
-        },
-        icon: const Icon(Icons.add),
-        label: const Text('Tambah Catatan'),
-        backgroundColor: const Color(0xFF2F80ED),
-      ),
+      // floatingActionButton: FloatingActionButton.extended(
+      //   onPressed: () {
+      //     ScaffoldMessenger.of(context).showSnackBar(
+      //       const SnackBar(content: Text('Fitur tambah catatan belum tersedia'))
+      //     );
+      //   },
+      //   icon: const Icon(Icons.add),
+      //   label: const Text('Tambah Catatan'),
+      //   backgroundColor: const Color(0xFF2F80ED),
+      // ),
     );
   }
 }

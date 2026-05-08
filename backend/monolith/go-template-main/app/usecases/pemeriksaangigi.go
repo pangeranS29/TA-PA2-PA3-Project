@@ -11,6 +11,7 @@ type PemeriksaanGigiUseCase interface {
 	Create(req models.CreatePemeriksaanGigiRequest) error
 	Update(id int32, req models.UpdatePemeriksaanGigiRequest) error
 	GetByAnakID(anakID int32) ([]models.PeriksaGigi, error)
+	GetByAnakIDForIbu(anakID int32, userID uint) ([]models.PeriksaGigi, error)
 	GetByID(id int32) (*models.PeriksaGigi, error)
 	GetAll() ([]models.PeriksaGigi, error)
 	Delete(id int32) error
@@ -51,6 +52,17 @@ func (u *pemeriksaangigiUseCase) Update(id int32, req models.UpdatePemeriksaanGi
 	return u.repo.Update(id, req, now)
 }
 func (u *pemeriksaangigiUseCase) GetByAnakID(anakID int32) ([]models.PeriksaGigi, error) {
+	return u.repo.GetByAnakID(anakID)
+}
+
+func (u *pemeriksaangigiUseCase) GetByAnakIDForIbu(anakID int32, userID uint) ([]models.PeriksaGigi, error) {
+	ok, err := u.repo.IsAnakMilikIbu(userID, anakID)
+	if err != nil {
+		return nil, err
+	}
+	if !ok {
+		return nil, errors.New("akses ditolak: anak tidak ditemukan atau bukan milik anda")
+	}
 	return u.repo.GetByAnakID(anakID)
 }
 
