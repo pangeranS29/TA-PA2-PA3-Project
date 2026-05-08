@@ -208,9 +208,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 const SizedBox(height: 32),
                 if (_selectedPhase == 'Hamil') _buildHamilContent(),
                 if (_selectedPhase == 'Nifas') _buildNifasShortcut(),
+                if (_selectedPhase == 'Menyusui') _buildMenyusuiShortcut(),
                 if (_selectedPhase == 'Tumbuh') _buildTumbuhContent(),
                 if (_selectedPhase != 'Hamil' &&
                     _selectedPhase != 'Nifas' &&
+                    _selectedPhase != 'Menyusui' &&
                     _selectedPhase != 'Tumbuh')
                   _buildPlaceholderContent(),
               ],
@@ -233,6 +235,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
     );
   }
+
+  Widget _buildMenyusuiShortcut() {
+  return DashboardMenuCard(
+    title: 'Menyusui',
+    subtitle: 'Lihat edukasi menyusui dan ASI',
+    icon: Icons.child_care_outlined,
+    iconColor: Colors.orange,
+    onTap: () => Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const EdukasiExploreScreen(),
+      ),
+    ),
+  );
+}
 
   // ─────────────────────────────────────────────
   // [MODUL: IBU - Hamil] Konten tab Hamil
