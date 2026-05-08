@@ -504,11 +504,22 @@ export default function PemeriksaanDokterT3Complete() {
         });
       }
 
+      // Destructure form untuk menghapus field redundan sesuai README_PERBAIKAN_TRIMESTER.md
+      const {
+        tanggal_periksa,
+        tanggal_lab,
+        tanggal_skrining_jiwa,
+        tanggal_lab_jiwa,
+        tanggal_skrining_jiwa_tr,
+        ...formClean
+      } = form;
+
       const payload = {
+        ...formClean,
         kehamilan_id: kehamilan.id,
+        gambar_usg: imageBase64,
         // === pemeriksaan_dokter_trimester_3 ===
         nama_dokter: form.nama_dokter,
-        tanggal_periksa: form.tanggal_periksa,
         konsep_anamnesa_pemeriksaan: form.konsep_anamnesa_pemeriksaan,
         fisik_konjungtiva: form.fisik_konjungtiva,
         fisik_sklera: form.fisik_sklera,
