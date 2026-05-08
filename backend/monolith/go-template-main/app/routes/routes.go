@@ -475,6 +475,8 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	ibu.PUT("/perawatan/:id", controller.UpdatePerawatan)
 	ibu.DELETE("/perawatan/:id", controller.DeletePerawatan)
 	// Catatan: Ibu tidak memiliki akses UPDATE/DELETE/VERIFY untuk menjaga integritas rekam medis
+	ibu.GET("/keluhan-anak", controller.KeluhanAnak.GetByAnakIDForIbu)
+	ibu.GET("/keluhan-anak/:id", controller.KeluhanAnak.GetByIDForIbu)
 
 	// ==================== KELUHAN ANAK ====================
 	tenaga.GET("/keluhan-anak/:anak_id", controller.KeluhanAnak.GetByAnakID)
