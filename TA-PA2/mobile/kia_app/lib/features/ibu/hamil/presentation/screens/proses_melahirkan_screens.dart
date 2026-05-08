@@ -120,62 +120,6 @@ class RiwayatProsesMelahirkanScreen extends StatelessWidget {
 
 // ─── Screen 3: Keterangan Lahir ──────────────────────────────────────────────
 
-// class KeteranganLahirScreen extends StatelessWidget {
-//   const KeteranganLahirScreen({super.key});
-
-//   @override
-//   Widget build(BuildContext context) => _DataScreen(
-//         title: 'Keterangan Lahir',
-//         subtitle: 'Informasi keterangan kelahiran bayi dan data orang tua',
-//         icon: Icons.child_friendly_outlined,
-//         builder: (data) {
-//           final k = data.keteranganLahir;
-//           return Column(children: [
-//             _InfoCard(title: 'Identitas Surat', children: [
-//               _InfoRow(label: 'Nomor', value: k.nomor),
-//               _InfoRow(label: 'Pada hari ini', value: k.hari),
-//               _InfoRow(label: 'Tanggal', value: k.tanggal),
-//               _InfoRow(label: 'Pukul', value: k.pukul),
-//             ]),
-//             const SizedBox(height: 16),
-//             _InfoCard(title: 'Telah Lahir Seorang Bayi', children: [
-//               _InfoRow(label: 'Jenis Kelamin', value: k.jenisKelamin),
-//               _InfoRow(label: 'Jenis Kelahiran', value: k.jenisKelahiran),
-//               _InfoRow(label: 'Anak ke', value: k.anakKe),
-//               _InfoRow(label: 'Berat Lahir', value: _withSuffix(k.beratLahir, 'g')),
-//               _InfoRow(label: 'Panjang Badan', value: _withSuffix(k.panjangBadan, 'cm')),
-//               _InfoRow(label: 'Lingkar Kepala', value: _withSuffix(k.lingkarKepala, 'cm')),
-//               _InfoRow(label: 'Tempat Lahir', value: k.tempatLahir),
-//               _InfoRow(label: 'Alamat', value: k.alamatTempatLahir),
-//             ]),
-//             const SizedBox(height: 16),
-//             _InfoCard(title: 'Dari Orang Tua', children: [
-//               _InfoRow(label: 'Nama Ibu', value: k.namaIbu),
-//               _InfoRow(label: 'Umur', value: _withSuffix(k.umurIbu, 'tahun')),
-//               _InfoRow(label: 'NIK Ibu', value: k.nikIbu),
-//               _InfoRow(label: 'Nama Ayah', value: k.namaAyah),
-//               _InfoRow(label: 'NIK Ayah', value: k.nikAyah),
-//               _InfoRow(label: 'Pekerjaan', value: k.pekerjaan),
-//               _InfoRow(label: 'Alamat', value: k.alamat),
-//               _InfoRow(label: 'RT/RW', value: k.rtRw),
-//               _InfoRow(label: 'Kecamatan', value: k.kecamatan),
-//               _InfoRow(label: 'Kab./Kota', value: k.kabKota),
-//             ]),
-//             const SizedBox(height: 16),
-//             _InfoCard(title: 'Tanda Tangan', children: [
-//               Row(children: [
-//                 Expanded(child: _SignatureBox(label: 'Saksi I', value: k.saksi1)),
-//                 const SizedBox(width: 10),
-//                 Expanded(child: _SignatureBox(label: 'Saksi II', value: k.saksi2)),
-//                 const SizedBox(width: 10),
-//                 Expanded(child: _SignatureBox(label: 'Penolong Kelahiran', value: k.penolongKelahiran)),
-//               ]),
-//             ]),
-//           ]);
-//         },
-//       );
-// }
-
 class KeteranganLahirScreen extends StatefulWidget {
   const KeteranganLahirScreen({super.key});
 
@@ -219,44 +163,59 @@ class _KeteranganLahirScreenState extends State<KeteranganLahirScreen> {
             }
             final k = snap.data ?? KeteranganLahirModel.empty();
             return Column(children: [
+              // ── Identitas Surat ─────────────────────────────────────────
               _InfoCard(title: 'Identitas Surat', children: [
-                _InfoRow(label: 'Nomor', value: k.nomor),
-                _InfoRow(label: 'Pada hari ini', value: k.hari),
-                _InfoRow(label: 'Tanggal', value: k.tanggal),
-                _InfoRow(label: 'Pukul', value: k.pukul),
+                _InfoRow(label: 'Nomor Surat', value: k.nomorSurat),
+                _InfoRow(label: 'Tanggal Surat', value: k.tanggalSurat),
               ]),
               const SizedBox(height: 16),
-              _InfoCard(title: 'Telah Lahir Seorang Bayi', children: [
+
+              // ── Data Kelahiran Bayi ──────────────────────────────────────
+              _InfoCard(title: 'Data Kelahiran Bayi', children: [
+                _InfoRow(label: 'Hari Lahir', value: k.hariLahir),
+                _InfoRow(label: 'Tanggal Lahir', value: k.tanggalLahir),
+                _InfoRow(label: 'Pukul', value: k.pukulLahir),
                 _InfoRow(label: 'Jenis Kelamin', value: k.jenisKelamin),
                 _InfoRow(label: 'Jenis Kelahiran', value: k.jenisKelahiran),
                 _InfoRow(label: 'Anak ke', value: k.anakKe),
-                _InfoRow(label: 'Berat Lahir', value: _withSuffix(k.beratLahir, 'g')),
-                _InfoRow(label: 'Panjang Badan', value: _withSuffix(k.panjangBadan, 'cm')),
-                _InfoRow(label: 'Lingkar Kepala', value: _withSuffix(k.lingkarKepala, 'cm')),
-                _InfoRow(label: 'Tempat Lahir', value: k.tempatLahir),
-                _InfoRow(label: 'Alamat', value: k.alamatTempatLahir),
+                _InfoRow(label: 'Usia Gestasi', value: _withSuffix(k.usiaGestasiMinggu, 'minggu')),
+                _InfoRow(label: 'Berat Lahir', value: _withSuffix(k.beratLahirGram, 'gram')),
+                _InfoRow(label: 'Panjang Badan', value: _withSuffix(k.panjangBadanCm, 'cm')),
+                _InfoRow(label: 'Lingkar Kepala', value: _withSuffix(k.lingkarKepalaCm, 'cm')),
+                _InfoRow(label: 'Nama Bayi', value: k.namaBayiDiberiNama),
               ]),
               const SizedBox(height: 16),
+
+              // ── Lokasi Persalinan ────────────────────────────────────────
+              _InfoCard(title: 'Lokasi Persalinan', children: [
+                _InfoRow(label: 'Tempat Lahir', value: k.lokasiPersalinan),
+                _InfoRow(label: 'Alamat', value: k.alamatLokasiPersalinan),
+              ]),
+              const SizedBox(height: 16),
+
+              // ── Data Orang Tua ───────────────────────────────────────────
               _InfoCard(title: 'Dari Orang Tua', children: [
                 _InfoRow(label: 'Nama Ibu', value: k.namaIbu),
-                _InfoRow(label: 'Umur', value: _withSuffix(k.umurIbu, 'tahun')),
+                _InfoRow(label: 'Umur Ibu', value: _withSuffix(k.umurIbu, 'tahun')),
                 _InfoRow(label: 'NIK Ibu', value: k.nikIbu),
                 _InfoRow(label: 'Nama Ayah', value: k.namaAyah),
                 _InfoRow(label: 'NIK Ayah', value: k.nikAyah),
-                _InfoRow(label: 'Pekerjaan', value: k.pekerjaan),
-                _InfoRow(label: 'Alamat', value: k.alamat),
-                _InfoRow(label: 'RT/RW', value: k.rtRw),
-                _InfoRow(label: 'Kecamatan', value: k.kecamatan),
-                _InfoRow(label: 'Kab./Kota', value: k.kabKota),
+                _InfoRow(label: 'Pekerjaan', value: k.pekerjaanOrangTua),
+                _InfoRow(label: 'Alamat', value: k.alamatOrangTua),
+                _InfoRow(label: 'RW/RT', value: k.rwRtOrangTua),
+                _InfoRow(label: 'Kecamatan', value: k.kecamatanOrangTua),
+                _InfoRow(label: 'Kab./Kota', value: k.kabKotaOrangTua),
               ]),
               const SizedBox(height: 16),
+
+              // ── Tanda Tangan ─────────────────────────────────────────────
               _InfoCard(title: 'Tanda Tangan', children: [
                 Row(children: [
-                  Expanded(child: _SignatureBox(label: 'Saksi I', value: k.saksi1)),
+                  Expanded(child: _SignatureBox(label: 'Saksi I', value: k.namaSaksi1)),
                   const SizedBox(width: 10),
-                  Expanded(child: _SignatureBox(label: 'Saksi II', value: k.saksi2)),
+                  Expanded(child: _SignatureBox(label: 'Saksi II', value: k.namaSaksi2)),
                   const SizedBox(width: 10),
-                  Expanded(child: _SignatureBox(label: 'Penolong Kelahiran', value: k.penolongKelahiran)),
+                  Expanded(child: _SignatureBox(label: 'Penolong Kelahiran', value: k.namaPenolongKelahiran)),
                 ]),
               ]),
             ]);
