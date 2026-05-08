@@ -130,7 +130,7 @@ class _JourneyScreenState extends State<JourneyScreen> {
                   icon: Icons.summarize_outlined,
                   iconColor: const Color(0xFFE0A300),
                   iconBackground: const Color(0xFFFFF5D6),
-                  title: 'Ringkasan Pelayanan Proses Melahirkan',
+                  title: 'Keterangan Lahir',
                   subtitle: 'Lihat ringkasan ibu bersalin, nifas, dan bayi saat lahir',
                   borderColor: const Color(0xFFFFE3A3),
                   // onTap: () => _openComingSoon('Ringkasan Pelayanan Proses Melahirkan'),
