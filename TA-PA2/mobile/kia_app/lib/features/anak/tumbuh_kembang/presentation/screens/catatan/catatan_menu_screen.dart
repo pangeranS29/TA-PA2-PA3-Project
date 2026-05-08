@@ -4,7 +4,15 @@ import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/scr
 import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/screens/catatan/catatan_lila_screen.dart';
 
 class CatatanMenuScreen extends StatelessWidget {
-  const CatatanMenuScreen({super.key});
+  // Tambahkan parameter agar bisa diteruskan ke screen child
+  final int anakId;
+  final String anakName;
+
+  const CatatanMenuScreen({
+    super.key,
+    required this.anakId,
+    required this.anakName,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -13,10 +21,10 @@ class CatatanMenuScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        title: const Column(
+        title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            const Text(
               'Catatan Anak',
               style: TextStyle(
                 color: Color(0xFF172033),
@@ -24,10 +32,10 @@ class CatatanMenuScreen extends StatelessWidget {
                 fontWeight: FontWeight.w700,
               ),
             ),
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
             Text(
-              'Pantau perkembangan kesehatan anak',
-              style: TextStyle(
+              'Pantau kesehatan $anakName', // Dibuat dinamis
+              style: const TextStyle(
                 color: Color(0xFF7B8798),
                 fontSize: 13,
               ),
@@ -71,7 +79,11 @@ class CatatanMenuScreen extends StatelessWidget {
               onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => const CatatanKesehataanAnakScreen(),
+                  // Perbaikan: Class publik dan pengiriman data ID & Nama
+                  builder: (_) => CatatanKesehataanAnakScreen(
+                    anakId: anakId,
+                    anakName: anakName,
+                  ),
                 ),
               ),
             ),
