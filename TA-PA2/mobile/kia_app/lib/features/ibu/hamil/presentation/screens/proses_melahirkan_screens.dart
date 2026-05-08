@@ -10,7 +10,7 @@ class RingkasanPelayananProsesMelahirkanScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => _DataScreen(
-        title: 'Ringkasan Pelayanan Proses Melahirkan',
+        title: 'keterangan Lahir',
         subtitle: 'Ringkasan ibu bersalin, nifas, dan kondisi bayi saat lahir',
         icon: Icons.summarize_outlined,
         builder: (data) {
