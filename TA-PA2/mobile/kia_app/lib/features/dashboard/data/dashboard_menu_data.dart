@@ -61,19 +61,32 @@ class DashboardMenuData {
     {
       'label': 'Pertumbuhan',
       'icon': Icons.scale,
-      'color': Colors.orange,
+      'color': Colors.blueAccent,
       'key': 'pertumbuhan',
     },
     {
+      'label': 'Perkembangan',
+      'icon': Icons.self_improvement,
+      'color': Colors.blueAccent,
+      'key': 'pemantauan',
+    },
+    {
+      'label': 'Catatan',
+      'icon': Icons.assignment_outlined,
+      'color': Colors.indigoAccent,
+      'key': 'catatan',
+    },
+    {
       'label': 'Imunisasi',
-      'icon': Icons.shield,
-      'color': Colors.green,
+      // 'icon': Icons.shield,
+      'icon': Icons.health_and_safety_outlined,
+      'color': Colors.orangeAccent,
       'key': 'imunisasi',
     },
     {
       'label': 'MPASI',
       'icon': Icons.restaurant_menu,
-      'color': Colors.blue,
+      'color': Colors.orangeAccent,
       'key': 'mpasi',
     },
     // {
@@ -82,18 +95,8 @@ class DashboardMenuData {
     //   'color': Colors.orange,
     //   'key': 'edukasi',
     // },
-    {
-      'label': 'Catatan',
-      'icon': Icons.note,
-      'color': Colors.red,
-      'key': 'catatan',
-    },
-    {
-      'label': 'Pemantauan',
-      'icon': Icons.pie_chart_sharp,
-      'color': Colors.orange,
-      'key': 'pemantauan',
-    },
+    
+    
   ];
 
   // Fase — hanya 3 fase (Menyusui dihapus sesuai desain lib_desain)

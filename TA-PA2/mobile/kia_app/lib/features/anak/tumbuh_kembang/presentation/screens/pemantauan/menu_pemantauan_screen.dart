@@ -24,7 +24,7 @@ class MenuPemantauanScreen extends StatelessWidget {
         elevation: 0,
         centerTitle: true,
         title: const Text(
-          'Pemantauan Anak',
+          'Perkembangan Anak',
           style: TextStyle(
             color: Color(0xFF1E293B),
             fontSize: 18,
@@ -99,7 +99,6 @@ class MenuPemantauanScreen extends StatelessWidget {
                 ),
               ],
             ),
-
             const SizedBox(height: 24),
 
             // Menu Cards
@@ -107,45 +106,26 @@ class MenuPemantauanScreen extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Column(
                 children: [
-                  // MENU 1: WARNA TINJA
+                  // MENU 5: PERAWATAN
                   InkWell(
                     onTap: () => Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => WarnaTinjaScreen(anak: anak),
+                        builder: (_) => PerawatanPerkembanganScreen(anak: anak),
                       ),
                     ),
                     borderRadius: BorderRadius.circular(16),
                     child: _menuCard(
-                      icon: Icons.baby_changing_station,
-                      title: 'Cek Warna Tinja',
-                      subtitle: 'Input usia 2 mgg, 1 bln, 2-4 bln',
-                      color: const Color(0xFFFFF7ED),
-                      iconBgColor: const Color(0xFFFFEDD5),
-                      iconColor: const Color(0xFFEA580C),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-
-                  // MENU 2: WARNA AIR KENCING
-                  InkWell(
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (_) => const WarnaAirKencingScreen()),
-                    ),
-                    borderRadius: BorderRadius.circular(16),
-                    child: _menuCard(
-                      icon: Icons.water_drop_outlined,
-                      title: 'Warna Air Kencing',
-                      subtitle: 'Pemantauan hidrasi 12 - 24 Bulan',
+                      icon: Icons.medical_services_outlined,
+                      title: 'Perawatan Perkembangan',
+                      subtitle: 'Pantau perkembangan dan pola asuh anak',
                       color: const Color(0xFFF0FDF4),
                       iconBgColor: const Color(0xFFD1FAE5),
-                      iconColor: const Color(0xFF059669),
+                      iconColor: const Color(0xFF10B981),
                     ),
                   ),
                   const SizedBox(height: 12),
-
+                  // MENU 1: WARNA TINJA
                   // MENU 3: TANDA BAHAYA
                   InkWell(
                     onTap: () => Navigator.push(
@@ -166,6 +146,43 @@ class MenuPemantauanScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
 
+
+                  InkWell(
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => WarnaTinjaScreen(anak: anak),
+                      ),
+                    ),
+                    borderRadius: BorderRadius.circular(16),
+                    child: _menuCard(
+                      icon: Icons.baby_changing_station,
+                      title: 'Cek Warna Tinja',
+                      subtitle: 'Input usia 2 mgg, 1 bln, 2-4 bln',
+                      color: const Color(0xFFFFF7ED),
+                      iconBgColor: const Color(0xFFFFEDD5),
+                      iconColor: const Color(0xFFEA580C),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  // MENU 2: WARNA AIR KENCING
+                  InkWell(
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => const WarnaAirKencingScreen()),
+                    ),
+                    borderRadius: BorderRadius.circular(16),
+                    child: _menuCard(
+                      icon: Icons.water_drop_outlined,
+                      title: 'Warna Air Kencing',
+                      subtitle: 'Pemantauan hidrasi 12 - 24 Bulan',
+                      color: const Color(0xFFFFF7ED),
+                      iconBgColor: const Color(0xFFFFEDD5),
+                      iconColor: const Color(0xFFEA580C),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
                   // MENU 4: LINGKAR LENGAN ATAS (LiLA)
                   InkWell(
                     onTap: () => Navigator.push(
@@ -184,29 +201,9 @@ class MenuPemantauanScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 12),
-
-                  // MENU 5: PERAWATAN
-                  InkWell(
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => PerawatanPerkembanganScreen(anak: anak),
-                      ),
-                    ),
-                    borderRadius: BorderRadius.circular(16),
-                    child: _menuCard(
-                      icon: Icons.medical_services_outlined,
-                      title: 'Perawatan Perkembangan',
-                      subtitle: 'Pantau perkembangan dan pola asuh anak',
-                      color: const Color(0xFFF0FDF4),
-                      iconBgColor: const Color(0xFFD1FAE5),
-                      iconColor: const Color(0xFF10B981),
-                    ),
-                  ),
                 ],
               ),
             ),
-            const SizedBox(height: 40),
           ],
         ),
       ),
