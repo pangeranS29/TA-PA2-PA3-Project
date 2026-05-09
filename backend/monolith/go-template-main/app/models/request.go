@@ -47,6 +47,10 @@ type UpdateAnakRequest struct {
 	LingkarKepalaCm *float64 `json:"lingkar_kepala_cm,omitempty"`
 	NamaIbu         *string  `json:"nama_ibu,omitempty"`
 	NamaAyah        *string  `json:"nama_ayah,omitempty"`
+	// Data Penduduk (anak) — diperbarui ke tabel kependudukan
+	Nama         string `json:"nama,omitempty"`
+	JenisKelamin string `json:"jenis_kelamin,omitempty"`
+	TanggalLahir string `json:"tanggal_lahir,omitempty"`
 }
 
 type DetailPelayananRequest struct {

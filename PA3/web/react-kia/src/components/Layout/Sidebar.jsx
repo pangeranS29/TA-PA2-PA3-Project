@@ -108,6 +108,7 @@ const Sidebar = () => {
         { path: "/edukasi-digital/tanda-melahirkan", name: "Tanda Melahirkan", icon: ClipboardList },
         { path: "/edukasi-digital/imd", name: "Edukasi IMD", icon: ClipboardList },
         { path: "/edukasi-digital/setelah-melahirkan", name: "Setelah Melahirkan", icon: ClipboardList },
+        { path: "/edukasi-digital/nifas", name: "Edukasi Nifas", icon: ClipboardList },
         { path: "/edukasi-digital/menyusui-asi", name: "Menyusui & ASI", icon: ClipboardList },
         { path: "/edukasi-digital/pola-asuh", name: "Pola Asuh", icon: ClipboardList },
         { path: "/edukasi-digital/kesehatan-mental", name: "Kesehatan Mental", icon: ClipboardList },

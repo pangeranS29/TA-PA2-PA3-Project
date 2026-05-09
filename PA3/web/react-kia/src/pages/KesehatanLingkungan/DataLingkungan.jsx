@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 import MainLayout from "../../components/Layout/MainLayout";
+import { useNavigate } from "react-router-dom";
 import { Search, Calendar, User, ChevronRight, ClipboardList, Trash2, Home } from "lucide-react";
 import { getLingkunganHistory, deleteLingkungan } from "../../services/kesehatanLingkungan";
 
 export default function DataLingkungan() {
+  const navigate = useNavigate();
   const [history, setHistory] = useState([]);
   const [query, setQuery] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -118,7 +120,9 @@ export default function DataLingkungan() {
                       >
                         <Trash2 size={18} />
                       </button>
-                      <button className="p-2 text-blue-600 bg-blue-50 hover:bg-blue-600 hover:text-white rounded-xl transition-all flex items-center gap-2 px-4 text-xs font-bold">
+                      <button 
+                        onClick={() => navigate(`/pencatatan/kesehatan-lingkungan/detail/${item.id}`)}
+                        className="p-2 text-blue-600 bg-blue-50 hover:bg-blue-600 hover:text-white rounded-xl transition-all flex items-center gap-2 px-4 text-xs font-bold">
                         DETAIL <ChevronRight size={14} />
                       </button>
                     </div>

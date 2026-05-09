@@ -42,8 +42,9 @@ func (u *edukasiKesehatanMentalUsecase) Update(id int32, data *models.EdukasiKes
 
 	existing.Judul = data.Judul
 	existing.GambarURL = data.GambarURL
-	existing.Deskripsi = data.Deskripsi
 	existing.Isi = data.Isi
+	existing.TandaGejala = data.TandaGejala
+	existing.Solusi = data.Solusi
 
 	return u.repo.Update(existing)
 }

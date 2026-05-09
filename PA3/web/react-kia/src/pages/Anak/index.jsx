@@ -2,14 +2,16 @@ import React, { useState, useEffect } from "react";
 import MainLayout from "../../components/Layout/MainLayout";
 import { Link, useNavigate } from "react-router-dom";
 import { getAnak, deleteAnak } from "../../services/Anak";
+import { getRiwayatPertumbuhan, prediksiStunting } from "../../services/pertumbuhan";
 import {
   Plus, Search, Pencil, Trash2, ChevronLeft, ChevronRight,
-  Baby, LayoutDashboard, User, Calendar
+  Baby, AlertTriangle, CheckCircle, Minus
 } from "lucide-react";
 
 export default function AnakListNakes() {
   const navigate = useNavigate();
   const [children, setChildren] = useState([]);
+  const [prediksiMap, setPrediksiMap] = useState({}); // { anakId: prediksiData }
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
 
@@ -22,7 +24,45 @@ export default function AnakListNakes() {
       try {
         setLoading(true);
         const res = await getAnak();
-        setChildren(res.data || []);
+        const list = res.data || [];
+        setChildren(list);
+        // Fetch pertumbuhan terakhir lalu prediksi ke ML service untuk setiap anak
+        const prediksiResults = await Promise.allSettled(
+          list.map(async (c) => {
+            try {
+              const riwayatRes = await getRiwayatPertumbuhan(c.id);
+              const riwayat = riwayatRes.data || [];
+              // Cari data terakhir yang punya LILA
+              const lastWithLila = [...riwayat].reverse().find((r) => r.hasil_lila && r.hasil_lila > 0);
+              const last = lastWithLila || riwayat[riwayat.length - 1];
+              if (!last || !last.hasil_lila) return { id: c.id, data: null };
+
+              const rawGender = c.jenis_kelamin || "";
+              const jenisKelamin = rawGender.toLowerCase().includes("perempuan") ? "Perempuan" : "Laki-laki";
+
+              const prediksi = await prediksiStunting({
+                anak_id: c.id,
+                berat_lahir_kg:  c.berat_lahir_kg,
+                tinggi_lahir_cm: c.tinggi_lahir_cm,
+                berat_badan:     last.berat_badan,
+                tinggi_badan:    last.tinggi_badan,
+                hasil_lila:      last.hasil_lila,
+                usia_ukur_bulan: last.usia_ukur_bulan,
+                jenis_kelamin:   jenisKelamin,
+              });
+              return { id: c.id, data: prediksi };
+            } catch {
+              return { id: c.id, data: null };
+            }
+          })
+        );
+        const map = {};
+        prediksiResults.forEach((r) => {
+          if (r.status === "fulfilled" && r.value?.id) {
+            map[r.value.id] = r.value.data;
+          }
+        });
+        setPrediksiMap(map);
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
@@ -117,6 +157,7 @@ export default function AnakListNakes() {
             <tr className="bg-gray-50/50 border-y border-gray-100 text-gray-500 uppercase text-[10px] tracking-widest font-black">
               <th className="px-6 py-4">Nama Anak</th>
               <th className="px-6 py-4">Jenis Kelamin</th>
+              <th className="px-6 py-4">Risiko Stunting</th>
               <th className="px-6 py-4">Tanggal Lahir</th>
               <th className="px-6 py-4">Usia</th>
               <th className="px-6 py-4">Nama Ibu</th>
@@ -143,10 +184,15 @@ export default function AnakListNakes() {
                   <td className="px-6 py-4 font-bold text-gray-800 text-sm">{child.nama}</td>
                   <td className="px-6 py-4">
                      <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase border ${
-                        child.jenis_kelamin === 'laki-laki' ? 'bg-blue-50 text-blue-700 border-blue-100' : 'bg-pink-50 text-pink-700 border-pink-100'
+                        (child.jenis_kelamin || "").toLowerCase().includes('laki') ? 'bg-blue-50 text-blue-700 border-blue-100' : 
+                        (child.jenis_kelamin || "").toLowerCase().includes('perem') ? 'bg-pink-50 text-pink-700 border-pink-100' :
+                        'bg-gray-50 text-gray-500 border-gray-100'
                      }`}>
-                        {child.jenis_kelamin}
+                        {child.jenis_kelamin || "-"}
                      </span>
+                  </td>
+                  <td className="px-6 py-4">
+                    <RisikoBadge prediksi={prediksiMap[child.id]} />
                   </td>
                   <td className="px-6 py-4 text-xs">{formatDate(child.tanggal_lahir)}</td>
                   <td className="px-6 py-4 text-xs font-bold">{child.usia_teks || "-"}</td>
@@ -209,5 +255,31 @@ export default function AnakListNakes() {
       </div>
       </div>
     </MainLayout>
+  );
+}
+
+function RisikoBadge({ prediksi }) {
+  if (!prediksi) {
+    return (
+      <span className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-gray-100 text-gray-400 border border-gray-200">
+        <Minus size={10} /> Belum ada data
+      </span>
+    );
+  }
+  const cls = prediksi.classification;
+  if (cls === "STUNTING") return (
+    <span className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-red-100 text-red-700 border border-red-200">
+      <AlertTriangle size={10} /> Stunting ({(prediksi.risk_percentage ?? prediksi.stunting_risk ?? 0).toFixed(0)}%)
+    </span>
+  );
+  if (cls === "AT_RISK") return (
+    <span className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-orange-100 text-orange-700 border border-orange-200">
+      <AlertTriangle size={10} /> Berisiko ({(prediksi.risk_percentage ?? prediksi.stunting_risk ?? 0).toFixed(0)}%)
+    </span>
+  );
+  return (
+    <span className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-green-100 text-green-700 border border-green-200">
+      <CheckCircle size={10} /> Normal ({(prediksi.risk_percentage ?? prediksi.stunting_risk ?? 0).toFixed(0)}%)
+    </span>
   );
 }
