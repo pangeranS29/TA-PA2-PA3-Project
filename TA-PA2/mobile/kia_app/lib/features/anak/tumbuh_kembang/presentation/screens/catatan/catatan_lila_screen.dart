@@ -1,15 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/data/models/pengukuran_lila_model.dart';
+import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/data/services/pengukuran_lila_api_service.dart';
+import 'catatan_detail_screen.dart';
 
 class CatatanLilaScreen extends StatefulWidget {
-  const CatatanLilaScreen({super.key});
+  final int anakId;
+  final String anakName;
+
+  const CatatanLilaScreen({
+    super.key,
+    required this.anakId,
+    required this.anakName,
+  });
 
   @override
   State<CatatanLilaScreen> createState() => _CatatanLilaScreenState();
 }
 
 class _CatatanLilaScreenState extends State<CatatanLilaScreen> {
-  bool isLoading = false;
-  List<dynamic> catatanList = [];
+  final PengukuranLilaApiService _apiService = PengukuranLilaApiService();
+  bool isLoading = true;
+  String errorMsg = '';
+  List<PengukuranLilaModel> catatanList = [];
 
   @override
   void initState() {
@@ -17,15 +30,47 @@ class _CatatanLilaScreenState extends State<CatatanLilaScreen> {
     _loadCatatan();
   }
 
+  @override
+  void dispose() {
+    _apiService.dispose();
+    super.dispose();
+  }
+
   Future<void> _loadCatatan() async {
-    // TODO: Implementasi API call untuk mengambil data catatan LiLA
-    // Untuk sekarang, tampilkan empty state
-    await Future.delayed(const Duration(milliseconds: 500));
-    if (!mounted) return;
     setState(() {
-      isLoading = false;
-      catatanList = [];
+      isLoading = true;
+      errorMsg = '';
     });
+    try {
+      final data = await _apiService.getByAnakID(widget.anakId);
+      if (mounted) {
+        setState(() {
+          catatanList = data;
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          errorMsg = e.toString();
+          isLoading = false;
+        });
+      }
+    }
+  }
+
+  Color _statusColor(String status) {
+    switch (status.toLowerCase()) {
+      case 'normal':
+        return Colors.green;
+      case 'berisiko':
+        return Colors.orange;
+      case 'kurang gizi':
+      case 'buruk':
+        return Colors.red;
+      default:
+        return Colors.grey;
+    }
   }
 
   @override
@@ -35,10 +80,10 @@ class _CatatanLilaScreenState extends State<CatatanLilaScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        title: const Column(
+        title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            const Text(
               'Lingkar Lengan Atas (LiLA)',
               style: TextStyle(
                 color: Color(0xFF172033),
@@ -46,10 +91,10 @@ class _CatatanLilaScreenState extends State<CatatanLilaScreen> {
                 fontWeight: FontWeight.w700,
               ),
             ),
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
             Text(
-              'Pantau pengukuran LiLA secara berkala',
-              style: TextStyle(
+              'Pantau pengukuran LiLA ${widget.anakName}',
+              style: const TextStyle(
                 color: Color(0xFF7B8798),
                 fontSize: 13,
               ),
@@ -61,16 +106,58 @@ class _CatatanLilaScreenState extends State<CatatanLilaScreen> {
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : catatanList.isEmpty
-              ? _buildEmptyState()
-              : _buildCatatanList(),
+      body: Column(
+        children: [
+          Container(
+            width: double.infinity,
+            color: Colors.white,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Row(
+              children: [
+                const Icon(Icons.notifications_active, color: Color(0xFFF57C00)),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Catatan LiLA untuk ${widget.anakName}', style: const TextStyle(fontWeight: FontWeight.w600)),
+                      const SizedBox(height: 4),
+                      const Text('Pantau status gizi anak secara berkala', style: TextStyle(color: Color(0xFF7B8798))),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 10),
+          Expanded(
+            child: isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : errorMsg.isNotEmpty
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(errorMsg, style: const TextStyle(color: Colors.red)),
+                            const SizedBox(height: 16),
+                            ElevatedButton(
+                              onPressed: _loadCatatan,
+                              child: const Text('Coba Lagi'),
+                            ),
+                          ],
+                        ),
+                      )
+                    : catatanList.isEmpty
+                        ? _buildEmptyState()
+                        : _buildCatatanList(),
+          ),
+        ],
+      ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Fitur tambah catatan akan segera tersedia'),
+              content: Text('Fitur tambah catatan belum tersedia untuk Ibu'),
             ),
           );
         },
@@ -121,34 +208,6 @@ class _CatatanLilaScreenState extends State<CatatanLilaScreen> {
               ),
             ),
             const SizedBox(height: 32),
-            SizedBox(
-              width: double.infinity,
-              height: 48,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFF57C00),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Fitur tambah catatan akan segera tersedia'),
-                    ),
-                  );
-                },
-                child: const Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.add),
-                    SizedBox(width: 8),
-                    Text('Tambah Catatan LiLA'),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 24),
             Container(
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
@@ -178,19 +237,76 @@ class _CatatanLilaScreenState extends State<CatatanLilaScreen> {
   }
 
   Widget _buildCatatanList() {
-    return ListView.builder(
+    return ListView.separated(
       padding: const EdgeInsets.all(16),
       itemCount: catatanList.length,
+      separatorBuilder: (_, __) => const SizedBox(height: 10),
       itemBuilder: (context, index) {
+        final item = catatanList[index];
+        final dateStr = DateFormat('dd MMM yyyy').format(item.tanggal);
+        
+        // Data format required for CatatanDetailScreen
+        final mapItem = {
+          'date': dateStr,
+          'bulanke': item.bulan,
+          'hasilLila': '${item.hasilLila} cm',
+          'kondisi': item.kategoriRisiko,
+          'catatan': '-',
+          'rekomendasi': '-',
+          'status': item.kategoriRisiko.toLowerCase() == 'normal' ? 'normal' : 'attention',
+        };
+
         return Card(
-          margin: const EdgeInsets.only(bottom: 12),
           child: ListTile(
-            title: Text('Catatan ${index + 1}'),
-            subtitle: const Text('Tanggal pengukuran'),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            title: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(dateStr, style: const TextStyle(fontWeight: FontWeight.w600)),
+                    const SizedBox(height: 2),
+                    Text(
+                      'Bulan ke-${item.bulan}',
+                      style: const TextStyle(fontSize: 12, color: Color(0xFF7B8798)),
+                    ),
+                  ],
+                ),
+                Chip(
+                  label: Text(item.kategoriRisiko),
+                  backgroundColor: _statusColor(item.kategoriRisiko).withOpacity(0.12),
+                  labelStyle: TextStyle(color: _statusColor(item.kategoriRisiko)),
+                ),
+              ],
+            ),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 8),
+                Text(
+                  'Hasil LiLA: ${item.hasilLila} cm',
+                  style: const TextStyle(fontWeight: FontWeight.w500),
+                ),
+              ],
+            ),
             trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+            isThreeLine: true,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => CatatanDetailScreen(
+                    data: mapItem,
+                    title: 'Detail LiLA',
+                  ),
+                ),
+              );
+            },
           ),
         );
       },
     );
   }
 }
+

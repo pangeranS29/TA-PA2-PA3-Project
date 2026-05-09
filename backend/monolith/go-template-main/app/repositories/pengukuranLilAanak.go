@@ -14,6 +14,7 @@ type PengukuranLilaRepository interface {
 	GetAll() ([]models.PengukuranLila, error)
 	Update(id int32, req models.UpdatePengukuranLilARequest, now time.Time) error
 	Delete(id int32) error
+	IsAnakMilikIbu(userID uint, anakID int32) (bool, error)
 }
 type pengukuranLilaRepository struct {
 	db *gorm.DB
@@ -108,4 +109,20 @@ func (r *pengukuranLilaRepository) Delete(id int32) error {
 	return r.withTx(func(tx *gorm.DB) error {
 		return tx.Delete(&models.PengukuranLila{}, id).Error
 	})
+}
+
+func (r *pengukuranLilaRepository) IsAnakMilikIbu(userID uint, anakID int32) (bool, error) {
+	var count int64
+	err := r.db.Table("anak a").
+		Joins("JOIN kehamilan k ON k.id = a.kehamilan_id").
+		Joins("JOIN ibu i ON i.id = k.ibu_id").
+		Joins("JOIN penduduk ki ON ki.id = i.penduduk_id").
+		Joins("JOIN pengguna p ON p.penduduk_id = ki.id").
+		Where("a.id = ?", anakID).
+		Where("p.id = ?", userID).
+		Count(&count).Error
+	if err != nil {
+		return false, err
+	}
+	return count > 0, nil
 }
