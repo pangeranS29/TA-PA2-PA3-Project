@@ -18,17 +18,21 @@ import {
   Eye,
   CheckCircle,
   EyeOff,
+  XCircle,
+  Info,
 } from "lucide-react";
 import { getCurrentUser, isDokterUser } from "../../services/auth";
 
-// Helper untuk menampilkan checkbox
+// Helper untuk menampilkan checkbox dengan teks Ya/Tidak
 const RenderCheck = ({ value }) =>
   value ? (
-    <span className="inline-flex items-center gap-1 text-green-700">
-      <CheckCircle size={14} /> Ya
+    <span className="inline-flex items-center gap-1 text-[#3B6D11] font-medium">
+      <CheckCircle size={16} /> Ya
     </span>
   ) : (
-    <span className="text-gray-400">Tidak</span>
+    <span className="inline-flex items-center gap-1 text-gray-500">
+      <XCircle size={14} /> Tidak
+    </span>
   );
 
 // Helper untuk menghitung IMT dan kategorinya
@@ -46,6 +50,16 @@ const calculateIMT = (tbCm, bbKg) => {
   return { imt: imt.toFixed(1), kategori };
 };
 
+// Komponen untuk menampilkan info bantuan (tooltip sederhana)
+const HelpTooltip = ({ text }) => (
+  <span className="inline-block ml-1 text-gray-400 cursor-help group relative">
+    <Info size={14} />
+    <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover:block bg-gray-800 text-white text-xs rounded px-2 py-1 whitespace-nowrap z-10">
+      {text}
+    </span>
+  </span>
+);
+
 // ===================== KOMPONEN LIHAT EVALUASI =====================
 const EvaluationView = ({
   evaluasi,
@@ -58,15 +72,15 @@ const EvaluationView = ({
   if (!evaluasi) {
     return (
       <div className="bg-white rounded-xl shadow-sm p-8 text-center">
-        <div className="text-gray-500 mb-4">
+        <div className="text-gray-500 mb-4 text-base">
           Belum ada data evaluasi kesehatan untuk kehamilan ini.
         </div>
         {canEdit && (
           <button
             onClick={() => setIsEditing(true)}
-            className="bg-indigo-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 mx-auto"
+            className="bg-[#185FA5] text-white rounded-full px-6 py-3 text-base font-semibold flex items-center gap-2 mx-auto hover:bg-[#185FA5]/90 transition"
           >
-            <Plus size={18} /> Buat Evaluasi Baru
+            <Plus size={20} /> Buat Evaluasi Baru
           </button>
         )}
         {!canEdit && (
@@ -81,29 +95,29 @@ const EvaluationView = ({
   return (
     <div className="space-y-6">
       {/* Header informasi umum */}
-      <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="bg-white rounded-xl shadow-sm p-5 border border-gray-100">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-base">
           <div>
-            <span className="font-semibold">Nama Dokter:</span>{" "}
+            <span className="font-semibold text-gray-700">Nama Dokter:</span>{" "}
             {form.nama_dokter || "-"}
           </div>
           <div>
-            <span className="font-semibold">Tanggal Periksa:</span>{" "}
+            <span className="font-semibold text-gray-700">Tanggal Periksa:</span>{" "}
             {form.tanggal_periksa || "-"}
           </div>
           <div>
-            <span className="font-semibold">Fasilitas Kesehatan:</span>{" "}
+            <span className="font-semibold text-gray-700">Fasilitas Kesehatan:</span>{" "}
             {form.fasilitas_kesehatan || "-"}
           </div>
         </div>
       </div>
 
       {/* Kondisi Kesehatan Ibu */}
-      <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-        <h3 className="font-bold text-lg text-indigo-900 border-b pb-2 mb-4">
-          Kondisi Kesehatan Ibu
+      <div className="bg-white rounded-xl shadow-sm p-5">
+        <h3 className="font-bold text-xl text-[#185FA5] border-b pb-2 mb-4 flex items-center gap-2">
+          Kondisi Kesehatan Ibu <HelpTooltip text="Tinggi Badan (TB), Berat Badan (BB), Indeks Massa Tubuh (IMT), dan Lingkar Lengan Atas (LiLA)" />
         </h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-base">
           <div>
             <span className="font-semibold">TB:</span>{" "}
             {form.tb_cm ? `${form.tb_cm} cm` : "-"}
@@ -119,7 +133,7 @@ const EvaluationView = ({
               : "-"}
           </div>
           <div>
-            <span className="font-semibold">IMT Kategori:</span>{" "}
+            <span className="font-semibold">Kategori IMT:</span>{" "}
             {form.imt_kategori || "-"}
           </div>
           <div>
@@ -130,32 +144,30 @@ const EvaluationView = ({
       </div>
 
       {/* Status Imunisasi TT */}
-      <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-        <h3 className="font-bold text-lg text-indigo-900 border-b pb-2 mb-4">
-          Status Imunisasi TT
+      <div className="bg-white rounded-xl shadow-sm p-5">
+        <h3 className="font-bold text-xl text-[#185FA5] border-b pb-2 mb-4 flex items-center gap-2">
+          Status Imunisasi TT <HelpTooltip text="TT = Tetanus Toxoid. Dosis lengkap 5 kali memberikan perlindungan seumur hidup." />
         </h3>
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
           {[1, 2, 3, 4, 5].map((n) => (
             <div key={n} className="flex items-center gap-2">
-              <span className="w-12">TT {n}:</span>{" "}
+              <span className="w-12 font-medium">TT {n}:</span>{" "}
               <RenderCheck value={form[`status_tt_${n}`]} />
             </div>
           ))}
         </div>
-        <div className="mt-3">
-          <span className="font-semibold">
-            Imunisasi Lainnya (Covid-19, dll):
-          </span>{" "}
+        <div className="mt-4">
+          <span className="font-semibold">Imunisasi Lainnya (Covid-19, dll):</span>{" "}
           {form.imunisasi_lainnya_covid19 || "-"}
         </div>
       </div>
 
       {/* Pemeriksaan Khusus (Inspeksi) */}
-      <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-        <h3 className="font-bold text-lg text-indigo-900 border-b pb-2 mb-4">
+      <div className="bg-white rounded-xl shadow-sm p-5">
+        <h3 className="font-bold text-xl text-[#185FA5] border-b pb-2 mb-4">
           Pemeriksaan Khusus (Inspeksi)
         </h3>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-base">
           {["porsio", "uretra", "vagina", "vulva", "fluksus", "fluor"].map(
             (item) => (
               <div key={item}>
@@ -168,148 +180,140 @@ const EvaluationView = ({
       </div>
 
       {/* Riwayat Kesehatan Ibu */}
-      <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-        <h3 className="font-bold text-lg text-indigo-900 border-b pb-2 mb-4">
+      <div className="bg-white rounded-xl shadow-sm p-5">
+        <h3 className="font-bold text-xl text-[#185FA5] border-b pb-2 mb-4">
           Riwayat Kesehatan Ibu
         </h3>
-        <div className="flex flex-wrap gap-x-6 gap-y-2">
+        <div className="flex flex-wrap gap-x-6 gap-y-3 text-base">
           {[
-            "riwayat_alergi",
-            "riwayat_asma",
-            "riwayat_autoimun",
-            "riwayat_diabetes",
-            "riwayat_hepatitis_b",
-            "riwayat_hipertensi",
-            "riwayat_jantung",
-            "riwayat_jiwa",
-            "riwayat_sifilis",
-            "riwayat_tb",
-          ].map((key) => (
-            <div key={key} className="w-40 flex items-center gap-2">
-              <span className="capitalize">
-                {key.replace("riwayat_", "")}:
-              </span>{" "}
-              <RenderCheck value={form[key]} />
+            ["alergi", "Alergi"],
+            ["asma", "Asma"],
+            ["autoimun", "Autoimun"],
+            ["diabetes", "Diabetes"],
+            ["hepatitis_b", "Hepatitis B"],
+            ["hipertensi", "Hipertensi"],
+            ["jantung", "Jantung"],
+            ["jiwa", "Gangguan Jiwa"],
+            ["sifilis", "Sifilis"],
+            ["tb", "Tuberkulosis"],
+          ].map(([key, label]) => (
+            <div key={key} className="w-44 flex items-center gap-2">
+              <span className="font-medium">{label}:</span>{" "}
+              <RenderCheck value={form[`riwayat_${key}`]} />
             </div>
           ))}
         </div>
-        <div className="mt-2">
+        <div className="mt-3">
           <span className="font-semibold">Lainnya:</span>{" "}
           {form.riwayat_kesehatan_lainnya || "-"}
         </div>
       </div>
 
       {/* Riwayat Perilaku Berisiko */}
-      <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-        <h3 className="font-bold text-lg text-indigo-900 border-b pb-2 mb-4">
-          Riwayat Perilaku Berisiko (1 bulan sebelum hamil)
+      <div className="bg-white rounded-xl shadow-sm p-5">
+        <h3 className="font-bold text-xl text-[#185FA5] border-b pb-2 mb-4">
+          Perilaku Berisiko (1 bulan sebelum hamil)
         </h3>
-        <div className="flex flex-wrap gap-x-6 gap-y-2">
+        <div className="flex flex-wrap gap-x-6 gap-y-3 text-base">
           {[
-            "perilaku_aktivitas_fisik_kurang",
-            "perilaku_alkohol",
-            "perilaku_kosmetik_berbahaya",
-            "perilaku_merokok",
-            "perilaku_obat_teratogenik",
-            "perilaku_pola_makan_berisiko",
-          ].map((key) => (
+            ["aktivitas_fisik_kurang", "Kurang aktivitas fisik"],
+            ["alkohol", "Konsumsi alkohol"],
+            ["kosmetik_berbahaya", "Kosmetik berbahaya"],
+            ["merokok", "Merokok"],
+            ["obat_teratogenik", "Obat teratogenik"],
+            ["pola_makan_berisiko", "Pola makan berisiko"],
+          ].map(([key, label]) => (
             <div key={key} className="w-56 flex items-center gap-2">
-              <span className="capitalize">
-                {key.replace("perilaku_", "").replace(/_/g, " ")}:
-              </span>{" "}
-              <RenderCheck value={form[key]} />
+              <span className="font-medium">{label}:</span>{" "}
+              <RenderCheck value={form[`perilaku_${key}`]} />
             </div>
           ))}
         </div>
-        <div className="mt-2">
+        <div className="mt-3">
           <span className="font-semibold">Lainnya:</span>{" "}
           {form.perilaku_lainnya || "-"}
         </div>
       </div>
 
       {/* Riwayat Penyakit Keluarga */}
-      <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-        <h3 className="font-bold text-lg text-indigo-900 border-b pb-2 mb-4">
+      <div className="bg-white rounded-xl shadow-sm p-5">
+        <h3 className="font-bold text-xl text-[#185FA5] border-b pb-2 mb-4">
           Riwayat Penyakit Keluarga
         </h3>
-        <div className="flex flex-wrap gap-x-6 gap-y-2">
+        <div className="flex flex-wrap gap-x-6 gap-y-3 text-base">
           {[
-            "keluarga_alergi",
-            "keluarga_asma",
-            "keluarga_autoimun",
-            "keluarga_diabetes",
-            "keluarga_hepatitis_b",
-            "keluarga_hipertensi",
-            "keluarga_jantung",
-            "keluarga_jiwa",
-            "keluarga_sifilis",
-            "keluarga_tb",
-          ].map((key) => (
-            <div key={key} className="w-40 flex items-center gap-2">
-              <span className="capitalize">
-                {key.replace("keluarga_", "")}:
-              </span>{" "}
-              <RenderCheck value={form[key]} />
+            ["alergi", "Alergi"],
+            ["asma", "Asma"],
+            ["autoimun", "Autoimun"],
+            ["diabetes", "Diabetes"],
+            ["hepatitis_b", "Hepatitis B"],
+            ["hipertensi", "Hipertensi"],
+            ["jantung", "Jantung"],
+            ["jiwa", "Gangguan Jiwa"],
+            ["sifilis", "Sifilis"],
+            ["tb", "Tuberkulosis"],
+          ].map(([key, label]) => (
+            <div key={key} className="w-44 flex items-center gap-2">
+              <span className="font-medium">{label}:</span>{" "}
+              <RenderCheck value={form[`keluarga_${key}`]} />
             </div>
           ))}
         </div>
-        <div className="mt-2">
+        <div className="mt-3">
           <span className="font-semibold">Lainnya:</span>{" "}
           {form.keluarga_lainnya || "-"}
         </div>
       </div>
 
       {/* Riwayat Kehamilan dan Proses Melahirkan */}
-      <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-        <h3 className="font-bold text-lg text-indigo-900 border-b pb-2 mb-4">
-          Riwayat Kehamilan dan Proses Melahirkan
+      <div className="bg-white rounded-xl shadow-sm p-5">
+        <h3 className="font-bold text-xl text-[#185FA5] border-b pb-2 mb-4">
+          Riwayat Kehamilan Lalu
         </h3>
         {riwayatList.length > 0 ? (
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200 text-sm">
+            <table className="min-w-full divide-y divide-gray-200 text-sm md:text-base">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-4 py-2">No</th>
-                  <th>Tahun</th>
-                  <th>BB (gram)</th>
-                  <th>Proses Melahirkan</th>
-                  <th>Penolong</th>
-                  <th>Masalah</th>
+                  <th className="px-3 py-2 text-left">No</th>
+                  <th className="px-3 py-2 text-left">Tahun</th>
+                  <th className="px-3 py-2 text-left">BB (gram)</th>
+                  <th className="px-3 py-2 text-left">Proses Melahirkan</th>
+                  <th className="px-3 py-2 text-left">Penolong</th>
+                  <th className="px-3 py-2 text-left">Masalah</th>
                 </tr>
               </thead>
               <tbody>
                 {riwayatList.map((r, idx) => (
-                  <tr key={r.id_riwayat || idx}>
-                    <td className="px-4 py-2">{r.no_urut}</td>
-                    <td className="px-4 py-2">{r.tahun}</td>
-                    <td className="px-4 py-2">{r.bb_gram}</td>
-                    <td className="px-4 py-2">{r.proses_melahirkan}</td>
-                    <td className="px-4 py-2">{r.penolong_proses_melahirkan}</td>
-                    <td className="px-4 py-2">{r.masalah}</td>
+                  <tr key={r.id_riwayat || idx} className="border-b">
+                    <td className="px-3 py-2">{r.no_urut}</td>
+                    <td className="px-3 py-2">{r.tahun}</td>
+                    <td className="px-3 py-2">{r.bb_gram}</td>
+                    <td className="px-3 py-2">{r.proses_melahirkan}</td>
+                    <td className="px-3 py-2">{r.penolong_proses_melahirkan}</td>
+                    <td className="px-3 py-2">{r.masalah}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
         ) : (
-          <p className="text-gray-400 text-sm">
-            Belum ada riwayat kehamilan lalu.
-          </p>
+          <p className="text-gray-500 text-base">Belum ada riwayat kehamilan lalu.</p>
         )}
         {canEdit && evaluasi && (
-          <div className="mt-4 pt-4 border-t">
+          <div className="mt-5 pt-4 border-t">
             <button
               type="button"
               onClick={() => {
-                const tahun = prompt("Masukkan tahun:");
-                const proses = prompt("Proses melahirkan:");
+                const tahun = prompt("Masukkan tahun (contoh: 2022):");
+                const proses = prompt("Proses melahirkan (normal/caesar/dll):");
                 if (tahun && proses) {
                   handleAddRiwayat({ tahun, proses_melahirkan: proses });
                 }
               }}
-              className="text-indigo-600 hover:text-indigo-800 text-sm flex items-center gap-1"
+              className="text-[#185FA5] hover:text-[#185FA5]/80 text-base font-medium flex items-center gap-2"
             >
-              <Plus size={16} /> Tambah Riwayat
+              <Plus size={18} /> Tambah Riwayat Kehamilan
             </button>
           </div>
         )}
@@ -319,7 +323,7 @@ const EvaluationView = ({
         <div className="flex justify-end">
           <button
             onClick={() => setIsEditing(true)}
-            className="bg-indigo-600 text-white px-6 py-2 rounded-lg flex items-center gap-2"
+            className="bg-[#185FA5] text-white rounded-full px-6 py-3 text-base font-semibold flex items-center gap-2 hover:bg-[#185FA5]/90 transition"
           >
             <Edit size={18} /> Edit Evaluasi
           </button>
@@ -359,33 +363,29 @@ const EvaluationForm = ({
     }
   }, [computedKategori, form.imt_kategori, handleChange]);
 
-  // Data yang akan dikirim (payload) untuk keperluan debug
-  const payloadPreview = {
-    ...form,
-    tb_cm: form.tb_cm === "" ? 0 : Number(form.tb_cm),
-    bb_kg: form.bb_kg === "" ? 0 : Number(form.bb_kg),
-    lila_cm: form.lila_cm === "" ? 0 : Number(form.lila_cm),
-  };
-
   return (
     <form onSubmit={handleSubmitEvaluasi} noValidate className="space-y-6">
       {/* Data Umum */}
-      <div className="bg-white rounded-xl shadow-sm p-6">
-        <h3 className="font-semibold mb-4 text-indigo-700">Data Pemeriksaan</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="bg-white rounded-xl shadow-sm p-5">
+        <h3 className="font-bold text-xl text-[#185FA5] border-b pb-2 mb-4">
+          Data Pemeriksaan
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           <div>
-            <label className="block text-sm font-medium mb-1">Nama Dokter</label>
+            <label className="block text-base font-medium text-gray-700 mb-1">
+              Nama Dokter
+            </label>
             <input
               name="nama_dokter"
               value={form.nama_dokter}
               onChange={handleChange}
-              className="w-full border rounded-lg px-3 py-2 bg-gray-50"
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 bg-gray-100 text-base"
               readOnly
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">
-              Tanggal Periksa <span className="text-red-500">*</span>
+            <label className="block text-base font-medium text-gray-700 mb-1">
+              Tanggal Periksa <span className="text-[#A32D2D]">*</span>
             </label>
             <input
               type="date"
@@ -393,34 +393,38 @@ const EvaluationForm = ({
               value={form.tanggal_periksa}
               onChange={handleChange}
               required
-              className={`w-full border rounded-lg px-3 py-2 ${
-                errors.tanggal_periksa ? "border-red-500" : ""
+              className={`w-full border rounded-lg px-4 py-2 text-base ${
+                errors.tanggal_periksa ? "border-[#A32D2D]" : "border-gray-300"
               }`}
             />
             {errors.tanggal_periksa && (
-              <p className="text-red-500 text-xs">{errors.tanggal_periksa}</p>
+              <p className="text-[#A32D2D] text-sm mt-1">{errors.tanggal_periksa}</p>
             )}
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">
+            <label className="block text-base font-medium text-gray-700 mb-1">
               Fasilitas Kesehatan
             </label>
             <input
               name="fasilitas_kesehatan"
               value={form.fasilitas_kesehatan}
               onChange={handleChange}
-              className="w-full border rounded-lg px-3 py-2"
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 text-base"
             />
           </div>
         </div>
       </div>
 
       {/* Antropometri */}
-      <div className="bg-white rounded-xl shadow-sm p-6">
-        <h3 className="font-semibold mb-4 text-indigo-700">Antropometri</h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="bg-white rounded-xl shadow-sm p-5">
+        <h3 className="font-bold text-xl text-[#185FA5] border-b pb-2 mb-4 flex items-center gap-2">
+          Antropometri <HelpTooltip text="Tinggi Badan, Berat Badan, Lingkar Lengan Atas" />
+        </h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
           <div>
-            <label>TB (cm)</label>
+            <label className="block text-base font-medium text-gray-700 mb-1">
+              TB (cm) <span className="text-[#A32D2D]">*</span>
+            </label>
             <input
               type="number"
               step="0.1"
@@ -428,14 +432,16 @@ const EvaluationForm = ({
               value={form.tb_cm}
               onChange={handleChange}
               required
-              className={`w-full border rounded-lg px-3 py-2 ${
-                errors.tb_cm ? "border-red-500" : ""
+              className={`w-full border rounded-lg px-4 py-2 text-base ${
+                errors.tb_cm ? "border-[#A32D2D]" : "border-gray-300"
               }`}
             />
-            {errors.tb_cm && <p className="text-red-500 text-xs mt-1">{errors.tb_cm}</p>}
+            {errors.tb_cm && <p className="text-[#A32D2D] text-sm mt-1">{errors.tb_cm}</p>}
           </div>
           <div>
-            <label>BB (kg)</label>
+            <label className="block text-base font-medium text-gray-700 mb-1">
+              BB (kg) <span className="text-[#A32D2D]">*</span>
+            </label>
             <input
               type="number"
               step="0.1"
@@ -443,58 +449,59 @@ const EvaluationForm = ({
               value={form.bb_kg}
               onChange={handleChange}
               required
-              className={`w-full border rounded-lg px-3 py-2 ${
-                errors.bb_kg ? "border-red-500" : ""
+              className={`w-full border rounded-lg px-4 py-2 text-base ${
+                errors.bb_kg ? "border-[#A32D2D]" : "border-gray-300"
               }`}
             />
-            {errors.bb_kg && <p className="text-red-500 text-xs mt-1">{errors.bb_kg}</p>}
+            {errors.bb_kg && <p className="text-[#A32D2D] text-sm mt-1">{errors.bb_kg}</p>}
           </div>
           <div>
-            <label>IMT</label>
+            <label className="block text-base font-medium text-gray-700 mb-1">
+              IMT (kg/m²)
+            </label>
             <input
               type="text"
-              value={imtNumeric ? `${imtNumeric} kg/m²` : "-"}
+              value={imtNumeric ? `${imtNumeric}` : "-"}
               readOnly
-              className="w-full border rounded-lg px-3 py-2 bg-gray-100"
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 bg-gray-100 text-base"
             />
           </div>
           <div>
-            <label>IMT Kategori</label>
+            <label className="block text-base font-medium text-gray-700 mb-1">
+              Kategori IMT
+            </label>
             <input
               type="text"
               value={form.imt_kategori || "-"}
               readOnly
-              className="w-full border rounded-lg px-3 py-2 bg-gray-100"
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 bg-gray-100 text-base"
             />
           </div>
           <div>
-            <label>LILA (cm)</label>
+            <label className="block text-base font-medium text-gray-700 mb-1">
+              LiLA (cm)
+            </label>
             <input
               type="number"
               step="0.1"
               name="lila_cm"
               value={form.lila_cm}
               onChange={handleChange}
-              className={`w-full border rounded-lg px-3 py-2 ${
-                errors.lila_cm ? "border-red-500" : ""
+              className={`w-full border rounded-lg px-4 py-2 text-base ${
+                errors.lila_cm ? "border-[#A32D2D]" : "border-gray-300"
               }`}
             />
-            {errors.lila_cm && (
-              <p className="text-red-500 text-xs">{errors.lila_cm}</p>
-            )}
+            {errors.lila_cm && <p className="text-[#A32D2D] text-sm mt-1">{errors.lila_cm}</p>}
           </div>
         </div>
       </div>
 
       {/* Status Imunisasi TT */}
-      <div className="bg-white rounded-xl shadow-sm p-6">
-        <h3 className="font-semibold mb-4 text-indigo-700">
-          Status Imunisasi TT
+      <div className="bg-white rounded-xl shadow-sm p-5">
+        <h3 className="font-bold text-xl text-[#185FA5] border-b pb-2 mb-4 flex items-center gap-2">
+          Status Imunisasi TT <HelpTooltip text="TT = Tetanus Toxoid. Dosis lengkap 5 kali memberikan perlindungan seumur hidup." />
         </h3>
-        <p className="text-xs text-gray-500 mb-3">
-          TT = Tetanus Toxoid. Dosis lengkap 5 kali memberikan perlindungan seumur hidup.
-        </p>
-        <div className="flex flex-wrap gap-4">
+        <div className="flex flex-wrap gap-5">
           {[
             { n: 1, desc: "Kunjungan pertama (TT1)" },
             { n: 2, desc: "4 minggu setelah TT1 (TT2)" },
@@ -512,143 +519,150 @@ const EvaluationForm = ({
                 name={`status_tt_${n}`}
                 checked={form[`status_tt_${n}`]}
                 onChange={handleChange}
-                className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                className="w-5 h-5 text-[#185FA5] border-gray-300 rounded focus:ring-[#185FA5]"
               />
-              <span className="text-sm">
-                TT{n} <span className="text-gray-400 font-normal">({desc})</span>
+              <span className="text-base">
+                TT{n} <span className="text-gray-500 text-sm">({desc})</span>
               </span>
             </label>
           ))}
         </div>
-        <div className="mt-3">
-          <label className="block text-sm font-medium mb-1">
+        <div className="mt-4">
+          <label className="block text-base font-medium text-gray-700 mb-1">
             Imunisasi Lainnya (Covid-19, dll)
           </label>
           <input
             name="imunisasi_lainnya_covid19"
             value={form.imunisasi_lainnya_covid19}
             onChange={handleChange}
-            className="w-full border rounded-lg px-3 py-2"
+            className="w-full border border-gray-300 rounded-lg px-4 py-2 text-base"
             placeholder="Contoh: Covid-19 dosis 2, Influenza..."
           />
         </div>
       </div>
 
       {/* Riwayat Kesehatan, Perilaku, Keluarga */}
-      <div className="bg-white rounded-xl shadow-sm p-6 space-y-4">
+      <div className="bg-white rounded-xl shadow-sm p-5 space-y-5">
         <div>
-          <h4 className="font-semibold">Riwayat Kesehatan Ibu</h4>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mt-2">
+          <h4 className="font-bold text-lg text-[#185FA5] mb-3">Riwayat Kesehatan Ibu</h4>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
             {[
-              "alergi",
-              "asma",
-              "autoimun",
-              "diabetes",
-              "hepatitis_b",
-              "hipertensi",
-              "jantung",
-              "jiwa",
-              "sifilis",
-              "tb",
-            ].map((item) => (
-              <label key={item} className="flex items-center gap-2">
+              ["alergi", "Alergi"],
+              ["asma", "Asma"],
+              ["autoimun", "Autoimun"],
+              ["diabetes", "Diabetes"],
+              ["hepatitis_b", "Hepatitis B"],
+              ["hipertensi", "Hipertensi"],
+              ["jantung", "Jantung"],
+              ["jiwa", "Gangguan Jiwa"],
+              ["sifilis", "Sifilis"],
+              ["tb", "Tuberkulosis"],
+            ].map(([key, label]) => (
+              <label key={key} className="flex items-center gap-2 text-base">
                 <input
                   type="checkbox"
-                  name={`riwayat_${item}`}
-                  checked={form[`riwayat_${item}`]}
+                  name={`riwayat_${key}`}
+                  checked={form[`riwayat_${key}`]}
                   onChange={handleChange}
+                  className="w-5 h-5"
                 />
-                {item.replace(/_/g, " ").toUpperCase()}
+                {label}
               </label>
             ))}
           </div>
           <input
             name="riwayat_kesehatan_lainnya"
-            placeholder="Lainnya"
+            placeholder="Riwayat kesehatan lainnya"
             value={form.riwayat_kesehatan_lainnya}
             onChange={handleChange}
-            className="w-full border rounded-lg px-3 py-2 mt-2"
+            className="w-full border border-gray-300 rounded-lg px-4 py-2 mt-3 text-base"
           />
         </div>
         <div>
-          <h4 className="font-semibold">Perilaku Berisiko</h4>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mt-2">
+          <h4 className="font-bold text-lg text-[#185FA5] mb-3">Perilaku Berisiko (1 bulan sebelum hamil)</h4>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
             {[
-              "aktivitas_fisik_kurang",
-              "alkohol",
-              "kosmetik_berbahaya",
-              "merokok",
-              "obat_teratogenik",
-              "pola_makan_berisiko",
-            ].map((item) => (
-              <label key={item} className="flex items-center gap-2">
+              ["aktivitas_fisik_kurang", "Kurang aktivitas fisik"],
+              ["alkohol", "Konsumsi alkohol"],
+              ["kosmetik_berbahaya", "Kosmetik berbahaya"],
+              ["merokok", "Merokok"],
+              ["obat_teratogenik", "Obat teratogenik"],
+              ["pola_makan_berisiko", "Pola makan berisiko"],
+            ].map(([key, label]) => (
+              <label key={key} className="flex items-center gap-2 text-base">
                 <input
                   type="checkbox"
-                  name={`perilaku_${item}`}
-                  checked={form[`perilaku_${item}`]}
+                  name={`perilaku_${key}`}
+                  checked={form[`perilaku_${key}`]}
                   onChange={handleChange}
+                  className="w-5 h-5"
                 />
-                {item.replace(/_/g, " ")}
+                {label}
               </label>
             ))}
           </div>
           <input
             name="perilaku_lainnya"
-            placeholder="Lainnya"
+            placeholder="Perilaku berisiko lainnya"
             value={form.perilaku_lainnya}
             onChange={handleChange}
-            className="w-full border rounded-lg px-3 py-2 mt-2"
+            className="w-full border border-gray-300 rounded-lg px-4 py-2 mt-3 text-base"
           />
         </div>
         <div>
-          <h4 className="font-semibold">Riwayat Kesehatan Keluarga</h4>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mt-2">
+          <h4 className="font-bold text-lg text-[#185FA5] mb-3">Riwayat Kesehatan Keluarga</h4>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
             {[
-              "alergi",
-              "asma",
-              "autoimun",
-              "diabetes",
-              "hepatitis_b",
-              "hipertensi",
-              "jantung",
-              "jiwa",
-              "sifilis",
-              "tb",
-            ].map((item) => (
-              <label key={item} className="flex items-center gap-2">
+              ["alergi", "Alergi"],
+              ["asma", "Asma"],
+              ["autoimun", "Autoimun"],
+              ["diabetes", "Diabetes"],
+              ["hepatitis_b", "Hepatitis B"],
+              ["hipertensi", "Hipertensi"],
+              ["jantung", "Jantung"],
+              ["jiwa", "Gangguan Jiwa"],
+              ["sifilis", "Sifilis"],
+              ["tb", "Tuberkulosis"],
+            ].map(([key, label]) => (
+              <label key={key} className="flex items-center gap-2 text-base">
                 <input
                   type="checkbox"
-                  name={`keluarga_${item}`}
-                  checked={form[`keluarga_${item}`]}
+                  name={`keluarga_${key}`}
+                  checked={form[`keluarga_${key}`]}
                   onChange={handleChange}
+                  className="w-5 h-5"
                 />
-                {item.replace(/_/g, " ").toUpperCase()}
+                {label}
               </label>
             ))}
           </div>
           <input
             name="keluarga_lainnya"
-            placeholder="Lainnya"
+            placeholder="Penyakit keluarga lainnya"
             value={form.keluarga_lainnya}
             onChange={handleChange}
-            className="w-full border rounded-lg px-3 py-2 mt-2"
+            className="w-full border border-gray-300 rounded-lg px-4 py-2 mt-3 text-base"
           />
         </div>
       </div>
 
       {/* Inspeksi */}
-      <div className="bg-white rounded-xl shadow-sm p-6">
-        <h3 className="font-semibold mb-4 text-indigo-700">Inspeksi Medis</h3>
+      <div className="bg-white rounded-xl shadow-sm p-5">
+        <h3 className="font-bold text-xl text-[#185FA5] border-b pb-2 mb-4">
+          Inspeksi Medis
+        </h3>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           {["porsio", "uretra", "vagina", "vulva", "fluksus", "fluor"].map(
             (item) => (
               <div key={item}>
-                <label className="block capitalize">{item}</label>
+                <label className="block capitalize text-base font-medium text-gray-700 mb-1">
+                  {item}
+                </label>
                 <select
                   name={`inspeksi_${item}`}
                   value={form[`inspeksi_${item}`]}
                   onChange={handleChange}
-                  className="w-full border rounded-lg px-3 py-2"
+                  className="w-full border border-gray-300 rounded-lg px-4 py-2 text-base"
                 >
                   <option value="">-- Pilih --</option>
                   <option>Normal</option>
@@ -661,39 +675,39 @@ const EvaluationForm = ({
       </div>
 
       {/* Riwayat Kehamilan Lalu */}
-      <div className="bg-white rounded-xl shadow-sm p-6">
-        <h3 className="font-semibold mb-4 text-indigo-700">
+      <div className="bg-white rounded-xl shadow-sm p-5">
+        <h3 className="font-bold text-xl text-[#185FA5] border-b pb-2 mb-4">
           Riwayat Kehamilan Lalu
         </h3>
         {riwayatList.length > 0 && (
           <div className="overflow-x-auto mb-4">
-            <table className="min-w-full text-sm border">
+            <table className="min-w-full text-sm md:text-base border">
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-2 py-1">No</th>
-                  <th>Tahun</th>
-                  <th>BB(gram)</th>
-                  <th>Proses</th>
-                  <th>Penolong</th>
-                  <th>Masalah</th>
+                  <th className="px-2 py-1">Tahun</th>
+                  <th className="px-2 py-1">BB(gram)</th>
+                  <th className="px-2 py-1">Proses</th>
+                  <th className="px-2 py-1">Penolong</th>
+                  <th className="px-2 py-1">Masalah</th>
                 </tr>
               </thead>
               <tbody>
                 {riwayatList.map((r) => (
                   <tr key={r.id_riwayat}>
-                    <td className="px-2">{r.no_urut}</td>
-                    <td className="px-2">{r.tahun}</td>
-                    <td className="px-2">{r.bb_gram}</td>
-                    <td className="px-2">{r.proses_melahirkan}</td>
-                    <td className="px-2">{r.penolong_proses_melahirkan}</td>
-                    <td className="px-2">{r.masalah}</td>
+                    <td className="px-2 py-1">{r.no_urut}</td>
+                    <td className="px-2 py-1">{r.tahun}</td>
+                    <td className="px-2 py-1">{r.bb_gram}</td>
+                    <td className="px-2 py-1">{r.proses_melahirkan}</td>
+                    <td className="px-2 py-1">{r.penolong_proses_melahirkan}</td>
+                    <td className="px-2 py-1">{r.masalah}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
         )}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-2 items-end">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3 items-end">
           <input
             type="number"
             placeholder="No Urut"
@@ -701,7 +715,7 @@ const EvaluationForm = ({
             onChange={(e) =>
               setFormRiwayat({ ...formRiwayat, no_urut: e.target.value })
             }
-            className="border rounded px-2 py-1"
+            className="border border-gray-300 rounded-lg px-3 py-2 text-base"
           />
           <input
             type="number"
@@ -710,7 +724,7 @@ const EvaluationForm = ({
             onChange={(e) =>
               setFormRiwayat({ ...formRiwayat, tahun: e.target.value })
             }
-            className="border rounded px-2 py-1"
+            className="border border-gray-300 rounded-lg px-3 py-2 text-base"
           />
           <input
             type="number"
@@ -719,7 +733,7 @@ const EvaluationForm = ({
             onChange={(e) =>
               setFormRiwayat({ ...formRiwayat, bb_gram: e.target.value })
             }
-            className="border rounded px-2 py-1"
+            className="border border-gray-300 rounded-lg px-3 py-2 text-base"
           />
           <input
             placeholder="Proses melahirkan *"
@@ -730,7 +744,7 @@ const EvaluationForm = ({
                 proses_melahirkan: e.target.value,
               })
             }
-            className="border rounded px-2 py-1"
+            className="border border-gray-300 rounded-lg px-3 py-2 text-base"
           />
           <input
             placeholder="Penolong"
@@ -741,7 +755,7 @@ const EvaluationForm = ({
                 penolong_proses_melahirkan: e.target.value,
               })
             }
-            className="border rounded px-2 py-1"
+            className="border border-gray-300 rounded-lg px-3 py-2 text-base"
           />
           <input
             placeholder="Masalah"
@@ -749,14 +763,14 @@ const EvaluationForm = ({
             onChange={(e) =>
               setFormRiwayat({ ...formRiwayat, masalah: e.target.value })
             }
-            className="border rounded px-2 py-1 col-span-2"
+            className="border border-gray-300 rounded-lg px-3 py-2 text-base col-span-2"
           />
           <button
             type="button"
             onClick={handleAddRiwayat}
-            className="bg-green-600 text-white px-3 py-1 rounded flex items-center gap-1"
+            className="bg-[#3B6D11] text-white rounded-full px-4 py-2 text-base font-semibold flex items-center gap-2 justify-center hover:bg-[#3B6D11]/90 transition"
           >
-            <Plus size={14} /> Tambah
+            <Plus size={18} /> Tambah Riwayat
           </button>
         </div>
       </div>
@@ -765,30 +779,17 @@ const EvaluationForm = ({
         <button
           type="button"
           onClick={() => setIsEditing(false)}
-          className="px-4 py-2 border rounded-lg"
+          className="px-6 py-3 rounded-full border border-[#185FA5] text-[#185FA5] text-base font-semibold hover:bg-[#185FA5]/5 transition"
         >
-          Batal
+          Batalkan
         </button>
         <button
           type="submit"
           disabled={saving}
-          className="bg-indigo-600 text-white px-6 py-2 rounded-lg flex items-center gap-2"
+          className="bg-[#185FA5] text-white rounded-full px-6 py-3 text-base font-semibold flex items-center gap-2 hover:bg-[#185FA5]/90 disabled:opacity-50 transition"
         >
-          <Save size={18} /> {saving ? "Menyimpan..." : "Simpan Evaluasi"}
+          <Save size={20} /> {saving ? "Menyimpan..." : "Simpan Evaluasi"}
         </button>
-      </div>
-
-      {/* DEBUG PANEL */}
-      <div className="mt-6 p-4 bg-gray-50 border border-dashed border-gray-300 rounded-lg">
-        <h4 className="text-sm font-semibold text-gray-600 mb-2 flex items-center gap-2">
-          <span>🔍</span> Debug: Data yang akan dikirim (payload)
-        </h4>
-        <pre className="text-xs overflow-x-auto bg-white p-3 rounded border">
-          {JSON.stringify(payloadPreview, null, 2)}
-        </pre>
-        <p className="text-xs text-gray-400 mt-2">
-          *IMT numerik hanya tampilan, yang dikirim hanya kategori.
-        </p>
       </div>
     </form>
   );
@@ -918,7 +919,7 @@ export default function EvaluasiKesehatanIbu() {
           const e = evalData[0];
           setEvaluasi(e);
           setForm({
-            nama_dokter: dokterNama, // pastikan dari yang login
+            nama_dokter: dokterNama,
             tanggal_periksa: e.tanggal_periksa
               ? e.tanggal_periksa.split("T")[0]
               : new Date().toISOString().split("T")[0],
@@ -978,7 +979,6 @@ export default function EvaluasiKesehatanIbu() {
         } else {
           setEvaluasi(null);
           setRiwayatList([]);
-          // Reset form ke default namun pertahankan nama dokter
           setForm((prev) => ({
             ...prev,
             nama_dokter: dokterNama,
@@ -1033,7 +1033,7 @@ export default function EvaluasiKesehatanIbu() {
         }
       } catch (err) {
         console.error(err);
-        alert("Gagal memuat data");
+        alert("Gagal memuat data. Silakan coba lagi.");
       } finally {
         setLoading(false);
       }
@@ -1046,20 +1046,20 @@ export default function EvaluasiKesehatanIbu() {
     if (!form.tanggal_periksa) newErrors.tanggal_periksa = "Tanggal periksa wajib diisi";
 
     if (!form.tb_cm) {
-      newErrors.tb_cm = "TB wajib diisi";
+      newErrors.tb_cm = "Tinggi badan wajib diisi";
     } else if (isNaN(parseFloat(form.tb_cm)) || parseFloat(form.tb_cm) <= 0) {
-      newErrors.tb_cm = "TB harus angka > 0";
+      newErrors.tb_cm = "Tinggi badan harus angka lebih dari 0";
     }
 
     if (!form.bb_kg) {
-      newErrors.bb_kg = "BB wajib diisi";
+      newErrors.bb_kg = "Berat badan wajib diisi";
     } else if (isNaN(parseFloat(form.bb_kg)) || parseFloat(form.bb_kg) <= 0) {
-      newErrors.bb_kg = "BB harus angka > 0";
+      newErrors.bb_kg = "Berat badan harus angka lebih dari 0";
     }
 
     if (form.lila_cm) {
       if (isNaN(parseFloat(form.lila_cm)) || parseFloat(form.lila_cm) <= 0) {
-        newErrors.lila_cm = "LILA harus angka > 0";
+        newErrors.lila_cm = "Lingkar lengan atas harus angka lebih dari 0";
       }
     }
 
@@ -1096,7 +1096,6 @@ export default function EvaluasiKesehatanIbu() {
         bb_kg: form.bb_kg === "" ? 0 : Number(form.bb_kg),
         lila_cm: form.lila_cm === "" ? 0 : Number(form.lila_cm),
       };
-      console.log("🔍 Payload yang dikirim:", payload); // Debug di console
       let savedEvaluasi;
       if (evaluasi) {
         await updateEvaluasi(evaluasi.id, payload);
@@ -1108,7 +1107,7 @@ export default function EvaluasiKesehatanIbu() {
       setIsEditing(false);
       alert("Evaluasi kesehatan ibu berhasil disimpan");
     } catch (err) {
-      alert("Gagal menyimpan evaluasi");
+      alert("Gagal menyimpan evaluasi. Periksa koneksi Anda.");
       console.error(err);
     } finally {
       setSaving(false);
@@ -1121,13 +1120,13 @@ export default function EvaluasiKesehatanIbu() {
       return;
     }
     if (!evaluasi) {
-      alert("Simpan evaluasi terlebih dahulu");
+      alert("Simpan evaluasi terlebih dahulu sebelum menambah riwayat.");
       return;
     }
 
     const current = data || formRiwayat;
     if (!current.tahun || !current.proses_melahirkan) {
-      alert("Tahun dan Proses Melahirkan wajib diisi");
+      alert("Tahun dan Proses Melahirkan wajib diisi.");
       return;
     }
     try {
@@ -1152,67 +1151,66 @@ export default function EvaluasiKesehatanIbu() {
       });
       alert("Riwayat kehamilan lalu berhasil ditambahkan");
     } catch (err) {
-      alert("Gagal menambahkan riwayat");
+      alert("Gagal menambahkan riwayat. Periksa data Anda.");
       console.error(err);
     }
   };
 
-  if (loading) return <MainLayout><div className="p-6">Memuat...</div></MainLayout>;
+  if (loading) return <MainLayout><div className="p-6 text-base">Memuat data...</div></MainLayout>;
 
   return (
     <MainLayout>
-      <div className="p-6 max-w-5xl">
-        <div className="flex items-center gap-4 mb-6">
-          <button
-            onClick={() => navigate(-1)}
-            className="p-2 rounded-full hover:bg-gray-100"
-          >
-            <ArrowLeft size={20} />
-          </button>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">
+      <div className="min-h-screen bg-[#F7FAFB]">
+        <div className="max-w-5xl mx-auto p-5 space-y-5">
+          {/* Header dengan navigasi */}
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => navigate(-1)}
+              className="flex items-center gap-2 text-[#185FA5] hover:text-[#185FA5]/80 text-base font-medium"
+            >
+              <ArrowLeft size={20} /> Kembali
+            </button>
+            <h1 className="text-[28px] font-bold text-gray-900">
               Evaluasi Kesehatan Ibu
             </h1>
           </div>
+
+          {!isActive && (
+            <div className="bg-yellow-50 border-l-4 border-[#BA7517] rounded-lg p-4 text-[#BA7517] text-base flex items-center gap-2">
+              <EyeOff size={18} /> Kehamilan ini sudah selesai (NON-AKTIF). Anda tidak dapat membuat, mengedit, atau menambahkan data. Hanya mode baca.
+            </div>
+          )}
+
+          {!canEdit && isActive && (
+            <div className="bg-blue-50 border-l-4 border-[#185FA5] rounded-lg p-4 text-[#185FA5] text-base flex items-center gap-2">
+              <Eye size={18} /> Anda dalam mode baca (Bidan). Data hanya dapat dilihat, tidak dapat diubah.
+            </div>
+          )}
+
+          {isEditing ? (
+            <EvaluationForm
+              form={form}
+              handleChange={handleChange}
+              handleSubmitEvaluasi={handleSubmitEvaluasi}
+              errors={errors}
+              saving={saving}
+              setIsEditing={setIsEditing}
+              riwayatList={riwayatList}
+              formRiwayat={formRiwayat}
+              setFormRiwayat={setFormRiwayat}
+              handleAddRiwayat={() => handleAddRiwayat()}
+            />
+          ) : (
+            <EvaluationView
+              evaluasi={evaluasi}
+              form={form}
+              riwayatList={riwayatList}
+              canEdit={canEdit}
+              handleAddRiwayat={handleAddRiwayat}
+              setIsEditing={setIsEditing}
+            />
+          )}
         </div>
-
-        {!isActive && (
-          <div className="bg-gray-100 border-l-4 border-gray-500 rounded-lg p-3 mb-6 text-gray-700 text-sm flex items-center gap-2">
-            <EyeOff size={16} /> Kehamilan ini sudah selesai (NON-AKTIF). Anda
-            tidak dapat membuat, mengedit, atau menambahkan data. Hanya mode baca.
-          </div>
-        )}
-
-        {!canEdit && isActive && (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-6 text-blue-700 text-sm flex items-center gap-2">
-            <Eye size={16} /> Anda dalam mode baca (Bidan). Data hanya dapat
-            dilihat, tidak dapat diubah.
-          </div>
-        )}
-
-        {isEditing ? (
-          <EvaluationForm
-            form={form}
-            handleChange={handleChange}
-            handleSubmitEvaluasi={handleSubmitEvaluasi}
-            errors={errors}
-            saving={saving}
-            setIsEditing={setIsEditing}
-            riwayatList={riwayatList}
-            formRiwayat={formRiwayat}
-            setFormRiwayat={setFormRiwayat}
-            handleAddRiwayat={() => handleAddRiwayat()}
-          />
-        ) : (
-          <EvaluationView
-            evaluasi={evaluasi}
-            form={form}
-            riwayatList={riwayatList}
-            canEdit={canEdit}
-            handleAddRiwayat={handleAddRiwayat}
-            setIsEditing={setIsEditing}
-          />
-        )}
       </div>
     </MainLayout>
   );
