@@ -465,6 +465,8 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	ibu.GET("/warna-tinja", controller.WarnaTinja.GetByAnakIDForIbu)
 	ibu.POST("/warna-tinja", controller.WarnaTinja.SaveForIbu)
 	ibu.GET("/pemeriksaan-gigi", controller.PemeriksaanGigi.GetByAnakIDForIbu)
+	ibu.GET("/pengukuran-lila", controller.PengukuranLilA.GetByAnakIDForIbu)
+	ibu.GET("/pengukuran-lila/:anak_id", controller.PengukuranLilA.GetByAnakIDForIbu)
 
 	// ==================== PERAWATAN/MILESTONE (IBU) ====================
 	ibu.GET("/kategori-capaian", controller.GetAllKategoriCapaian)

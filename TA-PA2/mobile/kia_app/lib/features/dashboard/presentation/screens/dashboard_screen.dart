@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ta_pa2_pa3_project/core/themes/app_theme.dart';
+import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/screens/mpasi/halaman_utama_mpasi.dart';
 import 'package:ta_pa2_pa3_project/features/dashboard/presentation/widgets/dashboard_header.dart';
 import 'package:ta_pa2_pa3_project/features/dashboard/presentation/widgets/dashboard_bottom_nav.dart';
 import 'package:ta_pa2_pa3_project/features/dashboard/presentation/widgets/dashboard_menu_card.dart';
@@ -589,7 +590,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
         const SizedBox(height: 24),
 
-        const Text('MENU CEPAT', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey)),
+        const Text('Menu', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey)),
         const SizedBox(height: 16),
 
         // [WIDGET: DashboardTumbuhQuickMenu] — 6 menu cepat modul anak
@@ -620,7 +621,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         context,
                         MaterialPageRoute(
                             builder: (_) =>
-                                const PilihAnakScreen(tujuan: 'mpasi')));
+                                HalamanUtamaMpasiScreen()));
                     break;
                   case 'edukasi':
                     // [MODUL: ANAK] Langsung ke EdukasiScreen (tidak butuh pilih anak)
