@@ -14,7 +14,8 @@ import {
   UserCheck,
   UserPlus,
   BriefcaseMedical,
-  CalendarDays
+  CalendarDays,
+  BookOpen
 } from "lucide-react";
 
 const Sidebar = () => {
@@ -26,6 +27,7 @@ const Sidebar = () => {
   const bidanMenuItems = [
     { path: "/data-ibu", name: "Data Ibu", icon: Users },
     { path: "/daftar-anak", name: "Data Anak", icon: Baby },
+    { path: "/dashboard/admin/informasi-umum", name: "Edukasi", icon: BookOpen },
     { path: "/kependudukan", name: "Manajemen KK", icon: UserCheck },
     { path: "/monitoring", name: "Monitoring", icon: Activity },
     { path: "/laporan", name: "Laporan", icon: BarChart3 },
@@ -35,7 +37,13 @@ const Sidebar = () => {
     () => [
       { path: "/dashboard/admin/manajemen-keluarga", name: "Manajemen KK", icon: UserCheck },
       { path: "/dashboard/admin/akun-keluarga", name: "Buat Akun", icon: UserPlus },
-      
+    ],
+    []
+  );
+
+  const adminContentMenuItems = useMemo(
+    () => [
+      { path: "/dashboard/admin/informasi-umum", name: "Informasi Umum", icon: Activity },
     ],
     []
   );
@@ -155,6 +163,33 @@ const Sidebar = () => {
                 ))}
               </div>
             )}
+
+            <div className="pt-2">
+              <p className="px-4 pb-2 text-[10px] font-bold uppercase tracking-widest text-slate-400">Konten Edukasi</p>
+              {adminContentMenuItems.map((item) => (
+                <NavLink
+                  key={item.path}
+                  to={item.path}
+                  className={({ isActive }) =>
+                    `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${
+                      isActive
+                        ? "bg-blue-50 text-blue-600 font-semibold"
+                        : "text-slate-500 hover:bg-gray-50 hover:text-slate-700"
+                    }`
+                  }
+                >
+                  {({ isActive }) => (
+                    <>
+                      <item.icon
+                        size={20}
+                        className={isActive ? "text-blue-600" : "text-slate-400 group-hover:text-slate-600"}
+                      />
+                      <span className="truncate">{item.name}</span>
+                    </>
+                  )}
+                </NavLink>
+              ))}
+            </div>
           </div>
         )}
 

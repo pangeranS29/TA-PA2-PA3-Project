@@ -52,6 +52,9 @@ func (u *informasiUmumUsecase) Create(data *models.InformasiUmum) error {
 	if strings.TrimSpace(data.Ringkasan) == "" {
 		data.Ringkasan = data.Judul
 	}
+	if strings.TrimSpace(data.YangPerluDiingat) == "" {
+		data.YangPerluDiingat = ""
+	}
 
 	return u.repo.Create(data)
 }
@@ -98,6 +101,9 @@ func (u *informasiUmumUsecase) Update(data *models.InformasiUmum) error {
 	}
 	if strings.TrimSpace(data.Ringkasan) == "" {
 		data.Ringkasan = data.Judul
+	}
+	if strings.TrimSpace(data.YangPerluDiingat) == "" {
+		data.YangPerluDiingat = ""
 	}
 
 	return u.repo.Update(data)

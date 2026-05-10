@@ -35,7 +35,8 @@ class _EdukasiDetailScreenState extends State<EdukasiDetailScreen> {
     switch (title) {
       case 'Pengenalan Trimester 1':
         return const _EdukasiArticle(
-          ringkasan: 'Trimester 1 adalah periode awal kehamilan (minggu 1-12) yang penting untuk perkembangan embrio. Pada fase ini, ibu perlu memperhatikan nutrisi, pemeriksaan awal, dan tanda bahaya.' ,
+          ringkasan:
+              'Trimester 1 adalah periode awal kehamilan (minggu 1-12) yang penting untuk perkembangan embrio. Pada fase ini, ibu perlu memperhatikan nutrisi, pemeriksaan awal, dan tanda bahaya.',
           tutorialLangkah: [
             'Konsultasi ke tenaga kesehatan setelah tes positif.',
             'Mulai konsumsi asam folat sesuai anjuran.',
@@ -59,7 +60,8 @@ class _EdukasiDetailScreenState extends State<EdukasiDetailScreen> {
 
       case 'Nutrisi Awal Kehamilan':
         return const _EdukasiArticle(
-          ringkasan: 'Nutrisi awal kehamilan fokus pada asupan asam folat, zat besi, dan protein untuk mendukung perkembangan janin dan mencegah anemia pada ibu.',
+          ringkasan:
+              'Nutrisi awal kehamilan fokus pada asupan asam folat, zat besi, dan protein untuk mendukung perkembangan janin dan mencegah anemia pada ibu.',
           tutorialLangkah: [
             'Konsumsi makanan sumber zat besi: daging, kacang-kacangan, sayuran hijau.',
             'Lengkapi asupan dengan suplemen sesuai anjuran tenaga kesehatan.',
@@ -77,7 +79,8 @@ class _EdukasiDetailScreenState extends State<EdukasiDetailScreen> {
 
       case 'Nutrisi pada Trimester 2':
         return const _EdukasiArticle(
-          ringkasan: 'Pada trimester 2 kebutuhan energi meningkat; fokus pada protein, zat besi, kalsium, dan sayuran berwarna.',
+          ringkasan:
+              'Pada trimester 2 kebutuhan energi meningkat; fokus pada protein, zat besi, kalsium, dan sayuran berwarna.',
           tutorialLangkah: [
             'Tambahkan protein pada setiap kali makan.',
             'Perbanyak sayur dan buah berwarna.',
@@ -95,7 +98,8 @@ class _EdukasiDetailScreenState extends State<EdukasiDetailScreen> {
 
       case 'Aktivitas Fisik Aman':
         return const _EdukasiArticle(
-          ringkasan: 'Olahraga ringan seperti jalan cepat, senam ringan, dan peregangan aman selama kehamilan bila tidak ada kontraindikasi.',
+          ringkasan:
+              'Olahraga ringan seperti jalan cepat, senam ringan, dan peregangan aman selama kehamilan bila tidak ada kontraindikasi.',
           tutorialLangkah: [
             'Konsultasikan dulu dengan tenaga kesehatan.',
             'Lakukan 20-30 menit aktivitas ringan 3-5 kali/minggu.',
@@ -112,7 +116,8 @@ class _EdukasiDetailScreenState extends State<EdukasiDetailScreen> {
 
       case 'Persiapan Persalinan':
         return const _EdukasiArticle(
-          ringkasan: 'Persiapan persalinan mencakup rencana persalinan, pengecekan fasilitas tujuan, dan pengenalan tanda persalinan.',
+          ringkasan:
+              'Persiapan persalinan mencakup rencana persalinan, pengecekan fasilitas tujuan, dan pengenalan tanda persalinan.',
           tutorialLangkah: [
             'Buat rencana persalinan bersama tenaga kesehatan.',
             'Kenali tanda awal persalinan: kontraksi teratur, pecah ketuban, perdarahan.'
@@ -132,7 +137,8 @@ class _EdukasiDetailScreenState extends State<EdukasiDetailScreen> {
       case 'Tanda Bahaya Trimester 2':
       case 'Tanda Bahaya Trimester 3':
         return const _EdukasiArticle(
-          ringkasan: 'Tanda bahaya pada kehamilan dapat muncul di tiap trimester. Kenali tanda seperti perdarahan, nyeri perut hebat, pusing berat, atau penurunan gerak janin.',
+          ringkasan:
+              'Tanda bahaya pada kehamilan dapat muncul di tiap trimester. Kenali tanda seperti perdarahan, nyeri perut hebat, pusing berat, atau penurunan gerak janin.',
           tutorialLangkah: [
             'Segera hubungi faskes terdekat bila muncul perdarahan atau nyeri hebat.',
             'Catat gejala dan waktu muncul untuk laporan ke tenaga kesehatan.',
@@ -151,7 +157,8 @@ class _EdukasiDetailScreenState extends State<EdukasiDetailScreen> {
 
       case 'Tanda Bahaya Persalinan / Nifas':
         return const _EdukasiArticle(
-          ringkasan: 'Tanda bahaya pasca persalinan (nifas) meliputi perdarahan berat, demam tinggi, nyeri hebat, atau bau tidak sedap pada lochia.',
+          ringkasan:
+              'Tanda bahaya pasca persalinan (nifas) meliputi perdarahan berat, demam tinggi, nyeri hebat, atau bau tidak sedap pada lochia.',
           tutorialLangkah: [
             'Segera bawa ibu ke fasilitas kesehatan jika ada perdarahan yang banyak atau demam tinggi.',
           ],
@@ -168,7 +175,8 @@ class _EdukasiDetailScreenState extends State<EdukasiDetailScreen> {
 
       case 'IMD: Manfaat dan Teknik':
         return const _EdukasiArticle(
-          ringkasan: 'Inisiasi Menyusu Dini (IMD) membantu ikatan ibu-anak dan meningkatkan keberhasilan menyusui. Dilakukan segera setelah lahir jika kondisi memungkinkan.',
+          ringkasan:
+              'Inisiasi Menyusu Dini (IMD) membantu ikatan ibu-anak dan meningkatkan keberhasilan menyusui. Dilakukan segera setelah lahir jika kondisi memungkinkan.',
           tutorialLangkah: [
             'Letakkan bayi di dada ibu segera setelah lahir dan biarkan mencari puting sendiri.',
             'Bantu posisi dan dukung bila diperlukan oleh tenaga kesehatan.',
@@ -185,7 +193,8 @@ class _EdukasiDetailScreenState extends State<EdukasiDetailScreen> {
 
       case 'Teknik Menyusui Efektif':
         return const _EdukasiArticle(
-          ringkasan: 'Teknik menyusui yang benar membantu mencegah nyeri puting dan memastikan bayi mendapat ASI yang cukup.',
+          ringkasan:
+              'Teknik menyusui yang benar membantu mencegah nyeri puting dan memastikan bayi mendapat ASI yang cukup.',
           tutorialLangkah: [
             'Pastikan posisi nyaman dan bayi menganga lebar sebelum menempel.',
             'Dukung kepala dan badan bayi sehingga perut bayi menghadap perut ibu.',
@@ -417,11 +426,12 @@ class _EdukasiDetailScreenState extends State<EdukasiDetailScreen> {
   Widget build(BuildContext context) {
     final _EdukasiArticle article = _buildArticleByTitle(widget.title);
     final int totalSteps = article.tutorialLangkah.length;
-    final int currentStep = totalSteps == 0
-        ? 0
-        : _currentStep.clamp(0, totalSteps - 1);
-    final bool isLastStep = totalSteps == 0 ? true : currentStep == totalSteps - 1;
-    final double progress = totalSteps == 0 ? 0 : (currentStep + 1) / totalSteps;
+    final int currentStep =
+        totalSteps == 0 ? 0 : _currentStep.clamp(0, totalSteps - 1);
+    final bool isLastStep =
+        totalSteps == 0 ? true : currentStep == totalSteps - 1;
+    final double progress =
+        totalSteps == 0 ? 0 : (currentStep + 1) / totalSteps;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
@@ -668,27 +678,13 @@ class _EdukasiDetailScreenState extends State<EdukasiDetailScreen> {
             ),
           ),
           ...article.tutorialLangkah.asMap().entries.map(
-            (entry) => _TutorialStepCard(
-              index: entry.key + 1,
-              text: entry.value,
-              isActive: entry.key == currentStep,
-              isPassed: entry.key < currentStep,
-            ),
-          ),
-          const Padding(
-            padding: EdgeInsets.fromLTRB(20, 16, 20, 0),
-            child: Text(
-              'Materi Inti',
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w700,
-                color: Color(0xFF1E293B),
+                (entry) => _TutorialStepCard(
+                  index: entry.key + 1,
+                  text: entry.value,
+                  isActive: entry.key == currentStep,
+                  isPassed: entry.key < currentStep,
+                ),
               ),
-            ),
-          ),
-          ...article.bagian.map(
-            (section) => _ExpandableSection(section: section),
-          ),
           const Padding(
             padding: EdgeInsets.fromLTRB(20, 18, 20, 0),
             child: Text(
@@ -785,9 +781,8 @@ class _TutorialStepCard extends StatelessWidget {
             height: 26,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: isActive
-                  ? const Color(0xFF2563EB)
-                  : const Color(0xFFDBEAFE),
+              color:
+                  isActive ? const Color(0xFF2563EB) : const Color(0xFFDBEAFE),
               shape: BoxShape.circle,
             ),
             child: Text(
