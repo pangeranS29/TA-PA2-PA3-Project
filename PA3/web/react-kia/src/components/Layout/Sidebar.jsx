@@ -309,7 +309,7 @@ const Sidebar = () => {
       </nav>
 
       {/* Footer Info Wilayah (hanya untuk bidan) */}
-      {isBidan && (
+      {/* {isBidan && (
         <div className="mt-auto pt-6">
           <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100">
             <h4 className="text-sm font-bold text-slate-800">Wilayah aktif</h4>
@@ -318,7 +318,7 @@ const Sidebar = () => {
             </p>
           </div>
         </div>
-      )}
+      )} */}
     </aside>
   );
 };
