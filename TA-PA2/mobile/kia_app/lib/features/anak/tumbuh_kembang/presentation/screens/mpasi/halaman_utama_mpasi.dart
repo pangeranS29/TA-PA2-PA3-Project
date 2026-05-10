@@ -6,12 +6,12 @@ import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/scr
 import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/screens/mpasi/resep_mpasi.dart';
 
 class HalamanUtamaMpasiScreen extends StatefulWidget {
-  final Map<String, dynamic> anak;
+  // final Map<String, dynamic> anak;
 
-  const HalamanUtamaMpasiScreen({
-    super.key,
-    required this.anak,
-  });
+  // const HalamanUtamaMpasiScreen({
+  //   super.key,
+  //   required this.anak,
+  // });
 
   @override
   State<HalamanUtamaMpasiScreen> createState() =>
@@ -40,7 +40,8 @@ class _HalamanUtamaMpasiScreenState extends State<HalamanUtamaMpasiScreen> {
         anakData = AnakDetailModel(
           id: 1,
           noKartuKeluarga: 1234567890,
-          namaAnak: widget.anak['nama'] ?? 'Anak',
+          // namaAnak: widget.anak['nama'] ?? 'Anak',
+          namaAnak: 'Anak',
           jenisKelamin: 'Laki-laki',
           tanggalLahir: '2025-09-27',
           beratLahir: 3.5,

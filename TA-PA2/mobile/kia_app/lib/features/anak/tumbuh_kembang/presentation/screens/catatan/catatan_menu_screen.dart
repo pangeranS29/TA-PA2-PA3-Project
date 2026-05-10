@@ -116,7 +116,10 @@ class CatatanMenuScreen extends StatelessWidget {
               onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => const CatatanLilaScreen(),
+                  builder: (_) => CatatanLilaScreen(
+                    anakId: anakId,
+                    anakName: anakName,
+                  ),
                 ),
               ),
             ),
