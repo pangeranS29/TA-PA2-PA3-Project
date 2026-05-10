@@ -426,10 +426,21 @@ export default function PemeriksaanDokterT1Complete() {
         });
       }
 
+      // Destructure form untuk menghapus field redundan sesuai README_PERBAIKAN_TRIMESTER.md
+      // Backend sekarang otomatis mengisi tanggal-tanggal ini
+      const { 
+        tanggal_periksa, 
+        hpl_berdasarkan_hpht, 
+        hpl_berdasarkan_usg, 
+        tanggal_lab, 
+        tanggal_skrining_jiwa,
+        ...formClean 
+      } = form;
+
       const payload = {
-        ...form,
+        ...formClean,
         kehamilan_id: kehamilan.id,
-        gambar_usg: imageBase64, // hasil base64 dari file baru atau yang sudah ada
+        gambar_usg: imageBase64,
         umur_hamil_hpht_minggu: form.umur_hamil_hpht_minggu ? parseInt(form.umur_hamil_hpht_minggu) : null,
         umur_hamil_usg_minggu: form.umur_hamil_usg_minggu ? parseInt(form.umur_hamil_usg_minggu) : null,
         usg_diameter_gs_cm: form.usg_diameter_gs_cm ? parseFloat(form.usg_diameter_gs_cm) : null,
