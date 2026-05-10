@@ -15,6 +15,8 @@ require (
 	gorm.io/gorm v1.31.1
 )
 
+require github.com/lib/pq v1.12.3 // indirect
+
 require (
 	filippo.io/edwards25519 v1.1.0 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect

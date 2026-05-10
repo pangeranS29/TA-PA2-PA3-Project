@@ -6,6 +6,7 @@ class InformasiUmumModel {
   final String durasiBaca;
   final String ringkasan;
   final String konten;
+  final String yangPerluDiingat;
   final String thumbnailUrl;
   final bool isActive;
 
@@ -17,6 +18,7 @@ class InformasiUmumModel {
     required this.durasiBaca,
     required this.ringkasan,
     required this.konten,
+    required this.yangPerluDiingat,
     required this.thumbnailUrl,
     required this.isActive,
   });
@@ -30,6 +32,7 @@ class InformasiUmumModel {
       durasiBaca: _asString(json['durasi_baca']),
       ringkasan: _asString(json['ringkasan']),
       konten: _asString(json['konten']),
+      yangPerluDiingat: _asString(json['yang_perlu_diingat']),
       thumbnailUrl: _asString(json['thumbnail_url']),
       isActive: _asBool(json['is_active'], fallback: true),
     );

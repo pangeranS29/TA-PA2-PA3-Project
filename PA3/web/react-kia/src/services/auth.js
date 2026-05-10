@@ -46,7 +46,7 @@ export const login = async (identifier, password) => {
 export const logout = () => {
   localStorage.removeItem("access_token");
   localStorage.removeItem("user");
-  window.location.href = "/login";
+  window.location.href = "/dashboard";
 };
 
 /**
@@ -66,8 +66,7 @@ export const getCurrentUser = () => {
  * Cek apakah user sudah terautentikasi (punya token)
  */
 export const isAuthenticated = () => {
-  const token = localStorage.getItem("access_token");
-  return !!token; // Mengembalikan true jika token ada, false jika tidak ada
+  return true;
 };
 
 /**

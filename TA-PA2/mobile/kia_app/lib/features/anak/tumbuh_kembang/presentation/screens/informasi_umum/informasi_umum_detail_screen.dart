@@ -89,6 +89,44 @@ class InformasiUmumDetailScreen extends StatelessWidget {
               ),
             ),
           ],
+
+          if (item.yangPerluDiingat.trim().isNotEmpty) ...[
+            const SizedBox(height: 14),
+            _SectionCard(
+              title: 'Yang Perlu Diingat',
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: _parseReminderItems(item.yangPerluDiingat)
+                    .map(
+                      (reminder) => Padding(
+                        padding: const EdgeInsets.only(bottom: 10),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Padding(
+                              padding: EdgeInsets.only(top: 3, right: 10),
+                              child: Icon(Icons.lightbulb_outline,
+                                  size: 18, color: Color(0xFF2563EB)),
+                            ),
+                            Expanded(
+                              child: Text(
+                                reminder,
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  color: Color(0xFF475569),
+                                  height: 1.6,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                    .toList(),
+              ),
+            ),
+          ],
+
           const SizedBox(height: 14),
           // Tutorial Edukasi (numbered steps)
           Builder(builder: (_) {
@@ -147,59 +185,48 @@ class InformasiUmumDetailScreen extends StatelessWidget {
             return const SizedBox.shrink();
           }),
 
-          const SizedBox(height: 14),
-          // Materi Inti as accordion
-          Builder(builder: (_) {
-            final sections = _parseSections(item.konten);
-            if (sections.isNotEmpty) {
+          if (item.yangPerluDiingat.trim().isEmpty) ...[
+            const SizedBox(height: 14),
+            Builder(builder: (_) {
+              final reminders = _parseReminders(item.konten);
+              if (reminders.isEmpty) {
+                return const SizedBox.shrink();
+              }
               return _SectionCard(
-                title: 'Materi Inti',
-                child: _AccordionSections(sections: sections),
-              );
-            }
-            return const SizedBox.shrink();
-          }),
-
-          const SizedBox(height: 14),
-          // Yang Perlu Diingat box
-          Builder(builder: (_) {
-            final reminders = _parseReminders(item.konten);
-            if (reminders.isNotEmpty) {
-              return Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFEFFAF9),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.blue.shade50),
-                ),
+                title: 'Yang Perlu Diingat',
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('Yang Perlu Diingat',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w700, fontSize: 15)),
-                    const SizedBox(height: 12),
-                    ...reminders.map((r) => Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Padding(
-                              padding: EdgeInsets.only(top: 4, right: 10),
-                              child: Icon(Icons.lightbulb_outline,
-                                  size: 18, color: Color(0xFF2563EB)),
-                            ),
-                            Expanded(
-                                child: Text(r,
-                                    style: const TextStyle(
-                                        color: Color(0xFF1E293B)))),
-                          ],
-                        ))
-                  ],
+                  children: reminders
+                      .map(
+                        (reminder) => Padding(
+                          padding: const EdgeInsets.only(bottom: 10),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Padding(
+                                padding: EdgeInsets.only(top: 3, right: 10),
+                                child: Icon(Icons.lightbulb_outline,
+                                    size: 18, color: Color(0xFF2563EB)),
+                              ),
+                              Expanded(
+                                child: Text(
+                                  reminder,
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    color: Color(0xFF475569),
+                                    height: 1.6,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
+                      .toList(),
                 ),
               );
-            }
-            return const SizedBox.shrink();
-          }),
+            }),
+          ],
         ],
       ),
     );
@@ -269,6 +296,17 @@ class InformasiUmumDetailScreen extends StatelessWidget {
       }
     }
     return reminders.reversed.toList();
+  }
+
+  List<String> _parseReminderItems(String text) {
+    final lines = text
+        .split(RegExp(r"\n+"))
+        .map((line) => line.trim())
+        .where((line) => line.isNotEmpty)
+        .map((line) => line.replaceFirst(RegExp(r"^[-•*\d\.)\s]+"), ''))
+        .where((line) => line.isNotEmpty)
+        .toList();
+    return lines.isNotEmpty ? lines : _parseReminders(text);
   }
 }
 
