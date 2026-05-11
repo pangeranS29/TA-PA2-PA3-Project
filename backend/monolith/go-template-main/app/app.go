@@ -92,6 +92,11 @@ func (m *Main) Init() (err error) {
 	// if err != nil {
 	// 	return
 	// }
+	// Migrate Tabel
+	// err = models.AutoMigrate(m.database.Postgres)
+	// if err != nil {
+	// 	return
+	// }
 
 	// // Seeder
 	// err = seed.RunAllSeed(m.database.Postgres)

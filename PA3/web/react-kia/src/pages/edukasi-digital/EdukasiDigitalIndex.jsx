@@ -30,11 +30,14 @@ export default function EdukasiDigitalIndex() {
   }, []);
 
   const handleLihatSemua = (resourcePath) => {
-    navigate(`/edukasi-digital/${resourcePath.split('/').pop()}`);
+    // Hapus prefix "edukasi-" dari path untuk mendapatkan route segment
+    const segment = resourcePath.replace(/^edukasi-/, "");
+    navigate(`/edukasi-digital/${segment}`);
   };
 
   const handleTambah = (resourcePath) => {
-    navigate(`/edukasi-digital/${resourcePath.split('/').pop()}`);
+    const segment = resourcePath.replace(/^edukasi-/, "");
+    navigate(`/edukasi-digital/${segment}`);
   };
 
   return (

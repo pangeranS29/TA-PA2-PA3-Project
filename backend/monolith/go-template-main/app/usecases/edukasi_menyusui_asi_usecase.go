@@ -43,6 +43,10 @@ func (u *edukasiMenyusuiASIUsecase) Update(id int32, data *models.EdukasiMenyusu
 	existing.Judul = data.Judul
 	existing.GambarURL = data.GambarURL
 	existing.Isi = data.Isi
+	existing.ManfaatASI = data.ManfaatASI
+	existing.Cara = data.Cara
+	existing.Masalah = data.Masalah
+	existing.Solusi = data.Solusi
 
 	return u.repo.Update(existing)
 }

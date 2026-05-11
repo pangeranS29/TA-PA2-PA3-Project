@@ -70,7 +70,7 @@ func (u *AnakUseCase) CreateAnak(req models.CreateAnakRequest) (*models.AnakResp
 
 	anak := &models.Anak{
 		KehamilanID:     req.KehamilanID,
-		PendudukID:      req.PendudukID,
+		PendudukID:      pendudukID, // Gunakan pendudukID (bisa dari auto-create atau req.PendudukID)
 		BeratLahirKg:    req.BeratLahirKg,
 		TinggiLahirCm:   req.TinggiLahirCm,
 		AnakKe:          req.AnakKe,
@@ -195,9 +195,45 @@ func (u *AnakUseCase) UpdateAnak(id int32, req models.UpdateAnakRequest) (*model
 		return nil, err
 	}
 
-	resp := u.toAnakResponse(anak)
+	// ── Perbarui data Kependudukan (Penduduk) jika ada perubahan ──
+	if anak.PendudukID > 0 && (req.Nama != "" || req.JenisKelamin != "" || req.TanggalLahir != "") {
+		penduduk, pendudukErr := u.kependudukanRepo.FindByID(anak.PendudukID)
+		if pendudukErr == nil && penduduk != nil {
+			changed := false
+			if req.Nama != "" && req.Nama != penduduk.NamaLengkap {
+				penduduk.NamaLengkap = req.Nama
+				changed = true
+			}
+			if req.JenisKelamin != "" && req.JenisKelamin != penduduk.JenisKelamin {
+				penduduk.JenisKelamin = req.JenisKelamin
+				changed = true
+			}
+			if req.TanggalLahir != "" {
+				tgl, parseErr := time.Parse("2006-01-02", req.TanggalLahir)
+				if parseErr == nil && !tgl.IsZero() {
+					currentTgl := penduduk.TanggalLahir.Format("2006-01-02")
+					if currentTgl != req.TanggalLahir {
+						penduduk.TanggalLahir = tgl
+						changed = true
+					}
+				}
+			}
+			if changed {
+				_ = u.kependudukanRepo.Update(penduduk)
+			}
+		}
+	}
+
+	// Re-fetch untuk mendapatkan data Penduduk terbaru
+	updatedAnak, err := u.anakRepo.FindByID(id)
+	if err != nil {
+		resp := u.toAnakResponse(anak)
+		return &resp, nil
+	}
+	resp := u.toAnakResponse(updatedAnak)
 	return &resp, nil
 }
+
 
 // ====================== DELETE ======================
 func (u *AnakUseCase) DeleteAnak(id int32) error {

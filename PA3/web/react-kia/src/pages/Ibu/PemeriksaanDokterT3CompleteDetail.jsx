@@ -325,13 +325,21 @@ export default function PemeriksaanDokterT3CompleteDetail() {
 
   // Hapus pemeriksaan utama T3
   const handleDelete = async () => {
-    if (!window.confirm("Apakah Anda yakin ingin menghapus semua data pemeriksaan Trimester 3 ini?"))
+    if (!window.confirm("Apakah Anda yakin ingin menghapus data pemeriksaan Trimester 3 ini? Seluruh Catatan Pelayanan pada Trimester ini juga akan ikut terhapus."))
       return;
     try {
+      // Hapus semua catatan pelayanan T3 terkait terlebih dahulu
+      if (catatanList.length > 0) {
+        const deleteNotesPromises = catatanList.map((c) => deleteCatatanT3(c.id_catatan_t3));
+        await Promise.all(deleteNotesPromises);
+      }
+
+      // Hapus data pemeriksaan utama
       await deleteDokterT3Complete(data.dokter.id);
-      alert("Data berhasil dihapus.");
+      alert("Data pemeriksaan T3 dan catatan terkait berhasil dihapus.");
       navigate(`/data-ibu/${id}`);
     } catch (err) {
+      console.error("Delete error:", err);
       alert("Gagal menghapus data.");
     }
   };

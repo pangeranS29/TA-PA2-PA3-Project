@@ -4,6 +4,7 @@ import (
 	"monitoring-service/app/repositories"
 	"monitoring-service/pkg/config"
 )
+
 type Main struct {
 	repository *repositories.Main
 	config     *config.Config
@@ -36,17 +37,17 @@ type Main struct {
 	CatatanPelayananTrimester3    CatatanPelayananTrimester3Usecase
 	CatatanPelayananNifas         CatatanPelayananNifasUsecase
 	// GrafikEvaluasiKehamilan       GrafikEvaluasiKehamilanUsecase
-	GrafikPeningkatanBB           GrafikPeningkatanBBUsecase
-	PenjelasanHasilGrafik         PenjelasanHasilGrafikUsecase
-	RencanaPersalinan             RencanaPersalinanUsecase
-	RingkasanPelayananPersalinan  RingkasanPelayananPersalinanUsecase
-	RiwayatProsesMelahirkan       RiwayatProsesMelahirkanUsecase
-	Rujukan                       RujukanUsecase
-	SkriningDMGestasional         SkriningDMGestasionalUsecase
-	SkriningPreeklampsia          SkriningPreeklampsiaUsecase
-	PelayananIbuNifas             PelayananIbuNifasUsecase
-	Ibu                           IbuUsecase
-	RiwayatKehamilanLalu          RiwayatKehamilanLaluUsecase
+	GrafikPeningkatanBB          GrafikPeningkatanBBUsecase
+	PenjelasanHasilGrafik        PenjelasanHasilGrafikUsecase
+	RencanaPersalinan            RencanaPersalinanUsecase
+	RingkasanPelayananPersalinan RingkasanPelayananPersalinanUsecase
+	RiwayatProsesMelahirkan      RiwayatProsesMelahirkanUsecase
+	Rujukan                      RujukanUsecase
+	SkriningDMGestasional        SkriningDMGestasionalUsecase
+	SkriningPreeklampsia         SkriningPreeklampsiaUsecase
+	PelayananIbuNifas            PelayananIbuNifasUsecase
+	Ibu                          IbuUsecase
+	RiwayatKehamilanLalu         RiwayatKehamilanLaluUsecase
 	// RegisterOrangTua              *RegisterOrangTuaUsecase
 	AdminAkunKeluarga    *AdminAkunKeluargaUsecase
 	AdminTenagaKesehatan *AdminTenagaKesehatanUsecase
@@ -54,24 +55,25 @@ type Main struct {
 	JenisPelayanan       JenisPelayananUsecase
 
 	// Usecase tambahan
-	KeluhanAnak                        KeluhanAnakUseCase
-	KesehatanLingkungan                KesehatanLingkunganUsecase
-	KesehatanLingkunganDanCatatanKader KesehatanLingkunganDanCatatanKaderUsecase
-	PemantauanAnak                     PemantauanAnakUseCase
-	PerkembanganAnak                   PerkembanganAnakUseCase
-	PemantauanIndikator                PemantauanIndikatorUsecase
+	KeluhanAnak         KeluhanAnakUseCase
+	KesehatanLingkungan KesehatanLingkunganUsecase
+	// KesehatanLingkunganDanCatatanKader KesehatanLingkunganDanCatatanKaderUsecase
+	PemantauanAnak PemantauanAnakUseCase
+	// PerkembanganAnak                   PerkembanganAnakUseCase
+	PemantauanIndikator PemantauanIndikatorUsecase
 
 	// Edukasi Digital
-	EdukasiInformasiUmum           EdukasiInformasiUmumUsecase
-	EdukasiTandaBahayaTrimester    EdukasiTandaBahayaTrimesterUsecase
-	EdukasiTandaMelahirkan        EdukasiTandaMelahirkanUsecase
-	EdukasiImd                    EdukasiIMDUsecase
-	EdukasiSetelahMelahirkan      EdukasiSetelahMelahirkanUsecase
-	EdukasiMenyusuiAsi            EdukasiMenyusuiASIUsecase
-	EdukasiPolaAsuh               EdukasiPolaAsuhUsecase
-	EdukasiKesehatanMental        EdukasiKesehatanMentalUsecase
-	EdukasiPerawatanAnak          EdukasiPerawatanAnakUseCase
-	EdukasiMPASI                  EdukasiMPASIUsecase
+	EdukasiInformasiUmum        EdukasiInformasiUmumUsecase
+	EdukasiNifas                EdukasiNifasUsecase
+	EdukasiTandaBahayaTrimester EdukasiTandaBahayaTrimesterUsecase
+	EdukasiTandaMelahirkan      EdukasiTandaMelahirkanUsecase
+	EdukasiImd                  EdukasiIMDUsecase
+	EdukasiSetelahMelahirkan    EdukasiSetelahMelahirkanUsecase
+	EdukasiMenyusuiAsi          EdukasiMenyusuiASIUsecase
+	EdukasiPolaAsuh             EdukasiPolaAsuhUsecase
+	EdukasiKesehatanMental      EdukasiKesehatanMentalUsecase
+	EdukasiPerawatanAnak        EdukasiPerawatanAnakUseCase
+	EdukasiMPASI                EdukasiMPASIUsecase
 }
 
 type Options struct {
@@ -85,6 +87,12 @@ func Init(opts Options) *Main {
 		config:     opts.Config,
 	}
 
+	 //  BUAT PREDIKSI USECASE (panggil service Python)
+    mlURL := "http://localhost:8001"
+    if opts.Config != nil && opts.Config.MLServiceURL != "" {
+        mlURL = opts.Config.MLServiceURL
+    }
+    prediksiUc := NewPrediksiRisikoUsecase(mlURL)
 	// Inisialisasi usecase yang sudah ada
 	m.Anak = NewAnakUseCase(opts.Repository.Anak, opts.Repository.Kependudukan)
 	m.PelayananKesehatanAnak = NewPelayananKesehatanAnakUseCase(opts.Repository.PelayananKesehatanAnak)
@@ -100,7 +108,7 @@ func Init(opts Options) *Main {
 	// Inisialisasi usecase baru
 	// m.KartuKeluarga = NewKartuKeluargaUsecase(opts.Repository.KartuKeluarga)
 	m.Kehamilan = NewKehamilanUsecase(opts.Repository.Kehamilan)
-	m.PemeriksaanKehamilan = NewPemeriksaanKehamilanUsecase(opts.Repository.PemeriksaanKehamilan, opts.Repository.Kehamilan)
+	m.PemeriksaanKehamilan = NewPemeriksaanKehamilanUsecase(opts.Repository.PemeriksaanKehamilan, opts.Repository.Kehamilan, prediksiUc,)
 	m.EvaluasiKesehatanIbu = NewEvaluasiKesehatanIbuUsecase(opts.Repository.EvaluasiKesehatanIbu)
 	// di dalam func Init(opts Options) *Main
 	// ...
@@ -159,13 +167,14 @@ func Init(opts Options) *Main {
 	// Usecase tambahan
 	m.KeluhanAnak = NewKeluhanAnakUseCase(opts.Repository.KeluhanAnak)
 	m.KesehatanLingkungan = NewKesehatanLingkunganUsecase(opts.Repository.KesehatanLingkungan)
-	m.KesehatanLingkunganDanCatatanKader = NewKesehatanLingkunganDanCatatanKaderUsecase(opts.Repository.KesehatanLingkunganDanCatatanKader)
+	// m.KesehatanLingkunganDanCatatanKader = NewKesehatanLingkunganDanCatatanKaderUsecase(opts.Repository.KesehatanLingkunganDanCatatanKader)
 	m.PemantauanAnak = NewPemantauanAnakUseCase(opts.Repository.PemantauanAnak)
-	m.PerkembanganAnak = NewPerkembanganAnakUseCase(opts.Repository.PerkembanganAnak)
+	// m.PerkembanganAnak = NewPerkembanganAnakUseCase(opts.Repository.PerkembanganAnak)
 	m.PemantauanIndikator = NewPemantauanIndikatorUsecase(opts.Repository.PemantauanIndikator)
 
 	// Edukasi Digital
 	m.EdukasiInformasiUmum = NewEdukasiInformasiUmumUsecase(opts.Repository.EdukasiInformasiUmum)
+	m.EdukasiNifas = NewEdukasiNifasUsecase(opts.Repository.EdukasiNifas)
 	m.EdukasiTandaBahayaTrimester = NewEdukasiTandaBahayaTrimesterUsecase(opts.Repository.EdukasiTandaBahayaTrimester)
 	m.EdukasiTandaMelahirkan = NewEdukasiTandaMelahirkanUsecase(opts.Repository.EdukasiTandaMelahirkan)
 	m.EdukasiImd = NewEdukasiIMDUsecase(opts.Repository.EdukasiImd)

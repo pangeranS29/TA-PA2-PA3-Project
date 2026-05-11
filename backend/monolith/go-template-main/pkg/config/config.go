@@ -8,14 +8,15 @@ import (
 )
 
 type Config struct {
-	ServiceHost        string           `mapstructure:"service_host" json:"service_host"`
-	ServiceEndpointV   string           `mapstructure:"service_endpoint_v" json:"service_endpoint_v"`
-	ServiceEnvironment string           `mapstructure:"service_environment" json:"service_environment"`
-	ServicePort        string           `mapstructure:"service_port" json:"service_port"`
-	JWTSecret          string           `mapstructure:"jwt_secret" json:"jwt_secret"`
-	JWTAccessTokenMins int              `mapstructure:"jwt_access_token_mins" json:"jwt_access_token_mins"`
-	TenagaKesehatanRole string 			`mapstructure:"tenaga_kesehatan_role" json:"tenaga_kesehatan_role"`
-	Database           DatabasePlatform `mapstructure:"database" json:"database"`
+	ServiceHost         string           `mapstructure:"service_host" json:"service_host"`
+	ServiceEndpointV    string           `mapstructure:"service_endpoint_v" json:"service_endpoint_v"`
+	ServiceEnvironment  string           `mapstructure:"service_environment" json:"service_environment"`
+	ServicePort         string           `mapstructure:"service_port" json:"service_port"`
+	JWTSecret           string           `mapstructure:"jwt_secret" json:"jwt_secret"`
+	JWTAccessTokenMins  int              `mapstructure:"jwt_access_token_mins" json:"jwt_access_token_mins"`
+	TenagaKesehatanRole string           `mapstructure:"tenaga_kesehatan_role" json:"tenaga_kesehatan_role"`
+	Database            DatabasePlatform `mapstructure:"database" json:"database"`
+	MLServiceURL        string           `mapstructure:"ML_SERVICE_URL"`
 }
 
 func NewConfig() *Config {

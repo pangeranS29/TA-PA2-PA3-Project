@@ -108,6 +108,7 @@ const Sidebar = () => {
         { path: "/edukasi-digital/tanda-melahirkan", name: "Tanda Melahirkan", icon: ClipboardList },
         { path: "/edukasi-digital/imd", name: "Edukasi IMD", icon: ClipboardList },
         { path: "/edukasi-digital/setelah-melahirkan", name: "Setelah Melahirkan", icon: ClipboardList },
+        { path: "/edukasi-digital/nifas", name: "Edukasi Nifas", icon: ClipboardList },
         { path: "/edukasi-digital/menyusui-asi", name: "Menyusui & ASI", icon: ClipboardList },
         { path: "/edukasi-digital/pola-asuh", name: "Pola Asuh", icon: ClipboardList },
         { path: "/edukasi-digital/kesehatan-mental", name: "Kesehatan Mental", icon: ClipboardList },
@@ -309,7 +310,7 @@ const Sidebar = () => {
       </nav>
 
       {/* Footer Info Wilayah (hanya untuk bidan) */}
-      {isBidan && (
+      {/* {isBidan && (
         <div className="mt-auto pt-6">
           <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100">
             <h4 className="text-sm font-bold text-slate-800">Wilayah aktif</h4>
@@ -318,7 +319,7 @@ const Sidebar = () => {
             </p>
           </div>
         </div>
-      )}
+      )} */}
     </aside>
   );
 };

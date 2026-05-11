@@ -348,13 +348,21 @@ export default function PemeriksaanDokterT1CompleteDetail() {
 
   // ── Hapus pemeriksaan utama ──────────────────────────────────────────────
   const handleDelete = async () => {
-    if (!window.confirm("Apakah Anda yakin ingin menghapus semua data pemeriksaan ini?"))
+    if (!window.confirm("Apakah Anda yakin ingin menghapus semua data pemeriksaan ini? Seluruh Catatan Pelayanan pada Trimester ini juga akan ikut terhapus."))
       return;
     try {
+      // Hapus semua catatan pelayanan T1 terkait terlebih dahulu
+      if (catatanList.length > 0) {
+        const deleteNotesPromises = catatanList.map((c) => deleteCatatanT1(c.id_catatan));
+        await Promise.all(deleteNotesPromises);
+      }
+
+      // Hapus data pemeriksaan utama
       await deleteDokterT1Complete(data.dokter.id);
-      alert("Data berhasil dihapus.");
+      alert("Data pemeriksaan dan catatan terkait berhasil dihapus.");
       navigate(`/data-ibu/${id}`);
     } catch (err) {
+      console.error("Delete error:", err);
       alert("Gagal menghapus data.");
     }
   };
