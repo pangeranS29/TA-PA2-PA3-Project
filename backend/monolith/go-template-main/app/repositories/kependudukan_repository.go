@@ -22,7 +22,6 @@ type EligiblePendudukItem struct {
 	JenisKelamin    string `json:"jenis_kelamin"`
 	Kecamatan       string `json:"kecamatan"`
 	Desa            string `json:"desa"`
-	NomorTelepon    string `json:"nomor_telepon"`
 }
 
 type PosyanduItem struct {
@@ -35,6 +34,7 @@ type RekapDusun struct {
 	Dusun     string `json:"dusun"`
 	Total     int64  `json:"total"`
 }
+
 func NewKependudukanRepository(db *gorm.DB) *KependudukanRepository {
 	return &KependudukanRepository{db: db}
 }
@@ -123,7 +123,7 @@ func (r *KependudukanRepository) ListEligibleForRole(role, search, kecamatan, de
 
 	var list []EligiblePendudukItem
 	q := r.db.Table("penduduk p").
-		Select("p.id, p.kartu_keluarga_id, p.nik, p.nama_lengkap, p.jenis_kelamin, p.kecamatan, p.desa, p.nomor_telepon").
+		Select("p.id, p.kartu_keluarga_id, p.nik, p.nama_lengkap, p.jenis_kelamin, p.kecamatan, p.desa").
 		Where("p.deleted_at IS NULL")
 
 	if search != "" {

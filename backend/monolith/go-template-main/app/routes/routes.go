@@ -26,7 +26,9 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	admin := e.Group("/admin")
 	admin.Use(middlewares.JWTAuth(controller.JWTSecret()))
 	admin.Use(middlewares.AdminOnly())
-	admin.POST("/akun-keluarga", controller.AdminCreateAkunKeluarga)
+	// NOTE: Admin hanya bisa membuat Kartu Keluarga + Anggota (Penduduk)
+	// Tidak bisa membuat akun user lagi
+	admin.POST("/kartu-keluarga", controller.AdminCreateKartuKeluarga)
 	admin.GET("/kartu-keluarga", controller.AdminListKartuKeluarga)
 	admin.GET("/kartu-keluarga/:kartu_keluarga_id", controller.AdminDetailKartuKeluarga)
 	admin.PUT("/kartu-keluarga/:kartu_keluarga_id", controller.AdminUpdateKartuKeluarga)
@@ -34,19 +36,32 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	admin.POST("/kartu-keluarga/:kartu_keluarga_id/anggota", controller.AdminAddAnggotaKeluarga)
 	admin.DELETE("/kartu-keluarga/:kartu_keluarga_id/anggota/:penduduk_id", controller.AdminDeleteAnggotaKeluarga)
 	admin.DELETE("/kartu-keluarga/:kartu_keluarga_id", controller.AdminDeleteKartuKeluarga)
-	admin.GET("/penduduk/eligible", controller.AdminListEligiblePenduduk)
-	admin.POST("/posyandu", controller.AdminTambahPosyandu)
-	admin.GET("/posyandu", controller.AdminListPosyandu)
-	admin.POST("/bidan", controller.AdminTambahBidan)
-	admin.GET("/bidan", controller.AdminListBidan)
-	admin.PUT("/bidan/:id", controller.AdminUpdateBidan)
-	admin.PATCH("/bidan/:id/status", controller.AdminUpdateStatusBidan)
-	admin.POST("/kader", controller.AdminTambahKader)
-	admin.GET("/kader", controller.AdminListKader)
-	admin.PUT("/kader/:id", controller.AdminUpdateKader)
-	admin.PATCH("/kader/:id/status", controller.AdminUpdateStatusKader)
 
-	// unused groups (kept for future use)
+	// ==================== MODUL BIDAN ====================
+
+	bidan := e.Group("/bidan")
+	bidan.Use(middlewares.JWTAuth(controller.JWTSecret()))
+	bidan.Use(middlewares.BidanOnly())
+
+	// Posyandu Management (Bidan manage posyandu mereka)
+	bidan.POST("/posyandu", controller.BidanCreatePosyandu)
+	bidan.GET("/posyandu", controller.BidanListPosyandu)
+	bidan.GET("/posyandu/:id", controller.BidanGetPosyanduDetail)
+	bidan.PUT("/posyandu/:id", controller.BidanUpdatePosyandu)
+
+	// Bidan Management (Bidan manage Bidan lain di posyandu mereka)
+	bidan.POST("", controller.BidanCreateBidan)
+	bidan.GET("", controller.BidanListBidan)
+	bidan.GET("/:id", controller.BidanGetBidanDetail)
+	bidan.PUT("/:id", controller.BidanUpdateBidan)
+	bidan.PATCH("/:id/status", controller.BidanUpdateBidanStatus)
+
+	// Kader Management (Bidan manage Kader di posyandu mereka)
+	bidan.POST("/kader", controller.BidanCreateKader)
+	bidan.GET("/kader", controller.BidanListKader)
+	bidan.GET("/kader/:id", controller.BidanGetKaderDetail)
+	bidan.PUT("/kader/:id", controller.BidanUpdateKader)
+	bidan.PATCH("/kader/:id/status", controller.BidanUpdateKaderStatus)
 	anak := e.Group("/anak")
 	anak.Use(middlewares.JWTAuth(controller.JWTSecret()))
 	_ = anak
@@ -205,11 +220,6 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	tenaga.POST("/lingkungan/kategori/:id/indikator", controller.KesehatanLingkungan.AddIndikator)
 	tenaga.DELETE("/lingkungan/indikator/:id", controller.KesehatanLingkungan.DeleteIndikator)
 	tenaga.DELETE("/lingkungan/:id", controller.KesehatanLingkungan.DeleteLembar)
-
-	// ==================== KADER MANAGEMENT (Bidan) ====================
-	tenaga.GET("/kader", controller.Kader.ListMyKader)
-	tenaga.GET("/kader/:id", controller.Kader.GetKaderDetail)
-	tenaga.PUT("/kader/:id", controller.Kader.UpdateKaderProfile)
 
 	// ==================== EDUKASI DIGITAL ====================
 	tenaga.GET("/edukasi-informasi-umum", controller.EdukasiInformasiUmum.GetAll)

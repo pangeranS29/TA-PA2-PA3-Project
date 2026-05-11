@@ -87,12 +87,12 @@ func Init(opts Options) *Main {
 		config:     opts.Config,
 	}
 
-	 //  BUAT PREDIKSI USECASE (panggil service Python)
-    mlURL := "http://localhost:8001"
-    if opts.Config != nil && opts.Config.MLServiceURL != "" {
-        mlURL = opts.Config.MLServiceURL
-    }
-    prediksiUc := NewPrediksiRisikoUsecase(mlURL)
+	//  BUAT PREDIKSI USECASE (panggil service Python)
+	mlURL := "http://localhost:8001"
+	if opts.Config != nil && opts.Config.MLServiceURL != "" {
+		mlURL = opts.Config.MLServiceURL
+	}
+	prediksiUc := NewPrediksiRisikoUsecase(mlURL)
 	// Inisialisasi usecase yang sudah ada
 	m.Anak = NewAnakUseCase(opts.Repository.Anak, opts.Repository.Kependudukan)
 	m.PelayananKesehatanAnak = NewPelayananKesehatanAnakUseCase(opts.Repository.PelayananKesehatanAnak)
@@ -108,7 +108,7 @@ func Init(opts Options) *Main {
 	// Inisialisasi usecase baru
 	// m.KartuKeluarga = NewKartuKeluargaUsecase(opts.Repository.KartuKeluarga)
 	m.Kehamilan = NewKehamilanUsecase(opts.Repository.Kehamilan)
-	m.PemeriksaanKehamilan = NewPemeriksaanKehamilanUsecase(opts.Repository.PemeriksaanKehamilan, opts.Repository.Kehamilan, prediksiUc,)
+	m.PemeriksaanKehamilan = NewPemeriksaanKehamilanUsecase(opts.Repository.PemeriksaanKehamilan, opts.Repository.Kehamilan, prediksiUc)
 	m.EvaluasiKesehatanIbu = NewEvaluasiKesehatanIbuUsecase(opts.Repository.EvaluasiKesehatanIbu)
 	// di dalam func Init(opts Options) *Main
 	// ...
@@ -149,8 +149,6 @@ func Init(opts Options) *Main {
 	// 	opts.Repository.Ibu,
 	// )
 	m.AdminAkunKeluarga = NewAdminAkunKeluargaUsecase(
-		opts.Repository.User,
-		opts.Repository.Role,
 		opts.Repository.KartuKeluarga,
 		opts.Repository.Kependudukan,
 	)
