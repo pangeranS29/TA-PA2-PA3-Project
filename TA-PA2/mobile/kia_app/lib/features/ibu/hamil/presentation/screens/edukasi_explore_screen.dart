@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:ta_pa2_pa3_project/core/themes/app_theme.dart';
-import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/data/models/informasi_umum_model.dart';
-import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/data/services/informasi_umum_api_service.dart';
-import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/screens/informasi_umum/informasi_umum_detail_screen.dart';
-import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/screens/pemantauan/perawatan/pilih_perawatan_screen.dart';
+import 'package:ta_pa2_pa3_project/features/anak/informasi_umum/data/models/informasi_umum_model.dart';
+import 'package:ta_pa2_pa3_project/features/anak/informasi_umum/data/services/informasi_umum_api_service.dart';
+import 'package:ta_pa2_pa3_project/features/anak/informasi_umum/presentation/screens/informasi_umum/informasi_umum_detail_screen.dart';
+import 'package:ta_pa2_pa3_project/features/anak/pemantauan/presentation/screens/perawatan/pilih_perawatan_screen.dart';
 
-import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/screens/edukasi/pedoman/pedoman_ibu_bayi_screen.dart';
-import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/screens/edukasi/pola_asuh_screen.dart';
+import 'package:ta_pa2_pa3_project/features/anak/edukasi/presentation/screens/edukasi/pedoman/pedoman_ibu_bayi_screen.dart';
+import 'package:ta_pa2_pa3_project/features/anak/edukasi/presentation/screens/edukasi/pola_asuh_screen.dart';
 
 class EdukasiExploreScreen extends StatefulWidget {
   const EdukasiExploreScreen({Key? key}) : super(key: key);
