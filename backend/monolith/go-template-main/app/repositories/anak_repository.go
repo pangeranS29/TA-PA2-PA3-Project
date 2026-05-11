@@ -6,7 +6,6 @@ import (
 	"monitoring-service/app/constants"
 	"monitoring-service/app/models"
 	"monitoring-service/pkg/customerror"
-	"gorm.io/gorm"
 )
 
 func (m *Main) GetAllAnak() ([]models.Anak, error) {
@@ -16,9 +15,6 @@ func (m *Main) GetAllAnak() ([]models.Anak, error) {
 		Preload("Kehamilan").
 		Preload("Kehamilan.Ibu").
 		Preload("Kehamilan.Ibu.Kependudukan").
-		Preload("Pertumbuhan", func(db *gorm.DB) *gorm.DB {
-			return db.Order("tgl_ukur ASC")
-		}).
 		Find(&data).Error
 	if err != nil {
 		return nil, customerror.NewInternalServiceError("gagal mengambil data anak")
@@ -59,9 +55,6 @@ func (m *Main) SearchAnak(namaAnak, namaIbu, noKK string) ([]models.Anak, error)
 		Preload("Kehamilan").
 		Preload("Kehamilan.Ibu").
 		Preload("Kehamilan.Ibu.Kependudukan").
-		Preload("Pertumbuhan", func(db *gorm.DB) *gorm.DB {
-			return db.Order("tgl_ukur ASC")
-		}).
 		Order("anak.created_at DESC").
 		Find(&data).Error
 
@@ -79,16 +72,25 @@ func (m *Main) GetAnakByID(anakID uint) (*models.Anak, error) {
 		Preload("Kehamilan").
 		Preload("Kehamilan.Ibu").
 		Preload("Kehamilan.Ibu.Kependudukan").
-		Preload("Pertumbuhan", func(db *gorm.DB) *gorm.DB {
-			return db.Order("tgl_ukur ASC")
-		}).
 		Where("id = ?", anakID).
 		First(&data).Error
 	if err != nil {
 		if err.Error() == constants.GORM_ERR_NOT_FOUND {
 			return nil, customerror.NewNotFoundError("data anak tidak ditemukan")
 		}
-		return nil, customerror.NewInternalServiceError("gagal mengambil data anak")
+		// Fallback: coba load hanya dengan Preload Penduduk
+		var simpleData models.Anak
+		simpleErr := m.postgres.
+			Preload("Penduduk").
+			Where("id = ?", anakID).
+			First(&simpleData).Error
+		if simpleErr != nil {
+			if simpleErr.Error() == constants.GORM_ERR_NOT_FOUND {
+				return nil, customerror.NewNotFoundError("data anak tidak ditemukan")
+			}
+			return nil, customerror.NewInternalServiceError("gagal mengambil data anak")
+		}
+		return &simpleData, nil
 	}
 
 	return &data, nil

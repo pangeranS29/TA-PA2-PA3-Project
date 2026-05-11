@@ -303,18 +303,6 @@ func (m *Main) AddCatatanPertumbuhan(req *models.CreatePertumbuhanRequest) error
 		return customerror.NewBadRequestError("format tanggal ukur tidak valid, gunakan YYYY-MM-DD")
 	}
 
-	rawTanggalLahir, rawGender, err := extractAnakTanggalLahirDanGender(dataAnak)
-	if err != nil {
-		return err
-	}
-
-	tanggalLahir, err := parseTanggalLahir(rawTanggalLahir)
-	if err != nil {
-		return err
-	}
-
-	gender := sanitizeGender(rawGender)
-
 	catatan := &models.CatatanPertumbuhan{
 		AnakID:        int32(req.AnakID),
 		TglUkur:       tglUkur,
@@ -325,38 +313,49 @@ func (m *Main) AddCatatanPertumbuhan(req *models.CreatePertumbuhanRequest) error
 		CatatanNakes:  req.CatatanNakes,
 	}
 
-	catatan.UsiaUkurBulan = catatan.HitungUsiaBulan(tanggalLahir)
+	// Hitung IMT (tidak perlu data anak)
 	catatan.IMT = catatan.HitungIMT()
 
-	stdBBU, _ := m.repository.GetStandarAntropometri(ParamBBU, gender, float64(catatan.UsiaUkurBulan))
-	if stdBBU != nil {
-		catatan.ZScoreBBU = hitungZScore(catatan.BeratBadan, stdBBU)
-		catatan.StatusBBU = interpretasiStatusBBU(catatan.ZScoreBBU)
-	}
+	// Hitung usia dan Z-score HANYA jika data Penduduk lengkap
+	rawTanggalLahir, rawGender, extractErr := extractAnakTanggalLahirDanGender(dataAnak)
+	if extractErr == nil && rawTanggalLahir != "" && rawGender != "" {
+		tanggalLahir, parseErr := parseTanggalLahir(rawTanggalLahir)
+		if parseErr == nil {
+			gender := sanitizeGender(rawGender)
 
-	stdTBU, _ := m.repository.GetStandarAntropometri(ParamTBU, gender, float64(catatan.UsiaUkurBulan))
-	if stdTBU != nil {
-		catatan.ZScoreTBU = hitungZScore(catatan.TinggiBadan, stdTBU)
-		catatan.StatusTBU = interpretasiStatusTBU(catatan.ZScoreTBU)
-	}
+			catatan.UsiaUkurBulan = catatan.HitungUsiaBulan(tanggalLahir)
 
-	stdIMTU, _ := m.repository.GetStandarAntropometri(ParamIMTU, gender, float64(catatan.UsiaUkurBulan))
-	if stdIMTU != nil {
-		catatan.ZScoreIMTU = hitungZScore(catatan.IMT, stdIMTU)
-		catatan.StatusIMTU = interpretasiStatusIMTU(catatan.ZScoreIMTU)
-	}
+			stdBBU, _ := m.repository.GetStandarAntropometri(ParamBBU, gender, float64(catatan.UsiaUkurBulan))
+			if stdBBU != nil {
+				catatan.ZScoreBBU = hitungZScore(catatan.BeratBadan, stdBBU)
+				catatan.StatusBBU = interpretasiStatusBBU(catatan.ZScoreBBU)
+			}
 
-	stdBBTB, _ := m.repository.GetStandarAntropometri(ParamBBTB, gender, catatan.TinggiBadan)
-	if stdBBTB != nil {
-		catatan.ZScoreBBTB = hitungZScore(catatan.BeratBadan, stdBBTB)
-		catatan.StatusBBTB = interpretasiStatusBBTB(catatan.ZScoreBBTB)
-	}
+			stdTBU, _ := m.repository.GetStandarAntropometri(ParamTBU, gender, float64(catatan.UsiaUkurBulan))
+			if stdTBU != nil {
+				catatan.ZScoreTBU = hitungZScore(catatan.TinggiBadan, stdTBU)
+				catatan.StatusTBU = interpretasiStatusTBU(catatan.ZScoreTBU)
+			}
 
-	if catatan.LingkarKepala > 0 {
-		stdLKU, _ := m.repository.GetStandarAntropometri(ParamLKU, gender, float64(catatan.UsiaUkurBulan))
-		if stdLKU != nil {
-			catatan.ZScoreLKU = hitungZScore(catatan.LingkarKepala, stdLKU)
-			catatan.StatusLKU = interpretasiStatusLKU(catatan.ZScoreLKU)
+			stdIMTU, _ := m.repository.GetStandarAntropometri(ParamIMTU, gender, float64(catatan.UsiaUkurBulan))
+			if stdIMTU != nil {
+				catatan.ZScoreIMTU = hitungZScore(catatan.IMT, stdIMTU)
+				catatan.StatusIMTU = interpretasiStatusIMTU(catatan.ZScoreIMTU)
+			}
+
+			stdBBTB, _ := m.repository.GetStandarAntropometri(ParamBBTB, gender, catatan.TinggiBadan)
+			if stdBBTB != nil {
+				catatan.ZScoreBBTB = hitungZScore(catatan.BeratBadan, stdBBTB)
+				catatan.StatusBBTB = interpretasiStatusBBTB(catatan.ZScoreBBTB)
+			}
+
+			if catatan.LingkarKepala > 0 {
+				stdLKU, _ := m.repository.GetStandarAntropometri(ParamLKU, gender, float64(catatan.UsiaUkurBulan))
+				if stdLKU != nil {
+					catatan.ZScoreLKU = hitungZScore(catatan.LingkarKepala, stdLKU)
+					catatan.StatusLKU = interpretasiStatusLKU(catatan.ZScoreLKU)
+				}
+			}
 		}
 	}
 
@@ -366,6 +365,7 @@ func (m *Main) AddCatatanPertumbuhan(req *models.CreatePertumbuhanRequest) error
 
 	return nil
 }
+
 
 // GetPertumbuhanChart returns riwayat + standar data for the frontend GrowthChart component.
 // Response shape: { riwayat: [...], standar_bb_u: [...], standar_tb_u: [...] }

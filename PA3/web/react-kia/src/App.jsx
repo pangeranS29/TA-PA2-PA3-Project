@@ -104,6 +104,8 @@ import SetelahMelahirkanPage from "./pages/edukasi-digital/SetelahMelahirkanPage
 import SetelahMelahirkanFormPage from "./pages/edukasi-digital/SetelahMelahirkanFormPage";
 import MenyusuiAsiPage from "./pages/edukasi-digital/MenyusuiAsiPage";
 import MenyusuiAsiFormPage from "./pages/edukasi-digital/MenyusuiAsiFormPage";
+import NifasPage from "./pages/edukasi-digital/NifasPage";
+import NifasFormPage from "./pages/edukasi-digital/NifasFormPage";
 import PolaAsuhPage from "./pages/edukasi-digital/PolaAsuhPage";
 import PolaAsuhFormPage from "./pages/edukasi-digital/PolaAsuhFormPage";
 import KesehatanMentalPage from "./pages/edukasi-digital/KesehatanMentalPage";
@@ -119,6 +121,7 @@ import LihatDataPerkembangan from "./pages/penanda-perkembangan-anak/LihatDataPe
 import KelolaPerkembangan from "./pages/penanda-perkembangan-anak/KelolaPerkembangan";
 import KelolaLingkungan from "./pages/KesehatanLingkungan/KelolaLingkungan";
 import DataLingkungan from "./pages/KesehatanLingkungan/DataLingkungan";
+import DetailLembarLingkungan from "./pages/KesehatanLingkungan/DetailLembarLingkungan";
 import PertumbuhanIndex from "./pages/Pertumbuhan/index";
 
 const HomeRedirect = () => {
@@ -231,6 +234,7 @@ function App() {
         {/* ── PENCATATAN ── */}
         <Route path="/pencatatan/kesehatan-lingkungan" element={<DataLingkungan />} />
         <Route path="/pencatatan/kesehatan-lingkungan/kelola" element={<KelolaLingkungan />} />
+        <Route path="/pencatatan/kesehatan-lingkungan/detail/:id" element={<DetailLembarLingkungan />} />
 
         {/* ── EDUKASI DIGITAL ── */}
         <Route path="/edukasi-digital/informasi-umum" element={<InformasiUmumPage />} />
@@ -251,6 +255,9 @@ function App() {
         <Route path="/edukasi-digital/menyusui-asi" element={<MenyusuiAsiPage />} />
         <Route path="/edukasi-digital/menyusui-asi/form" element={<MenyusuiAsiFormPage />} />
         <Route path="/edukasi-digital/menyusui-asi/form/:id" element={<MenyusuiAsiFormPage />} />
+        <Route path="/edukasi-digital/nifas" element={<NifasPage />} />
+        <Route path="/edukasi-digital/nifas/form" element={<NifasFormPage />} />
+        <Route path="/edukasi-digital/nifas/form/:id" element={<NifasFormPage />} />
         <Route path="/edukasi-digital/pola-asuh" element={<PolaAsuhPage />} />
         <Route path="/edukasi-digital/pola-asuh/form" element={<PolaAsuhFormPage />} />
         <Route path="/edukasi-digital/pola-asuh/form/:id" element={<PolaAsuhFormPage />} />

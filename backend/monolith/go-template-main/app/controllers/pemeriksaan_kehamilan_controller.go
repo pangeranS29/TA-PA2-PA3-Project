@@ -22,26 +22,31 @@ func NewPemeriksaanKehamilanController(u usecases.PemeriksaanKehamilanUsecase) *
 // ================= REQUEST =================
 
 type createPemeriksaanKehamilanRequest struct {
-	KehamilanID            int32   `json:"kehamilan_id"`
-	KunjunganKe            int32   `json:"kunjungan_ke"`
-	MingguKehamilan        int32   `json:"minggu_kehamilan"`
-	TanggalPeriksa         string  `json:"tanggal_periksa"`
-	TempatPeriksa          string  `json:"tempat_periksa"`
+	KehamilanID            int32    `json:"kehamilan_id"`
+	KunjunganKe            int32    `json:"kunjungan_ke"`
+	MingguKehamilan        int32    `json:"minggu_kehamilan"`
+	TanggalPeriksa         string   `json:"tanggal_periksa"`
+	TempatPeriksa          string   `json:"tempat_periksa"`
 	BeratBadan             *float64 `json:"berat_badan"`
 	TinggiBadan            *float64 `json:"tinggi_badan"`
 	LingkarLenganAtas      *float64 `json:"lingkar_lengan_atas"`
-	Sistole                int32   `json:"sistole"`
-	Diastole               int32   `json:"diastole"`
+	Sistole                int32    `json:"sistole"`
+	Diastole               int32    `json:"diastole"`
 	TinggiRahim            *float64 `json:"tinggi_rahim"`
-	DenyutJantungJanin     int32   `json:"denyut_jantung_janin"`
-	StatusImunisasiTetanus string  `json:"status_imunisasi_tetanus"`
-	TabletTambahDarah      *int32  `json:"tablet_tambah_darah"`
+	DenyutJantungJanin     int32    `json:"denyut_jantung_janin"`
+	StatusImunisasiTetanus string   `json:"status_imunisasi_tetanus"`
+	TabletTambahDarah      *int32   `json:"tablet_tambah_darah"`
 	TesLabHb               *float64 `json:"tes_lab_hb"`
-	TesLabProteinUrine     string  `json:"tes_lab_protein_urine"`
-	TesLabGulaDarah        *int32  `json:"tes_lab_gula_darah"`
-	USG                    string  `json:"usg"`
-	TripelEliminasi        string  `json:"tripel_eliminasi"`
-	TataLaksanaKasus       string  `json:"tata_laksana_kasus"`
+	TesLabProteinUrine     string   `json:"tes_lab_protein_urine"`
+	TesLabGulaDarah        *int32   `json:"tes_lab_gula_darah"`
+	USG                    string   `json:"usg"`
+	TripelEliminasi        string   `json:"tripel_eliminasi"`
+	TataLaksanaKasus       string   `json:"tata_laksana_kasus"`
+	LetakDenyutJantungBayi string   `json:"letak_denyut_jantung_bayi"`
+	Konseling              string   `json:"konseling"`
+	SkriningDokter         string   `json:"skrining_dokter"`
+	TesGolonganDarah       string   `json:"tes_golongan_darah"`
+	Trimester              string   `json:"trimester"`
 }
 
 type updatePemeriksaanKehamilanRequest struct {
@@ -95,6 +100,11 @@ func (c *PemeriksaanKehamilanController) Create(ctx echo.Context) error {
 		USG:                    req.USG,
 		TripelEliminasi:        req.TripelEliminasi,
 		TataLaksanaKasus:       req.TataLaksanaKasus,
+		LetakDenyutJantungBayi: req.LetakDenyutJantungBayi,
+		Konseling:              req.Konseling,
+		SkriningDokter:         req.SkriningDokter,
+		TesGolonganDarah:       req.TesGolonganDarah,
+		Trimester:              req.Trimester,
 	}
 
 	if req.TanggalPeriksa != "" {

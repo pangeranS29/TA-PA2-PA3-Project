@@ -43,6 +43,8 @@ func (u *edukasiIMDUsecase) Update(id int32, data *models.EdukasiIMD) error {
 	existing.Judul = data.Judul
 	existing.GambarURL = data.GambarURL
 	existing.Isi = data.Isi
+	existing.Manfaat = data.Manfaat
+	existing.Langkah = data.Langkah
 
 	return u.repo.Update(existing)
 }
