@@ -13,6 +13,7 @@ import 'package:ta_pa2_pa3_project/core/constants/api_constants.dart';
 import 'package:ta_pa2_pa3_project/core/services/auth_session.dart';
 import 'package:ta_pa2_pa3_project/core/themes/app_theme.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/nifas/presentation/screens/checklist_pemantauan_ibu_nifas_screen.dart';
+import 'package:ta_pa2_pa3_project/core/constants/app_colors.dart';
 
 class NifasScreen extends StatefulWidget {
   const NifasScreen({super.key});
@@ -81,7 +82,7 @@ class _NifasScreenState extends State<NifasScreen> {
           'Menu Nifas',
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
-        backgroundColor: TrimesterTheme.t1Primary,
+        backgroundColor: AppColors.primary,
         iconTheme: const IconThemeData(color: Colors.white),
         elevation: 0,
       ),
@@ -125,7 +126,7 @@ class _NifasScreenState extends State<NifasScreen> {
         borderRadius: BorderRadius.circular(22),
         boxShadow: [
           BoxShadow(
-            color: TrimesterTheme.t1Primary.withOpacity(0.2),
+            color: AppColors.primary.withOpacity(0.2),
             blurRadius: 12,
             offset: const Offset(0, 6),
           ),
@@ -188,7 +189,7 @@ class _NifasScreenState extends State<NifasScreen> {
       spacing: 8,
       runSpacing: 8,
       children: filledDays.map((day) => Chip(
-        avatar: Icon(Icons.check_circle, color: TrimesterTheme.t1Primary, size: 18),
+        avatar: Icon(Icons.check_circle, color: AppColors.primary, size: 18),
         label: Text('Hari ke-$day'),
         backgroundColor: const Color(0xFFE3F2FD),
         side: const BorderSide(color: Color(0xFFBBDEFB)),
@@ -215,8 +216,8 @@ class _NifasScreenState extends State<NifasScreen> {
           child: Row(
             children: [
               CircleAvatar(
-                backgroundColor: TrimesterTheme.t1Primary.withOpacity(0.1),
-                child: Icon(icon, color: TrimesterTheme.t1Primary),
+                backgroundColor: AppColors.primary.withOpacity(0.1),
+                child: Icon(icon, color: AppColors.primary),
               ),
               const SizedBox(width: 16),
               Expanded(

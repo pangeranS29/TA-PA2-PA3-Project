@@ -67,6 +67,12 @@ type Main struct {
 	AbsensiKelasIbuHamil        AbsensiKelasIbuHamilUsecase
 	ChecklistPemantauanIbuNifas *ChecklistPemantauanIbuNifasUsecase
 	WarnaTinja                  WarnaTinjaUsecase
+	EdukasiIMD              EdukasiIMDUsecase
+	EdukasiKesehatanMental EdukasiKesehatanMentalUsecase
+	EdukasiMenyusuiASI     EdukasiMenyusuiASIUsecase
+	EdukasiNifas           EdukasiNifasUsecase
+	EdukasiTandaMelahirkan EdukasiTandaMelahirkanUsecase
+	EdukasiTrimester 	   EdukasiTrimesterUseCase
 
 	LembarPemantauan LembarPemantauanUsecase
 	// RegisterOrangTua              *RegisterOrangTuaUsecase
@@ -182,5 +188,11 @@ func Init(opts Options) *Main {
 		opts.Repository.Kehamilan,
 	)
 	m.WarnaTinja = NewWarnaTinjaUsecase(opts.Repository.WarnaTinja)
+	m.EdukasiIMD = NewEdukasiIMDUsecase(opts.Repository.EdukasiIMD)
+	m.EdukasiKesehatanMental = NewEdukasiKesehatanMentalUsecase(opts.Repository.EdukasiKesehatanMental)
+	m.EdukasiMenyusuiASI = NewEdukasiMenyusuiASIUsecase(opts.Repository.EdukasiMenyusuiASI)
+	m.EdukasiNifas = NewEdukasiNifasUsecase(opts.Repository.EdukasiNifas)
+	m.EdukasiTandaMelahirkan = NewEdukasiTandaMelahirkanUsecase(opts.Repository.EdukasiTandaMelahirkan)
+	m.EdukasiTrimester = NewEdukasiTrimesterUseCase(opts.Repository.EdukasiTrimester,)
 	return m
 }

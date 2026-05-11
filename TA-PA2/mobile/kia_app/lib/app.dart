@@ -10,7 +10,7 @@ class KiaApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'KIA Apps',
+      title: 'Aplikasi KIA Cerdas',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       home: AuthSession.isLoggedIn

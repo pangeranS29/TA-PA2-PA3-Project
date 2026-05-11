@@ -68,6 +68,12 @@ type Main struct {
 	ProsesMelahirkan     *ProsesMelahirkanRepository
 	AbsensiKelasIbuHamil *AbsensiKelasIbuHamilRepository
 	WarnaTinja           WarnaTinjaRepository
+	EdukasiIMD             EdukasiIMDRepository
+	EdukasiKesehatanMental EdukasiKesehatanMentalRepository
+	EdukasiMenyusuiASI     EdukasiMenyusuiASIRepository
+	EdukasiNifas           EdukasiNifasRepository
+	EdukasiTandaMelahirkan EdukasiTandaMelahirkanRepository
+	EdukasiTrimester 	   EdukasiTrimesterRepository
 }
 
 type Options struct {
@@ -142,5 +148,11 @@ func Init(opts Options) *Main {
 	m.AbsensiKelasIbuHamil = NewAbsensiKelasIbuHamilRepository(opts.Postgres)
 	m.WarnaTinja = NewWarnaTinjaRepository(opts.Postgres)
 
+	m.EdukasiIMD = NewEdukasiIMDRepository(opts.Postgres)
+	m.EdukasiKesehatanMental = NewEdukasiKesehatanMentalRepository(opts.Postgres)
+	m.EdukasiMenyusuiASI = NewEdukasiMenyusuiASIRepository(opts.Postgres)
+	m.EdukasiNifas = NewEdukasiNifasRepository(opts.Postgres)
+	m.EdukasiTandaMelahirkan = NewEdukasiTandaMelahirkanRepository(opts.Postgres)
+	m.EdukasiTrimester = NewEdukasiTrimesterRepository(opts.Postgres)
 	return m
 }

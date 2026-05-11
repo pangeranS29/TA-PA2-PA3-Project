@@ -63,6 +63,13 @@ type Main struct {
 	ChecklistPemantauanIbuNifas *ChecklistPemantauanIbuNifasController
 	WarnaTinja                  *WarnaTinjaController
 	KeluhanAnak                 *KeluhanAnakController
+	EdukasiIMD              	*EdukasiIMDController
+	EdukasiKesehatanMental 		*EdukasiKesehatanMentalController
+	EdukasiMenyusuiASI     		*EdukasiMenyusuiASIController
+	EdukasiNifas           		*EdukasiNifasController
+	EdukasiTandaMelahirkan 		*EdukasiTandaMelahirkanController
+	EdukasiTrimester 			*EdukasiTrimesterController
+	
 }
 
 type Options struct {
@@ -131,6 +138,13 @@ func Init(opts Options) *Main {
 	m.ChecklistPemantauanIbuNifas = NewChecklistPemantauanIbuNifasController(
 		opts.UseCases.ChecklistPemantauanIbuNifas)
 	m.WarnaTinja = NewWarnaTinjaController(opts.UseCases.WarnaTinja)
+	
+	m.EdukasiIMD = NewEdukasiIMDController(opts.UseCases.EdukasiIMD)
+	m.EdukasiKesehatanMental = NewEdukasiKesehatanMentalController(opts.UseCases.EdukasiKesehatanMental)
+	m.EdukasiMenyusuiASI = NewEdukasiMenyusuiASIController(opts.UseCases.EdukasiMenyusuiASI)
+	m.EdukasiNifas = NewEdukasiNifasController(opts.UseCases.EdukasiNifas)
+	m.EdukasiTandaMelahirkan = NewEdukasiTandaMelahirkanController(opts.UseCases.EdukasiTandaMelahirkan)
+	m.EdukasiTrimester = NewEdukasiTrimesterController(opts.UseCases.EdukasiTrimester,)
 	return m
 }
 

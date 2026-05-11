@@ -13,7 +13,6 @@ import 'package:ta_pa2_pa3_project/features/ibu/hamil/data/models/kehamilan_akti
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/absensi_kelas_ibu_hamil_screen.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/rujukan_list_screen.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/pemantauan_ibu_hamil_screen.dart';
-import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/edukasi_explore_screen.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/catatan_pelayanan_menu_screen.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/log_ttd_mms_screen.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/nifas/presentation/screens/nifas_screen.dart';
@@ -30,6 +29,9 @@ import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/scr
 // import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/grafik_evaluasi_kehamilan_screen.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/grafik_evaluasi_kehamilan_screen.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/grafik_peningkatan_bb_screen.dart';
+
+// import edukasi
+import 'package:ta_pa2_pa3_project/features/edukasi/presentation/screens/edukasi_screen_all.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -201,7 +203,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       //   ),
       // );
     } else if (_selectedNavIndex == 2) {
-      body = const EdukasiExploreScreen();
+      body = const EdukasiScreenAll();
     } else {
       body = const Center(child: Text('Profil'));
     }
@@ -273,7 +275,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       onTap: () => Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (_) => const EdukasiExploreScreen(),
+          builder: (_) => const EdukasiScreenAll(),
         ),
       ),
     );

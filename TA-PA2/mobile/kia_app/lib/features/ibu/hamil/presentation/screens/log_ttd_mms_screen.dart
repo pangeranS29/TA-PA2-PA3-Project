@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/data/services/log_ttd_mms_api_service.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/data/models/log_ttd_mms_model.dart';
+import 'package:ta_pa2_pa3_project/core/constants/app_colors.dart';
 
 class LogTTDMMSScreen extends StatefulWidget {
   final DateTime hpht;
@@ -140,7 +141,7 @@ class _LogTTDMMSScreenState extends State<LogTTDMMSScreen> {
       backgroundColor: const Color(0xFFF6F8FC),
       appBar: AppBar(
         title: const Text('Log TTD/MMS'),
-        backgroundColor: const Color(0xFF2F80ED),
+        backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         elevation: 0,
       ),
@@ -169,9 +170,9 @@ class _LogTTDMMSScreenState extends State<LogTTDMMSScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(colors: [Color(0xFF2F80ED), Color(0xFF56CCF2)], begin: Alignment.topLeft, end: Alignment.bottomRight),
+        gradient: const LinearGradient(colors: [AppColors.primary, Color(0xFF56CCF2)], begin: Alignment.topLeft, end: Alignment.bottomRight),
         borderRadius: BorderRadius.circular(24),
-        boxShadow: [BoxShadow(color: const Color(0xFF2F80ED).withOpacity(0.22), blurRadius: 16, offset: const Offset(0, 8))],
+        boxShadow: [BoxShadow(color: AppColors.primary.withOpacity(0.22), blurRadius: 16, offset: const Offset(0, 8))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -234,9 +235,9 @@ class _LogTTDMMSScreenState extends State<LogTTDMMSScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: selected ? const Color(0xFF2F80ED) : hasDays ? Colors.white : const Color(0xFFF0F0F0),
+                color: selected ? AppColors.primary : hasDays ? Colors.white : const Color(0xFFF0F0F0),
                 borderRadius: BorderRadius.circular(999),
-                border: Border.all(color: selected ? const Color(0xFF2F80ED) : hasDays ? const Color(0xFFD7DEE9) : const Color(0xFFE0E0E0)),
+                border: Border.all(color: selected ? AppColors.primary : hasDays ? const Color(0xFFD7DEE9) : const Color(0xFFE0E0E0)),
               ),
               child: Text('Bulan $bulan', style: TextStyle(color: selected ? Colors.white : hasDays ? const Color(0xFF172033) : const Color(0xFFBDBDBD), fontWeight: FontWeight.w700, fontSize: 13)),
             ),
@@ -284,8 +285,8 @@ class _LogTTDMMSScreenState extends State<LogTTDMMSScreen> {
     double textOpacity;
 
     if (checked) {
-      backgroundColor = const Color(0xFF2F80ED);
-      borderColor = const Color(0xFF2F80ED);
+      backgroundColor = AppColors.primary;
+      borderColor = AppColors.primary;
       textColor = Colors.white;
       textOpacity = 1.0;
     } else if (enabled) {

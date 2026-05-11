@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:ta_pa2_pa3_project/core/services/auth_session.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/data/services/kehamilan_api_service.dart';
+import 'package:ta_pa2_pa3_project/core/constants/app_colors.dart';
 
 class CatatanPelayananT2Screen extends StatefulWidget {
   const CatatanPelayananT2Screen({super.key});
@@ -75,7 +76,7 @@ class _CatatanPelayananT2ScreenState extends State<CatatanPelayananT2Screen> {
       backgroundColor: const Color(0xFFF1F5F9),
       appBar: AppBar(
         title: const Text("Catatan Pelayanan T2"),
-        backgroundColor: Colors.blue,
+        backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
       ),
       body: isLoading
@@ -114,7 +115,7 @@ class _CatatanPelayananT2ScreenState extends State<CatatanPelayananT2Screen> {
             _dateText(item["tanggal_periksa_stamp_paraf"]),
             style: TextStyle(
               fontWeight: FontWeight.bold,
-              color: Colors.blue.shade700,
+              color: AppColors.primary,
             ),
           ),
           const SizedBox(height: 14),

@@ -89,6 +89,7 @@ import 'package:flutter/material.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/pemeriksaan_kehamilan_screen.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/skrining_preeklampsia_screen.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/pemeriksaan_dokter_screen.dart';
+import 'package:ta_pa2_pa3_project/core/constants/app_colors.dart';
 
 class TrimesterMenuScreen extends StatelessWidget {
   final int trimester;
@@ -106,7 +107,7 @@ class TrimesterMenuScreen extends StatelessWidget {
       backgroundColor: const Color(0xFFF6F8FC),
       appBar: AppBar(
         title: Text(title),
-        backgroundColor: const Color(0xFF2F80ED),
+        backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         elevation: 0,
       ),
@@ -223,7 +224,7 @@ class _MenuCard extends StatelessWidget {
                 ),
                 child: Icon(
                   icon,
-                  color: const Color(0xFF2F80ED),
+                  color: AppColors.primary,
                   size: 28,
                 ),
               ),

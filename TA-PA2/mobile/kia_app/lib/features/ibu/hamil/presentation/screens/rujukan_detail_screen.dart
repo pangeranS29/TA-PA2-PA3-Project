@@ -3,6 +3,7 @@
 // [MODUL: IBU - Hamil] Detail surat rekomendasi rujukan.
 // Dipindahkan dari features/hamil/... ke features/ibu/hamil/...
 // ============================================================
+import 'package:ta_pa2_pa3_project/core/constants/app_colors.dart';
 
 import 'package:flutter/material.dart';
 
@@ -28,7 +29,7 @@ class RujukanDetailScreen extends StatelessWidget {
       backgroundColor: const Color(0xFFF1F5F9),
       appBar: AppBar(
         title: const Text("Detail Rujukan"),
-        backgroundColor: Colors.blue,
+        backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
       ),
       body: ListView(
@@ -38,7 +39,7 @@ class RujukanDetailScreen extends StatelessWidget {
             padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [Colors.blue.shade700, Colors.blue.shade400],
+                colors: [AppColors.primary, Colors.blue.shade400],
                 begin: Alignment.topLeft, end: Alignment.bottomRight,
               ),
               borderRadius: BorderRadius.circular(22),
@@ -74,7 +75,7 @@ class RujukanDetailScreen extends StatelessWidget {
 
   Widget _section(String title) => Padding(
     padding: const EdgeInsets.only(top: 10, bottom: 10),
-    child: Text(title, style: TextStyle(color: Colors.blue.shade800, fontWeight: FontWeight.bold, fontSize: 15)),
+    child: Text(title, style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold, fontSize: 15)),
   );
 
   Widget _info(String label, String value) => Container(

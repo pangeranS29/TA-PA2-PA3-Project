@@ -11,6 +11,7 @@ import 'package:http/http.dart' as http;
 import 'package:ta_pa2_pa3_project/core/services/auth_session.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/data/services/kehamilan_api_service.dart';
 import 'rujukan_detail_screen.dart';
+import 'package:ta_pa2_pa3_project/core/constants/app_colors.dart';
 
 class RujukanListScreen extends StatefulWidget {
   const RujukanListScreen({super.key});
@@ -66,7 +67,7 @@ class _RujukanListScreenState extends State<RujukanListScreen> {
       backgroundColor: const Color(0xFFF1F5F9),
       appBar: AppBar(
         title: const Text("Surat Rekomendasi Rujukan"),
-        backgroundColor: Colors.blue,
+        backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
       ),
       body: isLoading
@@ -89,7 +90,7 @@ class _RujukanListScreenState extends State<RujukanListScreen> {
                         contentPadding: const EdgeInsets.all(18),
                         leading: CircleAvatar(
                           backgroundColor: Colors.blue.shade50,
-                          child: Icon(Icons.description_outlined, color: Colors.blue.shade700),
+                          child: Icon(Icons.description_outlined, color: AppColors.primary),
                         ),
                         title: Text(
                           item["rujukan_diagnosis_akhir"]?.toString().isNotEmpty == true

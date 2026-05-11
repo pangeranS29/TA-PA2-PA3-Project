@@ -5,6 +5,7 @@ import 'edukasi_mental_screen.dart';
 import 'edukasi_asi_screen.dart';
 import 'edukasi_nifas_screen.dart';
 import 'edukasi_tanda_melahirkan_screen.dart';
+import 'edukasi_trimester_screen.dart';
 
 class EdukasiScreenAll extends StatelessWidget {
   const EdukasiScreenAll({super.key});
@@ -12,6 +13,11 @@ class EdukasiScreenAll extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final List<Map<String, dynamic>> edukasiIbu = [
+      {
+        'title': 'Edukasi Trimester',
+        'icon': Icons.menu_book_rounded,
+        'screen': const EdukasiTrimesterScreen(),
+      },
       {
         'title': 'Inisiasi Menyusu Dini (IMD)',
         'icon': Icons.child_care,

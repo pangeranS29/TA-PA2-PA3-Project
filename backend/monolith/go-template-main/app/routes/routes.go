@@ -30,6 +30,15 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	informasiUmum.PUT("/:id", controller.InformasiUmum.Update)
 	informasiUmum.DELETE("/:id", controller.InformasiUmum.Delete)
 
+		// ==================== EDUKASI IBU ====================
+	e.GET("/edukasi-imd", controller.EdukasiIMD.GetAll)
+	e.GET("/edukasi-kesehatan-mental", controller.EdukasiKesehatanMental.GetAll)
+	e.GET("/edukasi-menyusui-asi", controller.EdukasiMenyusuiASI.GetAll)
+	e.GET("/edukasi-nifas", controller.EdukasiNifas.GetAll)
+	e.GET("/edukasi-tanda-melahirkan", controller.EdukasiTandaMelahirkan.GetAll)
+	e.GET("/edukasi-trimester",controller.EdukasiTrimester.GetAll,)
+	e.GET("/edukasi-trimester/:trimester",controller.EdukasiTrimester.GetByTrimester,)
+	e.GET("/edukasi-trimester/:trimester/:kategori",controller.EdukasiTrimester.GetByKategori,)
 	// ==================== MODUL ADMIN  ====================
 
 	admin := e.Group("/admin")

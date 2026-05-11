@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/data/services/skrining_preeklampsia_api_service.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/data/models/skrining_preeklampsia_model.dart';
+import 'package:ta_pa2_pa3_project/core/constants/app_colors.dart';
 
 class SkriningPreeklampsiaScreen extends StatefulWidget {
   const SkriningPreeklampsiaScreen({super.key});
@@ -49,7 +50,7 @@ class _SkriningPreeklampsiaScreenState
       backgroundColor: const Color(0xFFF6F8FC),
       appBar: AppBar(
         title: const Text("Skrining Preeklampsia"),
-        backgroundColor: const Color(0xFF2F80ED),
+        backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         elevation: 0,
       ),
@@ -203,7 +204,7 @@ class _AnswerCard extends StatelessWidget {
                   color: const Color(0xFFEAF4FF),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(icon, color: const Color(0xFF2F80ED), size: 21),
+                child: Icon(icon, color: AppColors.primary, size: 21),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -309,7 +310,7 @@ class _EmptyState extends StatelessWidget {
               const Icon(
                 Icons.health_and_safety_outlined,
                 size: 60,
-                color: Color(0xFF2F80ED),
+                color: AppColors.primary,
               ),
               const SizedBox(height: 16),
               Text(
