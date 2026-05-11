@@ -206,6 +206,11 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	tenaga.DELETE("/lingkungan/indikator/:id", controller.KesehatanLingkungan.DeleteIndikator)
 	tenaga.DELETE("/lingkungan/:id", controller.KesehatanLingkungan.DeleteLembar)
 
+	// ==================== KADER MANAGEMENT (Bidan) ====================
+	tenaga.GET("/kader", controller.Kader.ListMyKader)
+	tenaga.GET("/kader/:id", controller.Kader.GetKaderDetail)
+	tenaga.PUT("/kader/:id", controller.Kader.UpdateKaderProfile)
+
 	// ==================== EDUKASI DIGITAL ====================
 	tenaga.GET("/edukasi-informasi-umum", controller.EdukasiInformasiUmum.GetAll)
 	tenaga.POST("/edukasi-informasi-umum", controller.EdukasiInformasiUmum.Create)
