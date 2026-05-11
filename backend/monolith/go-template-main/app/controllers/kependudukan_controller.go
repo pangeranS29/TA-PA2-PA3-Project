@@ -40,7 +40,6 @@ type createKependudukanRequest struct {
 	TujuanPindah       string `json:"tujuan_pindah"`
 	TempatMeninggal    string `json:"tempat_meninggal"`
 	Keterangan         string `json:"keterangan"`
-	NomorTelepon       string `json:"nomor_telepon"`
 }
 
 func (c *KependudukanController) Create(ctx echo.Context) error {
@@ -54,8 +53,8 @@ func (c *KependudukanController) Create(ctx echo.Context) error {
 	}
 
 	// Validasi field wajib
-	if req.NamaLengkap == "" || req.NIK == "" || req.TanggalLahir == "" {
-		return ctx.JSON(http.StatusBadRequest, models.Response{StatusCode: http.StatusBadRequest, Message: "nama_lengkap, nik, dan tanggal_lahir wajib diisi"})
+	if req.NamaLengkap == "" || req.TanggalLahir == "" {
+		return ctx.JSON(http.StatusBadRequest, models.Response{StatusCode: http.StatusBadRequest, Message: "nama_lengkap dan tanggal_lahir wajib diisi"})
 	}
 
 	// Parse tanggal lahir
@@ -64,9 +63,15 @@ func (c *KependudukanController) Create(ctx echo.Context) error {
 		return ctx.JSON(http.StatusBadRequest, models.Response{StatusCode: http.StatusBadRequest, Message: "format tanggal_lahir harus YYYY-MM-DD"})
 	}
 
+	// Convert NIK string to *string (nil jika kosong)
+	var nikPtr *string
+	if req.NIK != "" {
+		nikPtr = &req.NIK
+	}
+
 	k := &models.Kependudukan{
 		KartuKeluargaID:    req.KartuKeluargaID,
-		NIK:                req.NIK,
+		NIK:                nikPtr,
 		Dusun:              req.Dusun,
 		Kecamatan:          req.Kecamatan,
 		Desa:               req.Desa,
@@ -85,7 +90,6 @@ func (c *KependudukanController) Create(ctx echo.Context) error {
 		TujuanPindah:       req.TujuanPindah,
 		TempatMeninggal:    req.TempatMeninggal,
 		Keterangan:         req.Keterangan,
-		NomorTelepon:       req.NomorTelepon,
 	}
 
 	data, err := c.usecase.Create(k)
@@ -133,7 +137,10 @@ func (c *KependudukanController) Update(ctx echo.Context) error {
 		existing.KartuKeluargaID = req.KartuKeluargaID
 	}
 	if req.NIK != "" {
-		existing.NIK = req.NIK
+		existing.NIK = &req.NIK
+	} else if req.NIK == "" {
+		// Jika NIK kosong dalam request, set ke nil
+		existing.NIK = nil
 	}
 	if req.Dusun != "" {
 		existing.Dusun = req.Dusun
@@ -190,9 +197,6 @@ func (c *KependudukanController) Update(ctx echo.Context) error {
 	}
 	if req.Keterangan != "" {
 		existing.Keterangan = req.Keterangan
-	}
-	if req.NomorTelepon != "" {
-		existing.NomorTelepon = req.NomorTelepon
 	}
 	if err := c.usecase.Update(existing); err != nil {
 		return ctx.JSON(http.StatusInternalServerError, models.Response{StatusCode: http.StatusInternalServerError, Message: err.Error()})

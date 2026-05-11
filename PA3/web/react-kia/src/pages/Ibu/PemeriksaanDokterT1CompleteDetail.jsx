@@ -348,13 +348,21 @@ export default function PemeriksaanDokterT1CompleteDetail() {
 
   // ── Hapus pemeriksaan utama ──────────────────────────────────────────────
   const handleDelete = async () => {
-    if (!window.confirm("Apakah Anda yakin ingin menghapus semua data pemeriksaan ini?"))
+    if (!window.confirm("Apakah Anda yakin ingin menghapus semua data pemeriksaan ini? Seluruh Catatan Pelayanan pada Trimester ini juga akan ikut terhapus."))
       return;
     try {
+      // Hapus semua catatan pelayanan T1 terkait terlebih dahulu
+      if (catatanList.length > 0) {
+        const deleteNotesPromises = catatanList.map((c) => deleteCatatanT1(c.id_catatan));
+        await Promise.all(deleteNotesPromises);
+      }
+
+      // Hapus data pemeriksaan utama
       await deleteDokterT1Complete(data.dokter.id);
-      alert("Data berhasil dihapus.");
+      alert("Data pemeriksaan dan catatan terkait berhasil dihapus.");
       navigate(`/data-ibu/${id}`);
     } catch (err) {
+      console.error("Delete error:", err);
       alert("Gagal menghapus data.");
     }
   };
@@ -696,6 +704,25 @@ export default function PemeriksaanDokterT1CompleteDetail() {
                 )}
               </div>
             </div>
+
+            {/* Display USG Image */}
+            {d.gambar_usg && (
+              <div className="mt-4 pt-4 border-t border-violet-200">
+                <p className="text-xs font-bold text-violet-600 uppercase tracking-widest mb-3">
+                  Gambar USG
+                </p>
+                <div className="flex justify-center">
+                  <img
+                    src={d.gambar_usg}
+                    alt="USG Image"
+                    className="max-w-full max-h-96 rounded-lg border border-violet-200 shadow-sm"
+                    onError={(e) => {
+                      e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Crect fill='%23f3f4f6' width='200' height='200'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%239ca3af' font-size='14'%3EImage not available%3C/text%3E%3C/svg%3E";
+                    }}
+                  />
+                </div>
+              </div>
+            )}
           </DetailSection>
 
           {/* SEKSI 4: Laboratorium */}
@@ -916,7 +943,7 @@ export default function PemeriksaanDokterT1CompleteDetail() {
                   <p className="text-xs text-gray-400 mb-4">
                     Tambahkan catatan keluhan, tindakan, atau saran untuk kunjungan ini
                   </p>
-                  <button
+                  <button 
                     type="button"
                     onClick={handleTambahCatatan}
                     className="flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition"
@@ -988,6 +1015,7 @@ export default function PemeriksaanDokterT1CompleteDetail() {
               )}
             </div>
           </div>
+          
           {/* ══ End Catatan ══ */}
         </div>
         {/* End space-y-4 */}

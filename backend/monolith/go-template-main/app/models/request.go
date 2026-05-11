@@ -4,15 +4,53 @@ import "time"
 
 type CreateAnakRequest struct {
 	KehamilanID   int32    `json:"kehamilan_id" validate:"required"`
-	PendudukID    int32    `json:"penduduk_id" validate:"required"`
+	PendudukID    int32    `json:"penduduk_id"`
+	Nama          string   `json:"nama"`
+	JenisKelamin  string   `json:"jenis_kelamin"`
+	TanggalLahir  string   `json:"tanggal_lahir"`
 	BeratLahirKg  *float64 `json:"berat_lahir_kg,omitempty"`
 	TinggiLahirCm *float64 `json:"tinggi_lahir_cm,omitempty"`
+	AnakKe        int32    `json:"anak_ke"`
+	LingkarKepalaCm *float64 `json:"lingkar_kepala_cm,omitempty"`
+	NamaIbu       string   `json:"nama_ibu"`
+	NamaAyah      string   `json:"nama_ayah"`
+	IbuID         int32    `json:"ibu_id"`
+}
+
+// CreateAnakDenganPendudukRequest: create anak + bikin penduduk baru sekaligus
+type CreateAnakDenganPendudukRequest struct {
+	// Data kehamilan dan ibu
+	KehamilanID int32  `json:"kehamilan_id" validate:"required"`
+	IbuID       int32  `json:"ibu_id" validate:"required"`
+	NamaIbu     string `json:"nama_ibu"`
+	NamaAyah    string `json:"nama_ayah"`
+	
+	// Data anak (measurement)
+	AnakKe          int32    `json:"anak_ke"`
+	BeratLahirKg    *float64 `json:"berat_lahir_kg,omitempty"`
+	TinggiLahirCm   *float64 `json:"tinggi_lahir_cm,omitempty"`
+	LingkarKepalaCm *float64 `json:"lingkar_kepala_cm,omitempty"`
+	
+	// Data penduduk baru (anak)
+	Nama          string `json:"nama" validate:"required"`
+	TanggalLahir  string `json:"tanggal_lahir" validate:"required,datetime=2006-01-02"`
+	JenisKelamin  string `json:"jenis_kelamin" validate:"required"`
+	TempatLahir   string `json:"tempat_lahir,omitempty"`
+	GolonganDarah string `json:"golongan_darah,omitempty"`
 }
 
 // UpdateAnakRequest adalah body request untuk PUT /anak/:id.
 type UpdateAnakRequest struct {
-	BeratLahirKg  *float64 `json:"berat_lahir_kg,omitempty"`
-	TinggiLahirCm *float64 `json:"tinggi_lahir_cm,omitempty"`
+	BeratLahirKg    *float64 `json:"berat_lahir_kg,omitempty"`
+	TinggiLahirCm   *float64 `json:"tinggi_lahir_cm,omitempty"`
+	AnakKe          *int32   `json:"anak_ke,omitempty"`
+	LingkarKepalaCm *float64 `json:"lingkar_kepala_cm,omitempty"`
+	NamaIbu         *string  `json:"nama_ibu,omitempty"`
+	NamaAyah        *string  `json:"nama_ayah,omitempty"`
+	// Data Penduduk (anak) — diperbarui ke tabel kependudukan
+	Nama         string `json:"nama,omitempty"`
+	JenisKelamin string `json:"jenis_kelamin,omitempty"`
+	TanggalLahir string `json:"tanggal_lahir,omitempty"`
 }
 
 type DetailPelayananRequest struct {
@@ -94,8 +132,8 @@ type UpdatePelayananGiziRequest struct {
 }
 
 type CreateKunjunganVitaminRequest struct {
-	AnakID  int32     `json:"anak_id"`
-	Tanggal time.Time `json:"tanggal"`
+	AnakID  int32  `json:"anak_id"`
+	Tanggal string `json:"tanggal"`
 
 	Detail []CreateDetailPelayananVitaminRequest `json:"detail"`
 }
@@ -104,9 +142,9 @@ type CreateDetailPelayananVitaminRequest struct {
 	Keterangan       string `json:"keterangan"`
 }
 type UpdateKunjunganVitaminRequest struct {
-	ID      int32     `json:"id"`
-	AnakID  int32     `json:"anak_id"`
-	Tanggal time.Time `json:"tanggal"`
+	ID      int32  `json:"id"`
+	AnakID  int32  `json:"anak_id"`
+	Tanggal string `json:"tanggal"`
 
 	Detail []UpdateDetailPelayananVitaminRequest `json:"detail"`
 }
@@ -117,11 +155,11 @@ type UpdateDetailPelayananVitaminRequest struct {
 }
 
 type CreateKunjunganImunisasiRequest struct {
-	AnakID  int32     `json:"anak_id"`
-	Tanggal time.Time `json:"tanggal"`
-	Bulanke int       `json:"bulan_ke"`
+	AnakID  int32  `json:"anak_id"`
+	Tanggal string `json:"tanggal"`
+	Bulanke int    `json:"bulan_ke"`
 
-	Detail []CreateDetailPelayananVitaminRequest `json:"detail"`
+	Detail []CreateDetailPelayananImunisasiRequest `json:"detail"`
 }
 type CreateDetailPelayananImunisasiRequest struct {
 	JenisPelayananID int32  `json:"jenis_pelayanan_id"`
@@ -129,10 +167,10 @@ type CreateDetailPelayananImunisasiRequest struct {
 }
 
 type UpdateKunjunganImunisasiRequest struct {
-	ID      int32     `json:"id"`
-	AnakID  int32     `json:"anak_id"`
-	Tanggal time.Time `json:"tanggal"`
-	Bulanke int       `json:"bulan_ke"`
+	ID      int32  `json:"id"`
+	AnakID  int32  `json:"anak_id"`
+	Tanggal string `json:"tanggal"`
+	Bulanke int    `json:"bulan_ke"`
 
 	Detail []UpdateDetailPelayananImunisasiRequest `json:"detail"`
 }
@@ -143,61 +181,61 @@ type UpdateDetailPelayananImunisasiRequest struct {
 }
 
 type CreatePemeriksaanGigiRequest struct {
-	AnakID              int32     `json:"anak_id"`
-	Bulanke             int       `json:"bulan_ke"`
-	Tanggal             time.Time `json:"tanggal"` // "YYYY-MM-DD"
-	Jumlahgigi          int       `json:"jumlah_gigi"`
-	GigiBerlubang       int       `json:"gigi_berlubang"`
-	StatusPlak          string    `json:"status_plak"`
-	ResikoGigiBerlubang string    `json:"resiko_gigi_berlubang"`
+	AnakID              int32  `json:"anak_id"`
+	Bulanke             int    `json:"bulan_ke"`
+	Tanggal             string `json:"tanggal"`
+	Jumlahgigi          int    `json:"jumlah_gigi"`
+	GigiBerlubang       int    `json:"gigi_berlubang"`
+	StatusPlak          string `json:"status_plak"`
+	ResikoGigiBerlubang string `json:"resiko_gigi_berlubang"`
 }
 
 type UpdatePemeriksaanGigiRequest struct {
-	ID                  int32     `json:"id"`
-	AnakID              int32     `json:"anak_id"`
-	Bulanke             int       `json:"bulan_ke"`
-	Tanggal             time.Time `json:"tanggal"` // "YYYY-MM-DD"
-	Jumlahgigi          int       `json:"jumlah_gigi"`
-	GigiBerlubang       int       `json:"gigi_berlubang"`
-	StatusPlak          string    `json:"status_plak"`
-	ResikoGigiBerlubang string    `json:"resiko_gigi_berlubang"`
+	ID                  int32  `json:"id"`
+	AnakID              int32  `json:"anak_id"`
+	Bulanke             int    `json:"bulan_ke"`
+	Tanggal             string `json:"tanggal"`
+	Jumlahgigi          int    `json:"jumlah_gigi"`
+	GigiBerlubang       int    `json:"gigi_berlubang"`
+	StatusPlak          string `json:"status_plak"`
+	ResikoGigiBerlubang string `json:"resiko_gigi_berlubang"`
 }
 type CreatePemantauanPemeriksaanRequest struct {
-	AnakID            int32     `json:"anak_id"`
-	Bulanke           int       `json:"bulan_ke"`
-	Tanggal           time.Time `json:"tanggal"` // "YYYY-MM-DD"
-	TenagaKesehatanID int32     `json:"tenaga_kesehatan_id"`
-	BBperU            string    `json:"bb_u"`
-	BBperTB           string    `json:"bb_tb"`
-	TBperU            string    `json:"tb_u"`
-	LKperU            string    `json:"lk_u"`
-	LILA              string    `json:"lila"`
-	KPSP              string    `json:"kpsp"`
-	TDD               string    `json:"tdd"`
-	TDL               string    `json:"tdl"`
-	KMPE              string    `json:"kmpe"`
-	MCHATRevised      string    `json:"m_chat_revised"`
-	ACTRS             string    `json:"actrs"`
-	HasilPKAT         string    `json:"hasil_pkat"`
-	Tindakan          string    `json:"tindakan"`
-	KunjunganUlang    time.Time `json:"kunjungan_ulang"`
+	AnakID            int32  `json:"anak_id"`
+	Bulanke           int    `json:"bulan_ke"`
+	Tanggal           string `json:"tanggal"`
+	TenagaKesehatanID int32  `json:"tenaga_kesehatan_id"`
+	BBperU            string `json:"bb_u"`
+	BBperTB           string `json:"bb_tb"`
+	TBperU            string `json:"tb_u"`
+	LKperU            string `json:"lk_u"`
+	LILA              string `json:"lila"`
+	KPSP              string `json:"kpsp"`
+	TDD               string `json:"tdd"`
+	TDL               string `json:"tdl"`
+	KMPE              string `json:"kmpe"`
+	MCHATRevised      string `json:"m_chat_revised"`
+	ACTRS             string `json:"actrs"`
+	HasilPKAT         string `json:"hasil_pkat"`
+	Tindakan          string `json:"tindakan"`
+	KunjunganUlang    string `json:"kunjungan_ulang"`
 }
 
 type UpdatePemantauanPemeriksaanRequest struct {
-	ID                int32     `json:"id"`
-	AnakID            int32     `json:"anak_id"`
-	Bulanke           int       `json:"bulan_ke"`
-	Tanggal           time.Time `json:"tanggal"` // "YYYY-MM-DD"
-	TenagaKesehatanID int32     `json:"tenaga_kesehatan_id"`
-	BBperU            string    `json:"bb_u"`
-	BBperTB           string    `json:"bb_tb"`
-	TBperU            string    `json:"tb_u"`
-	LKperU            string    `json:"lk_u"`
-	LILA              string    `json:"lila"`
-	KPSP              string    `json:"kpsp"`
-	TDD               string    `json:"tdd"`
-	TDL               string    `json:"tdl"`
-	KMPE              string    `json:"kmpe"`
+	ID                int32  `json:"id"`
+	AnakID            int32  `json:"anak_id"`
+	Bulanke           int    `json:"bulan_ke"`
+	Tanggal           string `json:"tanggal"`
+	TenagaKesehatanID int32  `json:"tenaga_kesehatan_id"`
+	BBperU            string `json:"bb_u"`
+	BBperTB           string `json:"bb_tb"`
+	TBperU            string `json:"tb_u"`
+	LKperU            string `json:"lk_u"`
+	LILA              string `json:"lila"`
+	KPSP              string `json:"kpsp"`
+	TDD               string `json:"tdd"`
+	TDL               string `json:"tdl"`
+	KMPE              string `json:"kmpe"`
 	MCHATRevised      string    `json:"m_chat_revised"`
 	ACTRS             string    `json:"actrs"`
 	HasilPKAT         string    `json:"hasil_pkat"`
@@ -206,20 +244,20 @@ type UpdatePemantauanPemeriksaanRequest struct {
 }
 
 type CreatePengukuranLilARequest struct {
-	AnakID         int32     `json:"anak_id"`
-	Bulanke        int       `json:"bulan_ke"`
-	Tanggal        time.Time `json:"tanggal"` //
-	HasilLila      float64   `json:"hasil_lila"`
-	KategoriRisiko string    `json:"kategori_risiko"`
+	AnakID         int32   `json:"anak_id"`
+	Bulanke        int     `json:"bulan_ke"`
+	Tanggal        string  `json:"tanggal"`
+	HasilLila      float64 `json:"hasil_lila"`
+	KategoriRisiko string  `json:"kategori_risiko"`
 }
 
 type UpdatePengukuranLilARequest struct {
-	ID             int32     `json:"id"`
-	AnakID         int32     `json:"anak_id"`
-	Bulanke        int       `json:"bulan_ke"`
-	Tanggal        time.Time `json:"tanggal"` //
-	HasilLila      float64   `json:"hasil_lila"`
-	KategoriRisiko string    `json:"kategori_risiko"`
+	ID             int32   `json:"id"`
+	AnakID         int32   `json:"anak_id"`
+	Bulanke        int     `json:"bulan_ke"`
+	Tanggal        string  `json:"tanggal"`
+	HasilLila      float64 `json:"hasil_lila"`
+	KategoriRisiko string  `json:"kategori_risiko"`
 }
 
 type CreateCatatanPelayananRequest struct {
@@ -245,6 +283,7 @@ type CreatePertumbuhanRequest struct {
 	BeratBadan    float64 `json:"berat_badan" binding:"required"`
 	TinggiBadan   float64 `json:"tinggi_badan" binding:"required"`
 	LingkarKepala float64 `json:"lingkar_kepala,omitempty"`
+	HasilLila     float64 `json:"hasil_lila,omitempty"`
 	CatatanNakes  string  `json:"catatan_nakes,omitempty"`
 }
 
@@ -253,6 +292,7 @@ type UpdatePertumbuhanRequest struct {
 	BeratBadan    float64 `json:"berat_badan"`
 	TinggiBadan   float64 `json:"tinggi_badan"`
 	LingkarKepala float64 `json:"lingkar_kepala,omitempty"`
+	HasilLila     float64 `json:"hasil_lila,omitempty"`
 	CatatanNakes  string  `json:"catatan_nakes,omitempty"`
 }
 type CatatanPertumbuhanResponse struct {
@@ -266,6 +306,7 @@ type CatatanPertumbuhanResponse struct {
 	BeratBadan    float64       `json:"berat_badan"`
 	TinggiBadan   float64       `json:"tinggi_badan"`
 	LingkarKepala float64       `json:"lingkar_kepala"`
+	HasilLila     float64       `json:"hasil_lila"`
 	IMT           float64       `json:"imt"`
 	StatusBBU     string        `json:"status_bb_u"`
 	StatusTBU     string        `json:"status_tb_u"`

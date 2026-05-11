@@ -29,9 +29,13 @@ func (u *kunjunganVitaminUseCase) Create(req models.CreateKunjunganVitaminReques
 	}
 
 	now := time.Now()
-	tgl := req.Tanggal
-	if tgl.IsZero() {
-		tgl = now
+	tgl := now
+	if req.Tanggal != "" {
+		if t, err := time.Parse("2006-01-02", req.Tanggal); err == nil {
+			tgl = t
+		} else if t, err := time.Parse(time.RFC3339, req.Tanggal); err == nil {
+			tgl = t
+		}
 	}
 
 	kunjungan := models.KunjunganVitamin{

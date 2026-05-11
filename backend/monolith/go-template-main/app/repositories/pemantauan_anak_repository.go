@@ -6,17 +6,18 @@ import (
 )
 
 type PemantauanAnakRepository interface {
-	Create(record *models.LembarPemantauanAnak) error
-	Update(record *models.LembarPemantauanAnak) error
-	Delete(id int32) error
-	FindByID(id int32) (*models.LembarPemantauanAnak, error)
-	FindByChildAndRange(anakID int32, rentangID int32) ([]models.LembarPemantauanAnak, error)
-	GetByPeriode(anakID int32, rentangID int32, periode int) (*models.LembarPemantauanAnak, error)
+	Create(record *models.LembarPemantauan) error
+	Update(record *models.LembarPemantauan) error
+	Delete(id uint) error
+	FindByID(id uint) (*models.LembarPemantauan, error)
+	FindByChildAndRange(anakID uint, rentangID uint) ([]models.LembarPemantauan, error)
+	GetByPeriode(anakID uint, rentangID uint, periode int) (*models.LembarPemantauan, error)
 	GetRentangUsia() ([]models.RentangUsia, error)
-	GetKategoriByRentang(rentangID int32) ([]models.KategoriTandaSakit, error)
+	GetKategoriByRentang(rentangID uint) ([]models.KategoriTandaSakit, error)
 	CreateKategori(data *models.KategoriTandaSakit) error
 	UpdateKategori(data *models.KategoriTandaSakit) error
-	DeleteKategori(id int32) error
+	DeleteKategori(id uint) error
+	UpdateStatus(id uint, status string, pemeriksa string) error
 }
 
 type pemantauanAnakRepository struct {
@@ -27,39 +28,39 @@ func NewPemantauanAnakRepository(db *gorm.DB) PemantauanAnakRepository {
 	return &pemantauanAnakRepository{db}
 }
 
-func (r *pemantauanAnakRepository) Create(record *models.LembarPemantauanAnak) error {
+func (r *pemantauanAnakRepository) Create(record *models.LembarPemantauan) error {
 	return r.db.Create(record).Error
 }
 
-func (r *pemantauanAnakRepository) Update(record *models.LembarPemantauanAnak) error {
+func (r *pemantauanAnakRepository) Update(record *models.LembarPemantauan) error {
 	return r.db.Transaction(func(tx *gorm.DB) error {
-		if err := tx.Where("lembar_pemantauan_anak_id = ?", record.ID).Delete(&models.DetailPemantauanAnak{}).Error; err != nil {
+		if err := tx.Where("lembar_pemantauan_id = ?", record.ID).Delete(&models.DetailPemantauan{}).Error; err != nil {
 			return err
 		}
 		return tx.Save(record).Error
 	})
 }
 
-func (r *pemantauanAnakRepository) Delete(id int32) error {
-	return r.db.Delete(&models.LembarPemantauanAnak{}, id).Error
+func (r *pemantauanAnakRepository) Delete(id uint) error {
+	return r.db.Delete(&models.LembarPemantauan{}, id).Error
 }
 
-func (r *pemantauanAnakRepository) FindByID(id int32) (*models.LembarPemantauanAnak, error) {
-	var record models.LembarPemantauanAnak
+func (r *pemantauanAnakRepository) FindByID(id uint) (*models.LembarPemantauan, error) {
+	var record models.LembarPemantauan
 	err := r.db.Preload("DetailGejala.KategoriTandaSakit").First(&record, id).Error
 	return &record, err
 }
 
-func (r *pemantauanAnakRepository) FindByChildAndRange(anakID int32, rentangID int32) ([]models.LembarPemantauanAnak, error) {
-	var records []models.LembarPemantauanAnak
+func (r *pemantauanAnakRepository) FindByChildAndRange(anakID uint, rentangID uint) ([]models.LembarPemantauan, error) {
+	var records []models.LembarPemantauan
 	err := r.db.Preload("DetailGejala.KategoriTandaSakit").
 		Where("anak_id = ? AND rentang_usia_id = ?", anakID, rentangID).
 		Order("periode_waktu asc").Find(&records).Error
 	return records, err
 }
 
-func (r *pemantauanAnakRepository) GetByPeriode(anakID int32, rentangID int32, periode int) (*models.LembarPemantauanAnak, error) {
-	var record models.LembarPemantauanAnak
+func (r *pemantauanAnakRepository) GetByPeriode(anakID uint, rentangID uint, periode int) (*models.LembarPemantauan, error) {
+	var record models.LembarPemantauan
 	err := r.db.Where("anak_id = ? AND rentang_usia_id = ? AND periode_waktu = ?", anakID, rentangID, periode).First(&record).Error
 	if err != nil {
 		return nil, err
@@ -73,7 +74,7 @@ func (r *pemantauanAnakRepository) GetRentangUsia() ([]models.RentangUsia, error
 	return data, err
 }
 
-func (r *pemantauanAnakRepository) GetKategoriByRentang(rentangID int32) ([]models.KategoriTandaSakit, error) {
+func (r *pemantauanAnakRepository) GetKategoriByRentang(rentangID uint) ([]models.KategoriTandaSakit, error) {
 	var data []models.KategoriTandaSakit
 	err := r.db.Where("rentang_usia_id = ?", rentangID).Find(&data).Error
 	return data, err
@@ -87,6 +88,13 @@ func (r *pemantauanAnakRepository) UpdateKategori(data *models.KategoriTandaSaki
 	return r.db.Save(data).Error
 }
 
-func (r *pemantauanAnakRepository) DeleteKategori(id int32) error {
+func (r *pemantauanAnakRepository) DeleteKategori(id uint) error {
 	return r.db.Delete(&models.KategoriTandaSakit{}, id).Error
+}
+
+func (r *pemantauanAnakRepository) UpdateStatus(id uint, status string, pemeriksa string) error {
+	return r.db.Model(&models.LembarPemantauan{}).Where("id = ?", id).Updates(map[string]interface{}{
+		"status":         status,
+		"nama_pemeriksa": pemeriksa,
+	}).Error
 }

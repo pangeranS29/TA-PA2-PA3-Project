@@ -22,7 +22,7 @@ func (r *KehamilanRepository) Create(kehamilan *models.Kehamilan) error {
 
 func (r *KehamilanRepository) FindByID(id int32) (*models.Kehamilan, error) {
 	var kehamilan models.Kehamilan
-	err := r.db.Preload("Ibu.Kependudukan").Preload("Anak").First(&kehamilan, id).Error
+	err := r.db.Preload("Ibu").Preload("Ibu.Kependudukan").Preload("Anak").First(&kehamilan, id).Error
 	if err != nil {
 		return nil, err
 	}
@@ -119,4 +119,24 @@ func (r *KehamilanRepository) ExistsActiveByIbuID(ibuID int32) (bool, error) {
 		Count(&count).Error
 
 	return count > 0, err
+}
+
+// GetActiveKehamilanList mengambil semua kehamilan dengan status TRIMESTER (1,2,3) dan HPHT tidak kosong
+func (r *KehamilanRepository) GetActiveKehamilanList() ([]models.Kehamilan, error) {
+    var list []models.Kehamilan
+    err := r.db.
+        Where("status_kehamilan IN ?", []string{"TRIMESTER 1", "TRIMESTER 2", "TRIMESTER 3"}).
+        Where("hpht IS NOT NULL").
+        Find(&list).Error
+    return list, err
+}
+
+// UpdateUsiaDanStatusKehamilan mengupdate uk_kehamilan_saat_ini dan status_kehamilan berdasarkan ID
+func (r *KehamilanRepository) UpdateUsiaDanStatusKehamilan(id int32, usia int32, status string) error {
+    return r.db.Model(&models.Kehamilan{}).
+        Where("id = ?", id).
+        Updates(map[string]interface{}{
+            "uk_kehamilan_saat_ini": usia,
+            "status_kehamilan":      status,
+        }).Error
 }

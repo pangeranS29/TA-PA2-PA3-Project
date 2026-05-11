@@ -37,4 +37,4 @@ export const createGrafik = async (data) => {
 export const updateGrafik = async (id, data) => {
   const res = await api.put(`${BASE}/${id}`, data);
   return res.data.data;
-};
+};

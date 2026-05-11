@@ -28,7 +28,10 @@ export default function AnakDashboard() {
         setError(null);
         const [resAnak, resChart] = await Promise.all([
           getAnakById(id),
-          getPertumbuhanChart(id)
+          getPertumbuhanChart(id).catch(err => {
+            console.warn("Error fetching chart data:", err);
+            return { data: null };
+          })
         ]);
 
         if (isMounted) {
@@ -59,7 +62,8 @@ export default function AnakDashboard() {
   if (loading) return <MainLayout><div className="p-10 text-center font-medium text-gray-400">Memuat...</div></MainLayout>;
   if (error) return <MainLayout><div className="p-10 text-center text-red-500">{error}</div></MainLayout>;
 
-  const growthData = child?.pertumbuhan || [];
+  const growthData = chartData?.riwayat || child?.pertumbuhan || [];
+  const lastGrowth = growthData.length > 0 ? growthData[growthData.length - 1] : null;
   const isLaki = child?.jenis_kelamin?.toLowerCase() === "laki-laki";
   const themeColor = isLaki ? "#3b82f6" : "#ec4899";
 
@@ -98,8 +102,8 @@ export default function AnakDashboard() {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
           <StatCard icon={<Calendar size={20} />} label="Usia" value={child.usia_teks || "-"} color="blue" />
           <StatCard icon={<User size={20} />} label="Ibu" value={child.kehamilan?.ibu?.nama_ibu || "-"} color="blue" />
-          <StatCard icon={<Activity size={20} />} label="BB" value={`${growthData[growthData.length - 1]?.berat_badan || 0} kg`} color="blue" />
-          <StatCard icon={<Ruler size={20} />} label="TB" value={`${growthData[growthData.length - 1]?.tinggi_badan || 0} cm`} color="blue" />
+          <StatCard icon={<Activity size={20} />} label="BB" value={lastGrowth?.berat_badan ? `${lastGrowth.berat_badan} kg` : "- kg"} color="blue" />
+          <StatCard icon={<Ruler size={20} />} label="TB" value={lastGrowth?.tinggi_badan ? `${lastGrowth.tinggi_badan} cm` : "- cm"} color="blue" />
         </div>
 
         {/* GRAFIK: Ukuran standar */}

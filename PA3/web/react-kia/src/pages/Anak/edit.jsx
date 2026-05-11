@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import MainLayout from "../../components/Layout/MainLayout";
 import { useParams, useNavigate } from "react-router-dom";
-import { updateAnak, getAnak } from "../../services/Anak";
+import { updateAnak, getAnakById } from "../../services/Anak";
 import { ArrowLeft, Save, Baby, AlertCircle, Loader2 } from "lucide-react";
 
 export default function EditAnak() {
@@ -24,13 +24,18 @@ export default function EditAnak() {
     const fetchData = async () => {
       try {
         setFetching(true);
-        const res = await getAnak();
-        const data = res.data.find((item) => item.id === parseInt(id));
+        const res = await getAnakById(id);
+        const data = res.data;
         if (data) {
-          const formattedDate = data.tanggal_lahir ? data.tanggal_lahir.split('T')[0] : "";
+          // tanggal_lahir bisa ada di data langsung atau di penduduk nested
+          const rawDate = data.tanggal_lahir || data.penduduk?.tanggal_lahir || "";
+          // Abaikan tanggal default 0001-01-01
+          const formattedDate = rawDate && !rawDate.startsWith("0001")
+            ? rawDate.split('T')[0]
+            : "";
           setForm({
-            nama: data.nama || "",
-            jenis_kelamin: data.jenis_kelamin || "",
+            nama: data.nama || data.penduduk?.nama_lengkap || "",
+            jenis_kelamin: data.jenis_kelamin || data.penduduk?.jenis_kelamin || "",
             tanggal_lahir: formattedDate,
             berat_lahir_kg: data.berat_lahir_kg || ""
           });
@@ -79,7 +84,9 @@ export default function EditAnak() {
       alert("Perubahan data anak telah disimpan.");
       navigate("/daftar-anak");
     } catch (err) {
-      setGeneralError("Terjadi kesalahan saat menyimpan. Mohon coba lagi.");
+      console.error("Save Error:", err);
+      const msg = err.response?.data?.message || err.message || "Gagal menyimpan data";
+      alert(msg);
     } finally {
       setLoading(false);
     }
@@ -139,7 +146,7 @@ export default function EditAnak() {
               </div>
               <div className="pt-6 border-t flex flex-col md:flex-row gap-4 justify-end">
                 <button type="button" onClick={() => navigate(-1)} className="px-6 py-3 rounded-lg font-bold text-gray-600 hover:bg-gray-50 border">Batal</button>
-                <button type="submit" disabled={loading} className={`flex items-center justify-center gap-2 px-8 py-3 rounded-lg font-bold text-white transition-all ${loading ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}>
+                <button type="submit" disabled={loading} className={`flex items-center justify-center gap-2 px-8 py-3 rounded-lg font-bold text-white transition-all ${loading ? 'bg-indigo-400 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700'}`}>
                   {loading ? <Loader2 className="animate-spin" size={20} /> : <Save size={20} />}
                   {loading ? "Menyimpan..." : "Simpan Perubahan"}
                 </button>

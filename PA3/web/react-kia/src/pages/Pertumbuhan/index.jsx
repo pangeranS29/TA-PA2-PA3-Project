@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import MainLayout from "../../components/Layout/MainLayout";
 import {
@@ -110,10 +110,44 @@ export default function PertumbuhanIndex() {
         await addCatatanPertumbuhan(payload);
       }
       setIsModalOpen(false);
-      fetchData();
-      fetchPrediksi();
+      await fetchData();
+      // Prediksi otomatis setelah simpan jika ada LILA
+      await runPrediksiOtomatis();
+    } catch (err) {
+      console.error("Save Error:", err);
+      const msg = err.response?.data?.message || err.message || "Gagal menyimpan data";
+      alert(msg);
+    }
+  };
+
+  const runPrediksiOtomatis = async () => {
+    try {
+      // Ambil riwayat terbaru setelah save
+      const res = await getRiwayatPertumbuhan(id);
+      const latestRiwayat = res.data || [];
+      const lastWithLila = [...latestRiwayat].reverse().find((r) => r.hasil_lila && r.hasil_lila > 0);
+      const last = lastWithLila || latestRiwayat[latestRiwayat.length - 1];
+      if (!last || !last.hasil_lila) return; // tidak ada LILA, skip
+
+      const rawGender = anak?.jenis_kelamin || "";
+      const jenisKelamin = rawGender.toLowerCase().includes("perempuan") ? "Perempuan" : "Laki-laki";
+
+      setPrediksiLoading(true);
+      const res2 = await prediksiStunting({
+        anak_id:         parseInt(id),
+        berat_lahir_kg:  anak?.berat_lahir_kg,
+        tinggi_lahir_cm: anak?.tinggi_lahir_cm,
+        berat_badan:     last.berat_badan,
+        tinggi_badan:    last.tinggi_badan,
+        hasil_lila:      last.hasil_lila,
+        usia_ukur_bulan: last.usia_ukur_bulan,
+        jenis_kelamin:   jenisKelamin,
+      });
+      setPrediksi(res2);
     } catch {
-      alert("Gagal menyimpan data");
+      // prediksi gagal, abaikan
+    } finally {
+      setPrediksiLoading(false);
     }
   };
 
@@ -124,44 +158,6 @@ export default function PertumbuhanIndex() {
       fetchData();
     } catch {
       alert("Gagal menghapus data");
-    }
-  };
-
-  const handlePrediksi = async () => {
-    // Cari data terakhir yang punya LILA
-    const lastWithLila = [...riwayat].reverse().find((r) => r.hasil_lila && r.hasil_lila > 0);
-    const last = lastWithLila || riwayat[riwayat.length - 1] || riwayat[0];
-
-    if (!last) { alert("Belum ada data pengukuran."); return; }
-
-    const lilaValue = last.hasil_lila || 0;
-    if (!lilaValue || lilaValue <= 0) {
-      alert("Data LILA belum diisi pada pengukuran manapun.\nSilakan edit data pengukuran dan isi nilai LILA terlebih dahulu.");
-      return;
-    }
-
-    // Normalisasi jenis kelamin agar sesuai enum ML service
-    const rawGender = anak?.jenis_kelamin || anak?.penduduk?.jenis_kelamin || "";
-    const jenisKelamin = rawGender.toLowerCase().includes("perempuan") ? "Perempuan" : "Laki-laki";
-
-    setPrediksiLoading(true);
-    try {
-      const res = await prediksiStunting({
-        anak_id: parseInt(id),
-        berat_badan: last.berat_badan,
-        tinggi_badan: last.tinggi_badan,
-        lingkar_kepala: last.lingkar_kepala || 0,
-        hasil_lila: lilaValue,
-        usia_ukur_bulan: last.usia_ukur_bulan,
-        jenis_kelamin: jenisKelamin,
-      });
-      setPrediksi(res);
-    } catch (err) {
-      console.error("Prediksi error:", err?.response?.data || err?.message || err);
-      const detail = err?.message || "Pastikan ML service aktif di port 8000.";
-      alert(`Gagal prediksi.\n${detail}`);
-    } finally {
-      setPrediksiLoading(false);
     }
   };
 
@@ -218,14 +214,6 @@ export default function PertumbuhanIndex() {
             </div>
             <div className="flex gap-3 flex-wrap">
               <button
-                onClick={handlePrediksi}
-                disabled={prediksiLoading || riwayat.length === 0}
-                className="bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white px-5 py-3 rounded-2xl flex items-center gap-2 font-bold shadow-lg shadow-purple-100 transition-all active:scale-95"
-              >
-                <Brain size={18} />
-                {prediksiLoading ? "Memproses..." : "Prediksi Stunting"}
-              </button>
-              <button
                 onClick={handleOpenAdd}
                 className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-2xl flex items-center gap-2 font-bold shadow-lg shadow-blue-100 transition-all active:scale-95"
               >
@@ -235,7 +223,13 @@ export default function PertumbuhanIndex() {
           </div>
 
           {/* ── PANEL PREDIKSI ML ── */}
-          {prediksi && predStyle && (
+          {prediksiLoading && (
+            <div className="rounded-3xl border border-purple-200 bg-purple-50 p-4 flex items-center gap-3">
+              <div className="w-4 h-4 border-2 border-purple-400 border-t-transparent rounded-full animate-spin" />
+              <p className="text-sm font-semibold text-purple-700">Menganalisis risiko stunting...</p>
+            </div>
+          )}
+          {!prediksiLoading && prediksi && predStyle && (
             <div className={`rounded-3xl border p-6 ${predStyle.bg}`}>
               <div className="flex flex-col md:flex-row gap-6 items-start">
                 <div className="flex items-center gap-3">
@@ -356,12 +350,19 @@ export default function PertumbuhanIndex() {
 
               <div className="bg-purple-50 border border-purple-100 p-5 rounded-3xl">
                 <h4 className="text-xs font-black text-purple-700 uppercase tracking-widest mb-2 flex items-center gap-2">
-                  <Brain size={14} /> Prediksi ML
+                  <Brain size={14} /> Prediksi Stunting
                 </h4>
-                <p className="text-[10px] text-purple-600 leading-relaxed font-medium">
-                  Klik <strong>Prediksi Stunting</strong> untuk analisis ML berdasarkan data pengukuran terakhir.
-                  Pastikan field <strong>LILA</strong> sudah diisi.
-                </p>
+                {prediksiLoading ? (
+                  <p className="text-[10px] text-purple-600 font-medium">Menganalisis data...</p>
+                ) : prediksi ? (
+                  <p className="text-[10px] text-purple-600 leading-relaxed font-medium">
+                    Prediksi diperbarui otomatis setiap kali data pengukuran disimpan.
+                  </p>
+                ) : (
+                  <p className="text-[10px] text-purple-600 leading-relaxed font-medium">
+                    Prediksi akan berjalan otomatis saat menyimpan data pengukuran dengan <strong>LILA</strong>.
+                  </p>
+                )}
               </div>
             </div>
           </div>
@@ -532,7 +533,7 @@ export default function PertumbuhanIndex() {
 
               <div className="p-3 bg-purple-50 rounded-2xl border border-purple-100">
                 <p className="text-[10px] font-bold text-purple-600">
-                  Isi LILA untuk mengaktifkan prediksi stunting ML setelah menyimpan.
+                  Prediksi stunting ML akan berjalan otomatis setelah menyimpan jika LILA diisi.
                 </p>
               </div>
 

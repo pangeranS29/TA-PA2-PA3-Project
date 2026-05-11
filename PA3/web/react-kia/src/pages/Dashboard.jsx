@@ -1,6 +1,9 @@
-import React from "react";
+// src/pages/Dashboard.jsx
+import { useEffect, useState } from "react";
 import MainLayout from "../components/Layout/MainLayout";
+import { getIbuDashboard } from "../services/ibu"; // sesuaikan path
 
+// Ikon (sama seperti sebelumnya)
 const icons = {
   home: <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" /><polyline points="9,22 9,12 15,12 15,22" /></svg>,
   users: <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 00-3-3.87" /><path d="M16 3.13a4 4 0 010 7.75" /></svg>,
@@ -17,136 +20,12 @@ const icons = {
   warn: <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>,
 };
 
-
-
-const statCards = [
-  {
-    label: "Ibu Hamil Aktif",
-    value: "45",
-    icon: icons.preg,
-    iconBg: "#eff6ff",
-    iconColor: "#3b82f6",
-    sub1: { text: "5 Risiko Tinggi", color: "#ef4444", bg: "#fef2f2" },
-    sub2: { text: "12 Trimester 3", color: "#f59e0b", bg: "#fffbeb" },
-  },
-  {
-    label: "Balita Terdaftar",
-    value: "182",
-    icon: icons.baby,
-    iconBg: "#f0fdf4",
-    iconColor: "#10b981",
-    sub1: { text: "8 Perlu Perhatian", color: "#f59e0b", bg: "#fffbeb" },
-    sub2: { text: "17% Normal", color: "#10b981", bg: "#f0fdf4" },
-  },
-  {
-    label: "Capaian Imunisasi Dasar",
-    value: "78%",
-    icon: icons.imm,
-    iconBg: "#f0fdf4",
-    iconColor: "#10b981",
-    sub1: { text: "+5% Bulan ini", color: "#10b981", bg: "#f0fdf4" },
-    sub2: { text: "24 Bayi lengkap", color: "#64748b", bg: "#f8fafc" },
-  },
-  {
-    label: "Jadwal Pelayanan",
-    value: "12",
-    icon: icons.sched,
-    iconBg: "#eff6ff",
-    iconColor: "#3b82f6",
-    sub1: { text: "4 Posyandu minggu ini", color: "#3b82f6", bg: "#eff6ff" },
-    sub2: { text: "8 Kunjungan rumah", color: "#64748b", bg: "#f8fafc" },
-  },
-];
-
-const kpiData = [
-  { label: "Kunjungan Ibu Hamil (K4)", value: 72, target: 88, color: "#3b82f6" },
-  { label: "Persalinan di Fasilitas Kesehatan", value: 95, target: 100, color: "#10b981" },
-  { label: "Kunjungan Nifas (KF Lengkap)", value: 88, target: 90, color: "#10b981" },
-  { label: "Bayi Mendapat ASI Eksklusif", value: 64, target: 80, color: "#ef4444" },
-  { label: "Balita Ditimbang (D/S)", value: 85, target: 90, color: "#f59e0b" },
-];
-
-const posyanduData = [
-  { nama: "Posyandu Mawar 1", dusun: "Dusun I", hamil: 12, balita: 45, kader: "5 Orang" },
-  { nama: "Posyandu Mawar 2", dusun: "Dusun II", hamil: 15, balita: 50, kader: "4 Orang" },
-  { nama: "Posyandu Melati 1", dusun: "Dusun III", hamil: 8, balita: 35, kader: "5 Orang" },
-  { nama: "Posyandu Melati 2", dusun: "Dusun IV", hamil: 10, balita: 52, kader: "4 Orang" },
-];
-
-const risks = [
-  {
-    name: "Ny. Rini Martina (Kehamilan Risti)",
-    detail: "Usia kandungan 34 mg dengan riwayat hipertensi. Jadwal periksa terlambat 3 hari.",
-    color: "#ef4444",
-    bg: "#fef2f2",
-    border: "#fecaca",
-  },
-  {
-    name: "An. Budi Saputra (T T)",
-    detail: "Berat badan tidak naik dalam 2 bulan berturut-turut. Rujuk ke puskesmas segera.",
-    color: "#f59e0b",
-    bg: "#fffbeb",
-    border: "#fde68a",
-  },
-  {
-    name: "Ny. Siti Aminah",
-    detail: "Belum melakukan Kunjungan Nifas (KF-1) hari ke-3 pasca persalinan.",
-    color: "#f59e0b",
-    bg: "#fffbeb",
-    border: "#fde68a",
-  },
-  {
-    name: "5 Balita Terlambat Imunisasi",
-    detail: "Imunisasi vaksin Rubella terlambat lebih dari 1 bulan dari jadwal.",
-    color: "#3b82f6",
-    bg: "#eff6ff",
-    border: "#bfdbfe",
-  },
-];
-
-const activities = [
-  { date: "15", month: "JUN", title: "Posyandu Mawar 1", time: "08:00 - 12:00 WIB" },
-  { date: "16", month: "JUN", title: "Posyandu Melati 2", time: "08:30 - 12:00 WIB" },
-  { date: "18", month: "JUN", title: "Kunjungan Rumah (2 Ibu Nifas)", time: "Dusun I & II" },
-];
-
-function ProgressBar({ value, color }) {
-  return (
-    <div style={{ position: "relative", height: 8, background: "#e2e8f0", borderRadius: 4, overflow: "hidden" }}>
-      <div
-        style={{
-          position: "absolute",
-          left: 0,
-          top: 0,
-          height: "100%",
-          width: `${value}%`,
-          background: color,
-          borderRadius: 4,
-          transition: "width 0.8s ease",
-        }}
-      />
-    </div>
-  );
-}
-
 function StatCard({ label, value, icon, iconBg, iconColor, sub1, sub2 }) {
   return (
     <div style={{ background: "#fff", borderRadius: 10, padding: "14px 16px", border: "1px solid #e2e8f0" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
         <div style={{ fontSize: 12, color: "#64748b", fontWeight: 500, lineHeight: 1.3 }}>{label}</div>
-        <div
-          style={{
-            width: 32,
-            height: 32,
-            background: iconBg,
-            borderRadius: 8,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: iconColor,
-            flexShrink: 0,
-          }}
-        >
+        <div style={{ width: 32, height: 32, background: iconBg, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", color: iconColor, flexShrink: 0 }}>
           {icon}
         </div>
       </div>
@@ -159,165 +38,265 @@ function StatCard({ label, value, icon, iconBg, iconColor, sub1, sub2 }) {
   );
 }
 
+// Grafik batang sederhana untuk status wilayah (berdasarkan risiko)
+function StatusChart({ data, total }) {
+  const colors = ["#ef4444", "#f59e0b", "#10b981"]; // Tinggi, Sedang, Rendah
+  return (
+    <div style={{ marginTop: 12 }}>
+      {data.map((item, idx) => {
+        const percent = total > 0 ? (item.jumlah / total) * 100 : 0;
+        return (
+          <div key={item.status} style={{ marginBottom: 12 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, marginBottom: 4 }}>
+              <span>{item.status}</span>
+              <span>{item.jumlah} ({percent.toFixed(1)}%)</span>
+            </div>
+            <div style={{ background: "#e2e8f0", borderRadius: 4, height: 8, overflow: "hidden" }}>
+              <div style={{ width: `${percent}%`, background: colors[idx % colors.length], height: "100%", borderRadius: 4 }} />
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// Fungsi untuk memproses data dari API
+const processDashboardData = (rawData) => {
+  // rawData adalah array dari response.data
+  const kehamilanList = rawData.filter(item => item.kehamilan_id && item.kehamilan_id !== 0); // abaikan yang tidak valid
+  
+  const total_kehamilan = kehamilanList.length;
+  
+  // Kehamilan aktif: status_kehamilan mengandung "TRIMESTER"
+  const aktifList = kehamilanList.filter(item => item.status_kehamilan && item.status_kehamilan.includes("TRIMESTER"));
+  const kehamilan_aktif = aktifList.length;
+  
+  // Risiko tinggi: status_risiko === "Tinggi" (case sensitive)
+  const risikoTinggiList = kehamilanList.filter(item => item.status_risiko === "Tinggi");
+  const resiko_tinggi = risikoTinggiList.length;
+  
+  // Per dusun: hitung semua kehamilan (atau bisa hanya aktif? pilih semua kehamilan)
+  const dusunMap = new Map();
+  kehamilanList.forEach(item => {
+    const dusun = item.dusun || "Tidak diketahui";
+    dusunMap.set(dusun, (dusunMap.get(dusun) || 0) + 1);
+  });
+  const per_dusun = Array.from(dusunMap.entries()).map(([dusun, jumlah]) => ({ dusun, jumlah }));
+  
+  // Status wilayah berdasarkan level risiko: Tinggi, Sedang, Lainnya (kosong atau tidak berisiko)
+  const tingkatRisiko = { "Tinggi": 0, "Sedang": 0, "Lainnya": 0 };
+  kehamilanList.forEach(item => {
+    const risiko = item.status_risiko;
+    if (risiko === "Tinggi") tingkatRisiko.Tinggi++;
+    else if (risiko === "Sedang" || risiko === "Sedamng") tingkatRisiko.Sedang++; // typo "Sedamng"
+    else tingkatRisiko.Lainnya++;
+  });
+  const status_wilayah = [
+    { status: "Risiko Tinggi", jumlah: tingkatRisiko.Tinggi },
+    { status: "Risiko Sedang", jumlah: tingkatRisiko.Sedang },
+    { status: "Risiko Rendah / Normal", jumlah: tingkatRisiko.Lainnya },
+  ].filter(s => s.jumlah > 0);
+  
+  // Daftar ibu risiko tinggi (data per kehamilan)
+  const daftar_resiko = risikoTinggiList.map(item => ({
+    nama: item.nama_lengkap,
+    detail: `Dusun ${item.dusun}, usia kehamilan ${item.usia_kehamilan} minggu, status: ${item.status_kehamilan || "tidak aktif"}`,
+  }));
+  
+  return {
+    total_kehamilan,
+    kehamilan_aktif,
+    resiko_tinggi,
+    per_dusun,
+    status_wilayah,
+    daftar_resiko,
+  };
+};
+
 export default function Dashboard() {
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [data, setData] = useState({
+    total_kehamilan: 0,
+    kehamilan_aktif: 0,
+    resiko_tinggi: 0,
+    per_dusun: [],
+    status_wilayah: [],
+    daftar_resiko: [],
+  });
+
+  useEffect(() => {
+    const fetchDashboard = async () => {
+      try {
+        setLoading(true);
+        const response = await getIbuDashboard(); // asumsikan ini mengembalikan { status_code, message, data: [...] }
+        // Jika getIbuDashboard langsung mengembalikan data array, sesuaikan.
+        // Berdasarkan contoh, response mungkin { status_code, data }.
+        // Kita perlu akses response.data jika response berbentuk object.
+        let rawData = response;
+        if (response && response.data && Array.isArray(response.data)) {
+          rawData = response.data;
+        } else if (Array.isArray(response)) {
+          rawData = response;
+        } else {
+          throw new Error("Format response tidak sesuai");
+        }
+        const processed = processDashboardData(rawData);
+        setData(processed);
+      } catch (err) {
+        console.error(err);
+        setError("Gagal memuat data dashboard. Periksa koneksi atau format data.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDashboard();
+  }, []);
+
+  if (loading) {
+    return (
+      <MainLayout>
+        <div style={{ textAlign: "center", padding: 40 }}>Memuat data dashboard...</div>
+      </MainLayout>
+    );
+  }
+
+  if (error) {
+    return (
+      <MainLayout>
+        <div style={{ textAlign: "center", padding: 40, color: "#ef4444" }}>{error}</div>
+      </MainLayout>
+    );
+  }
+
+  // Statcards dinamis
+  const statCards = [
+    {
+      label: "Total Kehamilan",
+      value: data.total_kehamilan,
+      icon: icons.preg,
+      iconBg: "#eff6ff",
+      iconColor: "#3b82f6",
+      sub1: { text: `${data.kehamilan_aktif} Aktif`, color: "#10b981", bg: "#f0fdf4" },
+      sub2: { text: `${data.total_kehamilan - data.kehamilan_aktif} Tidak Aktif`, color: "#64748b", bg: "#f8fafc" },
+    },
+    {
+      label: "Kehamilan Aktif",
+      value: data.kehamilan_aktif,
+      icon: icons.heart,
+      iconBg: "#f0fdf4",
+      iconColor: "#10b981",
+      sub1: { text: `${data.resiko_tinggi} Risiko Tinggi`, color: "#ef4444", bg: "#fef2f2" },
+      sub2: { text: `${((data.resiko_tinggi / (data.kehamilan_aktif || 1)) * 100).toFixed(0)}% dari aktif`, color: "#f59e0b", bg: "#fffbeb" },
+    },
+    {
+      label: "Ibu Risiko Tinggi",
+      value: data.resiko_tinggi,
+      icon: icons.warn,
+      iconBg: "#fef2f2",
+      iconColor: "#ef4444",
+      sub1: { text: "Perlu penanganan", color: "#ef4444", bg: "#fef2f2" },
+      sub2: { text: "Segera tindak lanjut", color: "#f59e0b", bg: "#fffbeb" },
+    },
+    {
+      label: "Rata-rata per Dusun",
+      value: data.per_dusun.length ? Math.round(data.total_kehamilan / data.per_dusun.length) : 0,
+      icon: icons.users,
+      iconBg: "#f8fafc",
+      iconColor: "#64748b",
+      sub1: { text: `${data.per_dusun.length} Dusun aktif`, color: "#3b82f6", bg: "#eff6ff" },
+      sub2: { text: "Sebaran merata", color: "#64748b", bg: "#f8fafc" },
+    },
+  ];
+
+  const totalStatus = data.status_wilayah.reduce((sum, s) => sum + s.jumlah, 0);
+
   return (
     <MainLayout>
       <div style={{ background: "#f0f4f8", borderRadius: 14, border: "1px solid #e2e8f0", overflow: "hidden" }}>
         <div style={{ padding: "16px 20px" }}>
-          <div style={{ display: "flex", gap: 10, alignItems: "center", justifyContent: "flex-end", flexWrap: "wrap", marginBottom: 16 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 6, background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 7, padding: "7px 12px" }}>
-              {icons.search}
-              <input
-                placeholder="Cari nama atau NIK"
-                style={{ border: "none", outline: "none", background: "transparent", fontSize: 12.5, color: "#475569", width: 150 }}
-              />
-            </div>
-            <button
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 6,
-                background: "#2563eb",
-                color: "#fff",
-                border: "none",
-                borderRadius: 7,
-                padding: "7px 14px",
-                fontSize: 12.5,
-                fontWeight: 600,
-                cursor: "pointer",
-              }}
-            >
-              {icons.sync} Sinkron Data
-            </button>
-          </div>
-
+          
+          {/* 4 Stat Cards */}
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))", gap: 12, marginBottom: 16 }}>
             {statCards.map((s) => <StatCard key={s.label} {...s} />)}
           </div>
 
+          {/* Dua kolom: grafik status wilayah + tabel per dusun (kiri) dan daftar risiko (kanan) */}
           <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_320px] gap-3">
+            {/* Kolom Kiri */}
             <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr)", gap: 12 }}>
+              {/* Grafik Status Wilayah */}
               <div style={{ background: "#fff", borderRadius: 10, padding: "16px", border: "1px solid #e2e8f0" }}>
-                <h2 style={{ fontSize: 14, fontWeight: 700, color: "#0f172a" }}>Capaian Indikator Kinerja</h2>
-                <p style={{ fontSize: 11.5, color: "#64748b", marginTop: 2, marginBottom: 14 }}>
-                  Persentase pencapaian program KIA di Desa Suka Maju bulan ini.
+                <h2 style={{ fontSize: 14, fontWeight: 700, color: "#0f172a" }}>Status Risiko Kehamilan</h2>
+                <p style={{ fontSize: 11.5, color: "#64748b", marginTop: 2, marginBottom: 12 }}>
+                  Distribusi berdasarkan tingkat risiko.
                 </p>
-                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                  {kpiData.map((k) => (
-                    <div key={k.label}>
-                      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 5, gap: 10 }}>
-                        <span style={{ fontSize: 12.5, color: "#374151", fontWeight: 500 }}>{k.label}</span>
-                        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                          <span style={{ fontSize: 13, fontWeight: 700, color: "#0f172a" }}>{k.value}%</span>
-                          <span style={{ fontSize: 10.5, color: "#94a3b8" }}>/ Target {k.target}%</span>
-                        </div>
-                      </div>
-                      <ProgressBar value={k.value} color={k.color} />
-                    </div>
-                  ))}
-                </div>
+                {data.status_wilayah.length > 0 ? (
+                  <StatusChart data={data.status_wilayah} total={totalStatus} />
+                ) : (
+                  <div style={{ textAlign: "center", padding: 20, color: "#94a3b8", fontSize: 13 }}>Tidak ada data risiko</div>
+                )}
               </div>
 
+              {/* Tabel Kehamilan per Dusun */}
               <div style={{ background: "#fff", borderRadius: 10, border: "1px solid #e2e8f0", overflowX: "auto" }}>
                 <div style={{ padding: "14px 16px", borderBottom: "1px solid #e2e8f0" }}>
-                  <h2 style={{ fontSize: 14, fontWeight: 700, color: "#0f172a" }}>Sebaran per Posyandu</h2>
+                  <h2 style={{ fontSize: 14, fontWeight: 700, color: "#0f172a" }}>Kehamilan per Dusun</h2>
                   <p style={{ fontSize: 11.5, color: "#64748b", marginTop: 2 }}>
-                    Data sasaran aktif pada 4 posyandu di wilayah kerja.
+                    Jumlah seluruh kehamilan di setiap dusun.
                   </p>
                 </div>
-                <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 740 }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 400 }}>
                   <thead>
                     <tr style={{ background: "#f8fafc" }}>
-                      {["Nama Posyandu", "Dusun / Wilayah", "Ibu Hamil", "Balita", "Kader Aktif", "Status"].map((h) => (
-                        <th key={h} style={{ padding: "9px 14px", textAlign: "left", fontSize: 11.5, fontWeight: 600, color: "#64748b", borderBottom: "1px solid #e2e8f0" }}>
-                          {h}
-                        </th>
-                      ))}
+                      <th style={{ padding: "9px 14px", textAlign: "left", fontSize: 11.5, fontWeight: 600, color: "#64748b", borderBottom: "1px solid #e2e8f0" }}>Dusun</th>
+                      <th style={{ padding: "9px 14px", textAlign: "left", fontSize: 11.5, fontWeight: 600, color: "#64748b", borderBottom: "1px solid #e2e8f0" }}>Jumlah Kehamilan</th>
+                      <th style={{ padding: "9px 14px", textAlign: "left", fontSize: 11.5, fontWeight: 600, color: "#64748b", borderBottom: "1px solid #e2e8f0" }}>Persentase</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {posyanduData.map((p, i) => (
-                      <tr key={p.nama} style={{ borderBottom: i < posyanduData.length - 1 ? "1px solid #f1f5f9" : "none" }}>
-                        <td style={{ padding: "10px 14px", fontSize: 12.5, fontWeight: 600, color: "#0f172a" }}>{p.nama}</td>
-                        <td style={{ padding: "10px 14px", fontSize: 12.5, color: "#475569" }}>{p.dusun}</td>
-                        <td style={{ padding: "10px 14px", fontSize: 12.5, color: "#0f172a", fontWeight: 500 }}>{p.hamil}</td>
-                        <td style={{ padding: "10px 14px", fontSize: 12.5, color: "#0f172a", fontWeight: 500 }}>{p.balita}</td>
-                        <td style={{ padding: "10px 14px", fontSize: 12.5, color: "#475569" }}>{p.kader}</td>
-                        <td style={{ padding: "10px 14px" }}>
-                          <span style={{ background: "#f0fdf4", color: "#16a34a", fontWeight: 600, fontSize: 11, padding: "3px 10px", borderRadius: 20 }}>
-                            Aktif
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
+                    {data.per_dusun.map((dusun, idx) => {
+                      const percent = data.total_kehamilan > 0 ? ((dusun.jumlah / data.total_kehamilan) * 100).toFixed(1) : 0;
+                      return (
+                        <tr key={dusun.dusun} style={{ borderBottom: idx < data.per_dusun.length - 1 ? "1px solid #f1f5f9" : "none" }}>
+                          <td style={{ padding: "10px 14px", fontSize: 12.5, fontWeight: 500, color: "#0f172a" }}>{dusun.dusun}</td>
+                          <td style={{ padding: "10px 14px", fontSize: 12.5, fontWeight: 600, color: "#0f172a" }}>{dusun.jumlah}</td>
+                          <td style={{ padding: "10px 14px", fontSize: 12.5, color: "#475569" }}>{percent}%</td>
+                        </tr>
+                      );
+                    })}
+                    {data.per_dusun.length === 0 && (
+                      <tr><td colSpan="3" style={{ padding: 20, textAlign: "center", color: "#94a3b8" }}>Belum ada data dusun</td></tr>
+                    )}
                   </tbody>
                 </table>
               </div>
             </div>
 
+            {/* Kolom Kanan: Daftar Ibu Risiko Tinggi */}
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               <div style={{ background: "#fff", borderRadius: 10, padding: "14px 16px", border: "1px solid #e2e8f0" }}>
-                <h2 style={{ fontSize: 14, fontWeight: 700, color: "#0f172a" }}>Peringatan & Risiko</h2>
+                <h2 style={{ fontSize: 14, fontWeight: 700, color: "#0f172a" }}>Ibu dengan Risiko Tinggi</h2>
                 <p style={{ fontSize: 11, color: "#64748b", marginTop: 2, marginBottom: 12 }}>
-                  Sasaran yang memerlukan perhatian segera.
+                  Kehamilan yang memerlukan perhatian segera.
                 </p>
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                  {risks.map((r) => (
-                    <div key={r.name} style={{ background: r.bg, border: `1px solid ${r.border}`, borderRadius: 8, padding: "10px 12px" }}>
-                      <div style={{ display: "flex", gap: 8, alignItems: "flex-start" }}>
-                        <div style={{ color: r.color, marginTop: 1, flexShrink: 0 }}>{icons.warn}</div>
-                        <div>
-                          <div style={{ fontSize: 12, fontWeight: 700, color: "#0f172a", marginBottom: 3 }}>{r.name}</div>
-                          <div style={{ fontSize: 11, color: "#475569", lineHeight: 1.5 }}>{r.detail}</div>
+                  {data.daftar_resiko.length > 0 ? (
+                    data.daftar_resiko.map((r, idx) => (
+                      <div key={idx} style={{ background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 8, padding: "10px 12px" }}>
+                        <div style={{ display: "flex", gap: 8, alignItems: "flex-start" }}>
+                          <div style={{ color: "#ef4444", marginTop: 1, flexShrink: 0 }}>{icons.warn}</div>
+                          <div>
+                            <div style={{ fontSize: 12, fontWeight: 700, color: "#0f172a", marginBottom: 3 }}>{r.nama}</div>
+                            <div style={{ fontSize: 11, color: "#475569", lineHeight: 1.5 }}>{r.detail}</div>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div style={{ background: "#fff", borderRadius: 10, padding: "14px 16px", border: "1px solid #e2e8f0" }}>
-                <h2 style={{ fontSize: 14, fontWeight: 700, color: "#0f172a" }}>Aktivitas Terdekat</h2>
-                <p style={{ fontSize: 11, color: "#64748b", marginTop: 2, marginBottom: 12 }}>
-                  Jadwal posyandu dan kunjungan minggu ini.
-                </p>
-                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                  {activities.map((a, i) => (
-                    <div
-                      key={`${a.date}-${a.title}`}
-                      style={{
-                        display: "flex",
-                        gap: 10,
-                        alignItems: "center",
-                        padding: "8px 0",
-                        borderBottom: i < activities.length - 1 ? "1px solid #f1f5f9" : "none",
-                      }}
-                    >
-                      <div
-                        style={{
-                          width: 38,
-                          height: 42,
-                          background: "#eff6ff",
-                          borderRadius: 8,
-                          display: "flex",
-                          flexDirection: "column",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          flexShrink: 0,
-                        }}
-                      >
-                        <span style={{ fontSize: 15, fontWeight: 700, color: "#2563eb", lineHeight: 1 }}>{a.date}</span>
-                        <span style={{ fontSize: 9, fontWeight: 600, color: "#3b82f6", letterSpacing: "0.05em" }}>{a.month}</span>
-                      </div>
-                      <div style={{ flex: 1 }}>
-                        <div style={{ fontSize: 12.5, fontWeight: 600, color: "#0f172a" }}>{a.title}</div>
-                        <div style={{ fontSize: 11, color: "#64748b", marginTop: 2 }}>{a.time}</div>
-                      </div>
-                      <button style={{ fontSize: 11, color: "#2563eb", fontWeight: 600, background: "transparent", border: "none", cursor: "pointer" }}>
-                        Detail
-                      </button>
-                    </div>
-                  ))}
+                    ))
+                  ) : (
+                    <div style={{ textAlign: "center", padding: 20, color: "#94a3b8", fontSize: 13 }}>Tidak ada ibu dengan risiko tinggi</div>
+                  )}
                 </div>
               </div>
             </div>

@@ -16,10 +16,11 @@ type PemeriksaanDokterTrimester3Usecase interface {
 }
 
 type PemeriksaanDokterTrimester3Request struct {
-	KehamilanID               int32  `json:"kehamilan_id"`
-	NamaDokter                string `json:"nama_dokter"`
-	TanggalPeriksa            string `json:"tanggal_periksa"`
+	KehamilanID int32  `json:"kehamilan_id"`
+	NamaDokter  string `json:"nama_dokter"`
+	// TanggalPeriksa dihapus - akan auto set ke hari ini di backend
 	KonsepAnamnesaPemeriksaan string `json:"konsep_anamnesa_pemeriksaan"`
+	GambarUSG                 string `json:"gambar_usg"` // Base64 encoded image
 	FisikKonjungtiva          string `json:"fisik_konjungtiva"`
 	FisikSklera               string `json:"fisik_sklera"`
 	FisikKulit                string `json:"fisik_kulit"`
@@ -61,40 +62,40 @@ type PemeriksaanDokterTrimester3Request struct {
 	USGKeteranganTemuanAbnormal string `json:"usg_keterangan_temuan_abnormal"`
 
 	// LANJUTAN TRIMESTER 3 (digabung)
-	HasilUSGCatatan                       string   `json:"hasil_usg_catatan"`
-	TanggalLab                            string   `json:"tanggal_lab"`
-	LabHemoglobinHasil                    *float64 `json:"lab_hemoglobin_hasil"`
-	LabHemoglobinRencana                  string   `json:"lab_hemoglobin_rencana_tindak_lanjut"`
-	LabProteinUrinHasil                   *int     `json:"lab_protein_urin_hasil"`
-	LabProteinUrinRencana                 string   `json:"lab_protein_urin_rencana_tindak_lanjut"`
-	LabUrinReduksiHasil                   string   `json:"lab_urin_reduksi_hasil"`
-	LabUrinReduksiRencana                 string   `json:"lab_urin_reduksi_rencana_tindak_lanjut"`
-	TanggalSkriningJiwa                   string   `json:"tanggal_skrining_jiwa"`
-	SkriningJiwaHasil                     string   `json:"skrining_jiwa_hasil"`
-	SkriningJiwaTindakLanjut              string   `json:"skrining_jiwa_tindak_lanjut"`
-	SkriningJiwaPerluRujukan              string   `json:"skrining_jiwa_perlu_rujukan"`
-	RencanaKonsultasiGizi                 bool     `json:"rencana_konsultasi_gizi"`
-	RencanaKonsultasiKebidanan            bool     `json:"rencana_konsultasi_kebidanan"`
-	RencanaKonsultasiAnak                 bool     `json:"rencana_konsultasi_anak"`
-	RencanaKonsultasiPenyakitDalam        bool     `json:"rencana_konsultasi_penyakit_dalam"`
-	RencanaKonsultasiNeurologi            bool     `json:"rencana_konsultasi_neurologi"`
-	RencanaKonsultasiTHT                  bool     `json:"rencana_konsultasi_tht"`
-	RencanaKonsultasiPsikiatri            bool     `json:"rencana_konsultasi_psikiatri"`
-	RencanaKonsultasiLainLain             string   `json:"rencana_konsultasi_lain_lain"`
-	RencanaProsesMelahirkan               string   `json:"rencana_proses_melahirkan"`
-	RencanaKontrasepsiAKDR                bool     `json:"rencana_kontrasepsi_akdr"`
-	RencanaKontrasepsiPil                 bool     `json:"rencana_kontrasepsi_pil"`
-	RencanaKontrasepsiSuntik              bool     `json:"rencana_kontrasepsi_suntik"`
-	RencanaKontrasepsiSteril              bool     `json:"rencana_kontrasepsi_steril"`
-	RencanaKontrasepsiMAL                 bool     `json:"rencana_kontrasepsi_mal"`
-	RencanaKontrasepsiImplan              bool     `json:"rencana_kontrasepsi_implan"`
-	RencanaKontrasepsiBelumMemilih        bool     `json:"rencana_kontrasepsi_belum_memilih"`
-	KebutuhanKonseling                    string   `json:"kebutuhan_konseling"`
-	Penjelasan                            string   `json:"penjelasan"`
-	KesimpulanRekomendasiTempatMelahirkan string   `json:"kesimpulan_rekomendasi_tempat_melahirkan"`
+	HasilUSGCatatan string `json:"hasil_usg_catatan"`
+	// TanggalLab dihapus - akan auto set
+	LabHemoglobinHasil    *float64 `json:"lab_hemoglobin_hasil"`
+	LabHemoglobinRencana  string   `json:"lab_hemoglobin_rencana_tindak_lanjut"`
+	LabProteinUrinHasil   *int     `json:"lab_protein_urin_hasil"`
+	LabProteinUrinRencana string   `json:"lab_protein_urin_rencana_tindak_lanjut"`
+	LabUrinReduksiHasil   string   `json:"lab_urin_reduksi_hasil"`
+	LabUrinReduksiRencana string   `json:"lab_urin_reduksi_rencana_tindak_lanjut"`
+	// TanggalSkriningJiwa dihapus - akan auto set
+	SkriningJiwaHasil                     string `json:"skrining_jiwa_hasil"`
+	SkriningJiwaTindakLanjut              string `json:"skrining_jiwa_tindak_lanjut"`
+	SkriningJiwaPerluRujukan              string `json:"skrining_jiwa_perlu_rujukan"`
+	RencanaKonsultasiGizi                 bool   `json:"rencana_konsultasi_gizi"`
+	RencanaKonsultasiKebidanan            bool   `json:"rencana_konsultasi_kebidanan"`
+	RencanaKonsultasiAnak                 bool   `json:"rencana_konsultasi_anak"`
+	RencanaKonsultasiPenyakitDalam        bool   `json:"rencana_konsultasi_penyakit_dalam"`
+	RencanaKonsultasiNeurologi            bool   `json:"rencana_konsultasi_neurologi"`
+	RencanaKonsultasiTHT                  bool   `json:"rencana_konsultasi_tht"`
+	RencanaKonsultasiPsikiatri            bool   `json:"rencana_konsultasi_psikiatri"`
+	RencanaKonsultasiLainLain             string `json:"rencana_konsultasi_lain_lain"`
+	RencanaProsesMelahirkan               string `json:"rencana_proses_melahirkan"`
+	RencanaKontrasepsiAKDR                bool   `json:"rencana_kontrasepsi_akdr"`
+	RencanaKontrasepsiPil                 bool   `json:"rencana_kontrasepsi_pil"`
+	RencanaKontrasepsiSuntik              bool   `json:"rencana_kontrasepsi_suntik"`
+	RencanaKontrasepsiSteril              bool   `json:"rencana_kontrasepsi_steril"`
+	RencanaKontrasepsiMAL                 bool   `json:"rencana_kontrasepsi_mal"`
+	RencanaKontrasepsiImplan              bool   `json:"rencana_kontrasepsi_implan"`
+	RencanaKontrasepsiBelumMemilih        bool   `json:"rencana_kontrasepsi_belum_memilih"`
+	KebutuhanKonseling                    string `json:"kebutuhan_konseling"`
+	Penjelasan                            string `json:"penjelasan"`
+	KesimpulanRekomendasiTempatMelahirkan string `json:"kesimpulan_rekomendasi_tempat_melahirkan"`
 
-	// Laboratorium & Skrining Jiwa untuk trimester 3 (opsional terpisah, tapi kita gabung juga)
-	TanggalLabJiwa                string   `json:"tanggal_lab_jiwa"`
+	// Laboratorium & Skrining Jiwa untuk trimester 3 (opsional)
+	// TanggalLabJiwa dihapus - akan auto set
 	LabHemoglobinHasilJiwa        *float64 `json:"lab_hemoglobin_hasil_jiwa"`
 	LabHemoglobinRencanaJiwa      string   `json:"lab_hemoglobin_rencana_tindak_lanjut_jiwa"`
 	LabGolonganDarahRhesusHasil   string   `json:"lab_golongan_darah_rhesus_hasil"`
@@ -107,12 +108,12 @@ type PemeriksaanDokterTrimester3Request struct {
 	LabSifilisRencana             string   `json:"lab_sifilis_rencana_tindak_lanjut"`
 	LabHepatitisBHasil            string   `json:"lab_hepatitis_b_hasil"`
 	LabHepatitisBRencana          string   `json:"lab_hepatitis_b_rencana_tindak_lanjut"`
-	TanggalSkriningJiwaTr         string   `json:"tanggal_skrining_jiwa_tr"`
-	SkriningJiwaHasilTr           string   `json:"skrining_jiwa_hasil_tr"`
-	SkriningJiwaTindakLanjutTr    string   `json:"skrining_jiwa_tindak_lanjut_tr"`
-	SkriningJiwaPerluRujukanTr    string   `json:"skrining_jiwa_perlu_rujukan_tr"`
-	KesimpulanJiwaTr              string   `json:"kesimpulan_tr"`
-	RekomendasiJiwaTr             string   `json:"rekomendasi_tr"`
+	// TanggalSkriningJiwaTr dihapus - akan auto set
+	SkriningJiwaHasilTr        string `json:"skrining_jiwa_hasil_tr"`
+	SkriningJiwaTindakLanjutTr string `json:"skrining_jiwa_tindak_lanjut_tr"`
+	SkriningJiwaPerluRujukanTr string `json:"skrining_jiwa_perlu_rujukan_tr"`
+	KesimpulanJiwaTr           string `json:"kesimpulan_tr"`
+	RekomendasiJiwaTr          string `json:"rekomendasi_tr"`
 }
 
 type PemeriksaanDokterTrimester3Response struct {
@@ -133,10 +134,13 @@ func NewPemeriksaanDokterTrimester3Usecase(
 }
 
 func (u *pemeriksaanDokterTrimester3Usecase) mapRequestToDokter(req *PemeriksaanDokterTrimester3Request) *models.PemeriksaanDokterTrimester3 {
+	today := time.Now()
 	dokter := &models.PemeriksaanDokterTrimester3{
 		KehamilanID:               req.KehamilanID,
 		NamaDokter:                req.NamaDokter,
+		TanggalPeriksa:            &today, // Set to today
 		KonsepAnamnesaPemeriksaan: req.KonsepAnamnesaPemeriksaan,
+		GambarUSG:                 req.GambarUSG,
 		FisikKonjungtiva:          req.FisikKonjungtiva,
 		FisikSklera:               req.FisikSklera,
 		FisikKulit:                req.FisikKulit,
@@ -178,6 +182,7 @@ func (u *pemeriksaanDokterTrimester3Usecase) mapRequestToDokter(req *Pemeriksaan
 		USGKeteranganTemuanAbnormal: req.USGKeteranganTemuanAbnormal,
 
 		HasilUSGCatatan:                       req.HasilUSGCatatan,
+		TanggalLab:                            &today, // Set to today
 		LabHemoglobinHasil:                    req.LabHemoglobinHasil,
 		LabHemoglobinRencana:                  req.LabHemoglobinRencana,
 		LabProteinUrinHasil:                   req.LabProteinUrinHasil,
@@ -207,27 +212,17 @@ func (u *pemeriksaanDokterTrimester3Usecase) mapRequestToDokter(req *Pemeriksaan
 		Penjelasan:                            req.Penjelasan,
 		KesimpulanRekomendasiTempatMelahirkan: req.KesimpulanRekomendasiTempatMelahirkan,
 	}
-	if req.TanggalPeriksa != "" {
-		t, _ := time.Parse("2006-01-02", req.TanggalPeriksa)
-		dokter.TanggalPeriksa = &t
-	}
-	if req.TanggalLab != "" {
-		t, _ := time.Parse("2006-01-02", req.TanggalLab)
-		dokter.TanggalLab = &t
-	}
-	if req.TanggalSkriningJiwa != "" {
-		t, _ := time.Parse("2006-01-02", req.TanggalSkriningJiwa)
-		dokter.TanggalSkriningJiwa = &t
-	}
 	return dokter
 }
 
 func (u *pemeriksaanDokterTrimester3Usecase) mapRequestToLab(req *PemeriksaanDokterTrimester3Request, trimester int32) *models.PemeriksaanLaboratoriumJiwa {
-	if req.TanggalLabJiwa == "" && req.LabHemoglobinHasilJiwa == nil && req.LabGulaDarahSewaktuHasil == nil {
+	if req.LabHemoglobinHasilJiwa == nil && req.LabGulaDarahSewaktuHasil == nil {
 		return nil
 	}
+	today := time.Now()
 	lab := &models.PemeriksaanLaboratoriumJiwa{
 		Trimester:                        trimester,
+		TanggalLab:                       &today, // Set to today
 		LabHemoglobinHasil:               req.LabHemoglobinHasilJiwa,
 		LabHemoglobinRencanaTindakLanjut: req.LabHemoglobinRencanaJiwa,
 		LabGolonganDarahRhesusHasil:      req.LabGolonganDarahRhesusHasil,
@@ -246,13 +241,9 @@ func (u *pemeriksaanDokterTrimester3Usecase) mapRequestToLab(req *PemeriksaanDok
 		Kesimpulan:                       req.KesimpulanJiwaTr,
 		Rekomendasi:                      req.RekomendasiJiwaTr,
 	}
-	if req.TanggalLabJiwa != "" {
-		t, _ := time.Parse("2006-01-02", req.TanggalLabJiwa)
-		lab.TanggalLab = &t
-	}
-	if req.TanggalSkriningJiwaTr != "" {
-		t, _ := time.Parse("2006-01-02", req.TanggalSkriningJiwaTr)
-		lab.TanggalSkriningJiwa = &t
+	if req.SkriningJiwaHasilTr != "" {
+		tab := &today
+		lab.TanggalSkriningJiwa = tab // Set to today if skrining data provided
 	}
 	return lab
 }

@@ -41,22 +41,22 @@ export default function RencanaPersalinan() {
   });
 
   // Breadcrumb
-  const Breadcrumb = () => {
-    if (!kehamilan) return null;
-    return (
-      <div className="flex items-center gap-2 text-sm text-gray-500 mb-4 flex-wrap">
-        <Link to="/dashboard" className="hover:text-indigo-600 flex items-center gap-1">
-          <Home size={14} /> Beranda
-        </Link>
-        <span>/</span>
-        <Link to="/data-ibu" className="hover:text-indigo-600">Data Ibu</Link>
-        <span>/</span>
-        <Link to={`/data-ibu/${id}`} className="hover:text-indigo-600">Detail Ibu</Link>
-        <span>/</span>
-        <span className="text-gray-700 font-medium">Rencana Persalinan</span>
-      </div>
-    );
-  };
+  // const Breadcrumb = () => {
+  //   if (!kehamilan) return null;
+  //   return (
+  //     <div className="flex items-center gap-2 text-sm text-gray-500 mb-4 flex-wrap">
+  //       <Link to="/dashboard" className="hover:text-indigo-600 flex items-center gap-1">
+  //         <Home size={14} /> Beranda
+  //       </Link>
+  //       <span>/</span>
+  //       <Link to="/data-ibu" className="hover:text-indigo-600">Data Ibu</Link>
+  //       <span>/</span>
+  //       <Link to={`/data-ibu/${id}`} className="hover:text-indigo-600">Detail Ibu</Link>
+  //       <span>/</span>
+  //       <span className="text-gray-700 font-medium">Rencana Persalinan</span>
+  //     </div>
+  //   );
+  // };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -448,7 +448,7 @@ export default function RencanaPersalinan() {
   return (
     <MainLayout>
        <div className="p-6 max-w-5xl">
-        <Breadcrumb />
+        {/* <Breadcrumb /> */}
 
         <div className="flex items-center gap-4 mb-6">
           <button onClick={() => navigate(`/data-ibu/${id}`)} className="p-2 rounded-full hover:bg-gray-100">

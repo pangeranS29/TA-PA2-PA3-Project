@@ -24,12 +24,6 @@ func NewPengukuranLilAUseCase(repo repositories.PengukuranLilaRepository) Penguk
 	return &pengukuranlilaUseCase{repo: repo}
 }
 
-/*
-	=========================
-	  CREATE
-
-=========================
-*/
 func (u *pengukuranlilaUseCase) Create(req models.CreatePengukuranLilARequest) error {
 
 	if req.AnakID == 0 {
@@ -37,12 +31,39 @@ func (u *pengukuranlilaUseCase) Create(req models.CreatePengukuranLilARequest) e
 	}
 
 	now := time.Now()
-	tgl := req.Tanggal
-	if tgl.IsZero() {
-		tgl = now
+	tgl := now
+	if req.Tanggal != "" {
+		if t, err := time.Parse("2006-01-02", req.Tanggal); err == nil {
+			tgl = t
+		} else if t, err := time.Parse(time.RFC3339, req.Tanggal); err == nil {
+			tgl = t
+		}
 	}
 
-	kategori := classifyLila(int(req.Bulanke), req.HasilLila)
+	kategori := req.KategoriRisiko
+	if kategori == "" {
+		// Auto-klasifikasi berdasarkan usia dan hasil LILA
+		switch {
+		case req.HasilLila <= 0:
+			kategori = ""
+		case req.Bulanke < 6:
+			if req.HasilLila < 9.5 {
+				kategori = "Gizi Buruk"
+			} else if req.HasilLila < 11.5 {
+				kategori = "Gizi Kurang"
+			} else {
+				kategori = "Normal"
+			}
+		default:
+			if req.HasilLila < 11.5 {
+				kategori = "Gizi Buruk"
+			} else if req.HasilLila < 12.5 {
+				kategori = "Gizi Kurang"
+			} else {
+				kategori = "Normal"
+			}
+		}
+	}
 
 	pemeriksaan := models.PengukuranLila{
 		AnakID:         req.AnakID,
@@ -56,59 +77,10 @@ func (u *pengukuranlilaUseCase) Create(req models.CreatePengukuranLilARequest) e
 
 	return u.repo.Create(&pemeriksaan)
 }
-
-/*
-	=========================
-	  UPDATE
-
-=========================
-*/
 func (u *pengukuranlilaUseCase) Update(id int32, req models.UpdatePengukuranLilARequest) error {
 	now := time.Now()
-
-	if req.Bulanke != 0 || req.HasilLila != 0 {
-		req.KategoriRisiko = classifyLila(int(req.Bulanke), req.HasilLila)
-	}
-
 	return u.repo.Update(id, req, now)
 }
-
-/*
-	=========================
-	  CLASSIFY LILA
-
-=========================
-*/
-func classifyLila(bulan int, hasil float64) string {
-	if hasil <= 0 {
-		return ""
-	}
-
-	if bulan < 6 {
-		if hasil < 10.0 {
-			return "risiko"
-		}
-		if hasil >= 11.0 {
-			return "baik"
-		}
-		return "risiko"
-	}
-
-	if hasil < 11.5 {
-		return "gizi_buruk"
-	}
-	if hasil < 12.5 {
-		return "gizi_kurang"
-	}
-	return "baik"
-}
-
-/*
-	=========================
-	  GET
-
-=========================
-*/
 func (u *pengukuranlilaUseCase) GetByAnakID(anakID int32) ([]models.PengukuranLila, error) {
 	return u.repo.GetByAnakID(anakID)
 }
@@ -120,13 +92,6 @@ func (u *pengukuranlilaUseCase) GetByID(id int32) (*models.PengukuranLila, error
 func (u *pengukuranlilaUseCase) GetAll() ([]models.PengukuranLila, error) {
 	return u.repo.GetAll()
 }
-
-/*
-	=========================
-	  DELETE
-
-=========================
-*/
 func (u *pengukuranlilaUseCase) Delete(id int32) error {
 	return u.repo.Delete(id)
 }

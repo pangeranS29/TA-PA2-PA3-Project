@@ -11,8 +11,9 @@ export default function KesehatanMentalFormPage() {
       fields={[
         { key: "judul", label: "Judul", type: "text" },
         { key: "gambar_url", label: "URL gambar (opsional)", type: "text" },
-        { key: "deskripsi", label: "Deskripsi", type: "textarea", rows: 2 },
-        { key: "isi", label: "Isi konten", type: "textarea", rows: 6 },
+        { key: "isi", label: "Isi konten", type: "textarea", rows: 4 },
+        { key: "tanda_gejala", label: "Tanda dan Gejala", type: "textarea", rows: 4 },
+        { key: "solusi", label: "Solusi / Penanganan", type: "textarea", rows: 4 },
       ]}
     />
   );

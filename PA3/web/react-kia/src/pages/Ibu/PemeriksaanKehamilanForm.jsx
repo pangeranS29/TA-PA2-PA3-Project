@@ -7,7 +7,10 @@ import {
   createPemeriksaanKehamilan, 
   updatePemeriksaanKehamilan 
 } from "../../services/pemeriksaanKehamilan";
-import { Save, ArrowLeft, Loader2, ClipboardCheck, Activity, Beaker, MessageCircle, AlertCircle, Home } from "lucide-react";
+import { 
+  Save, ArrowLeft, Loader2, Activity, Beaker, MessageCircle, 
+  AlertCircle, Home, CheckCircle, AlertTriangle, ShieldAlert, Info 
+} from "lucide-react";
 
 export default function PemeriksaanKehamilanForm() {
   const { id: ibuId, periksaId } = useParams();
@@ -20,7 +23,10 @@ export default function PemeriksaanKehamilanForm() {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState({});
-  const [step, setStep] = useState(1); // 1: Fisik, 2: Lab, 3: Konseling
+  const [step, setStep] = useState(1);
+  const [hasilRisiko, setHasilRisiko] = useState(null);       // untuk menyimpan data risiko
+  const [showDebug, setShowDebug] = useState(false);
+  const [debugPayload, setDebugPayload] = useState(null);
 
   const [form, setForm] = useState({
     kehamilan_id: kehamilanId || "",
@@ -101,7 +107,6 @@ export default function PemeriksaanKehamilanForm() {
     return "";
   };
 
-  // Validasi Step 1 (Kunjungan & Fisik)
   const validateStep1 = () => {
     const newErrors = {};
     const tanggalErr = validateDate(form.tanggal_periksa);
@@ -134,7 +139,6 @@ export default function PemeriksaanKehamilanForm() {
     return Object.keys(newErrors).length === 0;
   };
 
-  // Validasi Step 2 (Laboratorium)
   const validateStep2 = () => {
     const newErrors = {};
     const tabletErr = validateNumber(form.tablet_tambah_darah, "Tablet tambah darah", 0, 365, true);
@@ -148,7 +152,6 @@ export default function PemeriksaanKehamilanForm() {
     return Object.keys(newErrors).length === 0;
   };
 
-  // Validasi Step 3 (Konseling) tidak ada required, selalu true
   const validateStep3 = () => true;
 
   const handleNext = () => {
@@ -170,7 +173,7 @@ export default function PemeriksaanKehamilanForm() {
     setErrors({});
   };
 
-  // Ambil data existing jika edit
+  // Fetch data existing jika edit
   useEffect(() => {
     if (isEdit && periksaId) {
       const fetchData = async () => {
@@ -205,6 +208,14 @@ export default function PemeriksaanKehamilanForm() {
             tes_golongan_darah: data.tes_golongan_darah || "",
             tata_laksana_kasus: data.tata_laksana_kasus || "",
           });
+          // Simpan hasil risiko jika ada
+          if (data.skor_risiko !== undefined || data.status_risiko) {
+            setHasilRisiko({
+              skor_risiko: data.skor_risiko,
+              status_risiko: data.status_risiko,
+              detail_risiko: data.detail_risiko,
+            });
+          }
         } catch (err) {
           console.error(err);
           alert("Gagal memuat data pemeriksaan");
@@ -224,7 +235,6 @@ export default function PemeriksaanKehamilanForm() {
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: "" }));
     }
-    // Validasi silang trimester-minggu saat mengubah
     if (name === "trimester" || name === "minggu_kehamilan") {
       const newMinggu = name === "minggu_kehamilan" ? value : form.minggu_kehamilan;
       const newTrimester = name === "trimester" ? value : form.trimester;
@@ -236,6 +246,44 @@ export default function PemeriksaanKehamilanForm() {
     }
   };
 
+  // Fungsi untuk membangun payload (sama dengan yang dikirim ke API)
+  const buildPayload = () => {
+    return {
+      kehamilan_id: parseInt(kehamilanId || form.kehamilan_id),
+      minggu_kehamilan: parseInt(form.minggu_kehamilan) || 0,
+      berat_badan: parseFloat(form.berat_badan) || 0,
+      tinggi_badan: parseFloat(form.tinggi_badan) || 0,
+      lingkar_lengan_atas: parseFloat(form.lingkar_lengan_atas) || 0,
+      sistole: parseInt(form.sistole) || 0,
+      diastole: parseInt(form.diastole) || 0,
+      tinggi_rahim: parseFloat(form.tinggi_rahim) || 0,
+      denyut_jantung_janin: parseInt(form.denyut_jantung_janin) || 0,
+      tablet_tambah_darah: parseInt(form.tablet_tambah_darah) || 0,
+      tes_lab_hb: parseFloat(form.tes_lab_hb) || 0,
+      tes_lab_gula_darah: parseInt(form.tes_lab_gula_darah) || 0,
+      kunjungan_ke: parseInt(form.kunjungan_ke) || 0,
+      tanggal_periksa: form.tanggal_periksa,
+      tempat_periksa: form.tempat_periksa,
+      letak_denyut_jantung_bayi: form.letak_denyut_jantung_bayi,
+      status_imunisasi_tetanus: form.status_imunisasi_tetanus,
+      tes_lab_protein_urine: form.tes_lab_protein_urine,
+      tripel_eliminasi: form.tripel_eliminasi,
+      usg: form.usg,
+      konseling: form.konseling,
+      skrining_dokter: form.skrining_dokter,
+      tes_golongan_darah: form.tes_golongan_darah,
+      tata_laksana_kasus: form.tata_laksana_kasus,
+      trimester: form.trimester,
+    };
+  };
+
+  const handleDebug = () => {
+    const payload = buildPayload();
+    setDebugPayload(payload);
+    setShowDebug(true);
+    console.log("Debug Payload:", payload);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!kehamilanId && !form.kehamilan_id) {
@@ -243,7 +291,6 @@ export default function PemeriksaanKehamilanForm() {
       return;
     }
 
-    // Validasi final semua step
     const step1Valid = validateStep1();
     const step2Valid = validateStep2();
     const step3Valid = validateStep3();
@@ -256,22 +303,7 @@ export default function PemeriksaanKehamilanForm() {
 
     setSaving(true);
     try {
-      const payload = {
-        ...form,
-        kehamilan_id: parseInt(kehamilanId || form.kehamilan_id),
-        minggu_kehamilan: parseInt(form.minggu_kehamilan) || 0,
-        berat_badan: parseFloat(form.berat_badan) || 0,
-        tinggi_badan: parseFloat(form.tinggi_badan) || 0,
-        lingkar_lengan_atas: parseFloat(form.lingkar_lengan_atas) || 0,
-        sistole: parseInt(form.sistole) || 0,
-        diastole: parseInt(form.diastole) || 0,
-        tinggi_rahim: parseFloat(form.tinggi_rahim) || 0,
-        denyut_jantung_janin: parseInt(form.denyut_jantung_janin) || 0,
-        tablet_tambah_darah: parseInt(form.tablet_tambah_darah) || 0,
-        tes_lab_hb: parseFloat(form.tes_lab_hb) || 0,
-        tes_lab_gula_darah: parseInt(form.tes_lab_gula_darah) || 0,
-        kunjungan_ke: parseInt(form.kunjungan_ke) || 0,
-      };
+      const payload = buildPayload();
       if (isEdit) {
         await updatePemeriksaanKehamilan(periksaId, payload);
         alert("Pemeriksaan ANC berhasil diperbarui");
@@ -294,11 +326,67 @@ export default function PemeriksaanKehamilanForm() {
     <p className="text-red-500 text-xs mt-1 flex items-center gap-1"><AlertCircle size={12} /> {errors[field]}</p>
   ) : null;
 
+  // Komponen untuk menampilkan card risiko
+  const RiskCard = () => {
+    if (!hasilRisiko) return null;
+    const { status_risiko, skor_risiko, detail_risiko } = hasilRisiko;
+    let bgColor, borderColor, icon, labelColor;
+    if (status_risiko === "NORMAL") {
+      bgColor = "bg-green-50";
+      borderColor = "border-green-500";
+      icon = <CheckCircle className="text-green-600" size={28} />;
+      labelColor = "bg-green-100 text-green-800";
+    } else if (status_risiko === "PERLU TINDAKAN") {
+      bgColor = "bg-yellow-50";
+      borderColor = "border-yellow-500";
+      icon = <AlertTriangle className="text-yellow-600" size={28} />;
+      labelColor = "bg-yellow-100 text-yellow-800";
+    } else {
+      bgColor = "bg-red-50";
+      borderColor = "border-red-500";
+      icon = <ShieldAlert className="text-red-600" size={28} />;
+      labelColor = "bg-red-100 text-red-800";
+    }
+
+    return (
+      <div className={`mb-6 p-4 rounded-lg border-l-4 ${borderColor} ${bgColor} shadow-sm`}>
+        <div className="flex items-start gap-3">
+          <div className="mt-1">{icon}</div>
+          <div className="flex-1">
+            <h3 className="font-bold text-lg flex items-center gap-2 flex-wrap">
+              Hasil Prediksi Risiko: 
+              <span className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${labelColor}`}>
+                {status_risiko}
+              </span>
+              <span className="text-sm text-gray-500">(Skor: {skor_risiko})</span>
+            </h3>
+            {detail_risiko && (
+              <div className="mt-2 text-gray-700 whitespace-pre-line bg-white p-3 rounded border">
+                <Info size={16} className="inline mr-1 text-gray-400" />
+                {detail_risiko}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <MainLayout>
       <div className="p-4 md:p-6 max-w-7xl mx-auto">
-        {/* Breadcrumb */}
         <Breadcrumb />
+
+        {/* Tampilkan card risiko jika ada (mode edit) */}
+        {isEdit && <RiskCard />}
+
+        {/* Informasi untuk mode create */}
+        {!isEdit && !hasilRisiko && (
+          <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200 text-blue-800 flex items-center gap-2">
+            <Info size={20} />
+            <span>Sistem akan menghitung tingkat risiko kehamilan secara otomatis berdasarkan data yang Anda masukkan.</span>
+          </div>
+        )}
 
         <div className="flex items-center gap-4 mb-6">
           <button onClick={() => navigate(-1)} className="p-2 bg-white rounded-full shadow hover:shadow-md transition">
@@ -327,6 +415,7 @@ export default function PemeriksaanKehamilanForm() {
             <div className="bg-white rounded-xl shadow p-6 space-y-6">
               <h2 className="text-lg font-semibold flex items-center gap-2"><Activity size={20} /> Pemeriksaan Fisik & Antropometri</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {/* ... (sama seperti kode asli) ... */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Tanggal Periksa <span className="text-red-500">*</span></label>
                   <input type="date" name="tanggal_periksa" value={form.tanggal_periksa} onChange={handleChange} className={`mt-1 w-full border rounded-lg p-2 ${errors.tanggal_periksa ? 'border-red-500' : 'border-gray-300'}`} />
@@ -392,7 +481,7 @@ export default function PemeriksaanKehamilanForm() {
                   <ErrorMsg field="denyut_jantung_janin" />
                 </div>
                 <div className="md:col-span-2">
-                  <label>Letak  (deskripsi)</label>
+                  <label>Letak (deskripsi)</label>
                   <input name="letak_denyut_jantung_bayi" value={form.letak_denyut_jantung_bayi} onChange={handleChange} placeholder="kepala" className="mt-1 w-full border rounded-lg p-2" />
                 </div>
               </div>
@@ -440,12 +529,30 @@ export default function PemeriksaanKehamilanForm() {
                 Selanjutnya →
               </button>
             ) : (
-              <button type="submit" disabled={saving} className="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-lg shadow flex items-center justify-center gap-2">
-                {saving ? <Loader2 className="animate-spin" size={20} /> : <Save size={20} />}
-                {saving ? "Menyimpan..." : "Simpan Pemeriksaan"}
-              </button>
+              <>
+                <button type="button" onClick={handleDebug} className="px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white font-semibold rounded-lg shadow flex items-center gap-2">
+                  🐞 Debug Payload
+                </button>
+                <button type="submit" disabled={saving} className="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-lg shadow flex items-center justify-center gap-2">
+                  {saving ? <Loader2 className="animate-spin" size={20} /> : <Save size={20} />}
+                  {saving ? "Menyimpan..." : "Simpan Pemeriksaan"}
+                </button>
+              </>
             )}
           </div>
+
+          {/* Debug panel */}
+          {showDebug && debugPayload && (
+            <div className="mt-6 p-4 bg-gray-900 text-white rounded-lg overflow-auto max-h-96">
+              <div className="flex justify-between items-center mb-2">
+                <strong className="text-green-400">📦 Payload yang akan dikirim:</strong>
+                <button onClick={() => setShowDebug(false)} className="text-gray-400 hover:text-white">✖ Tutup</button>
+              </div>
+              <pre className="text-xs whitespace-pre-wrap break-all">
+                {JSON.stringify(debugPayload, null, 2)}
+              </pre>
+            </div>
+          )}
         </form>
       </div>
     </MainLayout>

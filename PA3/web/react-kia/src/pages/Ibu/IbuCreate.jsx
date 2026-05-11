@@ -36,18 +36,26 @@ export default function IbuCreate() {
   });
 
   useEffect(() => {
-    const fetchKK = async () => {
-      try {
-        const data = await getKependudukanList();
-        if (Array.isArray(data)) setKkList(data);
-        else setKkList([]);
-      } catch (err) {
-        console.error(err);
-        setErrorMessage("Gagal mengambil data penduduk.");
+  const fetchKK = async () => {
+    try {
+      const data = await getKependudukanList();
+      if (Array.isArray(data)) {
+        // Filter hanya yang berjenis kelamin Perempuan
+        const filtered = data.filter(item => item.jenis_kelamin === "Perempuan");
+        setKkList(filtered);
+        if (filtered.length === 0) {
+          setErrorMessage("Tidak ada data penduduk perempuan. Silakan tambahkan data penduduk terlebih dahulu.");
+        }
+      } else {
+        setKkList([]);
       }
-    };
-    fetchKK();
-  }, []);
+    } catch (err) {
+      console.error(err);
+      setErrorMessage("Gagal mengambil data penduduk.");
+    }
+  };
+  fetchKK();
+}, []);
 
   useEffect(() => {
     if (formKehamilan.hpht) {

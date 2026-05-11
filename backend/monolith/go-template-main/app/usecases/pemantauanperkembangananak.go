@@ -17,17 +17,11 @@ type PemantauanPertumbuhanAnakUseCase interface {
 }
 
 type pemantauanpertumbuhanUseCase struct {
-	repo     repositories.PemantauanPertumbuhanRepository
-	anakRepo *repositories.AnakRepository
-	mainRepo *repositories.Main
+	repo repositories.PemantauanPertumbuhanRepository
 }
 
-func NewPemantauanPertumbuhanUseCase(repo repositories.PemantauanPertumbuhanRepository, anakRepo *repositories.AnakRepository, mainRepo *repositories.Main) PemantauanPertumbuhanAnakUseCase {
-	return &pemantauanpertumbuhanUseCase{
-		repo:     repo,
-		anakRepo: anakRepo,
-		mainRepo: mainRepo,
-	}
+func NewPemantauanPertumbuhanUseCase(repo repositories.PemantauanPertumbuhanRepository) PemantauanPertumbuhanAnakUseCase {
+	return &pemantauanpertumbuhanUseCase{repo: repo}
 }
 
 func (u *pemantauanpertumbuhanUseCase) Create(req models.CreatePemantauanPemeriksaanRequest) error {
@@ -42,27 +36,33 @@ func (u *pemantauanpertumbuhanUseCase) Create(req models.CreatePemantauanPemerik
 
 	now := time.Now()
 
-	// Gunakan Tanggal langsung karena sudah time.Time
-	tgl := req.Tanggal
-	if tgl.IsZero() {
-		tgl = now
+	// Parse tanggal
+	tgl := now
+	if req.Tanggal != "" {
+		if t, err := time.Parse(time.RFC3339, req.Tanggal); err == nil {
+			tgl = t
+		} else if t, err := time.Parse("2006-01-02", req.Tanggal); err == nil {
+			tgl = t
+		}
 	}
 
-	var kunjunganUlang *time.Time
-	if !req.KunjunganUlang.IsZero() {
-		ku := req.KunjunganUlang
-		kunjunganUlang = &ku
+	// Parse kunjungan ulang
+	var kunjunganUlang time.Time
+	if req.KunjunganUlang != "" {
+		if ku, err := time.Parse(time.RFC3339, req.KunjunganUlang); err == nil {
+			kunjunganUlang = ku
+		} else if ku, err := time.Parse("2006-01-02", req.KunjunganUlang); err == nil {
+			kunjunganUlang = ku
+		}
 	}
 
-	// Default values untuk field NOT NULL
 	hasilPKAT := req.HasilPKAT
 	if hasilPKAT == "" {
-		hasilPKAT = "Normal" // Default jika kosong
+		hasilPKAT = "Normal"
 	}
-
 	tindakan := req.Tindakan
 	if tindakan == "" {
-		tindakan = "Pemberian stimulasi sesuai usia" // Default jika kosong
+		tindakan = "Pemberian stimulasi sesuai usia"
 	}
 
 	pemeriksaan := models.DeteksiDiniPenyimpangan{
@@ -88,15 +88,7 @@ func (u *pemantauanpertumbuhanUseCase) Create(req models.CreatePemantauanPemerik
 		UpdatedAt:         now,
 	}
 
-	if err := u.repo.Create(&pemeriksaan); err != nil {
-		return err
-	}
-
-	// Integrasi ke Grafik Pertumbuhan tidak tersedia karena
-	// CreatePemantauanPemeriksaanRequest tidak memiliki field BeratBadan/TinggiBadan.
-	// Gunakan endpoint pertumbuhan terpisah untuk mencatat data pertumbuhan.
-
-	return nil
+	return u.repo.Create(&pemeriksaan)
 }
 func (u *pemantauanpertumbuhanUseCase) Update(id int32, req models.UpdatePemantauanPemeriksaanRequest) error {
 	now := time.Now()
@@ -113,7 +105,6 @@ func (u *pemantauanpertumbuhanUseCase) GetByID(id int32) (*models.DeteksiDiniPen
 func (u *pemantauanpertumbuhanUseCase) GetAll() ([]models.DeteksiDiniPenyimpangan, error) {
 	return u.repo.GetAll()
 }
-
 func (u *pemantauanpertumbuhanUseCase) Delete(id int32) error {
 	return u.repo.Delete(id)
 }

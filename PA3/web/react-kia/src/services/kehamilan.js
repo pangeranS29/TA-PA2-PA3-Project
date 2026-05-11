@@ -1,14 +1,9 @@
+// src/services/kehamilan.js
 import api from "./api";
 
 const BASE = "/tenaga-kesehatan/kehamilan";
 
-// Ambil semua data kehamilan (untuk keperluan tertentu)
-export const getKehamilanList = async () => {
-  const res = await api.get(BASE);
-  return res.data.data;
-};
-
-// Ambil kehamilan berdasarkan ID ibu
+// Ambil semua data kehamilan untuk ibu tertentu
 export const getKehamilanByIbuId = async (ibuId) => {
   const response = await api.get(BASE, {
     params: { ibu_id: ibuId }
@@ -22,7 +17,7 @@ export const getKehamilanById = async (id) => {
   return res.data.data;
 };
 
-// Buat kehamilan baru
+// Buat kehamilan baru (wajib ada untuk otomatis create)
 export const createKehamilan = async (data) => {
   const response = await api.post(BASE, data);
   return response; // return full response agar bisa diambil data.data
@@ -38,4 +33,10 @@ export const updateKehamilan = async (id, data) => {
 export const deleteKehamilan = async (id) => {
   const res = await api.delete(`${BASE}/${id}`);
   return res.data;
-};
+};
+
+// Ambil SEMUA data kehamilan dari semua ibu
+export const getKehamilanList = async () => {
+  const response = await api.get(`${BASE}/all`);
+  return response.data.data;
+};

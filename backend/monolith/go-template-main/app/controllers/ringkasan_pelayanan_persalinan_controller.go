@@ -30,12 +30,12 @@ type createRingkasanRequest struct {
 	KeadaanIbu                       string `json:"keadaan_ibu"`
 	KeadaanIbuDetailSakit            string `json:"keadaan_ibu_detail_sakit"`
 	KBPascaMelahirkan                string `json:"kb_pasca_melahirkan"`
-	KeteranganTambahanIbu            string `json:"keterangan_tambahan_ibu"`
-	BayiAnakKe                       int    `json:"bayi_anak_ke"`
-	BayiBeratLahirGram               int    `json:"bayi_berat_lahir_gram"`
-	BayiPanjangBadanCm               int    `json:"bayi_panjang_badan_cm"`
-	BayiLingkarKepalaCm              int    `json:"bayi_lingkar_kepala_cm"`
-	BayiJenisKelamin                 string `json:"bayi_jenis_kelamin"`
+	KeteranganTambahanIbu            string   `json:"keterangan_tambahan_ibu"`
+	BayiAnakKe                       int      `json:"bayi_anak_ke"`
+	BayiBeratLahirGram               *float64 `json:"bayi_berat_lahir_gram"`
+	BayiPanjangBadanCm               *float64 `json:"bayi_panjang_badan_cm"`
+	BayiLingkarKepalaCm              *float64 `json:"bayi_lingkar_kepala_cm"`
+	BayiJenisKelamin                 string   `json:"bayi_jenis_kelamin"`
 	KondisiBayiSegeraMenangis        bool   `json:"kondisi_bayi_segera_menangis"`
 	KondisiBayiMenangisBeberapaSaat  bool   `json:"kondisi_bayi_menangis_beberapa_saat"`
 	KondisiBayiTidakMenangis         bool   `json:"kondisi_bayi_tidak_menangis"`
@@ -50,6 +50,9 @@ type createRingkasanRequest struct {
 	AsuhanSalepMataAntibiotika       bool   `json:"asuhan_salep_mata_antibiotika"`
 	AsuhanImunisasiHB0               bool   `json:"asuhan_imunisasi_hb0"`
 	KeteranganTambahanBayi           string `json:"keterangan_tambahan_bayi"`
+	Gravida                          int    `json:"gravida"`
+	Paritas                          int    `json:"paritas"`
+	Abortus                          int    `json:"abortus"`
 }
 
 func (c *RingkasanPelayananPersalinanController) Create(ctx echo.Context) error {
@@ -178,13 +181,13 @@ func (c *RingkasanPelayananPersalinanController) Update(ctx echo.Context) error 
 	if req.BayiAnakKe != 0 {
 		existing.BayiAnakKe = req.BayiAnakKe
 	}
-	if req.BayiBeratLahirGram != 0 {
+	if req.BayiBeratLahirGram != nil {
 		existing.BayiBeratLahirGram = req.BayiBeratLahirGram
 	}
-	if req.BayiPanjangBadanCm != 0 {
+	if req.BayiPanjangBadanCm != nil {
 		existing.BayiPanjangBadanCm = req.BayiPanjangBadanCm
 	}
-	if req.BayiLingkarKepalaCm != 0 {
+	if req.BayiLingkarKepalaCm != nil {
 		existing.BayiLingkarKepalaCm = req.BayiLingkarKepalaCm
 	}
 	if req.BayiJenisKelamin != "" {

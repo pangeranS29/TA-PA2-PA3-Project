@@ -41,3 +41,8 @@ export const deleteIndicator = async (id) => {
   const res = await api.delete(`/tenaga-kesehatan/pemantauan-anak/indikator/${id}`);
   return res.data;
 };
+
+export const verifikasiPemantauanAnak = async (id, payload) => {
+  const res = await api.put(`/tenaga-kesehatan/pemantauan-anak/${id}/verifikasi`, payload);
+  return res.data;
+};
