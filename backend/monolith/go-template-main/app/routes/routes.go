@@ -421,8 +421,15 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	ibuk.GET("/rujukan/:id", controller.Rujukan.GetByIDForOrangtua)
 
 	// Pemeriksaan Dokter Trimester 1 & 3
+	// ibuk.GET("/pemeriksaan-dokter-trimester-1/me", controller.PemeriksaanDokterTrimester1.GetMine)
+	// ibuk.GET("/pemeriksaan-dokter-trimester-3/me", controller.PemeriksaanDokterTrimester3.GetMine)
+
 	ibuk.GET("/pemeriksaan-dokter-trimester-1/me", controller.PemeriksaanDokterTrimester1.GetMine)
+	ibuk.GET("/pemeriksaan-dokter-trimester-1/all", controller.PemeriksaanDokterTrimester1.GetAllMine) // BARU: list semua kunjungan
 	ibuk.GET("/pemeriksaan-dokter-trimester-3/me", controller.PemeriksaanDokterTrimester3.GetMine)
+	ibuk.GET("/pemeriksaan-dokter-trimester-3/all", controller.PemeriksaanDokterTrimester3.GetAllMine) // BARU: list semua kunjungan
+	
+	ibuk.GET("/riwayat-proses-melahirkan/me", controller.RiwayatProsesMelahirkan.GetMine)
 
 	// Log TTD MMS
 	ibuk.GET("/log-ttd-mms/me", controller.LogTTDMMS.GetMine)

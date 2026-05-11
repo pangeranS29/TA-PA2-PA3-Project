@@ -57,6 +57,19 @@ class ApiConstants {
   static const String grafikPeningkatanBBV2 = '/modul-ibu/grafik-peningkatan-bb/v2';
   static const String keteranganLahir = '/modul-ibu/keterangan-lahir/me';
 
+    // Pemeriksaan Dokter - list semua kunjungan (BARU)
+  static const String pemeriksaanDokterTrimester1All = '/modul-ibu/pemeriksaan-dokter-trimester-1/all';
+  static const String pemeriksaanDokterTrimester3All = '/modul-ibu/pemeriksaan-dokter-trimester-3/all';
+
+    // Persiapan Melahirkan (checklist ibu)
+  static const String persiapanMelahirkan = '/modul-ibu/persiapan-melahirkan/me';
+  static const String savePersiapanMelahirkan = '/modul-ibu/persiapan-melahirkan';
+  // Checklist Proses Melahirkan (checklist pemahaman ibu)
+  static const String checklistProsesMelahirkan = '/modul-ibu/proses-melahirkan/me';
+  static const String saveChecklistProsesMelahirkan = '/modul-ibu/proses-melahirkan';
+
+    static const String riwayatProsesMelahirkan = '/modul-ibu/riwayat-proses-melahirkan/me';
+
   /*
    *
    * 
