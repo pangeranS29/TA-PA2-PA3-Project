@@ -466,6 +466,12 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	// Keterangan Lahir
 	ibuk.GET("/keterangan-lahir/me", controller.KeteranganLahir.GetMine)
 	
+	// Ringkasan Persalinan
+	ibuk.GET("/ringkasan-persalinan/me",controller.RingkasanPelayananPersalinan.GetMine,)
+	// Pelayanan Ibu Nifas
+	ibuk.GET("/pelayanan-ibu-nifas/me",controller.PelayananIbuNifas.GetMine,)
+	ibuk.GET("/catatan-pelayanan-nifas/me",controller.CatatanPelayananNifas.GetMine,)
+	
 	ibu := e.Group("/ibu")
 	ibu.Use(middlewares.JWTAuth(controller.JWTSecret()))
 	ibu.Use(middlewares.Ibu())
