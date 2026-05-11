@@ -11,10 +11,7 @@ android {
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
-<<<<<<< HEAD
         isCoreLibraryDesugaringEnabled = true
-=======
->>>>>>> 6240e6fd6bb4bec773fb96e5b42de2208c734cdf
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
@@ -24,10 +21,7 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "com.example.ta_pa2_pa3_project"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
@@ -36,8 +30,6 @@ android {
 
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.getByName("debug")
         }
     }
@@ -46,10 +38,7 @@ android {
 flutter {
     source = "../.."
 }
-<<<<<<< HEAD
 
 dependencies {
-    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
 }
-=======
->>>>>>> 6240e6fd6bb4bec773fb96e5b42de2208c734cdf
