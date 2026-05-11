@@ -63,8 +63,8 @@ class RingkasanPelayananProsesMelahirkanScreen extends StatelessWidget {
 
 // ─── Screen 2: Riwayat Proses Melahirkan ─────────────────────────────────────
 
-class RiwayatProsesMelahirkanScreen extends StatelessWidget {
-  const RiwayatProsesMelahirkanScreen({super.key});
+class _RiwayatProsesMelahirkanScreen extends StatelessWidget {
+  const _RiwayatProsesMelahirkanScreen({super.key});
 
   @override
   Widget build(BuildContext context) => _DataScreen(
