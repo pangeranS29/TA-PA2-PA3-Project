@@ -458,12 +458,15 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	ibu.Use(middlewares.JWTAuth(controller.JWTSecret()))
 	ibu.Use(middlewares.Ibu())
 	ibu.GET("/anak", controller.Ibu.GetAnakSaya)
+
 	ibu.GET("/lembar-pemantauan/rentang-usia", controller.LembarPemantauan.GetRentangUsiaForIbu)
 	ibu.GET("/lembar-pemantauan/kategori-tanda-sakit", controller.LembarPemantauan.GetKategoriByRentangUsiaForIbu)
 	ibu.POST("/lembar-pemantauan", controller.LembarPemantauan.CreateForIbu)
 	ibu.GET("/lembar-pemantauan", controller.LembarPemantauan.GetByAnakIDForIbu)
+
 	ibu.GET("/warna-tinja", controller.WarnaTinja.GetByAnakIDForIbu)
 	ibu.POST("/warna-tinja", controller.WarnaTinja.SaveForIbu)
+
 	ibu.GET("/pemeriksaan-gigi", controller.PemeriksaanGigi.GetByAnakIDForIbu)
 	ibu.GET("/pengukuran-lila", controller.PengukuranLilA.GetByAnakIDForIbu)
 	ibu.GET("/pengukuran-lila/:anak_id", controller.PengukuranLilA.GetByAnakIDForIbu)
@@ -478,14 +481,49 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	ibu.PUT("/perawatan/:id", controller.UpdatePerawatan)
 	ibu.DELETE("/perawatan/:id", controller.DeletePerawatan)
 	// Catatan: Ibu tidak memiliki akses UPDATE/DELETE/VERIFY untuk menjaga integritas rekam medis
-	ibu.GET("/keluhan-anak", controller.KeluhanAnak.GetByAnakIDForIbu)
-	ibu.GET("/keluhan-anak/:id", controller.KeluhanAnak.GetByIDForIbu)
 
 	// ==================== KELUHAN ANAK ====================
+	ibu.GET("/keluhan-anak", controller.KeluhanAnak.GetByAnakIDForIbu)
+	ibu.GET("/keluhan-anak/:id", controller.KeluhanAnak.GetByIDForIbu)
 	tenaga.GET("/keluhan-anak/:anak_id", controller.KeluhanAnak.GetByAnakID)
 	tenaga.GET("/keluhan-anak/detail/:id", controller.KeluhanAnak.GetByID)
 	tenaga.POST("/keluhan-anak", controller.KeluhanAnak.Create)
 	tenaga.PUT("/keluhan-anak/:id", controller.KeluhanAnak.Update)
 	tenaga.DELETE("/keluhan-anak/:id", controller.KeluhanAnak.Delete)
+
+	// ==================== EDUKASI MPASI (IBU) ====================
+	ibu.GET("/edukasi-mpasi/materi/:bulan", controller.EdukasiMPASI.GetMateriByBulan)
+	ibu.GET("/edukasi-mpasi/porsi-jadwal/:bulan", controller.EdukasiMPASI.GetPorsiJadwalByBulan)
+	ibu.GET("/edukasi-mpasi/resep/:bulan", controller.EdukasiMPASI.GetResepByBulan)
+
+	// ==================== EDUKASI MPASI (NAKES) ====================
+
+	// Materi
+	tenaga.GET("/edukasi-mpasi/materi", controller.EdukasiMPASI.GetMateriAll)
+	tenaga.POST("/edukasi-mpasi/materi", controller.EdukasiMPASI.CreateMateri)
+	tenaga.GET("/edukasi-mpasi/materi/:id", controller.EdukasiMPASI.GetMateriByID)
+	tenaga.PUT("/edukasi-mpasi/materi/:id", controller.EdukasiMPASI.UpdateMateri)
+	tenaga.DELETE("/edukasi-mpasi/materi/:id", controller.EdukasiMPASI.DeleteMateri)
+
+	// Aturan Porsi
+	tenaga.GET("/edukasi-mpasi/aturan-porsi", controller.EdukasiMPASI.GetAturanPorsiAll)
+	tenaga.POST("/edukasi-mpasi/aturan-porsi", controller.EdukasiMPASI.CreateAturanPorsi)
+	tenaga.GET("/edukasi-mpasi/aturan-porsi/:id", controller.EdukasiMPASI.GetAturanPorsiByID)
+	tenaga.PUT("/edukasi-mpasi/aturan-porsi/:id", controller.EdukasiMPASI.UpdateAturanPorsi)
+	tenaga.DELETE("/edukasi-mpasi/aturan-porsi/:id", controller.EdukasiMPASI.DeleteAturanPorsi)
+
+	// Jadwal
+	tenaga.GET("/edukasi-mpasi/jadwal", controller.EdukasiMPASI.GetJadwalAll)
+	tenaga.POST("/edukasi-mpasi/jadwal", controller.EdukasiMPASI.CreateJadwal)
+	tenaga.GET("/edukasi-mpasi/jadwal/:id", controller.EdukasiMPASI.GetJadwalByID)
+	tenaga.PUT("/edukasi-mpasi/jadwal/:id", controller.EdukasiMPASI.UpdateJadwal)
+	tenaga.DELETE("/edukasi-mpasi/jadwal/:id", controller.EdukasiMPASI.DeleteJadwal)
+
+	// Resep
+	tenaga.GET("/edukasi-mpasi/resep", controller.EdukasiMPASI.GetResepAll)
+	tenaga.POST("/edukasi-mpasi/resep", controller.EdukasiMPASI.CreateResep)
+	tenaga.GET("/edukasi-mpasi/resep/:id", controller.EdukasiMPASI.GetResepByID)
+	tenaga.PUT("/edukasi-mpasi/resep/:id", controller.EdukasiMPASI.UpdateResep)
+	tenaga.DELETE("/edukasi-mpasi/resep/:id", controller.EdukasiMPASI.DeleteResep)
 
 }
