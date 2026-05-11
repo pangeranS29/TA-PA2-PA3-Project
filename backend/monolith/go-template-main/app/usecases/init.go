@@ -20,6 +20,7 @@ type Main struct {
 	PengukuranLilA         PengukuranLilAUseCase
 	CatatanPelayanan       CatatanPelayananUseCase
 	Kependudukan           KependudukanUsecase
+	Kader                  KaderUsecase
 
 	// Usecase baru (terkait kehamilan)
 	// KartuKeluarga                 KartuKeluargaUsecase
@@ -131,6 +132,7 @@ func Init(opts Options) *Main {
 	m.Ibu = NewIbuUsecase(opts.Repository.Ibu)
 	m.RiwayatKehamilanLalu = NewRiwayatKehamilanLaluUsecase(opts.Repository.RiwayatKehamilanLalu)
 	m.Kependudukan = NewKependudukanUsecase(opts.Repository.Kependudukan)
+	m.Kader = NewKaderUsecase(opts.Repository.Kader, opts.Repository.Kependudukan)
 	// m.RegisterOrangTua = NewRegisterOrangTuaUsecase(
 	// 	opts.Repository.User,
 	// 	opts.Repository.Role,

@@ -48,6 +48,7 @@ type Main struct {
 	KeteranganLahir               *KeteranganLahirController
 	Kependudukan                  *KependudukanController
 	JenisPelayanan                *JenisPelayananController
+	Kader                         *KaderController
 
 	// Controller tambahan (sebelumnya hilang dari routes)
 	KeluhanAnak                        *KeluhanAnakController
@@ -123,6 +124,7 @@ func Init(opts Options) *Main {
 	m.KeteranganLahir = NewKeteranganLahirController(opts.UseCases.KeteranganLahir)
 	m.Kependudukan = NewKependudukanController(opts.UseCases.Kependudukan)
 	m.JenisPelayanan = NewJenisPelayananController(opts.UseCases.JenisPelayanan)
+	m.Kader = NewKaderController(opts.UseCases.Kader)
 	m.PemeriksaanDokterCombined = NewPemeriksaanDokterCombinedController(
 		opts.UseCases.PemeriksaanDokterTrimester1,
 		opts.UseCases.PemeriksaanDokterTrimester3,
