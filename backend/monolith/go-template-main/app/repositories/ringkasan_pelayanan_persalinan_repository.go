@@ -35,6 +35,24 @@ func (r *RingkasanPelayananPersalinanRepository) Update(rp *models.RingkasanPela
 	return r.db.Save(rp).Error
 }
 
+func (r *RingkasanPelayananPersalinanRepository) GetMine(
+	userID int32,
+) ([]models.RingkasanPelayananPersalinan, error) {
+
+	var list []models.RingkasanPelayananPersalinan
+
+	err := r.db.
+		Table("ringkasan_pelayanan_persalinan rp").
+		Joins("JOIN kehamilan k ON k.id = rp.kehamilan_id").
+		Joins("JOIN ibu i ON i.id = k.ibu_id").
+		Joins("JOIN penduduk pd ON pd.id = i.penduduk_id").
+		Joins("JOIN pengguna u ON u.penduduk_id = pd.id").
+		Where("u.id = ?", userID).
+		Find(&list).Error
+
+	return list, err
+}
+
 func (r *RingkasanPelayananPersalinanRepository) Delete(id int32) error {
 	result := r.db.Delete(&models.RingkasanPelayananPersalinan{}, id)
 	if result.Error != nil {
