@@ -287,30 +287,34 @@ class _LembarPemantauanScreenState extends State<LembarPemantauanScreen>
     return Scaffold(
       backgroundColor: const Color(0xFFF1F5F9),
       appBar: AppBar(
-        title: const Text('Lembar Pemantauan'),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        foregroundColor: Colors.white,
-        flexibleSpace: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Color(0xFF1D4ED8), Color(0xFF38BDF8)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-          ),
-        ),
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: const [
-            Tab(text: 'Isi Pemantauan'),
-            Tab(text: 'Riwayat'),
-          ],
-          labelColor: Colors.white,
-          unselectedLabelColor: Colors.white70,
-          indicatorColor: Colors.white,
-        ),
-      ),
+  title: const Text(
+    'Lembar Pemantauan',
+    style: TextStyle(
+      color: Colors.black,
+      fontWeight: FontWeight.w600,
+    ),
+  ),
+  backgroundColor: Colors.white,
+  elevation: 1, // biar ada bayangan tipis
+  shadowColor: Colors.black12,
+  centerTitle: false,
+
+  iconTheme: const IconThemeData(
+    color: Colors.black,
+  ),
+
+  bottom: TabBar(
+    controller: _tabController,
+    labelColor: Colors.black,
+    unselectedLabelColor: Colors.grey,
+    indicatorColor: Color(0xFF2563EB),
+    indicatorWeight: 3,
+    tabs: const [
+      Tab(text: 'Isi Pemantauan'),
+      Tab(text: 'Riwayat'),
+    ],
+  ),
+),
       body: TabBarView(
         controller: _tabController,
         children: [
@@ -438,51 +442,81 @@ class _LembarPemantauanScreenState extends State<LembarPemantauanScreen>
   }
 
   Widget _buildAnakInfoCard() {
-    final nama = (widget.anak?['nama'] ?? 'Anak terpilih').toString();
-    final usia =
-        (widget.anak?['usia_teks'] ?? 'Usia belum tersedia').toString();
+  final nama = (widget.anak?['nama'] ?? 'Anak terpilih').toString();
+  final usia =
+      (widget.anak?['usia_teks'] ?? 'Usia belum tersedia').toString();
 
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
-      ),
-      child: Row(
-        children: [
-          const CircleAvatar(
-            radius: 22,
-            backgroundColor: Color(0xFFE0E7FF),
-            child: Icon(Icons.child_care, color: Color(0xFF3730A3)),
+  return Container(
+    padding: const EdgeInsets.all(16),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(20),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.05),
+          blurRadius: 10,
+          offset: const Offset(0, 4),
+        ),
+      ],
+    ),
+    child: Row(
+      children: [
+        // Avatar
+        Container(
+          width: 50,
+          height: 50,
+          decoration: const BoxDecoration(
+            shape: BoxShape.circle,
+            color: Color(0xFFE0F2FE),
           ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  nama,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15,
-                  ),
+          child: const Icon(
+            Icons.sentiment_satisfied_alt,
+            color: Color(0xFF0284C7),
+            size: 28,
+          ),
+        ),
+        const SizedBox(width: 12),
+
+        // Nama + usia
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                nama,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
                 ),
-                const SizedBox(height: 2),
-                Text(
+              ),
+              const SizedBox(height: 6),
+
+              // Badge usia
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFDBEAFE),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
                   usia,
                   style: const TextStyle(
-                    color: Color(0xFF475569),
                     fontSize: 12,
+                    color: Color(0xFF1D4ED8),
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  );
+}
 
   Widget _buildFormCard() {
     return Container(
