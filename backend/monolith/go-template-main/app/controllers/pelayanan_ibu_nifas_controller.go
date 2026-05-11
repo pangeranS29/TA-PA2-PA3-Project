@@ -7,7 +7,7 @@ import (
 
 	"monitoring-service/app/models"
 	"monitoring-service/app/usecases"
-
+	
 	"github.com/labstack/echo/v4"
 )
 
@@ -29,7 +29,7 @@ type createPelayananNifasRequest struct {
 	PelayananCairanPervaginam           string  `json:"pelayanan_cairan_pervaginam"`
 	PelayananPeriksaJalanLahir          string  `json:"pelayanan_periksa_jalan_lahir"`
 	PelayananPeriksaPayudara            string  `json:"pelayanan_periksa_payudara"`
-	PelayananASIExklusif                string  `json:"pelayanan_asi_eksklusif"`
+	PelayananASIEkslusif 				string 	`gorm:"column:pelayanan_asi_eksklusif;type:varchar(50)" json:"pelayanan_asi_eksklusif"`	
 	PemberianKapsulVitaminA             bool    `json:"pemberian_kapsul_vitamin_a"`
 	PemberianTabletTambahDarahJumlah    int     `json:"pemberian_tablet_tambah_darah_jumlah"`
 	PelayananSkriningDepresiNifas       string  `json:"pelayanan_skrining_depresi_nifas"`
@@ -59,7 +59,7 @@ func (c *PelayananIbuNifasController) Create(ctx echo.Context) error {
 		PelayananCairanPervaginam:           req.PelayananCairanPervaginam,
 		PelayananPeriksaJalanLahir:          req.PelayananPeriksaJalanLahir,
 		PelayananPeriksaPayudara:            req.PelayananPeriksaPayudara,
-		PelayananASIExklusif:                req.PelayananASIExklusif,
+		PelayananASIEkslusif:                req.PelayananASIEkslusif,
 		PemberianKapsulVitaminA:             req.PemberianKapsulVitaminA,
 		PemberianTabletTambahDarahJumlah:    &req.PemberianTabletTambahDarahJumlah,
 		PelayananSkriningDepresiNifas:       req.PelayananSkriningDepresiNifas,
@@ -148,8 +148,8 @@ func (c *PelayananIbuNifasController) Update(ctx echo.Context) error {
 	if req.PelayananPeriksaPayudara != "" {
 		existing.PelayananPeriksaPayudara = req.PelayananPeriksaPayudara
 	}
-	if req.PelayananASIExklusif != "" {
-		existing.PelayananASIExklusif = req.PelayananASIExklusif
+	if req.PelayananASIEkslusif != "" {
+		existing.PelayananASIEkslusif = req.PelayananASIEkslusif
 	}
 	existing.PemberianKapsulVitaminA = req.PemberianKapsulVitaminA
 	if req.PemberianTabletTambahDarahJumlah != 0 {
@@ -182,6 +182,48 @@ func (c *PelayananIbuNifasController) Update(ctx echo.Context) error {
 		return ctx.JSON(http.StatusInternalServerError, models.Response{StatusCode: http.StatusInternalServerError, Message: err.Error()})
 	}
 	return ctx.JSON(http.StatusOK, models.Response{StatusCode: http.StatusOK, Data: existing})
+}
+
+func (c *PelayananIbuNifasController) GetMine(
+	ctx echo.Context,
+) error {
+
+	claims, ok := ctx.Get("auth_claims").(*models.AuthClaims)
+
+	if !ok || claims == nil {
+		return ctx.JSON(
+			http.StatusUnauthorized,
+			models.Response{
+				StatusCode: http.StatusUnauthorized,
+				Message:    "Unauthorized",
+			},
+		)
+	}
+
+	userID := claims.UserID
+
+	data, err := c.usecase.GetMine(
+		ctx.Request().Context(),
+		userID,
+	)
+
+	if err != nil {
+		return ctx.JSON(
+			http.StatusInternalServerError,
+			models.Response{
+				StatusCode: http.StatusInternalServerError,
+				Message:    err.Error(),
+			},
+		)
+	}
+
+	return ctx.JSON(
+		http.StatusOK,
+		models.Response{
+			StatusCode: http.StatusOK,
+			Data:       data,
+		},
+	)
 }
 
 func (c *PelayananIbuNifasController) Delete(ctx echo.Context) error {

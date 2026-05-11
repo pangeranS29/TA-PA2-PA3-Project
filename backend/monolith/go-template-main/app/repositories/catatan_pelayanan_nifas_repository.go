@@ -35,6 +35,25 @@ func (r *CatatanPelayananNifasRepository) Update(c *models.CatatanPelayananNifas
 	return r.db.Save(c).Error
 }
 
+func (r *CatatanPelayananNifasRepository) FindMineByUserID(
+	userID int32,
+) ([]models.CatatanPelayananNifas, error) {
+
+	var list []models.CatatanPelayananNifas
+
+	err := r.db.
+		Table("catatan_pelayanan_nifas").
+		Joins("JOIN kehamilan k ON k.id = catatan_pelayanan_nifas.kehamilan_id").
+		Joins("JOIN ibu i ON i.id = k.ibu_id").
+		Joins("JOIN penduduk pd ON pd.id = i.penduduk_id").
+		Joins("JOIN pengguna u ON u.penduduk_id = pd.id").
+		Where("u.id = ?", userID).
+		Order("catatan_pelayanan_nifas.tanggal_periksa_stamp_paraf DESC").
+		Find(&list).Error
+
+	return list, err
+}
+
 func (r *CatatanPelayananNifasRepository) Delete(id int32) error {
 	result := r.db.Delete(&models.CatatanPelayananNifas{}, id)
 	if result.Error != nil {

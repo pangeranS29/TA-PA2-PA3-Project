@@ -16,7 +16,7 @@ type PelayananIbuNifas struct {
 	PelayananCairanPervaginam  string `json:"pelayanan_cairan_pervaginam"`
 	PelayananPeriksaJalanLahir string `json:"pelayanan_periksa_jalan_lahir"`
 	PelayananPeriksaPayudara   string `json:"pelayanan_periksa_payudara"`
-	PelayananASIExklusif       string `gorm:"type:varchar(50)" json:"pelayanan_asi_eksklusif"`
+	PelayananASIEkslusif       string `gorm:"type:varchar(50)" json:"pelayanan_asi_eksklusif"`
 
 	PemberianKapsulVitaminA          bool `json:"pemberian_kapsul_vitamin_a"`
 	PemberianTabletTambahDarahJumlah *int `json:"pemberian_tablet_tambah_darah_jumlah"`

@@ -32,6 +32,11 @@ import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/grafi
 
 // import edukasi
 import 'package:ta_pa2_pa3_project/features/edukasi/presentation/screens/edukasi_screen_all.dart';
+import 'package:ta_pa2_pa3_project/core/constants/app_colors.dart';
+import 'package:ta_pa2_pa3_project/core/services/auth_session.dart';
+import 'package:ta_pa2_pa3_project/features/ibu/nifas/presentation/screens/ringkasan_persalinan_screen.dart';
+import 'package:ta_pa2_pa3_project/features/ibu/nifas/presentation/screens/pelayanan_ibu_nifas_screen.dart';
+import 'package:ta_pa2_pa3_project/features/ibu/nifas/presentation/screens/catatan_pelayanan_nifas_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -253,18 +258,77 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildNifasShortcut() {
-    return DashboardMenuCard(
-      title: 'Nifas',
-      subtitle: 'Pantau masa nifas pasca persalinan',
-      icon: Icons.person_outline,
-      iconColor: Colors.teal,
-      onTap: () => Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const NifasScreen()),
+Widget _buildNifasShortcut() {
+  return Column(
+    children: [
+
+      DashboardMenuCard(
+        title: 'Ringkasan Pelayanan Proses Melahirkan',
+        subtitle: 'Lihat hasil pelayanan proses melahirkan',
+        icon: Icons.child_friendly_rounded,
+        iconColor: AppColors.primary,
+        onTap: () {
+          final token = AuthSession.token ?? '';
+
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => RingkasanPersalinanScreen(
+                token: token,
+              ),
+            ),
+          );
+        },
       ),
-    );
-  }
+
+      const SizedBox(height: 16),
+
+      DashboardMenuCard(
+        title: 'Pemantauan Ibu Nifas',
+        subtitle: 'Pantau masa nifas pasca persalinan',
+        icon: Icons.person_outline,
+        iconColor: AppColors.primary,
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const NifasScreen(),
+          ),
+        ),
+      ),
+
+      const SizedBox(height: 16),
+
+      DashboardMenuCard(
+        title: 'Pelayanan Ibu Nifas',
+        subtitle: 'Lihat catatan pelayanan ibu nifas',
+        icon: Icons.medical_services_outlined,
+        iconColor: AppColors.primary,
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const PelayananIbuNifasScreen(),
+          ),
+        ),
+      ),
+
+      const SizedBox(height: 16),
+
+      DashboardMenuCard(
+        title: 'Catatan Pelayanan Nifas',
+        subtitle: 'Lihat catatan pemeriksaan dan saran nifas',
+        icon: Icons.note_alt_outlined,
+        iconColor: AppColors.primary,
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const CatatanPelayananNifasScreen(),
+          ),
+        ),
+      ),
+
+    ],
+  );
+}
 
   Widget _buildMenyusuiShortcut() {
     return DashboardMenuCard(
