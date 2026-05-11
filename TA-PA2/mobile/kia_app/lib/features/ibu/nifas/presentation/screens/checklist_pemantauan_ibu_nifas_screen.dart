@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:ta_pa2_pa3_project/core/constants/api_constants.dart';
 import 'package:ta_pa2_pa3_project/core/services/auth_session.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/data/services/kehamilan_api_service.dart';
+import 'package:ta_pa2_pa3_project/core/constants/app_colors.dart';
 
 class ChecklistPemantauanIbuNifasScreen extends StatefulWidget {
   final List<int> filledDays;
@@ -158,7 +159,7 @@ class _ChecklistPemantauanIbuNifasScreenState
       builder: (_) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
         title: Row(children: [
-          CircleAvatar(backgroundColor: Colors.blue.shade50, child: Icon(Icons.check_rounded, color: Colors.blue.shade700)),
+          CircleAvatar(backgroundColor: Colors.blue.shade50, child: Icon(Icons.check_rounded, color: AppColors.primary)),
           const SizedBox(width: 12),
           const Expanded(child: Text('Berhasil Disimpan', style: TextStyle(fontWeight: FontWeight.bold))),
         ]),
@@ -166,7 +167,7 @@ class _ChecklistPemantauanIbuNifasScreenState
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Kembali ke Nifas', style: TextStyle(color: Colors.blue.shade700, fontWeight: FontWeight.bold)),
+            child: Text('Kembali ke Nifas', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -187,7 +188,7 @@ class _ChecklistPemantauanIbuNifasScreenState
     return Scaffold(
       backgroundColor: const Color(0xFFF1F5F9),
       appBar: AppBar(
-        backgroundColor: Colors.blue.shade700,
+        backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         elevation: 0,
         title: const Text('Pemantauan Ibu Nifas'),
@@ -211,9 +212,9 @@ class _ChecklistPemantauanIbuNifasScreenState
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: LinearGradient(colors: [Colors.blue.shade800, Colors.blue.shade400], begin: Alignment.topLeft, end: Alignment.bottomRight),
+        gradient: LinearGradient(colors: [AppColors.primary, Colors.blue.shade400], begin: Alignment.topLeft, end: Alignment.bottomRight),
         borderRadius: BorderRadius.circular(24),
-        boxShadow: [BoxShadow(color: Colors.blue.withOpacity(0.18), blurRadius: 14, offset: const Offset(0, 8))],
+        boxShadow: [BoxShadow(color: AppColors.primary.withOpacity(0.18), blurRadius: 14, offset: const Offset(0, 8))],
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         const Icon(Icons.health_and_safety_outlined, color: Colors.white, size: 34),
@@ -241,7 +242,7 @@ class _ChecklistPemantauanIbuNifasScreenState
         boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.035), blurRadius: 10, offset: const Offset(0, 4))],
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text('Pilih Hari Nifas', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.blue.shade900)),
+        Text('Pilih Hari Nifas', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.primary)),
         const SizedBox(height: 6),
         const Text('Ibu hanya dapat mengisi checklist satu kali setiap hari selama 42 hari masa nifas.', style: TextStyle(fontSize: 12, color: Colors.black54)),
         const SizedBox(height: 14),
@@ -252,7 +253,7 @@ class _ChecklistPemantauanIbuNifasScreenState
             filled: true,
             fillColor: Colors.blue.shade50,
             hintText: 'Pilih hari nifas',
-            prefixIcon: Icon(Icons.calendar_month_outlined, color: Colors.blue.shade700),
+            prefixIcon: Icon(Icons.calendar_month_outlined, color: AppColors.primary),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
           ),
           items: List.generate(42, (index) {
@@ -297,9 +298,9 @@ class _ChecklistPemantauanIbuNifasScreenState
         border: Border.all(color: Colors.blue.shade100),
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(title, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.blue.shade800)),
+        Text(title, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.primary)),
         const SizedBox(height: 4),
-        Text(subtitle, style: TextStyle(fontSize: 12, color: Colors.blue.shade700)),
+        Text(subtitle, style: TextStyle(fontSize: 12, color: AppColors.primary)),
       ]),
     );
   }
@@ -316,7 +317,7 @@ class _ChecklistPemantauanIbuNifasScreenState
       child: CheckboxListTile(
         value: value,
         onChanged: isLoading ? null : onChanged,
-        activeColor: Colors.blue.shade700,
+        activeColor: AppColors.primary,
         checkboxShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
         title: Text(title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
         controlAffinity: ListTileControlAffinity.leading,
@@ -354,7 +355,7 @@ class _ChecklistPemantauanIbuNifasScreenState
       child: Column(children: [
         Icon(Icons.touch_app_outlined, color: Colors.blue.shade600, size: 36),
         const SizedBox(height: 10),
-        Text('Pilih hari nifas terlebih dahulu', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blue.shade900)),
+        Text('Pilih hari nifas terlebih dahulu', style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary)),
         const SizedBox(height: 6),
         const Text('Setelah hari dipilih, checklist Nifas A dan Nifas B akan tampil.', textAlign: TextAlign.center, style: TextStyle(fontSize: 12, color: Colors.black54)),
       ]),
@@ -393,7 +394,7 @@ class _ChecklistPemantauanIbuNifasScreenState
               : const Icon(Icons.save_outlined),
           label: Text(isLoading ? 'Menyimpan...' : 'Simpan Checklist'),
           style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.blue.shade700,
+            backgroundColor: AppColors.primary,
             foregroundColor: Colors.white,
             disabledBackgroundColor: Colors.blue.shade200,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),

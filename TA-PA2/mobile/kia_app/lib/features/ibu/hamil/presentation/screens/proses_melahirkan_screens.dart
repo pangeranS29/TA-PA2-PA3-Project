@@ -3,6 +3,7 @@ import 'package:ta_pa2_pa3_project/core/themes/app_theme.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/data/models/proses_melahirkan_model.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/data/repositories/proses_melahirkan_repository.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/data/repositories/keterangan_lahir_repository.dart';
+import 'package:ta_pa2_pa3_project/core/constants/app_colors.dart';
 
 // ─── Screen 1: Ringkasan Pelayanan ───────────────────────────────────────────
 
@@ -304,7 +305,7 @@ class _BaseBirthScreen extends StatelessWidget {
         appBar: AppBar(
           title: const Text('Catatan Persalinan',
               style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-          backgroundColor: TrimesterTheme.t1Primary,
+          backgroundColor: AppColors.primary,
           elevation: 0,
           leading: IconButton(
             icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
@@ -318,7 +319,7 @@ class _BaseBirthScreen extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.fromLTRB(24, 8, 24, 28),
               decoration: const BoxDecoration(
-                color: TrimesterTheme.t1Primary,
+                color: AppColors.primary,
                 borderRadius: BorderRadius.only(
                   bottomLeft: Radius.circular(30),
                   bottomRight: Radius.circular(30),

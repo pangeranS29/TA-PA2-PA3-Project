@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/data/services/pemantauan_ibu_hamil_api_service.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/data/models/pemantauan_ibu_hamil_model.dart';
+import 'package:ta_pa2_pa3_project/core/constants/app_colors.dart';
 
 class PemantauanIbuHamilScreen extends StatefulWidget {
   const PemantauanIbuHamilScreen({super.key});
@@ -52,7 +53,7 @@ class _PemantauanIbuHamilScreenState extends State<PemantauanIbuHamilScreen> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
             decoration: BoxDecoration(
-              color: success ? const Color(0xFF2563EB) : Colors.red,
+              color: success ? AppColors.primary : Colors.red,
               borderRadius: BorderRadius.circular(18),
               boxShadow: [
                 BoxShadow(
@@ -182,7 +183,7 @@ class _PemantauanIbuHamilScreenState extends State<PemantauanIbuHamilScreen> {
       backgroundColor: const Color(0xFFF4F8FF),
       appBar: AppBar(
         title: const Text('Pemantauan Ibu Hamil'),
-        backgroundColor: const Color(0xFF2563EB),
+        backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         elevation: 0,
       ),
@@ -216,7 +217,7 @@ class _PemantauanIbuHamilScreenState extends State<PemantauanIbuHamilScreen> {
                       style: const TextStyle(fontWeight: FontWeight.w800),
                     ),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF2563EB),
+                      backgroundColor: AppColors.primary,
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                     ),
@@ -253,7 +254,7 @@ Widget _buildHeaderCard() {
           ),
           child: const Icon(
             Icons.health_and_safety_outlined,
-            color: Color(0xFF2563EB),
+            color: AppColors.primary,
             size: 30,
           ),
         ),
@@ -273,7 +274,7 @@ Widget _buildHeaderCard() {
                     : 'Tidak ada keluhan yang dicatat',
                 style: TextStyle(
                   fontSize: 12,
-                  color: _adaKeluhan ? const Color(0xFF2563EB) : const Color(0xFF7B8798),
+                  color: _adaKeluhan ? AppColors.primary : const Color(0xFF7B8798),
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -295,7 +296,7 @@ Widget _buildWeekCard() {
     ),
     child: Row(
       children: [
-        const Icon(Icons.calendar_month_outlined, color: Color(0xFF2563EB)),
+        const Icon(Icons.calendar_month_outlined, color: AppColors.primary),
         const SizedBox(width: 12),
         const Expanded(
           child: Text(
@@ -380,7 +381,7 @@ Widget _buildSwitch(String title, String subtitle, bool value, ValueChanged<bool
         color: value ? const Color(0xFFEFF6FF) : const Color(0xFFF8FAFC),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: value ? const Color(0xFF2563EB) : const Color(0xFFE5ECF6),
+          color: value ? AppColors.primary : const Color(0xFFE5ECF6),
         ),
       ),
       child: Row(
@@ -389,10 +390,10 @@ Widget _buildSwitch(String title, String subtitle, bool value, ValueChanged<bool
             width: 26,
             height: 26,
             decoration: BoxDecoration(
-              color: value ? const Color(0xFF2563EB) : Colors.white,
+              color: value ? AppColors.primary : Colors.white,
               borderRadius: BorderRadius.circular(8),
               border: Border.all(
-                color: value ? const Color(0xFF2563EB) : const Color(0xFFCBD5E1),
+                color: value ? AppColors.primary : const Color(0xFFCBD5E1),
               ),
             ),
             child: value ? const Icon(Icons.check, color: Colors.white, size: 18) : null,

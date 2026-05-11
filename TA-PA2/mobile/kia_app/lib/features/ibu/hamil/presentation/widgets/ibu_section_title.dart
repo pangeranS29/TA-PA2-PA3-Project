@@ -5,6 +5,7 @@
 // ============================================================
 
 import 'package:flutter/material.dart';
+import 'package:ta_pa2_pa3_project/core/constants/app_colors.dart';
 
 class IbuSectionTitle extends StatelessWidget {
   final String title;
@@ -29,7 +30,7 @@ class IbuSectionTitle extends StatelessWidget {
             width: 4,
             height: 20,
             decoration: BoxDecoration(
-              color: const Color(0xFF2F80ED),
+              color: AppColors.primary,
               borderRadius: BorderRadius.circular(2),
             ),
           ),

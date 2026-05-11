@@ -6,6 +6,7 @@
 // ============================================================
 
 import 'package:flutter/material.dart';
+import 'package:ta_pa2_pa3_project/core/constants/app_colors.dart';
 
 class IbuMenuCard extends StatelessWidget {
   final IconData icon;
@@ -27,7 +28,7 @@ class IbuMenuCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = iconColor ?? const Color(0xFF2F80ED);
+    final color = iconColor ?? AppColors.primary;
     final bgColor = iconBgColor ?? const Color(0xFFEAF4FF);
 
     return Container(

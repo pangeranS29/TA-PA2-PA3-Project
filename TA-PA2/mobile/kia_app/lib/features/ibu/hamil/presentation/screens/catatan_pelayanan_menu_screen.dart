@@ -89,6 +89,7 @@ import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/catat
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/catatan_pelayanan_t2_screen.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/catatan_pelayanan_t3_screen.dart';
 
+import 'package:ta_pa2_pa3_project/core/constants/app_colors.dart';
 class CatatanPelayananMenuScreen extends StatelessWidget {
   const CatatanPelayananMenuScreen({super.key});
 
@@ -120,7 +121,7 @@ class CatatanPelayananMenuScreen extends StatelessWidget {
                     title: "Catatan Pelayanan Trimester 1",
                     subtitle: "Lihat catatan pemeriksaan awal kehamilan",
                     icon: Icons.looks_one_outlined,
-                    color: const Color(0xFF3B82F6),
+                    color: AppColors.primary,
                     onTap: () {
                       Navigator.push(
                         context,
@@ -136,7 +137,7 @@ class CatatanPelayananMenuScreen extends StatelessWidget {
                     title: "Catatan Pelayanan Trimester 2",
                     subtitle: "Lihat catatan pemeriksaan pertengahan kehamilan",
                     icon: Icons.looks_two_outlined,
-                    color: const Color(0xFF2563EB),
+                    color: AppColors.primary,
                     onTap: () {
                       Navigator.push(
                         context,
@@ -152,7 +153,7 @@ class CatatanPelayananMenuScreen extends StatelessWidget {
                     title: "Catatan Pelayanan Trimester 3",
                     subtitle: "Lihat catatan pemeriksaan menjelang persalinan",
                     icon: Icons.looks_3_outlined,
-                    color: const Color(0xFF1D4ED8),
+                    color: AppColors.primary,
                     onTap: () {
                       Navigator.push(
                         context,
@@ -175,7 +176,7 @@ class CatatanPelayananMenuScreen extends StatelessWidget {
                     child: const Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(Icons.info_outline, color: Color(0xFF2563EB)),
+                        Icon(Icons.info_outline, color: AppColors.primary),
                         SizedBox(width: 10),
                         Expanded(
                           child: Text(
@@ -206,7 +207,7 @@ class CatatanPelayananMenuScreen extends StatelessWidget {
       padding: const EdgeInsets.only(top: 55, left: 20, right: 20, bottom: 28),
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          colors: [Color(0xFF2563EB), Color(0xFF3B82F6)],
+          colors: [AppColors.primary, Color(0xFF3B82F6)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),

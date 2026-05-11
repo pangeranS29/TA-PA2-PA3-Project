@@ -5,6 +5,7 @@ import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/hasil
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/absensi_kelas_ibu_hamil_screen.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/log_ttd_mms_screen.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/proses_melahirkan_screens.dart';
+import 'package:ta_pa2_pa3_project/core/constants/app_colors.dart';
 
 class JourneyScreen extends StatefulWidget {
   final int currentWeek;
@@ -88,7 +89,7 @@ class _JourneyScreenState extends State<JourneyScreen> {
             ),
           ],
         ),
-        backgroundColor: TrimesterTheme.t1Primary,
+        backgroundColor: AppColors.primary,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
@@ -111,7 +112,7 @@ class _JourneyScreenState extends State<JourneyScreen> {
               children: [
                 _buildFeatureCard(
                   icon: Icons.assignment_outlined,
-                  iconColor: const Color(0xFF2F80ED),
+                  iconColor: AppColors.primary,
                   iconBackground: const Color(0xFFEAF4FF),
                   title: 'Evaluasi Kesehatan Ibu',
                   subtitle: 'Lihat hasil evaluasi awal kehamilan',
@@ -162,7 +163,7 @@ class _JourneyScreenState extends State<JourneyScreen> {
                 const SizedBox(height: 14),
                 _buildFeatureCard(
                   icon: Icons.medication_liquid_outlined,
-                  iconColor: const Color(0xFF2F80ED),
+                  iconColor: AppColors.primary,
                   iconBackground: const Color(0xFFEAF4FF),
                   title: 'Log TTD/MMS',
                   subtitle: 'Checklist harian minum tablet tambah darah atau MMS',
@@ -212,7 +213,7 @@ class _JourneyScreenState extends State<JourneyScreen> {
       width: double.infinity,
       padding: const EdgeInsets.only(bottom: 30, left: 24, right: 24, top: 10),
       decoration: const BoxDecoration(
-        color: TrimesterTheme.t1Primary,
+        color: AppColors.primary,
         borderRadius: BorderRadius.only(
           bottomLeft: Radius.circular(30),
           bottomRight: Radius.circular(30),

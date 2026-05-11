@@ -6,6 +6,7 @@
 // ============================================================
 
 import 'package:flutter/material.dart';
+import 'package:ta_pa2_pa3_project/core/constants/app_colors.dart';
 
 /// Loading state — tampilkan spinner di tengah
 class IbuLoadingView extends StatelessWidget {
@@ -19,7 +20,7 @@ class IbuLoadingView extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           const CircularProgressIndicator(
-            color: Color(0xFF2F80ED),
+            color: AppColors.primary,
           ),
           if (message != null) ...[
             const SizedBox(height: 16),
@@ -67,7 +68,7 @@ class IbuErrorView extends StatelessWidget {
                 icon: const Icon(Icons.refresh),
                 label: const Text('Coba Lagi'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF2F80ED),
+                  backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),

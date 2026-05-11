@@ -6,6 +6,7 @@
 // ============================================================
 
 import 'package:flutter/material.dart';
+import 'package:ta_pa2_pa3_project/core/constants/app_colors.dart';
 
 class IbuGradientHeader extends StatelessWidget implements PreferredSizeWidget {
   final String title;
@@ -30,7 +31,7 @@ class IbuGradientHeader extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    final start = startColor ?? const Color(0xFF2F80ED);
+    final start = startColor ?? AppColors.primary;
     final end = endColor ?? const Color(0xFF1565C0);
 
     return Container(
