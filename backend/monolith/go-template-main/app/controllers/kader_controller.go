@@ -6,8 +6,8 @@ import (
 
 	"monitoring-service/app/constants"
 	"monitoring-service/app/helpers"
-	"monitoring-service/app/models"
 	"monitoring-service/app/middlewares"
+	"monitoring-service/app/models"
 	"monitoring-service/app/usecases"
 	"monitoring-service/pkg/customerror"
 
@@ -34,13 +34,9 @@ func (c *KaderController) ListMyKader(ctx echo.Context) error {
 	// Ambil search keyword dari query param
 	searchKeyword := ctx.QueryParam("search")
 
-	// Get posyandu ID dari bidan profile (perlu ada query ke database untuk get bidan posyandu)
-	// Untuk sekarang, kita assume bidan sudah punya posyandu_id di claims atau perlu fetch dari DB
-	
-	// Sebaiknya kita query database untuk get posyandu_id dari bidan yang sesuai dengan user ID
-	// Untuk implementasi sederhana, kita return error jika belum punya posyandu
-	// TODO: implementasi fetch posyandu_id dari database
-	
+	// TODO: implementasi fetch posyandu_id dari database berdasarkan user ID
+	// Untuk sekarang, kita return error jika belum punya posyandu
+
 	kaders, err := c.usecase.GetMyKaderList(nil, searchKeyword)
 	if err != nil {
 		return helpers.Response(ctx, customerror.GetStatusCode(err), []string{err.Error()})
@@ -129,4 +125,58 @@ func (c *KaderController) AdminDeleteKader(ctx echo.Context) error {
 	}
 
 	return helpers.StandardResponse(ctx, http.StatusOK, []string{constants.SUCCESS_RESPONSE_MESSAGE}, map[string]bool{"deleted": true}, nil)
+}
+
+// ==================== ROUTE HANDLERS (dengan nama sesuai routes.go) ====================
+
+// AdminTambahKader - Admin membuat kader baru (wrapper untuk AdminCreateKader)
+func (c *KaderController) AdminTambahKader(ctx echo.Context) error {
+	return c.AdminCreateKader(ctx)
+}
+
+// AdminListKader - Admin mendapatkan semua kader (wrapper untuk AdminGetAllKader)
+func (c *KaderController) AdminListKader(ctx echo.Context) error {
+	return c.AdminGetAllKader(ctx)
+}
+
+// AdminUpdateKader - Admin mengupdate data kader
+func (c *KaderController) AdminUpdateKader(ctx echo.Context) error {
+	idRaw, err := strconv.ParseInt(ctx.Param("id"), 10, 32)
+	if err != nil {
+		return helpers.Response(ctx, http.StatusBadRequest, []string{"id kader tidak valid"})
+	}
+
+	var req usecases.UpdateKaderRequest
+	if err := ctx.Bind(&req); err != nil {
+		return helpers.Response(ctx, http.StatusBadRequest, []string{"format request tidak valid: " + err.Error()})
+	}
+
+	kader, err := c.usecase.UpdateKader(int32(idRaw), &req)
+	if err != nil {
+		return helpers.Response(ctx, customerror.GetStatusCode(err), []string{err.Error()})
+	}
+
+	return helpers.StandardResponse(ctx, http.StatusOK, []string{constants.SUCCESS_RESPONSE_MESSAGE}, kader, nil)
+}
+
+// AdminUpdateStatusKader - Admin mengupdate status kader
+func (c *KaderController) AdminUpdateStatusKader(ctx echo.Context) error {
+	idRaw, err := strconv.ParseInt(ctx.Param("id"), 10, 32)
+	if err != nil {
+		return helpers.Response(ctx, http.StatusBadRequest, []string{"id kader tidak valid"})
+	}
+
+	var req struct {
+		Status string `json:"status"`
+	}
+	if err := ctx.Bind(&req); err != nil {
+		return helpers.Response(ctx, http.StatusBadRequest, []string{"format request tidak valid: " + err.Error()})
+	}
+
+	kader, err := c.usecase.UpdateKaderStatus(int32(idRaw), req.Status)
+	if err != nil {
+		return helpers.Response(ctx, customerror.GetStatusCode(err), []string{err.Error()})
+	}
+
+	return helpers.StandardResponse(ctx, http.StatusOK, []string{constants.SUCCESS_RESPONSE_MESSAGE}, kader, nil)
 }
