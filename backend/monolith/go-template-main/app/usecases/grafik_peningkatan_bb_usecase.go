@@ -674,13 +674,7 @@ type iomParams struct {
 	label string
 }
 
-// bbIOMParamsFromIMT - parameter IOM 2009 berdasarkan IMT pra-hamil
-//
-// Sumber: Institute of Medicine (IOM) / National Research Council, 2009.
-// "Weight Gain During Pregnancy: Reexamining the Guidelines."
-//
-// Trimester 1 (0–13 minggu): semua kategori IMT ~0.5–2 kg total
-// Trimester 2–3 (14–40 minggu): kenaikan per minggu berbeda tiap IMT
+// PERHITUNGAN
 func bbIOMParamsFromIMT(imt float64) iomParams {
 	switch {
 	case imt < 18.5:
@@ -718,11 +712,9 @@ func bbIOMParamsFromIMT(imt float64) iomParams {
 	}
 }
 
-// hitungBatasIOM - hitung batas kenaikan BB pada minggu tertentu (IOM 2009)
-//
-// Model dua fase:
-//   - Fase 1 (minggu 1–13): interpolasi linear dari 0 → t1Min/t1Max
-//   - Fase 2 (minggu 14–40): t1Min/t1Max + (minggu - 13) × perMingguMin/Max
+// PERHITUNGAN
+	// Sumber : https://www.acog.org/clinical/clinical-guidance/committee-opinion/articles/2013/01/weight-gain-during-pregnancy
+	// Sumber : https://pmc.ncbi.nlm.nih.gov/articles/PMC2847829/
 func hitungBatasIOM(minggu int, p iomParams) (batasMin, batasMax float64) {
 	if minggu <= 0 {
 		return 0, 0

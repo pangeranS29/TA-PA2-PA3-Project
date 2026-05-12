@@ -129,12 +129,16 @@ func (u *grafikEvaluasiKehamilanUsecase) Delete(id int32) error {
 	return u.repo.Delete(id)
 }
 
+// PERHITUNGAN
 func (u *grafikEvaluasiKehamilanUsecase) GetGrafik(kehamilanID int32) (*GrafikResponse, error) {
 	tfuData, err := u.repo.FindGrafikTFU(kehamilanID)
 	if err != nil {
 		return nil, err
 	}
 
+
+	// Sumber : https://www.alodokter.com/tinggi-fundus-uteri-dan-cara-menghitungnya
+	// Sumber : https://www.haibunda.com/kehamilan/20231120160857-49-321521/tabel-tinggi-fundus-uteri-normal-sesuai-usia-kehamilan-2-cara-mengukurnya-tanpa-usg 
 	var tfuResult []GrafikTFUPoint
 	for _, d := range tfuData {
 		if d.UsiaGestasiMinggu != nil && d.TinggiFundusUteriCm != nil {
@@ -155,6 +159,8 @@ func (u *grafikEvaluasiKehamilanUsecase) GetGrafik(kehamilanID int32) (*GrafikRe
 		return nil, err
 	}
 
+	// Sumber : https://pmc.ncbi.nlm.nih.gov/articles/PMC3678114/
+	// Sumber : https://www.droracle.ai/articles/287588/what-is-the-normal-fetal-heart-rate-range-in
 	var djjResult []GrafikDJJPoint
 	for _, d := range djjData {
 		if d.UsiaGestasiMinggu != nil && d.DenyutJantungBayiXMenit != nil {
