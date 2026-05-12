@@ -26,7 +26,6 @@ type Kependudukan struct {
 	TujuanPindah       string     `gorm:"column:tujuan_pindah;type:text" json:"tujuan_pindah"`
 	TempatMeninggal    string     `gorm:"column:tempat_meninggal;type:text" json:"tempat_meninggal"`
 	Keterangan         string     `gorm:"column:keterangan;type:text" json:"keterangan"`
-	NomorTelepon       string     `gorm:"column:nomor_telepon;type:text" json:"nomor_telepon"`
 	CreatedAt          time.Time  `gorm:"column:created_at" json:"created_at"`
 	UpdatedAt          time.Time  `gorm:"column:updated_at" json:"updated_at"`
 	DeletedAt          *time.Time `gorm:"column:deleted_at" json:"deleted_at,omitempty"`

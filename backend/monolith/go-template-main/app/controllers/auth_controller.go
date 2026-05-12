@@ -58,13 +58,13 @@ func (m *Main) Login(c echo.Context) error {
 	return helpers.StandardResponse(c, http.StatusOK, []string{constants.SUCCESS_RESPONSE_MESSAGE}, data, nil)
 }
 
-func (m *Main) AdminCreateAkunKeluarga(c echo.Context) error {
-	var req usecases.AdminCreateAkunKeluargaRequest
+func (m *Main) AdminCreateKartuKeluarga(c echo.Context) error {
+	var req usecases.AdminCreateKartuKeluargaRequest
 	if err := c.Bind(&req); err != nil {
 		return helpers.Response(c, http.StatusBadRequest, []string{"format request tidak valid"})
 	}
 
-	data, err := m.usecases.AdminAkunKeluarga.CreateAkunKeluarga(&req)
+	data, err := m.usecases.AdminAkunKeluarga.CreateKartuKeluarga(&req)
 	if err != nil {
 		statusCode := customerror.GetStatusCode(err)
 		return helpers.Response(c, statusCode, []string{err.Error()})
