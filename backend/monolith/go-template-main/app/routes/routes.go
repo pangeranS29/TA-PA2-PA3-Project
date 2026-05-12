@@ -240,11 +240,11 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	tenaga.PUT("/edukasi-nifas/:id", controller.EdukasiNifas.Update)
 	tenaga.DELETE("/edukasi-nifas/:id", controller.EdukasiNifas.Delete)
 
-	tenaga.GET("/edukasi-tanda-melahirkan", controller.EdukasiTandaMelahirkan.GetAll)
-	tenaga.POST("/edukasi-tanda-melahirkan", controller.EdukasiTandaMelahirkan.Create)
-	tenaga.GET("/edukasi-tanda-melahirkan/:id", controller.EdukasiTandaMelahirkan.GetByID)
-	tenaga.PUT("/edukasi-tanda-melahirkan/:id", controller.EdukasiTandaMelahirkan.Update)
-	tenaga.DELETE("/edukasi-tanda-melahirkan/:id", controller.EdukasiTandaMelahirkan.Delete)
+	// tenaga.GET("/edukasi-tanda-melahirkan", controller.EdukasiTandaMelahirkan.GetAll)
+	// tenaga.POST("/edukasi-tanda-melahirkan", controller.EdukasiTandaMelahirkan.Create)
+	// tenaga.GET("/edukasi-tanda-melahirkan/:id", controller.EdukasiTandaMelahirkan.GetByID)
+	// tenaga.PUT("/edukasi-tanda-melahirkan/:id", controller.EdukasiTandaMelahirkan.Update)
+	// tenaga.DELETE("/edukasi-tanda-melahirkan/:id", controller.EdukasiTandaMelahirkan.Delete)
 
 	tenaga.GET("/edukasi-imd", controller.EdukasiImd.GetAll)
 	tenaga.POST("/edukasi-imd", controller.EdukasiImd.Create)
@@ -287,6 +287,24 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	tenaga.GET("/edukasi-mpasi/:id", controller.EdukasiMPASI.GetByID)
 	tenaga.PUT("/edukasi-mpasi/:id", controller.EdukasiMPASI.Update)
 	tenaga.DELETE("/edukasi-mpasi/:id", controller.EdukasiMPASI.Delete)
+
+	tenaga.GET("/edukasi-mpasi-aturan-porsi", controller.AturanPorsiMPASI.GetAll)
+	tenaga.POST("/edukasi-mpasi-aturan-porsi", controller.AturanPorsiMPASI.Create)
+	tenaga.GET("/edukasi-mpasi-aturan-porsi/:id", controller.AturanPorsiMPASI.GetByID)
+	tenaga.PUT("/edukasi-mpasi-aturan-porsi/:id", controller.AturanPorsiMPASI.Update)
+	tenaga.DELETE("/edukasi-mpasi-aturan-porsi/:id", controller.AturanPorsiMPASI.Delete)
+
+	tenaga.GET("/edukasi-mpasi-jadwal-harian", controller.JadwalHarianMPASI.GetAll)
+	tenaga.POST("/edukasi-mpasi-jadwal-harian", controller.JadwalHarianMPASI.Create)
+	tenaga.GET("/edukasi-mpasi-jadwal-harian/:id", controller.JadwalHarianMPASI.GetByID)
+	tenaga.PUT("/edukasi-mpasi-jadwal-harian/:id", controller.JadwalHarianMPASI.Update)
+	tenaga.DELETE("/edukasi-mpasi-jadwal-harian/:id", controller.JadwalHarianMPASI.Delete)
+
+	tenaga.GET("/edukasi-mpasi-resep", controller.ResepMPASI.GetAll)
+	tenaga.POST("/edukasi-mpasi-resep", controller.ResepMPASI.Create)
+	tenaga.GET("/edukasi-mpasi-resep/:id", controller.ResepMPASI.GetByID)
+	tenaga.PUT("/edukasi-mpasi-resep/:id", controller.ResepMPASI.Update)
+	tenaga.DELETE("/edukasi-mpasi-resep/:id", controller.ResepMPASI.Delete)
 
 	// ==================== PEMANTAUAN INDIKATOR ====================
 	tenaga.GET("/pemantauan-indikator", controller.PemantauanIndikator.GetAll)

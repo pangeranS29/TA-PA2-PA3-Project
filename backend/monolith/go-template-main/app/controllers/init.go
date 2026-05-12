@@ -62,14 +62,17 @@ type Main struct {
 	EdukasiInformasiUmum        *EdukasiInformasiUmumController
 	EdukasiNifas                *EdukasiNifasController
 	EdukasiTandaBahayaTrimester *EdukasiTandaBahayaTrimesterController
-	EdukasiTandaMelahirkan      *EdukasiTandaMelahirkanController
-	EdukasiImd                  *EdukasiIMDController
-	EdukasiSetelahMelahirkan    *EdukasiSetelahMelahirkanController
-	EdukasiMenyusuiAsi          *EdukasiMenyusuiASIController
-	EdukasiPolaAsuh             *EdukasiPolaAsuhController
-	EdukasiKesehatanMental      *EdukasiKesehatanMentalController
-	EdukasiPerawatanAnak        *EdukasiPerawatanAnakController
-	EdukasiMPASI                *EdukasiMPASIController
+	// EdukasiTandaMelahirkan      *EdukasiTandaMelahirkanController
+	EdukasiImd               *EdukasiIMDController
+	EdukasiSetelahMelahirkan *EdukasiSetelahMelahirkanController
+	EdukasiMenyusuiAsi       *EdukasiMenyusuiASIController
+	EdukasiPolaAsuh          *EdukasiPolaAsuhController
+	EdukasiKesehatanMental   *EdukasiKesehatanMentalController
+	EdukasiPerawatanAnak     *EdukasiPerawatanAnakController
+	EdukasiMPASI             *EdukasiMPASIController
+	AturanPorsiMPASI         *AturanPorsiMPASIController
+	JadwalHarianMPASI        *JadwalHarianMPASIController
+	ResepMPASI               *ResepMPASIController
 }
 
 type Options struct {
@@ -146,7 +149,7 @@ func Init(opts Options) *Main {
 	m.EdukasiInformasiUmum = NewEdukasiInformasiUmumController(opts.UseCases.EdukasiInformasiUmum)
 	m.EdukasiNifas = NewEdukasiNifasController(opts.UseCases.EdukasiNifas)
 	m.EdukasiTandaBahayaTrimester = NewEdukasiTandaBahayaTrimesterController(opts.UseCases.EdukasiTandaBahayaTrimester)
-	m.EdukasiTandaMelahirkan = NewEdukasiTandaMelahirkanController(opts.UseCases.EdukasiTandaMelahirkan)
+	// m.EdukasiTandaMelahirkan = NewEdukasiTandaMelahirkanController(opts.UseCases.EdukasiTandaMelahirkan)
 	m.EdukasiImd = NewEdukasiIMDController(opts.UseCases.EdukasiImd)
 	m.EdukasiSetelahMelahirkan = NewEdukasiSetelahMelahirkanController(opts.UseCases.EdukasiSetelahMelahirkan)
 	m.EdukasiMenyusuiAsi = NewEdukasiMenyusuiASIController(opts.UseCases.EdukasiMenyusuiAsi)
@@ -154,6 +157,9 @@ func Init(opts Options) *Main {
 	m.EdukasiKesehatanMental = NewEdukasiKesehatanMentalController(opts.UseCases.EdukasiKesehatanMental)
 	m.EdukasiPerawatanAnak = NewEdukasiPerawatanAnakController(opts.UseCases.EdukasiPerawatanAnak)
 	m.EdukasiMPASI = NewEdukasiMPASIController(opts.UseCases.EdukasiMPASI)
+	m.AturanPorsiMPASI = NewAturanPorsiMPASIController(opts.UseCases.AturanPorsiMPASI)
+	m.JadwalHarianMPASI = NewJadwalHarianMPASIController(opts.UseCases.JadwalHarianMPASI)
+	m.ResepMPASI = NewResepMPASIController(opts.UseCases.ResepMPASI)
 
 	return m
 }

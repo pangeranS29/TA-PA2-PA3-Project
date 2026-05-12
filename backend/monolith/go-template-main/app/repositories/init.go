@@ -56,25 +56,28 @@ type Main struct {
 	JenisPelayanan                JenisPelayananRepository
 
 	// Repository tambahan
-	KeluhanAnak                        KeluhanAnakRepository
-	KesehatanLingkungan                KesehatanLingkunganRepository
+	KeluhanAnak         KeluhanAnakRepository
+	KesehatanLingkungan KesehatanLingkunganRepository
 	// KesehatanLingkunganDanCatatanKader *KesehatanLingkunganDanCatatanKaderRepository
-	PemantauanAnak                     PemantauanAnakRepository
+	PemantauanAnak PemantauanAnakRepository
 	// PerkembanganAnak                   PerkembanganAnakRepository
-	PemantauanIndikator                *PemantauanIndikatorRepository
+	PemantauanIndikator *PemantauanIndikatorRepository
 
 	// Edukasi Digital
-	EdukasiInformasiUmum           EdukasiInformasiUmumRepository
-	EdukasiNifas                   EdukasiNifasRepository
-	EdukasiTandaBahayaTrimester    EdukasiTandaBahayaTrimesterRepository
-	EdukasiTandaMelahirkan        EdukasiTandaMelahirkanRepository
-	EdukasiImd                    EdukasiIMDRepository
-	EdukasiSetelahMelahirkan      EdukasiSetelahMelahirkanRepository
-	EdukasiMenyusuiAsi            EdukasiMenyusuiASIRepository
-	EdukasiPolaAsuh               EdukasiPolaAsuhRepository
-	EdukasiKesehatanMental        EdukasiKesehatanMentalRepository
-	EdukasiPerawatanAnak          EdukasiPerawatanAnakRepository
-	EdukasiMPASI                  EdukasiMPASIRepository
+	EdukasiInformasiUmum        EdukasiInformasiUmumRepository
+	EdukasiNifas                EdukasiNifasRepository
+	EdukasiTandaBahayaTrimester EdukasiTandaBahayaTrimesterRepository
+	// EdukasiTandaMelahirkan      EdukasiTandaMelahirkanRepository
+	EdukasiImd               EdukasiIMDRepository
+	EdukasiSetelahMelahirkan EdukasiSetelahMelahirkanRepository
+	EdukasiMenyusuiAsi       EdukasiMenyusuiASIRepository
+	EdukasiPolaAsuh          EdukasiPolaAsuhRepository
+	EdukasiKesehatanMental   EdukasiKesehatanMentalRepository
+	EdukasiPerawatanAnak     EdukasiPerawatanAnakRepository
+	EdukasiMPASI             EdukasiMPASIRepository
+	AturanPorsiMPASI         AturanPorsiMPASIRepository
+	JadwalHarianMPASI        JadwalHarianMPASIRepository
+	ResepMPASI               ResepMPASIRepository
 }
 
 type Options struct {
@@ -146,7 +149,7 @@ func Init(opts Options) *Main {
 	m.EdukasiInformasiUmum = NewEdukasiInformasiUmumRepository(opts.Postgres)
 	m.EdukasiNifas = NewEdukasiNifasRepository(opts.Postgres)
 	m.EdukasiTandaBahayaTrimester = NewEdukasiTandaBahayaTrimesterRepository(opts.Postgres)
-	m.EdukasiTandaMelahirkan = NewEdukasiTandaMelahirkanRepository(opts.Postgres)
+	// m.EdukasiTandaMelahirkan = NewEdukasiTandaMelahirkanRepository(opts.Postgres)
 	m.EdukasiImd = NewEdukasiIMDRepository(opts.Postgres)
 	m.EdukasiSetelahMelahirkan = NewEdukasiSetelahMelahirkanRepository(opts.Postgres)
 	m.EdukasiMenyusuiAsi = NewEdukasiMenyusuiASIRepository(opts.Postgres)
@@ -154,7 +157,9 @@ func Init(opts Options) *Main {
 	m.EdukasiKesehatanMental = NewEdukasiKesehatanMentalRepository(opts.Postgres)
 	m.EdukasiPerawatanAnak = NewEdukasiPerawatanAnakRepository(opts.Postgres)
 	m.EdukasiMPASI = NewEdukasiMPASIRepository(opts.Postgres)
+	m.AturanPorsiMPASI = NewAturanPorsiMPASIRepository(opts.Postgres)
+	m.JadwalHarianMPASI = NewJadwalHarianMPASIRepository(opts.Postgres)
+	m.ResepMPASI = NewResepMPASIRepository(opts.Postgres)
 
 	return m
 }
-

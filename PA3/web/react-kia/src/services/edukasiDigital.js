@@ -56,6 +56,21 @@ export const EDUKASI_RESOURCES = {
     label: "Edukasi MPASI",
     path: "edukasi-mpasi",
   },
+  mpasiAturanPorsi: {
+    key: "mpasiAturanPorsi",
+    label: "MPASI - Aturan Porsi",
+    path: "edukasi-mpasi-aturan-porsi",
+  },
+  mpasiJadwalHarian: {
+    key: "mpasiJadwalHarian",
+    label: "MPASI - Jadwal Harian",
+    path: "edukasi-mpasi-jadwal-harian",
+  },
+  mpasiResep: {
+    key: "mpasiResep",
+    label: "MPASI - Resep",
+    path: "edukasi-mpasi-resep",
+  },
 };
 
 const unwrap = (res) => {

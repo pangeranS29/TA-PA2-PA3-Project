@@ -117,7 +117,7 @@ export default function EdukasiDigitalIndex() {
                             {item.judul || "Tanpa Judul"}
                           </h3>
                           <p className="text-sm text-slate-600 line-clamp-2">
-                            {item.deskripsi || item.isi_konten || "Tidak ada deskripsi"}
+                            {item.ringkasan || item.konten || item.aktivitas || item.tekstur || item.manfaat || "Tidak ada deskripsi"}
                           </p>
                           <div className="flex items-center justify-between mt-2">
                             <span className="text-xs text-slate-400">

@@ -66,14 +66,17 @@ type Main struct {
 	EdukasiInformasiUmum        EdukasiInformasiUmumUsecase
 	EdukasiNifas                EdukasiNifasUsecase
 	EdukasiTandaBahayaTrimester EdukasiTandaBahayaTrimesterUsecase
-	EdukasiTandaMelahirkan      EdukasiTandaMelahirkanUsecase
-	EdukasiImd                  EdukasiIMDUsecase
-	EdukasiSetelahMelahirkan    EdukasiSetelahMelahirkanUsecase
-	EdukasiMenyusuiAsi          EdukasiMenyusuiASIUsecase
-	EdukasiPolaAsuh             EdukasiPolaAsuhUsecase
-	EdukasiKesehatanMental      EdukasiKesehatanMentalUsecase
-	EdukasiPerawatanAnak        EdukasiPerawatanAnakUseCase
-	EdukasiMPASI                EdukasiMPASIUsecase
+	// EdukasiTandaMelahirkan      EdukasiTandaMelahirkanUsecase
+	EdukasiImd               EdukasiIMDUsecase
+	EdukasiSetelahMelahirkan EdukasiSetelahMelahirkanUsecase
+	EdukasiMenyusuiAsi       EdukasiMenyusuiASIUsecase
+	EdukasiPolaAsuh          EdukasiPolaAsuhUsecase
+	EdukasiKesehatanMental   EdukasiKesehatanMentalUsecase
+	EdukasiPerawatanAnak     EdukasiPerawatanAnakUseCase
+	EdukasiMPASI             EdukasiMPASIUsecase
+	AturanPorsiMPASI         AturanPorsiMPASIUsecase
+	JadwalHarianMPASI        JadwalHarianMPASIUsecase
+	ResepMPASI               ResepMPASIUsecase
 }
 
 type Options struct {
@@ -174,7 +177,7 @@ func Init(opts Options) *Main {
 	m.EdukasiInformasiUmum = NewEdukasiInformasiUmumUsecase(opts.Repository.EdukasiInformasiUmum)
 	m.EdukasiNifas = NewEdukasiNifasUsecase(opts.Repository.EdukasiNifas)
 	m.EdukasiTandaBahayaTrimester = NewEdukasiTandaBahayaTrimesterUsecase(opts.Repository.EdukasiTandaBahayaTrimester)
-	m.EdukasiTandaMelahirkan = NewEdukasiTandaMelahirkanUsecase(opts.Repository.EdukasiTandaMelahirkan)
+	// m.EdukasiTandaMelahirkan = NewEdukasiTandaMelahirkanUsecase(opts.Repository.EdukasiTandaMelahirkan)
 	m.EdukasiImd = NewEdukasiIMDUsecase(opts.Repository.EdukasiImd)
 	m.EdukasiSetelahMelahirkan = NewEdukasiSetelahMelahirkanUsecase(opts.Repository.EdukasiSetelahMelahirkan)
 	m.EdukasiMenyusuiAsi = NewEdukasiMenyusuiASIUsecase(opts.Repository.EdukasiMenyusuiAsi)
@@ -182,6 +185,9 @@ func Init(opts Options) *Main {
 	m.EdukasiKesehatanMental = NewEdukasiKesehatanMentalUsecase(opts.Repository.EdukasiKesehatanMental)
 	m.EdukasiPerawatanAnak = NewEdukasiPerawatanAnakUseCase(opts.Repository.EdukasiPerawatanAnak)
 	m.EdukasiMPASI = NewEdukasiMPASIUsecase(opts.Repository.EdukasiMPASI)
+	m.AturanPorsiMPASI = NewAturanPorsiMPASIUsecase(opts.Repository.AturanPorsiMPASI)
+	m.JadwalHarianMPASI = NewJadwalHarianMPASIUsecase(opts.Repository.JadwalHarianMPASI)
+	m.ResepMPASI = NewResepMPASIUsecase(opts.Repository.ResepMPASI)
 
 	return m
 }

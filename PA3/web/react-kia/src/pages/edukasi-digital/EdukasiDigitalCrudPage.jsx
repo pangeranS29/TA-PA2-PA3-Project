@@ -13,25 +13,82 @@ import {
   Trash2, 
   Plus, 
   RefreshCw, 
-  BookOpen, 
-  Image as ImageIcon,
-  ChevronRight
+  Image as ImageIcon
 } from "lucide-react";
 
 const emptyForm = {
   judul: "",
-  gambar_url: "",
-  deskripsi: "",
-  isi_konten: "",
-  materi_inti: "[]",
-  hal_penting: "",
+  konten: "",
 };
 
 const guessId = (item) =>
   item?.id ?? item?.ID ?? item?.id_edukasi ?? item?.id_informasi ?? null;
 
 const guessImage = (item) => 
-  item?.gambar_url ?? item?.GambarURL ?? item?.image_url ?? item?.image ?? "";
+  item?.thumbnail_url ?? item?.gambar_url ?? item?.GambarURL ?? item?.image_url ?? item?.image ?? "";
+
+const defaultFields = [
+  { key: "judul", label: "Judul", type: "text", required: true },
+  { key: "konten", label: "Konten", type: "textarea", rows: 4, required: true },
+];
+
+const normalizeFieldValue = (field, rawValue) => {
+  if (field.type === "array") {
+    if (Array.isArray(rawValue)) return rawValue.join("\n");
+    return rawValue ?? "";
+  }
+
+  if (field.type === "checkbox") {
+    return Boolean(rawValue);
+  }
+
+  if (rawValue === null || rawValue === undefined) {
+    return "";
+  }
+
+  return rawValue;
+};
+
+const parseFieldValue = (field, rawValue) => {
+  if (field.type === "array") {
+    if (Array.isArray(rawValue)) return rawValue;
+    return String(rawValue || "")
+      .split("\n")
+      .map((item) => item.trim())
+      .filter(Boolean);
+  }
+
+  if (field.type === "number") {
+    const value = String(rawValue ?? "").trim();
+    if (!value) return null;
+    return Number(value);
+  }
+
+  if (field.type === "checkbox") {
+    return Boolean(rawValue);
+  }
+
+  if (typeof rawValue === "string") {
+    return rawValue.trim();
+  }
+
+  return rawValue;
+};
+
+const guessSummary = (item) =>
+  item?.ringkasan ||
+  item?.konten ||
+  item?.aktivitas ||
+  item?.tekstur ||
+  item?.manfaat ||
+  "Tidak ada deskripsi singkat untuk konten ini.";
+
+const guessTitle = (item) =>
+  item?.judul ||
+  item?.aktivitas ||
+  item?.tekstur ||
+  item?.waktu ||
+  "Tanpa Judul";
 
 export default function EdukasiDigitalCrudPage({
   title,
@@ -48,25 +105,31 @@ export default function EdukasiDigitalCrudPage({
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [editingId, setEditingId] = useState(null);
-  const initialForm = useMemo(() => {
-    if (fields && Array.isArray(fields)) {
-      const f = {};
-      fields.forEach((it) => {
-        f[it.key] = it.default ?? "";
-      });
-      return f;
+  const activeFields = useMemo(() => {
+    if (fields && Array.isArray(fields) && fields.length > 0) {
+      return fields;
     }
-    return {
-      judul: "",
-      gambar_url: "",
-      deskripsi: "",
-      isi_konten: "",
-      isi: "",
-      materi_inti: "[]",
-      hal_penting: "",
-      ringkasan: "",
-    };
+    return defaultFields;
   }, [fields]);
+
+  const initialForm = useMemo(() => {
+    const result = {};
+    activeFields.forEach((field) => {
+      if (field.default !== undefined) {
+        result[field.key] = field.default;
+        return;
+      }
+
+      if (field.type === "checkbox") {
+        result[field.key] = false;
+        return;
+      }
+
+      result[field.key] = "";
+    });
+
+    return result;
+  }, [activeFields]);
 
   const [form, setForm] = useState(initialForm);
   const [error, setError] = useState("");
@@ -99,6 +162,10 @@ export default function EdukasiDigitalCrudPage({
   }, [resourcePath, view]);
 
   useEffect(() => {
+    setForm(initialForm);
+  }, [initialForm]);
+
+  useEffect(() => {
     if (view !== "form") return;
 
     const loadFormData = async () => {
@@ -111,24 +178,12 @@ export default function EdukasiDigitalCrudPage({
           const item = await getEdukasiById(resourcePath, params.id);
           if (item) {
             setEditingId(String(guessId(item)));
-            if (fields && Array.isArray(fields)) {
-              const f = {};
-              fields.forEach((it) => {
-                f[it.key] = item[it.key] ?? item[it.alt] ?? "";
-              });
-              setForm(f);
-            } else {
-              setForm({
-                judul: item.judul || "",
-                gambar_url: item.gambar_url || "",
-                deskripsi: item.deskripsi || "",
-                isi_konten: item.isi_konten || item.isi || "",
-                isi: item.isi || "",
-                materi_inti: item.materi_inti || "",
-                hal_penting: item.hal_penting || "",
-                ringkasan: item.ringkasan || "",
-              });
-            }
+            const nextForm = {};
+            activeFields.forEach((field) => {
+              const sourceValue = item[field.key] ?? (field.alt ? item[field.alt] : undefined);
+              nextForm[field.key] = normalizeFieldValue(field, sourceValue);
+            });
+            setForm(nextForm);
           } else {
             setError("Data tidak ditemukan");
           }
@@ -144,80 +199,34 @@ export default function EdukasiDigitalCrudPage({
         }
 
         setEditingId(String(guessId(item)));
-        setForm({
-          judul: item.judul || "",
-          gambar_url: item.gambar_url || "",
-          deskripsi: item.deskripsi || "",
-          isi_konten: item.isi_konten || item.isi || "",
-          materi_inti: item.materi_inti || "",
-          hal_penting: item.hal_penting || "",
+        const nextForm = {};
+        activeFields.forEach((field) => {
+          const sourceValue = item[field.key] ?? (field.alt ? item[field.alt] : undefined);
+          nextForm[field.key] = normalizeFieldValue(field, sourceValue);
         });
+        setForm(nextForm);
       } catch (err) {
         setError(err?.response?.data?.message || "Gagal memuat data");
-        setForm(emptyForm);
+        setForm(initialForm);
       } finally {
         setLoading(false);
       }
     };
 
     loadFormData();
-  }, [location.state, view, params.id, resourcePath, fields]);
-
-  // --- MATERI INTI LOGIC ---
-  const materiIntiList = useMemo(() => {
-    try {
-      const parsed = JSON.parse(form.materi_inti || "[]");
-      return Array.isArray(parsed) ? parsed : [];
-    } catch {
-      return [];
-    }
-  }, [form.materi_inti]);
-
-  const handleUpdateMateriInti = (newList) => {
-    setForm((prev) => ({ ...prev, materi_inti: JSON.stringify(newList) }));
-  };
-
-  const handleAddMateriInti = () => {
-    handleUpdateMateriInti([...materiIntiList, { judul: "", isi: "" }]);
-  };
-
-  const handleRemoveMateriInti = (index) => {
-    const newList = [...materiIntiList];
-    newList.splice(index, 1);
-    handleUpdateMateriInti(newList);
-  };
-
-  const handleChangeMateriInti = (index, field, value) => {
-    const newList = [...materiIntiList];
-    newList[index] = { ...newList[index], [field]: value };
-    handleUpdateMateriInti(newList);
-  };
+  }, [location.state, view, params.id, resourcePath, activeFields, initialForm]);
 
   const handleChange = (event) => {
-    const { name, value } = event.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+    const { name, type, value, checked } = event.target;
+    setForm((prev) => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
   };
 
   const toPayload = () => {
-    if (fields && Array.isArray(fields)) {
-      const payload = {};
-      fields.forEach((f) => {
-        const val = form[f.key];
-        payload[f.key] = typeof val === "string" ? val.trim() : val;
-      });
-      return payload;
-    }
-
-    return {
-      judul: (form.judul || "").trim(),
-      gambar_url: (form.gambar_url || "").trim(),
-      deskripsi: (form.deskripsi || "").trim(),
-      isi_konten: (form.isi_konten || "").trim(),
-      isi: (form.isi || "").trim(),
-      materi_inti: (form.materi_inti || "").trim(),
-      hal_penting: (form.hal_penting || "").trim(),
-      ringkasan: (form.ringkasan || "").trim(),
-    };
+    const payload = {};
+    activeFields.forEach((field) => {
+      payload[field.key] = parseFieldValue(field, form[field.key]);
+    });
+    return payload;
   };
 
   const resetForm = () => {
@@ -229,9 +238,25 @@ export default function EdukasiDigitalCrudPage({
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    if (!form.judul.trim()) {
-      setError("Judul wajib diisi");
-      return;
+    for (const field of activeFields) {
+      if (!field.required) continue;
+
+      const value = form[field.key];
+      if (field.type === "checkbox") continue;
+
+      if (field.type === "array") {
+        const parsed = parseFieldValue(field, value);
+        if (!Array.isArray(parsed) || parsed.length === 0) {
+          setError(`${field.label} wajib diisi`);
+          return;
+        }
+        continue;
+      }
+
+      if (value === null || value === undefined || String(value).trim() === "") {
+        setError(`${field.label} wajib diisi`);
+        return;
+      }
     }
 
     setSaving(true);
@@ -372,14 +397,14 @@ export default function EdukasiDigitalCrudPage({
                     <div>
                       <div className="flex items-start justify-between gap-4">
                         <h3 className="text-lg font-bold text-slate-800 group-hover:text-blue-600 transition-colors line-clamp-1">
-                          {item.judul || "Tanpa Judul"}
+                          {guessTitle(item)}
                         </h3>
                         <span className="shrink-0 px-2.5 py-1 bg-blue-50 text-blue-600 rounded-full text-[10px] font-black uppercase tracking-widest">
                           Edukasi
                         </span>
                       </div>
                       <p className="text-sm text-slate-500 mt-2 line-clamp-2 leading-relaxed">
-                        {item.deskripsi || item.isi_konten || item.isi || "Tidak ada deskripsi singkat untuk konten ini."}
+                        {guessSummary(item)}
                       </p>
                     </div>
 
@@ -399,10 +424,6 @@ export default function EdukasiDigitalCrudPage({
                         >
                           <Trash2 size={14} /> Hapus
                         </button>
-                      </div>
-
-                      <div className="flex items-center gap-1 text-blue-600 text-xs font-black uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity">
-                        Detail <ChevronRight size={14} />
                       </div>
                     </div>
                   </div>
@@ -436,120 +457,67 @@ export default function EdukasiDigitalCrudPage({
               </div>
             ) : (
             <form onSubmit={handleSubmit} className="space-y-3">
-              {(fields && Array.isArray(fields) ? fields : [
-                { key: "judul", label: "Judul", type: "text" },
-                { key: "gambar_url", label: "URL gambar (opsional)", type: "text" },
-                { key: "deskripsi", label: "Deskripsi", type: "textarea", rows: 2 },
-                { key: "isi_konten", label: "Isi konten", type: "textarea", rows: 4 },
-                { key: "materi_inti", label: "Materi inti", type: "textarea", rows: 2 },
-                { key: "hal_penting", label: "Hal penting", type: "textarea", rows: 2 },
-              ]).filter(f => f.key !== 'materi_inti').map((f) => {
-                const value = form[f.key] ?? "";
-                if (f.type === "textarea") {
+              {activeFields.map((field) => {
+                const value = form[field.key] ?? "";
+                const requiredMark = field.required ? " *" : "";
+
+                if (field.type === "textarea" || field.type === "array") {
                   return (
-                    <textarea
-                      key={f.key}
-                      name={f.key}
-                      value={value}
-                      onChange={handleChange}
-                      placeholder={f.label}
-                      rows={f.rows || 3}
-                      className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm focus:border-blue-400 focus:ring-1 focus:ring-blue-400 outline-none transition-all"
-                    />
+                    <div key={field.key} className="space-y-1">
+                      <label className="text-sm font-medium text-slate-700">
+                        {field.label}{requiredMark}
+                      </label>
+                      <textarea
+                        name={field.key}
+                        value={value}
+                        onChange={handleChange}
+                        placeholder={field.label}
+                        rows={field.rows || 3}
+                        className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm focus:border-blue-400 focus:ring-1 focus:ring-blue-400 outline-none transition-all"
+                      />
+                    </div>
+                  );
+                }
+
+                if (field.type === "checkbox") {
+                  return (
+                    <label key={field.key} className="flex items-center gap-2 px-3 py-2 border border-slate-200 rounded-xl text-sm text-slate-700">
+                      <input
+                        type="checkbox"
+                        name={field.key}
+                        checked={Boolean(value)}
+                        onChange={handleChange}
+                      />
+                      {field.label}
+                    </label>
                   );
                 }
 
                 return (
-                  <div key={f.key} className="space-y-1">
+                  <div key={field.key} className="space-y-1">
+                    <label className="text-sm font-medium text-slate-700">
+                      {field.label}{requiredMark}
+                    </label>
                     <input
-                      name={f.key}
+                      type={field.type || "text"}
+                      name={field.key}
                       value={value}
                       onChange={handleChange}
-                      placeholder={f.label}
+                      placeholder={field.placeholder || field.label}
                       className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm focus:border-blue-400 focus:ring-1 focus:ring-blue-400 outline-none transition-all"
                     />
-                    {f.key === "gambar_url" && value && (
+                    {(field.key === "gambar_url" || field.key === "thumbnail_url") && value ? (
                       <div className="mt-2 w-full max-w-xs h-32 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 relative">
-                        <img 
-                          src={value} 
-                          alt="Preview" 
-                          key={value} // Force re-render when value changes
+                        <img
+                          src={value}
+                          alt="Preview"
                           className="w-full h-full object-cover"
-                          onError={(e) => {
-                            e.target.style.opacity = '0';
-                            e.target.parentElement.classList.add('bg-red-50');
-                          }}
                         />
-                        <div className="absolute inset-0 flex flex-col items-center justify-center -z-10 text-slate-300 gap-1">
-                          <ImageIcon size={24} />
-                          <span className="text-[8px] font-bold uppercase">Invalid URL</span>
-                        </div>
                       </div>
-                    )}
+                    ) : null}
                   </div>
                 );
               })}
-
-              {/* Special Section: Materi Inti (Dynamic List) */}
-              {(fields === null || fields.some(f => f.key === 'materi_inti')) && (
-                <div className="pt-4 border-t border-slate-100">
-                  <div className="flex items-center justify-between mb-4">
-                    <div>
-                      <h3 className="text-sm font-bold text-slate-800">Materi Inti</h3>
-                      <p className="text-[10px] text-slate-400 uppercase tracking-wider">Tambahkan satu atau lebih blok materi inti.</p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={handleAddMateriInti}
-                      className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg text-[10px] font-black uppercase hover:bg-blue-100 transition-colors"
-                    >
-                      <Plus size={14} /> Tambah Materi
-                    </button>
-                  </div>
-
-                  <div className="space-y-4">
-                    {materiIntiList.map((item, index) => (
-                      <div key={index} className="bg-slate-50/50 p-4 rounded-2xl border border-slate-100 relative group/item">
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveMateriInti(index)}
-                          className="absolute top-2 right-2 p-1 text-slate-300 hover:text-rose-500 transition-colors opacity-0 group-hover/item:opacity-100"
-                        >
-                          <Trash2 size={14} />
-                        </button>
-                        <div className="space-y-3">
-                          <div className="space-y-1">
-                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Judul Materi {index + 1}</label>
-                            <input
-                              value={item.judul}
-                              onChange={(e) => handleChangeMateriInti(index, "judul", e.target.value)}
-                              placeholder="Contoh: Pengertian ASI Eksklusif"
-                              className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm focus:border-blue-400 outline-none transition-all"
-                            />
-                          </div>
-                          <div className="space-y-1">
-                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Isi Materi</label>
-                            <textarea
-                              value={item.isi}
-                              onChange={(e) => handleChangeMateriInti(index, "isi", e.target.value)}
-                              placeholder="Tulis penjelasan detail di sini..."
-                              rows={3}
-                              className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm focus:border-blue-400 outline-none transition-all"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-
-                    {materiIntiList.length === 0 && (
-                      <div className="text-center py-6 border-2 border-dashed border-slate-100 rounded-2xl">
-                        <BookOpen size={24} className="mx-auto text-slate-200 mb-2" />
-                        <p className="text-[10px] font-bold text-slate-300 uppercase italic">Belum ada materi inti yang ditambahkan</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
 
               {error ? <p className="text-sm text-red-600">{error}</p> : null}
 
