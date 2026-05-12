@@ -34,15 +34,15 @@ func (u *pemeriksaangigiUseCase) Create(req models.CreatePemeriksaanGigiRequest)
 	now := time.Now()
 
 	pemeriksaan := models.PeriksaGigi{
-		AnakID:    req.AnakID,
-		Bulanke:   req.Bulanke,
-		Tanggal:   req.Tanggal,
-		Jumlahgigi: req.Jumlahgigi,
-		GigiBerlubang: req.GigiBerlubang,
-		StatusPlak: req.StatusPlak,
+		AnakID:              req.AnakID,
+		Bulanke:             req.Bulanke,
+		Tanggal:             req.Tanggal,
+		Jumlahgigi:          req.Jumlahgigi,
+		GigiBerlubang:       req.GigiBerlubang,
+		StatusPlak:          req.StatusPlak,
 		ResikoGigiBerlubang: req.ResikoGigiBerlubang,
-		CreatedAt: now,
-		UpdatedAt: now,
+		CreatedAt:           now,
+		UpdatedAt:           now,
 	}
 
 	return u.repo.Create(&pemeriksaan)

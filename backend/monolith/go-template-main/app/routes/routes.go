@@ -526,4 +526,17 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	tenaga.PUT("/edukasi-mpasi/resep/:id", controller.EdukasiMPASI.UpdateResep)
 	tenaga.DELETE("/edukasi-mpasi/resep/:id", controller.EdukasiMPASI.DeleteResep)
 
+	// ==================== PERTUMBUHAN ANAK (NAKES) ====================
+	tenaga.GET("/pertumbuhan/anak/:anak_id", controller.GetRiwayatPertumbuhan)
+	tenaga.GET("/pertumbuhan/chart/:anak_id", controller.GetPertumbuhanChart)
+	tenaga.POST("/pertumbuhan", controller.AddCatatanPertumbuhan)
+	tenaga.PUT("/pertumbuhan/:id", controller.UpdateCatatanPertumbuhan)
+	tenaga.DELETE("/pertumbuhan/:id", controller.DeleteCatatanPertumbuhan)
+
+	// ==================== PERTUMBUHAN ANAK (IBU) ====================
+	// Ibu hanya bisa melihat grafik dan riwayat pertumbuhan anaknya sendiri (read-only)
+	ibu.GET("/pertumbuhan/chart/:anak_id", controller.GetPertumbuhanChartForIbu)
+	ibu.GET("/pertumbuhan/riwayat/:anak_id", controller.GetRiwayatPertumbuhanForIbu)
+	ibu.GET("/pertumbuhan/detail/:id", controller.GetDetailCatatanPertumbuhanForIbu)
+
 }
