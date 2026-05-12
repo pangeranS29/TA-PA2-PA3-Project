@@ -1,12 +1,7 @@
 import 'package:flutter/material.dart';
 
-<<<<<<<< HEAD:TA-PA2/mobile/kia_app/lib/features/anak/informasi_umum/presentation/screens/informasi_umum/informasi_umum_screen.dart
-import 'package:ta_pa2_pa3_project/features/anak/informasi_umum/data/services/informasi_umum_api_service.dart';
-import 'package:ta_pa2_pa3_project/features/anak/informasi_umum/data/models/informasi_umum_model.dart';
-========
 import 'package:ta_pa2_pa3_project/features/edukasi/data/services/informasi_umum_api_service.dart';
 import 'package:ta_pa2_pa3_project/features/edukasi/data/models/informasi_umum_model.dart';
->>>>>>>> 3ad6c239c1b1819aa75c0674ccf6d4554e441ae1:TA-PA2/mobile/kia_app/lib/features/edukasi/presentation/anak/informasi_umum/informasi_umum_screen.dart
 
 import 'informasi_umum_detail_screen.dart';
 
