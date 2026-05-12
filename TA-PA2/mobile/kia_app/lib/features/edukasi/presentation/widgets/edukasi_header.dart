@@ -12,32 +12,32 @@ class EdukasiHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: Colors.pink.shade50,
-        borderRadius: BorderRadius.circular(24),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-            ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+
+      children: [
+
+        Text(
+          title,
+
+          style: const TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
           ),
-          const SizedBox(height: 8),
-          Text(
-            subtitle,
-            style: TextStyle(
-              color: Colors.grey.shade700,
-            ),
+        ),
+
+        const SizedBox(height: 6),
+
+        Text(
+          subtitle,
+
+          style: const TextStyle(
+            fontSize: 14,
+            color: Colors.grey,
+            height: 1.5,
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

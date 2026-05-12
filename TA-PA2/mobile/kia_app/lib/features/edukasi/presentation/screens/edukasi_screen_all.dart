@@ -1,202 +1,169 @@
 import 'package:flutter/material.dart';
+import 'package:ta_pa2_pa3_project/core/constants/app_colors.dart';
 
-import 'edukasi_imd_screen.dart';
-import 'edukasi_mental_screen.dart';
-import 'edukasi_asi_screen.dart';
-import 'edukasi_nifas_screen.dart';
-import 'edukasi_tanda_melahirkan_screen.dart';
-import 'edukasi_trimester_screen.dart';
+import '../ibu/konten_edukasi_ibu_screen.dart';
+import '../anak/konten_edukasi_anak_screen.dart';
 
 class EdukasiScreenAll extends StatelessWidget {
   const EdukasiScreenAll({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final List<Map<String, dynamic>> edukasiIbu = [
-      {
-        'title': 'Edukasi Trimester',
-        'icon': Icons.menu_book_rounded,
-        'screen': const EdukasiTrimesterScreen(),
-      },
-      {
-        'title': 'Inisiasi Menyusu Dini (IMD)',
-        'icon': Icons.child_care,
-        'screen': const EdukasiIMDScreen(),
-      },
-      {
-        'title': 'Edukasi Menyusui ASI',
-        'icon': Icons.pregnant_woman,
-        'screen': const EdukasiASIScreen(),
-      },
-      {
-        'title': 'Kesehatan Mental Ibu',
-        'icon': Icons.psychology,
-        'screen': const EdukasiKesehatanMentalScreen(),
-      },
-      {
-        'title': 'Edukasi Masa Nifas',
-        'icon': Icons.favorite,
-        'screen': const EdukasiNifasScreen(),
-      },
-      {
-        'title': 'Tanda-Tanda Melahirkan',
-        'icon': Icons.medical_information,
-        'screen': const EdukasiTandaMelahirkanScreen(),
-      },
-    ];
+    return Scaffold(
+      backgroundColor: const Color(0xFFF5F7FB),
 
-    final List<Map<String, dynamic>> edukasiAnak = [
-      {
-        'title': 'ASI Eksklusif',
-        'icon': Icons.child_friendly,
-        'screen': const Placeholder(),
-      },
-      {
-        'title': 'Imunisasi Anak',
-        'icon': Icons.vaccines,
-        'screen': const Placeholder(),
-      },
-      {
-        'title': 'MPASI',
-        'icon': Icons.restaurant,
-        'screen': const Placeholder(),
-      },
-      {
-        'title': 'Tumbuh Kembang Anak',
-        'icon': Icons.monitor_weight,
-        'screen': const Placeholder(),
-      },
-    ];
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
 
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
-        backgroundColor: const Color(0xFFF1F5F9),
-
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          elevation: 0,
-
-          title: const Text(
-            'Edukasi',
-            style: TextStyle(
-              color: Colors.black87,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-
-          centerTitle: true,
-
-          iconTheme: const IconThemeData(
+        title: const Text(
+          'Edukasi',
+          style: TextStyle(
             color: Colors.black87,
-          ),
-
-          bottom: const TabBar(
-            indicatorColor: Colors.blue,
-
-            labelColor: Colors.blue,
-            unselectedLabelColor: Colors.grey,
-
-            tabs: [
-              Tab(
-                text: 'Ibu',
-                icon: Icon(Icons.pregnant_woman),
-              ),
-              Tab(
-                text: 'Anak',
-                icon: Icon(Icons.child_care),
-              ),
-            ],
+            fontWeight: FontWeight.bold,
           ),
         ),
 
-        body: TabBarView(
+        centerTitle: true,
+
+        iconTheme: const IconThemeData(
+          color: Colors.black87,
+        ),
+      ),
+
+      body: Padding(
+        padding: const EdgeInsets.all(20),
+
+        child: Column(
           children: [
-            _buildEdukasiList(edukasiIbu),
-            _buildEdukasiList(edukasiAnak),
+
+            _buildCategoryCard(
+              context: context,
+              title: 'Ibu',
+              subtitle:
+                  'Edukasi kesehatan ibu selama masa kehamilan',
+              icon: Icons.pregnant_woman,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) =>
+                        const KontenEdukasiIbuScreen(),
+                  ),
+                );
+              },
+            ),
+
+            const SizedBox(height: 18),
+
+            _buildCategoryCard(
+              context: context,
+              title: 'Anak',
+              subtitle:
+                  'Edukasi tumbuh kembang anak sejak lahir hingga usia 6 tahun',
+              icon: Icons.child_care,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) =>
+                        const KontenEdukasiAnakScreen(),
+                  ),
+                );
+              },
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildEdukasiList(List<Map<String, dynamic>> data) {
-    return Padding(
-      padding: const EdgeInsets.all(16),
+  Widget _buildCategoryCard({
+    required BuildContext context,
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
 
-      child: ListView.builder(
-        itemCount: data.length,
+      child: Container(
+        padding: const EdgeInsets.all(18),
 
-        itemBuilder: (context, index) {
-          final item = data[index];
+        decoration: BoxDecoration(
+          color: Colors.white,
 
-          return GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => item['screen'],
-                ),
-              );
-            },
+          borderRadius: BorderRadius.circular(20),
 
-            child: Container(
-              margin: const EdgeInsets.only(bottom: 16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
 
-              padding: const EdgeInsets.all(18),
+        child: Row(
+          children: [
+
+            Container(
+              padding: const EdgeInsets.all(14),
 
               decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
+                color: AppColors.primary.withOpacity(0.1),
 
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 8,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
+                borderRadius:
+                    BorderRadius.circular(16),
               ),
 
-              child: Row(
+              child: Icon(
+                icon,
+                size: 28,
+                color: AppColors.primary,
+              ),
+            ),
+
+            const SizedBox(width: 16),
+
+            Expanded(
+              child: Column(
+                crossAxisAlignment:
+                    CrossAxisAlignment.start,
+
                 children: [
-                  Container(
-                    padding: const EdgeInsets.all(14),
 
-                    decoration: BoxDecoration(
-                      color: Colors.blue.shade50,
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-
-                    child: Icon(
-                      item['icon'],
-                      size: 28,
-                      color: Colors.blue,
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
                     ),
                   ),
 
-                  const SizedBox(width: 16),
+                  const SizedBox(height: 6),
 
-                  Expanded(
-                    child: Text(
-                      item['title'],
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
+                  Text(
+                    subtitle,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: Colors.black54,
+                      height: 1.5,
                     ),
-                  ),
-
-                  const Icon(
-                    Icons.arrow_forward_ios,
-                    size: 18,
-                    color: Colors.grey,
                   ),
                 ],
               ),
             ),
-          );
-        },
+
+            const Icon(
+              Icons.arrow_forward_ios,
+              size: 18,
+              color: Colors.grey,
+            ),
+          ],
+        ),
       ),
     );
   }

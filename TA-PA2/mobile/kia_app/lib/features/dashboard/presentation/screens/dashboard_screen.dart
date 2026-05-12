@@ -834,12 +834,20 @@ import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/log_t
 import 'package:ta_pa2_pa3_project/features/ibu/nifas/presentation/screens/nifas_screen.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/persalinan_screen.dart';
 // MODUL ANAK
+<<<<<<< HEAD
 import 'package:ta_pa2_pa3_project/features/anak/anak/presentation/screens/anak/pilih_anak_screen.dart';
 import 'package:ta_pa2_pa3_project/features/anak/anak/presentation/screens/anak/input_profil_anak_screen.dart';
 // import 'package:ta_pa2_pa3_project/features/anak/anak/presentation/screens/anak/cari_anak_screen.dart';
 import 'package:ta_pa2_pa3_project/features/anak/edukasi/presentation/screens/edukasi/edukasi_screen.dart';
 import 'package:ta_pa2_pa3_project/features/anak/anak/data/models/ibu_anak_model.dart';
 import 'package:ta_pa2_pa3_project/features/anak/anak/data/services/ibu_api_service.dart';
+=======
+import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/screens/anak/pilih_anak_screen.dart';
+import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/screens/anak/input_profil_anak_screen.dart';
+import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/screens/anak/cari_anak_screen.dart';
+import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/data/models/ibu_anak_model.dart';
+import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/data/services/ibu_api_service.dart';
+>>>>>>> 3ad6c239c1b1819aa75c0674ccf6d4554e441ae1
 // import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/screens/skrining/skrining_bahaya.dart';
 // MODUL CATATAN
 // import 'package:ta_pa2_pa3_project/features/anak/anak/presentation/widgets/index.dart';
@@ -1513,7 +1521,7 @@ Widget _buildNifasShortcut() {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (_) => const EdukasiScreen()));
+                            builder: (_) => const EdukasiScreenAll()));
                     break;
                   case 'bahaya':
                     // [MODUL: ANAK] Pilih anak → SkriningBahayaScreen
