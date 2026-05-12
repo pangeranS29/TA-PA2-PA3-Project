@@ -1,70 +1,104 @@
 import 'package:flutter/material.dart';
+import 'package:ta_pa2_pa3_project/core/constants/app_colors.dart';
 
 class EdukasiVideoCard extends StatelessWidget {
   final String title;
-  final String thumbnailUrl;
-  final VoidCallback? onTap;
+  final String duration;
+  final VoidCallback onTap;
 
   const EdukasiVideoCard({
     super.key,
     required this.title,
-    required this.thumbnailUrl,
-    this.onTap,
+    required this.duration,
+    required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
+
       child: Container(
-        width: 220,
-        margin: const EdgeInsets.only(right: 16),
+        margin: const EdgeInsets.only(bottom: 16),
+
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
+
+          borderRadius: BorderRadius.circular(18),
+
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 10,
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
             ),
           ],
         ),
+
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Stack(
-              alignment: Alignment.center,
-              children: [
-                ClipRRect(
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(20),
-                  ),
-                  child: Image.network(
-                    thumbnailUrl,
-                    height: 130,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                  ),
+
+            Container(
+              height: 140,
+
+              decoration: const BoxDecoration(
+                color: Color(0xFFDDEEFF),
+
+                borderRadius: BorderRadius.vertical(
+                  top: Radius.circular(18),
                 ),
-                const CircleAvatar(
-                  radius: 24,
-                  backgroundColor: Colors.white,
-                  child: Icon(
-                    Icons.play_arrow,
-                    size: 30,
-                  ),
+              ),
+
+              child: Center(
+                child: Icon(
+                  Icons.play_circle_fill,
+                  size: 60,
+                  color: AppColors.primary,
                 ),
-              ],
+              ),
             ),
+
             Padding(
-              padding: const EdgeInsets.all(12),
-              child: Text(
-                title,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontWeight: FontWeight.w600,
-                ),
+              padding: const EdgeInsets.all(14),
+
+              child: Row(
+                children: [
+
+                  Expanded(
+                    child: Text(
+                      title,
+
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(width: 10),
+
+                  Row(
+                    children: [
+
+                      const Icon(
+                        Icons.access_time,
+                        size: 15,
+                        color: Colors.grey,
+                      ),
+
+                      const SizedBox(width: 4),
+
+                      Text(
+                        duration,
+
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
           ],

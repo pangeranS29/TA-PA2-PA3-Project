@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/data/models/informasi_umum_model.dart';
+import 'package:ta_pa2_pa3_project/features/edukasi/data/models/informasi_umum_model.dart';
 
 class InformasiUmumDetailScreen extends StatelessWidget {
   final InformasiUmumModel item;
