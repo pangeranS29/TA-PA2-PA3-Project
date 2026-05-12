@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 import 'package:ta_pa2_pa3_project/core/constants/api_constants.dart';
-import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/data/models/informasi_umum_model.dart';
+import 'package:ta_pa2_pa3_project/features/edukasi/data/models/informasi_umum_model.dart';
 
 class InformasiUmumApiService {
   final http.Client _client;

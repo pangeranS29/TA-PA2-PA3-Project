@@ -835,7 +835,6 @@ import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/persa
 import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/screens/anak/pilih_anak_screen.dart';
 import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/screens/anak/input_profil_anak_screen.dart';
 import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/screens/anak/cari_anak_screen.dart';
-import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/screens/edukasi/edukasi_screen.dart';
 import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/data/models/ibu_anak_model.dart';
 import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/data/services/ibu_api_service.dart';
 // import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/screens/skrining/skrining_bahaya.dart';
@@ -1511,7 +1510,7 @@ Widget _buildNifasShortcut() {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (_) => const EdukasiScreen()));
+                            builder: (_) => const EdukasiScreenAll()));
                     break;
                   case 'bahaya':
                     // [MODUL: ANAK] Pilih anak → SkriningBahayaScreen

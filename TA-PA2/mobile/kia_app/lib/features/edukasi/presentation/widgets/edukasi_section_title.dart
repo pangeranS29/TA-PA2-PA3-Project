@@ -12,11 +12,17 @@ class EdukasiSectionTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12),
-      child: Text(
-        title,
-        style: const TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.bold,
+
+      child: Align(
+        alignment: Alignment.centerLeft,
+
+        child: Text(
+          title,
+
+          style: const TextStyle(
+            fontSize: 17,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
     );
