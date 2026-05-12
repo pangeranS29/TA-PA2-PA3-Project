@@ -10,6 +10,7 @@ import 'package:ta_pa2_pa3_project/features/anak/pemantauan/presentation/screens
 
 class DetailPertumbuhanScreen extends StatefulWidget {
   final AnakSearchModel anak;
+  
 
   const DetailPertumbuhanScreen({
     Key? key,
@@ -21,7 +22,23 @@ class DetailPertumbuhanScreen extends StatefulWidget {
       _DetailPertumbuhanScreenState();
 }
 
-class _DetailPertumbuhanScreenState extends State<DetailPertumbuhanScreen> {
+class _DetailPertumbuhanScreenState extends State<DetailPertumbuhanScreen>
+  with SingleTickerProviderStateMixin {
+  static const _tabs = ['BB/U', 'TB/U', 'BB/TB', 'IMT/U', 'LK/U'];
+
+  static const _primary = Color(0xFF1A73E8);
+  static const _accent = Color(0xFF34A853);
+  static const _warning = Color(0xFFF9AB00);
+  static const _danger = Color(0xFFD93025);
+  static const _surface = Color(0xFFFFFFFF);
+  static const _bg = Color(0xFFF1F3F8);
+  static const _border = Color(0xFFE0E7F0);
+  static const _textMain = Color(0xFF1C2B4A);
+  static const _textSub = Color(0xFF6B7C93);
+
+  late final TabController _tabController;
+  int? _selectedVisitIndex;
+
   String _hitungUmur(String tanggalLahir) {
     try {
       final birthDate = DateTime.parse(tanggalLahir);
@@ -53,8 +70,25 @@ class _DetailPertumbuhanScreenState extends State<DetailPertumbuhanScreen> {
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(length: _tabs.length, vsync: this);
+    _tabController.addListener(() {
+      if (_tabController.indexIsChanging) return;
+      final next = _tabs[_tabController.index];
+      if (next != _selectedTab) {
+        setState(() {
+          _selectedTab = next;
+          _selectedVisitIndex = null;
+        });
+      }
+    });
     _repository = PertumbuhanRepository(apiService: PertumbuhanApiService());
     _loadData();
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadData() async {
@@ -104,8 +138,9 @@ class _DetailPertumbuhanScreenState extends State<DetailPertumbuhanScreen> {
 
   List<PertumbuhanModel> _getDataForTab() => _riwayatPertumbuhan;
 
-  List<MasterStandarModel> _getMasterForTab() {
-    switch (_selectedTab) {
+  List<MasterStandarModel> _getMasterForTab([String? tab]) {
+    final t = tab ?? _selectedTab;
+    switch (t) {
       case 'TB/U':
         return _masterStandarTBU;
       case 'BB/TB':
@@ -120,8 +155,9 @@ class _DetailPertumbuhanScreenState extends State<DetailPertumbuhanScreen> {
     }
   }
 
-  double _getZScoreForTab(PertumbuhanModel data) {
-    switch (_selectedTab) {
+  double _getZScoreForTab(PertumbuhanModel data, [String? tab]) {
+    final t = tab ?? _selectedTab;
+    switch (t) {
       case 'TB/U':
         return data.zScoreTBU;
       case 'BB/TB':
@@ -136,8 +172,9 @@ class _DetailPertumbuhanScreenState extends State<DetailPertumbuhanScreen> {
     }
   }
 
-  String _getStatusForTab(PertumbuhanModel data) {
-    switch (_selectedTab) {
+  String _getStatusForTab(PertumbuhanModel data, [String? tab]) {
+    final t = tab ?? _selectedTab;
+    switch (t) {
       case 'TB/U':
         return data.statusTBU;
       case 'BB/TB':
@@ -152,11 +189,14 @@ class _DetailPertumbuhanScreenState extends State<DetailPertumbuhanScreen> {
     }
   }
 
-  String _getXAxisLabel() =>
-      _selectedTab == 'BB/TB' ? 'Tinggi Badan (cm)' : 'Usia (bulan)';
+  String _getXAxisLabel([String? tab]) {
+    final t = tab ?? _selectedTab;
+    return t == 'BB/TB' ? 'Tinggi Badan (cm)' : 'Usia (bulan)';
+  }
 
-  String _getYAxisLabelFull() {
-    switch (_selectedTab) {
+  String _getYAxisLabelFull([String? tab]) {
+    final t = tab ?? _selectedTab;
+    switch (t) {
       case 'TB/U':
         return 'Tinggi Badan (cm)';
       case 'IMT/U':
@@ -180,45 +220,43 @@ class _DetailPertumbuhanScreenState extends State<DetailPertumbuhanScreen> {
         Navigator.pop(context, _riwayatPertumbuhan.isNotEmpty);
       },
       child: Scaffold(
-        backgroundColor: const Color(0xFFF1F5F9),
+        backgroundColor: _bg,
         appBar: AppBar(
-          backgroundColor: Colors.white,
+          backgroundColor: _primary,
+          foregroundColor: Colors.white,
           elevation: 0,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.black87),
+            icon: const Icon(Icons.arrow_back),
             onPressed: () =>
                 Navigator.pop(context, _riwayatPertumbuhan.isNotEmpty),
           ),
-          title: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                widget.anak.namaAnak,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                ),
-              ),
-              Text(
-                '${_hitungUmur(widget.anak.tanggalLahir)} • ${widget.anak.jenisKelamin}',
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey,
-                ),
-              ),
-            ],
+          title: const Text(
+            'Pertumbuhan Anak',
+            style: TextStyle(fontWeight: FontWeight.w800, fontSize: 17),
           ),
-          centerTitle: false,
+          bottom: TabBar(
+            controller: _tabController,
+            isScrollable: true,
+            indicatorColor: Colors.white,
+            indicatorWeight: 3,
+            labelStyle:
+                const TextStyle(fontWeight: FontWeight.w800, fontSize: 13),
+            unselectedLabelStyle:
+                const TextStyle(fontWeight: FontWeight.w400, fontSize: 13),
+            tabs: _tabs.map((t) => Tab(text: t)).toList(),
+          ),
         ),
         body: _isLoading
             ? const Center(
-                child: CircularProgressIndicator(
-                    color: Color(0xFF2563EB), strokeWidth: 3),
+                child:
+                    CircularProgressIndicator(color: _primary, strokeWidth: 3),
               )
             : _errorMessage != null
                 ? _buildErrorState()
-                : _buildContentState(),
+                : TabBarView(
+                    controller: _tabController,
+                    children: _tabs.map((t) => _buildTabContent(t)).toList(),
+                  ),
       ),
     );
   }
@@ -230,26 +268,26 @@ class _DetailPertumbuhanScreenState extends State<DetailPertumbuhanScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline, size: 64, color: Colors.grey.shade400),
+            Icon(Icons.error_outline, size: 64, color: _textSub),
             const SizedBox(height: 16),
             const Text(
               'Gagal memuat data',
               style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black87),
+                  color: _textMain),
             ),
             const SizedBox(height: 8),
             Text(
               _errorMessage!,
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
+              style: const TextStyle(fontSize: 13, color: _textSub),
             ),
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: _loadData,
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF2563EB),
+                backgroundColor: _primary,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8)),
                 padding:
@@ -264,405 +302,1110 @@ class _DetailPertumbuhanScreenState extends State<DetailPertumbuhanScreen> {
     );
   }
 
-  Widget _buildContentState() {
-    final latest =
-        _riwayatPertumbuhan.isNotEmpty ? _riwayatPertumbuhan.last : null;
-    final master = _getMasterForTab();
-
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ChildInfoBanner(anak: widget.anak),
-            const SizedBox(height: 24),
-
-            // Tab Bar horizontal
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: ['BB/U', 'TB/U', 'BB/TB', 'IMT/U', 'LK/U']
-                    .map((tab) => _buildTabButton(tab))
-                    .toList(),
-              ),
-            ),
-            const SizedBox(height: 20),
-
-            if (latest != null && master.isNotEmpty) ...[
-              /// 🔹 INFO TERAKHIR
-              _buildMeasurementInfoCard(latest),
-              const SizedBox(height: 16),
-
-              /// 🔹 GRAFIK (dengan animasi saat ganti tab)
-              AnimatedSwitcher(
-                duration: const Duration(milliseconds: 300),
-                child: GrowthChartWidget(
-                  key: ValueKey(_selectedTab),
-                  riwayatPertumbuhan: _getDataForTab(),
-                  masterStandar: master,
-                  yAxisLabel: _getYAxisLabelFull(),
-                  selectedTab: _selectedTab,
-                  xAxisLabel: _getXAxisLabel(),
-                ),
-              ),
-
-              const SizedBox(height: 20),
-
-              /// 🔹 STATUS GIZI
-              ZScoreCardWidget(
-                zScore: _getZScoreForTab(latest),
-                statusText: _getStatusForTab(latest),
-                categoryLabel: _selectedTab,
-              ),
-            ] else ...[
-              _buildEmptyStateData(),
-            ],
-
-            const SizedBox(height: 20),
-
-            /// 🔹 RIWAYAT (TIDAK DIUBAH)
-            _buildRiwayatPengukuranCard(),
-            const SizedBox(height: 24),
-
-            /// 🔹 BUTTON TAMBAH (TIDAK DIUBAH)
-            SizedBox(
-              width: double.infinity,
-              height: 56,
-              child: FilledButton.icon(
-                onPressed: () async {
-                  final updated = await Navigator.push<bool?>(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => InputCatatanPertumbuhanScreen(
-                        anak: widget.anak,
-                        repository: _repository,
-                      ),
-                    ),
-                  );
-                  if (updated ?? false) await _loadData();
-                },
-                style: FilledButton.styleFrom(
-                  backgroundColor: const Color(0xFF2563EB),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16)),
-                ),
-                icon: Container(
-                  width: 24,
-                  height: 24,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 2),
-                  ),
-                  child: const Icon(Icons.add, color: Colors.white, size: 14),
-                ),
-                label: const Text(
-                  'Tambah data pertumbuhan',
-                  style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            
-            /// 🔹 BUTTON PERAWATAN
-            SizedBox(
-              width: double.infinity,
-              height: 56,
-              child: FilledButton.icon(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => PerawatanScreenIntegrated(
-                        anakId: widget.anak.id,
-                        anakName: widget.anak.namaAnak,
-                      ),
-                    ),
-                  );
-                },
-                style: FilledButton.styleFrom(
-                  backgroundColor: const Color(0xFFD97706),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16)),
-                ),
-                icon: Container(
-                  width: 24,
-                  height: 24,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 2),
-                  ),
-                  child: const Icon(Icons.check_circle, color: Colors.white, size: 14),
-                ),
-                label: const Text(
-                  'Lihat perawatan & milestone',
-                  style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white),
-                ),
-              ),
-            ),
-            const SizedBox(height: 24),
-          ],
-        ),
-      ),
-    );
+  String _fmtDate(String value) {
+    if (value.isEmpty) return '-';
+    final d = DateTime.tryParse(value);
+    if (d == null) return value;
+    const m = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'Mei',
+      'Jun',
+      'Jul',
+      'Agt',
+      'Sep',
+      'Okt',
+      'Nov',
+      'Des'
+    ];
+    return '${d.day} ${m[d.month - 1]} ${d.year}';
   }
 
-  Widget _buildEmptyStateData() {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10)
-        ],
-      ),
-      child: Center(
-        child: Column(
-          children: [
-            Icon(Icons.bar_chart_outlined,
-                size: 64, color: Colors.grey.shade300),
-            const SizedBox(height: 16),
-            Text('Belum ada data pengukuran',
-                style: TextStyle(fontSize: 14, color: Colors.grey.shade600)),
-          ],
-        ),
-      ),
-    );
+  _StatusGroup _groupOfStatus(String status) {
+    final s = status.toLowerCase().trim();
+    if (s.isEmpty || s == '-') return _StatusGroup.unknown;
+    if (s.contains('normal') || s.contains('baik')) return _StatusGroup.normal;
+    if (s.contains('lebih') || s.contains('obes') || s.contains('gemuk')) {
+      return _StatusGroup.above;
+    }
+    if (s.contains('kurang') ||
+        s.contains('buruk') ||
+        s.contains('stunting') ||
+        s.contains('pendek') ||
+        s.contains('wasting')) {
+      return _StatusGroup.below;
+    }
+    return _StatusGroup.unknown;
   }
 
-  Widget _buildMeasurementInfoCard(PertumbuhanModel data) {
-    String lastValue = '';
-    String lastValueUnit = '';
+  Color _statusColor(String status) {
+    switch (_groupOfStatus(status)) {
+      case _StatusGroup.normal:
+        return _accent;
+      case _StatusGroup.below:
+        return _warning;
+      case _StatusGroup.above:
+        return _danger;
+      case _StatusGroup.unknown:
+        return _textSub;
+    }
+  }
 
-    switch (_selectedTab) {
+  String _chartTitle(String tab) {
+    switch (tab) {
       case 'TB/U':
-        lastValue = data.tinggiBadan.toStringAsFixed(1);
-        lastValueUnit = 'cm';
-        break;
+        return 'Grafik Tinggi Badan (TB/U)';
+      case 'BB/TB':
+        return 'Grafik BB menurut TB (BB/TB)';
       case 'IMT/U':
-        lastValue = data.imt.toStringAsFixed(1);
-        lastValueUnit = 'kg/m²';
-        break;
+        return 'Grafik IMT menurut Usia (IMT/U)';
       case 'LK/U':
-        lastValue = data.lingkarKepala.toStringAsFixed(1);
-        lastValueUnit = 'cm';
-        break;
+        return 'Grafik Lingkar Kepala (LK/U)';
+      case 'BB/U':
+      default:
+        return 'Grafik Berat Badan (BB/U)';
+    }
+  }
+
+  IconData _tabIcon(String tab) {
+    switch (tab) {
+      case 'TB/U':
+        return Icons.height_rounded;
+      case 'BB/TB':
+        return Icons.compare_arrows_rounded;
+      case 'IMT/U':
+        return Icons.monitor_weight_rounded;
+      case 'LK/U':
+        return Icons.face_rounded;
+      case 'BB/U':
+      default:
+        return Icons.monitor_weight_rounded;
+    }
+  }
+
+  ({String value, String unit}) _latestValue(PertumbuhanModel data, String tab) {
+    switch (tab) {
+      case 'TB/U':
+        return (value: data.tinggiBadan.toStringAsFixed(1), unit: 'cm');
+      case 'IMT/U':
+        return (value: data.imt.toStringAsFixed(1), unit: 'kg/m²');
+      case 'LK/U':
+        return (value: data.lingkarKepala.toStringAsFixed(1), unit: 'cm');
       case 'BB/U':
       case 'BB/TB':
       default:
-        lastValue = data.beratBadan.toStringAsFixed(1);
-        lastValueUnit = 'kg';
-        break;
+        return (value: data.beratBadan.toStringAsFixed(1), unit: 'kg');
     }
+  }
 
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10)
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  Widget _buildTabContent(String tab) {
+    final latest =
+        _riwayatPertumbuhan.isNotEmpty ? _riwayatPertumbuhan.last : null;
+    final master = _getMasterForTab(tab);
+
+    final statuses = _riwayatPertumbuhan
+        .map((e) => _getStatusForTab(e, tab))
+        .map(_groupOfStatus)
+        .toList();
+    final total = statuses.length;
+    final normal = statuses.where((g) => g == _StatusGroup.normal).length;
+    final below = statuses.where((g) => g == _StatusGroup.below).length;
+    final above = statuses.where((g) => g == _StatusGroup.above).length;
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Pengukuran Terakhir',
-                  style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.grey.shade600)),
-              const SizedBox(height: 8),
-              RichText(
-                text: TextSpan(
-                  children: [
-                    TextSpan(
-                        text: lastValue,
-                        style: const TextStyle(
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF2563EB))),
-                    TextSpan(
-                        text: ' $lastValueUnit',
-                        style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.grey.shade600)),
+          ChildInfoBanner(anak: widget.anak),
+          const SizedBox(height: 14),
+          if (latest == null) ...[
+            const _EmptyState(
+              icon: Icons.show_chart_rounded,
+              title: 'Belum ada data pertumbuhan',
+              message:
+                  'Grafik akan muncul setelah ada catatan pengukuran anak.',
+            ),
+          ] else ...[
+            _LatestBanner(
+              icon: _tabIcon(tab),
+              title: 'Pengukuran Terakhir',
+              value: _latestValue(latest, tab).value,
+              unit: _latestValue(latest, tab).unit,
+              statusText: _getStatusForTab(latest, tab),
+              statusColor: _statusColor,
+              rightInfo: 'Usia ${latest.usiaUkurBulan} bln',
+              subInfo: _fmtDate(latest.tglUkur),
+            ),
+            const SizedBox(height: 14),
+            Row(
+              children: [
+                _StatChip(value: total, label: 'Total', color: _primary),
+                const SizedBox(width: 8),
+                _StatChip(value: normal, label: 'Normal', color: _accent),
+                const SizedBox(width: 8),
+                _StatChip(
+                  value: below,
+                  label: 'Di bawah',
+                  color: below > 0 ? _warning : _textSub,
+                ),
+                const SizedBox(width: 8),
+                _StatChip(
+                  value: above,
+                  label: 'Di atas',
+                  color: above > 0 ? _danger : _textSub,
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
+            _SectionCard(
+              title: _chartTitle(tab),
+              subtitle: 'Zona biru = rentang normal (-2 SD s/d +2 SD)',
+              child: SizedBox(
+                height: 300,
+                child: GrowthChartWidget(
+                  riwayatPertumbuhan: _getDataForTab(),
+                  masterStandar: master,
+                  yAxisLabel: _getYAxisLabelFull(tab),
+                  selectedTab: tab,
+                  xAxisLabel: _getXAxisLabel(tab),
+                ),
+              ),
+            ),
+            if (master.isEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 8.0, bottom: 6.0),
+                child: Row(
+                  children: const [
+                    Icon(Icons.info_outline, size: 16, color: Color(0xFF6B7C93)),
+                    SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Data standar WHO belum tersedia — hanya data anak yang ditampilkan.',
+                        style: TextStyle(fontSize: 12, color: Color(0xFF6B7C93)),
+                      ),
+                    ),
                   ],
                 ),
               ),
+            const SizedBox(height: 10),
+            _LegendBox(items: const [
+              _LegendItem(color: _primary, label: 'Data Anak', solid: true),
+              _LegendItem(color: _accent, label: 'Median', solid: false),
+              _LegendItem(color: Color(0xFF90CAF9), label: 'Batas ±2 SD', solid: false),
+              _LegendItem(color: _danger, label: 'Batas ±3 SD', solid: false),
+            ]),
+            const SizedBox(height: 14),
+            ZScoreCardWidget(
+              zScore: _getZScoreForTab(latest, tab),
+              statusText: _getStatusForTab(latest, tab),
+              categoryLabel: tab,
+            ),
+            if (latest.catatanNakes.trim().isNotEmpty) ...[
+              const SizedBox(height: 14),
+              _NoteCard(text: latest.catatanNakes),
             ],
+          ],
+
+          const SizedBox(height: 16),
+          _buildSectionHeader(
+            'Riwayat Pengukuran',
+            '${_riwayatPertumbuhan.length} catatan',
           ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text('Tanggal Ukur',
-                  style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.grey.shade600)),
-              const SizedBox(height: 8),
-              Text(data.tglUkur,
-                  style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87)),
-            ],
+          const SizedBox(height: 10),
+          if (_riwayatPertumbuhan.isEmpty)
+            const _EmptyState(
+              icon: Icons.history_rounded,
+              title: 'Belum ada riwayat',
+              message: 'Tambahkan data pertumbuhan untuk mulai memantau.',
+            )
+          else
+            ..._riwayatPertumbuhan.reversed.toList().asMap().entries.map((e) {
+              final i = e.key;
+              final p = e.value;
+              final status = _getStatusForTab(p, tab);
+              return _PertumbuhanVisitCard(
+                point: p,
+                index: i,
+                isSelected: _selectedVisitIndex == i,
+                tab: tab,
+                statusText: status,
+                statusColor: _statusColor,
+                formatDate: _fmtDate,
+                zScore: _getZScoreForTab(p, tab),
+                onTap: () => setState(() {
+                  _selectedVisitIndex = _selectedVisitIndex == i ? null : i;
+                }),
+              );
+            }),
+
+          const SizedBox(height: 16),
+          SizedBox(
+            width: double.infinity,
+            height: 56,
+            child: FilledButton.icon(
+              onPressed: () async {
+                final updated = await Navigator.push<bool?>(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => InputCatatanPertumbuhanScreen(
+                      anak: widget.anak,
+                      repository: _repository,
+                    ),
+                  ),
+                );
+                if (updated ?? false) await _loadData();
+              },
+              style: FilledButton.styleFrom(
+                backgroundColor: _primary,
+                shape:
+                    RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              ),
+              icon: Container(
+                width: 24,
+                height: 24,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white, width: 2),
+                ),
+                child: const Icon(Icons.add, color: Colors.white, size: 14),
+              ),
+              label: const Text(
+                'Tambah data pertumbuhan',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            height: 56,
+            child: FilledButton.icon(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => PerawatanScreenIntegrated(
+                      anakId: widget.anak.id,
+                      anakName: widget.anak.namaAnak,
+                    ),
+                  ),
+                );
+              },
+              style: FilledButton.styleFrom(
+                backgroundColor: _warning,
+                shape:
+                    RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              ),
+              icon: Container(
+                width: 24,
+                height: 24,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white, width: 2),
+                ),
+                child: const Icon(Icons.check_circle,
+                    color: Colors.white, size: 14),
+              ),
+              label: const Text(
+                'Lihat perawatan & milestone',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                ),
+              ),
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildTabButton(String label) {
-    final isActive = _selectedTab == label;
-    return GestureDetector(
-      onTap: () => setState(() => _selectedTab = label),
-      child: Container(
-        margin: const EdgeInsets.only(right: 12),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        decoration: BoxDecoration(
-          color: isActive ? const Color(0xFF2563EB) : Colors.white,
-          border: Border.all(
-              color: isActive ? const Color(0xFF2563EB) : Colors.grey.shade300),
-          borderRadius: BorderRadius.circular(24),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-            color: isActive ? Colors.white : Colors.grey.shade600,
+  Widget _buildSectionHeader(String title, String badge) {
+    return Row(
+      children: [
+        Text(
+          title,
+          style: const TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w800,
+            color: _textMain,
           ),
         ),
-      ),
+        const Spacer(),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+          decoration: BoxDecoration(
+            color: _primary.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Text(
+            badge,
+            style: const TextStyle(
+              fontSize: 11,
+              color: _primary,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ),
+      ],
     );
   }
+}
 
-  Widget _buildRiwayatPengukuranCard() {
-    if (_riwayatPertumbuhan.isEmpty) return const SizedBox.shrink();
+enum _StatusGroup { normal, below, above, unknown }
 
-    // Pastikan terurut terbaru di atas saat ditampilkan
-    final reversedData = _riwayatPertumbuhan.reversed.toList();
+class _EmptyState extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String message;
 
+  const _EmptyState({
+    required this.icon,
+    required this.title,
+    required this.message,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
+      width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10)
+        color: DetailPertumbuhanScreenStateTokens.surface,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: DetailPertumbuhanScreenStateTokens.border),
+      ),
+      child: Column(
+        children: [
+          Icon(icon, size: 44, color: DetailPertumbuhanScreenStateTokens.textSub),
+          const SizedBox(height: 10),
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w800,
+              color: DetailPertumbuhanScreenStateTokens.textMain,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 6),
+          Text(
+            message,
+            style: const TextStyle(fontSize: 12, color: DetailPertumbuhanScreenStateTokens.textSub, height: 1.35),
+            textAlign: TextAlign.center,
+          ),
         ],
+      ),
+    );
+  }
+}
+
+// Tokens wrapper untuk dipakai di widget bawah tanpa mengulang konstanta.
+// (Dibuat sebagai class agar konstanta bisa diakses dari widget stateless di bawah file.)
+class DetailPertumbuhanScreenStateTokens {
+  static const primary = Color(0xFF1A73E8);
+  static const accent = Color(0xFF34A853);
+  static const warning = Color(0xFFF9AB00);
+  static const danger = Color(0xFFD93025);
+  static const surface = Color(0xFFFFFFFF);
+  static const bg = Color(0xFFF1F3F8);
+  static const border = Color(0xFFE0E7F0);
+  static const textMain = Color(0xFF1C2B4A);
+  static const textSub = Color(0xFF6B7C93);
+}
+
+class _StatChip extends StatelessWidget {
+  final int value;
+  final String label;
+  final Color color;
+
+  const _StatChip({
+    required this.value,
+    required this.label,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: color.withOpacity(0.25)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              value.toString(),
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w900,
+                color: color,
+                height: 1,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+                color: DetailPertumbuhanScreenStateTokens.textSub,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SectionCard extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final Widget child;
+
+  const _SectionCard({
+    required this.title,
+    required this.subtitle,
+    required this.child,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: DetailPertumbuhanScreenStateTokens.surface,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: DetailPertumbuhanScreenStateTokens.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Riwayat pengukuran (4 Terbaru)',
-              style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87)),
-          const SizedBox(height: 16),
-          ...reversedData.take(4).toList().asMap().entries.map((entry) {
-            final index = entry.key;
-            final data = entry.value;
-            final isLatest =
-                index == 0; // Karena sudah di reversed, 0 adalah terbaru
-            return Column(
-              children: [
-                _buildRiwayatItem(data, isLatest),
-                if (index !=
-                    (reversedData.length > 4 ? 3 : reversedData.length - 1))
-                  Divider(
-                      color: Colors.grey.shade200, height: 16, thickness: 1),
-              ],
-            );
-          }),
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w800,
+              color: DetailPertumbuhanScreenStateTokens.textMain,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            subtitle,
+            style: const TextStyle(
+              fontSize: 11,
+              color: DetailPertumbuhanScreenStateTokens.textSub,
+            ),
+          ),
+          const SizedBox(height: 12),
+          child,
         ],
       ),
     );
   }
+}
 
-  Widget _buildRiwayatItem(PertumbuhanModel data, bool isLatest) {
-    final dotColor = isLatest ? const Color(0xFF2563EB) : Colors.grey.shade400;
-    final statusText = _getStatusForTab(data);
-    final statusColors = _getStatusColor(statusText);
+class _LegendItem {
+  final Color color;
+  final String label;
+  final bool solid;
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 6),
-            child: Container(
-                width: 12,
-                height: 12,
-                decoration:
-                    BoxDecoration(shape: BoxShape.circle, color: dotColor)),
+  const _LegendItem({
+    required this.color,
+    required this.label,
+    required this.solid,
+  });
+}
+
+class _LegendBox extends StatelessWidget {
+  final List<_LegendItem> items;
+
+  const _LegendBox({required this.items});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      decoration: BoxDecoration(
+        color: DetailPertumbuhanScreenStateTokens.surface,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: DetailPertumbuhanScreenStateTokens.border),
+      ),
+      child: Wrap(
+        spacing: 16,
+        runSpacing: 6,
+        children: items
+            .map(
+              (item) => Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  item.solid
+                      ? Container(
+                          width: 18,
+                          height: 3,
+                          decoration: BoxDecoration(
+                            color: item.color,
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                        )
+                      : CustomPaint(
+                          size: const Size(18, 3),
+                          painter: _DashedPainter(item.color),
+                        ),
+                  const SizedBox(width: 6),
+                  Text(
+                    item.label,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: DetailPertumbuhanScreenStateTokens.textMain,
+                    ),
+                  ),
+                ],
+              ),
+            )
+            .toList(),
+      ),
+    );
+  }
+}
+
+class _DashedPainter extends CustomPainter {
+  final Color color;
+  const _DashedPainter(this.color);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    const dashWidth = 4.0;
+    const dashSpace = 3.0;
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = size.height
+      ..strokeCap = StrokeCap.round;
+
+    double startX = 0;
+    while (startX < size.width) {
+      canvas.drawLine(
+        Offset(startX, size.height / 2),
+        Offset((startX + dashWidth).clamp(0, size.width), size.height / 2),
+        paint,
+      );
+      startX += dashWidth + dashSpace;
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+class _LatestBanner extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String value;
+  final String unit;
+  final String statusText;
+  final Color Function(String) statusColor;
+  final String rightInfo;
+  final String subInfo;
+
+  const _LatestBanner({
+    required this.icon,
+    required this.title,
+    required this.value,
+    required this.unit,
+    required this.statusText,
+    required this.statusColor,
+    required this.rightInfo,
+    required this.subInfo,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final sc = statusColor(statusText);
+
+    final bg = sc == DetailPertumbuhanScreenStateTokens.textSub
+      ? DetailPertumbuhanScreenStateTokens.surface
+      : sc.withOpacity(0.10);
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: sc.withOpacity(0.3), width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: sc.withOpacity(0.08),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
           ),
-          const SizedBox(width: 12),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 56,
+            height: 56,
+            decoration: BoxDecoration(
+              color: sc.withOpacity(0.15),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: sc, size: 30),
+          ),
+          const SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('${data.tglUkur} · ${data.usiaUkurBulan} bulan',
-                    style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black87)),
-                const SizedBox(height: 4),
                 Text(
-                  'BB ${data.beratBadan.toStringAsFixed(1)} kg · TB ${data.tinggiBadan.toStringAsFixed(1)} cm\nLK ${data.lingkarKepala.toStringAsFixed(1)} cm · IMT ${data.imt.toStringAsFixed(1)}',
-                  style: TextStyle(
-                      fontSize: 12, color: Colors.grey.shade600, height: 1.4),
+                  title,
+                  style: const TextStyle(
+                    fontSize: 11,
+                    color: DetailPertumbuhanScreenStateTokens.textSub,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      value,
+                      style: TextStyle(
+                        fontSize: 34,
+                        fontWeight: FontWeight.w900,
+                        color: sc,
+                        height: 1.0,
+                        letterSpacing: -1,
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 5),
+                      child: Text(
+                        unit,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: DetailPertumbuhanScreenStateTokens.textSub,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  subInfo,
+                  style: const TextStyle(
+                      fontSize: 11, color: DetailPertumbuhanScreenStateTokens.textSub),
                 ),
               ],
             ),
           ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-            decoration: BoxDecoration(
-                color: statusColors['bg'],
-                borderRadius: BorderRadius.circular(12)),
-            child: Text(statusText,
-                style: TextStyle(
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(
+                  color: sc,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  statusText,
+                  style: const TextStyle(
                     fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: statusColors['text'])),
+                    fontWeight: FontWeight.w800,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                rightInfo,
+                style: const TextStyle(
+                  fontSize: 11,
+                  color: DetailPertumbuhanScreenStateTokens.textSub,
+                ),
+              ),
+            ],
           ),
         ],
       ),
     );
   }
+}
 
-  Map<String, Color> _getStatusColor(String status) {
-    switch (status.toLowerCase()) {
-      case 'normal':
-      case 'gizi baik':
-        return {'bg': const Color(0xFFD1FAE5), 'text': const Color(0xFF059669)};
-      case 'kurang':
-      case 'gizi kurang':
-      case 'lebih':
-      case 'berisiko gizi lebih':
-        return {'bg': const Color(0xFFFED7AA), 'text': const Color(0xFFD97706)};
-      case 'sangat kurang':
-      case 'gizi buruk':
-      case 'sangat lebih':
-      case 'obesitas':
-        return {'bg': const Color(0xFFFECACA), 'text': const Color(0xFFDC2626)};
-      default:
-        return {'bg': Colors.grey.shade200, 'text': Colors.grey.shade600};
-    }
+class _NoteCard extends StatelessWidget {
+  final String text;
+  const _NoteCard({required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: DetailPertumbuhanScreenStateTokens.primary.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: DetailPertumbuhanScreenStateTokens.border),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Icons.info_outline_rounded,
+              size: 18, color: DetailPertumbuhanScreenStateTokens.primary),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Catatan dari Tenaga Kesehatan',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w800,
+                    color: DetailPertumbuhanScreenStateTokens.textMain,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  text,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: DetailPertumbuhanScreenStateTokens.textSub,
+                    height: 1.35,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PertumbuhanVisitCard extends StatelessWidget {
+  final PertumbuhanModel point;
+  final int index;
+  final bool isSelected;
+  final String tab;
+  final String statusText;
+  final Color Function(String) statusColor;
+  final String Function(String) formatDate;
+  final double zScore;
+  final VoidCallback onTap;
+
+  const _PertumbuhanVisitCard({
+    required this.point,
+    required this.index,
+    required this.isSelected,
+    required this.tab,
+    required this.statusText,
+    required this.statusColor,
+    required this.formatDate,
+    required this.zScore,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final sc = statusColor(statusText);
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        margin: const EdgeInsets.only(bottom: 10),
+        decoration: BoxDecoration(
+          color: DetailPertumbuhanScreenStateTokens.surface,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: isSelected
+                ? sc.withOpacity(0.6)
+                : DetailPertumbuhanScreenStateTokens.border,
+            width: isSelected ? 1.5 : 1,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: isSelected
+                  ? sc.withOpacity(0.1)
+                  : const Color(0x0A000000),
+              blurRadius: isSelected ? 12 : 4,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(14, 12, 14, 10),
+              child: Row(
+                children: [
+                  Container(
+                    width: 32,
+                    height: 32,
+                    decoration: BoxDecoration(
+                      color: DetailPertumbuhanScreenStateTokens.primary
+                          .withOpacity(0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Center(
+                      child: Text(
+                        '${index + 1}',
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w900,
+                          color: DetailPertumbuhanScreenStateTokens.primary,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Usia ${point.usiaUkurBulan} bulan',
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w800,
+                            color: DetailPertumbuhanScreenStateTokens.textMain,
+                          ),
+                        ),
+                        Text(
+                          formatDate(point.tglUkur),
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: DetailPertumbuhanScreenStateTokens.textSub,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    decoration: BoxDecoration(
+                      color: sc.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      statusText,
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w800,
+                        color: sc,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(14, 0, 14, 0),
+              child: Row(
+                children: [
+                  _DataPill(
+                    icon: Icons.monitor_weight_rounded,
+                    label: 'BB',
+                    value: '${point.beratBadan.toStringAsFixed(1)} kg',
+                    color: DetailPertumbuhanScreenStateTokens.primary,
+                  ),
+                  const SizedBox(width: 8),
+                  _DataPill(
+                    icon: Icons.height_rounded,
+                    label: 'TB',
+                    value: '${point.tinggiBadan.toStringAsFixed(1)} cm',
+                    color: DetailPertumbuhanScreenStateTokens.accent,
+                  ),
+                  const SizedBox(width: 8),
+                  _DataPill(
+                    icon: Icons.circle_outlined,
+                    label: 'LK',
+                    value: '${point.lingkarKepala.toStringAsFixed(1)} cm',
+                    color: DetailPertumbuhanScreenStateTokens.warning,
+                  ),
+                ],
+              ),
+            ),
+            AnimatedCrossFade(
+              duration: const Duration(milliseconds: 200),
+              crossFadeState:
+                  isSelected ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+              firstChild: const SizedBox.shrink(),
+              secondChild: Padding(
+                padding: const EdgeInsets.fromLTRB(14, 10, 14, 0),
+                child: Column(
+                  children: [
+                    const Divider(
+                        height: 1,
+                        color: DetailPertumbuhanScreenStateTokens.border),
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _DetailRow(
+                            label: 'IMT',
+                            value: point.imt.toStringAsFixed(1),
+                          ),
+                        ),
+                        Expanded(
+                          child: _DetailRow(
+                            label: 'Z-Score ($tab)',
+                            value: zScore.toStringAsFixed(2),
+                          ),
+                        ),
+                        Expanded(
+                          child: _DetailRow(
+                            label: 'KMS',
+                            value: point.statusKMSInfo.isNotEmpty
+                                ? point.statusKMSInfo
+                                : '-',
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (point.catatanNakes.trim().isNotEmpty) ...[
+                      const SizedBox(height: 10),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'Catatan: ${point.catatanNakes}',
+                          style: const TextStyle(
+                            fontSize: 11,
+                            color: DetailPertumbuhanScreenStateTokens.textSub,
+                            height: 1.35,
+                          ),
+                        ),
+                      ),
+                    ],
+                    const SizedBox(height: 10),
+                  ],
+                ),
+              ),
+            ),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 6),
+              decoration: BoxDecoration(
+                color: DetailPertumbuhanScreenStateTokens.bg,
+                borderRadius:
+                    const BorderRadius.vertical(bottom: Radius.circular(13)),
+              ),
+              child: Center(
+                child: Icon(
+                  isSelected
+                      ? Icons.keyboard_arrow_up_rounded
+                      : Icons.keyboard_arrow_down_rounded,
+                  size: 18,
+                  color: DetailPertumbuhanScreenStateTokens.textSub,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _DataPill extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String value;
+  final Color color;
+
+  const _DataPill({
+    required this.icon,
+    required this.label,
+    required this.value,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.08),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(icon, size: 14, color: color),
+                const SizedBox(width: 6),
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w800,
+                    color: color,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
+            Text(
+              value,
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w900,
+                color: DetailPertumbuhanScreenStateTokens.textMain,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _DetailRow extends StatelessWidget {
+  final String label;
+  final String value;
+
+  const _DetailRow({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 10,
+            color: DetailPertumbuhanScreenStateTokens.textSub,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w900,
+            color: DetailPertumbuhanScreenStateTokens.textMain,
+          ),
+        ),
+      ],
+    );
   }
 }

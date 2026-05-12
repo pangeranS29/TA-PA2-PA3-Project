@@ -102,4 +102,17 @@ class ApiConstants {
           int anakId, String rentangUsia) =>
       '/ibu/perawatan/anak/$anakId/rentang-usia/${Uri.encodeComponent(rentangUsia)}';
   static const String ibuKeluhanAnak = '/ibu/keluhan-anak';
+
+  // ─── Pertumbuhan Anak (Ibu) ───────────────────────────────────────────────
+  /// GET /ibu/pertumbuhan/chart/:anak_id
+  static String ibuPertumbuhanChart(int anakId) =>
+      '/ibu/pertumbuhan/chart/$anakId';
+
+  /// GET /ibu/pertumbuhan/riwayat/:anak_id
+  static String ibuRiwayatPertumbuhan(int anakId) =>
+      '/ibu/pertumbuhan/riwayat/$anakId';
+
+  /// GET /ibu/pertumbuhan/detail/:id
+  static String ibuDetailPertumbuhan(int id) =>
+      '/ibu/pertumbuhan/detail/$id';
 }
