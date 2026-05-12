@@ -46,15 +46,16 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	// Posyandu Management (Bidan manage posyandu mereka)
 	bidan.POST("/posyandu", controller.BidanCreatePosyandu)
 	bidan.GET("/posyandu", controller.BidanListPosyandu)
+	bidan.GET("/penduduk", controller.BidanListPenduduk)
 	bidan.GET("/posyandu/:id", controller.BidanGetPosyanduDetail)
 	bidan.PUT("/posyandu/:id", controller.BidanUpdatePosyandu)
 
 	// Bidan Management (Bidan manage Bidan lain di posyandu mereka)
-	bidan.POST("", controller.BidanCreateBidan)
-	bidan.GET("", controller.BidanListBidan)
-	bidan.GET("/:id", controller.BidanGetBidanDetail)
-	bidan.PUT("/:id", controller.BidanUpdateBidan)
-	bidan.PATCH("/:id/status", controller.BidanUpdateBidanStatus)
+	bidan.POST("/bidan", controller.BidanCreateBidan)
+	bidan.GET("/bidan", controller.BidanListBidan)
+	bidan.GET("/bidan/:id", controller.BidanGetBidanDetail)
+	bidan.PUT("/bidan/:id", controller.BidanUpdateBidan)
+	bidan.PATCH("/bidan/:id/status", controller.BidanUpdateBidanStatus)
 
 	// Kader Management (Bidan manage Kader di posyandu mereka)
 	bidan.POST("/kader", controller.BidanCreateKader)
@@ -62,6 +63,8 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	bidan.GET("/kader/:id", controller.BidanGetKaderDetail)
 	bidan.PUT("/kader/:id", controller.BidanUpdateKader)
 	bidan.PATCH("/kader/:id/status", controller.BidanUpdateKaderStatus)
+
+	// ==================== MODUL Anak ====================
 	anak := e.Group("/anak")
 	anak.Use(middlewares.JWTAuth(controller.JWTSecret()))
 	_ = anak
