@@ -5,7 +5,7 @@ import { getAnak, deleteAnak } from "../../services/Anak";
 import { getRiwayatPertumbuhan, prediksiStunting } from "../../services/pertumbuhan";
 import {
   Plus, Search, Pencil, Trash2, ChevronLeft, ChevronRight,
-  Baby, AlertTriangle, CheckCircle, Minus
+  Baby, AlertTriangle, CheckCircle, Minus, RefreshCw
 } from "lucide-react";
 
 export default function AnakListNakes() {
@@ -142,12 +142,12 @@ export default function AnakListNakes() {
               onChange={handleSearchChange}
             />
           </div>
-          <Link
+          {/* <Link
             to="/data-anak/create"
             className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl flex items-center justify-center gap-2 font-bold transition-all shadow-md active:scale-95"
           >
             <Plus size={20} /> Tambah Data Anak
-          </Link>
+          </Link> */}
         </div>
       </div>
 
@@ -167,14 +167,17 @@ export default function AnakListNakes() {
 
           <tbody className="divide-y divide-gray-50">
             {loading ? (
-              [...Array(3)].map((_, i) => (
-                <tr key={i} className="animate-pulse">
-                  <td colSpan="6" className="p-6 text-center">Memuat data...</td>
-                </tr>
-              ))
+              <tr>
+                <td colSpan="7" className="py-16">
+                  <div className="flex flex-col items-center justify-center gap-3">
+                    <RefreshCw size={36} className="animate-spin text-blue-600" />
+                    <p className="text-[14px] text-slate-500 font-medium">Memuat data anak...</p>
+                  </div>
+                </td>
+              </tr>
             ) : currentItems.length === 0 ? (
               <tr>
-                <td colSpan="6" className="text-center py-20">
+                <td colSpan="7" className="text-center py-20">
                     <p className="text-gray-400">Tidak ada data ditemukan</p>
                 </td>
               </tr>
