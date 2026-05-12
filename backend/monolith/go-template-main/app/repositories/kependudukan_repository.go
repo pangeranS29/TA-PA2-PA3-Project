@@ -2,7 +2,6 @@ package repositories
 
 import (
 	"errors"
-	"fmt"
 	"monitoring-service/app/models"
 	"strings"
 	"time"
@@ -25,8 +24,11 @@ type EligiblePendudukItem struct {
 }
 
 type PosyanduItem struct {
-	ID   int64  `json:"id"`
-	Nama string `json:"nama"`
+	ID          int64  `json:"id"`
+	IDPuskesmas int64  `json:"id_puskesmas"`
+	Nama        string `json:"nama"`
+	Alamat      string `json:"alamat,omitempty"`
+	CreatedAt   string `json:"created_at"`
 }
 type RekapDusun struct {
 	Kecamatan string `json:"kecamatan"`
@@ -140,8 +142,10 @@ func (r *KependudukanRepository) ListEligibleForRole(role, search, kecamatan, de
 	switch role {
 	case "bidan":
 		q = q.Where("NOT EXISTS (SELECT 1 FROM bidan b WHERE b.penduduk_id = p.id AND b.deleted_at IS NULL)")
+		q = q.Where("NOT EXISTS (SELECT 1 FROM kader k WHERE k.penduduk_id = p.id AND k.deleted_at IS NULL)")
 	case "kader":
 		q = q.Where("NOT EXISTS (SELECT 1 FROM kader k WHERE k.penduduk_id = p.id AND k.deleted_at IS NULL)")
+		q = q.Where("NOT EXISTS (SELECT 1 FROM bidan b WHERE b.penduduk_id = p.id AND b.deleted_at IS NULL)")
 	}
 
 	err := q.Order("p.nama_lengkap ASC").Scan(&list).Error
@@ -180,44 +184,53 @@ func detectPosyanduNameColumn(db *gorm.DB) (string, map[string]bool, error) {
 	return "", nil, errors.New("kolom nama posyandu tidak ditemukan")
 }
 
-func (r *KependudukanRepository) CreatePosyandu(nama string) error {
-	nama = strings.TrimSpace(nama)
-	if nama == "" {
+func (r *KependudukanRepository) CreatePosyandu(posyandu *models.Posyandu) error {
+	if posyandu == nil {
+		return errors.New("data posyandu tidak valid")
+	}
+	if posyandu.IDPuskesmas == 0 {
+		return errors.New("id_puskesmas wajib diisi")
+	}
+	if strings.TrimSpace(posyandu.Nama) == "" {
 		return errors.New("nama posyandu wajib diisi")
 	}
 
-	nameColumn, _, err := detectPosyanduNameColumn(r.db)
-	if err != nil {
-		return err
-	}
+	posyandu.Nama = strings.TrimSpace(posyandu.Nama)
+	posyandu.Alamat = strings.TrimSpace(posyandu.Alamat)
 
-	return r.db.Table("posyandu").Create(map[string]interface{}{nameColumn: nama}).Error
+	return r.db.Create(posyandu).Error
 }
 
 func (r *KependudukanRepository) ListPosyandu(search string) ([]PosyanduItem, error) {
 	search = strings.TrimSpace(search)
 
-	nameColumn, hasColumn, err := detectPosyanduNameColumn(r.db)
-	if err != nil {
-		return nil, err
-	}
-
-	q := r.db.Table("posyandu").
-		Select(fmt.Sprintf("id, %s AS nama", nameColumn)).
-		Order(fmt.Sprintf("%s ASC", nameColumn))
-
-	if hasColumn["deleted_at"] {
-		q = q.Where("deleted_at IS NULL")
-	}
-	if search != "" {
-		q = q.Where(fmt.Sprintf("%s ILIKE ?", nameColumn), "%"+search+"%")
-	}
-
 	var list []PosyanduItem
+	q := r.db.Table("posyandu p").
+		Select("p.id, p.id_puskesmas, p.nama, p.alamat, p.created_at").
+		Where("p.deleted_at IS NULL").
+		Order("p.nama ASC")
+
+	if search != "" {
+		q = q.Where("p.nama ILIKE ? OR p.alamat ILIKE ?", "%"+search+"%", "%"+search+"%")
+	}
+
 	if err := q.Scan(&list).Error; err != nil {
 		return nil, err
 	}
 	return list, nil
+}
+
+func (r *KependudukanRepository) FindPosyanduByID(id int32) (*models.Posyandu, error) {
+	var posyandu models.Posyandu
+	err := r.db.Where("id = ? AND deleted_at IS NULL", id).First(&posyandu).Error
+	return &posyandu, err
+}
+
+func (r *KependudukanRepository) UpdatePosyandu(posyandu *models.Posyandu) error {
+	if posyandu == nil {
+		return errors.New("data posyandu tidak valid")
+	}
+	return r.db.Save(posyandu).Error
 }
 
 func (r *KependudukanRepository) SoftDeleteByID(id int32) error {
