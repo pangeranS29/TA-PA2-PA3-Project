@@ -23,6 +23,7 @@ type Main struct {
 	CatatanPelayanan            CatatanPelayananRepository
 	ChecklistPemantauanIbuNifas ChecklistPemantauanIbuNifasRepository
 	InformasiUmum               *InformasiUmumRepository
+	EdukasiMPASI                EdukasiMPASIRepository
 
 	// New repositories (semua pointer, mengikuti pola Anak)
 	User                          *UserRepository
@@ -136,6 +137,7 @@ func Init(opts Options) *Main {
 	m.PengukuranLilA = NewPengukuranLilaRepository(opts.Postgres)
 	m.CatatanPelayanan = NewCatatanPelayananRepository(opts.Postgres)
 	m.InformasiUmum = NewInformasiUmumRepository(opts.Postgres)
+	m.EdukasiMPASI = NewEdukasiMPASIRepository(opts.Postgres)
 	m.JenisPelayanan = NewJenisPelayananRepository(opts.Postgres)
 	m.Perawatan = NewPerawatanRepository(opts.Postgres)
 	m.KeluhanAnak = NewKeluhanAnakRepository(opts.Postgres)

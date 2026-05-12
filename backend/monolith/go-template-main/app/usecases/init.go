@@ -22,6 +22,7 @@ type Main struct {
 	CatatanPelayanan       CatatanPelayananUseCase
 	InformasiUmum          InformasiUmumUsecase
 	Kependudukan           KependudukanUsecase
+	EdukasiMPASI           EdukasiMPASIUsecase
 
 	// Usecase baru terkait kehamilan
 	// Usecase baru (terkait kehamilan)
@@ -105,6 +106,7 @@ func Init(opts Options) *Main {
 	m.PengukuranLilA = NewPengukuranLilAUseCase(opts.Repository.PengukuranLilA)
 	m.CatatanPelayanan = NewCatatanPelayananUseCase(opts.Repository.CatatanPelayanan)
 	m.InformasiUmum = NewInformasiUmumUsecase(opts.Repository.InformasiUmum)
+	m.EdukasiMPASI = NewEdukasiMPASIUsecase(opts.Repository.EdukasiMPASI)
 
 	// Inisialisasi usecase terkait kehamilan
 	// Inisialisasi usecase baru
