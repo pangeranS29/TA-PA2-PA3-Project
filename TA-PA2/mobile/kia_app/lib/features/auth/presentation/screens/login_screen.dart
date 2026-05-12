@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:ta_pa2_pa3_project/features/auth/data/datasources/auth_api_services.dart';
 import 'package:ta_pa2_pa3_project/features/dashboard/presentation/screens/dashboard_screen.dart';
-
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -35,9 +35,19 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     try {
+
+      String? deviceFcmToken;
+      try {
+        deviceFcmToken = await FirebaseMessaging.instance.getToken();
+        debugPrint("Berhasil mendapatkan FCM Token: $deviceFcmToken");
+      } catch (e) {
+        debugPrint("Gagal mendapatkan FCM Token: $e");
+      }
+
       await _service.login(
         identifier: _identifierController.text.trim(),
         password: _passwordController.text,
+        fcmToken: deviceFcmToken,
       );
 
       if (!mounted) return;
@@ -137,7 +147,9 @@ class _LoginScreenState extends State<LoginScreen> {
                               });
                             },
                             icon: Icon(
-                              _obscure ? Icons.visibility_off : Icons.visibility,
+                              _obscure
+                                  ? Icons.visibility_off
+                                  : Icons.visibility,
                             ),
                           ),
                         ),
@@ -157,7 +169,8 @@ class _LoginScreenState extends State<LoginScreen> {
                               ? const SizedBox(
                                   width: 20,
                                   height: 20,
-                                  child: CircularProgressIndicator(strokeWidth: 2),
+                                  child:
+                                      CircularProgressIndicator(strokeWidth: 2),
                                 )
                               : const Text('Login'),
                         ),

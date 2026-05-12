@@ -490,12 +490,17 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	// Catatan: Ibu tidak memiliki akses UPDATE/DELETE/VERIFY untuk menjaga integritas rekam medis
 	ibu.GET("/keluhan-anak", controller.KeluhanAnak.GetByAnakIDForIbu)
 	ibu.GET("/keluhan-anak/:id", controller.KeluhanAnak.GetByIDForIbu)
-
+	
+	// ==================== IMUNISASI ====================
 	// ==================== KELUHAN ANAK ====================
+	ibu.GET("/jadwal-imunisasi", controller.GetJadwalImunisasi)
+	
 	tenaga.GET("/keluhan-anak/:anak_id", controller.KeluhanAnak.GetByAnakID)
 	tenaga.GET("/keluhan-anak/detail/:id", controller.KeluhanAnak.GetByID)
 	tenaga.POST("/keluhan-anak", controller.KeluhanAnak.Create)
 	tenaga.PUT("/keluhan-anak/:id", controller.KeluhanAnak.Update)
 	tenaga.DELETE("/keluhan-anak/:id", controller.KeluhanAnak.Delete)
+
+	
 
 }

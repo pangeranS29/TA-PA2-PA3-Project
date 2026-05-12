@@ -15,6 +15,7 @@ import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/rujuk
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/pemantauan_ibu_hamil_screen.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/catatan_pelayanan_menu_screen.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/log_ttd_mms_screen.dart';
+import 'package:ta_pa2_pa3_project/features/ibu/imunisasi/presentation/screens/imunisasi_screen.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/nifas/presentation/screens/nifas_screen.dart';
 // MODUL ANAK
 import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/screens/anak/pilih_anak_screen.dart';
@@ -32,6 +33,7 @@ import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/grafi
 
 // import edukasi
 import 'package:ta_pa2_pa3_project/features/edukasi/presentation/screens/edukasi_screen_all.dart';
+import 'package:ta_pa2_pa3_project/features/profil/presentation/screens/profil_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -204,8 +206,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
       // );
     } else if (_selectedNavIndex == 2) {
       body = const EdukasiScreenAll();
+    } else if (_selectedNavIndex == 3) {
+      body = const ImunisasiScreen();
     } else {
-      body = const Center(child: Text('Profil'));
+      body = const ProfilScreen();
     }
 
     return Scaffold(
@@ -553,8 +557,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
         else
           // Tampilkan tombol request tambah jika belum ada data anak
           GestureDetector(
-            onTap: () => Navigator.push(context,
-                MaterialPageRoute(builder: (_) => const InputProfilAnakScreen())),
+            onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (_) => const InputProfilAnakScreen())),
             child: Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -591,7 +597,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
         const SizedBox(height: 24),
 
-        const Text('MENU CEPAT', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey)),
+        const Text('MENU CEPAT',
+            style: TextStyle(
+                fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey)),
         const SizedBox(height: 16),
 
         // [WIDGET: DashboardTumbuhQuickMenu] — 6 menu cepat modul anak
@@ -711,7 +719,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Container(
       margin: const EdgeInsets.only(right: 16),
       padding: const EdgeInsets.all(16),
-      width: MediaQuery.of(context).size.width * 0.75, // Biar card berikutnya ngintip
+      width: MediaQuery.of(context).size.width *
+          0.75, // Biar card berikutnya ngintip
       decoration: BoxDecoration(
         color: const Color(0xFFEFF6FF), // Background biru sangat muda
         borderRadius: BorderRadius.circular(16),
@@ -733,7 +742,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
               color: const Color(0xFF1E52A8), // Warna biru box icon
               borderRadius: BorderRadius.circular(16),
             ),
-            child: const Icon(Icons.person_outline, color: Colors.white, size: 32),
+            child:
+                const Icon(Icons.person_outline, color: Colors.white, size: 32),
           ),
           const SizedBox(width: 16),
           Expanded(

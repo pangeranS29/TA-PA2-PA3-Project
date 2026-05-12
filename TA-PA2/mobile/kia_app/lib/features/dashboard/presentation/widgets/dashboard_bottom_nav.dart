@@ -33,6 +33,10 @@ class DashboardBottomNav extends StatelessWidget {
           label: 'Edukasi',
         ),
         BottomNavigationBarItem(
+          icon: Icon(Icons.vaccines),
+          label: 'Imunisasi',
+        ),
+        BottomNavigationBarItem(
           icon: Icon(Icons.person_outline),
           label: 'Profil',
         ),
