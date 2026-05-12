@@ -814,6 +814,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:ta_pa2_pa3_project/core/themes/app_theme.dart';
+import 'package:ta_pa2_pa3_project/features/anak/mpasi/presentation/screens/mpasi_menu_screen.dart';
+// import 'package:ta_pa2_pa3_project/features/anak/mpasi/presentation/screens/mpasi/halaman_utama_mpasi.dart';
 import 'package:ta_pa2_pa3_project/features/dashboard/presentation/widgets/dashboard_header.dart';
 import 'package:ta_pa2_pa3_project/features/dashboard/presentation/widgets/dashboard_bottom_nav.dart';
 import 'package:ta_pa2_pa3_project/features/dashboard/presentation/widgets/dashboard_menu_card.dart';
@@ -832,15 +834,15 @@ import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/log_t
 import 'package:ta_pa2_pa3_project/features/ibu/nifas/presentation/screens/nifas_screen.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/persalinan_screen.dart';
 // MODUL ANAK
-import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/screens/anak/pilih_anak_screen.dart';
-import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/screens/anak/input_profil_anak_screen.dart';
-import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/screens/anak/cari_anak_screen.dart';
-import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/screens/edukasi/edukasi_screen.dart';
-import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/data/models/ibu_anak_model.dart';
-import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/data/services/ibu_api_service.dart';
+import 'package:ta_pa2_pa3_project/features/anak/anak/presentation/screens/anak/pilih_anak_screen.dart';
+import 'package:ta_pa2_pa3_project/features/anak/anak/presentation/screens/anak/input_profil_anak_screen.dart';
+// import 'package:ta_pa2_pa3_project/features/anak/anak/presentation/screens/anak/cari_anak_screen.dart';
+import 'package:ta_pa2_pa3_project/features/anak/edukasi/presentation/screens/edukasi/edukasi_screen.dart';
+import 'package:ta_pa2_pa3_project/features/anak/anak/data/models/ibu_anak_model.dart';
+import 'package:ta_pa2_pa3_project/features/anak/anak/data/services/ibu_api_service.dart';
 // import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/screens/skrining/skrining_bahaya.dart';
 // MODUL CATATAN
-import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/screens/catatan/index.dart';
+// import 'package:ta_pa2_pa3_project/features/anak/anak/presentation/widgets/index.dart';
 // import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/grafik_evaluasi_kehamilan_screen.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/grafik_evaluasi_kehamilan_screen.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/grafik_peningkatan_bb_screen.dart';
@@ -1473,7 +1475,7 @@ Widget _buildNifasShortcut() {
           ),
         const SizedBox(height: 24),
 
-        const Text('MENU CEPAT', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey)),
+        const Text('Menu', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey)),
         const SizedBox(height: 16),
 
         // [WIDGET: DashboardTumbuhQuickMenu] — 6 menu cepat modul anak
@@ -1504,7 +1506,7 @@ Widget _buildNifasShortcut() {
                         context,
                         MaterialPageRoute(
                             builder: (_) =>
-                                const PilihAnakScreen(tujuan: 'mpasi')));
+                                const MpasiMenuScreen()));
                     break;
                   case 'edukasi':
                     // [MODUL: ANAK] Langsung ke EdukasiScreen (tidak butuh pilih anak)
