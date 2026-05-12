@@ -1,0 +1,79 @@
+package repositories
+
+import (
+	"time"
+)
+
+type JadwalImunisasiJoin struct {
+	AnakID          int32
+	NamaAnak        string
+	TanggalLahir    *time.Time
+	JadwalID        uint
+	NamaDosis       string
+	TanggalEstimasi *time.Time
+	StatusID        uint
+	Status          string
+}
+
+func (m *Main) GetJadwalImunisasiByUserID(
+	userID int32,
+) ([]JadwalImunisasiJoin, error) {
+
+	var result []JadwalImunisasiJoin
+
+	err := m.postgres.
+		Table("pengguna p").
+		Select(`
+			a.id as anak_id,
+			pd_anak.nama_lengkap as nama_anak,
+			a.tanggal_lahir,
+
+			j.id as jadwal_id,
+			dv.nama_dosis,
+			j.tanggal_estimasi,
+
+			sj.id as status_id,
+			sj.nama_status as status
+		`).
+		Joins(`
+			JOIN penduduk pd_ibu
+			ON pd_ibu.id = p.penduduk_id
+		`).
+		Joins(`
+			JOIN ibu i
+			ON i.penduduk_id = pd_ibu.id
+		`).
+		Joins(`
+			JOIN kehamilan k
+			ON k.ibu_id = i.id
+		`).
+		Joins(`
+			JOIN anak a
+			ON a.kehamilan_id = k.id
+		`).
+		Joins(`
+			JOIN penduduk pd_anak
+			ON pd_anak.id = a.penduduk_id
+		`).
+		Joins(`
+			LEFT JOIN jadwal_imunisasi_anak j
+			ON j.id_anak = a.id
+		`).
+		Joins(`
+			LEFT JOIN dosis_vaksin dv
+			ON dv.id = j.id_dosis_vaksin
+		`).
+		Joins(`
+			LEFT JOIN status_jadwal sj
+			ON sj.id = j.id_status_jadwal
+		`).
+		Where("p.id = ?", userID).
+		Order("a.id ASC, j.tanggal_estimasi ASC").
+		Scan(&result).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}

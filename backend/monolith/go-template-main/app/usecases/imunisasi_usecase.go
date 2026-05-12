@@ -1,80 +1,243 @@
 package usecases
 
 import (
-	"errors"
+	"fmt"
 	"monitoring-service/app/models"
-	"monitoring-service/app/repositories"
 	"time"
 )
 
-type ImunisasiUsecase interface {
-	CreateImunisasi(req models.ImunisasiRequest) (*models.Imunisasi, error)
-	GetImunisasiByAnakID(anakID int) ([]models.Imunisasi, error)
-	GetImunisasiByID(id uint) (*models.Imunisasi, error)
-	UpdateImunisasi(id uint, req models.ImunisasiRequest) (*models.Imunisasi, error)
-	DeleteImunisasi(id uint) error
-}
+func (m *Main) GenerateJadwalImunisasi(
+	userID int32,
+) error {
 
-type imunisasiUsecase struct {
-	imunisasiRepo repositories.ImunisasiRepository
-}
+	fmt.Println("========== START GENERATE ==========")
+	fmt.Println("USER ID:", userID)
 
-func NewImunisasiUsecase(repo repositories.ImunisasiRepository) ImunisasiUsecase {
-	return &imunisasiUsecase{
-		imunisasiRepo: repo,
-	}
-}
-
-func (u *imunisasiUsecase) CreateImunisasi(req models.ImunisasiRequest) (*models.Imunisasi, error) {
-	imunisasi := &models.Imunisasi{
-		AnakID:       req.AnakID,
-		ImunisasiID:  req.ImunisasiID,
-		TglRencana:   req.TglRencana,
-		TglPemberian: req.TglPemberian,
-		Status:       req.Status,
-		Lokasi:       req.Lokasi,
-		Petugas:      req.Petugas,
-		CreatedAt:    time.Now(),
-		UpdatedAt:    time.Now(),
-	}
-
-	err := u.imunisasiRepo.Create(imunisasi)
+	anaks, err := m.repository.GetAnakByUserID(userID)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	return imunisasi, nil
-}
+	fmt.Println("TOTAL ANAK:", len(anaks))
 
-func (u *imunisasiUsecase) GetImunisasiByAnakID(anakID int) ([]models.Imunisasi, error) {
-	return u.imunisasiRepo.FindAllByAnakID(anakID)
-}
+	for _, a := range anaks {
+		fmt.Println(
+			"ANAK:",
+			a.ID,
+			"TanggalLahir:",
+			a.TanggalLahir,
+		)
+	}
 
-func (u *imunisasiUsecase) GetImunisasiByID(id uint) (*models.Imunisasi, error) {
-	return u.imunisasiRepo.FindByID(id)
-}
-
-func (u *imunisasiUsecase) UpdateImunisasi(id uint, req models.ImunisasiRequest) (*models.Imunisasi, error) {
-	imunisasi, err := u.imunisasiRepo.FindByID(id)
+	aturanList, err := m.repository.GetAturanVaksinAnak()
 	if err != nil {
-		return nil, errors.New("data imunisasi tidak ditemukan")
+		return err
+	}
+	fmt.Println(
+		"TOTAL RULE:",
+		len(aturanList),
+	)
+
+	for _, r := range aturanList {
+		fmt.Println(
+			"RULE:",
+			r.ID,
+			r.DosisVaksinID,
+			r.MinUsiaHari,
+			r.MaxUsiaHari,
+		)
 	}
 
-	imunisasi.AnakID = req.AnakID
-	imunisasi.ImunisasiID = req.ImunisasiID
-	imunisasi.TglRencana = req.TglRencana
-	imunisasi.TglPemberian = req.TglPemberian
-	imunisasi.Status = req.Status
-	imunisasi.Lokasi = req.Lokasi
-	imunisasi.Petugas = req.Petugas
-	imunisasi.UpdatedAt = time.Now()
+	today := time.Now()
 
-	err = u.imunisasiRepo.Update(imunisasi)
-	if err != nil {
-		return nil, err
+	for _, anak := range anaks {
+
+		if anak.TanggalLahir == nil {
+			continue
+		}
+
+		umurHari := int(
+			today.Sub(*anak.TanggalLahir).Hours() / 24,
+		)
+
+		fmt.Println(
+			"ANAK ID:",
+			anak.ID,
+			"UMUR:",
+			umurHari,
+		)
+
+		for _, rule := range aturanList {
+
+			// if umurHari < int(rule.MinUsiaHari) {
+
+			// 	fmt.Println(
+			// 		"SKIP: umur kurang",
+			// 		umurHari,
+			// 		"<",
+			// 		rule.MinUsiaHari,
+			// 	)
+
+			// 	continue
+			// }
+
+			// if rule.MaxUsiaHari > 0 &&
+			// 	umurHari > int(rule.MaxUsiaHari) {
+			// 	fmt.Println(
+			// 		"SKIP: umur melebihi batas",
+			// 	)
+			// 	continue
+			// }
+
+			alreadyExist, err :=
+				m.repository.IsJadwalExist(
+					anak.ID,
+					int64(rule.DosisVaksinID),
+				)
+
+			if err != nil {
+				return err
+			}
+
+			if alreadyExist {
+				fmt.Println(
+					"SKIP: jadwal sudah ada",
+				)
+				continue
+			}
+
+			var tanggalEstimasi time.Time
+
+			if rule.DosisSebelumnyaID != nil {
+				riwayat, err :=
+					m.repository.GetRiwayatImunisasi(
+						anak.ID,
+						int64(*rule.DosisSebelumnyaID),
+					)
+
+				if err != nil {
+					continue
+				}
+				if rule.MinIntervalHari == 0 {
+					continue
+				}
+
+				selisihHari := int(
+					today.Sub(
+						riwayat.TanggalDiberikan,
+					).Hours() / 24,
+				)
+				if selisihHari < int(rule.MinIntervalHari) {
+					continue
+				}
+				tanggalEstimasi =
+					riwayat.TanggalDiberikan.AddDate(
+						0,
+						0,
+						int(rule.MinIntervalHari),
+					)
+			} else {
+
+				// if rule.MinUsiaHari == 0 {
+				// 	continue
+				// }
+
+				tanggalEstimasi =
+					anak.TanggalLahir.AddDate(
+						0,
+						0,
+						int(rule.MinUsiaHari),
+					)
+			}
+			statusID := calculateStatusID(
+				tanggalEstimasi,
+			)
+
+			fmt.Println(
+				"CREATE JADWAL",
+				"Anak:", anak.ID,
+				"Dosis:", rule.DosisVaksinID,
+				"Tanggal:", tanggalEstimasi,
+				"Status:", statusID,
+			)
+
+			jadwal := &models.JadwalImunisasiAnak{
+				AnakID:          uint(anak.ID),
+				DosisVaksinID:   rule.DosisVaksinID,
+				TanggalEstimasi: &tanggalEstimasi,
+				StatusJadwalID:  uint(statusID),
+			}
+			err =
+				m.repository.
+					CreateJadwalImunisasiAnak(
+						jadwal,
+					)
+
+			if err != nil {
+				fmt.Println(
+					"ERROR INSERT:",
+					err,
+				)
+
+				return err
+			}
+			fmt.Println(
+				"SUCCESS INSERT",
+			)
+		}
 	}
-	return imunisasi, nil
+
+	_ = m.repository.UpdateJadwalStatus()
+
+	return nil
 }
 
-func (u *imunisasiUsecase) DeleteImunisasi(id uint) error {
-	return u.imunisasiRepo.Delete(id)
+func calculateStatusID(
+	tanggalEstimasi time.Time,
+) int32 {
+
+	today := time.Now()
+
+	today = time.Date(
+		today.Year(),
+		today.Month(),
+		today.Day(),
+		0, 0, 0, 0,
+		today.Location(),
+	)
+
+	tanggalEstimasi = time.Date(
+		tanggalEstimasi.Year(),
+		tanggalEstimasi.Month(),
+		tanggalEstimasi.Day(),
+		0, 0, 0, 0,
+		tanggalEstimasi.Location(),
+	)
+
+	diff := int(
+		tanggalEstimasi.Sub(today).
+			Hours() / 24,
+	)
+
+	switch {
+
+	// H-7 sampai H-1
+	case diff >= 1 && diff <= 7:
+		return 1 // mendekati
+
+	// Hari H
+	case diff == 0:
+		return 2 // jatuh tempo
+
+	// H+1 sampai H+3
+	case diff >= -3:
+		return 3 // terlewat
+
+	// H+4 sampai H+7
+	case diff >= -7:
+		return 4 // terlambat
+
+	// > H+14
+	default:
+		return 5 // krisis
+	}
 }

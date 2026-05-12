@@ -54,10 +54,17 @@ func (m *Main) Login(c echo.Context) error {
 		statusCode := customerror.GetStatusCode(err)
 		return helpers.Response(c, statusCode, []string{err.Error()})
 	}
+	if req.FcmToken != "" {
+		
+		tokenReq := &models.TokenRequest{
+			PenggunaID:   uint(data.UserID), 
+			FcmToken: req.FcmToken,
+		}
+		_ = m.usecases.SaveFCMToken(tokenReq)
+	}
 
 	return helpers.StandardResponse(c, http.StatusOK, []string{constants.SUCCESS_RESPONSE_MESSAGE}, data, nil)
 }
-
 func (m *Main) AdminCreateAkunKeluarga(c echo.Context) error {
 	var req usecases.AdminCreateAkunKeluargaRequest
 	if err := c.Bind(&req); err != nil {

@@ -13,15 +13,18 @@ class AuthApiService {
   Future<void> login({
     required String identifier,
     required String password,
+    String? fcmToken, 
   }) async {
     final uri = Uri.parse('${ApiConstants.baseUrl}${ApiConstants.authLogin}');
 
+// http://10.54.120.64:8080/auth/login
     final response = await _client.post(
       uri,
       headers: const {'Content-Type': 'application/json'},
       body: jsonEncode({
         'identifier': identifier,
         'password': password,
+        if (fcmToken != null) 'fcm_token': fcmToken, 
       }),
     );
 
