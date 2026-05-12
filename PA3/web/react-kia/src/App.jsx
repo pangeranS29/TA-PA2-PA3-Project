@@ -10,8 +10,6 @@ import RencanaPersalinanRedirect from './pages/Ibu/RencanaPersalinanRedirect';
 import AdminRoute from "./routes/AdminRoute";
 import AdminAkunKeluargaCreate from "./pages/Admin/AkunKeluargaCreate";
 import AkunKeluargaManagement from "./pages/Admin/AkunKeluargaManagement";
-import TenagaKesehatanManagement from "./pages/Admin/TenagaKesehatanManagement";
-import JadwalLayanan from "./pages/Admin/JadwalLayanan";
 import { getPostLoginRoute, isAuthenticated } from "./services/auth";
 
 // Data Ibu
@@ -124,6 +122,11 @@ import DataLingkungan from "./pages/KesehatanLingkungan/DataLingkungan";
 import DetailLembarLingkungan from "./pages/KesehatanLingkungan/DetailLembarLingkungan";
 import PertumbuhanIndex from "./pages/Pertumbuhan/index";
 
+// Manajemen Bidan Kader
+import PosyanduList from "./pages/ManajemenBidanKader/PosyanduList";
+import BidanList from "./pages/ManajemenBidanKader/BidanList";
+import KaderList from "./pages/ManajemenBidanKader/KaderList";
+
 const HomeRedirect = () => {
   if (!isAuthenticated()) {
     return <Navigate to="/login" replace />;
@@ -146,6 +149,11 @@ function App() {
           <Route path="/kependudukan" element={<KependudukanList />} />
           <Route path="/kependudukan/create" element={<KependudukanCreate />} />
           <Route path="/kependudukan/edit/:id" element={<KependudukanEdit />} />
+
+          {/* Manajemen Bidan Kader & Posyandu */}
+          <Route path="/manajemen-posyandu" element={<PosyanduList />} />
+          <Route path="/manajemen-bidan" element={<BidanList />} />
+          <Route path="/manajemen-kader" element={<KaderList />} />
 
           {/* Data Ibu */}
           <Route path="/data-ibu/create" element={<IbuCreate />} />
@@ -201,8 +209,6 @@ function App() {
           <Route path="/dashboard/admin" element={<Dashboard />} />
           <Route path="/dashboard/admin/akun-keluarga" element={<AdminAkunKeluargaCreate />} />
           <Route path="/dashboard/admin/manajemen-keluarga" element={<AkunKeluargaManagement />} />
-          <Route path="/dashboard/admin/tenaga-kesehatan" element={<TenagaKesehatanManagement />} />
-          <Route path="/dashboard/admin/jadwal-layanan" element={<JadwalLayanan />} />
         </Route>
 
         {/* ── RUTE ANAK (tanpa auth wrapper) ── */}
