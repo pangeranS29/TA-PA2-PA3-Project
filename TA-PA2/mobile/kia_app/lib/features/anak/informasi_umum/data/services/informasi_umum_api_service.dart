@@ -3,11 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 import 'package:ta_pa2_pa3_project/core/constants/api_constants.dart';
-<<<<<<<< HEAD:TA-PA2/mobile/kia_app/lib/features/anak/informasi_umum/data/services/informasi_umum_api_service.dart
 import 'package:ta_pa2_pa3_project/features/anak/informasi_umum/data/models/informasi_umum_model.dart';
-========
-import 'package:ta_pa2_pa3_project/features/edukasi/data/models/informasi_umum_model.dart';
->>>>>>>> 3ad6c239c1b1819aa75c0674ccf6d4554e441ae1:TA-PA2/mobile/kia_app/lib/features/edukasi/data/services/informasi_umum_api_service.dart
 
 class InformasiUmumApiService {
   final http.Client _client;
