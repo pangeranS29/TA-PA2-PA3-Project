@@ -86,6 +86,14 @@ const headerByPath = (pathname) => {
     };
   }
 
+  if (pathname.startsWith("/dashboard/admin/informasi-umum")) {
+    return {
+      title: "CRUD Edukasi",
+      subtitle: "Kelola konten edukasi yang ditampilkan di aplikasi mobile.",
+      variant: "hero",
+    };
+  }
+
   return {
     title: "KIA Cerdas",
     subtitle: "Sistem layanan kesehatan ibu dan anak untuk wilayah desa.",

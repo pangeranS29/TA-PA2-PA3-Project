@@ -11,6 +11,7 @@ type PengukuranLilAUseCase interface {
 	Create(req models.CreatePengukuranLilARequest) error
 	Update(id int32, req models.UpdatePengukuranLilARequest) error
 	GetByAnakID(anakID int32) ([]models.PengukuranLila, error)
+	GetByAnakIDForIbu(anakID int32, userID uint) ([]models.PengukuranLila, error)
 	GetByID(id int32) (*models.PengukuranLila, error)
 	GetAll() ([]models.PengukuranLila, error)
 	Delete(id int32) error
@@ -82,6 +83,17 @@ func (u *pengukuranlilaUseCase) Update(id int32, req models.UpdatePengukuranLilA
 	return u.repo.Update(id, req, now)
 }
 func (u *pengukuranlilaUseCase) GetByAnakID(anakID int32) ([]models.PengukuranLila, error) {
+	return u.repo.GetByAnakID(anakID)
+}
+
+func (u *pengukuranlilaUseCase) GetByAnakIDForIbu(anakID int32, userID uint) ([]models.PengukuranLila, error) {
+	ok, err := u.repo.IsAnakMilikIbu(userID, anakID)
+	if err != nil {
+		return nil, err
+	}
+	if !ok {
+		return nil, errors.New("akses ditolak: anak tidak ditemukan atau bukan milik anda")
+	}
 	return u.repo.GetByAnakID(anakID)
 }
 

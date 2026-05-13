@@ -1,3 +1,5 @@
+// Sebagai selector pilihan berbentuk chip
+
 import 'package:flutter/material.dart';
 
 class EnumSelector extends StatelessWidget {

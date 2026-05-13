@@ -24,6 +24,8 @@ func GetStatusCode(err error) int {
 		return http.StatusBadRequest
 	} else if _, ok := err.(ConflictError); ok {
 		return http.StatusConflict
+	} else if _, ok := err.(ForbiddenError); ok {
+		return http.StatusForbidden
 	}
 	return http.StatusInternalServerError
 
