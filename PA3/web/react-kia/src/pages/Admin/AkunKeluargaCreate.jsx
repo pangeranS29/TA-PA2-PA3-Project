@@ -227,7 +227,7 @@ const AdminAkunKeluargaCreate = () => {
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
+                  <div>
                       <label className="text-sm text-slate-600">NIK</label>
                       <input type="text" value={member.nik} onChange={(e) => setMemberField(index, "nik", e.target.value)} className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2" required />
                     </div>
