@@ -16,7 +16,6 @@ import {
   Activity,
   BarChart3,
   Settings,
-  ShieldPlus,
   UserCheck,
   UserPlus,
   BriefcaseMedical,
@@ -24,7 +23,6 @@ import {
   TableProperties,
   ClipboardList,
   BookOpenCheck,
-  Ruler
 } from "lucide-react";
 
 const baseItemClass = (isActive) =>
@@ -60,20 +58,11 @@ const Sidebar = () => {
     setDropdownOpen((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
-  // const adminFamilyMenuItems = useMemo(
-  //   () => [
-  //     { path: "/dashboard/admin/manajemen-keluarga", name: "Manajemen KK", icon: UserCheck },
-  //     { path: "/dashboard/admin/akun-keluarga", name: "Buat Akun", icon: UserPlus },
-  //   ],
-  //   []
-  // );
-
   // Menu untuk bidan (lengkap)
   const bidanMenuItems = [
     { path: "/data-ibu", name: "Data Ibu", icon: Users },
     { path: "/daftar-anak", name: "Data Anak", icon: Baby },
     { path: "/kependudukan", name: "Manajemen KK", icon: UserCheck },
-    // { path: "/monitoring", name: "Monitoring", icon: Activity },
     {
       name: "Manajemen Bidan & Kader",
       icon: BriefcaseMedical,
@@ -128,7 +117,6 @@ const Sidebar = () => {
       ],
     },
     { path: "/laporan", name: "Laporan", icon: BarChart3 },
-
   ];
 
   // Menu untuk dokter (hanya Data Ibu & Laporan)
@@ -149,7 +137,6 @@ const Sidebar = () => {
   // Menentukan menuItems berdasarkan role
   let menuItems = [];
   if (isAdmin) {
-    // Admin hanya memiliki dashboard (menu lain akan ditambahkan di bawah terpisah)
     menuItems = [{ path: dashboardPath, name: "Dashboard", icon: LayoutGrid }];
   } else if (isDokter) {
     menuItems = [
@@ -162,7 +149,6 @@ const Sidebar = () => {
       ...bidanMenuItems,
     ];
   } else {
-    // Fallback (misal role tidak dikenal)
     menuItems = [{ path: dashboardPath, name: "Dashboard", icon: LayoutGrid }];
   }
 
@@ -219,14 +205,18 @@ const Sidebar = () => {
 
   return (
     <aside className="w-72 h-screen bg-white border-r border-gray-100 flex flex-col p-6">
-      {/* Header Logo */}
+      {/* Header Logo – mengganti ikon dengan gambar kustom */}
       <div className="flex items-center gap-3 mb-10">
-        <div className="bg-blue-600 p-2 rounded-xl text-white shadow-lg shadow-blue-100">
-          <ShieldPlus size={28} />
-        </div>
+        <img
+          src="/LOGO.png"          // Pastikan file ada di folder public/
+          alt="Logo KIA Cerdas"
+          className="w-10 h-10 rounded-xl object-contain shadow-lg shadow-blue-100"
+        />
         <div>
           <h1 className="text-lg font-bold text-slate-800 leading-tight">KIA Cerdas</h1>
-          <p className="text-xs text-slate-400">Dashboard {isDokter ? "Dokter" : isBidan ? "Bidan" : "Admin"}</p>
+          <p className="text-xs text-slate-400">
+            Dashboard {isDokter ? "Dokter" : isBidan ? "Bidan" : "Admin"}
+          </p>
         </div>
       </div>
 
@@ -288,18 +278,6 @@ const Sidebar = () => {
         {/* Menu Pengaturan untuk semua role */}
         {renderNavLink(settingsMenu)}
       </nav>
-
-      {/* Footer Info Wilayah (hanya untuk bidan) */}
-      {/* {isBidan && (
-        <div className="mt-auto pt-6">
-          <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100">
-            <h4 className="text-sm font-bold text-slate-800">Wilayah aktif</h4>
-            <p className="text-[11px] text-slate-500 mt-1 leading-relaxed">
-              Desa Suka Maju · 4 posyandu aktif · sinkron terakhir 08.10 WIB
-            </p>
-          </div>
-        </div>
-      )} */}
     </aside>
   );
 };
