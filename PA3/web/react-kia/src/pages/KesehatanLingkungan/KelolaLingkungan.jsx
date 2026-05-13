@@ -161,27 +161,19 @@ export default function KelolaLingkungan() {
         <div className="flex items-center justify-between px-2">
           <div>
             <h1 className="text-2xl font-bold text-slate-800">
-              Kelola Indikator Lingkungan
+              Kelola Pertanyaan Lingkungan
             </h1>
             <p className="text-sm text-slate-500 mt-1">
               Mengatur kategori dan pertanyaan untuk kesehatan & keselamatan
               lingkungan rumah.
             </p>
           </div>
-          <div className="flex gap-2">
-            <button
-              onClick={openAddKategori}
-              className="bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 px-5 py-2.5 rounded-lg text-sm font-medium flex items-center gap-2 transition-all shadow-sm"
-            >
-              <Plus size={18} /> Kategori Baru
-            </button>
-            <button
-              onClick={openAddIndikator}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg text-sm font-medium flex items-center gap-2 transition-all shadow-sm"
-            >
-              <Plus size={18} /> Tambah Pertanyaan
-            </button>
-          </div>
+          <button
+            onClick={openAddKategori}
+            className="bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 px-5 py-2.5 rounded-lg text-sm font-medium flex items-center gap-2 transition-all shadow-sm"
+          >
+            <Plus size={18} /> Kategori Baru
+          </button>
         </div>
 
         {notice && (
@@ -221,9 +213,9 @@ export default function KelolaLingkungan() {
         </div>
 
         <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-          <div className="grid grid-cols-12 bg-slate-50/50 px-8 py-4 border-b border-slate-100 font-bold text-[10px] text-slate-400 uppercase tracking-widest">
+          <div className={`grid grid-cols-12 bg-slate-50/50 px-8 py-4 border-b border-slate-100 font-bold text-[10px] text-slate-400 uppercase tracking-widest ${filteredIndikator.length === 0 ? 'hidden' : ''}`}>
             <div className="col-span-1 text-center">No</div>
-            <div className="col-span-9">Pertanyaan Indikator</div>
+            <div className="col-span-9">Pertanyaan</div>
             <div className="col-span-2 text-right">Aksi</div>
           </div>
 
@@ -236,7 +228,7 @@ export default function KelolaLingkungan() {
               filteredIndikator.map((item, index) => (
                 <div
                   key={item.id}
-                  className="grid grid-cols-12 items-center px-8 py-6 hover:bg-slate-50/30 transition-all group"
+                  className="grid grid-cols-12 items-center px-8 py-3 hover:bg-slate-50/30 transition-all group"
                 >
                   <div className="col-span-1 text-xs font-mono text-slate-400 text-center">
                     {index + 1}
@@ -269,7 +261,7 @@ export default function KelolaLingkungan() {
         </div>
 
         {isModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4">
             <div className="w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden">
               <div className="flex items-center justify-between px-8 py-6 border-b border-slate-100 bg-slate-50/50">
                 <h2 className="text-xl font-bold text-slate-800">

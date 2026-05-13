@@ -40,12 +40,15 @@ func (u *edukasiInformasiUmumUsecase) Update(id int32, data *models.EdukasiInfor
 		return errors.New("data not found")
 	}
 
+	existing.Tipe = data.Tipe
 	existing.Judul = data.Judul
-	existing.GambarURL = data.GambarURL
-	existing.Deskripsi = data.Deskripsi
-	existing.IsiKonten = data.IsiKonten
-	existing.MateriInti = data.MateriInti
-	existing.HalPenting = data.HalPenting
+	existing.UmurTarget = data.UmurTarget
+	existing.DurasiBaca = data.DurasiBaca
+	existing.Ringkasan = data.Ringkasan
+	existing.Konten = data.Konten
+	existing.YangPerluDiingat = data.YangPerluDiingat
+	existing.ThumbnailURL = data.ThumbnailURL
+	existing.IsActive = data.IsActive
 
 	return u.repo.Update(existing)
 }
