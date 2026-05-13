@@ -10,16 +10,16 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type EdukasiTandaBahayaTrimesterController struct {
-	usecase usecases.EdukasiTandaBahayaTrimesterUsecase
+type JadwalHarianMPASIController struct {
+	usecase usecases.JadwalHarianMPASIUsecase
 }
 
-func NewEdukasiTandaBahayaTrimesterController(u usecases.EdukasiTandaBahayaTrimesterUsecase) *EdukasiTandaBahayaTrimesterController {
-	return &EdukasiTandaBahayaTrimesterController{u}
+func NewJadwalHarianMPASIController(u usecases.JadwalHarianMPASIUsecase) *JadwalHarianMPASIController {
+	return &JadwalHarianMPASIController{u}
 }
 
-func (c *EdukasiTandaBahayaTrimesterController) Create(ctx echo.Context) error {
-	var input models.EdukasiTandaBahayaTrimester
+func (c *JadwalHarianMPASIController) Create(ctx echo.Context) error {
+	var input models.JadwalHarianMPASI
 
 	if err := ctx.Bind(&input); err != nil {
 		return ctx.JSON(http.StatusBadRequest, echo.Map{"error": err.Error()})
@@ -32,7 +32,7 @@ func (c *EdukasiTandaBahayaTrimesterController) Create(ctx echo.Context) error {
 	return ctx.JSON(http.StatusCreated, input)
 }
 
-func (c *EdukasiTandaBahayaTrimesterController) GetAll(ctx echo.Context) error {
+func (c *JadwalHarianMPASIController) GetAll(ctx echo.Context) error {
 	data, err := c.usecase.GetAll()
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, echo.Map{"error": err.Error()})
@@ -41,7 +41,7 @@ func (c *EdukasiTandaBahayaTrimesterController) GetAll(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, data)
 }
 
-func (c *EdukasiTandaBahayaTrimesterController) GetByID(ctx echo.Context) error {
+func (c *JadwalHarianMPASIController) GetByID(ctx echo.Context) error {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, echo.Map{"error": "invalid id"})
@@ -55,13 +55,13 @@ func (c *EdukasiTandaBahayaTrimesterController) GetByID(ctx echo.Context) error 
 	return ctx.JSON(http.StatusOK, data)
 }
 
-func (c *EdukasiTandaBahayaTrimesterController) Update(ctx echo.Context) error {
+func (c *JadwalHarianMPASIController) Update(ctx echo.Context) error {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, echo.Map{"error": "invalid id"})
 	}
 
-	var input models.EdukasiTandaBahayaTrimester
+	var input models.JadwalHarianMPASI
 	if err := ctx.Bind(&input); err != nil {
 		return ctx.JSON(http.StatusBadRequest, echo.Map{"error": err.Error()})
 	}
@@ -73,7 +73,7 @@ func (c *EdukasiTandaBahayaTrimesterController) Update(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, echo.Map{"message": "updated successfully"})
 }
 
-func (c *EdukasiTandaBahayaTrimesterController) Delete(ctx echo.Context) error {
+func (c *JadwalHarianMPASIController) Delete(ctx echo.Context) error {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, echo.Map{"error": "invalid id"})

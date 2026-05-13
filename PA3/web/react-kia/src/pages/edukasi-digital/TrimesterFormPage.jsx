@@ -1,13 +1,13 @@
 import React from "react";
 import EdukasiDigitalCrudPage from "./EdukasiDigitalCrudPage";
 
-export default function TandaBahayaTrimesterFormPage() {
+export default function TrimesterFormPage() {
   return (
     <EdukasiDigitalCrudPage
-      title="Form Edukasi Tanda Bahaya Trimester"
-      resourcePath="edukasi-tanda-bahaya-trimester"
+      title="Form Edukasi Trimester"
+      resourcePath="edukasi-trimester"
       view="form"
-      listPath="/edukasi-digital/tanda-bahaya-trimester"
+      listPath="/edukasi-digital/trimester"
       fields={[
         { key: "judul", label: "Judul", type: "text" },
         { key: "gambar_url", label: "URL gambar (opsional)", type: "text" },

@@ -388,6 +388,8 @@ func (m *Main) GetPertumbuhanChart(anakID uint) (map[string]interface{}, error) 
 		UsiaUkurBulan int     `json:"usia_ukur_bulan"`
 		BeratBadan    float64 `json:"berat_badan"`
 		TinggiBadan   float64 `json:"tinggi_badan"`
+		HasilLila     float64 `json:"hasil_lila"`
+		LingkarKepala float64 `json:"lingkar_kepala"`
 		TglUkur       string  `json:"tgl_ukur"`
 	}
 	riwayatList := make([]RiwayatItem, 0, len(riwayat))
@@ -396,6 +398,8 @@ func (m *Main) GetPertumbuhanChart(anakID uint) (map[string]interface{}, error) 
 			UsiaUkurBulan: r.UsiaUkurBulan,
 			BeratBadan:    r.BeratBadan,
 			TinggiBadan:   r.TinggiBadan,
+			HasilLila:     r.HasilLila,
+			LingkarKepala: r.LingkarKepala,
 			TglUkur:       r.TglUkur.Format("2006-01-02"),
 		})
 	}

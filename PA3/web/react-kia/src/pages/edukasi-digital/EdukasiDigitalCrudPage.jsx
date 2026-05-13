@@ -38,6 +38,9 @@ const guessId = (item) =>
 const guessImage = (item) => 
   item?.gambar_url ?? item?.GambarURL ?? item?.image_url ?? item?.image ?? "";
 
+const guessCategory = (item) =>
+  item?.kategori_umur?.kategori_umur ?? item?.kategori_umur?.KategoriUmur ?? item?.tipe ?? "Edukasi";
+
 export default function EdukasiDigitalCrudPage({
   title,
   resourcePath,
@@ -57,6 +60,11 @@ export default function EdukasiDigitalCrudPage({
     if (fields && Array.isArray(fields)) {
       const f = {};
       fields.forEach((it) => {
+        if (it.type === "checkbox") {
+          f[it.key] = Boolean(it.default ?? false);
+          return;
+        }
+
         f[it.key] = it.default ?? "";
       });
       return f;
@@ -118,7 +126,23 @@ export default function EdukasiDigitalCrudPage({
             if (fields && Array.isArray(fields)) {
               const f = {};
               fields.forEach((it) => {
-                f[it.key] = item[it.key] ?? item[it.alt] ?? "";
+                if (it.type === "checkbox") {
+                  f[it.key] = Boolean(item[it.key] ?? item[it.alt] ?? false);
+                  return;
+                }
+
+                if (it.type === "array") {
+                  const arr = item[it.key];
+                  if (Array.isArray(arr)) {
+                    f[it.key] = arr.join("\n");
+                  } else {
+                    f[it.key] = "";
+                  }
+                  return;
+                }
+
+                const current = item[it.key] ?? item[it.alt] ?? "";
+                f[it.key] = current === null || current === undefined ? "" : String(current);
               });
               setForm(f);
             } else {
@@ -196,8 +220,11 @@ export default function EdukasiDigitalCrudPage({
   };
 
   const handleChange = (event) => {
-    const { name, value } = event.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+    const { name, value, type, checked } = event.target;
+    setForm((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
   };
 
   const toPayload = () => {
@@ -205,6 +232,38 @@ export default function EdukasiDigitalCrudPage({
       const payload = {};
       fields.forEach((f) => {
         const val = form[f.key];
+        if (f.type === "checkbox") {
+          payload[f.key] = Boolean(val);
+          return;
+        }
+
+        if (f.type === "array") {
+          // Convert newline-separated string to array
+          if (typeof val === "string") {
+            payload[f.key] = val.split("\n").map(line => line.trim()).filter(line => line.length > 0);
+          } else if (Array.isArray(val)) {
+            payload[f.key] = val;
+          } else {
+            payload[f.key] = [];
+          }
+          return;
+        }
+
+        if (f.type === "number") {
+          payload[f.key] = val === "" || val === null ? null : Number(val);
+          return;
+        }
+
+        if (f.type === "select") {
+          if (val === "" || val === null || val === undefined) {
+            payload[f.key] = f.nullable ? null : "";
+            return;
+          }
+
+          payload[f.key] = f.parseNumber ? Number(val) : val;
+          return;
+        }
+
         payload[f.key] = typeof val === "string" ? val.trim() : val;
       });
       return payload;
@@ -427,7 +486,7 @@ export default function EdukasiDigitalCrudPage({
                               
                               <td className="px-6 py-4">
                                 <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#185FA5]/10 text-[#185FA5] rounded-full text-[12px] font-semibold">
-                                  <BookOpen size={14} /> Edukasi
+                                  <BookOpen size={14} /> {guessCategory(item)}
                                 </span>
                               </td>
                               
@@ -523,6 +582,59 @@ export default function EdukasiDigitalCrudPage({
                 { key: "hal_penting", label: "Hal penting", type: "textarea", rows: 2 },
               ]).filter(f => f.key !== 'materi_inti').map((f) => {
                 const value = form[f.key] ?? "";
+                if (f.type === "checkbox") {
+                  return (
+                    <label key={f.key} className="flex items-center gap-3 rounded-xl border border-slate-200 bg-[#F7FAFB] px-4 py-3">
+                      <input
+                        name={f.key}
+                        type="checkbox"
+                        checked={Boolean(value)}
+                        onChange={handleChange}
+                        className="h-4 w-4 rounded border-slate-300 text-[#185FA5] focus:ring-[#185FA5]"
+                      />
+                      <span className="text-[14px] font-semibold text-slate-700">{f.label}</span>
+                    </label>
+                  );
+                }
+
+                if (f.type === "select") {
+                  return (
+                    <div key={f.key} className="space-y-1">
+                      <label className="text-[14px] font-semibold text-slate-700 ml-1">{f.label}</label>
+                      <select
+                        name={f.key}
+                        value={value}
+                        onChange={handleChange}
+                        className="w-full border border-slate-200 bg-[#F7FAFB] rounded-xl px-4 py-3 text-[14px] focus:bg-white focus:border-[#185FA5] focus:ring-1 focus:ring-[#185FA5] outline-none transition-all"
+                      >
+                        <option value="">{f.placeholder || `Pilih ${f.label.toLowerCase()}`}</option>
+                        {(f.options || []).map((option) => (
+                          <option key={String(option.value)} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  );
+                }
+
+                if (f.type === "array") {
+                  return (
+                    <div key={f.key} className="space-y-1">
+                      <label className="text-[14px] font-semibold text-slate-700 ml-1">{f.label}</label>
+                      <textarea
+                        name={f.key}
+                        value={value}
+                        onChange={handleChange}
+                        placeholder={f.placeholder || `Masukkan ${f.label.toLowerCase()} (satu item per baris)`}
+                        rows={f.rows || 4}
+                        className="w-full border border-slate-200 bg-[#F7FAFB] rounded-xl px-4 py-3 text-[14px] focus:bg-white focus:border-[#185FA5] focus:ring-1 focus:ring-[#185FA5] outline-none transition-all"
+                      />
+                      <p className="text-[12px] text-slate-500 ml-1">Setiap baris akan menjadi satu item dalam daftar.</p>
+                    </div>
+                  );
+                }
+
                 if (f.type === "textarea") {
                   return (
                     <div key={f.key} className="space-y-1">

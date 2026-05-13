@@ -92,8 +92,8 @@ import LihatDataPemantauan from "./pages/Pemantauan-anak/LihatDataPemantauan";
 import KesehatanLingkunganCatatanPage from "./pages/Pencatatan/KesehatanLingkunganCatatan";
 import InformasiUmumPage from "./pages/edukasi-digital/InformasiUmumPage";
 import InformasiUmumFormPage from "./pages/edukasi-digital/InformasiUmumFormPage";
-import TandaBahayaTrimesterPage from "./pages/edukasi-digital/TandaBahayaTrimesterPage";
-import TandaBahayaTrimesterFormPage from "./pages/edukasi-digital/TandaBahayaTrimesterFormPage";
+import TrimesterPage from "./pages/edukasi-digital/TrimesterPage";
+import TrimesterFormPage from "./pages/edukasi-digital/TrimesterFormPage";
 import TandaMelahirkanPage from "./pages/edukasi-digital/TandaMelahirkanPage";
 import TandaMelahirkanFormPage from "./pages/edukasi-digital/TandaMelahirkanFormPage";
 import ImdPage from "./pages/edukasi-digital/ImdPage";
@@ -112,6 +112,12 @@ import PerawatanAnakPage from "./pages/edukasi-digital/PerawatanAnakPage";
 import PerawatanAnakFormPage from "./pages/edukasi-digital/PerawatanAnakFormPage";
 import MpasiPage from "./pages/edukasi-digital/MpasiPage";
 import MpasiFormPage from "./pages/edukasi-digital/MpasiFormPage";
+import MpasiAturanPorsiPage from "./pages/edukasi-digital/MpasiAturanPorsiPage";
+import MpasiAturanPorsiFormPage from "./pages/edukasi-digital/MpasiAturanPorsiFormPage";
+import MpasiJadwalHarianPage from "./pages/edukasi-digital/MpasiJadwalHarianPage";
+import MpasiJadwalHarianFormPage from "./pages/edukasi-digital/MpasiJadwalHarianFormPage";
+import MpasiResepPage from "./pages/edukasi-digital/MpasiResepPage";
+import MpasiResepFormPage from "./pages/edukasi-digital/MpasiResepFormPage";
 import KeluhanAnak from "./pages/Anak/Keluhan/KeluhanAnak";
 import PemantauanAnakPage from "./pages/Anak/Pemantauan/PemantauanAnakPage";
 import PerkembanganAnakPage from "./pages/Anak/Perkembangan/PerkembanganAnakPage";
@@ -246,9 +252,9 @@ function App() {
         <Route path="/edukasi-digital/informasi-umum" element={<InformasiUmumPage />} />
         <Route path="/edukasi-digital/informasi-umum/form" element={<InformasiUmumFormPage />} />
         <Route path="/edukasi-digital/informasi-umum/form/:id" element={<InformasiUmumFormPage />} />
-        <Route path="/edukasi-digital/tanda-bahaya-trimester" element={<TandaBahayaTrimesterPage />} />
-        <Route path="/edukasi-digital/tanda-bahaya-trimester/form" element={<TandaBahayaTrimesterFormPage />} />
-        <Route path="/edukasi-digital/tanda-bahaya-trimester/form/:id" element={<TandaBahayaTrimesterFormPage />} />
+        <Route path="/edukasi-digital/trimester" element={<TrimesterPage />} />
+        <Route path="/edukasi-digital/trimester/form" element={<TrimesterFormPage />} />
+        <Route path="/edukasi-digital/trimester/form/:id" element={<TrimesterFormPage />} />
         <Route path="/edukasi-digital/tanda-melahirkan" element={<TandaMelahirkanPage />} />
         <Route path="/edukasi-digital/tanda-melahirkan/form" element={<TandaMelahirkanFormPage />} />
         <Route path="/edukasi-digital/tanda-melahirkan/form/:id" element={<TandaMelahirkanFormPage />} />
@@ -276,6 +282,19 @@ function App() {
         <Route path="/edukasi-digital/mpasi" element={<MpasiPage />} />
         <Route path="/edukasi-digital/mpasi/form" element={<MpasiFormPage />} />
         <Route path="/edukasi-digital/mpasi/form/:id" element={<MpasiFormPage />} />
+        
+        {/* MPASI Sub-modules */}
+        <Route path="/edukasi-digital/mpasi-aturan-porsi" element={<MpasiAturanPorsiPage />} />
+        <Route path="/edukasi-digital/mpasi-aturan-porsi/form" element={<MpasiAturanPorsiFormPage />} />
+        <Route path="/edukasi-digital/mpasi-aturan-porsi/form/:id" element={<MpasiAturanPorsiFormPage />} />
+        
+        <Route path="/edukasi-digital/mpasi-jadwal-harian" element={<MpasiJadwalHarianPage />} />
+        <Route path="/edukasi-digital/mpasi-jadwal-harian/form" element={<MpasiJadwalHarianFormPage />} />
+        <Route path="/edukasi-digital/mpasi-jadwal-harian/form/:id" element={<MpasiJadwalHarianFormPage />} />
+        
+        <Route path="/edukasi-digital/mpasi-resep" element={<MpasiResepPage />} />
+        <Route path="/edukasi-digital/mpasi-resep/form" element={<MpasiResepFormPage />} />
+        <Route path="/edukasi-digital/mpasi-resep/form/:id" element={<MpasiResepFormPage />} />
 
         {/* ── DOKTER ── */}
         <Route path="/dashboard/dokter" element={<ProtectedRoute allowedRoles={["dokter"]}><DokterDashboard /></ProtectedRoute>} />

@@ -48,6 +48,7 @@ const Sidebar = () => {
     edukasiDigital: pathname.startsWith("/edukasi-digital"),
     kesehatanLingkungan: pathname.startsWith("/pencatatan/kesehatan-lingkungan"),
     bidanKaderManagement: pathname.startsWith("/manajemen-posyandu") || pathname.startsWith("/manajemen-bidan") || pathname.startsWith("/manajemen-kader"),
+    mpasi: pathname.startsWith("/edukasi-digital/mpasi"),
   });
 
   const [dropdownOpen, setDropdownOpen] = useState(() => getDropdownOpenState(location.pathname));
@@ -92,7 +93,7 @@ const Sidebar = () => {
       dropdownKey: "kesehatanLingkungan",
       children: [
         { path: "/pencatatan/kesehatan-lingkungan", name: "Data Pencatatan", icon: TableProperties },
-        { path: "/pencatatan/kesehatan-lingkungan/kelola", name: "Kelola Indikator", icon: ClipboardEdit },
+        { path: "/pencatatan/kesehatan-lingkungan/kelola", name: "Kelola Pertanyaan", icon: ClipboardEdit },
       ],
     },
     {
@@ -101,7 +102,7 @@ const Sidebar = () => {
       isDropdown: true,
       dropdownKey: "monitoring",
       children: [
-        { path: "/monitoring", name: "Rekap Wilayah", icon: BarChart3 },
+        // { path: "/monitoring", name: "Rekap Wilayah", icon: BarChart3 },
         { path: "/pemantauan/lihat", name: "Data Pemantauan Anak", icon: TableProperties },
         { path: "/pemantauan/perkembangan", name: "Data Perkembangan Anak", icon: TableProperties },
         { path: "/pemantauan/kelola-perkembangan", name: "Kelola Penanda Perkembangan Anak", icon: ClipboardEdit },
@@ -115,7 +116,7 @@ const Sidebar = () => {
       dropdownKey: "edukasiDigital",
       children: [
         { path: "/edukasi-digital/informasi-umum", name: "Informasi Umum", icon: ClipboardList },
-        { path: "/edukasi-digital/tanda-bahaya-trimester", name: "Tanda Bahaya Trimester", icon: ClipboardList },
+        { path: "/edukasi-digital/trimester", name: "Edukasi Trimester", icon: ClipboardList },
         { path: "/edukasi-digital/tanda-melahirkan", name: "Tanda Melahirkan", icon: ClipboardList },
         { path: "/edukasi-digital/imd", name: "Edukasi IMD", icon: ClipboardList },
         { path: "/edukasi-digital/setelah-melahirkan", name: "Setelah Melahirkan", icon: ClipboardList },
@@ -124,7 +125,18 @@ const Sidebar = () => {
         { path: "/edukasi-digital/pola-asuh", name: "Pola Asuh", icon: ClipboardList },
         { path: "/edukasi-digital/kesehatan-mental", name: "Kesehatan Mental", icon: ClipboardList },
         { path: "/edukasi-digital/perawatan-anak", name: "Perawatan Anak", icon: ClipboardList },
-        { path: "/edukasi-digital/mpasi", name: "MPASI", icon: ClipboardList },
+        {
+          name: "MPASI",
+          icon: ClipboardList,
+          isDropdown: true,
+          dropdownKey: "mpasi",
+          children: [
+            { path: "/edukasi-digital/mpasi", name: "Materi MPASI", icon: ClipboardList },
+            { path: "/edukasi-digital/mpasi-aturan-porsi", name: "Aturan Porsi", icon: ClipboardList },
+            { path: "/edukasi-digital/mpasi-jadwal-harian", name: "Jadwal Harian", icon: ClipboardList },
+            { path: "/edukasi-digital/mpasi-resep", name: "Resep", icon: ClipboardList },
+          ],
+        },
       ],
     },
     { path: "/laporan", name: "Laporan", icon: BarChart3 },
@@ -186,19 +198,26 @@ const Sidebar = () => {
     </NavLink>
   );
 
-  const renderDropdown = (item) => {
+  const hasActiveDescendant = (item) => {
+    if (!item?.children?.length) {
+      return Boolean(item?.path && location.pathname.startsWith(item.path));
+    }
+    return item.children.some((child) => hasActiveDescendant(child));
+  };
+
+  const renderDropdown = (item, isNested = false) => {
     const isOpen = dropdownOpen[item.dropdownKey];
-    const hasActiveChild = item.children?.some((child) => location.pathname.startsWith(child.path));
+    const hasActiveChild = hasActiveDescendant(item);
 
     return (
       <div key={item.dropdownKey} className="space-y-1">
         <button
           type="button"
           onClick={() => toggleDropdown(item.dropdownKey)}
-          className={`${baseItemClass(isOpen || hasActiveChild)} w-full`}
+          className={`${baseItemClass(isOpen || hasActiveChild)} w-full ${isNested ? "text-sm px-3 py-2 rounded-lg" : ""}`}
         >
           <item.icon
-            size={20}
+            size={isNested ? 16 : 20}
             className={(isOpen || hasActiveChild) ? "text-blue-600" : "text-slate-400 group-hover:text-slate-600"}
           />
           <span className="flex-1 text-left truncate">{item.name}</span>
@@ -210,7 +229,11 @@ const Sidebar = () => {
 
         {(isOpen || hasActiveChild) && (
           <div className="ml-5 pl-4 space-y-1 border-l border-slate-200">
-            {item.children.map((child) => renderNavLink(child, "text-sm px-3 py-2 rounded-lg"))}
+            {item.children.map((child) =>
+              child.isDropdown
+                ? renderDropdown(child, true)
+                : renderNavLink(child, "text-sm px-3 py-2 rounded-lg")
+            )}
           </div>
         )}
       </div>

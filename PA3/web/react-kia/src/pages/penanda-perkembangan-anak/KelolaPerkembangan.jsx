@@ -230,7 +230,7 @@ export default function KelolaPerkembangan() {
               </div>
             ) : currentData.length > 0 ? (
               currentData.map((item, index) => (
-                <div key={item.id} className="grid grid-cols-12 items-center px-8 py-6 hover:bg-slate-50/30 transition-all group">
+                <div key={item.id} className="grid grid-cols-12 items-center px-8 py-3 hover:bg-slate-50/30 transition-all group">
                   <div className="col-span-1 text-xs font-mono text-slate-400 text-center">
                     {index + 1}
                   </div>
@@ -263,7 +263,7 @@ export default function KelolaPerkembangan() {
         </div>
 
         {isModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4">
             <div className="w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden animate-in zoom-in-95 duration-200">
               <div className="flex items-center justify-between px-8 py-6 border-b border-slate-100 bg-slate-50/50">
                 <h2 className="text-xl font-bold text-slate-800">

@@ -116,7 +116,7 @@ export default function AnakListNakes() {
 
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800 tracking-tight">Daftar Anak</h1>
+          <h1 className="text-2xl font-bold text-gray-800 tracking-tight">Manajemen Data Anak</h1>
           <p className="text-gray-500 text-sm">Rekam data pertumbuhan anak secara terpusat.</p>
         </div>
         
@@ -142,12 +142,12 @@ export default function AnakListNakes() {
               onChange={handleSearchChange}
             />
           </div>
-          {/* <Link
+          <Link
             to="/data-anak/create"
             className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl flex items-center justify-center gap-2 font-bold transition-all shadow-md active:scale-95"
           >
             <Plus size={20} /> Tambah Data Anak
-          </Link> */}
+          </Link>
         </div>
       </div>
 
@@ -185,15 +185,7 @@ export default function AnakListNakes() {
               currentItems.map((child) => (
                 <tr key={child.id} className="hover:bg-indigo-50/20 transition-colors group">
                   <td className="px-6 py-4 font-bold text-gray-800 text-sm">{child.nama}</td>
-                  <td className="px-6 py-4">
-                     <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase border ${
-                        (child.jenis_kelamin || "").toLowerCase().includes('laki') ? 'bg-blue-50 text-blue-700 border-blue-100' : 
-                        (child.jenis_kelamin || "").toLowerCase().includes('perem') ? 'bg-pink-50 text-pink-700 border-pink-100' :
-                        'bg-gray-50 text-gray-500 border-gray-100'
-                     }`}>
-                        {child.jenis_kelamin || "-"}
-                     </span>
-                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-700">{child.jenis_kelamin || "-"}</td>
                   <td className="px-6 py-4">
                     <RisikoBadge prediksi={prediksiMap[child.id]} />
                   </td>
@@ -218,7 +210,7 @@ export default function AnakListNakes() {
         {/* --- UI CONTROLS PAGINATION --- */}
         <div className="flex items-center justify-between px-6 py-4 bg-gray-50/50 border-t border-gray-100">
           <p className="text-xs text-gray-500 font-medium">
-            Menampilkan <span className="text-indigo-600">{filteredChildren.length === 0 ? 0 : indexOfFirstItem + 1}</span> - <span className="text-indigo-600">{Math.min(indexOfLastItem, filteredChildren.length)}</span> dari <span className="text-indigo-600">{filteredChildren.length}</span> data
+            {filteredChildren.length === 0 ? 'Tidak ada data' : `Menampilkan ${indexOfFirstItem + 1}-${Math.min(indexOfLastItem, filteredChildren.length)} dari ${filteredChildren.length} data`}
           </p>
           
           <div className="flex items-center gap-2">
