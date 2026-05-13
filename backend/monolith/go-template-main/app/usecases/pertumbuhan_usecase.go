@@ -366,7 +366,6 @@ func (m *Main) AddCatatanPertumbuhan(req *models.CreatePertumbuhanRequest) error
 	return nil
 }
 
-
 // GetPertumbuhanChart returns riwayat + standar data for the frontend GrowthChart component.
 // Response shape: { riwayat: [...], standar_bb_u: [...], standar_tb_u: [...] }
 func (m *Main) GetPertumbuhanChart(anakID uint) (map[string]interface{}, error) {

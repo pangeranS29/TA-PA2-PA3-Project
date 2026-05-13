@@ -116,7 +116,7 @@ func (u *lembarPemantauanUsecase) CreateForIbu(req models.LembarPemantauanReques
 		return nil, ErrLembarPemantauanForbidden
 	}
 
-	req.NamaPemeriksa = "Orang Tua" // Hardcode jika yang isi ibu
+	req.NamaPemeriksa = "-" // Hardcode jika yang isi ibu
 	return u.Create(req)
 }
 

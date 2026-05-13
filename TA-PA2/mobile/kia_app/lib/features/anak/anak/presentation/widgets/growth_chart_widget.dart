@@ -3,6 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:ta_pa2_pa3_project/features/anak/pertumbuhan/data/models/master_standar_model.dart';
 import 'package:ta_pa2_pa3_project/features/anak/pertumbuhan/data/models/pertumbuhan_model.dart';
 
+class _C {
+  static const primary = Color(0xFF1A73E8);
+  static const accent = Color(0xFF34A853);
+  static const warning = Color(0xFFF9AB00);
+  static const danger = Color(0xFFD93025);
+  static const border = Color(0xFFE0E7F0);
+  static const textSub = Color(0xFF6B7C93);
+  static const zone = Color(0xFFE3F2FD); // zona normal (±2 SD)
+  static const zoneEdge = Color(0xFF90CAF9);
+}
+
 class GrowthChartWidget extends StatelessWidget {
   final List<PertumbuhanModel> riwayatPertumbuhan;
   final List<MasterStandarModel> masterStandar;
@@ -63,6 +74,13 @@ class GrowthChartWidget extends StatelessWidget {
     }
   }
 
+  Color _dotStrokeFromZ(double z) {
+    final az = z.abs();
+    if (az <= 2) return _C.accent;
+    if (az <= 3) return _C.warning;
+    return _C.danger;
+  }
+
   /// Helper untuk garis standar WHO
   List<FlSpot> _getLine(double Function(MasterStandarModel) selector) {
     if (masterStandar.isEmpty) return [];
@@ -71,30 +89,49 @@ class GrowthChartWidget extends StatelessWidget {
 
   /// Menentukan batas maksimal/minimal grafik agar pas di layar
   Map<String, dynamic> _getAxisRanges() {
-    double minX = selectedTab == 'BB/TB' ? 45.0 : 0.0;
-    double maxX = selectedTab == 'BB/TB' ? 120.0 : (masterStandar.isNotEmpty ? masterStandar.last.nilaiSumbuX : 60.0);
-    double minY = double.infinity;
-    double maxY = 0;
-
+    const xBufferMonth = 2.0;
+    const xBufferCm = 5.0;
     final childData = _getChildDataLine();
+
+    double minX;
+    double maxX;
+    if (selectedTab == 'BB/TB') {
+      minX = 45.0;
+      final masterMax = masterStandar.isNotEmpty ? masterStandar.last.nilaiSumbuX : 120.0;
+      final lastX = childData.isNotEmpty ? childData.last.x : minX;
+      maxX = (lastX + xBufferCm) > masterMax ? (lastX + xBufferCm) : masterMax;
+      if (maxX < 120.0) maxX = 120.0;
+    } else {
+      minX = 0.0;
+      final masterMax = masterStandar.isNotEmpty ? masterStandar.last.nilaiSumbuX : 60.0;
+      final lastX = childData.isNotEmpty ? childData.last.x : 0.0;
+      maxX = (lastX + xBufferMonth) > masterMax ? (lastX + xBufferMonth) : masterMax;
+      if (maxX < 24.0) maxX = 24.0;
+    }
+
+    double minY = double.infinity;
+    double maxY = -double.infinity;
     final allSpots = [
       ..._getLine((m) => m.sd3Neg),
       ..._getLine((m) => m.sd3Pos),
-      ...childData
+      ...childData,
     ];
 
-    if (allSpots.isEmpty) return {'minX': 0.0, 'maxX': 60.0, 'minY': 0.0, 'maxY': 20.0};
+    if (allSpots.isEmpty) {
+      return {'minX': minX, 'maxX': maxX, 'minY': 0.0, 'maxY': 20.0};
+    }
 
     for (final spot in allSpots) {
       if (spot.y < minY) minY = spot.y;
       if (spot.y > maxY) maxY = spot.y;
     }
 
+    final pad = (maxY - minY) <= 5 ? 1.5 : 2.5;
     return {
       'minX': minX,
       'maxX': maxX,
-      'minY': (minY - 2).clamp(0.0, double.infinity),
-      'maxY': maxY + 2
+      'minY': (minY - pad).clamp(0.0, double.infinity),
+      'maxY': maxY + pad,
     };
   }
 
@@ -104,149 +141,179 @@ class GrowthChartWidget extends StatelessWidget {
     final sortedRiwayat = _sortedRiwayat;
     final ranges = _getAxisRanges();
 
-    // Setup Bar/Garis
-    final barData = [
-      LineChartBarData(spots: _getLine((m) => m.sd3Neg), color: Colors.black54, barWidth: 1.5, isCurved: true, dashArray: [5, 5], dotData: const FlDotData(show: false)),
-      LineChartBarData(spots: _getLine((m) => m.sd3Pos), color: Colors.black54, barWidth: 1.5, isCurved: true, dashArray: [5, 5], dotData: const FlDotData(show: false)),
-      LineChartBarData(spots: _getLine((m) => m.sd2Neg), color: Colors.red.withOpacity(0.6), barWidth: 1.5, isCurved: true, dashArray: [4, 4], dotData: const FlDotData(show: false)),
-      LineChartBarData(spots: _getLine((m) => m.sd2Pos), color: Colors.red.withOpacity(0.6), barWidth: 1.5, isCurved: true, dashArray: [4, 4], dotData: const FlDotData(show: false)),
-      LineChartBarData(spots: _getLine((m) => m.median), color: const Color(0xFF22C55E), barWidth: 2, isCurved: true, dotData: const FlDotData(show: false)),
-      
-      // Index 5: Data Anak (Garis Biru)
+    // Order penting untuk shading zone (betweenBarsData)
+    final barData = <LineChartBarData>[
+      // +2 SD (index 0)
+      LineChartBarData(
+        spots: _getLine((m) => m.sd2Pos),
+        color: _C.zoneEdge,
+        barWidth: 1.3,
+        isCurved: true,
+        dashArray: [6, 4],
+        dotData: const FlDotData(show: false),
+      ),
+      // -2 SD (index 1)
+      LineChartBarData(
+        spots: _getLine((m) => m.sd2Neg),
+        color: _C.zoneEdge,
+        barWidth: 1.3,
+        isCurved: true,
+        dashArray: [6, 4],
+        dotData: const FlDotData(show: false),
+      ),
+      // +3 SD (index 2)
+      LineChartBarData(
+        spots: _getLine((m) => m.sd3Pos),
+        color: _C.danger.withOpacity(0.75),
+        barWidth: 1.6,
+        isCurved: true,
+        dashArray: [8, 5],
+        dotData: const FlDotData(show: false),
+      ),
+      // -3 SD (index 3)
+      LineChartBarData(
+        spots: _getLine((m) => m.sd3Neg),
+        color: _C.danger.withOpacity(0.75),
+        barWidth: 1.6,
+        isCurved: true,
+        dashArray: [8, 5],
+        dotData: const FlDotData(show: false),
+      ),
+      // Median (index 4)
+      LineChartBarData(
+        spots: _getLine((m) => m.median),
+        color: _C.accent,
+        barWidth: 1.6,
+        isCurved: true,
+        dashArray: [6, 4],
+        dotData: const FlDotData(show: false),
+      ),
+      // Data Anak (index 5)
       if (childData.isNotEmpty)
         LineChartBarData(
           spots: childData,
-          color: const Color(0xFF2563EB),
-          barWidth: 2.5,
-          isCurved: false, // Dibikin lurus seperti Gambar 1
+          color: _C.primary,
+          barWidth: 2.8,
+          isCurved: true,
+          curveSmoothness: 0.25,
+          shadow: const Shadow(
+            color: Color(0x331A73E8),
+            blurRadius: 8,
+            offset: Offset(0, 2),
+          ),
           dotData: FlDotData(
             show: true,
-            getDotPainter: (spot, percent, barData, index) => FlDotCirclePainter(
-              radius: 4, color: const Color(0xFF2563EB), strokeWidth: 2, strokeColor: Colors.white,
-            ),
+            getDotPainter: (spot, _, __, ___) {
+              final eps = selectedTab == 'BB/TB' ? 0.05 : 0.001;
+              final match = sortedRiwayat.firstWhere(
+                (r) {
+                  final x = selectedTab == 'BB/TB'
+                      ? r.tinggiBadan
+                      : r.usiaUkurBulan.toDouble();
+                  return (x - spot.x).abs() <= eps;
+                },
+                orElse: () => sortedRiwayat.first,
+              );
+              final z = _getZScoreForTab(match);
+              final stroke = _dotStrokeFromZ(z);
+              return FlDotCirclePainter(
+                radius: 5.2,
+                color: Colors.white,
+                strokeWidth: 2.8,
+                strokeColor: stroke,
+              );
+            },
           ),
         ),
     ];
 
-    // Ambil index keberapa garis anak berada
-    final int childBarIndex = barData.length - 1;
+    // Jika masterStandar kosong, kita tetap menggambar data anak saja.
+    // _getLine() dan helper lain sudah aman menangani daftar kosong.
 
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10)],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text('Grafik Pertumbuhan', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87)),
-          const SizedBox(height: 16),
-          AspectRatio(
-            aspectRatio: 1.5,
-            child: masterStandar.isEmpty 
-              ? Center(child: Text("Data standar $selectedTab belum tersedia", style: const TextStyle(color: Colors.grey)))
-              : LineChart(
-                  LineChartData(
-                    gridData: FlGridData(
-                      show: true,
-                      drawVerticalLine: true,
-                      getDrawingHorizontalLine: (value) => FlLine(color: Colors.grey.withOpacity(0.2), strokeWidth: 0.5),
-                      getDrawingVerticalLine: (value) => FlLine(color: Colors.grey.withOpacity(0.2), strokeWidth: 0.5),
-                    ),
-                    titlesData: FlTitlesData(
-                      rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                      topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                      bottomTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          reservedSize: 30,
-                          getTitlesWidget: (value, meta) => Padding(
-                            padding: const EdgeInsets.only(top: 8.0),
-                            child: Text(value.toInt().toString(), style: const TextStyle(fontSize: 10, color: Colors.grey)),
-                          ),
-                        ),
-                      ),
-                      leftTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          reservedSize: 40,
-                          getTitlesWidget: (value, meta) => Text(value.toStringAsFixed(1), style: const TextStyle(fontSize: 10, color: Colors.grey)),
-                        ),
-                      ),
-                    ),
-                    borderData: FlBorderData(
-                      show: true,
-                      border: Border(left: BorderSide(color: Colors.grey.shade300), bottom: BorderSide(color: Colors.grey.shade300)),
-                    ),
-                    minX: ranges['minX'], maxX: ranges['maxX'], minY: ranges['minY'], maxY: ranges['maxY'],
-                    
-                    // KONFIGURASI TOOLTIP (Teks melayang)
-                    lineTouchData: LineTouchData(
-                      enabled: false, // Matikan interaksi sentuh agar tidak muncul titik aneh pada garis standar (Gambar 2)
-                      touchTooltipData: LineTouchTooltipData(
-                        getTooltipColor: (_) => Colors.transparent, // Background tembus pandang (Seperti gambar 1)
-                        tooltipPadding: const EdgeInsets.only(bottom: 2),
-                        tooltipMargin: 4,
-                        getTooltipItems: (touchedSpots) {
-                          return touchedSpots.map((spot) {
-                            // Ambil ZScore dari data asli
-                            final dataAsli = sortedRiwayat[spot.spotIndex];
-                            final zScore = _getZScoreForTab(dataAsli);
-                            
-                            // Format: Nilai Aktual \n Z-Score
-                            return LineTooltipItem(
-                              '${spot.y.toStringAsFixed(2)}\n(Z: ${zScore.toStringAsFixed(2)})',
-                              const TextStyle(
-                                color: Color(0xFF2563EB), // Warna biru sama seperti garis data anak
-                                fontWeight: FontWeight.bold, 
-                                fontSize: 11,
-                                height: 1.2,
-                              ),
-                            );
-                          }).toList();
-                        },
-                      ),
-                    ),
-                    // TAMPILKAN TEKS SECARA PERMANEN (Tidak perlu disentuh)
-                    showingTooltipIndicators: childData.isNotEmpty 
-                      ? childData.asMap().entries.map((entry) {
-                          return ShowingTooltipIndicators([
-                            LineBarSpot(barData[childBarIndex], childBarIndex, entry.value),
-                          ]);
-                        }).toList()
-                      : [],
-                    lineBarsData: barData,
-                  ),
-                ),
+    // Interval X sederhana biar label tidak bertumpuk
+    final xRange = (ranges['maxX'] as double) - (ranges['minX'] as double);
+    final xInterval = selectedTab == 'BB/TB'
+        ? (xRange <= 40 ? 5.0 : 10.0)
+        : (xRange <= 24 ? 2.0 : xRange <= 60 ? 6.0 : 12.0);
+
+    return LineChart(
+      LineChartData(
+        minX: ranges['minX'],
+        maxX: ranges['maxX'],
+        minY: ranges['minY'],
+        maxY: ranges['maxY'],
+        clipData: const FlClipData.all(),
+        gridData: FlGridData(
+          show: true,
+          drawVerticalLine: true,
+          horizontalInterval: 1,
+          verticalInterval: xInterval,
+          getDrawingHorizontalLine: (_) => FlLine(
+            color: _C.border.withOpacity(0.7),
+            strokeWidth: 0.8,
           ),
-          const SizedBox(height: 16),
-          Wrap(
-            spacing: 16,
-            runSpacing: 8,
-            children: [
-              _buildLegendItem('Median', Colors.green, false),
-              _buildLegendItem('Data Anak', const Color(0xFF2563EB), false),
-              _buildLegendItem('±2 SD', Colors.red, true),
-              _buildLegendItem('±3 SD', Colors.black54, true),
-            ],
+          getDrawingVerticalLine: (_) => FlLine(
+            color: _C.border.withOpacity(0.4),
+            strokeWidth: 0.8,
           ),
-          const SizedBox(height: 12),
-          Text('Sumbu X: $xAxisLabel | Sumbu Y: $yAxisLabel', style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
+        ),
+        titlesData: FlTitlesData(
+          leftTitles: AxisTitles(
+            axisNameWidget: Padding(
+              padding: const EdgeInsets.only(bottom: 4),
+              child: Text(
+                yAxisLabel,
+                style: const TextStyle(fontSize: 9, color: _C.textSub),
+              ),
+            ),
+            sideTitles: SideTitles(
+              showTitles: true,
+              reservedSize: 44,
+              getTitlesWidget: (v, _) => Text(
+                v.toStringAsFixed(0),
+                style: const TextStyle(fontSize: 10, color: _C.textSub),
+              ),
+            ),
+          ),
+          bottomTitles: AxisTitles(
+            axisNameWidget: Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Text(
+                xAxisLabel,
+                style: const TextStyle(fontSize: 9, color: _C.textSub),
+              ),
+            ),
+            sideTitles: SideTitles(
+              showTitles: true,
+              reservedSize: 28,
+              interval: xInterval,
+              getTitlesWidget: (v, _) => Text(
+                v.toInt().toString(),
+                style: const TextStyle(fontSize: 10, color: _C.textSub),
+              ),
+            ),
+          ),
+          topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+        ),
+        borderData: FlBorderData(
+          show: true,
+          border: const Border(
+            left: BorderSide(color: _C.border, width: 1),
+            bottom: BorderSide(color: _C.border, width: 1),
+          ),
+        ),
+        betweenBarsData: [
+          BetweenBarsData(
+            fromIndex: 0,
+            toIndex: 1,
+            color: _C.zone.withOpacity(0.8),
+          ),
         ],
+        lineBarsData: barData,
+        lineTouchData: LineTouchData(enabled: false),
       ),
-    );
-  }
-
-  Widget _buildLegendItem(String label, Color color, bool isDashed) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(width: 16, height: 3, decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(2))),
-        const SizedBox(width: 6),
-        Text(label, style: const TextStyle(fontSize: 12, color: Colors.grey)),
-      ],
+      duration: const Duration(milliseconds: 350),
     );
   }
 }
