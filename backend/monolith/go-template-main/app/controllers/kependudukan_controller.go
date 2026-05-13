@@ -40,7 +40,6 @@ type createKependudukanRequest struct {
 	TujuanPindah       string `json:"tujuan_pindah"`
 	TempatMeninggal    string `json:"tempat_meninggal"`
 	Keterangan         string `json:"keterangan"`
-	NomorTelepon       string `json:"nomor_telepon"`
 }
 
 func (c *KependudukanController) Create(ctx echo.Context) error {
@@ -91,7 +90,6 @@ func (c *KependudukanController) Create(ctx echo.Context) error {
 		TujuanPindah:       req.TujuanPindah,
 		TempatMeninggal:    req.TempatMeninggal,
 		Keterangan:         req.Keterangan,
-		NomorTelepon:       req.NomorTelepon,
 	}
 
 	data, err := c.usecase.Create(k)
@@ -199,9 +197,6 @@ func (c *KependudukanController) Update(ctx echo.Context) error {
 	}
 	if req.Keterangan != "" {
 		existing.Keterangan = req.Keterangan
-	}
-	if req.NomorTelepon != "" {
-		existing.NomorTelepon = req.NomorTelepon
 	}
 	if err := c.usecase.Update(existing); err != nil {
 		return ctx.JSON(http.StatusInternalServerError, models.Response{StatusCode: http.StatusInternalServerError, Message: err.Error()})
