@@ -136,7 +136,7 @@ func Init(opts Options) *Main {
 	m.SkriningDMGestasional = NewSkriningDMGestasionalUsecase(opts.Repository.SkriningDMGestasional)
 	m.SkriningPreeklampsia = NewSkriningPreeklampsiaUsecase(opts.Repository.SkriningPreeklampsia)
 	m.PelayananIbuNifas = NewPelayananIbuNifasUsecase(opts.Repository.PelayananIbuNifas)
-	m.Ibu = NewIbuUsecase(opts.Repository.Ibu)
+	m.Ibu = NewIbuUsecase(opts.Repository.Ibu, opts.Repository.Kependudukan)
 	m.RiwayatKehamilanLalu = NewRiwayatKehamilanLaluUsecase(opts.Repository.RiwayatKehamilanLalu)
 	m.Kependudukan = NewKependudukanUsecase(opts.Repository.Kependudukan)
 	// m.RegisterOrangTua = NewRegisterOrangTuaUsecase(
