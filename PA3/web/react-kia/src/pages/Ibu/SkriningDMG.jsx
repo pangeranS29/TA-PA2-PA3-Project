@@ -1,6 +1,7 @@
 // src/pages/Ibu/SkriningDMGestasional.jsx
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
+import Swal from "sweetalert2";
 import MainLayout from "../../components/Layout/MainLayout";
 import { getKehamilanByIbuId } from "../../services/kehamilan";
 import { getSkriningDMByKehamilanId, createSkriningDM, updateSkriningDM } from "../../services/rujukanService";
@@ -38,6 +39,12 @@ export default function SkriningDMGestasional() {
       const kehamilanList = await getKehamilanByIbuId(ibuId);
       if (!kehamilanList.length) {
         alert("Ibu belum memiliki data kehamilan.");
+        Swal.fire({
+          icon: 'info',
+          title: 'Informasi',
+          text: 'Ibu belum memiliki data kehamilan.',
+          confirmButtonColor: '#4f46e5'
+        });
         navigate(`/data-ibu/${ibuId}`);
         return;
       }
@@ -47,6 +54,11 @@ export default function SkriningDMGestasional() {
         targetKehamilan = kehamilanList.find(k => k.id == kehamilanId);
         if (!targetKehamilan) {
           alert(`Kehamilan dengan ID ${kehamilanId} tidak ditemukan.`);
+          Swal.fire({
+            icon: 'error',
+            title: 'Tidak Ditemukan',
+            text: `Kehamilan dengan ID ${kehamilanId} tidak ditemukan.`
+          });
           navigate(`/data-ibu/${ibuId}`);
           return;
         }
@@ -78,6 +90,7 @@ export default function SkriningDMGestasional() {
     } catch (err) {
       console.error(err);
       alert("Gagal memuat data skrining DM.");
+      Swal.fire('Error', 'Gagal memuat data skrining DM.', 'error');
     } finally {
       setLoading(false);
     }
@@ -117,12 +130,23 @@ export default function SkriningDMGestasional() {
       } else {
         await createSkriningDM(payload);
       }
-      alert("Skrining DM Gestasional berhasil disimpan.");
+      await Swal.fire({
+        icon: 'success',
+        title: 'Berhasil',
+        text: 'Skrining DM Gestasional berhasil disimpan.',
+        timer: 2000,
+        showConfirmButton: false
+      });
+      
       await fetchData();
       setShowForm(false);
     } catch (err) {
       console.error(err);
-      alert("Gagal menyimpan data skrining DM. Silakan coba lagi.");
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Gagal menyimpan data skrining DM. Silakan coba lagi.'
+      });
     } finally {
       setSaving(false);
     }

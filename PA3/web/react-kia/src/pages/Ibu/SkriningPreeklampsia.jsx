@@ -1,6 +1,7 @@
 // src/pages/Ibu/SkriningPreeklampsia.jsx
 import React, { useEffect, useState } from "react";
 import { useParams, useSearchParams, useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 import MainLayout from "../../components/Layout/MainLayout";
 import { getKehamilanByIbuId } from "../../services/kehamilan";
 import { getSkriningByKehamilanId, createSkrining, updateSkrining } from "../../services/skrining";
@@ -64,7 +65,12 @@ export default function SkriningPreeklampsia() {
         setLoading(true);
         const kehamilanList = await getKehamilanByIbuId(ibuId);
         if (!kehamilanList.length) {
-          alert("Ibu belum memiliki data kehamilan.");
+          Swal.fire({
+            icon: 'info',
+            title: 'Data Tidak Tersedia',
+            text: 'Ibu belum memiliki data kehamilan.',
+            confirmButtonColor: '#185FA5'
+          });
           navigate(`/data-ibu/${ibuId}`);
           return;
         }
@@ -73,7 +79,11 @@ export default function SkriningPreeklampsia() {
         if (kehamilanId) {
           targetKehamilan = kehamilanList.find((k) => k.id == kehamilanId);
           if (!targetKehamilan) {
-            alert(`Kehamilan dengan ID ${kehamilanId} tidak ditemukan.`);
+            Swal.fire({
+              icon: 'error',
+              title: 'Tidak Ditemukan',
+              text: `Kehamilan dengan ID ${kehamilanId} tidak ditemukan.`
+            });
             navigate(`/data-ibu/${ibuId}`);
             return;
           }
@@ -97,7 +107,11 @@ export default function SkriningPreeklampsia() {
         setIsEditing(canEdit && isEditMode);
       } catch (err) {
         console.error(err);
-        alert("Gagal memuat data. Silakan coba lagi.");
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Gagal memuat data. Silakan coba lagi.'
+        });
       } finally {
         setLoading(false);
       }
@@ -114,11 +128,19 @@ export default function SkriningPreeklampsia() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!canEdit) {
-      alert("Anda tidak memiliki izin untuk mengubah data.");
+      Swal.fire({
+        icon: 'error',
+        title: 'Akses Ditolak',
+        text: 'Anda tidak memiliki izin untuk mengubah data.'
+      });
       return;
     }
     if (!kehamilan) {
-      alert("Data kehamilan tidak ditemukan.");
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Data kehamilan tidak ditemukan.'
+      });
       return;
     }
     setSaving(true);
@@ -136,13 +158,24 @@ export default function SkriningPreeklampsia() {
         const newSkrining = await createSkrining(payload);
         setSkrining(newSkrining);
       }
-      alert("Skrining preeklampsia berhasil disimpan!");
+      await Swal.fire({
+        icon: 'success',
+        title: 'Berhasil',
+        text: 'Skrining preeklampsia berhasil disimpan!',
+        timer: 2000,
+        showConfirmButton: false
+      });
+      
       setIsEditing(false);
       const refreshed = await getSkriningByKehamilanId(kehamilan.id);
       if (refreshed && refreshed.length > 0) setSkrining(refreshed[0]);
     } catch (err) {
       console.error(err);
-      alert(`Gagal menyimpan: ${err.response?.data?.message || err.message}`);
+      Swal.fire({
+        icon: 'error',
+        title: 'Gagal Menyimpan',
+        text: err.response?.data?.message || err.message || 'Terjadi kesalahan.'
+      });
     } finally {
       setSaving(false);
     }

@@ -1,6 +1,7 @@
 // src/pages/Ibu/PemeriksaanKehamilanForm.jsx
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, useSearchParams, Link } from "react-router-dom";
+import Swal from "sweetalert2";
 import MainLayout from "../../components/Layout/MainLayout";
 import { 
   getPemeriksaanKehamilanById, 
@@ -164,7 +165,12 @@ export default function PemeriksaanKehamilanForm() {
       setStep(step + 1);
       setErrors({});
     } else {
-      alert("Mohon lengkapi data yang masih bermasalah.");
+      Swal.fire({
+        icon: 'error',
+        title: 'Validasi Gagal',
+        text: 'Mohon perbaiki data yang masih bermasalah sebelum melanjutkan.',
+        confirmButtonColor: '#4f46e5'
+      });
     }
   };
 
@@ -295,7 +301,12 @@ export default function PemeriksaanKehamilanForm() {
     const step2Valid = validateStep2();
     const step3Valid = validateStep3();
     if (!step1Valid || !step2Valid || !step3Valid) {
-      alert("Masih ada data yang belum lengkap atau tidak valid. Periksa kembali.");
+      Swal.fire({
+        icon: 'warning',
+        title: 'Data Belum Lengkap',
+        text: 'Masih ada data yang belum lengkap atau tidak valid. Periksa kembali.',
+        confirmButtonColor: '#4f46e5'
+      });
       if (!step1Valid) setStep(1);
       else if (!step2Valid) setStep(2);
       return;
@@ -306,15 +317,27 @@ export default function PemeriksaanKehamilanForm() {
       const payload = buildPayload();
       if (isEdit) {
         await updatePemeriksaanKehamilan(periksaId, payload);
-        alert("Pemeriksaan ANC berhasil diperbarui");
+        await Swal.fire({
+          icon: 'success',
+          title: 'Berhasil',
+          text: 'Pemeriksaan ANC berhasil diperbarui',
+          timer: 2000,
+          showConfirmButton: false
+        });
       } else {
         await createPemeriksaanKehamilan(payload);
-        alert("Pemeriksaan ANC berhasil disimpan");
+        await Swal.fire({
+          icon: 'success',
+          title: 'Berhasil',
+          text: 'Pemeriksaan ANC berhasil disimpan',
+          timer: 2000,
+          showConfirmButton: false
+        });
       }
       navigate(`/data-ibu/${ibuId}/pemeriksaan-rutin?kehamilan_id=${kehamilanId}`);
     } catch (err) {
       console.error(err);
-      alert("Gagal menyimpan data pemeriksaan");
+      Swal.fire('Error', 'Gagal menyimpan data pemeriksaan', 'error');
     } finally {
       setSaving(false);
     }

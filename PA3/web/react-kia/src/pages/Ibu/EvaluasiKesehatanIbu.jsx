@@ -1,6 +1,7 @@
 // src/pages/Ibu/EvaluasiKesehatanIbu.jsx
 import React, { useEffect, useState, useMemo } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
+import Swal from "sweetalert2";
 import MainLayout from "../../components/Layout/MainLayout";
 import { getKehamilanByIbuId } from "../../services/kehamilan";
 import {
@@ -304,11 +305,23 @@ const EvaluationView = ({
           <div className="mt-5 pt-4 border-t">
             <button
               type="button"
-              onClick={() => {
-                const tahun = prompt("Masukkan tahun (contoh: 2022):");
-                const proses = prompt("Proses melahirkan (normal/caesar/dll):");
-                if (tahun && proses) {
-                  handleAddRiwayat({ tahun, proses_melahirkan: proses });
+              onClick={async () => {
+                const { value: formValues } = await Swal.fire({
+                  title: 'Tambah Riwayat Kehamilan',
+                  html:
+                    '<input id="swal-input1" class="swal2-input" placeholder="Tahun (contoh: 2022)">' +
+                    '<input id="swal-input2" class="swal2-input" placeholder="Proses (Normal/SC)">',
+                  focusConfirm: false,
+                  preConfirm: () => {
+                    return [
+                      document.getElementById('swal-input1').value,
+                      document.getElementById('swal-input2').value
+                    ]
+                  }
+                });
+
+                if (formValues && formValues[0] && formValues[1]) {
+                  handleAddRiwayat({ tahun: formValues[0], proses_melahirkan: formValues[1] });
                 }
               }}
               className="text-[#185FA5] hover:text-[#185FA5]/80 text-base font-medium flex items-center gap-2"
@@ -890,7 +903,12 @@ export default function EvaluasiKesehatanIbu() {
         setLoading(true);
         const kehamilanList = await getKehamilanByIbuId(ibuId);
         if (!kehamilanList || kehamilanList.length === 0) {
-          alert("Ibu belum memiliki data kehamilan.");
+          Swal.fire({
+            icon: 'info',
+            title: 'Data Tidak Tersedia',
+            text: 'Ibu belum memiliki data kehamilan.',
+            confirmButtonColor: '#185FA5'
+          });
           navigate(`/data-ibu/${ibuId}`);
           return;
         }
@@ -898,7 +916,11 @@ export default function EvaluasiKesehatanIbu() {
         if (kehamilanId) {
           targetKehamilan = kehamilanList.find((k) => k.id == kehamilanId);
           if (!targetKehamilan) {
-            alert(`Kehamilan dengan ID ${kehamilanId} tidak ditemukan.`);
+            Swal.fire({
+              icon: 'error',
+              title: 'Tidak Ditemukan',
+              text: `Kehamilan dengan ID ${kehamilanId} tidak ditemukan.`
+            });
             navigate(`/data-ibu/${ibuId}`);
             return;
           }
@@ -1033,7 +1055,11 @@ export default function EvaluasiKesehatanIbu() {
         }
       } catch (err) {
         console.error(err);
-        alert("Gagal memuat data. Silakan coba lagi.");
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Gagal memuat data. Silakan coba lagi.'
+        });
       } finally {
         setLoading(false);
       }
@@ -1076,15 +1102,20 @@ export default function EvaluasiKesehatanIbu() {
   const handleSubmitEvaluasi = async (e) => {
     e.preventDefault();
     if (!canEdit) {
-      alert("Tidak dapat mengedit karena kehamilan sudah selesai (NON-AKTIF).");
+      Swal.fire('Akses Dibatasi', 'Tidak dapat mengubah data karena kehamilan sudah selesai.', 'warning');
       return;
     }
     if (!kehamilan) {
-      alert("Kehamilan tidak ditemukan");
+      Swal.fire('Error', 'Kehamilan tidak ditemukan', 'error');
       return;
     }
     if (!validateForm()) {
-      alert("Mohon perbaiki data yang bermasalah.");
+      Swal.fire({
+        icon: 'warning',
+        title: 'Validasi Gagal',
+        text: 'Mohon perbaiki data yang bermasalah sebelum menyimpan.',
+        confirmButtonColor: '#185FA5'
+      });
       return;
     }
     setSaving(true);
@@ -1105,9 +1136,15 @@ export default function EvaluasiKesehatanIbu() {
       }
       setEvaluasi(savedEvaluasi);
       setIsEditing(false);
-      alert("Evaluasi kesehatan ibu berhasil disimpan");
+      Swal.fire({
+        icon: 'success',
+        title: 'Berhasil',
+        text: 'Evaluasi kesehatan ibu berhasil disimpan',
+        timer: 2000,
+        showConfirmButton: false
+      });
     } catch (err) {
-      alert("Gagal menyimpan evaluasi. Periksa koneksi Anda.");
+      Swal.fire('Gagal Menyimpan', 'Periksa koneksi Anda atau hubungi admin.', 'error');
       console.error(err);
     } finally {
       setSaving(false);
@@ -1116,17 +1153,17 @@ export default function EvaluasiKesehatanIbu() {
 
   const handleAddRiwayat = async (data = null) => {
     if (!canEdit) {
-      alert("Tidak dapat menambah riwayat karena kehamilan sudah selesai (NON-AKTIF).");
+      Swal.fire('Akses Dibatasi', 'Tidak dapat menambah riwayat karena kehamilan sudah selesai.', 'warning');
       return;
     }
     if (!evaluasi) {
-      alert("Simpan evaluasi terlebih dahulu sebelum menambah riwayat.");
+      Swal.fire('Perhatian', 'Simpan evaluasi terlebih dahulu sebelum menambah riwayat.', 'info');
       return;
     }
 
     const current = data || formRiwayat;
     if (!current.tahun || !current.proses_melahirkan) {
-      alert("Tahun dan Proses Melahirkan wajib diisi.");
+      Swal.fire('Data Tidak Lengkap', 'Tahun dan Proses Melahirkan wajib diisi.', 'warning');
       return;
     }
     try {
@@ -1149,9 +1186,15 @@ export default function EvaluasiKesehatanIbu() {
         penolong_proses_melahirkan: "",
         masalah: "",
       });
-      alert("Riwayat kehamilan lalu berhasil ditambahkan");
+      Swal.fire({
+        icon: 'success',
+        title: 'Riwayat Ditambahkan',
+        text: 'Riwayat kehamilan lalu berhasil disimpan',
+        timer: 1500,
+        showConfirmButton: false
+      });
     } catch (err) {
-      alert("Gagal menambahkan riwayat. Periksa data Anda.");
+      Swal.fire('Error', 'Gagal menambahkan riwayat. Periksa data Anda.', 'error');
       console.error(err);
     }
   };
