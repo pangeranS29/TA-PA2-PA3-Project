@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ta_pa2_pa3_project/core/services/auth_session.dart';
 import 'package:ta_pa2_pa3_project/features/kader/screens/imunisasi_anak.dart';
+import 'package:ta_pa2_pa3_project/features/kader/screens/profil_screen.dart';
 import 'package:ta_pa2_pa3_project/features/kader/widgets/dashboard_header.dart';
 import 'package:ta_pa2_pa3_project/features/kader/widgets/dashboard_bottom_nav.dart';
 
@@ -78,17 +79,16 @@ class _DashboardKaderScreenState extends State<DashboardKaderScreen> {
 
     Widget body;
 
-// Di dalam build method, pastikan switch sesuai dengan 3 item
     switch (_selectedNavIndex) {
       case 0:
-        body = _buildHomeBody(); // Indeks 0: Beranda
+        body = _buildHomeBody();
         break;
       case 1:
         body =
-            const Center(child: Text('Data Imunisasi')); // Indeks 1: Imunisasi
+            const Center(child: Text('Data Imunisasi')); 
         break;
       case 2:
-        body = const Center(child: Text('Profil Kader')); // Indeks 2: Profil
+        body =  const ProfilScreen();
         break;
       default:
         body = _buildHomeBody();
@@ -141,8 +141,8 @@ class _DashboardKaderScreenState extends State<DashboardKaderScreen> {
                 ),
                 const SizedBox(height: 10),
                 _buildEscalationCard(
-                  title: 'Imunisasi Terlewat: Siti Aminah',
-                  desc: 'Jadwal MR/Campak terlewat selama 3 hari.',
+                  title: 'Imunisasi Terlewat: Randi',
+                  desc: 'Jadwal MR (Campak Rubella) terlewat selama 3 hari.',
                   level: 'Sedang',
                   icon: Icons.history_toggle_off_rounded,
                   onTap: () {
@@ -159,7 +159,7 @@ class _DashboardKaderScreenState extends State<DashboardKaderScreen> {
 
                 /// 3. RINGKASAN DESA (Huta Bulu Mejan)
                 const Text(
-                  'Ringkasan Desa (Huta Bulu Mejan)',
+                  'Ringkasan Desa Huta Bulu Mejan',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 12),
@@ -174,7 +174,7 @@ class _DashboardKaderScreenState extends State<DashboardKaderScreen> {
                     children: [
                       _buildSummaryItem('Ibu Hamil', '12', Colors.pink),
                       _buildSummaryItem('Anak Terdaftar', '45', Colors.blue),
-                      _buildSummaryItem('Imunisasi Telat', '3', Colors.red),
+                      _buildSummaryItem('Imunisasi Terlewat', '3', Colors.red),
                     ],
                   ),
                 ),
@@ -187,29 +187,6 @@ class _DashboardKaderScreenState extends State<DashboardKaderScreen> {
   }
 
   /// WIDGET HELPER UNTUK TUGAS
-  Widget _buildTaskCard(
-      {required String title,
-      required String subtitle,
-      required String time,
-      required IconData icon,
-      required Color color}) {
-    return Card(
-      elevation: 0,
-      margin: const EdgeInsets.only(bottom: 10),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: ListTile(
-        leading: CircleAvatar(
-            backgroundColor: color.withOpacity(0.1),
-            child: Icon(icon, color: color)),
-        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
-        subtitle: Text(subtitle),
-        trailing: Text(time,
-            style: TextStyle(
-                color: Colors.grey.shade600, fontWeight: FontWeight.bold)),
-      ),
-    );
-  }
-
   Widget _buildEscalationCard({
     required String title,
     required String desc,
@@ -276,4 +253,83 @@ class _DashboardKaderScreenState extends State<DashboardKaderScreen> {
       ],
     );
   }
+}
+
+Widget _buildTaskCard({
+  required String title,
+  required String subtitle,
+  required String time,
+  required IconData icon,
+  required Color color,
+}) {
+  return Container(
+    margin: const EdgeInsets.only(bottom: 12),
+    padding: const EdgeInsets.all(14),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(16),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.05),
+          blurRadius: 10,
+          offset: const Offset(0, 4),
+        ),
+      ],
+    ),
+    child: Row(
+      children: [
+        /// ICON BOX
+        Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.12),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Icon(icon, color: color, size: 22),
+        ),
+
+        const SizedBox(width: 12),
+
+        /// TEXT SECTION
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                subtitle,
+                style: TextStyle(
+                  fontSize: 13,
+                  color: Colors.grey.shade600,
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        /// TIME BADGE
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          decoration: BoxDecoration(
+            color: Colors.grey.shade100,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Text(
+            time,
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
 }
