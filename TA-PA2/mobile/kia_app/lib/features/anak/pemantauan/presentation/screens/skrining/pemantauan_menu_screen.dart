@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ta_pa2_pa3_project/features/anak/pemantauan/presentation/screens/skrining/lembar_pemantauan_screen.dart';
+import 'package:ta_pa2_pa3_project/features/anak/pemantauan/presentation/screens/skrining/riwayat_skrining_tanda_bahaya_screen.dart';
 
 class PemantauanMenuScreen extends StatefulWidget {
   final Map<String, dynamic>? anak;
@@ -13,6 +14,8 @@ class PemantauanMenuScreen extends StatefulWidget {
 class _PemantauanMenuScreenState extends State<PemantauanMenuScreen> {
   String get namaAnak => widget.anak?['nama'] ?? 'Si Kecil';
   String get usiaAnak => widget.anak?['usia_teks'] ?? 'Usia tidak diketahui';
+
+  int get _selectedAgeIndex => _resolveAgeIndex(usiaAnak);
 
   static const List<_AgeCardSpec> _ageCards = [
     _AgeCardSpec(
@@ -64,30 +67,36 @@ class _PemantauanMenuScreenState extends State<PemantauanMenuScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF1F5F9),
       appBar: _buildHeader(),
-      body: CustomScrollView(
-        slivers: [
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 24),
-                  _buildAgeInfoCard(),
-                  const SizedBox(height: 20),
-                  _buildSummaryStrip(),
-                  const SizedBox(height: 24),
-                  _buildSectionHeader(),
-                  const SizedBox(height: 14),
-                  _buildAgeGrid(),
-                  const SizedBox(height: 18),
-                  _buildSecondaryActions(),
-                  const SizedBox(height: 40),
-                ],
+      body: SafeArea(
+        child: CustomScrollView(
+          slivers: [
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 24),
+                    _buildAgeInfoCard(),
+                    const SizedBox(height: 20),
+                    _buildSummaryStrip(),
+                    const SizedBox(height: 24),
+                    _buildSectionHeader(),
+                    const SizedBox(height: 14),
+                    _buildAgeGrid(),
+                    const SizedBox(height: 18),
+                    _buildSecondaryActions(),
+                    const SizedBox(height: 18),
+                    _buildPrimaryAction(),
+                    const SizedBox(height: 12),
+                    _buildHistoryAction(),
+                    const SizedBox(height: 40),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -258,95 +267,79 @@ class _PemantauanMenuScreenState extends State<PemantauanMenuScreen> {
   }
 
   Widget _buildAgeCard(_AgeCardSpec card) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
+    final isSelected = _ageCards[_selectedAgeIndex].rentangNama == card.rentangNama;
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
         borderRadius: BorderRadius.circular(24),
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => LembarPemantauanScreen(
-                anak: widget.anak,
-                initialRentangNama: card.rentangNama,
-              ),
-            ),
-          );
-        },
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(24),
-            boxShadow: [
-              BoxShadow(
-                color: card.accent.withOpacity(0.12),
-                blurRadius: 18,
-                offset: const Offset(0, 8),
-              ),
-            ],
-            border: Border.all(color: card.accent.withOpacity(0.14)),
+        boxShadow: [
+          BoxShadow(
+            color: card.accent.withOpacity(0.12),
+            blurRadius: 18,
+            offset: const Offset(0, 8),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+        ],
+        border: Border.all(
+          color: isSelected ? card.accent : card.accent.withOpacity(0.14),
+          width: isSelected ? 1.8 : 1,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
             children: [
-              Row(
-                children: [
-                  Container(
-                    width: 44,
-                    height: 44,
-                    decoration: BoxDecoration(
-                      color: card.accent.withOpacity(0.12),
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Icon(card.icon, color: card.accent, size: 24),
-                  ),
-                  const Spacer(),
-                  Icon(Icons.arrow_forward_rounded,
-                      color: card.accent.withOpacity(0.7)),
-                ],
-              ),
-              const SizedBox(height: 14),
-              Text(
-                card.label,
-                style: const TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w800,
-                  color: Colors.black87,
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: card.accent.withOpacity(0.12),
+                  borderRadius: BorderRadius.circular(16),
                 ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                card.detail,
-                maxLines: 3,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 12.5,
-                  height: 1.45,
-                  color: Colors.grey.shade600,
-                ),
+                child: Icon(card.icon, color: card.accent, size: 24),
               ),
               const Spacer(),
-              // Container(
-              //   width: double.infinity,
-              //   padding: const EdgeInsets.symmetric(vertical: 8),
-              //   decoration: BoxDecoration(
-              //     color: card.accent.withOpacity(0.08),
-              //     borderRadius: BorderRadius.circular(14),
-              //   ),
-              //   // child: Text(
-              //   //   'Buka skrining',
-              //   //   textAlign: TextAlign.center,
-              //   //   style: TextStyle(
-              //   //     fontSize: 12,
-              //   //     fontWeight: FontWeight.w700,
-              //   //     color: card.accent,
-              //   //   ),
-              //   // ),
-              // ),
+              if (isSelected)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: card.accent.withOpacity(0.12),
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: Text(
+                    'Sesuai usia',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: card.accent,
+                    ),
+                  ),
+                ),
             ],
           ),
-        ),
+          const SizedBox(height: 14),
+          Text(
+            card.label,
+            style: const TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w800,
+              color: Colors.black87,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            card.detail,
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 12.5,
+              height: 1.45,
+              color: Colors.grey.shade600,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -376,6 +369,79 @@ class _PemantauanMenuScreenState extends State<PemantauanMenuScreen> {
         ],
       ),
     );
+  }
+
+  Widget _buildPrimaryAction() {
+    final selectedCard = _ageCards[_selectedAgeIndex];
+
+    return SizedBox(
+      width: double.infinity,
+      height: 52,
+      child: FilledButton.icon(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => LembarPemantauanScreen(
+                anak: widget.anak,
+                initialRentangNama: selectedCard.rentangNama,
+              ),
+            ),
+          );
+        },
+        icon: const Icon(Icons.playlist_add_check_rounded),
+        label: const Text('Skrining sekarang'),
+      ),
+    );
+  }
+
+  Widget _buildHistoryAction() {
+    return SizedBox(
+      width: double.infinity,
+      height: 52,
+      child: OutlinedButton.icon(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => RiwayatSkriningTandaBahayaScreen(
+                anak: widget.anak,
+              ),
+            ),
+          );
+        },
+        icon: const Icon(Icons.history_rounded),
+        label: const Text('Riwayat skrining'),
+      ),
+    );
+  }
+
+  int _resolveAgeIndex(String usiaText) {
+    final normalized = usiaText.toLowerCase();
+    final match = RegExp(r'(\d+)\s*(tahun|bulan|hari)').allMatches(normalized).toList();
+
+    int years = 0;
+    int months = 0;
+    int days = 0;
+    for (final item in match) {
+      final value = int.tryParse(item.group(1) ?? '') ?? 0;
+      final unit = item.group(2) ?? '';
+      if (unit.contains('tahun')) {
+        years = value;
+      } else if (unit.contains('bulan')) {
+        months = value;
+      } else if (unit.contains('hari')) {
+        days = value;
+      }
+    }
+
+    final totalDays = (years * 365) + (months * 30) + days;
+    if (totalDays <= 28) return 0;
+    if (totalDays <= 90) return 1;
+    if (totalDays <= 180) return 2;
+    if (totalDays <= 365) return 3;
+    if (totalDays <= 730) return 4;
+    return 5;
   }
 }
 

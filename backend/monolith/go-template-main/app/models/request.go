@@ -286,7 +286,6 @@ type CreatePertumbuhanRequest struct {
 	HasilLila     float64 `json:"hasil_lila,omitempty"`
 	CatatanNakes  string  `json:"catatan_nakes,omitempty"`
 }
-
 type UpdatePertumbuhanRequest struct {
 	TglUkur       string  `json:"tgl_ukur"`
 	BeratBadan    float64 `json:"berat_badan"`
@@ -295,6 +294,7 @@ type UpdatePertumbuhanRequest struct {
 	HasilLila     float64 `json:"hasil_lila,omitempty"`
 	CatatanNakes  string  `json:"catatan_nakes,omitempty"`
 }
+
 type CatatanPertumbuhanResponse struct {
 	ID            uint          `json:"id"`
 	AnakID        uint          `json:"anak_id"`

@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 
 import 'package:ta_pa2_pa3_project/features/anak/anak/data/services/ibu_api_service.dart';
+import 'package:ta_pa2_pa3_project/features/anak/anak/data/models/anak_search_model.dart';
 import 'package:ta_pa2_pa3_project/features/anak/anak/data/models/ibu_anak_model.dart';
 import 'package:ta_pa2_pa3_project/features/anak/imunisasi/presentation/screens/imunisasi_screen.dart';
 // import 'package:ta_pa2_pa3_project/features/anak/mpasi/presentation/screens/halaman_utama_mpasi.dart';
 import 'package:ta_pa2_pa3_project/features/anak/pemantauan/presentation/screens/menu_pemantauan_screen.dart';
-import 'package:ta_pa2_pa3_project/features/anak/pertumbuhan/presentation/screens/detail_pertumbuhan_dummy_screen.dart';
+import 'package:ta_pa2_pa3_project/features/anak/pertumbuhan/presentation/screens/detail_pertumbuhan_screen.dart';
 import 'package:ta_pa2_pa3_project/features/anak/pemantauan/presentation/screens/skrining/pemantauan_menu_screen.dart';
 
 // Import CatatanMenuScreen (Sesuaikan path-nya jika berbeda)
@@ -119,6 +120,15 @@ class _PilihAnakScreenState extends State<PilihAnakScreen> {
 
   Widget _buildItem(BuildContext context, IbuAnakModel anak) {
     final anakMap = anak.toChildMap();
+    final detailPertumbuhanAnak = AnakSearchModel(
+      id: anak.id,
+      noKartuKeluarga: 0,
+      namaAnak: anak.nama,
+      jenisKelamin: anak.jenisKelamin,
+      tanggalLahir: anak.tanggalLahir,
+      beratLahir: 0,
+      tinggiLahir: 0,
+    );
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -209,8 +219,8 @@ class _PilihAnakScreenState extends State<PilihAnakScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => DetailPertumbuhanScreenDummy(
-                      anak: anakMap,
+                    builder: (_) => DetailPertumbuhanScreen(
+                      anak: detailPertumbuhanAnak,
                     ),
                   ),
                 );
