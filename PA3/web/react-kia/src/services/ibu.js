@@ -9,6 +9,10 @@ export const getIbuList = async () => {
   return res.data.data;
 };
 
+export const getIbuByPendudukId = async (pendudukId) => {
+  const response = await api.get(`/tenaga-kesehatan/ibu/by-penduduk/${pendudukId}`);
+  return response.data.data; // bisa null
+}
 export const getIbuDashboard = async () => {
   const res = await api.get(BASE1);
   return res.data.data;

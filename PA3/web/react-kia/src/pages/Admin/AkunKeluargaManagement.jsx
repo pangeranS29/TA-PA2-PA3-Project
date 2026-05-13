@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Loader2, Pencil, RefreshCw, Save, Search, Trash2, UserPlus } from "lucide-react";
 import MainLayout from "../../components/Layout/MainLayout";
 import {
@@ -30,7 +30,6 @@ const emptyMember = {
   tujuan_pindah: "",
   tempat_meninggal: "",
   keterangan: "",
-  nomor_telepon: "",
 };
 
 const cardClass = "bg-white rounded-2xl shadow-sm border border-slate-100";
@@ -44,8 +43,6 @@ const AkunKeluargaManagement = () => {
   const [headerForm, setHeaderForm] = useState({
     no_kk: "",
     tanggal_terbit: "",
-    email: "",
-    akun_penduduk_nik: "",
   });
 
   const [detail, setDetail] = useState(null);
@@ -58,11 +55,6 @@ const AkunKeluargaManagement = () => {
   const [saving, setSaving] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
-
-  const nikOptions = useMemo(() => {
-    if (!detail?.anggota_keluarga) return [];
-    return detail.anggota_keluarga.map((a) => a.nik).filter(Boolean);
-  }, [detail]);
 
   const resetNotice = () => {
     setErrorMessage("");
@@ -79,8 +71,7 @@ const AkunKeluargaManagement = () => {
         sort_by: "created_at",
         sort_dir: "desc",
       };
-      const response = await listKartuKeluargaAdmin(query);
-      const data = response?.data || {};
+      const data = await listKartuKeluargaAdmin(query);
       setListData(Array.isArray(data.items) ? data.items : []);
       setPagination(data.pagination || { page: 1, limit: query.limit, total: 0, total_pages: 0 });
     } catch (error) {
@@ -94,14 +85,11 @@ const AkunKeluargaManagement = () => {
     if (!kartuKeluargaId) return;
     setLoadingDetail(true);
     try {
-      const response = await detailKartuKeluargaAdmin(kartuKeluargaId);
-      const data = response?.data;
+      const data = await detailKartuKeluargaAdmin(kartuKeluargaId);
       setDetail(data);
       setHeaderForm({
         no_kk: data?.no_kk || "",
         tanggal_terbit: data?.tanggal_terbit || "",
-        email: data?.akun?.email || "",
-        akun_penduduk_nik: data?.akun?.akun_penduduk_nik || "",
       });
     } catch (error) {
       setErrorMessage(adminAkunKeluargaErrorMessage(error, "Gagal memuat detail kartu keluarga"));
@@ -132,8 +120,8 @@ const AkunKeluargaManagement = () => {
 
   const handleSaveHeader = async () => {
     if (!selectedKKId) return;
-    if (!headerForm.no_kk || !headerForm.email) {
-      setErrorMessage("No KK dan email wajib diisi");
+    if (!headerForm.no_kk) {
+      setErrorMessage("No KK wajib diisi");
       return;
     }
 
@@ -170,7 +158,6 @@ const AkunKeluargaManagement = () => {
       tujuan_pindah: member.tujuan_pindah || "",
       tempat_meninggal: member.tempat_meninggal || "",
       keterangan: member.keterangan || "",
-      nomor_telepon: member.nomor_telepon || "",
     });
   };
 
@@ -404,30 +391,6 @@ const AkunKeluargaManagement = () => {
                       className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2"
                     />
                   </div>
-                  <div>
-                    <label className="text-sm text-slate-600">Email Akun</label>
-                    <input
-                      type="email"
-                      value={headerForm.email}
-                      onChange={(e) => setHeaderForm((prev) => ({ ...prev, email: e.target.value }))}
-                      className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm text-slate-600">Akun Penduduk NIK</label>
-                    <select
-                      value={headerForm.akun_penduduk_nik}
-                      onChange={(e) => setHeaderForm((prev) => ({ ...prev, akun_penduduk_nik: e.target.value }))}
-                      className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2"
-                    >
-                      <option value="">Pilih anggota</option>
-                      {nikOptions.map((nik) => (
-                        <option key={nik} value={nik}>
-                          {nik}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
                 </div>
 
                 <button
@@ -473,12 +436,6 @@ const AkunKeluargaManagement = () => {
                                 placeholder="Kedudukan keluarga"
                               />
                               <input
-                                value={editMemberForm.nomor_telepon}
-                                onChange={(e) => setEditMemberForm((prev) => ({ ...prev, nomor_telepon: e.target.value }))}
-                                className="rounded-xl border border-slate-200 px-3 py-2"
-                                placeholder="Nomor telepon"
-                              />
-                              <input
                                 value={editMemberForm.jenis_kelamin}
                                 onChange={(e) => setEditMemberForm((prev) => ({ ...prev, jenis_kelamin: e.target.value }))}
                                 className="rounded-xl border border-slate-200 px-3 py-2"
@@ -508,7 +465,6 @@ const AkunKeluargaManagement = () => {
                             <div>
                               <p className="font-semibold text-slate-800">{member.nama_lengkap}</p>
                               <p className="text-sm text-slate-600">{member.nik} • {member.kedudukan_keluarga || "-"}</p>
-                              <p className="text-xs text-slate-500">{member.nomor_telepon || "Tanpa nomor telepon"}</p>
                             </div>
                             <div className="flex gap-2">
                               <button
@@ -561,12 +517,6 @@ const AkunKeluargaManagement = () => {
                       onChange={(e) => setAddForm((prev) => ({ ...prev, kedudukan_keluarga: e.target.value }))}
                       className="rounded-xl border border-slate-200 px-3 py-2"
                       placeholder="Kedudukan keluarga"
-                    />
-                    <input
-                      value={addForm.nomor_telepon}
-                      onChange={(e) => setAddForm((prev) => ({ ...prev, nomor_telepon: e.target.value }))}
-                      className="rounded-xl border border-slate-200 px-3 py-2"
-                      placeholder="Nomor telepon"
                     />
                     <select
                       value={addForm.jenis_kelamin}
