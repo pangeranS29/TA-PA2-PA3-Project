@@ -464,7 +464,12 @@ export default function PemeriksaanDokterT3Complete() {
     else if (currentStep === 3) errors = validateStep3();
     if (Object.keys(errors).length > 0) {
       setValidationErrors(errors);
-      alert("Mohon lengkapi data wajib!");
+      Swal.fire({
+        icon: 'warning',
+        title: 'Data Belum Lengkap',
+        text: 'Mohon lengkapi data wajib sebelum melanjutkan.',
+        confirmButtonColor: '#4f46e5'
+      });
       return;
     }
     setCurrentStep(currentStep + 1);
@@ -486,7 +491,12 @@ export default function PemeriksaanDokterT3Complete() {
     const errors = validateStep4();
     if (Object.keys(errors).length > 0) {
       setValidationErrors(errors);
-      alert("Mohon lengkapi data wajib!");
+      Swal.fire({
+        icon: 'warning',
+        title: 'Data Belum Lengkap',
+        text: 'Mohon lengkapi semua data wajib sebelum menyimpan.',
+        confirmButtonColor: '#4f46e5'
+      });
       return;
     }
     if (!kehamilan) { alert("Data kehamilan tidak ditemukan."); return; }
@@ -618,15 +628,27 @@ export default function PemeriksaanDokterT3Complete() {
 
       if (existingData) {
         await updateDokterT3Complete(existingData.id, payload);
-        alert("Data berhasil diperbarui!");
+        await Swal.fire({
+          icon: 'success',
+          title: 'Berhasil',
+          text: 'Data pemeriksaan berhasil diperbarui!',
+          timer: 2000,
+          showConfirmButton: false
+        });
       } else {
         await createDokterT3Complete(payload);
-        alert("Data berhasil disimpan!");
+        await Swal.fire({
+          icon: 'success',
+          title: 'Berhasil',
+          text: 'Data pemeriksaan berhasil disimpan!',
+          timer: 2000,
+          showConfirmButton: false
+        });
       }
       navigate(`/data-ibu/${id}/pemeriksaan-dokter-t3-complete/detail`);
     } catch (err) {
       console.error("Error saving:", err);
-      alert("Gagal menyimpan: " + (err.response?.data?.message || err.message));
+      Swal.fire('Error', 'Gagal menyimpan: ' + (err.response?.data?.message || err.message), 'error');
     } finally {
       setSaving(false);
     }
