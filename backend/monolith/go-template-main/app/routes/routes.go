@@ -474,6 +474,22 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	// tenaga.PUT("/pemeriksaan-lanjutan-t3/:id", controller.PemeriksaanLanjutanTrimester3.Update)
 	// tenaga.DELETE("/pemeriksaan-lanjutan-t3/:id", controller.PemeriksaanLanjutanTrimester3.Delete)
 
+	// ==================== KATEGORI TANDA BAHAYA ====================
+	tenaga.GET("/kategori-tanda-bahaya", controller.KategoriTandaBahaya.GetAll)
+	tenaga.POST("/kategori-tanda-bahaya", controller.KategoriTandaBahaya.Create)
+	tenaga.GET("/kategori-tanda-bahaya/:id", controller.KategoriTandaBahaya.Detail)
+	tenaga.GET("/kategori-tanda-bahaya/filter", controller.KategoriTandaBahaya.GetByTipeAndKategoriUsia)
+	tenaga.PUT("/kategori-tanda-bahaya/:id", controller.KategoriTandaBahaya.Update)
+	tenaga.DELETE("/kategori-tanda-bahaya/:id", controller.KategoriTandaBahaya.Delete)
+
+	// ==================== SKRINING PEMANTAUAN TANDA BAHAYA ====================
+	tenaga.GET("/skrining-pemantauan", controller.SkriningPemantauan.GetAll)
+	tenaga.POST("/skrining-pemantauan", controller.SkriningPemantauan.Create)
+	tenaga.GET("/skrining-pemantauan/:id", controller.SkriningPemantauan.Detail)
+	tenaga.GET("/skrining-pemantauan/anak/:anak_id", controller.SkriningPemantauan.GetByAnakID)
+	tenaga.PUT("/skrining-pemantauan/:id", controller.SkriningPemantauan.Update)
+	tenaga.DELETE("/skrining-pemantauan/:id", controller.SkriningPemantauan.Delete)
+
 	// ==================== KARTU KELUARGA ====================
 	// tenaga.GET("/kartu-keluarga", controller.KartuKeluarga.GetAll)
 	// tenaga.POST("/kartu-keluarga", controller.KartuKeluarga.Create)
@@ -526,6 +542,7 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	ibu.GET("/pemeriksaan-dokter-t3-complete", controller.PemeriksaanDokterCombined.GetT3ByKehamilan)
 	ibu.GET("/evaluasi-kesehatan-ibu", controller.EvaluasiKesehatanIbu.GetByKehamilanID)
 	ibu.GET("/rujukan", controller.Rujukan.GetByKehamilanID)
+	ibu.GET("/pemeriksaan-kehamilan/grafik-anc", controller.PemeriksaanKehamilan.GetGrafikANC)
 	ibu.GET("/ringkasan-persalinan", controller.RingkasanPelayananPersalinan.GetByKehamilanID)
 	ibu.GET("/riwayat-proses-melahirkan", controller.RiwayatProsesMelahirkan.GetByKehamilanID)
 	ibu.GET("/keterangan-lahir", controller.KeteranganLahir.GetByIbuID)

@@ -32,7 +32,7 @@ func (r *RingkasanPelayananPersalinanRepository) FindByKehamilanID(kehamilanID i
 }
 
 func (r *RingkasanPelayananPersalinanRepository) Update(rp *models.RingkasanPelayananPersalinan) error {
-	return r.db.Save(rp).Error
+	return r.db.Model(rp).Updates(rp).Error
 }
 
 func (r *RingkasanPelayananPersalinanRepository) Delete(id int32) error {

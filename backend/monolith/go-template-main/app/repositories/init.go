@@ -21,6 +21,8 @@ type Main struct {
 	PemantauanPertumbuhan  PemantauanPertumbuhanRepository
 	PengukuranLilA         PengukuranLilaRepository
 	CatatanPelayanan       CatatanPelayananRepository
+	KategoriTandaBahaya    *KategoriTandaBahayaRepository
+	SkriningPemantauan     *SkriningPemantauanRepository
 
 	// New repositories (semua pointer, mengikuti pola Anak)
 	User                          *UserRepository
@@ -56,25 +58,25 @@ type Main struct {
 	JenisPelayanan                JenisPelayananRepository
 
 	// Repository tambahan
-	KeluhanAnak                        KeluhanAnakRepository
-	KesehatanLingkungan                KesehatanLingkunganRepository
+	KeluhanAnak         KeluhanAnakRepository
+	KesehatanLingkungan KesehatanLingkunganRepository
 	// KesehatanLingkunganDanCatatanKader *KesehatanLingkunganDanCatatanKaderRepository
-	PemantauanAnak                     PemantauanAnakRepository
+	PemantauanAnak PemantauanAnakRepository
 	// PerkembanganAnak                   PerkembanganAnakRepository
-	PemantauanIndikator                *PemantauanIndikatorRepository
+	PemantauanIndikator *PemantauanIndikatorRepository
 
 	// Edukasi Digital
-	EdukasiInformasiUmum           EdukasiInformasiUmumRepository
-	EdukasiNifas                   EdukasiNifasRepository
-	EdukasiTandaBahayaTrimester    EdukasiTandaBahayaTrimesterRepository
-	EdukasiTandaMelahirkan        EdukasiTandaMelahirkanRepository
-	EdukasiImd                    EdukasiIMDRepository
-	EdukasiSetelahMelahirkan      EdukasiSetelahMelahirkanRepository
-	EdukasiMenyusuiAsi            EdukasiMenyusuiASIRepository
-	EdukasiPolaAsuh               EdukasiPolaAsuhRepository
-	EdukasiKesehatanMental        EdukasiKesehatanMentalRepository
-	EdukasiPerawatanAnak          EdukasiPerawatanAnakRepository
-	EdukasiMPASI                  EdukasiMPASIRepository
+	EdukasiInformasiUmum        EdukasiInformasiUmumRepository
+	EdukasiNifas                EdukasiNifasRepository
+	EdukasiTandaBahayaTrimester EdukasiTandaBahayaTrimesterRepository
+	EdukasiTandaMelahirkan      EdukasiTandaMelahirkanRepository
+	EdukasiImd                  EdukasiIMDRepository
+	EdukasiSetelahMelahirkan    EdukasiSetelahMelahirkanRepository
+	EdukasiMenyusuiAsi          EdukasiMenyusuiASIRepository
+	EdukasiPolaAsuh             EdukasiPolaAsuhRepository
+	EdukasiKesehatanMental      EdukasiKesehatanMentalRepository
+	EdukasiPerawatanAnak        EdukasiPerawatanAnakRepository
+	EdukasiMPASI                EdukasiMPASIRepository
 }
 
 type Options struct {
@@ -132,6 +134,8 @@ func Init(opts Options) *Main {
 	m.PemantauanPertumbuhan = NewPemantauanPertumbuhanRepository(opts.Postgres)
 	m.PengukuranLilA = NewPengukuranLilaRepository(opts.Postgres)
 	m.CatatanPelayanan = NewCatatanPelayananRepository(opts.Postgres)
+	m.KategoriTandaBahaya = NewKategoriTandaBahayaRepository(opts.Postgres)
+	// m.SkriningPemantauan = NewSkriningPemantauanRepository(opts.Postgres)
 	m.JenisPelayanan = NewJenisPelayananRepository(opts.Postgres)
 
 	// Repository tambahan
@@ -157,4 +161,3 @@ func Init(opts Options) *Main {
 
 	return m
 }
-

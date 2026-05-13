@@ -28,7 +28,7 @@ import {
 } from "lucide-react";
 
 const baseItemClass = (isActive) =>
-  `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${isActive
+  `flex items-center gap-2 px-3 py-2.5 rounded-lg transition-all duration-200 group ${isActive
     ? "bg-blue-50 text-blue-600 font-semibold"
     : "text-slate-500 hover:bg-gray-50 hover:text-slate-700"
   }`;
@@ -72,7 +72,7 @@ const Sidebar = () => {
   const bidanMenuItems = [
     { path: "/data-ibu", name: "Data Ibu", icon: Users },
     { path: "/daftar-anak", name: "Data Anak", icon: Baby },
-    { path: "/kependudukan", name: "Manajemen KK", icon: UserCheck },
+    // { path: "/kependudukan", name: "Manajemen KK", icon: UserCheck },
     // { path: "/monitoring", name: "Monitoring", icon: Activity },
     {
       name: "Manajemen Bidan & Kader",
@@ -168,7 +168,7 @@ const Sidebar = () => {
 
   const settingsMenu = { path: "/pengaturan", name: "Pengaturan", icon: Settings };
 
-  const renderNavLink = (item, className = "text-base") => (
+  const renderNavLink = (item, className = "text-sm") => (
     <NavLink
       key={item.path}
       to={item.path}
@@ -177,10 +177,10 @@ const Sidebar = () => {
       {({ isActive }) => (
         <>
           <item.icon
-            size={20}
-            className={isActive ? "text-blue-600" : "text-slate-400 group-hover:text-slate-600"}
+            size={18}
+            className={`flex-shrink-0 ${isActive ? "text-blue-600" : "text-slate-400 group-hover:text-slate-600"}`}
           />
-          <span className="truncate">{item.name}</span>
+          <span className="truncate text-sm">{item.name}</span>
         </>
       )}
     </NavLink>
@@ -191,25 +191,25 @@ const Sidebar = () => {
     const hasActiveChild = item.children?.some((child) => location.pathname.startsWith(child.path));
 
     return (
-      <div key={item.dropdownKey} className="space-y-1">
+      <div key={item.dropdownKey} className="space-y-0.5">
         <button
           type="button"
           onClick={() => toggleDropdown(item.dropdownKey)}
           className={`${baseItemClass(isOpen || hasActiveChild)} w-full`}
         >
           <item.icon
-            size={20}
-            className={(isOpen || hasActiveChild) ? "text-blue-600" : "text-slate-400 group-hover:text-slate-600"}
+            size={18}
+            className={`flex-shrink-0 ${(isOpen || hasActiveChild) ? "text-blue-600" : "text-slate-400 group-hover:text-slate-600"}`}
           />
-          <span className="flex-1 text-left truncate">{item.name}</span>
+          <span className="flex-1 text-left truncate text-sm">{item.name}</span>
           <ChevronDown
-            size={16}
-            className={`transition-transform duration-200 ${(isOpen || hasActiveChild) ? "rotate-180" : "rotate-0"}`}
+            size={14}
+            className={`flex-shrink-0 transition-transform duration-200 ${(isOpen || hasActiveChild) ? "rotate-180" : "rotate-0"}`}
           />
         </button>
 
         {(isOpen || hasActiveChild) && (
-          <div className="ml-5 pl-4 space-y-1 border-l border-slate-200">
+          <div className="ml-3 pl-3 space-y-0.5 border-l border-slate-200">
             {item.children.map((child) => renderNavLink(child, "text-sm px-3 py-2 rounded-lg"))}
           </div>
         )}
@@ -218,52 +218,72 @@ const Sidebar = () => {
   };
 
   return (
-    <aside className="w-72 h-screen bg-white border-r border-gray-100 flex flex-col p-6">
+    <aside className="w-64 h-screen bg-white border-r border-gray-100 flex flex-col p-4">
       {/* Header Logo */}
-      <div className="flex items-center gap-3 mb-10">
-        <div className="bg-blue-600 p-2 rounded-xl text-white shadow-lg shadow-blue-100">
-          <ShieldPlus size={28} />
+      <div className="flex items-center gap-2.5 mb-6">
+        <div className="bg-blue-600 p-1.5 rounded-lg text-white shadow-lg shadow-blue-100 flex-shrink-0">
+          <ShieldPlus size={24} />
         </div>
-        <div>
-          <h1 className="text-lg font-bold text-slate-800 leading-tight">KIA Cerdas</h1>
-          <p className="text-xs text-slate-400">Dashboard {isDokter ? "Dokter" : isBidan ? "Bidan" : "Admin"}</p>
+        <div className="min-w-0">
+          <h1 className="text-base font-bold text-slate-800 leading-tight">KIA Cerdas</h1>
+          <p className="text-[11px] text-slate-400">Dashboard {isDokter ? "Dokter" : isBidan ? "Bidan" : "Admin"}</p>
         </div>
       </div>
 
-      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4 ml-2">
+      <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-3 ml-1">
         Menu utama
       </p>
 
       {/* Navigasi */}
-      <nav className="flex-1 space-y-1 overflow-y-auto pr-2 custom-scrollbar">
+      <nav className="flex-1 space-y-0.5 overflow-y-auto pr-2 custom-scrollbar">
         {menuItems.map((item) =>
           item.isDropdown ? renderDropdown(item) : renderNavLink(item)
         )}
 
         {/* Menu khusus admin */}
         {isAdmin && (
-          <div className="pt-2">
+          <div className="pt-1">
+            <NavLink
+              to="/dashboard/admin/tenaga-kesehatan"
+              className={({ isActive }) =>
+                `flex items-center gap-2 px-3 py-2.5 rounded-lg transition-all duration-200 group ${isActive
+                  ? "bg-blue-50 text-blue-600 font-semibold"
+                  : "text-slate-500 hover:bg-gray-50 hover:text-slate-700"
+                }`
+              }
+            >
+              {({ isActive }) => (
+                <>
+                  <BriefcaseMedical
+                    size={18}
+                    className={`flex-shrink-0 ${isActive ? "text-blue-600" : "text-slate-400 group-hover:text-slate-600"}`}
+                  />
+                  <span className="truncate text-sm">Mengelola Profile Bidan & Kader</span>
+                </>
+              )}
+            </NavLink>
+
             <button
               type="button"
               onClick={() => setIsFamilyMenuOpen((prev) => !prev)}
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 text-slate-500 hover:bg-gray-50 hover:text-slate-700"
+              className="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg transition-all duration-200 text-slate-500 hover:bg-gray-50 hover:text-slate-700"
             >
-              <UserCheck size={20} className="text-slate-400" />
-              <span className="flex-1 text-left truncate">Mengelola Profile Keluarga</span>
+              <UserCheck size={18} className="flex-shrink-0 text-slate-400" />
+              <span className="flex-1 text-left truncate text-sm">Mengelola Profile Keluarga</span>
               <ChevronDown
-                size={16}
-                className={`transition-transform duration-200 ${isFamilyMenuOpen ? "rotate-180" : "rotate-0"}`}
+                size={14}
+                className={`flex-shrink-0 transition-transform duration-200 ${isFamilyMenuOpen ? "rotate-180" : "rotate-0"}`}
               />
             </button>
 
             {isFamilyMenuOpen && (
-              <div className="mt-1 space-y-1 pl-5 border-l border-slate-200 ml-5">
+              <div className="mt-0.5 space-y-0.5 pl-3 border-l border-slate-200 ml-3">
                 {adminFamilyMenuItems.map((item) => (
                   <NavLink
                     key={item.path}
                     to={item.path}
                     className={({ isActive }) =>
-                      `flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 group text-sm ${isActive
+                      `flex items-center gap-2 px-2.5 py-2 rounded-md transition-all duration-200 group text-sm ${isActive
                         ? "bg-blue-50 text-blue-600 font-semibold"
                         : "text-slate-500 hover:bg-gray-50 hover:text-slate-700"
                       }`
@@ -273,9 +293,9 @@ const Sidebar = () => {
                       <>
                         <item.icon
                           size={16}
-                          className={isActive ? "text-blue-600" : "text-slate-400 group-hover:text-slate-600"}
+                          className={`flex-shrink-0 ${isActive ? "text-blue-600" : "text-slate-400 group-hover:text-slate-600"}`}
                         />
-                        <span className="truncate">{item.name}</span>
+                        <span className="truncate text-xs">{item.name}</span>
                       </>
                     )}
                   </NavLink>

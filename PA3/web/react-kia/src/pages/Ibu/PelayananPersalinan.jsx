@@ -20,8 +20,8 @@ import { createAnakDenganPenduduk } from "../../services/Anak";
 
 const DetailItem = ({ label, value }) => (
   <div className="flex flex-col">
-    <span className="text-xs text-gray-500 font-medium uppercase tracking-wide">{label}</span>
-    <span className="text-sm text-gray-800 font-semibold mt-0.5">{value ?? "-"}</span>
+    <span className="text-[10px] text-gray-500 font-medium uppercase tracking-wide leading-tight">{label}</span>
+    <span className="text-sm text-gray-800 font-semibold mt-0.5 leading-snug">{value ?? "-"}</span>
   </div>
 );
 
@@ -29,18 +29,18 @@ const DetailItem = ({ label, value }) => (
 // KOMPONEN EMPTY STATE
 // ============================================================
 const EmptyState = ({ title, message, onAdd }) => (
-  <div className="bg-white rounded-xl shadow-sm p-8 text-center">
-    <div className="flex flex-col items-center gap-4">
-      <div className="p-4 bg-indigo-50 rounded-full">
-        <Plus size={40} className="text-indigo-400" />
+  <div className="bg-white rounded-xl shadow-sm p-5 text-center max-w-lg mx-auto">
+    <div className="flex flex-col items-center gap-2.5">
+      <div className="p-2.5 bg-indigo-50 rounded-full">
+        <Plus size={24} className="text-indigo-400" />
       </div>
-      <h3 className="text-xl font-semibold text-gray-800">{title}</h3>
-      <p className="text-gray-500 max-w-md">{message}</p>
+      <h3 className="text-base md:text-lg font-semibold text-gray-800">{title}</h3>
+      <p className="text-xs md:text-sm text-gray-500 max-w-md leading-relaxed">{message}</p>
       <button
         onClick={onAdd}
-        className="bg-indigo-600 text-white px-6 py-2.5 rounded-lg font-semibold flex items-center gap-2 hover:bg-indigo-700 transition"
+        className="bg-indigo-600 text-white px-3.5 py-2 rounded-lg text-xs md:text-sm font-semibold flex items-center gap-2 hover:bg-indigo-700 transition"
       >
-        <Plus size={18} /> Tambah Data
+        <Plus size={14} /> Tambah Data
       </button>
     </div>
   </div>
@@ -74,7 +74,7 @@ const SuratKeteranganLahir = ({ data }) => (
       <span>Pada hari ini</span>
       <span className="border-b border-dotted border-gray-400 flex-1 min-w-16">{data?.hari_lahir || ""}</span>
       <span>Tanggal</span>
-      <span className="border-b border-dotted border-gray-400 flex-1 min-w-24">{data?.tanggal_lahir || ""}</span>
+      <span className="border-b border-dotted border-gray-400 flex-1 min-w-24">{data?.tanggal_lahir ? new Date(data.tanggal_lahir).toLocaleDateString('id-ID') : ""}</span>
       <span>Pukul</span>
       <span className="border-b border-dotted border-gray-400 flex-1 min-w-16">{data?.pukul_lahir || ""}</span>
     </div>
@@ -139,12 +139,8 @@ const SuratKeteranganLahir = ({ data }) => (
     <hr className="border-gray-400 my-4" />
 
     <div className="mb-1 font-semibold">Alamat</div>
-    <div className="border border-gray-300 rounded p-3 min-h-16 mb-2 text-sm">
-      <p className="text-gray-400 text-xs">Diberi Nama</p>
-      <p className="mt-1">{data?.nama_bayi_diberi_nama || ""}</p>
-    </div>
-    <div className="border-b border-dotted border-gray-400 mb-4 w-full min-h-4">
-      {data?.alamat_lokasi_persalinan || ""}
+    <div className="border-b border-dotted border-gray-400 mb-4 w-full min-h-8 p-2 text-sm">
+      {data?.alamat_lokasi_persalinan || data?.alamat_orang_tua || ""}
     </div>
 
     <hr className="border-gray-400 my-4" />
@@ -741,7 +737,7 @@ export default function PelayananPersalinan() {
 
   const TabButton = ({ id, label }) => (
     <button onClick={() => setActiveTab(id)}
-      className={`py-3 px-6 text-sm font-medium border-b-2 transition-colors ${activeTab === id
+      className={`py-2.5 px-4 md:px-5 text-xs md:text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${activeTab === id
         ? "border-indigo-600 text-indigo-600 bg-indigo-50"
         : "border-transparent text-gray-500 hover:text-gray-700"}`}>
       {label}
@@ -752,23 +748,23 @@ export default function PelayananPersalinan() {
 
   return (
     <MainLayout>
-      <div className="p-6 max-w-5xl">
+      <div className="p-4 md:p-6 max-w-7xl w-full">
         {/* Breadcrumb */}
         <Breadcrumb />
 
         {/* Header */}
-        <div className="flex items-center gap-4 mb-6">
-          <button onClick={() => navigate(-1)} className="p-2 rounded-full hover:bg-gray-100">
-            <ArrowLeft size={20} />
+        <div className="flex items-center gap-3 mb-5">
+          <button onClick={() => navigate(-1)} className="p-2 rounded-full hover:bg-gray-100 flex-shrink-0">
+            <ArrowLeft size={18} />
           </button>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Proses & Riwayat Melahirkan</h1>
-            <p className="text-gray-500">Pencatatan proses persalinan hingga bayi lahir.</p>
+            <h1 className="text-xl md:text-2xl font-bold text-gray-900">Proses & Riwayat Melahirkan</h1>
+            <p className="text-sm md:text-base text-gray-500">Pencatatan proses persalinan hingga bayi lahir.</p>
           </div>
         </div>
 
         {/* Tabs */}
-        <div className="w-full border-b border-gray-200 mb-6 flex overflow-x-auto">
+        <div className="w-full border-b border-gray-200 mb-5 flex overflow-x-auto">
           <TabButton id="ringkasan" label="Ringkasan Melahirkan" />
           <TabButton id="riwayat" label="Riwayat Melahirkan" />
           <TabButton id="keterangan" label="Surat Keterangan Lahir" />
@@ -780,18 +776,18 @@ export default function PelayananPersalinan() {
         {activeTab === "ringkasan" && (
           <>
             {modeRingkasan === "detail" && (
-              <div className="bg-white rounded-xl shadow-sm p-6 space-y-5">
-                <div className="flex justify-between items-center">
+              <div className="bg-white rounded-xl shadow-sm p-4 md:p-5">
+                <div className="flex justify-between items-center gap-3 mb-3">
                   <div className="flex items-center gap-2 text-green-600">
-                    <CheckCircle size={20} />
-                    <h2 className="text-lg font-semibold text-gray-800">Ringkasan Pelayanan Persalinan</h2>
+                    <CheckCircle size={18} />
+                    <h2 className="text-base md:text-lg font-semibold text-gray-800">Ringkasan Pelayanan Persalinan</h2>
                   </div>
                   <button onClick={() => setModeRingkasan("form")}
-                    className="flex items-center gap-2 text-sm text-indigo-600 border border-indigo-300 px-3 py-1.5 rounded-lg hover:bg-indigo-50">
-                    <Edit2 size={14} /> Edit
+                    className="flex items-center gap-2 text-xs md:text-sm text-indigo-600 border border-indigo-300 px-3 py-1.5 rounded-lg hover:bg-indigo-50 whitespace-nowrap">
+                    <Edit2 size={13} /> Edit
                   </button>
                 </div>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-5 bg-gray-50 rounded-lg p-4">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2.5 bg-gray-50 rounded-lg p-3 md:p-4">
                   <DetailItem label="Tanggal Melahirkan" value={formRingkasan.tanggal_melahirkan} />
                   <DetailItem label="Umur Kehamilan (Mgg)" value={formRingkasan.umur_kehamilan_minggu} />
                   <DetailItem label="Penolong Persalinan" value={formRingkasan.penolong_proses_melahirkan} />
@@ -809,85 +805,79 @@ export default function PelayananPersalinan() {
               />
             )}
             {modeRingkasan === "form" && (
-              <form onSubmit={submitRingkasan} className="bg-white rounded-xl shadow-sm p-6 space-y-6">
-                <h2 className="text-lg font-semibold text-indigo-700">Ringkasan Pelayanan Persalinan</h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <form onSubmit={submitRingkasan} className="bg-white rounded-xl shadow-sm p-6">
+                <h2 className="text-lg font-semibold text-indigo-700 mb-4">Ringkasan Pelayanan Persalinan</h2>
+                <div className="space-y-3">
+                <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-5 gap-3">
                   <div><label className="block text-sm font-medium mb-1">Tanggal Melahirkan</label>
                     <input type="date" name="tanggal_melahirkan" value={formRingkasan.tanggal_melahirkan}
-                      onChange={(e) => handleChange(e, setFormRingkasan)} className="w-full border rounded px-3 py-2" /></div>
+                      onChange={(e) => handleChange(e, setFormRingkasan)} className="w-full border rounded px-2 py-1.5 text-sm" /></div>
                   <div><label className="block text-sm font-medium mb-1">Umur Kehamilan (Mgg)</label>
                     <input type="number" name="umur_kehamilan_minggu" value={formRingkasan.umur_kehamilan_minggu}
-                      onChange={(e) => handleChange(e, setFormRingkasan)} className="w-full border rounded px-3 py-2" /></div>
+                      onChange={(e) => handleChange(e, setFormRingkasan)} className="w-full border rounded px-2 py-1.5 text-sm" /></div>
                   <div><label className="block text-sm font-medium mb-1">Penolong Persalinan</label>
                     <input name="penolong_proses_melahirkan" value={formRingkasan.penolong_proses_melahirkan}
-                      onChange={(e) => handleChange(e, setFormRingkasan)} className="w-full border rounded px-3 py-2" /></div>
+                      onChange={(e) => handleChange(e, setFormRingkasan)} className="w-full border rounded px-2 py-1.5 text-sm" /></div>
                   <div><label className="block text-sm font-medium mb-1">Cara Melahirkan</label>
                     <select name="cara_melahirkan" value={formRingkasan.cara_melahirkan}
-                      onChange={(e) => handleChange(e, setFormRingkasan)} className="w-full border rounded px-3 py-2">
+                      onChange={(e) => handleChange(e, setFormRingkasan)} className="w-full border rounded px-2 py-1.5 text-sm">
                       <option value="">-- Pilih --</option>
                       <option>Spontan/Normal</option><option>SC</option><option>Vakum</option>
                     </select></div>
                   <div><label className="block text-sm font-medium mb-1">Keadaan Ibu</label>
                     <input name="keadaan_ibu" value={formRingkasan.keadaan_ibu}
-                      onChange={(e) => handleChange(e, setFormRingkasan)} className="w-full border rounded px-3 py-2" /></div>
+                      onChange={(e) => handleChange(e, setFormRingkasan)} className="w-full border rounded px-2 py-1.5 text-sm" /></div>
                   <div><label className="block text-sm font-medium mb-1">KB Pasca Salin</label>
                     <input name="kb_pasca_melahirkan" value={formRingkasan.kb_pasca_melahirkan}
-                      onChange={(e) => handleChange(e, setFormRingkasan)} className="w-full border rounded px-3 py-2" /></div>
+                      onChange={(e) => handleChange(e, setFormRingkasan)} className="w-full border rounded px-2 py-1.5 text-sm" /></div>
                 </div>
-                <hr />
-                {/* Data Anak Lahir */}
-                <div className="bg-white border rounded-lg p-4">
-                  <h3 className="font-semibold mb-3">Data Anak Lahir (opsional)</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Nama Anak</label>
-                      <input name="nama_anak" value={formRingkasan.nama_anak}
-                        onChange={(e)=>handleChange(e, setFormRingkasan)} className="w-full border rounded px-3 py-2" />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Tanggal Lahir</label>
-                      <input type="date" name="anak_tanggal_lahir" value={formRingkasan.anak_tanggal_lahir}
-                        onChange={(e)=>handleChange(e, setFormRingkasan)} className="w-full border rounded px-3 py-2" />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Jenis Kelamin</label>
-                      <select name="anak_jenis_kelamin" value={formRingkasan.anak_jenis_kelamin}
-                        onChange={(e)=>handleChange(e, setFormRingkasan)} className="w-full border rounded px-3 py-2">
-                        <option value="">-- Pilih --</option>
-                        <option value="Laki-laki">Laki-laki</option>
-                        <option value="Perempuan">Perempuan</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-3">
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Anak Ke</label>
-                      <input type="number" name="bayi_anak_ke" value={formRingkasan.bayi_anak_ke}
-                        onChange={(e)=>handleChange(e, setFormRingkasan)} className="w-full border rounded px-3 py-2" />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Berat (gram)</label>
-                      <input type="number" name="bayi_berat_lahir_gram" value={formRingkasan.bayi_berat_lahir_gram}
-                        onChange={(e)=>handleChange(e, setFormRingkasan)} className="w-full border rounded px-3 py-2" />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Panjang (cm)</label>
-                      <input type="number" name="bayi_panjang_badan_cm" value={formRingkasan.bayi_panjang_badan_cm}
-                        onChange={(e)=>handleChange(e, setFormRingkasan)} className="w-full border rounded px-3 py-2" />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Lingkar Kepala (cm)</label>
-                      <input type="number" name="bayi_lingkar_kepala_cm" value={formRingkasan.bayi_lingkar_kepala_cm}
-                        onChange={(e)=>handleChange(e, setFormRingkasan)} className="w-full border rounded px-3 py-2" />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-white border rounded-lg p-4 space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+                  <div className="md:col-span-4 font-semibold text-sm text-gray-700">Data Anak Lahir (opsional)</div>
                   <div>
-                    <h3 className="font-semibold mb-3">Kondisi Bayi Saat Lahir**</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                    <label className="block text-sm font-medium mb-1">Nama Anak</label>
+                    <input name="nama_anak" value={formRingkasan.nama_anak}
+                      onChange={(e)=>handleChange(e, setFormRingkasan)} className="w-full border rounded px-2 py-1.5 text-sm" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Tanggal Lahir</label>
+                    <input type="date" name="anak_tanggal_lahir" value={formRingkasan.anak_tanggal_lahir}
+                      onChange={(e)=>handleChange(e, setFormRingkasan)} className="w-full border rounded px-2 py-1.5 text-sm" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Jenis Kelamin</label>
+                    <select name="anak_jenis_kelamin" value={formRingkasan.anak_jenis_kelamin}
+                      onChange={(e)=>handleChange(e, setFormRingkasan)} className="w-full border rounded px-2 py-1.5 text-sm">
+                      <option value="">-- Pilih --</option>
+                      <option value="Laki-laki">Laki-laki</option>
+                      <option value="Perempuan">Perempuan</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Anak Ke</label>
+                    <input type="number" name="bayi_anak_ke" value={formRingkasan.bayi_anak_ke}
+                      onChange={(e)=>handleChange(e, setFormRingkasan)} className="w-full border rounded px-2 py-1.5 text-sm" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Berat (gram)</label>
+                    <input type="number" name="bayi_berat_lahir_gram" value={formRingkasan.bayi_berat_lahir_gram}
+                      onChange={(e)=>handleChange(e, setFormRingkasan)} className="w-full border rounded px-2 py-1.5 text-sm" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Panjang (cm)</label>
+                    <input type="number" name="bayi_panjang_badan_cm" value={formRingkasan.bayi_panjang_badan_cm}
+                      onChange={(e)=>handleChange(e, setFormRingkasan)} className="w-full border rounded px-2 py-1.5 text-sm" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Lingkar Kepala (cm)</label>
+                    <input type="number" name="bayi_lingkar_kepala_cm" value={formRingkasan.bayi_lingkar_kepala_cm}
+                      onChange={(e)=>handleChange(e, setFormRingkasan)} className="w-full border rounded px-2 py-1.5 text-sm" />
+                  </div>
+                </div>
+
+                <div className="bg-white border rounded-lg p-4 space-y-3">
+                  <div>
+                    <h3 className="font-semibold mb-2 text-sm">Kondisi Bayi Saat Lahir**</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
                       <label className="flex items-center gap-2"><input type="checkbox" name="kondisi_bayi_segera_menangis" checked={formRingkasan.kondisi_bayi_segera_menangis} onChange={(e) => handleChange(e, setFormRingkasan)} /> Segera menangis</label>
                       <label className="flex items-center gap-2"><input type="checkbox" name="kondisi_bayi_anggota_gerak_kebiruan" checked={formRingkasan.kondisi_bayi_anggota_gerak_kebiruan} onChange={(e) => handleChange(e, setFormRingkasan)} /> Anggota gerak kebiruan</label>
                       <label className="flex items-center gap-2"><input type="checkbox" name="kondisi_bayi_menangis_beberapa_saat" checked={formRingkasan.kondisi_bayi_menangis_beberapa_saat} onChange={(e) => handleChange(e, setFormRingkasan)} /> Menangis beberapa saat</label>
@@ -897,20 +887,20 @@ export default function PelayananPersalinan() {
                       <label className="flex items-center gap-2"><input type="checkbox" name="kondisi_bayi_seluruh_tubuh_kemerahan" checked={formRingkasan.kondisi_bayi_seluruh_tubuh_kemerahan} onChange={(e) => handleChange(e, setFormRingkasan)} /> Seluruh tubuh kemerahan</label>
                       <label className="flex items-center gap-2"><input type="checkbox" name="kondisi_bayi_meninggal" checked={formRingkasan.kondisi_bayi_meninggal} onChange={(e) => handleChange(e, setFormRingkasan)} /> Meninggal</label>
                     </div>
-                    <div className="mt-3">
-                      <label className="block text-sm font-medium mb-1">Detail Kelainan Bawaan</label>
+                    <div className="mt-2">
+                      <label className="block text-xs font-medium mb-1">Detail Kelainan Bawaan</label>
                       <input
                         name="kondisi_bayi_kelainan_bawaan_detail"
                         value={formRingkasan.kondisi_bayi_kelainan_bawaan_detail}
                         onChange={(e) => handleChange(e, setFormRingkasan)}
-                        className="w-full border rounded px-3 py-2"
+                        className="w-full border rounded px-2 py-1 text-sm"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <h3 className="font-semibold mb-3">Asuhan Bayi Baru Lahir**</h3>
-                    <div className="grid grid-cols-1 gap-3 text-sm">
+                    <h3 className="font-semibold mb-2 text-sm">Asuhan Bayi Baru Lahir**</h3>
+                    <div className="grid grid-cols-1 gap-2 text-xs">
                       <label className="flex items-center gap-2"><input type="checkbox" name="asuhan_imd_1_jam_pertama" checked={formRingkasan.asuhan_imd_1_jam_pertama} onChange={(e) => handleChange(e, setFormRingkasan)} /> Inisiasi menyusu dini (IMD) dalam 1 jam pertama kelahiran bayi</label>
                       <label className="flex items-center gap-2"><input type="checkbox" name="asuhan_suntikan_vitamin_k1" checked={formRingkasan.asuhan_suntikan_vitamin_k1} onChange={(e) => handleChange(e, setFormRingkasan)} /> Suntikan Vitamin K1</label>
                       <label className="flex items-center gap-2"><input type="checkbox" name="asuhan_salep_mata_antibiotika" checked={formRingkasan.asuhan_salep_mata_antibiotika} onChange={(e) => handleChange(e, setFormRingkasan)} /> Salep mata Antibiotika Profilaksis</label>
@@ -919,21 +909,24 @@ export default function PelayananPersalinan() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium mb-1">Keterangan Tambahan</label>
+                    <label className="block text-xs font-medium mb-1">Keterangan Tambahan</label>
                     <textarea
                       name="keterangan_tambahan_bayi"
                       value={formRingkasan.keterangan_tambahan_bayi}
                       onChange={(e) => handleChange(e, setFormRingkasan)}
-                      rows={3}
-                      className="w-full border rounded px-3 py-2"
+                      rows={2}
+                      className="w-full border rounded px-2 py-1 text-sm"
                     />
                   </div>
                 </div>
+                </div>
 
-                <button type="submit" disabled={saving}
-                  className="bg-indigo-600 text-white px-6 py-2 rounded-lg flex items-center gap-2 hover:bg-indigo-700">
-                  <Save size={18} /> {saving ? "Menyimpan..." : "Simpan Ringkasan"}
-                </button>
+                <div className="flex gap-2 pt-3">
+                  <button type="submit" disabled={saving}
+                    className="bg-indigo-600 text-white px-6 py-2 rounded-lg flex items-center gap-2 hover:bg-indigo-700">
+                    <Save size={18} /> {saving ? "Menyimpan..." : "Simpan Ringkasan"}
+                  </button>
+                </div>
               </form>
             )}
           </>
@@ -974,8 +967,8 @@ export default function PelayananPersalinan() {
         {activeTab === "riwayat" && (
           <>
             {modeRiwayat === "detail" && (
-              <div className="bg-white rounded-xl shadow-sm p-6 space-y-5">
-                <div className="flex justify-between items-center">
+              <div className="bg-white rounded-xl shadow-sm p-6">
+                <div className="flex justify-between items-center mb-4">
                   <div className="flex items-center gap-2 text-green-600">
                     <CheckCircle size={20} />
                     <h2 className="text-lg font-semibold text-gray-800">Riwayat Proses Melahirkan</h2>
@@ -985,7 +978,7 @@ export default function PelayananPersalinan() {
                     <Edit2 size={14} /> Edit
                   </button>
                 </div>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-5 bg-gray-50 rounded-lg p-4">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3 bg-gray-50 rounded-lg p-4">
                   <DetailItem label="Gravida (G)" value={formRiwayat.g_gravida} />
                   <DetailItem label="Partus (P)" value={formRiwayat.p_partus} />
                   <DetailItem label="Abortus (A)" value={formRiwayat.a_abortus} />
@@ -1006,26 +999,26 @@ export default function PelayananPersalinan() {
               />
             )}
             {modeRiwayat === "form" && (
-              <form onSubmit={submitRiwayat} className="bg-white rounded-xl shadow-sm p-6 space-y-6">
-                <h2 className="text-lg font-semibold text-indigo-700">Riwayat Proses Melahirkan</h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <form onSubmit={submitRiwayat} className="bg-white rounded-xl shadow-sm p-6">
+                <h2 className="text-lg font-semibold text-indigo-700 mb-4">Riwayat Proses Melahirkan</h2>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                   <div><label className="block text-sm font-medium mb-1">Gravida (G)</label>
                     <input type="number" name="g_gravida" value={formRiwayat.g_gravida}
-                      onChange={(e) => handleChange(e, setFormRiwayat)} className="w-full border rounded px-3 py-2" /></div>
+                      onChange={(e) => handleChange(e, setFormRiwayat)} className="w-full border rounded px-2 py-1.5 text-sm" /></div>
                   <div><label className="block text-sm font-medium mb-1">Partus (P)</label>
                     <input type="number" name="p_partus" value={formRiwayat.p_partus}
-                      onChange={(e) => handleChange(e, setFormRiwayat)} className="w-full border rounded px-3 py-2" /></div>
+                      onChange={(e) => handleChange(e, setFormRiwayat)} className="w-full border rounded px-2 py-1.5 text-sm" /></div>
                   <div><label className="block text-sm font-medium mb-1">Abortus (A)</label>
                     <input type="number" name="a_abortus" value={formRiwayat.a_abortus}
-                      onChange={(e) => handleChange(e, setFormRiwayat)} className="w-full border rounded px-3 py-2" /></div>
+                      onChange={(e) => handleChange(e, setFormRiwayat)} className="w-full border rounded px-2 py-1.5 text-sm" /></div>
                   <div><label className="block text-sm font-medium mb-1">Tanggal Melahirkan</label>
                     <input type="date" name="tanggal_melahirkan" value={formRiwayat.tanggal_melahirkan}
-                      onChange={(e) => handleChange(e, setFormRiwayat)} className="w-full border rounded px-3 py-2" /></div>
+                      onChange={(e) => handleChange(e, setFormRiwayat)} className="w-full border rounded px-2 py-1.5 text-sm" /></div>
                   <div className="md:col-span-2"><label className="block text-sm font-medium mb-1">Faskes / Tempat Melahirkan</label>
                     <input name="fasyankes_tempat_melahirkan" value={formRiwayat.fasyankes_tempat_melahirkan}
-                      onChange={(e) => handleChange(e, setFormRiwayat)} className="w-full border rounded px-3 py-2" /></div>
+                      onChange={(e) => handleChange(e, setFormRiwayat)} className="w-full border rounded px-2 py-1.5 text-sm" /></div>
                 </div>
-                <div className="flex gap-6">
+                <div className="flex gap-3 mt-3">
                   <label className="flex items-center gap-2">
                     <input type="checkbox" name="cara_melahirkan_spontan" checked={formRiwayat.cara_melahirkan_spontan}
                       onChange={(e) => handleChange(e, setFormRiwayat)} className="w-4 h-4" /> Spontan/Normal
@@ -1035,10 +1028,12 @@ export default function PelayananPersalinan() {
                       onChange={(e) => handleChange(e, setFormRiwayat)} className="w-4 h-4" /> Operasi Caesar
                   </label>
                 </div>
-                <button type="submit" disabled={saving}
-                  className="bg-indigo-600 text-white px-6 py-2 rounded-lg flex items-center gap-2 hover:bg-indigo-700">
-                  <Save size={18} /> {saving ? "Menyimpan..." : "Simpan Riwayat"}
-                </button>
+                <div className="flex gap-2 pt-3">
+                  <button type="submit" disabled={saving}
+                    className="bg-indigo-600 text-white px-6 py-2 rounded-lg flex items-center gap-2 hover:bg-indigo-700 text-sm">
+                    <Save size={18} /> {saving ? "Menyimpan..." : "Simpan Riwayat"}
+                  </button>
+                </div>
               </form>
             )}
           </>
@@ -1070,82 +1065,86 @@ export default function PelayananPersalinan() {
               />
             )}
             {modeKeterangan === "form" && (
-              <form onSubmit={submitKeterangan} className="bg-white rounded-xl shadow-sm p-6 space-y-6">
-                <h2 className="text-lg font-semibold text-indigo-700">Surat Keterangan Lahir (Model A.B)</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <form onSubmit={submitKeterangan} className="bg-white rounded-xl shadow-sm p-6">
+                <h2 className="text-lg font-semibold text-indigo-700 mb-4">Surat Keterangan Lahir (Model A.B)</h2>
+                <div className="space-y-3">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
                   <div><label className="block text-sm font-medium mb-1">Nomor Surat</label>
                     <input name="nomor_surat" value={formKeterangan.nomor_surat}
-                      onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-3 py-2" /></div>
+                      onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-2 py-1.5 text-sm" /></div>
                   <div><label className="block text-sm font-medium mb-1">Nama Bayi Diberikan</label>
                     <input name="nama_bayi_diberi_nama" value={formKeterangan.nama_bayi_diberi_nama}
-                      onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-3 py-2" /></div>
+                      onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-2 py-1.5 text-sm" /></div>
                   <div><label className="block text-sm font-medium mb-1">Tanggal Lahir</label>
                     <input type="date" name="tanggal_lahir" value={formKeterangan.tanggal_lahir}
-                      onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-3 py-2" /></div>
+                      onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-2 py-1.5 text-sm" /></div>
                   <div><label className="block text-sm font-medium mb-1">Hari Lahir</label>
                     <input name="hari_lahir" value={formKeterangan.hari_lahir}
-                      onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-3 py-2" placeholder="Contoh: Senin" /></div>
+                      onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-2 py-1.5 text-sm" placeholder="Contoh: Senin" /></div>
                   <div><label className="block text-sm font-medium mb-1">Pukul Lahir</label>
                     <input name="pukul_lahir" value={formKeterangan.pukul_lahir}
-                      onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-3 py-2" placeholder="Contoh: 08:30" /></div>
+                      onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-2 py-1.5 text-sm" placeholder="Contoh: 08:30" /></div>
                   <div><label className="block text-sm font-medium mb-1">Jenis Kelamin</label>
                     <select name="jenis_kelamin" value={formKeterangan.jenis_kelamin}
-                      onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-3 py-2">
+                      onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-2 py-1.5 text-sm">
                       <option value="">-- Pilih --</option>
                       <option>Laki-laki</option><option>Perempuan</option>
                     </select></div>
                   <div><label className="block text-sm font-medium mb-1">Jenis Kelahiran</label>
                     <select name="jenis_kelahiran" value={formKeterangan.jenis_kelahiran}
-                      onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-3 py-2">
+                      onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-2 py-1.5 text-sm">
                       <option value="">-- Pilih --</option>
                       <option>Tunggal</option><option>Kembar 2</option>
                       <option>Kembar 3</option><option>Lainnya</option>
                     </select></div>
                   <div><label className="block text-sm font-medium mb-1">Anak Ke</label>
                     <input type="number" name="anak_ke" value={formKeterangan.anak_ke}
-                      onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-3 py-2" /></div>
+                      onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-2 py-1.5 text-sm" /></div>
                   <div><label className="block text-sm font-medium mb-1">Usia Gestasi (Minggu)</label>
                     <input type="number" name="usia_gestasi_minggu" value={formKeterangan.usia_gestasi_minggu}
-                      onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-3 py-2" /></div>
+                      onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-2 py-1.5 text-sm" /></div>
                   <div><label className="block text-sm font-medium mb-1">Berat Lahir (gram)</label>
                     <input type="number" name="berat_lahir_gram" value={formKeterangan.berat_lahir_gram}
-                      onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-3 py-2" /></div>
+                      onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-2 py-1.5 text-sm" /></div>
                   <div><label className="block text-sm font-medium mb-1">Panjang Bayi (cm)</label>
                     <input type="number" name="panjang_badan_cm" value={formKeterangan.panjang_badan_cm}
-                      onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-3 py-2" /></div>
+                      onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-2 py-1.5 text-sm" /></div>
                   <div><label className="block text-sm font-medium mb-1">Lingkar Kepala (cm)</label>
                     <input type="number" name="lingkar_kepala_cm" value={formKeterangan.lingkar_kepala_cm}
-                      onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-3 py-2" /></div>
+                      onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-2 py-1.5 text-sm" /></div>
                   <div className="md:col-span-2"><label className="block text-sm font-medium mb-1">Lokasi Persalinan</label>
                     <input name="lokasi_persalinan" value={formKeterangan.lokasi_persalinan}
-                      onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-3 py-2"
+                      onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-2 py-1.5 text-sm"
                       placeholder="Nama RS/Puskesmas/Klinik" /></div>
-                  <div className="md:col-span-2 border-t pt-4">
-                    <h3 className="font-semibold mb-3">Orang Tua</h3>
-                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+                  <div className="md:col-span-4 font-semibold text-sm text-gray-700 mt-2">Data Orang Tua</div>
                   <div><label className="block text-sm font-medium mb-1">Nama Ibu</label>
                     <input name="nama_ibu" value={formKeterangan.nama_ibu}
-                      onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-3 py-2" /></div>
+                      onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-2 py-1.5 text-sm" /></div>
                   <div><label className="block text-sm font-medium mb-1">NIK Ibu</label>
                     <input name="nik_ibu" value={formKeterangan.nik_ibu}
-                      onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-3 py-2" /></div>
+                      onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-2 py-1.5 text-sm" /></div>
                   <div><label className="block text-sm font-medium mb-1">Nama Ayah</label>
                     <input name="nama_ayah" value={formKeterangan.nama_ayah}
-                      onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-3 py-2" /></div>
-                  <div><label className="block text-sm font-medium mb-1">Pekerjaan Orang Tua</label>
+                      onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-2 py-1.5 text-sm" /></div>
+                  <div><label className="block text-sm font-medium mb-1">Pekerjaan</label>
                     <input name="pekerjaan_orang_tua" value={formKeterangan.pekerjaan_orang_tua}
-                      onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-3 py-2" /></div>
-                  <div className="md:col-span-2"><label className="block text-sm font-medium mb-1">Alamat Orang Tua</label>
+                      onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-2 py-1.5 text-sm" /></div>
+                  <div className="md:col-span-2"><label className="block text-sm font-medium mb-1">Alamat</label>
                     <input name="alamat_orang_tua" value={formKeterangan.alamat_orang_tua}
-                      onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-3 py-2" /></div>
-                  <div><label className="block text-sm font-medium mb-1">Saksi / Penolong Kelahiran</label>
+                      onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-2 py-1.5 text-sm" /></div>
+                  <div><label className="block text-sm font-medium mb-1">Penolong Kelahiran</label>
                     <input name="nama_penolong_kelahiran" value={formKeterangan.nama_penolong_kelahiran}
-                      onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-3 py-2" /></div>
+                      onChange={(e) => handleChange(e, setFormKeterangan)} className="w-full border rounded px-2 py-1.5 text-sm" /></div>
                 </div>
-                <button type="submit" disabled={saving}
-                  className="bg-indigo-600 text-white px-6 py-2 rounded-lg flex items-center gap-2 hover:bg-indigo-700">
-                  <Save size={18} /> {saving ? "Menyimpan..." : "Simpan Keterangan Lahir"}
-                </button>
+                </div>
+                <div className="flex gap-2 pt-3">
+                  <button type="submit" disabled={saving}
+                    className="bg-indigo-600 text-white px-6 py-2 rounded-lg flex items-center gap-2 hover:bg-indigo-700 text-sm">
+                    <Save size={18} /> {saving ? "Menyimpan..." : "Simpan Keterangan Lahir"}
+                  </button>
+                </div>
               </form>
             )}
           </>

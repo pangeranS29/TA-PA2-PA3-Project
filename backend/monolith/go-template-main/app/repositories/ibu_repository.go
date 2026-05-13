@@ -36,7 +36,7 @@ func (r *IbuRepository) FindAll() ([]models.Ibu, error) {
 }
 
 func (r *IbuRepository) Update(ibu *models.Ibu) error {
-	return r.db.Save(ibu).Error
+	return r.db.Model(ibu).Updates(ibu).Error
 }
 
 func (r *IbuRepository) Delete(id int32) error {
