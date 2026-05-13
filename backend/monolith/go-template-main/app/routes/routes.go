@@ -200,6 +200,7 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	lingkungan.GET("/history", controller.KesehatanLingkungan.GetHistory)
 	lingkungan.GET("/detail/:id", controller.KesehatanLingkungan.GetDetail)
 	lingkungan.POST("/submit", controller.KesehatanLingkungan.SubmitLembar)
+	
 	tenaga.POST("/lingkungan/kategori", controller.KesehatanLingkungan.CreateKategori)
 	tenaga.DELETE("/lingkungan/kategori/:id", controller.KesehatanLingkungan.DeleteKategori)
 	tenaga.POST("/lingkungan/kategori/:id/indikator", controller.KesehatanLingkungan.AddIndikator)
@@ -290,6 +291,7 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	tenaga.GET("/ibu/:id", controller.Ibu.GetByID)
 	tenaga.PUT("/ibu/:id", controller.Ibu.Update)
 	tenaga.DELETE("/ibu/:id", controller.Ibu.Delete)
+	tenaga.GET("/ibu/by-penduduk/:pendudukId", controller.Ibu.GetByPendudukID)
 
 	tenaga.POST("/kehamilan", controller.Kehamilan.Create)
 	tenaga.GET("/kehamilan/all", controller.Kehamilan.GetAll)
