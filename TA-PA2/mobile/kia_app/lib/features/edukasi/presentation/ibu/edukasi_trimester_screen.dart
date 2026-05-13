@@ -1,79 +1,95 @@
 import 'package:flutter/material.dart';
-
+import 'package:ta_pa2_pa3_project/core/constants/app_colors.dart';
 import 'edukasi_trimester_kategori_screen.dart';
+import 'package:ta_pa2_pa3_project/features/dashboard/presentation/screens/dashboard_screen.dart';
+import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/absensi_kelas_ibu_hamil_screen.dart';
 
-class EdukasiTrimesterScreen
-    extends StatelessWidget {
-  const EdukasiTrimesterScreen({
-    super.key,
-  });
+class EdukasiTrimesterScreen extends StatefulWidget {
+  const EdukasiTrimesterScreen({super.key});
+
+  @override
+  State<EdukasiTrimesterScreen> createState() => _EdukasiTrimesterScreenState();
+}
+
+class _EdukasiTrimesterScreenState extends State<EdukasiTrimesterScreen> {
+  int _currentIndex = 2; // Index Edukasi
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor:
-          const Color(0xFFF4F7FB),
+      // Warna background disesuaikan agar lebih bersih (soft greyish blue)
+      backgroundColor: const Color(0xFFF8FAFC),
 
       appBar: AppBar(
-        backgroundColor:
-            const Color(0xFF1F5EA8),
-
-        title: const Text(
-          'Edukasi Trimester',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black, size: 20),
+          onPressed: () => Navigator.pop(context),
         ),
-
-        iconTheme: const IconThemeData(
-          color: Colors.white,
-        ),
-      ),
-
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-
-        child: Column(
-          children: [
-            _buildTrimesterCard(
-              context,
-              title:
-                  'Trimester 1',
-              subtitle:
-                  'Pelajari edukasi awal kehamilan',
-              trimester: 'TM1',
-              icon:
-                  Icons.looks_one_rounded,
+        title: Column(
+          children: const [
+            Text(
+              'Edukasi',
+              style: TextStyle(color: Color(0xFF1F2937), fontWeight: FontWeight.bold, fontSize: 18),
             ),
-
-            const SizedBox(height: 20),
-
-            _buildTrimesterCard(
-              context,
-              title:
-                  'Trimester 2',
-              subtitle:
-                  'Pelajari perkembangan trimester kedua',
-              trimester: 'TM2',
-              icon:
-                  Icons.looks_two_rounded,
-            ),
-
-            const SizedBox(height: 20),
-
-            _buildTrimesterCard(
-              context,
-              title:
-                  'Trimester 3',
-              subtitle:
-                  'Persiapan persalinan dan akhir kehamilan',
-              trimester: 'TM3',
-              icon:
-                  Icons.looks_3_rounded,
+            Text(
+              'Sumber Buku KIA',
+              style: TextStyle(color: Color(0xFF9CA3AF), fontWeight: FontWeight.normal, fontSize: 12),
             ),
           ],
         ),
+        centerTitle: true,
+      ),
+
+      body: ListView(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+        children: [
+          _buildTrimesterCard(
+            context,
+            title: 'Edukasi Trimester 1',
+            subtitle: 'Lihat hasil pemeriksaan ANC trimester I',
+            trimester: 'TM1',
+          ),
+          const SizedBox(height: 16),
+          _buildTrimesterCard(
+            context,
+            title: 'Edukasi Trimester 2',
+            subtitle: 'Lihat hasil pemeriksaan dokter trimester II',
+            trimester: 'TM2',
+          ),
+          const SizedBox(height: 16),
+          _buildTrimesterCard(
+            context,
+            title: 'Edukasi Trimester 3',
+            subtitle: 'Panduan dan informasi penting minggu 1–12',
+            trimester: 'TM3',
+          ),
+        ],
+      ),
+
+      // Menambahkan Navbar agar konsisten
+      bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+        backgroundColor: Colors.white,
+        currentIndex: _currentIndex,
+        selectedItemColor: AppColors.primary,
+        unselectedItemColor: Colors.grey,
+        showUnselectedLabels: true,
+        onTap: (index) {
+          if (index == _currentIndex) return;
+          if (index == 0) {
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const DashboardScreen()));
+          } else if (index == 1) {
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const AbsensiKelasIbuHamilScreen()));
+          }
+        },
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home_outlined), activeIcon: Icon(Icons.home), label: 'Beranda'),
+          BottomNavigationBarItem(icon: Icon(Icons.assignment_outlined), activeIcon: Icon(Icons.assignment), label: 'Absensi'),
+          BottomNavigationBarItem(icon: Icon(Icons.menu_book_outlined), activeIcon: Icon(Icons.menu_book), label: 'Edukasi'),
+          BottomNavigationBarItem(icon: Icon(Icons.person_outline), activeIcon: Icon(Icons.person), label: 'Profil'),
+        ],
       ),
     );
   }
@@ -83,103 +99,68 @@ class EdukasiTrimesterScreen
     required String title,
     required String subtitle,
     required String trimester,
-    required IconData icon,
   }) {
-    return InkWell(
-      borderRadius:
-          BorderRadius.circular(24),
-
+    return GestureDetector(
       onTap: () {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) =>
-                EdukasiTrimesterKategoriScreen(
+            builder: (_) => EdukasiTrimesterKategoriScreen(
               trimester: trimester,
               title: title,
             ),
           ),
         );
       },
-
       child: Container(
         width: double.infinity,
-
-        padding: const EdgeInsets.all(24),
-
+        padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius:
-              BorderRadius.circular(24),
-
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: const Color(0xFFF1F5F9)), // Border halus
           boxShadow: [
             BoxShadow(
-              color:
-                  Colors.black.withOpacity(
-                0.05,
-              ),
-
+              color: Colors.black.withOpacity(0.03),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
           ],
         ),
-
         child: Row(
           children: [
+            // Icon Document dengan background bulat biru muda (Sesuai Mockup)
             Container(
-              width: 70,
-              height: 70,
-
-              decoration: BoxDecoration(
-                color:
-                    const Color(0xFF1F5EA8)
-                        .withOpacity(0.1),
-
+              width: 56,
+              height: 56,
+              decoration: const BoxDecoration(
+                color: Color(0xFFEBF5FF),
                 shape: BoxShape.circle,
               ),
-
-              child: Icon(
-                icon,
-                size: 36,
-                color:
-                    const Color(0xFF1F5EA8),
+              child: const Icon(
+                Icons.assignment_outlined, // Icon dokumen sesuai gambar
+                size: 26,
+                color: Color(0xFF3B82F6),
               ),
             ),
-
-            const SizedBox(width: 20),
-
+            const SizedBox(width: 16),
             Expanded(
               child: Column(
-                crossAxisAlignment:
-                    CrossAxisAlignment
-                        .start,
-
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     title,
-                    style:
-                        const TextStyle(
-                      fontSize: 22,
-                      fontWeight:
-                          FontWeight.bold,
-                    ),
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF1F2937)),
                   ),
-
-                  const SizedBox(height: 8),
-
+                  const SizedBox(height: 4),
                   Text(
                     subtitle,
-                    style:
-                        const TextStyle(
-                      fontSize: 15,
-                      color:
-                          Color(0xFF6B7280),
-                    ),
+                    style: const TextStyle(fontSize: 13, color: Color(0xFF9CA3AF), height: 1.2),
                   ),
                 ],
               ),
             ),
+            const Icon(Icons.chevron_right, color: Color(0xFFD1D5DB), size: 20),
           ],
         ),
       ),

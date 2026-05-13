@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:ta_pa2_pa3_project/core/constants/app_colors.dart';
+// --- IMPORT NAVIGASI ---
+import 'package:ta_pa2_pa3_project/features/dashboard/presentation/screens/dashboard_screen.dart'; 
+import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/absensi_kelas_ibu_hamil_screen.dart';
 
+// --- IMPORT HALAMAN EDUKASI ---
 import 'edukasi_asi_screen.dart';
 import 'edukasi_imd_screen.dart';
 import 'edukasi_mental_screen.dart';
@@ -8,7 +12,9 @@ import 'edukasi_nifas_screen.dart';
 import 'edukasi_tanda_melahirkan_screen.dart';
 import 'edukasi_trimester_screen.dart';
 
+// --- IMPORT WIDGET MODULAR (LEGO) ---
 import '../widgets/edukasi_search_filter.dart';
+import '../widgets/edukasi_card.dart'; // <--- Ini cetakan yang kita gunakan
 
 class KontenEdukasiIbuScreen extends StatefulWidget {
   const KontenEdukasiIbuScreen({super.key});
@@ -22,434 +28,164 @@ class _KontenEdukasiIbuScreenState
     extends State<KontenEdukasiIbuScreen> {
 
   String selectedCategory = 'Semua';
-
   String searchQuery = '';
+  int _currentIndex = 2; // Posisi Tab Edukasi
 
   @override
   Widget build(BuildContext context) {
 
+    // --- DATA TETAP SAMA (LOGIKA AMAN) ---
     final List<Map<String, dynamic>> edukasiIbu = [
-
       {
         'title': 'Edukasi Trimester',
         'duration': '5 Menit',
         'category': 'Panduan',
         'screen': const EdukasiTrimesterScreen(),
       },
-
       {
         'title': 'Inisiasi Menyusu Dini',
-        'duration': '3 Menit',
+        'duration': '3 Menit Baca',
         'category': 'Artikel',
         'screen': const EdukasiIMDScreen(),
       },
-
       {
         'title': 'Edukasi Menyusui ASI',
         'duration': '6 Menit',
         'category': 'Panduan',
         'screen': const EdukasiASIScreen(),
       },
-
       {
         'title': 'Kesehatan Mental Ibu',
-        'duration': '4 Menit',
+        'duration': '4 Menit Baca',
         'category': 'Artikel',
-        'screen':
-            const EdukasiKesehatanMentalScreen(),
+        'screen': const EdukasiKesehatanMentalScreen(),
       },
-
       {
         'title': 'Edukasi Masa Nifas',
         'duration': '5 Menit',
         'category': 'Panduan',
         'screen': const EdukasiNifasScreen(),
       },
-
       {
         'title': 'Tanda-Tanda Melahirkan',
-        'duration': '4 Menit',
+        'duration': '4 Menit Baca',
         'category': 'Artikel',
-        'screen':
-            const EdukasiTandaMelahirkanScreen(),
+        'screen': const EdukasiTandaMelahirkanScreen(),
       },
     ];
 
+    // --- LOGIKA FILTER TETAP SAMA (LOGIKA AMAN) ---
     final filteredData = edukasiIbu.where((item) {
+      final matchesCategory = selectedCategory == 'Semua'
+          ? true
+          : item['category'] == selectedCategory;
 
-      final matchesCategory =
-          selectedCategory == 'Semua'
-              ? true
-              : item['category'] ==
-                  selectedCategory;
+      final matchesSearch = item['title']
+          .toString()
+          .toLowerCase()
+          .contains(searchQuery.toLowerCase());
 
-      final matchesSearch =
-          item['title']
-              .toString()
-              .toLowerCase()
-              .contains(
-                searchQuery.toLowerCase(),
-              );
-
-      return matchesCategory &&
-          matchesSearch;
-
+      return matchesCategory && matchesSearch;
     }).toList();
 
     return Scaffold(
-      backgroundColor: const Color(
-        0xFFF5F7FB,
-      ),
-
+      backgroundColor: const Color(0xFFF8F9FA), 
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-
-        title: const Text(
-          'Edukasi Ibu',
-
-          style: TextStyle(
-            color: Colors.black87,
-            fontWeight: FontWeight.bold,
-          ),
+        title: Column(
+          children: const [
+            Text(
+              'Edukasi',
+              style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18),
+            ),
+            Text(
+              'Sumber Buku KIA',
+              style: TextStyle(color: Colors.grey, fontWeight: FontWeight.normal, fontSize: 12),
+            ),
+          ],
         ),
-
         centerTitle: true,
-
-        iconTheme: const IconThemeData(
-          color: Colors.black87,
-        ),
+        iconTheme: const IconThemeData(color: Colors.black87),
       ),
 
       body: Padding(
-        padding: const EdgeInsets.all(16),
-
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-
+            // Widget Pencarian & Filter
             EdukasiSearchFilter(
-              selectedCategory:
-                  selectedCategory,
-
-              categories: const [
-                'Semua',
-                'Panduan',
-                'Artikel',
-              ],
-
+              selectedCategory: selectedCategory,
+              categories: const ['Semua', 'Panduan', 'Artikel'],
               onCategorySelected: (value) {
-                setState(() {
-                  selectedCategory = value;
-                });
+                setState(() { selectedCategory = value; });
               },
-
               onSearchChanged: (value) {
-                setState(() {
-                  searchQuery = value;
-                });
+                setState(() { searchQuery = value; });
               },
             ),
-
             const SizedBox(height: 20),
+            const Text(
+              'Rekomendasi untuk ibu hamil dan nifas',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF212529)),
+            ),
+            const SizedBox(height: 16),
 
+            // Bagian List Edukasi
             Expanded(
               child: filteredData.isEmpty
-
-                  ? Center(
-                      child: Column(
-                        mainAxisAlignment:
-                            MainAxisAlignment.center,
-
-                        children: [
-
-                          Icon(
-                            Icons.search_off_rounded,
-                            size: 70,
-                            color:
-                                Colors.grey.shade400,
-                          ),
-
-                          const SizedBox(height: 14),
-
-                          const Text(
-                            'Edukasi tidak ditemukan',
-
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight:
-                                  FontWeight.w600,
-                            ),
-                          ),
-
-                          const SizedBox(height: 6),
-
-                          Text(
-                            'Coba gunakan kata kunci lain',
-
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: Colors
-                                  .grey.shade600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-
+                  ? const Center(child: Text('Edukasi tidak ditemukan'))
                   : ListView.builder(
-                      itemCount:
-                          filteredData.length,
-
-                      itemBuilder:
-                          (context, index) {
-
-                        final item =
-                            filteredData[index];
-
-                        final bool isArtikel =
-                            item['category'] ==
-                                'Artikel';
-
-                        return GestureDetector(
+                      itemCount: filteredData.length,
+                      itemBuilder: (context, index) {
+                        final item = filteredData[index];
+                        
+                        // --- MENGGUNAKAN WIDGET MODULAR (RINGKAS & RAPI) ---
+                        return EdukasiCard(
+                          title: item['title'],
+                          duration: item['duration'],
+                          category: item['category'],
                           onTap: () {
                             Navigator.push(
-                              context,
-
-                              MaterialPageRoute(
-                                builder: (_) =>
-                                    item['screen'],
-                              ),
+                              context, 
+                              MaterialPageRoute(builder: (_) => item['screen'])
                             );
                           },
-
-                          child: Container(
-                            margin:
-                                const EdgeInsets.only(
-                              bottom: 16,
-                            ),
-
-                            decoration:
-                                BoxDecoration(
-                              color: Colors.white,
-
-                              borderRadius:
-                                  BorderRadius
-                                      .circular(
-                                18,
-                              ),
-
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black
-                                      .withValues(
-                                    alpha: 0.04,
-                                  ),
-
-                                  blurRadius: 8,
-
-                                  offset:
-                                      const Offset(
-                                    0,
-                                    4,
-                                  ),
-                                ),
-                              ],
-                            ),
-
-                            child: Column(
-                              crossAxisAlignment:
-                                  CrossAxisAlignment
-                                      .start,
-
-                              children: [
-
-                                Container(
-                                  height: 120,
-
-                                  decoration:
-                                      const BoxDecoration(
-                                    color: Color(
-                                      0xFFFFE9B3,
-                                    ),
-
-                                    borderRadius:
-                                        BorderRadius
-                                            .vertical(
-                                      top:
-                                          Radius.circular(
-                                        18,
-                                      ),
-                                    ),
-                                  ),
-
-                                  child: Center(
-                                    child: Container(
-                                      padding:
-                                          const EdgeInsets
-                                              .all(
-                                        12,
-                                      ),
-
-                                      decoration:
-                                          BoxDecoration(
-                                        color: Colors
-                                            .white,
-
-                                        shape:
-                                            BoxShape
-                                                .circle,
-
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: Colors
-                                                .black
-                                                .withValues(
-                                              alpha:
-                                                  0.08,
-                                            ),
-
-                                            blurRadius:
-                                                8,
-                                          ),
-                                        ],
-                                      ),
-
-                                      child: Icon(
-                                        isArtikel
-                                            ? Icons
-                                                .article_rounded
-                                            : Icons
-                                                .health_and_safety_rounded,
-
-                                        size: 32,
-
-                                        color:
-                                            AppColors
-                                                .primary,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-
-                                Padding(
-                                  padding:
-                                      const EdgeInsets
-                                          .all(
-                                    14,
-                                  ),
-
-                                  child: Row(
-                                    children: [
-
-                                      Container(
-                                        padding:
-                                            const EdgeInsets
-                                                .symmetric(
-                                          horizontal:
-                                              10,
-                                          vertical: 4,
-                                        ),
-
-                                        decoration:
-                                            BoxDecoration(
-                                          color:
-                                              AppColors
-                                                  .primary,
-
-                                          borderRadius:
-                                              BorderRadius
-                                                  .circular(
-                                            20,
-                                          ),
-                                        ),
-
-                                        child: Text(
-                                          item[
-                                              'category'],
-
-                                          style:
-                                              const TextStyle(
-                                            color: Colors
-                                                .white,
-
-                                            fontSize:
-                                                11,
-
-                                            fontWeight:
-                                                FontWeight
-                                                    .bold,
-                                          ),
-                                        ),
-                                      ),
-
-                                      const Spacer(),
-
-                                      Row(
-                                        children: [
-
-                                          const Icon(
-                                            Icons
-                                                .access_time,
-                                            size: 15,
-                                            color: Colors
-                                                .grey,
-                                          ),
-
-                                          const SizedBox(
-                                            width: 4,
-                                          ),
-
-                                          Text(
-                                            item[
-                                                'duration'],
-
-                                            style:
-                                                const TextStyle(
-                                              fontSize:
-                                                  12,
-                                              color: Colors
-                                                  .grey,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-
-                                Padding(
-                                  padding:
-                                      const EdgeInsets
-                                          .only(
-                                    left: 14,
-                                    right: 14,
-                                    bottom: 16,
-                                  ),
-
-                                  child: Text(
-                                    item['title'],
-
-                                    style:
-                                        const TextStyle(
-                                      fontSize: 15,
-
-                                      fontWeight:
-                                          FontWeight
-                                              .w600,
-
-                                      height: 1.4,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
                         );
                       },
                     ),
             ),
           ],
         ),
+      ),
+
+      // --- NAVBAR TETAP TERHUBUNG ---
+      bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+        backgroundColor: Colors.white,
+        currentIndex: _currentIndex,
+        selectedItemColor: AppColors.primary, 
+        unselectedItemColor: Colors.grey,
+        showUnselectedLabels: true,
+        selectedLabelStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+        unselectedLabelStyle: const TextStyle(fontSize: 12),
+        onTap: (index) {
+          if (index == _currentIndex) return;
+          setState(() { _currentIndex = index; });
+
+          if (index == 0) {
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const DashboardScreen()));
+          } else if (index == 1) {
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const AbsensiKelasIbuHamilScreen()));
+          }
+        },
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home_outlined), activeIcon: Icon(Icons.home), label: 'Beranda'),
+          BottomNavigationBarItem(icon: Icon(Icons.assignment_outlined), activeIcon: Icon(Icons.assignment), label: 'Absensi'),
+          BottomNavigationBarItem(icon: Icon(Icons.menu_book_outlined), activeIcon: Icon(Icons.menu_book), label: 'Edukasi'),
+          BottomNavigationBarItem(icon: Icon(Icons.person_outline), activeIcon: Icon(Icons.person), label: 'Profil'),
+        ],
       ),
     );
   }
