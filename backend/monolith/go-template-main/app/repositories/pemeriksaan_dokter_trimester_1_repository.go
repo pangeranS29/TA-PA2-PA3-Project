@@ -63,7 +63,6 @@
 // 	return &data, err
 // }
 
-
 package repositories
 
 import (
@@ -186,4 +185,15 @@ func (r *PemeriksaanDokterTrimester1Repository) FindAllMineByUserID(userID int32
 		Find(&list).Error
 
 	return list, err
+}
+
+// COBA DULU
+func (r *PemeriksaanDokterTrimester1Repository) FindByID(id int32) (*models.PemeriksaanDokterTrimester1, error) {
+	// TODO: Implementasi DB Find By ID
+	return nil, nil
+}
+
+func (r *PemeriksaanDokterTrimester1Repository) FindByKehamilanID(kehamilanID int32) ([]models.PemeriksaanDokterTrimester1, error) {
+	// TODO: Implementasi DB Find By Kehamilan ID
+	return nil, nil
 }

@@ -85,6 +85,7 @@ type Main struct {
 	EdukasiNifas                *EdukasiNifasController
 	EdukasiTandaMelahirkan      *EdukasiTandaMelahirkanController
 	EdukasiTrimester            *EdukasiTrimesterController
+	GrafikEvaluasiKehamilan     *GrafikEvaluasiKehamilanController
 }
 
 type Options struct {
@@ -128,7 +129,7 @@ func Init(opts Options) *Main {
 	m.CatatanPelayananTrimester2 = NewCatatanPelayananTrimester2Controller(opts.UseCases.CatatanPelayananTrimester2)
 	m.CatatanPelayananTrimester3 = NewCatatanPelayananTrimester3Controller(opts.UseCases.CatatanPelayananTrimester3)
 	m.CatatanPelayananNifas = NewCatatanPelayananNifasController(opts.UseCases.CatatanPelayananNifas)
-	// m.GrafikEvaluasiKehamilan = NewGrafikEvaluasiKehamilanController(opts.UseCases.GrafikEvaluasiKehamilan)
+	m.GrafikEvaluasiKehamilan = NewGrafikEvaluasiKehamilanController(opts.UseCases.GrafikEvaluasiKehamilan)
 	m.GrafikPeningkatanBB = NewGrafikPeningkatanBBController(opts.UseCases.GrafikPeningkatanBB)
 	m.PenjelasanHasilGrafik = NewPenjelasanHasilGrafikController(opts.UseCases.PenjelasanHasilGrafik)
 	m.RencanaPersalinan = NewRencanaPersalinanController(opts.UseCases.RencanaPersalinan)
@@ -193,6 +194,7 @@ func Init(opts Options) *Main {
 	m.EdukasiNifas = NewEdukasiNifasController(opts.UseCases.EdukasiNifas)
 	m.EdukasiTandaMelahirkan = NewEdukasiTandaMelahirkanController(opts.UseCases.EdukasiTandaMelahirkan)
 	m.EdukasiTrimester = NewEdukasiTrimesterController(opts.UseCases.EdukasiTrimester)
+	m.GrafikEvaluasiKehamilan = NewGrafikEvaluasiKehamilanController(opts.UseCases.GrafikEvaluasiKehamilan)
 	return m
 }
 
