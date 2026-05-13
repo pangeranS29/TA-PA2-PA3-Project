@@ -135,3 +135,22 @@ func (m *Main) UpdateJadwalStatus() error {
 
 	return nil
 }
+
+
+// func (m *Main) CountAnakImunisasiTerlambat() (int64, error) {
+// 	var count int64
+
+// 	err := m.postgres.
+// 		Table("jadwal_imunisasi_anak jia").
+// 		Where("jia.tanggal_estimasi IS NOT NULL").
+// 		Where("jia.tanggal_estimasi < ?", time.Now()).
+// 		Where("jia.id_status_jadwal != ?", 3). 
+// 		Distinct("jia.id_anak").
+// 		Count(&count).Error
+
+// 	if err != nil {
+// 		return 0, err
+// 	}
+
+// 	return count, nil
+// }
