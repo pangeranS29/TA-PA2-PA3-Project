@@ -72,6 +72,7 @@ const Sidebar = () => {
   const bidanMenuItems = [
     { path: "/data-ibu", name: "Data Ibu", icon: Users },
     { path: "/daftar-anak", name: "Data Anak", icon: Baby },
+    { path: "/dashboard/admin/informasi-umum", name: "Edukasi", icon: BookOpen },
     { path: "/kependudukan", name: "Manajemen KK", icon: UserCheck },
     // { path: "/monitoring", name: "Monitoring", icon: Activity },
     {

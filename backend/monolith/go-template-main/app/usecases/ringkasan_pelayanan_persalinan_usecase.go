@@ -1,6 +1,7 @@
 package usecases
 
 import (
+	"context"
 	"errors"
 	"monitoring-service/app/models"
 	"monitoring-service/app/repositories"
@@ -12,6 +13,7 @@ type RingkasanPelayananPersalinanUsecase interface {
 	GetByKehamilanID(kehamilanID int32) ([]models.RingkasanPelayananPersalinan, error)
 	Update(rp *models.RingkasanPelayananPersalinan) error
 	Delete(id int32) error
+	GetMine(ctx context.Context,userID int32,) ([]models.RingkasanPelayananPersalinan, error)
 }
 
 type RingkasanPelayananPersalinan struct {
@@ -43,6 +45,16 @@ func (u *RingkasanPelayananPersalinan) Update(rp *models.RingkasanPelayananPersa
 		return errors.New("data ringkasan pelayanan persalinan tidak ditemukan")
 	}
 	return u.repo.Update(rp)
+}
+
+func (u *RingkasanPelayananPersalinan) GetMine(
+	ctx context.Context,
+	userID int32,
+) ([]models.RingkasanPelayananPersalinan, error) {
+
+	return u.repo.GetMine(
+		userID,
+	)
 }
 
 func (u *RingkasanPelayananPersalinan) Delete(id int32) error {

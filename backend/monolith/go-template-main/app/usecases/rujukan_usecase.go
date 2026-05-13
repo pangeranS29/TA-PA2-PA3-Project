@@ -9,6 +9,7 @@ import (
 type RujukanUsecase interface {
 	Create(rj *models.Rujukan) error
 	GetByID(id int32) (*models.Rujukan, error)
+	GetByIDForOrangtua(id int32, userID int32) (*models.Rujukan, error) // MODUL IBU
 	GetByKehamilanID(kehamilanID int32) ([]models.Rujukan, error)
 	Update(rj *models.Rujukan) error
 	Delete(id int32) error
@@ -47,4 +48,19 @@ func (u *rujukanUsecase) Update(rj *models.Rujukan) error {
 
 func (u *rujukanUsecase) Delete(id int32) error {
 	return u.repo.Delete(id)
+}
+
+
+// MODUL IBU
+func (u *rujukanUsecase) GetByIDForOrangtua(id int32, userID int32) (*models.Rujukan, error) {
+	allowed, err := u.repo.IsOwnedByUser(id, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	if !allowed {
+		return nil, errors.New("Anda tidak dapat mengakses data ini")
+	}
+
+	return u.repo.FindByID(id)
 }

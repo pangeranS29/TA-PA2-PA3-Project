@@ -1,200 +1,286 @@
+// package usecases
+
+// import (
+// 	"errors"
+// 	"monitoring-service/app/models"
+// 	"monitoring-service/app/repositories"
+// )
+
+// type KehamilanUsecase interface {
+// 	Create(kehamilan *models.Kehamilan) error
+// 	GetByID(id int32) (*models.Kehamilan, error)
+// 	// GetAktifByPhoneNumber(phoneNumber string) (*models.Kehamilan, error) // MODUL IBU
+// 	GetAktifByUserID(userID int32) (*models.Kehamilan, error) // MODUL IBU
+// 	GetByIbuID(ibuID int32) ([]models.Kehamilan, error)
+// 	GetAll() ([]models.Kehamilan, error)
+// 	Update(kehamilan *models.Kehamilan) error
+// 	Delete(id int32) error
+// }
+
+// type kehamilanUsecase struct {
+// 	repo *repositories.KehamilanRepository
+// }
+
+// func NewKehamilanUsecase(repo *repositories.KehamilanRepository) KehamilanUsecase {
+// 	return &kehamilanUsecase{repo: repo}
+// }
+
+// func calculateIMT(bb, tb float64) (float64, error) {
+// 	if tb <= 0 {
+// 		return 0, errors.New("tb tidak boleh 0")
+// 	}
+// 	return bb / (tb * tb), nil
+// }
+
+// func (u *kehamilanUsecase) Create(kehamilan *models.Kehamilan) error {
+// 	if kehamilan.IbuID == 0 {
+// 		return errors.New("ibu_id wajib diisi")
+// 	}
+// 	if kehamilan.BB_Awal <= 0 {
+// 		return errors.New("bb_awal tidak valid")
+// 	}
+
+// 	imt, err := calculateIMT(kehamilan.BB_Awal, kehamilan.TB)
+// 	if err != nil {
+// 		return err
+// 	}
+
+// 	kehamilan.IMT_Awal = imt
+// 	return u.repo.Create(kehamilan)
+// }
+
+// func (u *kehamilanUsecase) GetByID(id int32) (*models.Kehamilan, error) {
+// 	return u.repo.FindByID(id)
+// }
+
+// func (u *kehamilanUsecase) GetByIbuID(ibuID int32) ([]models.Kehamilan, error) {
+// 	return u.repo.FindByIbuID(ibuID)
+// }
+
+// func (u *kehamilanUsecase) GetAll() ([]models.Kehamilan, error) {
+// 	return u.repo.GetAll()
+// }
+
+// func (u *kehamilanUsecase) Update(kehamilan *models.Kehamilan) error {
+// 	existing, err := u.repo.FindByID(kehamilan.ID)
+// 	if err != nil {
+// 		return errors.New("data kehamilan tidak ditemukan")
+// 	}
+
+// 	// UPDATE FIELD NON-IMT
+// 	existing.Gravida = kehamilan.Gravida
+// 	existing.Paritas = kehamilan.Paritas
+// 	existing.Abortus = kehamilan.Abortus
+// 	existing.HPHT = kehamilan.HPHT
+// 	existing.TaksiranPersalinan = kehamilan.TaksiranPersalinan
+// 	existing.UKKehamilanSaatIni = kehamilan.UKKehamilanSaatIni
+// 	existing.JarakKehamilanSebelumnya = kehamilan.JarakKehamilanSebelumnya
+// 	existing.StatusKehamilan = kehamilan.StatusKehamilan
+
+// 	// UPDATE BB & TB
+// 	if kehamilan.BB_Awal > 0 {
+// 		existing.BB_Awal = kehamilan.BB_Awal
+// 	}
+// 	if kehamilan.TB > 0 {
+// 		existing.TB = kehamilan.TB
+// 	}
+
+// 	// RECALCULATE IMT
+// 	imt, err := calculateIMT(existing.BB_Awal, existing.TB)
+// 	if err != nil {
+// 		return err
+// 	}
+
+// 	existing.IMT_Awal = imt
+
+// 	return u.repo.Update(existing)
+// }
+
+// func (u *kehamilanUsecase) Delete(id int32) error {
+// 	return u.repo.Delete(id)
+// }
+
+// // MODUL IBU
+// // func (u *kehamilanUsecase) GetAktifByPhoneNumber(phoneNumber string) (*models.Kehamilan, error) {
+// // 	if phoneNumber == "" {
+// // 		return nil, errors.New("nomor telepon tidak ditemukan")
+// // 	}
+// // 	return u.repo.FindAktifByPhoneNumber(phoneNumber)
+// // }
+// func (u *kehamilanUsecase) GetAktifByUserID(userID int32) (*models.Kehamilan, error) {
+// 	if userID == 0 {
+// 		return nil, errors.New("user_id tidak valid")
+// 	}
+// 	return u.repo.FindAktifByUserID(userID)
+// }
 package usecases
 
 import (
-	"errors"
-	"log"
-	"monitoring-service/app/models"
-	"monitoring-service/app/repositories"
-	"monitoring-service/app/utils"
-	"time"
+    "errors"
+    "monitoring-service/app/models"
+    "monitoring-service/app/repositories"
+    "time"
 )
 
 type KehamilanUsecase interface {
-	Create(kehamilan *models.Kehamilan) error
-	GetByID(id int32) (*models.Kehamilan, error)
-	GetByIbuID(ibuID int32) ([]models.Kehamilan, error)
-	GetAll() ([]models.Kehamilan, error)
-	Update(kehamilan *models.Kehamilan) error
-	Delete(id int32) error
-	GetDashboardIbuHamil() ([]repositories.KehamilanDashboardDTO, error)
-	ExistsActiveByIbuID(ibuID int32) (bool, error)
-	 UpdateAllActiveGestationalAge() error
+    Create(kehamilan *models.Kehamilan) error
+    GetByID(id int32) (*models.Kehamilan, error)
+    GetAktifByUserID(userID int32) (*models.Kehamilan, error)
+    GetByIbuID(ibuID int32) ([]models.Kehamilan, error)
+    GetAll() ([]models.Kehamilan, error)
+    Update(kehamilan *models.Kehamilan) error
+    Delete(id int32) error
+    // STUB BARU
+    UpdateAllActiveGestationalAge() error
+    GetDashboardIbuHamil(ibuID int32) (interface{}, error)
+    ExistsActiveByIbuID(ibuID int32) (bool, error)
 }
 
 type kehamilanUsecase struct {
-	repo *repositories.KehamilanRepository
+    repo *repositories.KehamilanRepository
 }
 
 func NewKehamilanUsecase(repo *repositories.KehamilanRepository) KehamilanUsecase {
-	return &kehamilanUsecase{repo: repo}
+    return &kehamilanUsecase{repo: repo}
 }
 
-// hitung IMT hanya jika BB_Awal dan TB diisi
-func calculateIMT(bb, tb float64) float64 {
-	if tb <= 0 {
-		return 0
-	}
+func calculateIMT(bb, tb float64) (float64, error) {
+    if tb <= 0 {
+        return 0, errors.New("tb tidak boleh 0")
+    }
+    return bb / (tb * tb), nil
+}
 
-	tbMeter := tb / 100 //
-	return bb / (tbMeter * tbMeter)
+func HitungUKDariHPHT(hpht time.Time) int32 {
+    if hpht.IsZero() {
+        return 0
+    }
+    now := time.Now()
+    if hpht.After(now) {
+        return 0
+    }
+    days := int(now.Sub(hpht).Hours() / 24)
+    weeks := int32(days / 7)
+    if weeks > 42 {
+        weeks = 42
+    }
+    return weeks
 }
 
 func (u *kehamilanUsecase) Create(kehamilan *models.Kehamilan) error {
-	if kehamilan.IbuID == 0 {
-		return errors.New("ibu_id wajib diisi")
-	}
-
-	if kehamilan.HPHT.IsZero() {
-		return errors.New("HPHT wajib diisi")
-	}
-
-	if kehamilan.HPHT.After(time.Now()) {
-		return errors.New("HPHT tidak boleh di masa depan")
-	}
-
-	// validasi kehamilan aktif
-	exists, err := u.repo.ExistsActiveByIbuID(kehamilan.IbuID)
-	if err != nil {
-		return err
-	}
-	if exists {
-		return errors.New("ibu masih memiliki kehamilan aktif")
-	}
-
-	// 🔥 hitung otomatis
-	usia := calculateUsiaKehamilan(kehamilan.HPHT)
-	kehamilan.UKKehamilanSaatIni = int32(usia)
-	kehamilan.StatusKehamilan = determineTrimester(usia)
-
-	// IMT
-	if kehamilan.BB_Awal > 0 && kehamilan.TB > 0 {
-		kehamilan.IMT_Awal = calculateIMT(kehamilan.BB_Awal, kehamilan.TB)
-	}
-
-	return u.repo.Create(kehamilan)
+    if kehamilan.IbuID == 0 {
+        return errors.New("ibu_id wajib diisi")
+    }
+    if kehamilan.BB_Awal <= 0 {
+        return errors.New("bb_awal tidak valid")
+    }
+    imt, err := calculateIMT(kehamilan.BB_Awal, kehamilan.TB)
+    if err != nil {
+        return err
+    }
+    kehamilan.IMT_Awal = imt
+    if !kehamilan.HPHT.IsZero() {
+        kehamilan.UKKehamilanSaatIni = HitungUKDariHPHT(kehamilan.HPHT)
+    }
+    return u.repo.Create(kehamilan)
 }
 
 func (u *kehamilanUsecase) GetByID(id int32) (*models.Kehamilan, error) {
-	return u.repo.FindByID(id)
+    kehamilan, err := u.repo.FindByID(id)
+    if err != nil {
+        return nil, err
+    }
+    if !kehamilan.HPHT.IsZero() {
+        kehamilan.UKKehamilanSaatIni = HitungUKDariHPHT(kehamilan.HPHT)
+    }
+    return kehamilan, nil
 }
 
 func (u *kehamilanUsecase) GetByIbuID(ibuID int32) ([]models.Kehamilan, error) {
-	return u.repo.FindByIbuID(ibuID)
+    list, err := u.repo.FindByIbuID(ibuID)
+    if err != nil {
+        return nil, err
+    }
+    for i := range list {
+        if !list[i].HPHT.IsZero() {
+            list[i].UKKehamilanSaatIni = HitungUKDariHPHT(list[i].HPHT)
+        }
+    }
+    return list, nil
 }
 
 func (u *kehamilanUsecase) GetAll() ([]models.Kehamilan, error) {
-	return u.repo.GetAll()
+    list, err := u.repo.GetAll()
+    if err != nil {
+        return nil, err
+    }
+    for i := range list {
+        if !list[i].HPHT.IsZero() {
+            list[i].UKKehamilanSaatIni = HitungUKDariHPHT(list[i].HPHT)
+        }
+    }
+    return list, nil
 }
 
 func (u *kehamilanUsecase) Update(kehamilan *models.Kehamilan) error {
-	existing, err := u.repo.FindByID(kehamilan.ID)
-	if err != nil {
-		return errors.New("data kehamilan tidak ditemukan")
-	}
-
-	if kehamilan.IbuID != 0 {
-		existing.IbuID = kehamilan.IbuID
-	}
-
-	if !kehamilan.HPHT.IsZero() {
-		if kehamilan.HPHT.After(time.Now()) {
-			return errors.New("HPHT tidak valid")
-		}
-		existing.HPHT = kehamilan.HPHT
-	}
-
-	if !kehamilan.TaksiranPersalinan.IsZero() {
-		existing.TaksiranPersalinan = kehamilan.TaksiranPersalinan
-	}
-
-	if kehamilan.BB_Awal > 0 {
-		existing.BB_Awal = kehamilan.BB_Awal
-	}
-
-	if kehamilan.TB > 0 {
-		existing.TB = kehamilan.TB
-	}
-
-	// IMT
-	if kehamilan.BB_Awal > 0 || kehamilan.TB > 0 {
-		existing.IMT_Awal = calculateIMT(existing.BB_Awal, existing.TB)
-	}
-
-	// 🔥 WAJIB: hitung ulang
-	usia := calculateUsiaKehamilan(existing.HPHT)
-	existing.UKKehamilanSaatIni = int32(usia)
-	existing.StatusKehamilan = determineTrimester(usia)
-
-	return u.repo.Update(existing)
+    existing, err := u.repo.FindByID(kehamilan.ID)
+    if err != nil {
+        return errors.New("data kehamilan tidak ditemukan")
+    }
+    existing.Gravida = kehamilan.Gravida
+    existing.Paritas = kehamilan.Paritas
+    existing.Abortus = kehamilan.Abortus
+    existing.HPHT = kehamilan.HPHT
+    existing.TaksiranPersalinan = kehamilan.TaksiranPersalinan
+    existing.JarakKehamilanSebelumnya = kehamilan.JarakKehamilanSebelumnya
+    existing.StatusKehamilan = kehamilan.StatusKehamilan
+    if kehamilan.BB_Awal > 0 {
+        existing.BB_Awal = kehamilan.BB_Awal
+    }
+    if kehamilan.TB > 0 {
+        existing.TB = kehamilan.TB
+    }
+    imt, err := calculateIMT(existing.BB_Awal, existing.TB)
+    if err != nil {
+        return err
+    }
+    existing.IMT_Awal = imt
+    if !existing.HPHT.IsZero() {
+        existing.UKKehamilanSaatIni = HitungUKDariHPHT(existing.HPHT)
+    }
+    return u.repo.Update(existing)
 }
 
 func (u *kehamilanUsecase) Delete(id int32) error {
-	return u.repo.Delete(id)
-}
-func calculateUsiaKehamilan(hpht time.Time) int32 {
-	if hpht.IsZero() {
-		return 0
-	}
-
-	now := time.Now()
-	if hpht.After(now) {
-		return 0
-	}
-
-	days := int(now.Sub(hpht).Hours() / 24)
-	return int32(days / 7)
+    return u.repo.Delete(id)
 }
 
-func determineTrimester(usia int32) string {
-	switch {
-	case usia <= 12:
-		return "TRIMESTER 1"
-	case usia <= 27:
-		return "TRIMESTER 2"
-	case usia <= 40:
-		return "TRIMESTER 3"
-	default:
-		return "Non-Aktif"
-	}
-}
-func (u *kehamilanUsecase) GetDashboardIbuHamil() ([]repositories.KehamilanDashboardDTO, error) {
-	return u.repo.GetDashboardIbuHamil()
-}
-func (u *kehamilanUsecase) ExistsActiveByIbuID(ibuID int32) (bool, error) {
-	return u.repo.ExistsActiveByIbuID(ibuID)
-}
-
-// UpdateAllActiveGestationalAge menghitung ulang usia dan status untuk semua kehamilan aktif
-func (u *kehamilanUsecase) UpdateAllActiveGestationalAge() error {
-    log.Println("[CRON] Memulai update usia kehamilan dan status trimester...")
-
-    kehamilans, err := u.repo.GetActiveKehamilanList()
+func (u *kehamilanUsecase) GetAktifByUserID(userID int32) (*models.Kehamilan, error) {
+    if userID == 0 {
+        return nil, errors.New("user_id tidak valid")
+    }
+    kehamilan, err := u.repo.FindAktifByUserID(userID)
     if err != nil {
-        log.Printf("Gagal mengambil data kehamilan aktif: %v", err)
-        return err
+        return nil, err
     }
-
-    if len(kehamilans) == 0 {
-        log.Println("Tidak ada kehamilan aktif yang perlu diupdate.")
-        return nil
+    if !kehamilan.HPHT.IsZero() {
+        kehamilan.UKKehamilanSaatIni = HitungUKDariHPHT(kehamilan.HPHT)
     }
+    return kehamilan, nil
+}
 
-    updated := 0
-    for _, k := range kehamilans {
-        // Hitung usia dari HPHT
-        usia := int32(utils.HitungUsiaKehamilanFromTime(k.HPHT))
-        // Tentukan trimester berdasarkan usia
-        status := utils.DetermineTrimester(int(usia))
+// COBA DULU
+func (u *kehamilanUsecase) UpdateAllActiveGestationalAge() error {
+    // TODO: Implementasi cron job update usia kehamilan
+    return u.repo.UpdateAllActiveGestationalAge()
+}
 
-        // Update ke database
-        err := u.repo.UpdateUsiaDanStatusKehamilan(k.ID, usia, status)
-        if err != nil {
-            log.Printf("Gagal update kehamilan ID %d: %v", k.ID, err)
-        } else {
-            updated++
-        }
-    }
+func (u *kehamilanUsecase) GetDashboardIbuHamil(ibuID int32) (interface{}, error) {
+    // TODO: Implementasi logika dashboard ibu hamil
+    return nil, nil
+}
 
-    log.Printf("Selesai. Berhasil update %d dari %d kehamilan.", updated, len(kehamilans))
-    return nil
+func (u *kehamilanUsecase) ExistsActiveByIbuID(ibuID int32) (bool, error) {
+    // TODO: Implementasi pengecekan kehamilan aktif by Ibu ID
+    return u.repo.ExistsActiveByIbuID(ibuID)
 }

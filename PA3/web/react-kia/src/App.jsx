@@ -1,7 +1,6 @@
 import React from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
-import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import PrivateRoute from "./routes/Private-routes";
 import RencanaPersalinanForm from './pages/Ibu/RencanaPersalinanForm';
@@ -12,7 +11,8 @@ import AdminAkunKeluargaCreate from "./pages/Admin/AkunKeluargaCreate";
 import AkunKeluargaManagement from "./pages/Admin/AkunKeluargaManagement";
 import TenagaKesehatanManagement from "./pages/Admin/TenagaKesehatanManagement";
 import JadwalLayanan from "./pages/Admin/JadwalLayanan";
-import { getPostLoginRoute, isAuthenticated } from "./services/auth";
+import InformasiUmumList from "./pages/InformasiUmum/InformasiUmumList";
+import InformasiUmumForm from "./pages/InformasiUmum/InformasiUmumForm";
 
 // Data Ibu
 import IbuList from "./pages/Ibu/IbuList";
@@ -136,7 +136,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         {/* PUBLIC */}
-        <Route path="/login" element={<Login />} />
+        <Route path="/login" element={<Navigate to="/dashboard" replace />} />
 
         {/* PROTECTED */}
         <Route element={<PrivateRoute />}>
@@ -203,6 +203,9 @@ function App() {
           <Route path="/dashboard/admin/manajemen-keluarga" element={<AkunKeluargaManagement />} />
           <Route path="/dashboard/admin/tenaga-kesehatan" element={<TenagaKesehatanManagement />} />
           <Route path="/dashboard/admin/jadwal-layanan" element={<JadwalLayanan />} />
+          <Route path="/dashboard/admin/informasi-umum" element={<InformasiUmumList />} />
+          <Route path="/dashboard/admin/informasi-umum/create" element={<InformasiUmumForm />} />
+          <Route path="/dashboard/admin/informasi-umum/edit/:id" element={<InformasiUmumForm />} />
         </Route>
 
         {/* ── RUTE ANAK (tanpa auth wrapper) ── */}

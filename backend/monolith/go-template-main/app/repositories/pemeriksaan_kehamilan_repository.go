@@ -56,6 +56,7 @@ func (r *PemeriksaanKehamilanRepository) FindByKehamilanID(kehamilanID int32) ([
 
 	return list, nil
 }
+
 // ================= UPDATE ==================== //
 
 func (r *PemeriksaanKehamilanRepository) Update(p *models.PemeriksaanKehamilan) error {
@@ -104,4 +105,37 @@ func (r *PemeriksaanKehamilanRepository) FindLatestByKehamilanID(kehamilanID int
 	}
 
 	return &p, nil
+}
+
+// MODUL IBU
+func (r *PemeriksaanKehamilanRepository) IsOwnedByUser(periksaID int32, userID int32) (bool, error) {
+	var count int64
+
+	err := r.db.
+		Table("pemeriksaan_kehamilan p").
+		Joins("JOIN kehamilan k ON k.id = p.kehamilan_id").
+		Joins("JOIN ibu i ON i.id = k.ibu_id").
+		Joins("JOIN penduduk pd ON pd.id = i.penduduk_id").
+		Joins("JOIN pengguna u ON u.penduduk_id = pd.id").
+		Where("p.id = ? AND u.id = ?", periksaID, userID).
+		Count(&count).Error
+
+	return count > 0, err
+}
+
+// MODUL IBU
+func (r *PemeriksaanKehamilanRepository) FindMineByUserID(userID int32) ([]models.PemeriksaanKehamilan, error) {
+	var list []models.PemeriksaanKehamilan
+
+	err := r.db.
+		Table("pemeriksaan_kehamilan p").
+		Joins("JOIN kehamilan k ON k.id = p.kehamilan_id").
+		Joins("JOIN ibu i ON i.id = k.ibu_id").
+		Joins("JOIN penduduk pd ON pd.id = i.penduduk_id").
+		Joins("JOIN pengguna u ON u.id = pd.id").
+		Where("u.id = ?", userID).
+		Order("p.tanggal_periksa DESC").
+		Find(&list).Error
+
+	return list, err
 }

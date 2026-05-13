@@ -123,20 +123,56 @@ func (r *KehamilanRepository) ExistsActiveByIbuID(ibuID int32) (bool, error) {
 
 // GetActiveKehamilanList mengambil semua kehamilan dengan status TRIMESTER (1,2,3) dan HPHT tidak kosong
 func (r *KehamilanRepository) GetActiveKehamilanList() ([]models.Kehamilan, error) {
-    var list []models.Kehamilan
-    err := r.db.
-        Where("status_kehamilan IN ?", []string{"TRIMESTER 1", "TRIMESTER 2", "TRIMESTER 3"}).
-        Where("hpht IS NOT NULL").
-        Find(&list).Error
-    return list, err
+	var list []models.Kehamilan
+	err := r.db.
+		Where("status_kehamilan IN ?", []string{"TRIMESTER 1", "TRIMESTER 2", "TRIMESTER 3"}).
+		Where("hpht IS NOT NULL").
+		Find(&list).Error
+	return list, err
 }
 
 // UpdateUsiaDanStatusKehamilan mengupdate uk_kehamilan_saat_ini dan status_kehamilan berdasarkan ID
 func (r *KehamilanRepository) UpdateUsiaDanStatusKehamilan(id int32, usia int32, status string) error {
-    return r.db.Model(&models.Kehamilan{}).
-        Where("id = ?", id).
-        Updates(map[string]interface{}{
-            "uk_kehamilan_saat_ini": usia,
-            "status_kehamilan":      status,
-        }).Error
+	return r.db.Model(&models.Kehamilan{}).
+		Where("id = ?", id).
+		Updates(map[string]interface{}{
+			"uk_kehamilan_saat_ini": usia,
+			"status_kehamilan":      status,
+		}).Error
+}
+
+// MODUL IBU (INTERNAL BACKUP ONLY)
+// func (r *KehamilanRepository) FindAktifByUserID(userID int32) (*models.Kehamilan, error) {
+// 	var kehamilan models.Kehamilan
+
+// 	err := r.db.
+// 		Table("kehamilan k").
+// 		Select("k.*").
+// 		Joins("JOIN ibu i ON i.id = k.ibu_id").
+// 		Joins("JOIN penduduk p ON p.id = i.id").
+// 		Joins("JOIN pengguna u ON u.id = p.id").
+// 		Where("u.id = ?", userID).
+// 		Where("k.status_kehamilan IN ?", []string{"aktif", "TRIMESTER 1", "TRIMESTER 2", "TRIMESTER 3"}).
+// 		Order("k.created_at DESC").
+// 		First(&kehamilan).Error
+
+// 	return &kehamilan, err
+// }
+
+// MODUL IBU (SUPABASE UTAMA)
+func (r *KehamilanRepository) FindAktifByUserID(userID int32) (*models.Kehamilan, error) {
+	var kehamilan models.Kehamilan
+
+	err := r.db.
+		Table("kehamilan k").
+		Select("k.*").
+		Joins("JOIN ibu i ON i.id = k.ibu_id").
+		Joins("JOIN penduduk p ON p.id = i.penduduk_id").
+		Joins("JOIN pengguna u ON u.penduduk_id = p.id").
+		Where("u.id = ?", userID).
+		Where("k.status_kehamilan IN ?", []string{"aktif", "TRIMESTER 1", "TRIMESTER 2", "TRIMESTER 3"}).
+		Order("k.created_at DESC").
+		First(&kehamilan).Error
+
+	return &kehamilan, err
 }

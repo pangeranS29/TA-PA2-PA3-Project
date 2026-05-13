@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"errors"
 	"monitoring-service/app/models"
 	"monitoring-service/app/usecases"
 	"net/http"
@@ -67,6 +68,36 @@ func (c *PengukuranLilAController) GetByAnakID(ctx echo.Context) error {
 
 	data, err := c.usecase.GetByAnakID(int32(anakID))
 	if err != nil {
+		return errorResponse(ctx, http.StatusInternalServerError, "failed to fetch data", err)
+	}
+
+	return success(ctx, http.StatusOK, "success get data", data)
+}
+
+func (c *PengukuranLilAController) GetByAnakIDForIbu(ctx echo.Context) error {
+	claims, ok := getAuthClaims(ctx)
+	if !ok {
+		return ctx.JSON(http.StatusUnauthorized, map[string]interface{}{"statusCode": http.StatusUnauthorized, "message": "Unauthorized"})
+	}
+
+	param := ctx.Param("anak_id")
+	if param == "" {
+		param = ctx.QueryParam("anak_id")
+	}
+	if param == "" {
+		return errorResponse(ctx, http.StatusBadRequest, "invalid anak_id", errors.New("anak_id wajib diisi"))
+	}
+
+	anakID, err := strconv.Atoi(param)
+	if err != nil {
+		return errorResponse(ctx, http.StatusBadRequest, "invalid anak_id", err)
+	}
+
+	data, err := c.usecase.GetByAnakIDForIbu(int32(anakID), uint(claims.UserID))
+	if err != nil {
+		if err.Error() == "akses ditolak: anak tidak ditemukan atau bukan milik anda" {
+			return errorResponse(ctx, http.StatusForbidden, "Forbidden", err)
+		}
 		return errorResponse(ctx, http.StatusInternalServerError, "failed to fetch data", err)
 	}
 

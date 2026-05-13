@@ -21,6 +21,24 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	secured.Use(middlewares.JWTAuth(controller.JWTSecret()))
 	secured.GET("/me", controller.Me)
 
+	// ==================== INFORMASI UMUM ====================
+	informasiUmum := e.Group("/informasi-umum")
+	informasiUmum.GET("", controller.InformasiUmum.GetAll)
+	informasiUmum.GET("/:id", controller.InformasiUmum.Detail)
+	// CRUD dibuka agar web dashboard bisa langsung mengelola Informasi Umum.
+	informasiUmum.POST("", controller.InformasiUmum.Create)
+	informasiUmum.PUT("/:id", controller.InformasiUmum.Update)
+	informasiUmum.DELETE("/:id", controller.InformasiUmum.Delete)
+
+	// ==================== EDUKASI IBU ====================
+	e.GET("/edukasi-imd", controller.EdukasiIMD.GetAll)
+	e.GET("/edukasi-kesehatan-mental", controller.EdukasiKesehatanMental.GetAll)
+	e.GET("/edukasi-menyusui-asi", controller.EdukasiMenyusuiASI.GetAll)
+	e.GET("/edukasi-nifas", controller.EdukasiNifas.GetAll)
+	e.GET("/edukasi-tanda-melahirkan", controller.EdukasiTandaMelahirkan.GetAll)
+	e.GET("/edukasi-trimester", controller.EdukasiTrimester.GetAll)
+	e.GET("/edukasi-trimester/:trimester", controller.EdukasiTrimester.GetByTrimester)
+	e.GET("/edukasi-trimester/:trimester/:kategori", controller.EdukasiTrimester.GetByKategori)
 	// ==================== MODUL ADMIN  ====================
 
 	admin := e.Group("/admin")
@@ -73,6 +91,8 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	// Kategori Capaian Routes
 	// kategoriCapaian := e.Group("/kategori-capaian")
 	// kategoriCapaian.Use(middlewares.JWTAuth(controller.JWTSecret()))
+	kategoriCapaian := e.Group("/kategori-capaian")
+	kategoriCapaian.Use(middlewares.JWTAuth(controller.JWTSecret()))
 	// kategoriCapaian.GET("", controller.GetAllKategoriCapaian)
 	// kategoriCapaian.GET("/:id", controller.GetKategoriCapaianById)
 	// kategoriCapaian.GET("/rentang-usia", controller.GetKategoriCapaianByRentangUsia)
@@ -83,6 +103,8 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	// Perkembangan Routes
 	// perkembangan := e.Group("/perkembangan")
 	// perkembangan.Use(middlewares.JWTAuth(controller.JWTSecret()))
+	perkembangan := e.Group("/perkembangan")
+	perkembangan.Use(middlewares.JWTAuth(controller.JWTSecret()))
 	// perkembangan.GET("", controller.GetAllPerkembangan)
 	// perkembangan.GET("/:id", controller.GetPerkembanganById)
 	// perkembangan.GET("/anak/:anak_id", controller.GetPerkembanganByAnakId)
@@ -91,8 +113,6 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	// perkembangan.PUT("/:id", controller.UpdatePerkembangan)
 	// perkembangan.DELETE("/:id", controller.DeletePerkembangan)
 	// perkembangan.GET("/search", controller.SearchPerkembangan)
-
-	// ==================== Branch Andika ====================
 
 	// Group untuk tenaga kesehatan (termasuk bidan, dokter, tenaga-kesehatan)
 	tenaga := e.Group("/tenaga-kesehatan")
@@ -282,11 +302,11 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	tenaga.PUT("/edukasi-perawatan-anak/:id", controller.EdukasiPerawatanAnak.Update)
 	tenaga.DELETE("/edukasi-perawatan-anak/:id", controller.EdukasiPerawatanAnak.Delete)
 
-	tenaga.GET("/edukasi-mpasi", controller.EdukasiMPASI.GetAll)
-	tenaga.POST("/edukasi-mpasi", controller.EdukasiMPASI.Create)
-	tenaga.GET("/edukasi-mpasi/:id", controller.EdukasiMPASI.GetByID)
-	tenaga.PUT("/edukasi-mpasi/:id", controller.EdukasiMPASI.Update)
-	tenaga.DELETE("/edukasi-mpasi/:id", controller.EdukasiMPASI.Delete)
+	// tenaga.GET("/edukasi-mpasi", controller.EdukasiMPASI.GetAll)
+	// tenaga.POST("/edukasi-mpasi", controller.EdukasiMPASI.Create)
+	// tenaga.GET("/edukasi-mpasi/:id", controller.EdukasiMPASI.GetByID)
+	// tenaga.PUT("/edukasi-mpasi/:id", controller.EdukasiMPASI.Update)
+	// tenaga.DELETE("/edukasi-mpasi/:id", controller.EdukasiMPASI.Delete)
 
 	// ==================== PEMANTAUAN INDIKATOR ====================
 	tenaga.GET("/pemantauan-indikator", controller.PemantauanIndikator.GetAll)
@@ -297,6 +317,24 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	// ==================== ADMIN AKUN BIDAN & KADER ====================
 	// admin.POST("/bidan/:id/akun", controller.AdminCreateAkunBidan)  // belum diimplementasi
 	// admin.POST("/kader/:id/akun", controller.AdminCreateAkunKader)  // belum diimplementasi
+	// ==================== PERAWATAN ANAK (MILESTONE/PERKEMBANGAN) ====================
+	tenaga.GET("/kategori-capaian", controller.GetAllKategoriCapaian)
+	tenaga.GET("/kategori-capaian/rentang-usia/:rentang_usia", controller.GetKategoriCapaianByRentangUsia)
+	tenaga.GET("/perawatan/:id", controller.GetPerawatanByID)
+	tenaga.GET("/perawatan/anak/:anak_id", controller.GetPerawatanByAnakID)
+	tenaga.GET("/perawatan/anak/:anak_id/rentang-usia/:rentang_usia", controller.GetPerawatanByAnakIDAndRentangUsia)
+	tenaga.POST("/perawatan", controller.CreatePerawatan)
+	tenaga.PUT("/perawatan/:id", controller.UpdatePerawatan)
+	tenaga.DELETE("/perawatan/:id", controller.DeletePerawatan)
+
+	// ==================== LEMBAR PEMANTAUAN ANAK ====================
+	tenaga.GET("/lembar-pemantauan", controller.LembarPemantauan.GetByAnakID)
+	tenaga.GET("/lembar-pemantauan/:id", controller.LembarPemantauan.GetByID)
+	tenaga.POST("/lembar-pemantauan", controller.LembarPemantauan.Create)
+	tenaga.PUT("/lembar-pemantauan/:id", controller.LembarPemantauan.Update)
+	tenaga.DELETE("/lembar-pemantauan/:id", controller.LembarPemantauan.Delete)
+	// TAMBAHAN: Endpoint untuk verifikasi oleh nakes
+	tenaga.PATCH("/lembar-pemantauan/:id/verifikasi", controller.LembarPemantauan.Verify)
 
 	// ==================== MODUL IBU & KEHAMILAN ====================
 	tenaga.POST("/ibu", controller.Ibu.Create)
@@ -526,5 +564,168 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	ibu.GET("/keterangan-lahir", controller.KeteranganLahir.GetByIbuID)
 	ibu.GET("/pelayanan-ibu-nifas", controller.PelayananIbuNifas.GetByKehamilanID)
 	ibu.GET("/catatan-pelayanan-nifas", controller.CatatanPelayananNifas.GetByKehamilanID)
+	// tenaga.GET("/kependudukan", controller.Kependudukan.GetAll)
+	// tenaga.POST("/kependudukan", controller.Kependudukan.Create)
+	// tenaga.GET("/kependudukan/:id", controller.Kependudukan.GetByID)
+	// // tenaga.GET("/kep// endudukan/kartu-keluarga/:kartu_keluarga_id", controller.Kependudukan.GetByKartuKeluargaID)
+	// tenaga.PUT("/kependudukan/:id", controller.Kependudukan.Update)
+	// tenaga.DELETE("/kependudukan/:id", controller.Kependudukan.Delete)
+
+	//jenis pelayanan neonatus
+	tenaga.GET("/jenis-pelayanan", controller.JenisPelayanan.GetJenisPelayanan)
+
+	// ========================================= MODUL IBU - KIA- Kel-3 =========================================
+
+	ibuk := e.Group("/modul-ibu")
+	ibuk.Use(middlewares.JWTAuth(controller.JWTSecret()))
+	ibuk.Use(middlewares.IbuOnly())
+
+	// Data Ibu
+	ibuk.GET("/kehamilan-aktif", controller.Kehamilan.GetAktifForOrangtua)
+
+	// Evaluasi Kehamilan Ibu
+	ibuk.GET("/evaluasi-kesehatan-ibu/me", controller.EvaluasiKesehatanIbu.GetMine)
+	ibuk.GET("/evaluasi-kesehatan-ibu/:id", controller.EvaluasiKesehatanIbu.GetByIDForOrangtua)
+
+	// Pemeriksaan Kehamilan
+	ibuk.GET("/pemeriksaan-kehamilan/me", controller.PemeriksaanKehamilan.GetMine)
+	ibuk.GET("/pemeriksaan-kehamilan/:id", controller.PemeriksaanKehamilan.GetByIDForOrangtua)
+
+	// Skrining Preeklampsia
+	ibuk.GET("/skrining-preeklampsia/me", controller.SkriningPreeklampsia.GetMine)
+	ibuk.GET("/skrining-preeklampsia/:id", controller.SkriningPreeklampsia.GetByIDForOrangtua)
+
+	ibuk.GET("/rujukan/:id", controller.Rujukan.GetByIDForOrangtua)
+
+	// Pemeriksaan Dokter Trimester 1 & 3
+	// ibuk.GET("/pemeriksaan-dokter-trimester-1/me", controller.PemeriksaanDokterTrimester1.GetMine)
+	// ibuk.GET("/pemeriksaan-dokter-trimester-3/me", controller.PemeriksaanDokterTrimester3.GetMine)
+
+	ibuk.GET("/pemeriksaan-dokter-trimester-1/me", controller.PemeriksaanDokterTrimester1.GetMine)
+	ibuk.GET("/pemeriksaan-dokter-trimester-1/all", controller.PemeriksaanDokterTrimester1.GetAllMine) // BARU: list semua kunjungan
+	ibuk.GET("/pemeriksaan-dokter-trimester-3/me", controller.PemeriksaanDokterTrimester3.GetMine)
+	ibuk.GET("/pemeriksaan-dokter-trimester-3/all", controller.PemeriksaanDokterTrimester3.GetAllMine) // BARU: list semua kunjungan
+
+	ibuk.GET("/riwayat-proses-melahirkan/me", controller.RiwayatProsesMelahirkan.GetMine)
+
+	// Log TTD MMS
+	ibuk.GET("/log-ttd-mms/me", controller.LogTTDMMS.GetMine)
+	ibuk.POST("/log-ttd-mms", controller.LogTTDMMS.SaveMine)
+
+	// Pemantauan Ibu Hamil
+	ibuk.GET("/pemantauan-ibu-hamil/me", controller.PemantauanIbuHamil.GetMine)
+	ibuk.POST("/pemantauan-ibu-hamil", controller.PemantauanIbuHamil.SaveMine)
+
+	// Persiapan Melahirkan
+	ibuk.GET("/persiapan-melahirkan/me", controller.PersiapanMelahirkan.GetMine)
+	ibuk.POST("/persiapan-melahirkan", controller.PersiapanMelahirkan.SaveMine)
+
+	// Proses Melahirkan
+	ibuk.GET("/proses-melahirkan/me", controller.ProsesMelahirkan.GetMine)
+	ibuk.POST("/proses-melahirkan", controller.ProsesMelahirkan.SaveMine)
+
+	// Absensi Kelas Ibu Hamil
+	ibuk.GET("/absensi-kelas-ibu-hamil/me", controller.AbsensiKelasIbuHamil.GetMine)
+	ibuk.POST("/absensi-kelas-ibu-hamil", controller.AbsensiKelasIbuHamil.SaveMine)
+
+	// Checklist Pemantauan Ibu Nifas
+	ibuk.GET("/checklist-pemantauan-ibu-nifas/me", controller.ChecklistPemantauanIbuNifas.GetMine)
+	ibuk.POST("/checklist-pemantauan-ibu-nifas", controller.ChecklistPemantauanIbuNifas.SaveMine)
+	ibuk.GET("/checklist-pemantauan-ibu-nifas/filled-days", controller.ChecklistPemantauanIbuNifas.GetFilledDays)
+
+	// Catatan Pelayanan Ibu
+	ibuk.GET("/catatan-pelayanan-t1", controller.CatatanPelayananTrimester1.GetByKehamilanID)
+	ibuk.GET("/catatan-pelayanan-t2", controller.CatatanPelayananTrimester2.GetByKehamilanID)
+	ibuk.GET("/catatan-pelayanan-t3", controller.CatatanPelayananTrimester3.GetByKehamilanID)
+	ibuk.GET("/rujukan", controller.Rujukan.GetByKehamilanID)
+
+	// Grafik Evaluasi Kehamilan
+	ibuk.GET("/grafik-evaluasi-kehamilan/grafik", controller.GrafikEvaluasiKehamilan.GetGrafikForOrangtua)
+	ibuk.GET("/grafik-evaluasi-kehamilan/me", controller.GrafikEvaluasiKehamilan.GetMine)
+	// Baru
+	ibuk.GET("/grafik-evaluasi-kehamilan/v2", controller.GrafikEvaluasiKehamilan.GetGrafikOnTheFlyForOrangtua)
+	ibuk.GET("/grafik-evaluasi-kehamilan/:id", controller.GrafikEvaluasiKehamilan.GetByIDForOrangtua)
+	ibuk.GET("/grafik-peningkatan-bb/v2", controller.GrafikPeningkatanBB.GetGrafikBBForOrangtua)
+
+	// Keterangan Lahir
+	ibuk.GET("/keterangan-lahir/me", controller.KeteranganLahir.GetMine)
+
+	// Ringkasan Persalinan
+	ibuk.GET("/ringkasan-persalinan/me", controller.RingkasanPelayananPersalinan.GetMine)
+	// Pelayanan Ibu Nifas
+	ibuk.GET("/pelayanan-ibu-nifas/me", controller.PelayananIbuNifas.GetMine)
+	ibuk.GET("/catatan-pelayanan-nifas/me", controller.CatatanPelayananNifas.GetMine)
+
+	// ibu := e.Group("/ibu")
+	ibu.Use(middlewares.JWTAuth(controller.JWTSecret()))
+	ibu.Use(middlewares.IbuOnly())
+	ibu.GET("/anak", controller.Ibu.GetAnakSaya)
+
+	ibu.GET("/lembar-pemantauan/rentang-usia", controller.LembarPemantauan.GetRentangUsiaForIbu)
+	ibu.GET("/lembar-pemantauan/kategori-tanda-sakit", controller.LembarPemantauan.GetKategoriByRentangUsiaForIbu)
+	ibu.POST("/lembar-pemantauan", controller.LembarPemantauan.CreateForIbu)
+	ibu.GET("/lembar-pemantauan", controller.LembarPemantauan.GetByAnakIDForIbu)
+
+	ibu.GET("/warna-tinja", controller.WarnaTinja.GetByAnakIDForIbu)
+	ibu.POST("/warna-tinja", controller.WarnaTinja.SaveForIbu)
+
+	ibu.GET("/pemeriksaan-gigi", controller.PemeriksaanGigi.GetByAnakIDForIbu)
+	ibu.GET("/pengukuran-lila", controller.PengukuranLilA.GetByAnakIDForIbu)
+	ibu.GET("/pengukuran-lila/:anak_id", controller.PengukuranLilA.GetByAnakIDForIbu)
+
+	// ==================== PERAWATAN/MILESTONE (IBU) ====================
+	ibu.GET("/kategori-capaian", controller.GetAllKategoriCapaian)
+	ibu.GET("/kategori-capaian/rentang-usia/:rentang_usia", controller.GetKategoriCapaianByRentangUsia)
+	ibu.GET("/perawatan/:id", controller.GetPerawatanByID)
+	ibu.GET("/perawatan/anak/:anak_id", controller.GetPerawatanByAnakID)
+	ibu.GET("/perawatan/anak/:anak_id/rentang-usia/:rentang_usia", controller.GetPerawatanByAnakIDAndRentangUsia)
+	ibu.POST("/perawatan", controller.CreatePerawatan)
+	ibu.PUT("/perawatan/:id", controller.UpdatePerawatan)
+	ibu.DELETE("/perawatan/:id", controller.DeletePerawatan)
+	// Catatan: Ibu tidak memiliki akses UPDATE/DELETE/VERIFY untuk menjaga integritas rekam medis
+
+	// ==================== KELUHAN ANAK ====================
+	ibu.GET("/keluhan-anak", controller.KeluhanAnak.GetByAnakIDForIbu)
+	ibu.GET("/keluhan-anak/:id", controller.KeluhanAnak.GetByIDForIbu)
+	tenaga.GET("/keluhan-anak/:anak_id", controller.KeluhanAnak.GetByAnakID)
+	tenaga.GET("/keluhan-anak/detail/:id", controller.KeluhanAnak.GetByID)
+	tenaga.POST("/keluhan-anak", controller.KeluhanAnak.Create)
+	tenaga.PUT("/keluhan-anak/:id", controller.KeluhanAnak.Update)
+	tenaga.DELETE("/keluhan-anak/:id", controller.KeluhanAnak.Delete)
+
+	// ==================== EDUKASI MPASI (IBU) ====================
+	ibu.GET("/edukasi-mpasi/materi/:bulan", controller.EdukasiMPASI.GetMateriByBulan)
+	ibu.GET("/edukasi-mpasi/porsi-jadwal/:bulan", controller.EdukasiMPASI.GetPorsiJadwalByBulan)
+	ibu.GET("/edukasi-mpasi/resep/:bulan", controller.EdukasiMPASI.GetResepByBulan)
+
+	// ==================== EDUKASI MPASI (NAKES) ====================
+
+	// Materi
+	tenaga.GET("/edukasi-mpasi/materi", controller.EdukasiMPASI.GetMateriAll)
+	tenaga.POST("/edukasi-mpasi/materi", controller.EdukasiMPASI.CreateMateri)
+	tenaga.GET("/edukasi-mpasi/materi/:id", controller.EdukasiMPASI.GetMateriByID)
+	tenaga.PUT("/edukasi-mpasi/materi/:id", controller.EdukasiMPASI.UpdateMateri)
+	tenaga.DELETE("/edukasi-mpasi/materi/:id", controller.EdukasiMPASI.DeleteMateri)
+
+	// Aturan Porsi
+	tenaga.GET("/edukasi-mpasi/aturan-porsi", controller.EdukasiMPASI.GetAturanPorsiAll)
+	tenaga.POST("/edukasi-mpasi/aturan-porsi", controller.EdukasiMPASI.CreateAturanPorsi)
+	tenaga.GET("/edukasi-mpasi/aturan-porsi/:id", controller.EdukasiMPASI.GetAturanPorsiByID)
+	tenaga.PUT("/edukasi-mpasi/aturan-porsi/:id", controller.EdukasiMPASI.UpdateAturanPorsi)
+	tenaga.DELETE("/edukasi-mpasi/aturan-porsi/:id", controller.EdukasiMPASI.DeleteAturanPorsi)
+
+	// Jadwal
+	tenaga.GET("/edukasi-mpasi/jadwal", controller.EdukasiMPASI.GetJadwalAll)
+	tenaga.POST("/edukasi-mpasi/jadwal", controller.EdukasiMPASI.CreateJadwal)
+	tenaga.GET("/edukasi-mpasi/jadwal/:id", controller.EdukasiMPASI.GetJadwalByID)
+	tenaga.PUT("/edukasi-mpasi/jadwal/:id", controller.EdukasiMPASI.UpdateJadwal)
+	tenaga.DELETE("/edukasi-mpasi/jadwal/:id", controller.EdukasiMPASI.DeleteJadwal)
+
+	// Resep
+	tenaga.GET("/edukasi-mpasi/resep", controller.EdukasiMPASI.GetResepAll)
+	tenaga.POST("/edukasi-mpasi/resep", controller.EdukasiMPASI.CreateResep)
+	tenaga.GET("/edukasi-mpasi/resep/:id", controller.EdukasiMPASI.GetResepByID)
+	tenaga.PUT("/edukasi-mpasi/resep/:id", controller.EdukasiMPASI.UpdateResep)
+	tenaga.DELETE("/edukasi-mpasi/resep/:id", controller.EdukasiMPASI.DeleteResep)
 
 }

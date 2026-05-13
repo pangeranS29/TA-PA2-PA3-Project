@@ -11,16 +11,18 @@ type Main struct {
 	config   *config.Config
 
 	// Existing
-	Anak                   *AnakRepository
-	PelayananKesehatanAnak PelayananKesehatanAnakRepository
-	Neonatus               PelayananNeonatusRepository
-	KunjunganGizi          KunjunganGiziRepository
-	KunjunganVitamin       KunjunganVitaminRepository
-	KunjunganImunisasi     KunjunganImunisasiRepository
-	PemeriksaanGigi        PemeriksaanGigiRepository
-	PemantauanPertumbuhan  PemantauanPertumbuhanRepository
-	PengukuranLilA         PengukuranLilaRepository
-	CatatanPelayanan       CatatanPelayananRepository
+	Anak                        *AnakRepository
+	PelayananKesehatanAnak      PelayananKesehatanAnakRepository
+	Neonatus                    PelayananNeonatusRepository
+	KunjunganGizi               KunjunganGiziRepository
+	KunjunganVitamin            KunjunganVitaminRepository
+	KunjunganImunisasi          KunjunganImunisasiRepository
+	PemeriksaanGigi             PemeriksaanGigiRepository
+	PemantauanPertumbuhan       PemantauanPertumbuhanRepository
+	PengukuranLilA              PengukuranLilaRepository
+	CatatanPelayanan            CatatanPelayananRepository
+	ChecklistPemantauanIbuNifas ChecklistPemantauanIbuNifasRepository
+	InformasiUmum               *InformasiUmumRepository
 
 	// New repositories (semua pointer, mengikuti pola Anak)
 	User                          *UserRepository
@@ -49,6 +51,7 @@ type Main struct {
 	RencanaPersalinan             *RencanaPersalinanRepository
 	RingkasanPelayananPersalinan  *RingkasanPelayananPersalinanRepository
 	KeteranganLahir               *KeteranganLahirRepository // <-- TAMBAHKAN INI
+	LembarPemantauan              LembarPemantauanRepository
 	RiwayatProsesMelahirkan       *RiwayatProsesMelahirkanRepository
 	PelayananIbuNifas             *PelayananIbuNifasRepository
 	CatatanPelayananNifas         *CatatanPelayananNifasRepository
@@ -56,25 +59,36 @@ type Main struct {
 	JenisPelayanan                JenisPelayananRepository
 
 	// Repository tambahan
-	KeluhanAnak                        KeluhanAnakRepository
-	KesehatanLingkungan                KesehatanLingkunganRepository
+	KesehatanLingkungan KesehatanLingkunganRepository
 	// KesehatanLingkunganDanCatatanKader *KesehatanLingkunganDanCatatanKaderRepository
-	PemantauanAnak                     PemantauanAnakRepository
+	PemantauanAnak PemantauanAnakRepository
 	// PerkembanganAnak                   PerkembanganAnakRepository
-	PemantauanIndikator                *PemantauanIndikatorRepository
+	PemantauanIndikator *PemantauanIndikatorRepository
 
 	// Edukasi Digital
-	EdukasiInformasiUmum           EdukasiInformasiUmumRepository
-	EdukasiNifas                   EdukasiNifasRepository
-	EdukasiTandaBahayaTrimester    EdukasiTandaBahayaTrimesterRepository
-	EdukasiTandaMelahirkan        EdukasiTandaMelahirkanRepository
-	EdukasiImd                    EdukasiIMDRepository
-	EdukasiSetelahMelahirkan      EdukasiSetelahMelahirkanRepository
-	EdukasiMenyusuiAsi            EdukasiMenyusuiASIRepository
-	EdukasiPolaAsuh               EdukasiPolaAsuhRepository
-	EdukasiKesehatanMental        EdukasiKesehatanMentalRepository
-	EdukasiPerawatanAnak          EdukasiPerawatanAnakRepository
-	EdukasiMPASI                  EdukasiMPASIRepository
+	EdukasiInformasiUmum        EdukasiInformasiUmumRepository
+	EdukasiTandaBahayaTrimester EdukasiTandaBahayaTrimesterRepository
+	EdukasiImd                  EdukasiIMDRepository
+	EdukasiSetelahMelahirkan    EdukasiSetelahMelahirkanRepository
+	EdukasiMenyusuiAsi          EdukasiMenyusuiASIRepository
+	EdukasiPolaAsuh             EdukasiPolaAsuhRepository
+	EdukasiPerawatanAnak        EdukasiPerawatanAnakRepository
+	EdukasiMPASI                EdukasiMPASIRepository
+	Perawatan                   PerawatanRepository
+	KeluhanAnak                 KeluhanAnakRepository
+	// MODUL IBU
+	LogTTDMMS              *LogTTDMMSRepository
+	PemantauanIbuHamil     *PemantauanIbuHamilRepository
+	PersiapanMelahirkan    *PersiapanMelahirkanRepository
+	ProsesMelahirkan       *ProsesMelahirkanRepository
+	AbsensiKelasIbuHamil   *AbsensiKelasIbuHamilRepository
+	WarnaTinja             WarnaTinjaRepository
+	EdukasiIMD             EdukasiIMDRepository
+	EdukasiKesehatanMental EdukasiKesehatanMentalRepository
+	EdukasiMenyusuiASI     EdukasiMenyusuiASIRepository
+	EdukasiNifas           EdukasiNifasRepository
+	EdukasiTandaMelahirkan EdukasiTandaMelahirkanRepository
+	EdukasiTrimester       EdukasiTrimesterRepository
 }
 
 type Options struct {
@@ -95,6 +109,7 @@ func Init(opts Options) *Main {
 	// New repositories
 	m.User = NewUserRepository(opts.Postgres)
 	m.Ibu = NewIbuRepository(opts.Postgres)
+	m.ChecklistPemantauanIbuNifas = NewChecklistPemantauanIbuNifasRepository(opts.Postgres)
 	m.Role = NewRoleRepository(opts.Postgres)
 	m.KartuKeluarga = NewKartuKeluargaRepository(opts.Postgres)
 	m.Kependudukan = NewKependudukanRepository(opts.Postgres)
@@ -119,6 +134,7 @@ func Init(opts Options) *Main {
 	m.RencanaPersalinan = NewRencanaPersalinanRepository(opts.Postgres)
 	m.RingkasanPelayananPersalinan = NewRingkasanPelayananPersalinanRepository(opts.Postgres)
 	m.KeteranganLahir = NewKeteranganLahirRepository(opts.Postgres) // <-- TAMBAHKAN INI
+	m.LembarPemantauan = NewLembarPemantauanRepository(opts.Postgres)
 	m.RiwayatProsesMelahirkan = NewRiwayatProsesMelahirkanRepository(opts.Postgres)
 	m.PelayananIbuNifas = NewPelayananIbuNifasRepository(opts.Postgres)
 	m.CatatanPelayananNifas = NewCatatanPelayananNifasRepository(opts.Postgres)
@@ -132,7 +148,11 @@ func Init(opts Options) *Main {
 	m.PemantauanPertumbuhan = NewPemantauanPertumbuhanRepository(opts.Postgres)
 	m.PengukuranLilA = NewPengukuranLilaRepository(opts.Postgres)
 	m.CatatanPelayanan = NewCatatanPelayananRepository(opts.Postgres)
+	m.InformasiUmum = NewInformasiUmumRepository(opts.Postgres)
+	m.EdukasiMPASI = NewEdukasiMPASIRepository(opts.Postgres)
 	m.JenisPelayanan = NewJenisPelayananRepository(opts.Postgres)
+	m.Perawatan = NewPerawatanRepository(opts.Postgres)
+	m.KeluhanAnak = NewKeluhanAnakRepository(opts.Postgres)
 
 	// Repository tambahan
 	m.KeluhanAnak = NewKeluhanAnakRepository(opts.Postgres)
@@ -155,6 +175,19 @@ func Init(opts Options) *Main {
 	m.EdukasiPerawatanAnak = NewEdukasiPerawatanAnakRepository(opts.Postgres)
 	m.EdukasiMPASI = NewEdukasiMPASIRepository(opts.Postgres)
 
+	// MODUL IBU
+	m.LogTTDMMS = NewLogTTDMMSRepository(opts.Postgres)
+	m.PemantauanIbuHamil = NewPemantauanIbuHamilRepository(opts.Postgres)
+	m.PersiapanMelahirkan = NewPersiapanMelahirkanRepository(opts.Postgres)
+	m.ProsesMelahirkan = NewProsesMelahirkanRepository(opts.Postgres)
+	m.AbsensiKelasIbuHamil = NewAbsensiKelasIbuHamilRepository(opts.Postgres)
+	m.WarnaTinja = NewWarnaTinjaRepository(opts.Postgres)
+
+	m.EdukasiIMD = NewEdukasiIMDRepository(opts.Postgres)
+	m.EdukasiKesehatanMental = NewEdukasiKesehatanMentalRepository(opts.Postgres)
+	m.EdukasiMenyusuiASI = NewEdukasiMenyusuiASIRepository(opts.Postgres)
+	m.EdukasiNifas = NewEdukasiNifasRepository(opts.Postgres)
+	m.EdukasiTandaMelahirkan = NewEdukasiTandaMelahirkanRepository(opts.Postgres)
+	m.EdukasiTrimester = NewEdukasiTrimesterRepository(opts.Postgres)
 	return m
 }
-

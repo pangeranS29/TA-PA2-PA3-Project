@@ -22,17 +22,17 @@ func NewKehamilanController(u usecases.KehamilanUsecase) *KehamilanController {
 }
 
 type createKehamilanRequest struct {
-	IbuID                    int32   `json:"ibu_id"`
-	Gravida                  int32   `json:"gravida,omitempty"`
-	Paritas                  int32   `json:"paritas,omitempty"`
-	Abortus                  int32   `json:"abortus,omitempty"`
-	HPHT                     string  `json:"hpht,omitempty"`
-	TaksiranPersalinan       string  `json:"taksiran_persalinan,omitempty"`
+	IbuID              int32  `json:"ibu_id"`
+	Gravida            int32  `json:"gravida,omitempty"`
+	Paritas            int32  `json:"paritas,omitempty"`
+	Abortus            int32  `json:"abortus,omitempty"`
+	HPHT               string `json:"hpht,omitempty"`
+	TaksiranPersalinan string `json:"taksiran_persalinan,omitempty"`
 	// UKKehamilanSaatIni       int32   `json:"uk_kehamilan_saat_ini,omitempty"`
-	JarakKehamilanSebelumnya int32   `json:"jarak_kehamilan_sebelumnya,omitempty"`
+	JarakKehamilanSebelumnya int32 `json:"jarak_kehamilan_sebelumnya,omitempty"`
 	// StatusKehamilan          string  `json:"status_kehamilan,omitempty"`
-	BB_Awal                  float64 `json:"bb_awal,omitempty"`
-	TB                       float64 `json:"tb,omitempty"`
+	BB_Awal float64 `json:"bb_awal,omitempty"`
+	TB      float64 `json:"tb,omitempty"`
 }
 
 func (c *KehamilanController) Create(ctx echo.Context) error {
@@ -44,15 +44,15 @@ func (c *KehamilanController) Create(ctx echo.Context) error {
 		return helpers.Response(ctx, http.StatusBadRequest, []string{"ibu_id wajib diisi"})
 	}
 	kehamilan := &models.Kehamilan{
-		IbuID:                    req.IbuID,
+		IbuID: req.IbuID,
 		// Gravida:                  req.Gravida,
 		// Paritas:                  req.Paritas,
 		// Abortus:                  req.Abortus,
 		// UKKehamilanSaatIni:       req.UKKehamilanSaatIni,
 		JarakKehamilanSebelumnya: req.JarakKehamilanSebelumnya,
 		// StatusKehamilan:          req.StatusKehamilan,
-		BB_Awal:                  req.BB_Awal,
-		TB:                       req.TB,
+		BB_Awal: req.BB_Awal,
+		TB:      req.TB,
 	}
 	if req.HPHT != "" {
 		if t, err := time.Parse("2006-01-02", req.HPHT); err == nil {
@@ -207,4 +207,51 @@ func (c *KehamilanController) CheckActiveByIbuID(ctx echo.Context) error {
 	return helpers.StandardResponse(ctx, http.StatusOK, []string{message}, map[string]bool{
 		"is_active": isActive,
 	}, nil)
+}
+
+// MODUL IBU
+// func (c *KehamilanController) GetAktifForOrangtua(ctx echo.Context) error {
+// 	claims, ok := ctx.Get("auth_claims").(*models.AuthClaims)
+// 	if !ok || claims == nil {
+// 		return ctx.JSON(http.StatusUnauthorized, models.Response{
+// 			StatusCode: http.StatusUnauthorized,
+// 			Message:    "Unauthorized",
+// 		})
+// 	}
+
+// 	data, err := c.usecase.GetAktifByPhoneNumber(claims.PhoneNumber)
+// 	if err != nil {
+// 		return ctx.JSON(http.StatusNotFound, models.Response{
+// 			StatusCode: http.StatusNotFound,
+// 			Message:    "Data kehamilan aktif tidak ditemukan",
+// 		})
+// 	}
+
+// 	return ctx.JSON(http.StatusOK, models.Response{
+// 		StatusCode: http.StatusOK,
+// 		Data:       data,
+// 	})
+// }
+
+func (c *KehamilanController) GetAktifForOrangtua(ctx echo.Context) error {
+	claims, ok := ctx.Get("auth_claims").(*models.AuthClaims)
+	if !ok || claims == nil {
+		return ctx.JSON(http.StatusUnauthorized, models.Response{
+			StatusCode: http.StatusUnauthorized,
+			Message:    "Unauthorized",
+		})
+	}
+
+	data, err := c.usecase.GetAktifByUserID(claims.UserID)
+	if err != nil {
+		return ctx.JSON(http.StatusNotFound, models.Response{
+			StatusCode: http.StatusNotFound,
+			Message:    "Data kehamilan aktif tidak ditemukan",
+		})
+	}
+
+	return ctx.JSON(http.StatusOK, models.Response{
+		StatusCode: http.StatusOK,
+		Data:       data,
+	})
 }

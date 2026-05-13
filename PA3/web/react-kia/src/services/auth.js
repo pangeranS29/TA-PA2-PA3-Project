@@ -32,7 +32,7 @@ export const login = async (identifier, password) => {
 export const logout = () => {
   localStorage.removeItem("access_token");
   localStorage.removeItem("user");
-  window.location.href = "/login";
+  window.location.href = "/dashboard";
 };
 
 export const getCurrentUser = () => {

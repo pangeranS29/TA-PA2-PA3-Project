@@ -12,6 +12,7 @@ type KeluhanAnakRepository interface {
 	Delete(id uint) error
 	FindAllByAnakID(anakID uint) ([]models.KeluhanAnak, error)
 	FindByID(id uint) (*models.KeluhanAnak, error)
+	IsAnakMilikIbu(userID, anakID uint) (bool, error)
 }
 
 type keluhanAnakRepository struct {
@@ -36,15 +37,33 @@ func (r *keluhanAnakRepository) Delete(id uint) error {
 
 func (r *keluhanAnakRepository) FindAllByAnakID(anakID uint) ([]models.KeluhanAnak, error) {
 	var data []models.KeluhanAnak
-	err := r.db.Where("anak_id = ?", anakID).Order("tanggal desc").Find(&data).Error
+	err := r.db.Where("anak_id = ?", anakID).Where("deleted_at IS NULL").Order("tanggal desc").Find(&data).Error
 	return data, err
 }
 
 func (r *keluhanAnakRepository) FindByID(id uint) (*models.KeluhanAnak, error) {
 	var data models.KeluhanAnak
-	err := r.db.First(&data, id).Error
+	err := r.db.Where("deleted_at IS NULL").First(&data, id).Error
 	if err != nil {
 		return nil, err
 	}
 	return &data, nil
+}
+
+func (r *keluhanAnakRepository) IsAnakMilikIbu(userID, anakID uint) (bool, error) {
+	var count int64
+	err := r.db.Table("anak a").
+		Joins("JOIN kehamilan k ON k.id = a.kehamilan_id").
+		Joins("JOIN ibu i ON i.id = k.ibu_id").
+		Joins("JOIN penduduk ki ON ki.id = i.penduduk_id").
+		Joins("JOIN pengguna p ON p.penduduk_id = ki.id").
+		Where("a.id = ?", anakID).
+		Where("p.id = ?", userID).
+		Count(&count).Error
+
+	if err != nil {
+		return false, err
+	}
+
+	return count > 0, nil
 }

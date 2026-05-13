@@ -218,6 +218,48 @@ func (c *RingkasanPelayananPersalinanController) Update(ctx echo.Context) error 
 	return ctx.JSON(http.StatusOK, models.Response{StatusCode: http.StatusOK, Data: existing})
 }
 
+func (c *RingkasanPelayananPersalinanController) GetMine(
+	ctx echo.Context,
+) error {
+
+	claims, ok := ctx.Get("auth_claims").(*models.AuthClaims)
+
+	if !ok || claims == nil {
+		return ctx.JSON(
+			http.StatusUnauthorized,
+			models.Response{
+				StatusCode: http.StatusUnauthorized,
+				Message:    "Unauthorized",
+			},
+		)
+	}
+
+	userID := claims.UserID
+
+	data, err := c.usecase.GetMine(
+		ctx.Request().Context(),
+		userID,
+	)
+
+	if err != nil {
+		return ctx.JSON(
+			http.StatusInternalServerError,
+			models.Response{
+				StatusCode: http.StatusInternalServerError,
+				Message:    err.Error(),
+			},
+		)
+	}
+
+	return ctx.JSON(
+		http.StatusOK,
+		models.Response{
+			StatusCode: http.StatusOK,
+			Data:       data,
+		},
+	)
+}
+
 func (c *RingkasanPelayananPersalinanController) Delete(ctx echo.Context) error {
 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 32)
 	if err != nil {
