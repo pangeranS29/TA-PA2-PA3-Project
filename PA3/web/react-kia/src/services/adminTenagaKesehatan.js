@@ -13,67 +13,74 @@ export const adminTenagaErrorMessage = (error, fallbackMessage = "Terjadi kesala
   return normalized || fallbackMessage;
 };
 
-export const listEligiblePendudukAdmin = async (params = {}) => {
-  const response = await api.get("/admin/penduduk/eligible", { params });
+// BIDAN ENDPOINTS (Role-based access)
+export const listPosyanduBidan = async (params = {}) => {
+  const response = await api.get("/bidan/posyandu", { params });
+  return response.data.data || [];
+};
+
+export const createPosyanduBidan = async (payload) => {
+  const response = await api.post("/bidan/posyandu", payload);
   return response.data;
 };
 
-export const listPosyanduAdmin = async (params = {}) => {
-  const response = await api.get("/admin/posyandu", { params });
+export const getPosyanduDetailBidan = async (id) => {
+  const response = await api.get(`/bidan/posyandu/${id}`);
+  return response.data.data;
+};
+
+export const updatePosyanduBidan = async (id, payload) => {
+  const response = await api.put(`/bidan/posyandu/${id}`, payload);
   return response.data;
 };
 
-export const createPosyanduAdmin = async (payload) => {
-  const response = await api.post("/admin/posyandu", payload);
+export const listBidanBidan = async (params = {}) => {
+  const response = await api.get("/bidan/bidan", { params });
+  return response.data.data || [];
+};
+
+export const createBidanBidan = async (payload) => {
+  const response = await api.post("/bidan/bidan", payload);
   return response.data;
 };
 
-export const listBidanAdmin = async (params = {}) => {
-  const response = await api.get("/admin/bidan", { params });
+export const getBidanDetailBidan = async (id) => {
+  const response = await api.get(`/bidan/bidan/${id}`);
+  return response.data.data;
+};
+
+export const updateBidanBidan = async (id, payload) => {
+  const response = await api.put(`/bidan/bidan/${id}`, payload);
   return response.data;
 };
 
-export const createBidanAdmin = async (payload) => {
-  const response = await api.post("/admin/bidan", payload);
+export const listKaderBidan = async (params = {}) => {
+  const response = await api.get("/bidan/kader", { params });
+  return response.data.data || [];
+};
+
+export const createKaderBidan = async (payload) => {
+  const response = await api.post("/bidan/kader", payload);
   return response.data;
 };
 
-export const updateBidanAdmin = async (id, payload) => {
-  const response = await api.put(`/admin/bidan/${id}`, payload);
+export const getKaderDetailBidan = async (id) => {
+  const response = await api.get(`/bidan/kader/${id}`);
+  return response.data.data;
+};
+
+export const updateKaderBidan = async (id, payload) => {
+  const response = await api.put(`/bidan/kader/${id}`, payload);
   return response.data;
 };
 
-export const updateStatusBidanAdmin = async (id, status) => {
-  const response = await api.patch(`/admin/bidan/${id}/status`, { status });
-  return response.data;
+// DROPDOWN DATA (untuk searchable select)
+export const listPendudukForDropdown = async (params = {}) => {
+  const response = await api.get("/bidan/penduduk", { params });
+  return response.data.data || [];
 };
 
-export const createAkunBidanAdmin = async (id, payload) => {
-  const response = await api.post(`/admin/bidan/${id}/akun`, payload);
-  return response.data;
-};
-
-export const listKaderAdmin = async (params = {}) => {
-  const response = await api.get("/admin/kader", { params });
-  return response.data;
-};
-
-export const createKaderAdmin = async (payload) => {
-  const response = await api.post("/admin/kader", payload);
-  return response.data;
-};
-
-export const updateKaderAdmin = async (id, payload) => {
-  const response = await api.put(`/admin/kader/${id}`, payload);
-  return response.data;
-};
-
-export const updateStatusKaderAdmin = async (id, status) => {
-  const response = await api.patch(`/admin/kader/${id}/status`, { status });
-  return response.data;
-};
-
-export const createAkunKaderAdmin = async (id, payload) => {
-  const response = await api.post(`/admin/kader/${id}/akun`, payload);
-  return response.data;
+export const listPosyanduForDropdown = async (params = {}) => {
+  const response = await api.get("/bidan/posyandu", { params });
+  return response.data.data || [];
 };
