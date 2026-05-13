@@ -473,7 +473,14 @@ export default function PelayananPersalinan() {
 
   const submitRingkasan = async (e) => {
     e.preventDefault();
-    if (!kehamilan) { alert("Data kehamilan tidak ditemukan!"); return; }
+    if (!kehamilan) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Data kehamilan tidak ditemukan!'
+      });
+      return;
+    }
     setSaving(true);
     try {
       // Persiapan payload ringkasan + data anak dalam satu submit
@@ -562,6 +569,13 @@ export default function PelayananPersalinan() {
       }
       
       setModeRingkasan("detail");
+      await Swal.fire({
+        icon: 'success',
+        title: 'Berhasil',
+        text: 'Ringkasan persalinan berhasil disimpan',
+        timer: 2000,
+        showConfirmButton: false
+      });
       // Refresh data agar tampilan detail terbaru
       const dRingkasan = await getRingkasanPersalinanByKehamilanId(kehamilan.id);
       if (dRingkasan && dRingkasan.length > 0) {

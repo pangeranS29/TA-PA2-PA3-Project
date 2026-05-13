@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { useParams } from "react-router-dom";
+import Swal from "sweetalert2";
 import MainLayout from "../../components/Layout/MainLayout";
 import { Line } from "react-chartjs-2";
 import { Save, X, Activity, AlertTriangle, CheckCircle, Info } from "lucide-react";
@@ -119,11 +120,18 @@ export default function GrafikEvaluasi() {
       };
 
       await createGrafik(payload);
+      await Swal.fire({
+        icon: 'success',
+        title: 'Berhasil',
+        text: 'Data pemeriksaan berhasil disimpan',
+        timer: 1500,
+        showConfirmButton: false
+      });
       setOpenModal(false);
       fetchData(); // Reload all charts and explanation
     } catch (err) {
       console.error(err);
-      alert("Gagal menyimpan data: " + (err.response?.data?.message || err.message));
+      Swal.fire('Error', 'Gagal menyimpan data: ' + (err.response?.data?.message || err.message), 'error');
     } finally {
       setSaving(false);
     }

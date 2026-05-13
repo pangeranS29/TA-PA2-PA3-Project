@@ -1,6 +1,7 @@
 // src/pages/Ibu/SkriningDMGestasional.jsx
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
+import Swal from "sweetalert2";
 import MainLayout from "../../components/Layout/MainLayout";
 import { getKehamilanByIbuId } from "../../services/kehamilan";
 import { getSkriningDMByKehamilanId, createSkriningDM, updateSkriningDM } from "../../services/rujukanService";
@@ -38,7 +39,12 @@ export default function SkriningDMGestasional() {
         setLoading(true);
         const kehamilanList = await getKehamilanByIbuId(ibuId);
         if (!kehamilanList.length) {
-          alert("Ibu belum memiliki data kehamilan.");
+        Swal.fire({
+          icon: 'info',
+          title: 'Informasi',
+          text: 'Ibu belum memiliki data kehamilan.',
+          confirmButtonColor: '#4f46e5'
+        });
           navigate(`/data-ibu/${ibuId}`);
           return;
         }
@@ -47,7 +53,11 @@ export default function SkriningDMGestasional() {
         if (kehamilanId) {
           targetKehamilan = kehamilanList.find(k => k.id == kehamilanId);
           if (!targetKehamilan) {
-            alert(`Kehamilan dengan ID ${kehamilanId} tidak ditemukan.`);
+          Swal.fire({
+            icon: 'error',
+            title: 'Tidak Ditemukan',
+            text: `Kehamilan dengan ID ${kehamilanId} tidak ditemukan.`
+          });
             navigate(`/data-ibu/${ibuId}`);
             return;
           }
@@ -70,7 +80,7 @@ export default function SkriningDMGestasional() {
         }
       } catch (err) {
         console.error(err);
-        alert("Gagal memuat data skrining DM.");
+      Swal.fire('Error', 'Gagal memuat data skrining DM.', 'error');
       } finally {
         setLoading(false);
       }
@@ -86,11 +96,19 @@ export default function SkriningDMGestasional() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!canEdit) {
-      alert("Anda tidak memiliki izin untuk mengubah data.");
+      Swal.fire({
+        icon: 'error',
+        title: 'Akses Ditolak',
+        text: 'Anda tidak memiliki izin untuk mengubah data.'
+      });
       return;
     }
     if (!kehamilan) {
-      alert("Data kehamilan tidak ditemukan.");
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Data kehamilan tidak ditemukan.'
+      });
       return;
     }
     setSaving(true);
@@ -111,14 +129,20 @@ export default function SkriningDMGestasional() {
         const refreshed = await getSkriningDMByKehamilanId(kehamilan.id);
         if (refreshed && refreshed.length > 0) setData(refreshed[0]);
       }
-      alert("Skrining DM Gestasional berhasil disimpan.");
+      await Swal.fire({
+        icon: 'success',
+        title: 'Berhasil',
+        text: 'Skrining DM Gestasional berhasil disimpan.',
+        timer: 2000,
+        showConfirmButton: false
+      });
       setIsEditing(false);
       // Refresh data
       const refreshed = await getSkriningDMByKehamilanId(kehamilan.id);
       if (refreshed && refreshed.length > 0) setData(refreshed[0]);
     } catch (err) {
       console.error(err);
-      alert("Gagal menyimpan data skrining DM. Silakan coba lagi.");
+      Swal.fire('Error', 'Gagal menyimpan data skrining DM. Silakan coba lagi.', 'error');
     } finally {
       setSaving(false);
     }
