@@ -176,15 +176,31 @@ func (c *KehamilanController) Delete(ctx echo.Context) error {
 	return helpers.StandardResponse(ctx, http.StatusOK, []string{"Kehamilan berhasil dihapus"}, nil, nil)
 }
 
-func (c *KehamilanController) GetDashboard(ctx echo.Context) error {
-	data, err := c.usecase.GetDashboardIbuHamil()
-	if err != nil {
-		statusCode := customerror.GetStatusCode(err)
-		return helpers.Response(ctx, statusCode, []string{err.Error()})
-	}
+// func (c *KehamilanController) GetDashboard(ctx echo.Context) error {
+// 	data, err := c.usecase.GetDashboardIbuHamil()
+// 	if err != nil {
+// 		statusCode := customerror.GetStatusCode(err)
+// 		return helpers.Response(ctx, statusCode, []string{err.Error()})
+// 	}
 
-	return helpers.StandardResponse(ctx, http.StatusOK, []string{"Dashboard ibu hamil"}, data, nil)
+// 	return helpers.StandardResponse(ctx, http.StatusOK, []string{"Dashboard ibu hamil"}, data, nil)
+// }
+
+func (c *KehamilanController) GetDashboard(ctx echo.Context) error {
+    ibuID, err := strconv.ParseInt(ctx.QueryParam("ibu_id"), 10, 32)
+    if err != nil || ibuID <= 0 {
+        return helpers.Response(ctx, http.StatusBadRequest, []string{"ibu_id wajib diisi dan harus angka"})
+    }
+
+    data, err := c.usecase.GetDashboardIbuHamil(int32(ibuID))
+    if err != nil {
+        statusCode := customerror.GetStatusCode(err)
+        return helpers.Response(ctx, statusCode, []string{err.Error()})
+    }
+
+    return helpers.StandardResponse(ctx, http.StatusOK, []string{"Dashboard ibu hamil"}, data, nil)
 }
+
 func (c *KehamilanController) CheckActiveByIbuID(ctx echo.Context) error {
 	ibuIDParam := ctx.Param("ibu_id")
 

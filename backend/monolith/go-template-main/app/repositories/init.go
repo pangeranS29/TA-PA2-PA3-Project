@@ -3,6 +3,9 @@ package repositories
 import (
 	"monitoring-service/pkg/config"
 
+	// Coba dulu
+	"monitoring-service/app/models"
+
 	"gorm.io/gorm"
 )
 
@@ -190,4 +193,20 @@ func Init(opts Options) *Main {
 	m.EdukasiTandaMelahirkan = NewEdukasiTandaMelahirkanRepository(opts.Postgres)
 	m.EdukasiTrimester = NewEdukasiTrimesterRepository(opts.Postgres)
 	return m
+}
+
+// func (m *Main) GetStandarAntropometri(gender int, usia string, indikator string) (*models.MasterStandarAntropometri, error) {
+//     return nil, nil
+// }
+
+// func (m *Main) GetMasterStandarByFilter(jenisKelamin string, usiaBulan int, indikator string) (*models.MasterStandarAntropometri, error) {
+//     return nil, nil
+// }
+
+func (m *Main) GetStandarAntropometri(indikator string, jenisKelamin string, nilaiPengukuran float64) (*models.MasterStandarAntropometri, error) {
+    return nil, nil
+}
+
+func (m *Main) GetMasterStandarByFilter(indikator string, jenisKelamin string) ([]models.MasterStandarAntropometri, error) {
+    return nil, nil
 }

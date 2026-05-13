@@ -213,135 +213,406 @@
 // }
 
 
+// package controllers
+
+// import (
+// 	"monitoring-service/app/usecases"
+// 	"monitoring-service/pkg/customerror"
+// 	"net/http"
+// 	"strconv"
+
+// 	"github.com/labstack/echo/v4"
+// )
+
+// type PemeriksaanDokterTrimester3Controller struct {
+// 	usecase usecases.PemeriksaanDokterTrimester3Usecase
+// }
+
+// func NewPemeriksaanDokterTrimester3Controller(u usecases.PemeriksaanDokterTrimester3Usecase) *PemeriksaanDokterTrimester3Controller {
+// 	return &PemeriksaanDokterTrimester3Controller{usecase: u}
+// }
+
+// func (c *PemeriksaanDokterTrimester3Controller) Create(ctx echo.Context) error {
+// 	var req usecases.PemeriksaanDokterTrimester3Request
+// 	if err := ctx.Bind(&req); err != nil {
+// 		return ctx.JSON(http.StatusBadRequest, map[string]string{"message": "format request tidak valid"})
+// 	}
+// 	if err := c.usecase.Create(&req); err != nil {
+// 		return ctx.JSON(customerror.GetStatusCode(err), map[string]string{"message": err.Error()})
+// 	}
+// 	return ctx.JSON(http.StatusCreated, map[string]interface{}{
+// 		"status_code": http.StatusCreated,
+// 		"message":     "Data pemeriksaan dokter trimester 3 berhasil disimpan",
+// 	})
+// }
+
+// func (c *PemeriksaanDokterTrimester3Controller) Update(ctx echo.Context) error {
+// 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 32)
+// 	if err != nil {
+// 		return ctx.JSON(http.StatusBadRequest, map[string]string{"message": "id tidak valid"})
+// 	}
+// 	var req usecases.PemeriksaanDokterTrimester3Request
+// 	if err := ctx.Bind(&req); err != nil {
+// 		return ctx.JSON(http.StatusBadRequest, map[string]string{"message": "format request tidak valid"})
+// 	}
+// 	if err := c.usecase.Update(int32(id), &req); err != nil {
+// 		return ctx.JSON(customerror.GetStatusCode(err), map[string]string{"message": err.Error()})
+// 	}
+// 	return ctx.JSON(http.StatusOK, map[string]interface{}{
+// 		"status_code": http.StatusOK,
+// 		"message":     "Data berhasil diperbarui",
+// 	})
+// }
+
+// func (c *PemeriksaanDokterTrimester3Controller) GetByID(ctx echo.Context) error {
+// 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 32)
+// 	if err != nil {
+// 		return ctx.JSON(http.StatusBadRequest, map[string]string{"message": "id tidak valid"})
+// 	}
+// 	data, err := c.usecase.GetByID(int32(id))
+// 	if err != nil {
+// 		return ctx.JSON(customerror.GetStatusCode(err), map[string]string{"message": err.Error()})
+// 	}
+// 	return ctx.JSON(http.StatusOK, data)
+// }
+
+// func (c *PemeriksaanDokterTrimester3Controller) GetByKehamilanID(ctx echo.Context) error {
+// 	kehamilanID, err := strconv.ParseInt(ctx.QueryParam("kehamilan_id"), 10, 32)
+// 	if err != nil {
+// 		return ctx.JSON(http.StatusBadRequest, map[string]string{"message": "kehamilan_id required"})
+// 	}
+// 	list, err := c.usecase.GetByKehamilanID(int32(kehamilanID))
+// 	if err != nil {
+// 		return ctx.JSON(customerror.GetStatusCode(err), map[string]string{"message": err.Error()})
+// 	}
+// 	return ctx.JSON(http.StatusOK, list)
+// }
+
+// func (c *PemeriksaanDokterTrimester3Controller) Delete(ctx echo.Context) error {
+// 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 32)
+// 	if err != nil {
+// 		return ctx.JSON(http.StatusBadRequest, map[string]string{"message": "id tidak valid"})
+// 	}
+// 	if err := c.usecase.Delete(int32(id)); err != nil {
+// 		return ctx.JSON(customerror.GetStatusCode(err), map[string]string{"message": err.Error()})
+// 	}
+// 	return ctx.JSON(http.StatusOK, map[string]string{"message": "Data berhasil dihapus"})
+// }
+
+// // MODUL IBU
+// func (c *PemeriksaanDokterTrimester3Controller) GetMine(ctx echo.Context) error {
+// 	claims, ok := ctx.Get("auth_claims").(*models.AuthClaims)
+// 	if !ok || claims == nil {
+// 		return ctx.JSON(http.StatusUnauthorized, models.Response{
+// 			StatusCode: http.StatusUnauthorized,
+// 			Message:    "token tidak valid",
+// 		})
+// 	}
+
+// 	data, err := c.usecase.GetMine(claims.UserID)
+// 	if err != nil {
+// 		return ctx.JSON(http.StatusNotFound, models.Response{
+// 			StatusCode: http.StatusNotFound,
+// 			Message:    "data pemeriksaan dokter trimester 3 tidak ditemukan",
+// 		})
+// 	}
+
+// 	return ctx.JSON(http.StatusOK, models.Response{
+// 		StatusCode: http.StatusOK,
+// 		Data:       data,
+// 	})
+// }
+// // MODUL IBU - list (BARU)
+// func (c *PemeriksaanDokterTrimester3Controller) GetAllMine(ctx echo.Context) error {
+// 	claims, ok := ctx.Get("auth_claims").(*models.AuthClaims)
+// 	if !ok || claims == nil {
+// 		return ctx.JSON(http.StatusUnauthorized, models.Response{
+// 			StatusCode: http.StatusUnauthorized,
+// 			Message:    "token tidak valid",
+// 		})
+// 	}
+
+// 	list, err := c.usecase.GetAllMine(claims.UserID)
+// 	if err != nil {
+// 		return ctx.JSON(http.StatusInternalServerError, models.Response{
+// 			StatusCode: http.StatusInternalServerError,
+// 			Message:    err.Error(),
+// 		})
+// 	}
+
+// 	return ctx.JSON(http.StatusOK, models.Response{
+// 		StatusCode: http.StatusOK,
+// 		Data:       list,
+// 	})
+// }
+
+// package controllers
+
+// import (
+//     "monitoring-service/app/models"
+//     "monitoring-service/app/usecases"
+//     "monitoring-service/pkg/customerror"
+//     "net/http"
+//     "strconv"
+
+//     "github.com/labstack/echo/v4"
+// )
+
+// type PemeriksaanDokterTrimester3Controller struct {
+//     usecase usecases.PemeriksaanDokterTrimester3Usecase
+// }
+
+// func NewPemeriksaanDokterTrimester3Controller(u usecases.PemeriksaanDokterTrimester3Usecase) *PemeriksaanDokterTrimester3Controller {
+//     return &PemeriksaanDokterTrimester3Controller{usecase: u}
+// }
+
+// func (c *PemeriksaanDokterTrimester3Controller) Create(ctx echo.Context) error {
+//     var req usecases.PemeriksaanDokterTrimester3Request
+//     if err := ctx.Bind(&req); err != nil {
+//         return ctx.JSON(http.StatusBadRequest, map[string]string{"message": "format request tidak valid"})
+//     }
+//     if err := c.usecase.Create(&req); err != nil {
+//         return ctx.JSON(customerror.GetStatusCode(err), map[string]string{"message": err.Error()})
+//     }
+//     return ctx.JSON(http.StatusCreated, map[string]interface{}{
+//         "status_code": http.StatusCreated,
+//         "message":     "Data pemeriksaan dokter trimester 3 berhasil disimpan",
+//     })
+// }
+
+// func (c *PemeriksaanDokterTrimester3Controller) Update(ctx echo.Context) error {
+//     id, err := strconv.ParseInt(ctx.Param("id"), 10, 32)
+//     if err != nil {
+//         return ctx.JSON(http.StatusBadRequest, map[string]string{"message": "id tidak valid"})
+//     }
+//     var req usecases.PemeriksaanDokterTrimester3Request
+//     if err := ctx.Bind(&req); err != nil {
+//         return ctx.JSON(http.StatusBadRequest, map[string]string{"message": "format request tidak valid"})
+//     }
+//     if err := c.usecase.Update(int32(id), &req); err != nil {
+//         return ctx.JSON(customerror.GetStatusCode(err), map[string]string{"message": err.Error()})
+//     }
+//     return ctx.JSON(http.StatusOK, map[string]interface{}{
+//         "status_code": http.StatusOK,
+//         "message":     "Data berhasil diperbarui",
+//     })
+// }
+
+// func (c *PemeriksaanDokterTrimester3Controller) GetByID(ctx echo.Context) error {
+//     id, err := strconv.ParseInt(ctx.Param("id"), 10, 32)
+//     if err != nil {
+//         return ctx.JSON(http.StatusBadRequest, map[string]string{"message": "id tidak valid"})
+//     }
+//     data, err := c.usecase.GetByID(int32(id))
+//     if err != nil {
+//         return ctx.JSON(customerror.GetStatusCode(err), map[string]string{"message": err.Error()})
+//     }
+//     return ctx.JSON(http.StatusOK, data)
+// }
+
+// func (c *PemeriksaanDokterTrimester3Controller) GetByKehamilanID(ctx echo.Context) error {
+//     kehamilanID, err := strconv.ParseInt(ctx.QueryParam("kehamilan_id"), 10, 32)
+//     if err != nil {
+//         return ctx.JSON(http.StatusBadRequest, map[string]string{"message": "kehamilan_id required"})
+//     }
+//     list, err := c.usecase.GetByKehamilanID(int32(kehamilanID))
+//     if err != nil {
+//         return ctx.JSON(customerror.GetStatusCode(err), map[string]string{"message": err.Error()})
+//     }
+//     return ctx.JSON(http.StatusOK, list)
+// }
+
+// func (c *PemeriksaanDokterTrimester3Controller) Delete(ctx echo.Context) error {
+//     id, err := strconv.ParseInt(ctx.Param("id"), 10, 32)
+//     if err != nil {
+//         return ctx.JSON(http.StatusBadRequest, map[string]string{"message": "id tidak valid"})
+//     }
+//     if err := c.usecase.Delete(int32(id)); err != nil {
+//         return ctx.JSON(customerror.GetStatusCode(err), map[string]string{"message": err.Error()})
+//     }
+//     return ctx.JSON(http.StatusOK, map[string]string{"message": "Data berhasil dihapus"})
+// }
+
+// // MODUL IBU
+// func (c *PemeriksaanDokterTrimester3Controller) GetMine(ctx echo.Context) error {
+//     claims, ok := ctx.Get("auth_claims").(*models.AuthClaims)
+//     if !ok || claims == nil {
+//         return ctx.JSON(http.StatusUnauthorized, models.Response{
+//             StatusCode: http.StatusUnauthorized,
+//             Message:    "token tidak valid",
+//         })
+//     }
+
+//     data, err := c.usecase.GetMine(claims.UserID)
+//     if err != nil {
+//         return ctx.JSON(http.StatusNotFound, models.Response{
+//             StatusCode: http.StatusNotFound,
+//             Message:    "data pemeriksaan dokter trimester 3 tidak ditemukan",
+//         })
+//     }
+
+//     return ctx.JSON(http.StatusOK, models.Response{
+//         StatusCode: http.StatusOK,
+//         Data:       data,
+//     })
+// }
+
+// // MODUL IBU - list (BARU)
+// func (c *PemeriksaanDokterTrimester3Controller) GetAllMine(ctx echo.Context) error {
+//     claims, ok := ctx.Get("auth_claims").(*models.AuthClaims)
+//     if !ok || claims == nil {
+//         return ctx.JSON(http.StatusUnauthorized, models.Response{
+//             StatusCode: http.StatusUnauthorized,
+//             Message:    "token tidak valid",
+//         })
+//     }
+
+//     list, err := c.usecase.GetAllMine(claims.UserID)
+//     if err != nil {
+//         return ctx.JSON(http.StatusInternalServerError, models.Response{
+//             StatusCode: http.StatusInternalServerError,
+//             Message:    err.Error(),
+//         })
+//     }
+
+//     return ctx.JSON(http.StatusOK, models.Response{
+//         StatusCode: http.StatusOK,
+//         Data:       list,
+//     })
+// }
+
+
 package controllers
 
 import (
-	"monitoring-service/app/usecases"
-	"monitoring-service/pkg/customerror"
-	"net/http"
-	"strconv"
+    "monitoring-service/app/models"
+    "monitoring-service/app/usecases"
+    "monitoring-service/pkg/customerror"
+    "net/http"
+    "strconv"
 
-	"github.com/labstack/echo/v4"
+    "github.com/labstack/echo/v4"
 )
 
 type PemeriksaanDokterTrimester3Controller struct {
-	usecase usecases.PemeriksaanDokterTrimester3Usecase
+    usecase usecases.PemeriksaanDokterTrimester3Usecase
 }
 
 func NewPemeriksaanDokterTrimester3Controller(u usecases.PemeriksaanDokterTrimester3Usecase) *PemeriksaanDokterTrimester3Controller {
-	return &PemeriksaanDokterTrimester3Controller{usecase: u}
+    return &PemeriksaanDokterTrimester3Controller{usecase: u}
 }
 
 func (c *PemeriksaanDokterTrimester3Controller) Create(ctx echo.Context) error {
-	var req usecases.PemeriksaanDokterTrimester3Request
-	if err := ctx.Bind(&req); err != nil {
-		return ctx.JSON(http.StatusBadRequest, map[string]string{"message": "format request tidak valid"})
-	}
-	if err := c.usecase.Create(&req); err != nil {
-		return ctx.JSON(customerror.GetStatusCode(err), map[string]string{"message": err.Error()})
-	}
-	return ctx.JSON(http.StatusCreated, map[string]interface{}{
-		"status_code": http.StatusCreated,
-		"message":     "Data pemeriksaan dokter trimester 3 berhasil disimpan",
-	})
+    var req models.PemeriksaanDokterTrimester3 // DIUBAH: Bind langsung ke models
+    if err := ctx.Bind(&req); err != nil {
+        return ctx.JSON(http.StatusBadRequest, map[string]string{"message": "format request tidak valid"})
+    }
+    if err := c.usecase.Create(&req); err != nil {
+        return ctx.JSON(customerror.GetStatusCode(err), map[string]string{"message": err.Error()})
+    }
+    return ctx.JSON(http.StatusCreated, map[string]interface{}{
+        "status_code": http.StatusCreated,
+        "message":     "Data pemeriksaan dokter trimester 3 berhasil disimpan",
+    })
 }
 
 func (c *PemeriksaanDokterTrimester3Controller) Update(ctx echo.Context) error {
-	id, err := strconv.ParseInt(ctx.Param("id"), 10, 32)
-	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, map[string]string{"message": "id tidak valid"})
-	}
-	var req usecases.PemeriksaanDokterTrimester3Request
-	if err := ctx.Bind(&req); err != nil {
-		return ctx.JSON(http.StatusBadRequest, map[string]string{"message": "format request tidak valid"})
-	}
-	if err := c.usecase.Update(int32(id), &req); err != nil {
-		return ctx.JSON(customerror.GetStatusCode(err), map[string]string{"message": err.Error()})
-	}
-	return ctx.JSON(http.StatusOK, map[string]interface{}{
-		"status_code": http.StatusOK,
-		"message":     "Data berhasil diperbarui",
-	})
+    id, err := strconv.ParseInt(ctx.Param("id"), 10, 32)
+    if err != nil {
+        return ctx.JSON(http.StatusBadRequest, map[string]string{"message": "id tidak valid"})
+    }
+    var req models.PemeriksaanDokterTrimester3 // DIUBAH
+    if err := ctx.Bind(&req); err != nil {
+        return ctx.JSON(http.StatusBadRequest, map[string]string{"message": "format request tidak valid"})
+    }
+    if err := c.usecase.Update(int32(id), &req); err != nil {
+        return ctx.JSON(customerror.GetStatusCode(err), map[string]string{"message": err.Error()})
+    }
+    return ctx.JSON(http.StatusOK, map[string]interface{}{
+        "status_code": http.StatusOK,
+        "message":     "Data berhasil diperbarui",
+    })
 }
 
 func (c *PemeriksaanDokterTrimester3Controller) GetByID(ctx echo.Context) error {
-	id, err := strconv.ParseInt(ctx.Param("id"), 10, 32)
-	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, map[string]string{"message": "id tidak valid"})
-	}
-	data, err := c.usecase.GetByID(int32(id))
-	if err != nil {
-		return ctx.JSON(customerror.GetStatusCode(err), map[string]string{"message": err.Error()})
-	}
-	return ctx.JSON(http.StatusOK, data)
+    id, err := strconv.ParseInt(ctx.Param("id"), 10, 32)
+    if err != nil {
+        return ctx.JSON(http.StatusBadRequest, map[string]string{"message": "id tidak valid"})
+    }
+    data, err := c.usecase.GetByID(int32(id))
+    if err != nil {
+        return ctx.JSON(customerror.GetStatusCode(err), map[string]string{"message": err.Error()})
+    }
+    return ctx.JSON(http.StatusOK, data)
 }
 
 func (c *PemeriksaanDokterTrimester3Controller) GetByKehamilanID(ctx echo.Context) error {
-	kehamilanID, err := strconv.ParseInt(ctx.QueryParam("kehamilan_id"), 10, 32)
-	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, map[string]string{"message": "kehamilan_id required"})
-	}
-	list, err := c.usecase.GetByKehamilanID(int32(kehamilanID))
-	if err != nil {
-		return ctx.JSON(customerror.GetStatusCode(err), map[string]string{"message": err.Error()})
-	}
-	return ctx.JSON(http.StatusOK, list)
+    kehamilanID, err := strconv.ParseInt(ctx.QueryParam("kehamilan_id"), 10, 32)
+    if err != nil {
+        return ctx.JSON(http.StatusBadRequest, map[string]string{"message": "kehamilan_id required"})
+    }
+    list, err := c.usecase.GetByKehamilanID(int32(kehamilanID))
+    if err != nil {
+        return ctx.JSON(customerror.GetStatusCode(err), map[string]string{"message": err.Error()})
+    }
+    return ctx.JSON(http.StatusOK, list)
 }
 
 func (c *PemeriksaanDokterTrimester3Controller) Delete(ctx echo.Context) error {
-	id, err := strconv.ParseInt(ctx.Param("id"), 10, 32)
-	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, map[string]string{"message": "id tidak valid"})
-	}
-	if err := c.usecase.Delete(int32(id)); err != nil {
-		return ctx.JSON(customerror.GetStatusCode(err), map[string]string{"message": err.Error()})
-	}
-	return ctx.JSON(http.StatusOK, map[string]string{"message": "Data berhasil dihapus"})
+    id, err := strconv.ParseInt(ctx.Param("id"), 10, 32)
+    if err != nil {
+        return ctx.JSON(http.StatusBadRequest, map[string]string{"message": "id tidak valid"})
+    }
+    if err := c.usecase.Delete(int32(id)); err != nil {
+        return ctx.JSON(customerror.GetStatusCode(err), map[string]string{"message": err.Error()})
+    }
+    return ctx.JSON(http.StatusOK, map[string]string{"message": "Data berhasil dihapus"})
 }
 
 // MODUL IBU
 func (c *PemeriksaanDokterTrimester3Controller) GetMine(ctx echo.Context) error {
-	claims, ok := ctx.Get("auth_claims").(*models.AuthClaims)
-	if !ok || claims == nil {
-		return ctx.JSON(http.StatusUnauthorized, models.Response{
-			StatusCode: http.StatusUnauthorized,
-			Message:    "token tidak valid",
-		})
-	}
+    claims, ok := ctx.Get("auth_claims").(*models.AuthClaims)
+    if !ok || claims == nil {
+        return ctx.JSON(http.StatusUnauthorized, models.Response{
+            StatusCode: http.StatusUnauthorized,
+            Message:    "token tidak valid",
+        })
+    }
 
-	data, err := c.usecase.GetMine(claims.UserID)
-	if err != nil {
-		return ctx.JSON(http.StatusNotFound, models.Response{
-			StatusCode: http.StatusNotFound,
-			Message:    "data pemeriksaan dokter trimester 3 tidak ditemukan",
-		})
-	}
+    data, err := c.usecase.GetMine(claims.UserID)
+    if err != nil {
+        return ctx.JSON(http.StatusNotFound, models.Response{
+            StatusCode: http.StatusNotFound,
+            Message:    "data pemeriksaan dokter trimester 3 tidak ditemukan",
+        })
+    }
 
-	return ctx.JSON(http.StatusOK, models.Response{
-		StatusCode: http.StatusOK,
-		Data:       data,
-	})
+    return ctx.JSON(http.StatusOK, models.Response{
+        StatusCode: http.StatusOK,
+        Data:       data,
+    })
 }
+
 // MODUL IBU - list (BARU)
 func (c *PemeriksaanDokterTrimester3Controller) GetAllMine(ctx echo.Context) error {
-	claims, ok := ctx.Get("auth_claims").(*models.AuthClaims)
-	if !ok || claims == nil {
-		return ctx.JSON(http.StatusUnauthorized, models.Response{
-			StatusCode: http.StatusUnauthorized,
-			Message:    "token tidak valid",
-		})
-	}
+    claims, ok := ctx.Get("auth_claims").(*models.AuthClaims)
+    if !ok || claims == nil {
+        return ctx.JSON(http.StatusUnauthorized, models.Response{
+            StatusCode: http.StatusUnauthorized,
+            Message:    "token tidak valid",
+        })
+    }
 
-	list, err := c.usecase.GetAllMine(claims.UserID)
-	if err != nil {
-		return ctx.JSON(http.StatusInternalServerError, models.Response{
-			StatusCode: http.StatusInternalServerError,
-			Message:    err.Error(),
-		})
-	}
+    list, err := c.usecase.GetAllMine(claims.UserID)
+    if err != nil {
+        return ctx.JSON(http.StatusInternalServerError, models.Response{
+            StatusCode: http.StatusInternalServerError,
+            Message:    err.Error(),
+        })
+    }
 
-	return ctx.JSON(http.StatusOK, models.Response{
-		StatusCode: http.StatusOK,
-		Data:       list,
-	})
+    return ctx.JSON(http.StatusOK, models.Response{
+        StatusCode: http.StatusOK,
+        Data:       list,
+    })
 }
