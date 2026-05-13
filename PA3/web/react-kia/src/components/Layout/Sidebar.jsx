@@ -20,7 +20,6 @@ import {
   UserCheck,
   UserPlus,
   BriefcaseMedical,
-  CalendarDays,
   ClipboardEdit,
   TableProperties,
   ClipboardList,
@@ -48,6 +47,7 @@ const Sidebar = () => {
     monitoring: pathname.startsWith("/monitoring") || pathname.startsWith("/pemantauan"),
     edukasiDigital: pathname.startsWith("/edukasi-digital"),
     kesehatanLingkungan: pathname.startsWith("/pencatatan/kesehatan-lingkungan"),
+    bidanKaderManagement: pathname.startsWith("/manajemen-posyandu") || pathname.startsWith("/manajemen-bidan") || pathname.startsWith("/manajemen-kader"),
   });
 
   const [dropdownOpen, setDropdownOpen] = useState(() => getDropdownOpenState(location.pathname));
@@ -74,6 +74,17 @@ const Sidebar = () => {
     { path: "/daftar-anak", name: "Data Anak", icon: Baby },
     { path: "/kependudukan", name: "Manajemen KK", icon: UserCheck },
     // { path: "/monitoring", name: "Monitoring", icon: Activity },
+    {
+      name: "Manajemen Bidan & Kader",
+      icon: BriefcaseMedical,
+      isDropdown: true,
+      dropdownKey: "bidanKaderManagement",
+      children: [
+        { path: "/manajemen-posyandu", name: "Kelola Posyandu", icon: TableProperties },
+        { path: "/manajemen-bidan", name: "Kelola Bidan", icon: UserCheck },
+        { path: "/manajemen-kader", name: "Kelola Kader", icon: UserPlus },
+      ],
+    },
     {
       name: "Kesehatan Lingkungan",
       icon: ClipboardList,
@@ -232,26 +243,6 @@ const Sidebar = () => {
         {/* Menu khusus admin */}
         {isAdmin && (
           <div className="pt-2">
-            <NavLink
-              to="/dashboard/admin/tenaga-kesehatan"
-              className={({ isActive }) =>
-                `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${isActive
-                  ? "bg-blue-50 text-blue-600 font-semibold"
-                  : "text-slate-500 hover:bg-gray-50 hover:text-slate-700"
-                }`
-              }
-            >
-              {({ isActive }) => (
-                <>
-                  <BriefcaseMedical
-                    size={20}
-                    className={isActive ? "text-blue-600" : "text-slate-400 group-hover:text-slate-600"}
-                  />
-                  <span className="truncate">Mengelola Profile Bidan & Kader</span>
-                </>
-              )}
-            </NavLink>
-
             <button
               type="button"
               onClick={() => setIsFamilyMenuOpen((prev) => !prev)}
@@ -292,17 +283,6 @@ const Sidebar = () => {
               </div>
             )}
           </div>
-        )}
-
-        {/* Menu Jadwal Layanan hanya untuk bidan & admin (opsional, bisa untuk dokter juga) */}
-        {(isBidan || isAdmin) && (
-          renderNavLink(
-            {
-              path: isAdmin ? "/dashboard/admin/jadwal-layanan" : "/jadwal-layanan",
-              name: "Jadwal Layanan",
-              icon: CalendarDays,
-            }
-          )
         )}
 
         {/* Menu Pengaturan untuk semua role */}

@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import { Plus, Trash2, Send } from "lucide-react";
 import MainLayout from "../../components/Layout/MainLayout";
 import { createAkunKeluargaAdmin } from "../../services/adminAkunKeluarga";
@@ -29,7 +29,6 @@ const createEmptyMember = () => ({
   tujuan_pindah: "",
   tempat_meninggal: "",
   keterangan: "",
-  nomor_telepon: "",
 });
 
 const cardClass = "bg-white rounded-2xl shadow-sm border border-slate-100";
@@ -38,19 +37,11 @@ const AdminAkunKeluargaCreate = () => {
   const [form, setForm] = useState({
     no_kk: "",
     tanggal_terbit: getTodayDate(),
-    email: "",
-    akun_penduduk_nik: "",
-    role: "Orangtua",
     anggota_keluarga: [createEmptyMember()],
   });
   const [submitting, setSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-
-  const nikOptions = useMemo(
-    () => form.anggota_keluarga.map((a) => a.nik).filter(Boolean),
-    [form.anggota_keluarga]
-  );
 
   const setTopField = (name, value) => {
     setForm((prev) => ({ ...prev, [name]: value }));
@@ -61,15 +52,9 @@ const AdminAkunKeluargaCreate = () => {
       const nextMembers = [...prev.anggota_keluarga];
       nextMembers[index] = { ...nextMembers[index], [name]: value };
 
-      let nextAkunNik = prev.akun_penduduk_nik;
-      if (name === "nik" && prev.akun_penduduk_nik && prev.akun_penduduk_nik === prev.anggota_keluarga[index].nik) {
-        nextAkunNik = value;
-      }
-
       return {
         ...prev,
         anggota_keluarga: nextMembers,
-        akun_penduduk_nik: nextAkunNik,
       };
     });
   };
@@ -87,14 +72,11 @@ const AdminAkunKeluargaCreate = () => {
         return prev;
       }
 
-      const removed = prev.anggota_keluarga[index];
       const nextMembers = prev.anggota_keluarga.filter((_, i) => i !== index);
-      const nextAkunNik = prev.akun_penduduk_nik === removed.nik ? "" : prev.akun_penduduk_nik;
 
       return {
         ...prev,
         anggota_keluarga: nextMembers,
-        akun_penduduk_nik: nextAkunNik,
       };
     });
   };
@@ -102,8 +84,6 @@ const AdminAkunKeluargaCreate = () => {
   const validate = () => {
     if (!form.no_kk.trim()) return "No KK wajib diisi";
     if (!form.tanggal_terbit) return "Tanggal terbit wajib diisi";
-    if (!form.email.trim()) return "Email wajib diisi";
-    if (!form.role.trim()) return "Role akun wajib dipilih";
     if (form.anggota_keluarga.length === 0) return "Anggota keluarga minimal 1 orang";
 
     for (let i = 0; i < form.anggota_keluarga.length; i += 1) {
@@ -119,14 +99,9 @@ const AdminAkunKeluargaCreate = () => {
   };
 
   const buildPayload = () => {
-    const akunNik = form.akun_penduduk_nik || form.anggota_keluarga[0]?.nik || "";
-
     return {
       no_kk: form.no_kk.trim(),
       tanggal_terbit: form.tanggal_terbit,
-      email: form.email.trim(),
-      role: form.role,
-      akun_penduduk_nik: akunNik,
       anggota_keluarga: form.anggota_keluarga.map((member) => ({
         nik: member.nik.trim(),
         nama_lengkap: member.nama_lengkap.trim(),
@@ -145,7 +120,6 @@ const AdminAkunKeluargaCreate = () => {
         tujuan_pindah: member.tujuan_pindah.trim(),
         tempat_meninggal: member.tempat_meninggal.trim(),
         keterangan: member.keterangan.trim(),
-        nomor_telepon: member.nomor_telepon.trim(),
       })),
     };
   };
@@ -164,23 +138,17 @@ const AdminAkunKeluargaCreate = () => {
     setSubmitting(true);
     try {
       const payload = buildPayload();
-      const response = await createAkunKeluargaAdmin(payload);
-      const data = response?.data;
-      setSuccessMessage(
-        `Akun keluarga berhasil dibuat. User ID: ${data?.user_id || "-"}, Default Password: ${data?.default_password || "-"}`
-      );
+      await createAkunKeluargaAdmin(payload);
+      setSuccessMessage("Kartu keluarga berhasil dibuat.");
       setForm({
         no_kk: "",
         tanggal_terbit: getTodayDate(),
-        email: "",
-        akun_penduduk_nik: "",
-        role: "Orangtua",
         anggota_keluarga: [createEmptyMember()],
       });
     } catch (error) {
       const apiMessage = error?.response?.data?.message;
       const text = Array.isArray(apiMessage) ? apiMessage.join(", ") : apiMessage;
-      setErrorMessage(text || "Gagal membuat akun keluarga");
+      setErrorMessage(text || "Gagal membuat kartu keluarga");
     } finally {
       setSubmitting(false);
     }
@@ -223,17 +191,6 @@ const AdminAkunKeluargaCreate = () => {
                   value={form.tanggal_terbit}
                   onChange={(e) => setTopField("tanggal_terbit", e.target.value)}
                   className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-              </div>
-              <div>
-                <label className="text-sm text-slate-600">Email Akun</label>
-                <input
-                  type="email"
-                  value={form.email}
-                  onChange={(e) => setTopField("email", e.target.value)}
-                  className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="keluarga@contoh.com"
                   required
                 />
               </div>
@@ -337,11 +294,6 @@ const AdminAkunKeluargaCreate = () => {
                       <input type="text" value={member.asal_penduduk} onChange={(e) => setMemberField(index, "asal_penduduk", e.target.value)} className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2" />
                     </div>
                     <div>
-                      <label className="text-sm text-slate-600">Nomor Telepon</label>
-                      <input type="text" value={member.nomor_telepon} onChange={(e) => setMemberField(index, "nomor_telepon", e.target.value)} className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2" />
-                    </div>
-
-                    <div>
                       <label className="text-sm text-slate-600">Tujuan Pindah (opsional)</label>
                       <input type="text" value={member.tujuan_pindah} onChange={(e) => setMemberField(index, "tujuan_pindah", e.target.value)} className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2" />
                     </div>
@@ -359,40 +311,6 @@ const AdminAkunKeluargaCreate = () => {
             </div>
           </section>
 
-          <section className={`${cardClass} p-5`}>
-            <h2 className="text-lg font-semibold text-slate-800">Akun Login Keluarga</h2>
-            <p className="text-sm text-slate-500 mt-1">Pilih NIK anggota dan role yang akan dijadikan akun login utama.</p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-              <div>
-                <label className="text-sm text-slate-600">Akun Penduduk NIK</label>
-                <select
-                  value={form.akun_penduduk_nik}
-                  onChange={(e) => setTopField("akun_penduduk_nik", e.target.value)}
-                  className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2"
-                >
-                  <option value="">Otomatis gunakan anggota pertama</option>
-                  {nikOptions.map((nik) => (
-                    <option key={nik} value={nik}>
-                      {nik}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="text-sm text-slate-600">Role Akun</label>
-                <select
-                  value={form.role}
-                  onChange={(e) => setTopField("role", e.target.value)}
-                  className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2"
-                >
-                  <option value="Orangtua">Orangtua (password: pengguna12345)</option>
-                  <option value="Bidan">Bidan (password: pengguna12345)</option>
-                  <option value="Kader">Kader (password: pengguna12345)</option>
-                </select>
-              </div>
-            </div>
-          </section>
-
           <div className="flex justify-end">
             <button
               type="submit"
@@ -400,7 +318,7 @@ const AdminAkunKeluargaCreate = () => {
               className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 text-white px-5 py-2.5 font-medium hover:bg-indigo-700 disabled:opacity-60"
             >
               <Send size={16} />
-              {submitting ? "Menyimpan..." : "Simpan Akun Keluarga"}
+              {submitting ? "Menyimpan..." : "Simpan Kartu Keluarga"}
             </button>
           </div>
         </form>
