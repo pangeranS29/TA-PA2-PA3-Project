@@ -1,6 +1,7 @@
 // src/pages/Ibu/PemeriksaanDokterT1CompleteDetail.jsx
 import React, { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
+import Swal from "sweetalert2";
 import MainLayout from "../../components/Layout/MainLayout";
 import { getKehamilanByIbuId } from "../../services/kehamilan";
 import {
@@ -348,8 +349,19 @@ export default function PemeriksaanDokterT1CompleteDetail() {
 
   // ── Hapus pemeriksaan utama ──────────────────────────────────────────────
   const handleDelete = async () => {
-    if (!window.confirm("Apakah Anda yakin ingin menghapus semua data pemeriksaan ini? Seluruh Catatan Pelayanan pada Trimester ini juga akan ikut terhapus."))
-      return;
+    const result = await Swal.fire({
+      title: "Hapus Data Pemeriksaan T1?",
+      html: "<p class='text-sm'>Apakah Anda yakin ingin menghapus semua data pemeriksaan Trimester 1 ini?</p><p class='text-xs text-red-600 mt-2'>⚠️ Seluruh Catatan Pelayanan pada Trimester ini juga akan ikut terhapus.</p>",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#dc2626",
+      cancelButtonColor: "#6b7280",
+      confirmButtonText: "Ya, Hapus",
+      cancelButtonText: "Batal",
+    });
+
+    if (!result.isConfirmed) return;
+
     try {
       // Hapus semua catatan pelayanan T1 terkait terlebih dahulu
       if (catatanList.length > 0) {
@@ -359,22 +371,55 @@ export default function PemeriksaanDokterT1CompleteDetail() {
 
       // Hapus data pemeriksaan utama
       await deleteDokterT1Complete(data.dokter.id);
-      alert("Data pemeriksaan dan catatan terkait berhasil dihapus.");
+      await Swal.fire({
+        title: "Berhasil!",
+        text: "Data pemeriksaan dan catatan terkait berhasil dihapus.",
+        icon: "success",
+        confirmButtonColor: "#10b981",
+      });
       navigate(`/data-ibu/${id}`);
     } catch (err) {
       console.error("Delete error:", err);
-      alert("Gagal menghapus data.");
+      await Swal.fire({
+        title: "Error!",
+        text: "Gagal menghapus data.",
+        icon: "error",
+        confirmButtonColor: "#ef4444",
+      });
     }
   };
 
   // ── Hapus catatan ────────────────────────────────────────────────────────
   const handleDeleteCatatan = async (idCatatan) => {
-    if (!window.confirm("Hapus catatan ini?")) return;
+    const result = await Swal.fire({
+      title: "Hapus Catatan?",
+      text: "Apakah Anda yakin ingin menghapus catatan ini?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#dc2626",
+      cancelButtonColor: "#6b7280",
+      confirmButtonText: "Ya, Hapus",
+      cancelButtonText: "Batal",
+    });
+
+    if (!result.isConfirmed) return;
+
     try {
       await deleteCatatanT1(idCatatan);
+      await Swal.fire({
+        title: "Berhasil!",
+        text: "Catatan berhasil dihapus.",
+        icon: "success",
+        confirmButtonColor: "#10b981",
+      });
       fetchCatatan();
     } catch (err) {
-      alert("Gagal menghapus catatan.");
+      await Swal.fire({
+        title: "Error!",
+        text: "Gagal menghapus catatan.",
+        icon: "error",
+        confirmButtonColor: "#ef4444",
+      });
     }
   };
 
