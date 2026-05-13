@@ -16,7 +16,6 @@ import {
   Activity,
   BarChart3,
   Settings,
-  ShieldPlus,
   UserCheck,
   UserPlus,
   BriefcaseMedical,
@@ -24,7 +23,6 @@ import {
   TableProperties,
   ClipboardList,
   BookOpenCheck,
-  Ruler
 } from "lucide-react";
 
 const baseItemClass = (isActive) =>
@@ -59,14 +57,6 @@ const Sidebar = () => {
   const toggleDropdown = (key) => {
     setDropdownOpen((prev) => ({ ...prev, [key]: !prev[key] }));
   };
-
-  // const adminFamilyMenuItems = useMemo(
-  //   () => [
-  //     { path: "/dashboard/admin/manajemen-keluarga", name: "Manajemen KK", icon: UserCheck },
-  //     { path: "/dashboard/admin/akun-keluarga", name: "Buat Akun", icon: UserPlus },
-  //   ],
-  //   []
-  // );
 
   // Menu untuk bidan (lengkap)
   const bidanMenuItems = [
@@ -128,7 +118,6 @@ const Sidebar = () => {
       ],
     },
     { path: "/laporan", name: "Laporan", icon: BarChart3 },
-
   ];
 
   // Menu untuk dokter (hanya Data Ibu & Laporan)
@@ -149,7 +138,6 @@ const Sidebar = () => {
   // Menentukan menuItems berdasarkan role
   let menuItems = [];
   if (isAdmin) {
-    // Admin hanya memiliki dashboard (menu lain akan ditambahkan di bawah terpisah)
     menuItems = [{ path: dashboardPath, name: "Dashboard", icon: LayoutGrid }];
   } else if (isDokter) {
     menuItems = [
@@ -162,7 +150,6 @@ const Sidebar = () => {
       ...bidanMenuItems,
     ];
   } else {
-    // Fallback (misal role tidak dikenal)
     menuItems = [{ path: dashboardPath, name: "Dashboard", icon: LayoutGrid }];
   }
 
@@ -308,18 +295,6 @@ const Sidebar = () => {
         {/* Menu Pengaturan untuk semua role */}
         {renderNavLink(settingsMenu)}
       </nav>
-
-      {/* Footer Info Wilayah (hanya untuk bidan) */}
-      {/* {isBidan && (
-        <div className="mt-auto pt-6">
-          <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100">
-            <h4 className="text-sm font-bold text-slate-800">Wilayah aktif</h4>
-            <p className="text-[11px] text-slate-500 mt-1 leading-relaxed">
-              Desa Suka Maju · 4 posyandu aktif · sinkron terakhir 08.10 WIB
-            </p>
-          </div>
-        </div>
-      )} */}
     </aside>
   );
 };
