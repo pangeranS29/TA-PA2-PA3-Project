@@ -1,6 +1,7 @@
 // src/pages/Ibu/IbuEdit.jsx
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 import MainLayout from "../../components/Layout/MainLayout";
 import { getIbuById, updateIbu } from "../../services/ibu";
 import { getKehamilanByIbuId, updateKehamilan, createKehamilan } from "../../services/kehamilan";
@@ -138,11 +139,17 @@ export default function IbuEdit() {
         await createKehamilan(kehamilanPayload);
       }
 
-      alert("Profil berhasil diperbarui");
+      await Swal.fire({
+        icon: 'success',
+        title: 'Berhasil',
+        text: 'Profil berhasil diperbarui',
+        timer: 2000,
+        showConfirmButton: false
+      });
       navigate(`/data-ibu/${id}`);
     } catch (err) {
       console.error(err);
-      alert(err.response?.data?.message || "Gagal menyimpan perubahan");
+      Swal.fire('Error', err.response?.data?.message || "Gagal menyimpan perubahan", 'error');
     } finally {
       setLoading(false);
     }

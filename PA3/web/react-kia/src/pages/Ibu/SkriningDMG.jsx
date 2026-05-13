@@ -38,7 +38,6 @@ export default function SkriningDMGestasional() {
       setLoading(true);
       const kehamilanList = await getKehamilanByIbuId(ibuId);
       if (!kehamilanList.length) {
-        alert("Ibu belum memiliki data kehamilan.");
         Swal.fire({
           icon: 'info',
           title: 'Informasi',
@@ -53,7 +52,6 @@ export default function SkriningDMGestasional() {
       if (kehamilanId) {
         targetKehamilan = kehamilanList.find(k => k.id == kehamilanId);
         if (!targetKehamilan) {
-          alert(`Kehamilan dengan ID ${kehamilanId} tidak ditemukan.`);
           Swal.fire({
             icon: 'error',
             title: 'Tidak Ditemukan',
@@ -89,8 +87,11 @@ export default function SkriningDMGestasional() {
       }
     } catch (err) {
       console.error(err);
-      alert("Gagal memuat data skrining DM.");
-      Swal.fire('Error', 'Gagal memuat data skrining DM.', 'error');
+      Swal.fire({
+        icon: 'error',
+        title: 'Gagal Memuat Data',
+        text: 'Terjadi kesalahan saat mengambil data skrining DM.',
+      });
     } finally {
       setLoading(false);
     }
@@ -108,11 +109,19 @@ export default function SkriningDMGestasional() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!canEdit) {
-      alert("Anda tidak memiliki izin untuk mengubah data.");
+      Swal.fire({
+        icon: 'error',
+        title: 'Akses Ditolak',
+        text: 'Anda tidak memiliki izin untuk mengubah data.',
+      });
       return;
     }
     if (!kehamilan) {
-      alert("Data kehamilan tidak ditemukan.");
+      Swal.fire({
+        icon: 'error',
+        title: 'Data Tidak Ditemukan',
+        text: 'Data kehamilan tidak ditemukan.',
+      });
       return;
     }
     setSaving(true);
@@ -154,7 +163,11 @@ export default function SkriningDMGestasional() {
 
   const handleEdit = () => {
     if (!canEdit) {
-      alert("Anda tidak memiliki izin untuk mengubah data.");
+      Swal.fire({
+        icon: 'error',
+        title: 'Akses Ditolak',
+        text: 'Anda tidak memiliki izin untuk mengubah data.',
+      });
       return;
     }
     setShowForm(true);
@@ -162,7 +175,11 @@ export default function SkriningDMGestasional() {
 
   const handleAdd = () => {
     if (!canEdit) {
-      alert("Anda tidak memiliki izin untuk menambah data.");
+      Swal.fire({
+        icon: 'error',
+        title: 'Akses Ditolak',
+        text: 'Anda tidak memiliki izin untuk menambah data.',
+      });
       return;
     }
     setShowForm(true);

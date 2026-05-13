@@ -1,6 +1,7 @@
 // src/pages/Ibu/Rujukan.jsx
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 import MainLayout from "../../components/Layout/MainLayout";
 import { getKehamilanByIbuId } from "../../services/kehamilan";
 import { getRujukanByKehamilanId, createRujukan, updateRujukan } from "../../services/rujukanService";
@@ -146,7 +147,12 @@ export default function Rujukan() {
         setLoading(true);
         const kehamilanList = await getKehamilanByIbuId(ibuId);
         if (!kehamilanList.length) {
-          alert("Ibu belum memiliki data kehamilan.");
+          await Swal.fire({
+            icon: 'info',
+            title: 'Informasi',
+            text: 'Ibu belum memiliki data kehamilan.',
+            confirmButtonColor: '#4f46e5'
+          });
           navigate(`/data-ibu/${ibuId}`);
           return;
         }
@@ -169,7 +175,7 @@ export default function Rujukan() {
         }
       } catch (err) {
         console.error(err);
-        alert("Gagal memuat data kehamilan. Silakan coba lagi.");
+        Swal.fire('Error', 'Gagal memuat data kehamilan. Silakan coba lagi.', 'error');
       } finally {
         setLoading(false);
       }
@@ -186,7 +192,11 @@ export default function Rujukan() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!canEdit) {
-      alert("Anda tidak memiliki izin untuk mengubah data.");
+      Swal.fire({
+        icon: 'error',
+        title: 'Akses Ditolak',
+        text: 'Anda tidak memiliki izin untuk mengubah data.'
+      });
       return;
     }
     if (!kehamilan) return;
@@ -220,10 +230,16 @@ export default function Rujukan() {
         setMode("empty");
         resetForm();
       }
-      alert("Data rujukan berhasil disimpan");
+      await Swal.fire({
+        icon: 'success',
+        title: 'Berhasil',
+        text: 'Data rujukan berhasil disimpan',
+        timer: 2000,
+        showConfirmButton: false
+      });
     } catch (err) {
       const errorMsg = err.response?.data?.message || err.message || "Gagal menyimpan data";
-      alert("Gagal menyimpan rujukan: " + errorMsg);
+      Swal.fire('Error', 'Gagal menyimpan rujukan: ' + errorMsg, 'error');
       console.error(err);
     } finally {
       setSaving(false);

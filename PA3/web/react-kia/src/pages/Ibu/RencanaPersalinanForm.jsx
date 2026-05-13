@@ -1,6 +1,7 @@
 // src/pages/Ibu/RencanaPersalinanForm.jsx
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
+import Swal from "sweetalert2";
 import MainLayout from "../../components/Layout/MainLayout";
 import { getKehamilanByIbuId } from "../../services/kehamilan";
 import { getRencanaById, createRencana, updateRencana, getRencanaByKehamilanId } from "../../services/persalinan";
@@ -104,7 +105,11 @@ export default function RencanaPersalinanForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!kehamilan) {
-      setError("Data kehamilan tidak ditemukan.");
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Data kehamilan tidak ditemukan.'
+      });
       return;
     }
     setSaving(true);
