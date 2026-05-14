@@ -3,7 +3,7 @@ package app
 import (
 	"fmt"
 	"monitoring-service/app/controllers"
-	"monitoring-service/app/models"
+	// "monitoring-service/app/models"
 
 	// "monitoring-service/app/models"
 	"monitoring-service/app/repositories"
@@ -61,10 +61,10 @@ func (m *Main) Init() (err error) {
 	fmt.Println("✅ BERHASIL KONEK KE DATABASE")
 
 	// Migrate edukasi tables and seed minimal sample data for verification
-	if err := models.AutoMigrateEdukasi(m.database.Postgres); err != nil {
-		return err
-	}
-	fmt.Println("✅ EDUKASI: AutoMigrate selesai dan seeder dijalankan (jika perlu)")
+	// if err := models.AutoMigrateEdukasi(m.database.Postgres); err != nil {
+	// 	return err
+	// }
+	// fmt.Println("✅ EDUKASI: AutoMigrate selesai dan seeder dijalankan (jika perlu)")
 
 	//comment sementara
 
