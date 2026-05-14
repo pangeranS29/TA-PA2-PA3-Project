@@ -1,14 +1,17 @@
 import React, { useEffect, useState } from "react";
 import MainLayout from "../../components/Layout/MainLayout";
 import { createAnak } from "../../services/Anak";
-import { getKehamilanList } from "../../services/kehamilan";
+import { getIbuList } from "../../services/ibu";
+import { getKehamilanByIbuId } from "../../services/kehamilan";
 import { useNavigate } from "react-router-dom";
 import { UserPlus, CheckCircle2, AlertCircle } from "lucide-react";
 
 export default function CreateAnak() {
   const navigate = useNavigate();
+  const [ibuList, setIbuList] = useState([]);
   const [kehamilanList, setKehamilanList] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [fetchingKehamilan, setFetchingKehamilan] = useState(false);
   const [errors, setErrors] = useState({});
   const [generalError, setGeneralError] = useState("");
 
@@ -17,23 +20,51 @@ export default function CreateAnak() {
     jenis_kelamin: "",
     tanggal_lahir: "",
     berat_lahir_kg: "",
+    ibu_id: "",
     kehamilan_id: "",
     tempat_lahir: "",
     anak_ke: "",
   });
 
+  // Load daftar ibu saat page pertama kali dibuka
   useEffect(() => {
-    const fetchKehamilan = async () => {
+    const fetchIbu = async () => {
       try {
-        const data = await getKehamilanList();
-        setKehamilanList(data);
+        const data = await getIbuList();
+        setIbuList(data);
       } catch (err) {
         console.error("Detail Error:", err); 
-      setGeneralError("Gagal mengambil data ibu hamil.");
+        setGeneralError("Gagal mengambil data ibu.");
       }
     };
-    fetchKehamilan();
+    fetchIbu();
   }, []);
+
+  // Load kehamilan saat ibu dipilih
+  const handleIbuChange = async (e) => {
+    const ibuId = e.target.value;
+    setForm({ ...form, ibu_id: ibuId, kehamilan_id: "" });
+    
+    if (ibuId) {
+      setFetchingKehamilan(true);
+      try {
+        const data = await getKehamilanByIbuId(Number(ibuId));
+        setKehamilanList(data);
+      } catch (err) {
+        console.error("Detail Error:", err);
+        setKehamilanList([]);
+        setGeneralError("Gagal mengambil data kehamilan ibu.");
+      } finally {
+        setFetchingKehamilan(false);
+      }
+    } else {
+      setKehamilanList([]);
+    }
+    
+    if (errors.ibu_id) {
+      setErrors(prev => ({...prev, ibu_id: ""}));
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -50,10 +81,11 @@ export default function CreateAnak() {
 
   const validateForm = () => {
     let tempErrors = {};
+    if (!form.ibu_id) tempErrors.ibu_id = "Pilih ibu terlebih dahulu.";
+    if (!form.kehamilan_id) tempErrors.kehamilan_id = "Pilih data kehamilan ibu.";
     if (!form.nama.trim()) tempErrors.nama = "Nama anak wajib diisi.";
     if (!form.tanggal_lahir) tempErrors.tanggal_lahir = "Tanggal lahir wajib diisi.";
     if (!form.jenis_kelamin) tempErrors.jenis_kelamin = "Pilih jenis kelamin anak.";
-    if (!form.kehamilan_id) tempErrors.kehamilan_id = "Pilih data ibu hamil.";
     
     setErrors(tempErrors);
     return Object.keys(tempErrors).length === 0;
@@ -67,9 +99,13 @@ export default function CreateAnak() {
     setLoading(true);
     try {
       const payload = {
-        ...form,
+        nama: form.nama,
+        jenis_kelamin: form.jenis_kelamin,
+        tanggal_lahir: form.tanggal_lahir,
+        berat_lahir_kg: parseFloat(form.berat_lahir_kg) || 0,
         kehamilan_id: Number(form.kehamilan_id),
-        berat_lahir_kg: parseFloat(form.berat_lahir_kg) || 0
+        tempat_lahir: form.tempat_lahir,
+        anak_ke: form.anak_ke,
       };
       await createAnak(payload);
       alert("Data anak berhasil disimpan.");
@@ -97,9 +133,73 @@ export default function CreateAnak() {
 
             <form onSubmit={handleSubmit} className="space-y-6">
               
+              {/* Data Orangtua - Pilih Ibu Dulu */}
+              <div className="space-y-4 p-4 bg-blue-50 rounded-xl border border-blue-200">
+                <div className="flex items-center gap-2 text-gray-800 font-bold">
+                   <UserPlus size={20} className="text-blue-600" />
+                   <span>Data Orangtua</span>
+                </div>
+                
+                {/* Pilih Ibu */}
+                <div>
+                  <label className="block text-[12px] font-bold text-gray-500 tracking-wider uppercase mb-2">Nama Ibu <span className="text-red-500">*</span></label>
+                  <select
+                      name="ibu_id"
+                      value={form.ibu_id}
+                      onChange={handleIbuChange}
+                      className={`w-full p-4 bg-white border rounded-xl outline-none transition-all ${
+                        errors.ibu_id ? "border-red-500 focus:ring-red-200" : "border-gray-200 focus:ring-blue-500 focus:ring-2"
+                      }`}
+                    >
+                      <option value="">-- Pilih Ibu --</option>
+                      {Array.isArray(ibuList) && ibuList.map((ibu) => (
+                        <option key={ibu.id_ibu} value={ibu.id_ibu}>
+                          {ibu.kependudukan?.nama_lengkap || "Nama tidak ditemukan"}
+                        </option>
+                      ))}
+                    </select>
+                  {errors.ibu_id && <p className="mt-1 text-xs text-red-500 font-medium flex items-center gap-1"><AlertCircle size={12}/> {errors.ibu_id}</p>}
+                </div>
+
+                {/* Pilih Kehamilan */}
+                {form.ibu_id && (
+                  <div>
+                    <label className="block text-[12px] font-bold text-gray-500 tracking-wider uppercase mb-2">Data Kehamilan <span className="text-red-500">*</span></label>
+                    {fetchingKehamilan ? (
+                      <div className="p-4 bg-gray-100 rounded-xl text-gray-600 text-sm">
+                        Memuat data kehamilan...
+                      </div>
+                    ) : kehamilanList.length === 0 ? (
+                      <div className="p-4 bg-yellow-50 rounded-xl text-yellow-700 text-sm border border-yellow-200">
+                        Ibu ini belum memiliki data kehamilan. Silakan buat kehamilan terlebih dahulu.
+                      </div>
+                    ) : (
+                      <select
+                        name="kehamilan_id"
+                        value={form.kehamilan_id}
+                        onChange={handleChange}
+                        className={`w-full p-4 bg-white border rounded-xl outline-none transition-all ${
+                          errors.kehamilan_id ? "border-red-500 focus:ring-red-200" : "border-gray-200 focus:ring-blue-500 focus:ring-2"
+                        }`}
+                      >
+                        <option value="">-- Pilih Kehamilan --</option>
+                        {kehamilanList.map((kehamilan) => (
+                          <option key={kehamilan.id} value={kehamilan.id}>
+                            Kehamilan #{kehamilan.gravida} - Status: {kehamilan.status_kehamilan || "N/A"}
+                          </option>
+                        ))}
+                      </select>
+                    )}
+                    {errors.kehamilan_id && <p className="mt-1 text-xs text-red-500 font-medium flex items-center gap-1"><AlertCircle size={12}/> {errors.kehamilan_id}</p>}
+                  </div>
+                )}
+              </div>
+
+              <hr className="my-6 border-gray-100" />
+              
               {/* Nama Anak */}
               <div>
-                <label className="block text-[12px] font-bold text-gray-500 tracking-wider uppercase mb-2">Nama Anak</label>
+                <label className="block text-[12px] font-bold text-gray-500 tracking-wider uppercase mb-2">Nama Anak <span className="text-red-500">*</span></label>
                 <input
                   name="nama"
                   type="text"
@@ -127,7 +227,7 @@ export default function CreateAnak() {
                   />
                 </div>
                 <div>
-                  <label className="block text-[12px] font-bold text-gray-500 tracking-wider uppercase mb-2">Tanggal Lahir</label>
+                  <label className="block text-[12px] font-bold text-gray-500 tracking-wider uppercase mb-2">Tanggal Lahir <span className="text-red-500">*</span></label>
                   <input
                     name="tanggal_lahir"
                     type="date"
@@ -144,7 +244,7 @@ export default function CreateAnak() {
               {/* Jenis Kelamin & Anak Ke */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[12px] font-bold text-gray-500 tracking-wider uppercase mb-2">Jenis Kelamin</label>
+                  <label className="block text-[12px] font-bold text-gray-500 tracking-wider uppercase mb-2">Jenis Kelamin <span className="text-red-500">*</span></label>
                   <div className="flex gap-2">
                     {["Laki-laki", "Perempuan"].map((jk) => (
                       <button
@@ -179,35 +279,18 @@ export default function CreateAnak() {
                 </div>
               </div>
 
-              <hr className="my-8 border-gray-100" />
-
-              {/* Data Orangtua */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 text-gray-800 font-bold">
-                   <UserPlus size={20} className="text-blue-600" />
-                   <span>Data Orangtua</span>
-                </div>
-                <div>
-                  <label className="block text-[12px] font-bold text-gray-500 tracking-wider uppercase mb-2">Nama Ibu</label>
-                  <select
-                      name="kehamilan_id"
-                      value={form.kehamilan_id}
-                      onChange={handleChange}
-                      className={`w-full p-4 bg-gray-50 border rounded-xl outline-none transition-all ${
-                        errors.kehamilan_id ? "border-red-500 focus:ring-red-200" : "border-gray-200 focus:ring-blue-500 focus:ring-2"
-                      }`}
-                    >
-                      <option value="">Masukkan nama ibu</option>
-                      {/* Pastikan kehamilanList adalah array sebelum di-map */}
-                      {Array.isArray(kehamilanList) && kehamilanList.map((item) => (
-                        <option key={item.id} value={item.id}>
-                          {/* SESUAIKAN DI SINI: mengikuti struktur JSON baru */}
-                          {item.ibu?.kependudukan?.nama_lengkap || "Nama tidak ditemukan"}
-                        </option>
-                      ))}
-                    </select>
-                  {errors.kehamilan_id && <p className="mt-1 text-xs text-red-500 font-medium flex items-center gap-1"><AlertCircle size={12}/> {errors.kehamilan_id}</p>}
-                </div>
+              {/* Berat Lahir */}
+              <div>
+                <label className="block text-[12px] font-bold text-gray-500 tracking-wider uppercase mb-2">Berat Lahir (kg)</label>
+                <input
+                  name="berat_lahir_kg"
+                  type="number"
+                  placeholder="e.g. 3.5"
+                  step="0.1"
+                  value={form.berat_lahir_kg}
+                  onChange={handleChange}
+                  className="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                />
               </div>
 
               {/* Buttons */}
@@ -225,7 +308,7 @@ export default function CreateAnak() {
                   className="flex-[2] py-4 px-6 rounded-xl bg-[#3B71FE] text-white font-bold hover:bg-blue-700 shadow-lg shadow-blue-200 transition-all flex items-center justify-center gap-2"
                 >
                   <UserPlus size={20} />
-                  {loading ? "Menyimpan..." : "Daftar anak"}
+                  {loading ? "Menyimpan..." : "Daftar Anak"}
                 </button>
               </div>
             </form>

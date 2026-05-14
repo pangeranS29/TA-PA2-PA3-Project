@@ -6,6 +6,25 @@ import { getKehamilanByIbuId } from "../../services/kehamilan";
 import { getLabJiwaByKehamilanId, createLabJiwa, updateLabJiwa } from "../../services/pemeriksaanDokter";
 import { Save } from "lucide-react";
 
+const LabRow = ({ label, nameHasil, nameRencana, typeHasil = "text", form, handleChange }) => (
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+    <div><label className="block text-sm font-medium mb-1">{label} - Hasil</label><input type={typeHasil} name={nameHasil} value={form[nameHasil]} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" /></div>
+    <div className="md:col-span-2"><label className="block text-sm font-medium mb-1">Rencana Tindak Lanjut</label><input name={nameRencana} value={form[nameRencana]} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" /></div>
+  </div>
+);
+
+const TripleEliminasiRow = ({ label, nameHasil, nameRencana, form, handleChange }) => (
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+    <div>
+      <label className="block text-sm font-medium mb-1">{label} - Hasil</label>
+      <select name={nameHasil} value={form[nameHasil]} onChange={handleChange} className="w-full border rounded-lg px-3 py-2">
+        <option value="NonReaktif">Non-Reaktif</option><option value="Reaktif">Reaktif</option>
+      </select>
+    </div>
+    <div className="md:col-span-2"><label className="block text-sm font-medium mb-1">Rencana Tindak Lanjut</label><input name={nameRencana} value={form[nameRencana]} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" /></div>
+  </div>
+);
+
 export default function PemeriksaanLabJiwa() {
   const { id } = useParams();
   const [kehamilan, setKehamilan] = useState(null);
@@ -94,23 +113,8 @@ export default function PemeriksaanLabJiwa() {
     finally { setSaving(false); }
   };
 
-  const LabRow = ({ label, nameHasil, nameRencana, typeHasil = "text" }) => (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
-      <div><label className="block text-sm font-medium mb-1">{label} - Hasil</label><input type={typeHasil} name={nameHasil} value={form[nameHasil]} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" /></div>
-      <div className="md:col-span-2"><label className="block text-sm font-medium mb-1">Rencana Tindak Lanjut</label><input name={nameRencana} value={form[nameRencana]} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" /></div>
-    </div>
-  );
 
-  const TripleEliminasiRow = ({ label, nameHasil, nameRencana }) => (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
-      <div><label className="block text-sm font-medium mb-1">{label} - Hasil</label>
-        <select name={nameHasil} value={form[nameHasil]} onChange={handleChange} className="w-full border rounded-lg px-3 py-2">
-          <option value="NonReaktif">Non-Reaktif</option><option value="Reaktif">Reaktif</option>
-        </select>
-      </div>
-      <div className="md:col-span-2"><label className="block text-sm font-medium mb-1">Rencana Tindak Lanjut</label><input name={nameRencana} value={form[nameRencana]} onChange={handleChange} className="w-full border rounded-lg px-3 py-2" /></div>
-    </div>
-  );
+
 
   if (loading) return <MainLayout><div className="p-6">Memuat...</div></MainLayout>;
 
@@ -126,18 +130,18 @@ export default function PemeriksaanLabJiwa() {
           <div>
             <h3 className="font-semibold mb-3 text-indigo-700">Pemeriksaan Darah</h3>
             <div className="space-y-4">
-              <LabRow label="Hemoglobin (g/dL)" nameHasil="lab_hemoglobin_hasil" nameRencana="lab_hemoglobin_rencana_tindak_lanjut" typeHasil="number" />
-              <LabRow label="Golongan Darah & Rhesus" nameHasil="lab_golongan_darah_rhesus_hasil" nameRencana="lab_golongan_darah_rhesus_rencana_tindak_lanjut" />
-              <LabRow label="Gula Darah Sewaktu (mg/dL)" nameHasil="lab_gula_darah_sewaktu_hasil" nameRencana="lab_gula_darah_sewaktu_rencana_tindak_lanjut" typeHasil="number" />
+              <LabRow label="Hemoglobin (g/dL)" nameHasil="lab_hemoglobin_hasil" nameRencana="lab_hemoglobin_rencana_tindak_lanjut" typeHasil="number" form={form} handleChange={handleChange} />
+              <LabRow label="Golongan Darah & Rhesus" nameHasil="lab_golongan_darah_rhesus_hasil" nameRencana="lab_golongan_darah_rhesus_rencana_tindak_lanjut" form={form} handleChange={handleChange} />
+              <LabRow label="Gula Darah Sewaktu (mg/dL)" nameHasil="lab_gula_darah_sewaktu_hasil" nameRencana="lab_gula_darah_sewaktu_rencana_tindak_lanjut" typeHasil="number" form={form} handleChange={handleChange} />
             </div>
           </div>
 
           <div>
             <h3 className="font-semibold mb-3 text-indigo-700">Triple Eliminasi</h3>
             <div className="space-y-4">
-              <TripleEliminasiRow label="HIV" nameHasil="lab_hiv_hasil" nameRencana="lab_hiv_rencana_tindak_lanjut" />
-              <TripleEliminasiRow label="Sifilis" nameHasil="lab_sifilis_hasil" nameRencana="lab_sifilis_rencana_tindak_lanjut" />
-              <TripleEliminasiRow label="Hepatitis B" nameHasil="lab_hepatitis_b_hasil" nameRencana="lab_hepatitis_b_rencana_tindak_lanjut" />
+              <TripleEliminasiRow label="HIV" nameHasil="lab_hiv_hasil" nameRencana="lab_hiv_rencana_tindak_lanjut" form={form} handleChange={handleChange} />
+              <TripleEliminasiRow label="Sifilis" nameHasil="lab_sifilis_hasil" nameRencana="lab_sifilis_rencana_tindak_lanjut" form={form} handleChange={handleChange} />
+              <TripleEliminasiRow label="Hepatitis B" nameHasil="lab_hepatitis_b_hasil" nameRencana="lab_hepatitis_b_rencana_tindak_lanjut" form={form} handleChange={handleChange} />
             </div>
           </div>
 

@@ -85,4 +85,3 @@ func (c *EdukasiKesehatanMentalController) Delete(ctx echo.Context) error {
 
 	return ctx.JSON(http.StatusOK, echo.Map{"message": "deleted successfully"})
 }
-

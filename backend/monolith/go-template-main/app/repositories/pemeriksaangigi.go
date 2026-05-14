@@ -14,6 +14,7 @@ type PemeriksaanGigiRepository interface {
 	GetAll() ([]models.PeriksaGigi, error)
 	Update(id int32, req models.UpdatePemeriksaanGigiRequest, now time.Time) error
 	Delete(id int32) error
+	IsAnakMilikIbu(userID uint, anakID int32) (bool, error)
 }
 type pemeriksaanGigiRepository struct {
 	db *gorm.DB
@@ -88,7 +89,7 @@ func (r *pemeriksaanGigiRepository) Update(id int32, req models.UpdatePemeriksaa
 		if req.Bulanke != 0 {
 			updates["bulanke"] = req.Bulanke
 		}
-		if !req.Tanggal.IsZero() {
+		if req.Tanggal != "" {
 			updates["tanggal"] = req.Tanggal
 		}
 		if req.Jumlahgigi != 0 {
@@ -113,4 +114,20 @@ func (r *pemeriksaanGigiRepository) Delete(id int32) error {
 	return r.withTx(func(tx *gorm.DB) error {
 		return tx.Delete(&models.PeriksaGigi{}, id).Error
 	})
+}
+
+func (r *pemeriksaanGigiRepository) IsAnakMilikIbu(userID uint, anakID int32) (bool, error) {
+	var count int64
+	err := r.db.Table("anak a").
+		Joins("JOIN kehamilan k ON k.id = a.kehamilan_id").
+		Joins("JOIN ibu i ON i.id = k.ibu_id").
+		Joins("JOIN penduduk ki ON ki.id = i.penduduk_id").
+		Joins("JOIN pengguna p ON p.penduduk_id = ki.id").
+		Where("a.id = ?", anakID).
+		Where("p.id = ?", userID).
+		Count(&count).Error
+	if err != nil {
+		return false, err
+	}
+	return count > 0, nil
 }

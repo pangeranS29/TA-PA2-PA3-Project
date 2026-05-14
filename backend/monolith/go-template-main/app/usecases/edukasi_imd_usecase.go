@@ -6,35 +6,35 @@ import (
 	"monitoring-service/app/repositories"
 )
 
-type EdukasiImdUsecase interface {
-	Create(data *models.EdukasiImd) error
-	GetAll() ([]models.EdukasiImd, error)
-	GetByID(id int32) (*models.EdukasiImd, error)
-	Update(id int32, data *models.EdukasiImd) error
+type EdukasiIMDUsecase interface {
+	Create(data *models.EdukasiIMD) error
+	GetAll() ([]models.EdukasiIMD, error)
+	GetByID(id int32) (*models.EdukasiIMD, error)
+	Update(id int32, data *models.EdukasiIMD) error
 	Delete(id int32) error
 }
 
-type edukasiImdUsecase struct {
-	repo repositories.EdukasiImdRepository
+type edukasiIMDUsecase struct {
+	repo repositories.EdukasiIMDRepository
 }
 
-func NewEdukasiImdUsecase(repo repositories.EdukasiImdRepository) EdukasiImdUsecase {
-	return &edukasiImdUsecase{repo}
+func NewEdukasiIMDUsecase(repo repositories.EdukasiIMDRepository) EdukasiIMDUsecase {
+	return &edukasiIMDUsecase{repo}
 }
 
-func (u *edukasiImdUsecase) Create(data *models.EdukasiImd) error {
+func (u *edukasiIMDUsecase) Create(data *models.EdukasiIMD) error {
 	return u.repo.Create(data)
 }
 
-func (u *edukasiImdUsecase) GetAll() ([]models.EdukasiImd, error) {
+func (u *edukasiIMDUsecase) GetAll() ([]models.EdukasiIMD, error) {
 	return u.repo.FindAll()
 }
 
-func (u *edukasiImdUsecase) GetByID(id int32) (*models.EdukasiImd, error) {
+func (u *edukasiIMDUsecase) GetByID(id int32) (*models.EdukasiIMD, error) {
 	return u.repo.FindByID(id)
 }
 
-func (u *edukasiImdUsecase) Update(id int32, data *models.EdukasiImd) error {
+func (u *edukasiIMDUsecase) Update(id int32, data *models.EdukasiIMD) error {
 	existing, err := u.repo.FindByID(id)
 	if err != nil {
 		return errors.New("data not found")
@@ -43,10 +43,12 @@ func (u *edukasiImdUsecase) Update(id int32, data *models.EdukasiImd) error {
 	existing.Judul = data.Judul
 	existing.GambarURL = data.GambarURL
 	existing.Isi = data.Isi
+	existing.Manfaat = data.Manfaat
+	existing.Langkah = data.Langkah
 
 	return u.repo.Update(existing)
 }
 
-func (u *edukasiImdUsecase) Delete(id int32) error {
+func (u *edukasiIMDUsecase) Delete(id int32) error {
 	return u.repo.Delete(id)
 }

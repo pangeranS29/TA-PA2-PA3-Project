@@ -1,6 +1,6 @@
 import api from "./api";
 
-const BASE_RINGKASAN = "/tenaga-kesehatan/ringkasan-pelayanan-persalinan";
+const BASE_RINGKASAN = "/tenaga-kesehatan/ringkasan-persalinan";
 const BASE_RIWAYAT = "/tenaga-kesehatan/riwayat-proses-melahirkan";
 const BASE_KETERANGAN_LAHIR = "/tenaga-kesehatan/keterangan-lahir";
 
@@ -38,7 +38,7 @@ export const updateRiwayatMelahirkan = async (id, data) => {
 
 // 3. Keterangan Lahir (Berdasarkan relasi Ibu)
 export const getKeteranganLahirByIbuId = async (ibuId) => {
-  const res = await api.get(`${BASE_KETERANGAN_LAHIR}?id_ibu_relasi=${ibuId}`);
+  const res = await api.get(`${BASE_KETERANGAN_LAHIR}?ibu_id=${ibuId}`);
   return res.data.data;
 };
 

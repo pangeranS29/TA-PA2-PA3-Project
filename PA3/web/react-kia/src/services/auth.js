@@ -1,38 +1,40 @@
-// src/services/auth.js
 import api from "./api";
 
-/**
- * Fungsi Login
- * Menyimpan token dan data user ke localStorage
- */
+const ADMIN_ROLE = "admin";
+const BIDAN_ROLE = "bidan";
+const DOKTER_ROLE = "dokter";
+
+const normalizeRole = (role) => (role || "").toString().trim().toLowerCase();
+
+export const isAdminUser = (user) => normalizeRole(user?.role) === ADMIN_ROLE;
+export const isDokterUser = (user) => normalizeRole(user?.role) === DOKTER_ROLE;
+export const isBidanUser = (user) => normalizeRole(user?.role) === BIDAN_ROLE;
+
+export const getUserRedirectRoute = (user) => {
+  
+  const role = normalizeRole(user?.role);
+  if (role === ADMIN_ROLE) return "/dashboard/admin";
+  if (role === DOKTER_ROLE) return "/dashboard/dokter";
+  if (role === BIDAN_ROLE) return "/dashboard/bidan";
+  return "/dashboard";
+};
+
 export const login = async (identifier, password) => {
   const response = await api.post("/auth/login", { identifier, password });
-  
-  // Ambil data dari response.data.data (sesuaikan dengan struktur API Laravel/Go kamu)
   const result = response.data.data;
-
   if (result?.access_token) {
     localStorage.setItem("access_token", result.access_token);
-    // Simpan objek user secara lengkap (termasuk ID, Nama, Lokasi, dll)
-    localStorage.setItem("user", JSON.stringify(result)); 
+    localStorage.setItem("user", JSON.stringify(result));
   }
-  
   return response.data;
 };
 
-/**
- * Fungsi Logout
- * Menghapus sesi dan mengarahkan kembali ke halaman login
- */
 export const logout = () => {
   localStorage.removeItem("access_token");
   localStorage.removeItem("user");
-  window.location.href = "/login";
+  window.location.href = "/dashboard";
 };
 
-/**
- * Ambil Data User yang sedang login
- */
 export const getCurrentUser = () => {
   try {
     const userStr = localStorage.getItem("user");
@@ -43,10 +45,12 @@ export const getCurrentUser = () => {
   }
 };
 
-/**
- * Cek apakah user sudah terautentikasi (punya token)
- */
 export const isAuthenticated = () => {
   const token = localStorage.getItem("access_token");
-  return !!token; // Mengembalikan true jika token ada, false jika tidak ada
+  return !!token;
+};
+
+export const getPostLoginRoute = () => {
+  const user = getCurrentUser();
+  return getUserRedirectRoute(user);
 };

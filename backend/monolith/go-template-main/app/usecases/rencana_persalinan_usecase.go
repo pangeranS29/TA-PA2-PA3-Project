@@ -12,6 +12,8 @@ type RencanaPersalinanUsecase interface {
 	GetByKehamilanID(kehamilanID int32) ([]models.RencanaPersalinan, error)
 	Update(rp *models.RencanaPersalinan) error
 	Delete(id int32) error
+	// Tambahan untuk kebutuhan controller
+	FindByIDWithoutPreload(id int32) (*models.RencanaPersalinan, error)
 }
 
 type rencanaPersalinanUsecase struct {
@@ -38,7 +40,7 @@ func (u *rencanaPersalinanUsecase) GetByKehamilanID(kehamilanID int32) ([]models
 }
 
 func (u *rencanaPersalinanUsecase) Update(rp *models.RencanaPersalinan) error {
-	_, err := u.repo.FindByID(rp.IDRencanaPersalinan)
+	_, err := u.repo.FindByIDWithoutPreload(rp.IDRencanaPersalinan)
 	if err != nil {
 		return errors.New("data rencana persalinan tidak ditemukan")
 	}
@@ -47,4 +49,9 @@ func (u *rencanaPersalinanUsecase) Update(rp *models.RencanaPersalinan) error {
 
 func (u *rencanaPersalinanUsecase) Delete(id int32) error {
 	return u.repo.Delete(id)
+}
+
+// FindByIDWithoutPreload implementasi untuk usecase
+func (u *rencanaPersalinanUsecase) FindByIDWithoutPreload(id int32) (*models.RencanaPersalinan, error) {
+	return u.repo.FindByIDWithoutPreload(id)
 }

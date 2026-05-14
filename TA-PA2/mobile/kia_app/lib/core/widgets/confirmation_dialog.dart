@@ -1,3 +1,5 @@
+// Sebagai dialog konfirmasi simpan data
+
 import 'package:flutter/material.dart';
 
 class ConfirmationDialog extends StatelessWidget {
@@ -36,8 +38,8 @@ class ConfirmationDialog extends StatelessWidget {
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           ),
           onPressed: () {
-            Navigator.pop(context); // Tutup dialog
-            onConfirm(); // Jalankan fungsi simpan
+            Navigator.pop(context);
+            onConfirm();
           },
           child: Text("Ya, Simpan", style: TextStyle(color: Colors.white)),
         ),

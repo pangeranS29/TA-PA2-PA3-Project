@@ -31,6 +31,15 @@ func (r *PemeriksaanLaboratoriumJiwaRepository) FindByKehamilanID(kehamilanID in
 	return list, err
 }
 
+func (r *PemeriksaanLaboratoriumJiwaRepository) FindByKehamilanIDAndTrimester(kehamilanID, trimester int32) (*models.PemeriksaanLaboratoriumJiwa, error) {
+	var p models.PemeriksaanLaboratoriumJiwa
+	err := r.db.Where("kehamilan_id = ? AND trimester = ?", kehamilanID, trimester).First(&p).Error
+	if err != nil {
+		return nil, err
+	}
+	return &p, nil
+}
+
 func (r *PemeriksaanLaboratoriumJiwaRepository) Update(p *models.PemeriksaanLaboratoriumJiwa) error {
 	return r.db.Save(p).Error
 }

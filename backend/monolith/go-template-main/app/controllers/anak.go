@@ -66,6 +66,22 @@ func (h *AnakController) Create(c echo.Context) error {
 	return helpers.StandardResponse(c, http.StatusCreated, "data anak berhasil ditambahkan", anak, nil)
 }
 
+// CreateDenganPenduduk: create anak + auto-create kependudukan
+func (h *AnakController) CreateDenganPenduduk(c echo.Context) error {
+
+	var req models.CreateAnakDenganPendudukRequest
+	if err := c.Bind(&req); err != nil {
+		return helpers.StandardResponse(c, http.StatusBadRequest, "request tidak valid: "+err.Error(), nil, nil)
+	}
+
+	anak, err := h.anakUC.CreateAnakDenganPenduduk(req)
+	if err != nil {
+		return helpers.StandardResponse(c, http.StatusBadRequest, err.Error(), nil, nil)
+	}
+
+	return helpers.StandardResponse(c, http.StatusCreated, "data anak berhasil ditambahkan", anak, nil)
+}
+
 // Detail godoc
 // @Summary      Detail anak berdasarkan ID
 // @Tags         anak

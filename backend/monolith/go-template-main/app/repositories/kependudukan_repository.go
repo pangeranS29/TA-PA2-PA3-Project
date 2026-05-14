@@ -22,12 +22,17 @@ type EligiblePendudukItem struct {
 	JenisKelamin    string `json:"jenis_kelamin"`
 	Kecamatan       string `json:"kecamatan"`
 	Desa            string `json:"desa"`
-	NomorTelepon    string `json:"nomor_telepon"`
 }
 
 type PosyanduItem struct {
 	ID   int64  `json:"id"`
 	Nama string `json:"nama"`
+}
+type RekapDusun struct {
+	Kecamatan string `json:"kecamatan"`
+	Desa      string `json:"desa"`
+	Dusun     string `json:"dusun"`
+	Total     int64  `json:"total"`
 }
 
 func NewKependudukanRepository(db *gorm.DB) *KependudukanRepository {
@@ -44,9 +49,12 @@ func (r *KependudukanRepository) FindByID(id int32) (*models.Kependudukan, error
 	return &k, err
 }
 
-func (r *KependudukanRepository) FindByNIK(nik string) (*models.Kependudukan, error) {
+func (r *KependudukanRepository) FindByNIK(nik *string) (*models.Kependudukan, error) {
+	if nik == nil || *nik == "" {
+		return nil, errors.New("nik tidak boleh kosong")
+	}
 	var k models.Kependudukan
-	err := r.db.Where("nik = ? AND deleted_at IS NULL", nik).First(&k).Error
+	err := r.db.Where("nik = ? AND deleted_at IS NULL", *nik).First(&k).Error
 	return &k, err
 }
 
@@ -95,6 +103,9 @@ func (r *KependudukanRepository) FindByIDAndKartuKeluargaID(id int32, kartuKelua
 }
 
 func (r *KependudukanRepository) FindByNIKExceptID(nik string, exceptID int32) (*models.Kependudukan, error) {
+	if nik == "" {
+		return nil, errors.New("nik tidak boleh kosong")
+	}
 	var k models.Kependudukan
 	err := r.db.Where("nik = ? AND id <> ? AND deleted_at IS NULL", nik, exceptID).First(&k).Error
 	return &k, err
@@ -112,7 +123,7 @@ func (r *KependudukanRepository) ListEligibleForRole(role, search, kecamatan, de
 
 	var list []EligiblePendudukItem
 	q := r.db.Table("penduduk p").
-		Select("p.id, p.kartu_keluarga_id, p.nik, p.nama_lengkap, p.jenis_kelamin, p.kecamatan, p.desa, p.nomor_telepon").
+		Select("p.id, p.kartu_keluarga_id, p.nik, p.nama_lengkap, p.jenis_kelamin, p.kecamatan, p.desa").
 		Where("p.deleted_at IS NULL")
 
 	if search != "" {
@@ -227,4 +238,28 @@ func (r *KependudukanRepository) SoftDeleteByKartuKeluargaID(kartuKeluargaID int
 			"deleted_at": now,
 			"updated_at": now,
 		}).Error
+}
+func (r *KependudukanRepository) GetRekapPerDusun(kecamatan, desa string) ([]RekapDusun, error) {
+	var result []RekapDusun
+
+	query := r.db.
+		Model(&models.Kependudukan{}).
+		Select("kecamatan, desa, dusun, COUNT(*) as total").
+		Where("deleted_at IS NULL")
+
+	// filter opsional
+	if kecamatan != "" {
+		query = query.Where("LOWER(TRIM(kecamatan)) = LOWER(TRIM(?))", kecamatan)
+	}
+
+	if desa != "" {
+		query = query.Where("LOWER(TRIM(desa)) = LOWER(TRIM(?))", desa)
+	}
+
+	err := query.
+		Group("kecamatan, desa, dusun").
+		Order("total DESC").
+		Scan(&result).Error
+
+	return result, err
 }
