@@ -87,7 +87,7 @@ func (r *pemantauanPertumbuhanRepository) Update(id int32, req models.UpdatePema
 		if req.Bulanke != 0 {
 			updates["bulanke"] = req.Bulanke
 		}
-		if !req.Tanggal.IsZero() {
+		if req.Tanggal != "" {
 			updates["tanggal"] = req.Tanggal
 		}
 		if req.TenagaKesehatanID != 0 {

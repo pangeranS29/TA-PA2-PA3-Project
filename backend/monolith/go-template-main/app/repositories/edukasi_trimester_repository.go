@@ -1,52 +1,81 @@
 package repositories
 
 import (
-	"monitoring-service/app/models"
+	"context"
 
 	"gorm.io/gorm"
+
+	"monitoring-service/app/models"
 )
 
 type EdukasiTrimesterRepository interface {
-	Create(data *models.EdukasiTrimester) error
-	FindAll() ([]models.EdukasiTrimester, error)
-	FindByID(id int32) (*models.EdukasiTrimester, error)
-	Update(data *models.EdukasiTrimester) error
-	Delete(id int32) error
+	GetAll(ctx context.Context) ([]models.EdukasiTrimester, error)
+
+	GetByTrimester(
+		ctx context.Context,
+		trimester string,
+	) ([]models.EdukasiTrimester, error)
+
+	GetByKategori(
+		ctx context.Context,
+		trimester string,
+		kategori string,
+	) ([]models.EdukasiTrimester, error)
 }
 
 type edukasiTrimesterRepository struct {
 	db *gorm.DB
 }
 
-func NewEdukasiTrimesterRepository(db *gorm.DB) EdukasiTrimesterRepository {
-	return &edukasiTrimesterRepository{db}
+func NewEdukasiTrimesterRepository(
+	db *gorm.DB,
+) EdukasiTrimesterRepository {
+	return &edukasiTrimesterRepository{
+		db: db,
+	}
 }
 
-func (r *edukasiTrimesterRepository) Create(data *models.EdukasiTrimester) error {
-	return r.db.Create(data).Error
-}
+func (r *edukasiTrimesterRepository) GetAll(
+	ctx context.Context,
+) ([]models.EdukasiTrimester, error) {
 
-func (r *edukasiTrimesterRepository) FindAll() ([]models.EdukasiTrimester, error) {
 	var data []models.EdukasiTrimester
-	err := r.db.Find(&data).Error
+
+	err := r.db.WithContext(ctx).
+		Find(&data).Error
+
 	return data, err
 }
 
-func (r *edukasiTrimesterRepository) FindByID(id int32) (*models.EdukasiTrimester, error) {
-	var data models.EdukasiTrimester
+func (r *edukasiTrimesterRepository) GetByTrimester(
+	ctx context.Context,
+	trimester string,
+) ([]models.EdukasiTrimester, error) {
 
-	err := r.db.First(&data, id).Error
-	if err != nil {
-		return nil, err
-	}
+	var data []models.EdukasiTrimester
 
-	return &data, nil
+	err := r.db.WithContext(ctx).
+		Where("trimester = ?", trimester).
+		Find(&data).Error
+
+	return data, err
 }
 
-func (r *edukasiTrimesterRepository) Update(data *models.EdukasiTrimester) error {
-	return r.db.Save(data).Error
-}
+func (r *edukasiTrimesterRepository) GetByKategori(
+	ctx context.Context,
+	trimester string,
+	kategori string,
+) ([]models.EdukasiTrimester, error) {
 
-func (r *edukasiTrimesterRepository) Delete(id int32) error {
-	return r.db.Delete(&models.EdukasiTrimester{}, id).Error
+	var data []models.EdukasiTrimester
+
+	err := r.db.WithContext(ctx).
+		Where(
+			"trimester = ? AND kategori = ?",
+			trimester,
+			kategori,
+		).
+		Find(&data).Error
+
+	return data, err
 }

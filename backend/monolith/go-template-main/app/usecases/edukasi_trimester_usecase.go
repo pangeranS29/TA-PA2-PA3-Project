@@ -1,52 +1,68 @@
 package usecases
 
 import (
-	"errors"
+	"context"
+
 	"monitoring-service/app/models"
 	"monitoring-service/app/repositories"
 )
 
-type EdukasiTrimesterUsecase interface {
-	Create(data *models.EdukasiTrimester) error
-	GetAll() ([]models.EdukasiTrimester, error)
-	GetByID(id int32) (*models.EdukasiTrimester, error)
-	Update(id int32, data *models.EdukasiTrimester) error
-	Delete(id int32) error
+type EdukasiTrimesterUseCase interface {
+	GetAll(
+		ctx context.Context,
+	) ([]models.EdukasiTrimester, error)
+
+	GetByTrimester(
+		ctx context.Context,
+		trimester string,
+	) ([]models.EdukasiTrimester, error)
+
+	GetByKategori(
+		ctx context.Context,
+		trimester string,
+		kategori string,
+	) ([]models.EdukasiTrimester, error)
 }
 
-type edukasiTrimesterUsecase struct {
-	repo repositories.EdukasiTrimesterRepository
+type edukasiTrimesterUseCase struct {
+	repository repositories.EdukasiTrimesterRepository
 }
 
-func NewEdukasiTrimesterUsecase(repo repositories.EdukasiTrimesterRepository) EdukasiTrimesterUsecase {
-	return &edukasiTrimesterUsecase{repo}
-}
-
-func (u *edukasiTrimesterUsecase) Create(data *models.EdukasiTrimester) error {
-	return u.repo.Create(data)
-}
-
-func (u *edukasiTrimesterUsecase) GetAll() ([]models.EdukasiTrimester, error) {
-	return u.repo.FindAll()
-}
-
-func (u *edukasiTrimesterUsecase) GetByID(id int32) (*models.EdukasiTrimester, error) {
-	return u.repo.FindByID(id)
-}
-
-func (u *edukasiTrimesterUsecase) Update(id int32, data *models.EdukasiTrimester) error {
-	existing, err := u.repo.FindByID(id)
-	if err != nil {
-		return errors.New("data tidak ditemukan")
+func NewEdukasiTrimesterUseCase(
+	repository repositories.EdukasiTrimesterRepository,
+) EdukasiTrimesterUseCase {
+	return &edukasiTrimesterUseCase{
+		repository: repository,
 	}
-
-	existing.Judul = data.Judul
-	existing.GambarURL = data.GambarURL
-	existing.IsiKonten = data.IsiKonten
-
-	return u.repo.Update(existing)
 }
 
-func (u *edukasiTrimesterUsecase) Delete(id int32) error {
-	return u.repo.Delete(id)
+func (u *edukasiTrimesterUseCase) GetAll(
+	ctx context.Context,
+) ([]models.EdukasiTrimester, error) {
+
+	return u.repository.GetAll(ctx)
+}
+
+func (u *edukasiTrimesterUseCase) GetByTrimester(
+	ctx context.Context,
+	trimester string,
+) ([]models.EdukasiTrimester, error) {
+
+	return u.repository.GetByTrimester(
+		ctx,
+		trimester,
+	)
+}
+
+func (u *edukasiTrimesterUseCase) GetByKategori(
+	ctx context.Context,
+	trimester string,
+	kategori string,
+) ([]models.EdukasiTrimester, error) {
+
+	return u.repository.GetByKategori(
+		ctx,
+		trimester,
+		kategori,
+	)
 }

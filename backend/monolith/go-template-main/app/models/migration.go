@@ -1,57 +1,203 @@
 package models
 
-import (
-	"gorm.io/gorm"
-)
+// import "gorm.io/gorm"
 
-// AutoMigrateEdukasi runs AutoMigrate for the edukasi-related models
-// and inserts a minimal sample row per table if the table is empty.
-func AutoMigrateEdukasi(db *gorm.DB) error {
-	models := []interface{}{
-		&EdukasiImd{},
-		&EdukasiTrimester{},
-		&EdukasiKesehatanMental{},
-		&EdukasiMenyusuiASI{},
-		&EdukasiSetelahMelahirkan{},
-		&EdukasiTandaMelahirkan{},
-	}
+// // // import (
+// // // 	"gorm.io/gorm"
+// // // )
 
-	if err := db.AutoMigrate(models...); err != nil {
-		return err
-	}
+// func AutoMigrate(db *gorm.DB) error {
+// 	// Semua model dalam satu slice
+// 	models := []interface{}{
+// 		// Master
+// 		&KartuKeluarga{},
+// 		// &Kependudukan{},
+// 		// &Ibu{},
+// 		// &KategoriTandaBahaya{},
+// 		&SkriningPemantauan{},
+// 		&RentangUsia{},
+// 		&KategoriTandaSakit{},
+// 		// &KartuKeluarga{},
+// 		// &Kependudukan{},
 
-	// Seed minimal sample data if tables are empty (used as proof of connection)
-	var cnt int64
+// 		// Relasi utama
+// 		// &ibu
+// 		&Kehamilan{},
+// 		&Anak{},
+// 		&Role{},
+// 		&User{},
+// 		&Bidan{},
+// 		&Kader{},
 
-	db.Model(&EdukasiImd{}).Count(&cnt)
-	if cnt == 0 {
-		db.Create(&EdukasiImd{Judul: "Contoh IMD", GambarURL: "", Isi: "Isi contoh edukasi IMD"})
-	}
+// 		&Anak{},
 
-	db.Model(&EdukasiTrimester{}).Count(&cnt)
-	if cnt == 0 {
-		db.Create(&EdukasiTrimester{Judul: "Contoh Trimester", GambarURL: "", IsiKonten: "Isi contoh edukasi trimester"})
-	}
+// 		// // 		// Evaluasi & riwayat
+// 		// // 		&EvaluasiKesehatanIbu{},
+// 		// // 		&RiwayatKehamilanLalu{},
 
-	db.Model(&EdukasiKesehatanMental{}).Count(&cnt)
-	if cnt == 0 {
-		db.Create(&EdukasiKesehatanMental{Judul: "Contoh Kesehatan Mental", GambarURL: "", Deskripsi: "Ringkasan", Isi: "Isi contoh"})
-	}
+// 		// Pelayanan & lainnya
+// 		&JenisPelayanan{},
+// 		&JenisPelayananKategori{},
+// 		&KunjunganAnak{},
+// 		&AturanPelayanan{},
+// 		&KunjunganGizi{},
+// 		&KunjunganVitamin{},
+// 		&Neonatus{},
+// 		&DetailPelayananNeonatus{},
+// 		&DetailPelayananVitamin{},
+// 		&ASI{},
+// 		&MPASI{},
+// 		&CatatanPelayanan{},
+// 		&KehadiranImunisasi{},
+// 		&DetailPelayananImunisasi{},
+// 		&PeriksaGigi{},
+// 		&DeteksiDiniPenyimpangan{},
+// 		&PengukuranLila{},
+// 		&Pertumbuhan{},
+// 		&LembarPemantauan{},
+// 		&DetailPemantauan{},
 
-	db.Model(&EdukasiMenyusuiASI{}).Count(&cnt)
-	if cnt == 0 {
-		db.Create(&EdukasiMenyusuiASI{Judul: "Contoh Menyusui ASI", GambarURL: "", Isi: "Isi contoh"})
-	}
+// 		// // 		// Kehamilan detail
+// 		// // 		&PemeriksaanKehamilan{},
+// 		// // 		&PemeriksaanDokterTrimester1{},
+// 		// // 		&PemeriksaanLaboratoriumJiwa{},
+// 		// // 		&CatatanPelayananTrimester1{},
+// 		// // 		&SkriningPreeklampsia{},
+// 		// // 		&SkriningDMGestasional{},
+// 		// // 		&CatatanPelayananTrimester2{},
+// 		// // 		&PemeriksaanDokterTrimester3{},
+// 		// // 		&PemeriksaanLanjutanTrimester3{},
+// 		// // 		&CatatanPelayananTrimester3{},
 
-	db.Model(&EdukasiSetelahMelahirkan{}).Count(&cnt)
-	if cnt == 0 {
-		db.Create(&EdukasiSetelahMelahirkan{Judul: "Contoh Setelah Melahirkan", GambarURL: "", Isi: "Isi contoh"})
-	}
+// 		// // 		// Grafik & hasil
+// 		// // 		&GrafikEvaluasiKehamilan{},
+// 		// // 		&GrafikPeningkatanBB{},
+// 		// // 		&PenjelasanHasilGrafik{},
 
-	db.Model(&EdukasiTandaMelahirkan{}).Count(&cnt)
-	if cnt == 0 {
-		db.Create(&EdukasiTandaMelahirkan{Judul: "Contoh Tanda Melahirkan", GambarURL: "", Ringkasan: "Ringkasan contoh", Isi: "Isi contoh"})
-	}
+// 		// // 		// Persalinan
+// 		// // 		&RencanaPersalinan{},
+// 		// // 		&RingkasanPelayananPersalinan{},
+// 		// // 		&KeteranganLahir{},
+// 		// // 		&RiwayatProsesMelahirkan{},
 
-	return nil
-}
+// 		// // 		// Nifas & rujukan
+// 		// // 		&PelayananIbuNifas{},
+// 		// // 		&CatatanPelayananNifas{},
+// 		// // 		&Rujukan{},
+// 		// import (
+// 		// 	"gorm.io/gorm"
+// 		// )
+
+// 		// func AutoMigrate(db *gorm.DB) error {
+// 		// 	// Semua model dalam satu slice
+// 		// 	models := []interface{}{
+// 		// 		&InformasiUmum{},
+// 		// 		// Master
+// 		// 		// &KategoriTandaBahaya{},
+// 		// 		// &SkriningPemantauan{},
+// 		// 		// // &KartuKeluarga{},
+// 		// 		// // &Kependudukan{},
+
+// 		// 		// // Relasi utama
+// 		// 		// // &ibu
+// 		// 		// &Kehamilan{},
+// 		// 		// &Anak{},
+// 		// 		// &Role{},
+// 		// 		// &User{},
+// 		// 		// &Bidan{},
+// 		// 		// &Kader{},
+// 		// 		// &KartuKeluarga{},
+// 		// 		// &Kependudukan{},
+// 		// 		// &Ibu{},
+// 		// 		// &Anak{},
+
+// 		// 		// // Evaluasi & riwayat
+// 		// 		// &EvaluasiKesehatanIbu{},
+// 		// 		// &RiwayatKehamilanLalu{},
+
+// 		// 		// // Pelayanan & lainnya
+// 		// 		// &JenisPelayanan{},
+// 		// 		// &JenisPelayananKategori{},
+// 		// 		// &KunjunganAnak{},
+// 		// 		// &AturanPelayanan{},
+// 		// 		// &KunjunganGizi{},
+// 		// 		// &KunjunganVitamin{},
+// 		// 		// &Neonatus{},
+// 		// 		// &DetailPelayananNeonatus{},
+// 		// 		// &DetailPelayananVitamin{},
+// 		// 		// &ASI{},
+// 		// 		// &MPASI{},
+// 		// 		// &CatatanPelayanan{},
+// 		// 		// &KehadiranImunisasi{},
+// 		// 		// &DetailPelayananImunisasi{},
+// 		// 		// &PeriksaGigi{},
+// 		// 		// &DeteksiDiniPenyimpangan{},
+// 		// 		// &PengukuranLila{},
+// 		// 		// &Pertumbuhan{},
+
+// 		// 		// // Kehamilan detail
+// 		// 		// &PemeriksaanKehamilan{},
+// 		// 		// &PemeriksaanDokterTrimester1{},
+// 		// 		// &PemeriksaanLaboratoriumJiwa{},
+// 		// 		// &CatatanPelayananTrimester1{},
+// 		// 		// &SkriningPreeklampsia{},
+// 		// 		// &SkriningDMGestasional{},
+// 		// 		// &CatatanPelayananTrimester2{},
+// 		// 		// &PemeriksaanDokterTrimester3{},
+// 		// 		// &PemeriksaanLanjutanTrimester3{},
+// 		// 		// &CatatanPelayananTrimester3{},
+
+// 		// 		// // Grafik & hasil
+// 		// 		// &GrafikEvaluasiKehamilan{},
+// 		// 		// &GrafikPeningkatanBB{},
+// 		// 		// &PenjelasanHasilGrafik{},
+
+// 		// 		// // Persalinan
+// 		// 		// &RencanaPersalinan{},
+// 		// 		// &RingkasanPelayananPersalinan{},
+// 		// 		// &KeteranganLahir{},
+// 		// 		// &RiwayatProsesMelahirkan{},
+
+// 		// 		// // Nifas & rujukan
+// 		// 		// &PelayananIbuNifas{},
+// 		// 		// &CatatanPelayananNifas{},
+// 		// 		// &Rujukan{},
+
+// 		// 		// // Skrining & Pemantauan
+// 		// 		// &RentangUsia{},
+// 		// 		// &KategoriTandaSakit{},
+// 		// 		// &LembarPemantauan{},
+// 		// 		// &DetailPemantauan{},
+// 		// 	}
+
+// 		// // 		// MODUL IBU
+// 		// // 		&LogTTDMMS{},
+// 		// // 		&PersiapanMelahirkan{},
+// 		// // 		&ProsesMelahirkan{},
+// 		// // 		&PemantauanIbuHamil{},
+// 		// // 		&PemantauanIbuNifas{},
+// 		// // 	}
+
+// 		// 	// Jalankan automigrate sekali saja
+// 		// 	if err := db.AutoMigrate(models...); err != nil {
+// 		// 		return err
+// 		// 	}
+
+// 		// // 	// seeder
+// 		// // 	// log.Println("AutoMigrate selesai. Menjalankan Seeder...")
+// 		// // 	// seeder := seeders.NewSeeder(db)
+// 		// // 	// if err := seeder.Run(); err != nil {
+// 		// // 	// 	println("Error: seeder gagal dijalankan:", err.Error())
+// 		// // 	// }
+
+// 		// // 	return nil
+// 		// // }
+// 		// 	// seeder
+// 		// 	// log.Println("AutoMigrate selesai. Menjalankan Seeder...")
+// 		// 	// seeder := seeders.NewSeeder(db)
+// 		// 	// if err := seeder.Run(); err != nil {
+// 		// 	// 	println("Error: seeder gagal dijalankan:", err.Error())
+// 		// 	// }
+// 	}
+// 	return nil
+// }

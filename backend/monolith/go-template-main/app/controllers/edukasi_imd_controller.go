@@ -10,16 +10,16 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type EdukasiImdController struct {
-	usecase usecases.EdukasiImdUsecase
+type EdukasiIMDController struct {
+	usecase usecases.EdukasiIMDUsecase
 }
 
-func NewEdukasiImdController(u usecases.EdukasiImdUsecase) *EdukasiImdController {
-	return &EdukasiImdController{u}
+func NewEdukasiIMDController(u usecases.EdukasiIMDUsecase) *EdukasiIMDController {
+	return &EdukasiIMDController{u}
 }
 
-func (c *EdukasiImdController) Create(ctx echo.Context) error {
-	var input models.EdukasiImd
+func (c *EdukasiIMDController) Create(ctx echo.Context) error {
+	var input models.EdukasiIMD
 
 	if err := ctx.Bind(&input); err != nil {
 		return ctx.JSON(http.StatusBadRequest, echo.Map{"error": err.Error()})
@@ -32,7 +32,7 @@ func (c *EdukasiImdController) Create(ctx echo.Context) error {
 	return ctx.JSON(http.StatusCreated, input)
 }
 
-func (c *EdukasiImdController) GetAll(ctx echo.Context) error {
+func (c *EdukasiIMDController) GetAll(ctx echo.Context) error {
 	data, err := c.usecase.GetAll()
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, echo.Map{"error": err.Error()})
@@ -41,7 +41,7 @@ func (c *EdukasiImdController) GetAll(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, data)
 }
 
-func (c *EdukasiImdController) GetByID(ctx echo.Context) error {
+func (c *EdukasiIMDController) GetByID(ctx echo.Context) error {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, echo.Map{"error": "invalid id"})
@@ -55,13 +55,13 @@ func (c *EdukasiImdController) GetByID(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, data)
 }
 
-func (c *EdukasiImdController) Update(ctx echo.Context) error {
+func (c *EdukasiIMDController) Update(ctx echo.Context) error {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, echo.Map{"error": "invalid id"})
 	}
 
-	var input models.EdukasiImd
+	var input models.EdukasiIMD
 	if err := ctx.Bind(&input); err != nil {
 		return ctx.JSON(http.StatusBadRequest, echo.Map{"error": err.Error()})
 	}
@@ -73,7 +73,7 @@ func (c *EdukasiImdController) Update(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, echo.Map{"message": "updated successfully"})
 }
 
-func (c *EdukasiImdController) Delete(ctx echo.Context) error {
+func (c *EdukasiIMDController) Delete(ctx echo.Context) error {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, echo.Map{"error": "invalid id"})

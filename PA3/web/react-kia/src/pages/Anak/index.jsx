@@ -2,14 +2,16 @@ import React, { useState, useEffect } from "react";
 import MainLayout from "../../components/Layout/MainLayout";
 import { Link, useNavigate } from "react-router-dom";
 import { getAnak, deleteAnak } from "../../services/Anak";
+import { getRiwayatPertumbuhan, prediksiStunting } from "../../services/pertumbuhan";
 import {
   Plus, Search, Pencil, Trash2, ChevronLeft, ChevronRight,
-  Baby, LayoutDashboard, User, Calendar
+  Baby, AlertTriangle, CheckCircle, Minus
 } from "lucide-react";
 
 export default function AnakListNakes() {
   const navigate = useNavigate();
   const [children, setChildren] = useState([]);
+  const [prediksiMap, setPrediksiMap] = useState({}); // { anakId: prediksiData }
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
 
@@ -22,7 +24,45 @@ export default function AnakListNakes() {
       try {
         setLoading(true);
         const res = await getAnak();
-        setChildren(res.data || []);
+        const list = res.data || [];
+        setChildren(list);
+        // Fetch pertumbuhan terakhir lalu prediksi ke ML service untuk setiap anak
+        const prediksiResults = await Promise.allSettled(
+          list.map(async (c) => {
+            try {
+              const riwayatRes = await getRiwayatPertumbuhan(c.id);
+              const riwayat = riwayatRes.data || [];
+              // Cari data terakhir yang punya LILA
+              const lastWithLila = [...riwayat].reverse().find((r) => r.hasil_lila && r.hasil_lila > 0);
+              const last = lastWithLila || riwayat[riwayat.length - 1];
+              if (!last || !last.hasil_lila) return { id: c.id, data: null };
+
+              const rawGender = c.jenis_kelamin || "";
+              const jenisKelamin = rawGender.toLowerCase().includes("perempuan") ? "Perempuan" : "Laki-laki";
+
+              const prediksi = await prediksiStunting({
+                anak_id: c.id,
+                berat_lahir_kg:  c.berat_lahir_kg,
+                tinggi_lahir_cm: c.tinggi_lahir_cm,
+                berat_badan:     last.berat_badan,
+                tinggi_badan:    last.tinggi_badan,
+                hasil_lila:      last.hasil_lila,
+                usia_ukur_bulan: last.usia_ukur_bulan,
+                jenis_kelamin:   jenisKelamin,
+              });
+              return { id: c.id, data: prediksi };
+            } catch {
+              return { id: c.id, data: null };
+            }
+          })
+        );
+        const map = {};
+        prediksiResults.forEach((r) => {
+          if (r.status === "fulfilled" && r.value?.id) {
+            map[r.value.id] = r.value.data;
+          }
+        });
+        setPrediksiMap(map);
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
@@ -43,17 +83,19 @@ export default function AnakListNakes() {
   };
 
   const formatDate = (dateString) => {
-    if (!dateString) return "-";
+    if (!dateString || dateString.startsWith("0001")) return "-";
     const date = new Date(dateString);
+    if (isNaN(date.getTime()) || date.getFullYear() < 1900) return "-";
     return date.toLocaleDateString("id-ID", {
       day: "numeric", month: "long", year: "numeric",
     });
   };
 
   // --- LOGIC FILTER & PAGINATION ---
+  const normalizedSearch = searchTerm.toLowerCase();
   const filteredChildren = children.filter((c) =>
-    c.nama?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    c.kehamilan?.ibu?.nama_ibu?.toLowerCase().includes(searchTerm.toLowerCase())
+    (c.nama || "").toLowerCase().includes(normalizedSearch) ||
+    (c.kehamilan?.ibu?.nama_ibu || "").toLowerCase().includes(normalizedSearch)
   );
 
   // Hitung index data
@@ -70,14 +112,7 @@ export default function AnakListNakes() {
 
   return (
     <MainLayout>
-      {/* BREADCRUMB */}
-      <nav className="flex items-center text-sm text-gray-500 mb-6 gap-2 bg-white p-3 rounded-lg shadow-sm border border-gray-100 w-fit">
-        <Link to="/dashboard" className="hover:text-indigo-600 flex items-center gap-1">
-          Dashboard
-        </Link>
-        <ChevronRight size={14} />
-        <span className="font-semibold text-indigo-700">Rekam Medis Anak</span>
-      </nav>
+      <div className="p-4 md:p-8 bg-[#f8fafc] min-h-screen">
 
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
         <div>
@@ -85,7 +120,7 @@ export default function AnakListNakes() {
           <p className="text-gray-500 text-sm">Rekam data pertumbuhan anak secara terpusat.</p>
         </div>
         
-        <div className="bg-indigo-600 text-white px-6 py-3 rounded-2xl shadow-lg shadow-indigo-100 flex items-center gap-4">
+        <div className="bg-blue-600 text-white px-6 py-3 rounded-2xl shadow-lg shadow-blue-100 flex items-center gap-4">
           <div className="p-2 bg-white/20 rounded-xl">
             <Baby size={24} />
           </div>
@@ -109,7 +144,7 @@ export default function AnakListNakes() {
           </div>
           <Link
             to="/data-anak/create"
-            className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-xl flex items-center justify-center gap-2 font-bold transition-all shadow-md active:scale-95"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl flex items-center justify-center gap-2 font-bold transition-all shadow-md active:scale-95"
           >
             <Plus size={20} /> Tambah Data Anak
           </Link>
@@ -122,6 +157,7 @@ export default function AnakListNakes() {
             <tr className="bg-gray-50/50 border-y border-gray-100 text-gray-500 uppercase text-[10px] tracking-widest font-black">
               <th className="px-6 py-4">Nama Anak</th>
               <th className="px-6 py-4">Jenis Kelamin</th>
+              <th className="px-6 py-4">Risiko Stunting</th>
               <th className="px-6 py-4">Tanggal Lahir</th>
               <th className="px-6 py-4">Usia</th>
               <th className="px-6 py-4">Nama Ibu</th>
@@ -148,17 +184,22 @@ export default function AnakListNakes() {
                   <td className="px-6 py-4 font-bold text-gray-800 text-sm">{child.nama}</td>
                   <td className="px-6 py-4">
                      <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase border ${
-                        child.jenis_kelamin === 'laki-laki' ? 'bg-blue-50 text-blue-700 border-blue-100' : 'bg-pink-50 text-pink-700 border-pink-100'
+                        (child.jenis_kelamin || "").toLowerCase().includes('laki') ? 'bg-blue-50 text-blue-700 border-blue-100' : 
+                        (child.jenis_kelamin || "").toLowerCase().includes('perem') ? 'bg-pink-50 text-pink-700 border-pink-100' :
+                        'bg-gray-50 text-gray-500 border-gray-100'
                      }`}>
-                        {child.jenis_kelamin}
+                        {child.jenis_kelamin || "-"}
                      </span>
+                  </td>
+                  <td className="px-6 py-4">
+                    <RisikoBadge prediksi={prediksiMap[child.id]} />
                   </td>
                   <td className="px-6 py-4 text-xs">{formatDate(child.tanggal_lahir)}</td>
                   <td className="px-6 py-4 text-xs font-bold">{child.usia_teks || "-"}</td>
                   <td className="px-6 py-4 text-sm font-semibold">{child.kehamilan?.ibu?.nama_ibu || "-"}</td>
                   <td className="px-6 py-4">
                     <div className="flex items-center justify-center gap-2">
-                       <Link to={`/data-anak/dashboard/${child.id}`} className="bg-indigo-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow-sm active:scale-95">
+                       <Link to={`/data-anak/dashboard/${child.id}`} className="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow-sm active:scale-95">
                          Pantau
                        </Link>
                        <Link to={`/data-anak/edit/${child.id}`} className="p-1.5 text-gray-400 hover:text-amber-600"><Pencil size={14}/></Link>
@@ -174,7 +215,7 @@ export default function AnakListNakes() {
         {/* --- UI CONTROLS PAGINATION --- */}
         <div className="flex items-center justify-between px-6 py-4 bg-gray-50/50 border-t border-gray-100">
           <p className="text-xs text-gray-500 font-medium">
-            Menampilkan <span className="text-indigo-600">{indexOfFirstItem + 1}</span> - <span className="text-indigo-600">{Math.min(indexOfLastItem, filteredChildren.length)}</span> dari <span className="text-indigo-600">{filteredChildren.length}</span> data
+            Menampilkan <span className="text-indigo-600">{filteredChildren.length === 0 ? 0 : indexOfFirstItem + 1}</span> - <span className="text-indigo-600">{Math.min(indexOfLastItem, filteredChildren.length)}</span> dari <span className="text-indigo-600">{filteredChildren.length}</span> data
           </p>
           
           <div className="flex items-center gap-2">
@@ -212,6 +253,33 @@ export default function AnakListNakes() {
           </div>
         </div>
       </div>
+      </div>
     </MainLayout>
+  );
+}
+
+function RisikoBadge({ prediksi }) {
+  if (!prediksi) {
+    return (
+      <span className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-gray-100 text-gray-400 border border-gray-200">
+        <Minus size={10} /> Belum ada data
+      </span>
+    );
+  }
+  const cls = prediksi.classification;
+  if (cls === "STUNTING") return (
+    <span className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-red-100 text-red-700 border border-red-200">
+      <AlertTriangle size={10} /> Stunting ({(prediksi.risk_percentage ?? prediksi.stunting_risk ?? 0).toFixed(0)}%)
+    </span>
+  );
+  if (cls === "AT_RISK") return (
+    <span className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-orange-100 text-orange-700 border border-orange-200">
+      <AlertTriangle size={10} /> Berisiko ({(prediksi.risk_percentage ?? prediksi.stunting_risk ?? 0).toFixed(0)}%)
+    </span>
+  );
+  return (
+    <span className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-green-100 text-green-700 border border-green-200">
+      <CheckCircle size={10} /> Normal ({(prediksi.risk_percentage ?? prediksi.stunting_risk ?? 0).toFixed(0)}%)
+    </span>
   );
 }

@@ -9,15 +9,7 @@ import (
 	"monitoring-service/app/repositories"
 	"monitoring-service/pkg/customerror"
 
-	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
-)
-
-const (
-	defaultAdminAkunKeluargaPassword = "pengguna12345"
-	roleOrangtua                     = "Orangtua"
-	roleBidan                        = "Bidan"
-	roleKader                        = "Kader"
 )
 
 type AdminAnggotaKeluargaRequest struct {
@@ -38,28 +30,13 @@ type AdminAnggotaKeluargaRequest struct {
 	TujuanPindah       string `json:"tujuan_pindah"`
 	TempatMeninggal    string `json:"tempat_meninggal"`
 	Keterangan         string `json:"keterangan"`
-	NomorTelepon       string `json:"nomor_telepon"`
 }
 
-type AdminCreateAkunKeluargaRequest struct {
+// AdminCreateKartuKeluargaRequest - Hanya membuat Kartu Keluarga + Anggota (Penduduk)
+type AdminCreateKartuKeluargaRequest struct {
 	NoKK            string                        `json:"no_kk"`
 	TanggalTerbit   string                        `json:"tanggal_terbit"`
-	Email           string                        `json:"email"`
-	Role            string                        `json:"role"`
-	AkunPendudukNIK string                        `json:"akun_penduduk_nik"`
 	AnggotaKeluarga []AdminAnggotaKeluargaRequest `json:"anggota_keluarga"`
-}
-
-type AdminCreateAkunKeluargaResponse struct {
-	KartuKeluargaID int64  `json:"kartu_keluarga_id"`
-	PendudukID      int32  `json:"penduduk_id"`
-	TotalAnggota    int    `json:"total_anggota"`
-	UserID          int32  `json:"user_id"`
-	Role            string `json:"role"`
-	NoKK            string `json:"no_kk"`
-	NIK             string `json:"nik"`
-	NomorTelepon    string `json:"nomor_telepon"`
-	DefaultPassword string `json:"default_password"`
 }
 
 type AdminListKartuKeluargaPagination struct {
@@ -85,13 +62,6 @@ type AdminKepalaKeluarga struct {
 	NamaLengkap string `json:"nama_lengkap"`
 }
 
-type AdminDetailKartuKeluargaAkun struct {
-	UserID          int32  `json:"user_id"`
-	Email           string `json:"email"`
-	PendudukID      *int64 `json:"penduduk_id"`
-	AkunPendudukNIK string `json:"akun_penduduk_nik"`
-}
-
 type AdminDetailKartuKeluargaAnggota struct {
 	PendudukID         int32  `json:"penduduk_id"`
 	NIK                string `json:"nik"`
@@ -111,69 +81,42 @@ type AdminDetailKartuKeluargaAnggota struct {
 	TujuanPindah       string `json:"tujuan_pindah"`
 	TempatMeninggal    string `json:"tempat_meninggal"`
 	Keterangan         string `json:"keterangan"`
-	NomorTelepon       string `json:"nomor_telepon"`
 }
 
 type AdminDetailKartuKeluargaResponse struct {
 	KartuKeluargaID int64                             `json:"kartu_keluarga_id"`
 	NoKK            string                            `json:"no_kk"`
 	TanggalTerbit   *string                           `json:"tanggal_terbit"`
-	Akun            *AdminDetailKartuKeluargaAkun     `json:"akun,omitempty"`
 	AnggotaKeluarga []AdminDetailKartuKeluargaAnggota `json:"anggota_keluarga"`
 }
 
 type AdminUpdateKartuKeluargaRequest struct {
-	NoKK            string `json:"no_kk"`
-	TanggalTerbit   string `json:"tanggal_terbit"`
-	Email           string `json:"email"`
-	AkunPendudukNIK string `json:"akun_penduduk_nik"`
+	NoKK          string `json:"no_kk"`
+	TanggalTerbit string `json:"tanggal_terbit"`
 }
 
 type AdminAkunKeluargaUsecase struct {
-	userRepo         *repositories.UserRepository
-	roleRepo         *repositories.RoleRepository
 	kkRepo           *repositories.KartuKeluargaRepository
 	kependudukanRepo *repositories.KependudukanRepository
 }
 
 func NewAdminAkunKeluargaUsecase(
-	userRepo *repositories.UserRepository,
-	roleRepo *repositories.RoleRepository,
 	kkRepo *repositories.KartuKeluargaRepository,
 	kependudukanRepo *repositories.KependudukanRepository,
 ) *AdminAkunKeluargaUsecase {
 	return &AdminAkunKeluargaUsecase{
-		userRepo:         userRepo,
-		roleRepo:         roleRepo,
 		kkRepo:           kkRepo,
 		kependudukanRepo: kependudukanRepo,
 	}
 }
 
-func normalizeRoleAkunKeluarga(input string) (string, bool) {
-	cleaned := strings.ToLower(strings.TrimSpace(input))
-	switch cleaned {
-	case "", "orangtua", "orang tua", "ortu":
-		return roleOrangtua, true
-	case "bidan":
-		return roleBidan, true
-	case "kader":
-		return roleKader, true
-	default:
-		return "", false
-	}
-}
-
-func (u *AdminAkunKeluargaUsecase) CreateAkunKeluarga(req *AdminCreateAkunKeluargaRequest) (*AdminCreateAkunKeluargaResponse, error) {
+// CreateKartuKeluarga - Admin membuat Kartu Keluarga + Anggota (Penduduk) tanpa akun user
+func (u *AdminAkunKeluargaUsecase) CreateKartuKeluarga(req *AdminCreateKartuKeluargaRequest) (map[string]interface{}, error) {
 	if req == nil {
 		return nil, customerror.NewBadRequestError("request tidak valid")
 	}
 
 	req.NoKK = strings.TrimSpace(req.NoKK)
-	req.Email = strings.TrimSpace(strings.ToLower(req.Email))
-	req.Role = strings.TrimSpace(req.Role)
-	req.AkunPendudukNIK = strings.TrimSpace(req.AkunPendudukNIK)
-
 	for i := range req.AnggotaKeluarga {
 		req.AnggotaKeluarga[i].NIK = strings.TrimSpace(req.AnggotaKeluarga[i].NIK)
 		req.AnggotaKeluarga[i].NamaLengkap = strings.TrimSpace(req.AnggotaKeluarga[i].NamaLengkap)
@@ -192,25 +135,14 @@ func (u *AdminAkunKeluargaUsecase) CreateAkunKeluarga(req *AdminCreateAkunKeluar
 		req.AnggotaKeluarga[i].TujuanPindah = strings.TrimSpace(req.AnggotaKeluarga[i].TujuanPindah)
 		req.AnggotaKeluarga[i].TempatMeninggal = strings.TrimSpace(req.AnggotaKeluarga[i].TempatMeninggal)
 		req.AnggotaKeluarga[i].Keterangan = strings.TrimSpace(req.AnggotaKeluarga[i].Keterangan)
-		req.AnggotaKeluarga[i].NomorTelepon = strings.TrimSpace(req.AnggotaKeluarga[i].NomorTelepon)
 	}
 
-	if req.NoKK == "" || req.Email == "" {
-		return nil, customerror.NewBadRequestError("no_kk dan email wajib diisi")
+	if req.NoKK == "" {
+		return nil, customerror.NewBadRequestError("no_kk wajib diisi")
 	}
-
-	normalizedRole, ok := normalizeRoleAkunKeluarga(req.Role)
-	if !ok {
-		return nil, customerror.NewBadRequestError("role harus salah satu dari: Orangtua, Bidan, Kader")
-	}
-	req.Role = normalizedRole
 
 	if len(req.AnggotaKeluarga) == 0 {
 		return nil, customerror.NewBadRequestError("anggota_keluarga wajib diisi minimal 1 orang")
-	}
-
-	if _, err := u.userRepo.FindByEmail(req.Email); err == nil {
-		return nil, customerror.NewBadRequestError("email sudah terdaftar")
 	}
 
 	if _, err := u.kkRepo.FindByNoKK(req.NoKK); err == nil {
@@ -228,19 +160,10 @@ func (u *AdminAkunKeluargaUsecase) CreateAkunKeluarga(req *AdminCreateAkunKeluar
 		}
 		nikSeen[anggota.NIK] = struct{}{}
 
-		if _, err := u.kependudukanRepo.FindByNIK(anggota.NIK); err == nil {
+		nikPtr := &anggota.NIK
+		if _, err := u.kependudukanRepo.FindByNIK(nikPtr); err == nil {
 			return nil, customerror.NewBadRequestError("NIK sudah terdaftar: " + anggota.NIK)
 		}
-	}
-
-	role, err := u.roleRepo.FindByName(req.Role)
-	if err != nil {
-		return nil, customerror.NewNotFoundError("role " + req.Role + " tidak ditemukan")
-	}
-
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(defaultAdminAkunKeluargaPassword), bcrypt.DefaultCost)
-	if err != nil {
-		return nil, customerror.NewInternalServiceError("gagal memproses password")
 	}
 
 	var tanggalTerbit *time.Time
@@ -269,9 +192,10 @@ func (u *AdminAkunKeluargaUsecase) CreateAkunKeluarga(req *AdminCreateAkunKeluar
 			return nil, customerror.NewBadRequestError("format tanggal_lahir harus YYYY-MM-DD")
 		}
 
+		nikPtr := &anggota.NIK
 		penduduk := &models.Kependudukan{
 			KartuKeluargaID:    &kk.ID,
-			NIK:                anggota.NIK,
+			NIK:                nikPtr,
 			Dusun:              anggota.Dusun,
 			NamaLengkap:        anggota.NamaLengkap,
 			GolonganDarah:      anggota.GolonganDarah,
@@ -288,7 +212,6 @@ func (u *AdminAkunKeluargaUsecase) CreateAkunKeluarga(req *AdminCreateAkunKeluar
 			TujuanPindah:       anggota.TujuanPindah,
 			TempatMeninggal:    anggota.TempatMeninggal,
 			Keterangan:         anggota.Keterangan,
-			NomorTelepon:       anggota.NomorTelepon,
 			CreatedAt:          time.Now(),
 			UpdatedAt:          time.Now(),
 		}
@@ -298,70 +221,29 @@ func (u *AdminAkunKeluargaUsecase) CreateAkunKeluarga(req *AdminCreateAkunKeluar
 		createdPenduduk = append(createdPenduduk, penduduk)
 	}
 
-	if len(createdPenduduk) == 0 {
-		return nil, customerror.NewInternalServiceError("gagal membuat data penduduk")
-	}
-
-	selectedPenduduk := createdPenduduk[0]
-	if req.AkunPendudukNIK != "" {
-		found := false
-		for _, p := range createdPenduduk {
-			if p.NIK == req.AkunPendudukNIK {
-				selectedPenduduk = p
-				found = true
-				break
-			}
+	// Mapping anggota untuk response
+	resAnggota := make([]map[string]interface{}, 0, len(createdPenduduk))
+	for _, p := range createdPenduduk {
+		nik := ""
+		if p.NIK != nil {
+			nik = *p.NIK
 		}
-		if !found {
-			return nil, customerror.NewBadRequestError("akun_penduduk_nik tidak ditemukan pada anggota_keluarga")
-		}
-	} else {
-		for _, p := range createdPenduduk {
-			if strings.EqualFold(strings.TrimSpace(p.KedudukanKeluarga), "Kepala Keluarga") {
-				selectedPenduduk = p
-				break
-			}
-		}
+		resAnggota = append(resAnggota, map[string]interface{}{
+			"penduduk_id":        p.IDKependudukan,
+			"nik":                nik,
+			"nama_lengkap":       p.NamaLengkap,
+			"jenis_kelamin":      p.JenisKelamin,
+			"tanggal_lahir":      p.TanggalLahir.Format("2006-01-02"),
+			"kedudukan_keluarga": p.KedudukanKeluarga,
+		})
 	}
 
-	if strings.TrimSpace(selectedPenduduk.NomorTelepon) == "" {
-		return nil, customerror.NewBadRequestError("nomor_telepon pada anggota akun wajib diisi")
-	}
-
-	normalizedPhoneNumber, err := normalizePhoneNumber(selectedPenduduk.NomorTelepon)
-	if err != nil {
-		return nil, customerror.NewBadRequestError("nomor_telepon anggota akun tidak valid")
-	}
-
-	if _, err := u.userRepo.FindByPhoneNumber(normalizedPhoneNumber); err == nil {
-		return nil, customerror.NewBadRequestError("nomor hp sudah terdaftar")
-	}
-
-	pendudukID := int64(selectedPenduduk.IDKependudukan)
-	user := &models.User{
-		RoleID:      role.ID,
-		Name:        selectedPenduduk.NamaLengkap,
-		Email:       req.Email,
-		PhoneNumber: normalizedPhoneNumber,
-		Password:    string(hashedPassword),
-		PendudukID:  &pendudukID,
-		CreatedAt:   time.Now(),
-		UpdatedAt:   time.Now(),
-	}
-	if err := u.userRepo.Create(user); err != nil {
-		return nil, err
-	}
-
-	return &AdminCreateAkunKeluargaResponse{
-		KartuKeluargaID: kk.ID,
-		PendudukID:      selectedPenduduk.IDKependudukan,
-		TotalAnggota:    len(createdPenduduk),
-		UserID:          user.ID,
-		Role:            req.Role,
-		NoKK:            req.NoKK,
-		NIK:             selectedPenduduk.NIK,
-		NomorTelepon:    normalizedPhoneNumber,
-		DefaultPassword: defaultAdminAkunKeluargaPassword,
+	return map[string]interface{}{
+		"kartu_keluarga_id": kk.ID,
+		"no_kk":             req.NoKK,
+		"tanggal_terbit":    tanggalTerbit,
+		"total_anggota":     len(createdPenduduk),
+		"anggota_keluarga":  resAnggota,
 	}, nil
 }
 
@@ -391,18 +273,26 @@ func (u *AdminAkunKeluargaUsecase) ListKartuKeluarga(search string, page int, li
 		var kepala interface{}
 		for _, a := range anggota {
 			if strings.EqualFold(strings.TrimSpace(a.KedudukanKeluarga), "Kepala Keluarga") {
+				nik := ""
+				if a.NIK != nil {
+					nik = *a.NIK
+				}
 				kepala = AdminKepalaKeluarga{
 					PendudukID:  a.IDKependudukan,
-					NIK:         a.NIK,
+					NIK:         nik,
 					NamaLengkap: a.NamaLengkap,
 				}
 				break
 			}
 		}
 		if kepala == nil && len(anggota) > 0 {
+			nik := ""
+			if anggota[0].NIK != nil {
+				nik = *anggota[0].NIK
+			}
 			kepala = AdminKepalaKeluarga{
 				PendudukID:  anggota[0].IDKependudukan,
-				NIK:         anggota[0].NIK,
+				NIK:         nik,
 				NamaLengkap: anggota[0].NamaLengkap,
 			}
 		}
@@ -459,27 +349,6 @@ func (u *AdminAkunKeluargaUsecase) DetailKartuKeluarga(kartuKeluargaID int64) (*
 		resAnggota = append(resAnggota, mapPendudukToAnggota(a))
 	}
 
-	var akun *AdminDetailKartuKeluargaAkun
-	user, err := u.userRepo.FindByKartuKeluargaID(kartuKeluargaID)
-	if err == nil {
-		akunPendudukNIK := ""
-		if user.PendudukID != nil {
-			penduduk, pendudukErr := u.kependudukanRepo.FindByID(int32(*user.PendudukID))
-			if pendudukErr == nil {
-				akunPendudukNIK = penduduk.NIK
-			}
-		}
-
-		akun = &AdminDetailKartuKeluargaAkun{
-			UserID:          user.ID,
-			Email:           user.Email,
-			PendudukID:      user.PendudukID,
-			AkunPendudukNIK: akunPendudukNIK,
-		}
-	} else if err != gorm.ErrRecordNotFound {
-		return nil, customerror.NewInternalServiceError("gagal mengambil data akun keluarga")
-	}
-
 	var tanggalTerbit *string
 	if kk.TanggalTerbit != nil {
 		formatted := kk.TanggalTerbit.Format("2006-01-02")
@@ -490,7 +359,6 @@ func (u *AdminAkunKeluargaUsecase) DetailKartuKeluarga(kartuKeluargaID int64) (*
 		KartuKeluargaID: kk.ID,
 		NoKK:            kk.NoKK,
 		TanggalTerbit:   tanggalTerbit,
-		Akun:            akun,
 		AnggotaKeluarga: resAnggota,
 	}, nil
 }
@@ -501,11 +369,9 @@ func (u *AdminAkunKeluargaUsecase) UpdateKartuKeluarga(kartuKeluargaID int64, re
 	}
 
 	req.NoKK = strings.TrimSpace(req.NoKK)
-	req.Email = strings.TrimSpace(strings.ToLower(req.Email))
-	req.AkunPendudukNIK = strings.TrimSpace(req.AkunPendudukNIK)
 
-	if req.NoKK == "" || req.Email == "" {
-		return nil, customerror.NewBadRequestError("no_kk dan email wajib diisi")
+	if req.NoKK == "" {
+		return nil, customerror.NewBadRequestError("no_kk wajib diisi")
 	}
 
 	kk, err := u.kkRepo.FindByID(kartuKeluargaID)
@@ -536,48 +402,6 @@ func (u *AdminAkunKeluargaUsecase) UpdateKartuKeluarga(kartuKeluargaID int64, re
 	kk.UpdatedAt = time.Now()
 	if err := u.kkRepo.Update(kk); err != nil {
 		return nil, customerror.NewInternalServiceError("gagal memperbarui kartu keluarga")
-	}
-
-	user, err := u.userRepo.FindByKartuKeluargaID(kartuKeluargaID)
-	if err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return nil, customerror.NewNotFoundError("akun keluarga tidak ditemukan")
-		}
-		return nil, customerror.NewInternalServiceError("gagal mengambil data akun keluarga")
-	}
-
-	if _, err := u.userRepo.FindByIDExceptEmail(req.Email, user.ID); err == nil {
-		return nil, customerror.NewConflictError("email sudah dipakai")
-	} else if err != gorm.ErrRecordNotFound {
-		return nil, customerror.NewInternalServiceError("gagal validasi email")
-	}
-
-	selectedPendudukID := user.PendudukID
-	selectedName := user.Name
-	if req.AkunPendudukNIK != "" {
-		penduduk, err := u.kependudukanRepo.FindByNIK(req.AkunPendudukNIK)
-		if err != nil {
-			if err == gorm.ErrRecordNotFound {
-				return nil, customerror.NewNotFoundError("akun_penduduk_nik tidak ditemukan")
-			}
-			return nil, customerror.NewInternalServiceError("gagal mengambil data penduduk")
-		}
-
-		if penduduk.KartuKeluargaID == nil || *penduduk.KartuKeluargaID != kartuKeluargaID {
-			return nil, customerror.NewBadRequestError("akun_penduduk_nik bukan anggota kartu keluarga ini")
-		}
-
-		pid := int64(penduduk.IDKependudukan)
-		selectedPendudukID = &pid
-		selectedName = penduduk.NamaLengkap
-	}
-
-	user.Email = req.Email
-	user.PendudukID = selectedPendudukID
-	user.Name = selectedName
-	user.UpdatedAt = time.Now()
-	if err := u.userRepo.Update(user); err != nil {
-		return nil, customerror.NewInternalServiceError("gagal memperbarui akun keluarga")
 	}
 
 	return u.DetailKartuKeluarga(kartuKeluargaID)
@@ -613,7 +437,6 @@ func (u *AdminAkunKeluargaUsecase) UpdateAnggotaKeluarga(kartuKeluargaID int64, 
 	req.TujuanPindah = strings.TrimSpace(req.TujuanPindah)
 	req.TempatMeninggal = strings.TrimSpace(req.TempatMeninggal)
 	req.Keterangan = strings.TrimSpace(req.Keterangan)
-	req.NomorTelepon = strings.TrimSpace(req.NomorTelepon)
 
 	if req.NIK == "" || req.NamaLengkap == "" {
 		return nil, customerror.NewBadRequestError("nik dan nama_lengkap wajib diisi")
@@ -633,7 +456,8 @@ func (u *AdminAkunKeluargaUsecase) UpdateAnggotaKeluarga(kartuKeluargaID int64, 
 		anggota.TanggalLahir = parsedTanggalLahir
 	}
 
-	anggota.NIK = req.NIK
+	nikPtr := &req.NIK
+	anggota.NIK = nikPtr
 	anggota.NamaLengkap = req.NamaLengkap
 	anggota.JenisKelamin = req.JenisKelamin
 	anggota.TempatLahir = req.TempatLahir
@@ -649,34 +473,10 @@ func (u *AdminAkunKeluargaUsecase) UpdateAnggotaKeluarga(kartuKeluargaID int64, 
 	anggota.TujuanPindah = req.TujuanPindah
 	anggota.TempatMeninggal = req.TempatMeninggal
 	anggota.Keterangan = req.Keterangan
-	anggota.NomorTelepon = req.NomorTelepon
 	anggota.UpdatedAt = time.Now()
 
 	if err := u.kependudukanRepo.Update(anggota); err != nil {
 		return nil, customerror.NewInternalServiceError("gagal memperbarui anggota keluarga")
-	}
-
-	if anggota.NomorTelepon != "" {
-		uid := int64(anggota.IDKependudukan)
-		if user, userErr := u.userRepo.FindByPendudukID(uid); userErr == nil {
-			normalizedPhone, normErr := normalizePhoneNumber(anggota.NomorTelepon)
-			if normErr != nil {
-				return nil, customerror.NewBadRequestError("nomor_telepon anggota akun tidak valid")
-			}
-
-			if _, existsErr := u.userRepo.FindByPhoneNumberExceptID(normalizedPhone, user.ID); existsErr == nil {
-				return nil, customerror.NewConflictError("nomor hp sudah dipakai")
-			} else if existsErr != gorm.ErrRecordNotFound {
-				return nil, customerror.NewInternalServiceError("gagal validasi nomor hp")
-			}
-
-			user.PhoneNumber = normalizedPhone
-			user.Name = anggota.NamaLengkap
-			user.UpdatedAt = time.Now()
-			if err := u.userRepo.Update(user); err != nil {
-				return nil, customerror.NewInternalServiceError("gagal sinkronisasi data akun")
-			}
-		}
 	}
 
 	res := mapPendudukToAnggota(*anggota)
@@ -698,12 +498,12 @@ func (u *AdminAkunKeluargaUsecase) AddAnggotaKeluarga(kartuKeluargaID int64, req
 	req.NIK = strings.TrimSpace(req.NIK)
 	req.NamaLengkap = strings.TrimSpace(req.NamaLengkap)
 	req.TanggalLahir = strings.TrimSpace(req.TanggalLahir)
-	req.NomorTelepon = strings.TrimSpace(req.NomorTelepon)
 	if req.NIK == "" || req.NamaLengkap == "" || req.TanggalLahir == "" {
 		return nil, customerror.NewBadRequestError("nik, nama_lengkap, dan tanggal_lahir wajib diisi")
 	}
 
-	if _, err := u.kependudukanRepo.FindByNIK(req.NIK); err == nil {
+	reqNIKPtr := &req.NIK
+	if _, err := u.kependudukanRepo.FindByNIK(reqNIKPtr); err == nil {
 		return nil, customerror.NewConflictError("nik sudah dipakai")
 	} else if err != gorm.ErrRecordNotFound {
 		return nil, customerror.NewInternalServiceError("gagal validasi nik")
@@ -716,7 +516,7 @@ func (u *AdminAkunKeluargaUsecase) AddAnggotaKeluarga(kartuKeluargaID int64, req
 
 	anggota := &models.Kependudukan{
 		KartuKeluargaID:    &kartuKeluargaID,
-		NIK:                req.NIK,
+		NIK:                reqNIKPtr,
 		NamaLengkap:        req.NamaLengkap,
 		JenisKelamin:       strings.TrimSpace(req.JenisKelamin),
 		TanggalLahir:       tanggalLahir,
@@ -733,7 +533,6 @@ func (u *AdminAkunKeluargaUsecase) AddAnggotaKeluarga(kartuKeluargaID int64, req
 		TujuanPindah:       strings.TrimSpace(req.TujuanPindah),
 		TempatMeninggal:    strings.TrimSpace(req.TempatMeninggal),
 		Keterangan:         strings.TrimSpace(req.Keterangan),
-		NomorTelepon:       req.NomorTelepon,
 		CreatedAt:          time.Now(),
 		UpdatedAt:          time.Now(),
 	}
@@ -755,13 +554,6 @@ func (u *AdminAkunKeluargaUsecase) DeleteAnggotaKeluarga(kartuKeluargaID int64, 
 		return customerror.NewInternalServiceError("gagal mengambil data anggota keluarga")
 	}
 
-	pid := int64(anggota.IDKependudukan)
-	if _, err := u.userRepo.FindByPendudukID(pid); err == nil {
-		return customerror.NewConflictError("anggota ini sedang menjadi akun utama, ubah akun utama terlebih dahulu")
-	} else if err != gorm.ErrRecordNotFound {
-		return customerror.NewInternalServiceError("gagal validasi relasi akun")
-	}
-
 	if err := u.kependudukanRepo.SoftDeleteByID(anggota.IDKependudukan); err != nil {
 		return customerror.NewInternalServiceError("gagal menghapus anggota keluarga")
 	}
@@ -777,12 +569,6 @@ func (u *AdminAkunKeluargaUsecase) DeleteKartuKeluarga(kartuKeluargaID int64) er
 		return customerror.NewInternalServiceError("gagal mengambil data kartu keluarga")
 	}
 
-	if _, err := u.userRepo.FindByKartuKeluargaID(kartuKeluargaID); err == nil {
-		return customerror.NewConflictError("kartu keluarga masih terhubung dengan akun pengguna")
-	} else if err != gorm.ErrRecordNotFound {
-		return customerror.NewInternalServiceError("gagal validasi relasi akun")
-	}
-
 	if err := u.kependudukanRepo.SoftDeleteByKartuKeluargaID(kartuKeluargaID); err != nil {
 		return customerror.NewInternalServiceError("gagal menghapus anggota keluarga")
 	}
@@ -795,9 +581,13 @@ func (u *AdminAkunKeluargaUsecase) DeleteKartuKeluarga(kartuKeluargaID int64) er
 }
 
 func mapPendudukToAnggota(a models.Kependudukan) AdminDetailKartuKeluargaAnggota {
+	nik := ""
+	if a.NIK != nil {
+		nik = *a.NIK
+	}
 	return AdminDetailKartuKeluargaAnggota{
 		PendudukID:         a.IDKependudukan,
-		NIK:                a.NIK,
+		NIK:                nik,
 		NamaLengkap:        a.NamaLengkap,
 		JenisKelamin:       a.JenisKelamin,
 		TanggalLahir:       a.TanggalLahir.Format("2006-01-02"),
@@ -814,6 +604,5 @@ func mapPendudukToAnggota(a models.Kependudukan) AdminDetailKartuKeluargaAnggota
 		TujuanPindah:       a.TujuanPindah,
 		TempatMeninggal:    a.TempatMeninggal,
 		Keterangan:         a.Keterangan,
-		NomorTelepon:       a.NomorTelepon,
 	}
 }

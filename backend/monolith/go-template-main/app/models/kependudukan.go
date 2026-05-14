@@ -5,7 +5,7 @@ import "time"
 type Kependudukan struct {
 	IDKependudukan     int32      `gorm:"primaryKey;column:id;autoIncrement" json:"id"`
 	KartuKeluargaID    *int64     `gorm:"column:kartu_keluarga_id" json:"kartu_keluarga_id,omitempty"`
-	NIK                string     `gorm:"column:nik;type:varchar(30);uniqueIndex;not null" json:"nik"`
+	NIK                *string    `gorm:"column:nik;type:varchar(30);uniqueIndex" json:"nik,omitempty"`
 	NamaLengkap        string     `gorm:"column:nama_lengkap;type:text;not null" json:"nama_lengkap"`
 	JenisKelamin       string     `gorm:"column:jenis_kelamin;type:text" json:"jenis_kelamin"`
 	TanggalLahir       time.Time  `gorm:"column:tanggal_lahir" json:"tanggal_lahir"`
@@ -26,7 +26,6 @@ type Kependudukan struct {
 	TujuanPindah       string     `gorm:"column:tujuan_pindah;type:text" json:"tujuan_pindah"`
 	TempatMeninggal    string     `gorm:"column:tempat_meninggal;type:text" json:"tempat_meninggal"`
 	Keterangan         string     `gorm:"column:keterangan;type:text" json:"keterangan"`
-	NomorTelepon       string     `gorm:"column:nomor_telepon;type:text" json:"nomor_telepon"`
 	CreatedAt          time.Time  `gorm:"column:created_at" json:"created_at"`
 	UpdatedAt          time.Time  `gorm:"column:updated_at" json:"updated_at"`
 	DeletedAt          *time.Time `gorm:"column:deleted_at" json:"deleted_at,omitempty"`

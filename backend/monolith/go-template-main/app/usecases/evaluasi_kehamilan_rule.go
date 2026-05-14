@@ -1,6 +1,7 @@
 package usecases
 
 import (
+	"fmt"
 	"monitoring-service/app/models"
 	"strings"
 )
@@ -10,135 +11,158 @@ func GeneratePenjelasanSingle(
 	history []models.GrafikEvaluasiKehamilan,
 ) (string, string) {
 
-	var result []string
+	var janinStatus []string
+	var ibuStatus []string
+	var suplemenInfo []string
 	score := 0
 
 	// ======================
-	// 1. TFU vs USIA
+	// 1. ANALISIS JANIN
 	// ======================
+	
+	// TFU vs USIA
 	if current.UsiaGestasiMinggu != nil && current.TinggiFundusUteriCm != nil {
 		usia := float64(*current.UsiaGestasiMinggu)
 		tfu := *current.TinggiFundusUteriCm
-		selisih := tfu - usia
-
-		switch {
-		case selisih >= -2 && selisih <= 2:
-			result = append(result, "TFU sesuai usia kehamilan")
-		case selisih < -2:
-			result = append(result, "TFU lebih kecil dari usia kehamilan (curiga IUGR)")
-			score += 2
-		default:
-			result = append(result, "TFU lebih besar dari usia kehamilan")
-			score++
-		}
-	}
-
-	// ======================
-	// 2. TREND TFU
-	// ======================
-	if len(history) > 0 {
-		last := history[len(history)-1] // pastikan repo sudah ORDER ASC
-
-		if last.TinggiFundusUteriCm != nil && current.TinggiFundusUteriCm != nil {
-			diff := *current.TinggiFundusUteriCm - *last.TinggiFundusUteriCm
-
-			if diff < 1 {
-				result = append(result, "Kenaikan TFU lambat")
+		if usia >= 20 {
+			selisih := tfu - usia
+			if selisih < -2 {
+				janinStatus = append(janinStatus, "TFU rendah (Waspada Pertumbuhan Janin Terhambat)")
 				score += 2
-			} else if diff > 3 {
-				result = append(result, "Kenaikan TFU cepat")
-				score++
+			} else if selisih > 2 {
+				janinStatus = append(janinStatus, "TFU tinggi (Perlu cek cairan ketuban/bayi besar)")
+				score += 1
 			} else {
-				result = append(result, "Kenaikan TFU normal")
+				janinStatus = append(janinStatus, "Pertumbuhan TFU normal")
 			}
 		}
 	}
 
-	// ======================
-	// 3. DJJ
-	// ======================
+	// Trend TFU (History)
+	if len(history) > 0 {
+		last := history[len(history)-1]
+		if last.TinggiFundusUteriCm != nil && current.TinggiFundusUteriCm != nil {
+			if *current.TinggiFundusUteriCm <= *last.TinggiFundusUteriCm {
+				janinStatus = append(janinStatus, "⚠️ Grafik TFU mendatar/turun (Risiko gawat janin)")
+				score += 3
+			}
+		}
+	}
+
+	// DJJ
 	if current.DenyutJantungBayiXMenit != nil {
 		djj := *current.DenyutJantungBayiXMenit
+		if djj < 110 || djj > 160 {
+			janinStatus = append(janinStatus, fmt.Sprintf("DJJ tidak normal: %d bpm (Gawat Janin)", djj))
+			score += 4
+		} else {
+			janinStatus = append(janinStatus, "Detak jantung normal")
+		}
+	}
 
-		switch {
-		case djj < 110:
-			result = append(result, "DJJ rendah (bradikardi)")
-			score += 3
-		case djj > 160:
-			result = append(result, "DJJ tinggi (takikardi)")
-			score += 3
-		default:
-			result = append(result, "DJJ normal")
+	// Gerakan Janin
+	if current.GerakanBayi != nil {
+		g := strings.ToLower(*current.GerakanBayi)
+		if g == "kurang" || g == "-" || g == "tidak ada" {
+			janinStatus = append(janinStatus, "Gerakan janin berkurang")
+			score += 4
+		} else {
+			janinStatus = append(janinStatus, "Gerakan aktif")
 		}
 	}
 
 	// ======================
-	// 4. TEKANAN DARAH
+	// 2. ANALISIS IBU
 	// ======================
+	
+	// Tekanan Darah
 	hipertensi := false
 	if current.TekananDarahSistole != nil && current.TekananDarahDiastole != nil {
-		if *current.TekananDarahSistole >= 140 || *current.TekananDarahDiastole >= 90 {
-			result = append(result, "Hipertensi")
+		s := *current.TekananDarahSistole
+		d := *current.TekananDarahDiastole
+		
+		if s >= 140 || d >= 90 {
+			ibuStatus = append(ibuStatus, fmt.Sprintf("Hipertensi (%d/%d)", s, d))
 			score += 3
 			hipertensi = true
+		} else if s >= 130 || d >= 80 {
+			ibuStatus = append(ibuStatus, fmt.Sprintf("Tekanan darah meningkat (%d/%d) - Perlu waspada", s, d))
+			score += 1
+		} else {
+			ibuStatus = append(ibuStatus, "Tekanan darah normal")
 		}
 	}
 
-	// ======================
-	// 5. URIN PROTEIN
-	// ======================
+	// Urin & Preeklampsia
 	proteinPositif := false
 	if current.UrinProtein != nil {
-		val := strings.ToLower(*current.UrinProtein)
-		if val == "positif" {
-			result = append(result, "Protein urin positif")
+		p := strings.ToLower(*current.UrinProtein)
+		if strings.Contains(p, "+") || strings.Contains(p, "positif") {
+			ibuStatus = append(ibuStatus, "Protein urin positif (+)")
+			score += 2
 			proteinPositif = true
 		}
 	}
+	if current.UrinReduksi != nil {
+		r := strings.ToLower(*current.UrinReduksi)
+		if strings.Contains(r, "+") || strings.Contains(r, "positif") {
+			ibuStatus = append(ibuStatus, "Reduksi urin positif (Waspada Diabetes)")
+			score += 1
+		}
+	}
 
-	// ======================
-	// 6. KOMBINASI (PREEKLAMPSIA)
-	// ======================
 	if hipertensi && proteinPositif {
-		result = append(result, "Curiga preeklampsia")
+		ibuStatus = append(ibuStatus, "‼️ Indikasi kuat Preeklampsia (Segera Rujuk)")
 		score += 4
 	}
 
-	// ======================
-	// 7. HB
-	// ======================
-	if current.Hemoglobin != nil && *current.Hemoglobin < 11 {
-		result = append(result, "Anemia")
-		score++
-	}
-
-	// ======================
-	// 8. GERAKAN JANIN
-	// ======================
-	if current.GerakanBayi != nil {
-		val := strings.ToLower(*current.GerakanBayi)
-		if val == "kurang" {
-			result = append(result, "Gerakan janin berkurang")
+	// Hemoglobin
+	if current.Hemoglobin != nil {
+		hb := *current.Hemoglobin
+		if hb < 11 {
+			ibuStatus = append(ibuStatus, fmt.Sprintf("Anemia (Hb rendah: %.1f)", hb))
 			score += 2
+		} else {
+			ibuStatus = append(ibuStatus, fmt.Sprintf("Hb normal (%.1f)", hb))
 		}
 	}
 
 	// ======================
-	// 9. RISK LEVEL
+	// 3. KEPATUHAN & RISK
 	// ======================
-	risk := "rendah"
-	if score >= 6 {
-		risk = "tinggi"
+	if current.TabletTambahDarah != nil && *current.TabletTambahDarah > 0 {
+		suplemenInfo = append(suplemenInfo, fmt.Sprintf("Fe (%d butir)", *current.TabletTambahDarah))
+	}
+	if current.Kalsium != nil && strings.ToLower(*current.Kalsium) == "ya" {
+		suplemenInfo = append(suplemenInfo, "Kalsium")
+	}
+	if current.Aspirin != nil && strings.ToLower(*current.Aspirin) == "ya" {
+		suplemenInfo = append(suplemenInfo, "Aspirin")
+	}
+
+	// Penentuan Risk Level
+	risk := "Rendah"
+	if score >= 7 {
+		risk = "Tinggi"
 	} else if score >= 3 {
-		risk = "sedang"
+		risk = "Sedang"
 	}
 
-	// ======================
-	// DEFAULT
-	// ======================
-	if len(result) == 0 {
-		return "Kondisi ibu dan janin dalam batas normal", risk
+	// Gabungkan hasil menjadi narasi yang rapi
+	var finalMessage []string
+	if len(janinStatus) > 0 {
+		finalMessage = append(finalMessage, "[JANIN]: "+strings.Join(janinStatus, ", "))
+	}
+	if len(ibuStatus) > 0 {
+		finalMessage = append(finalMessage, "[IBU]: "+strings.Join(ibuStatus, ", "))
+	}
+	if len(suplemenInfo) > 0 {
+		finalMessage = append(finalMessage, "[SUPLEMEN]: "+strings.Join(suplemenInfo, ", "))
 	}
 
-	return strings.Join(result, ". ") + ".", risk
+	if len(finalMessage) == 0 {
+		return "Hasil evaluasi dalam batas normal.", "Rendah"
+	}
+
+	return strings.Join(finalMessage, " | ") + ".", risk
 }

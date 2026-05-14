@@ -180,3 +180,5 @@ func (m *Main) AdminUpdateStatusKader(c echo.Context) error {
 
 	return helpers.StandardResponse(c, http.StatusOK, []string{constants.SUCCESS_RESPONSE_MESSAGE}, map[string]bool{"updated": true}, nil)
 }
+
+// AdminCreateAkunBidan dan AdminCreateAkunKader belum diimplementasi di usecase
