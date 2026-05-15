@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 import MainLayout from "../../components/Layout/MainLayout";
 import { getKehamilanByIbuId } from "../../services/kehamilan";
 import {
@@ -64,16 +65,16 @@ export default function PemeriksaanDokterT1Form() {
       // ... (sama seperti sebelumnya)
       if (isEdit && existingData) {
         await updateDokterT1Complete(existingData.id, payload);
-        alert("Data berhasil diperbarui!");
+        await Swal.fire('Berhasil', 'Data berhasil diperbarui!', 'success');
       } else {
         await createDokterT1Complete(payload);
-        alert("Data berhasil disimpan!");
+        await Swal.fire('Berhasil', 'Data berhasil disimpan!', 'success');
       }
       // Redirect ke halaman detail
       navigate(`/data-ibu/${id}/pemeriksaan-dokter-t1-complete`);
     } catch (err) {
       console.error(err);
-      alert("Gagal menyimpan: " + (err.response?.data?.message || err.message));
+      Swal.fire('Error', 'Gagal menyimpan: ' + (err.response?.data?.message || err.message), 'error');
     } finally {
       setSaving(false);
     }

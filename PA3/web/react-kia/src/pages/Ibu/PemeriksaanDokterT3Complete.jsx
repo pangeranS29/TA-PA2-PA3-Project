@@ -1,6 +1,7 @@
 // src/pages/Ibu/PemeriksaanDokterT3Complete.jsx
 import React, { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate, Link, useLocation } from "react-router-dom";
+import Swal from "sweetalert2";
 import MainLayout from "../../components/Layout/MainLayout";
 import { getKehamilanByIbuId } from "../../services/kehamilan";
 import { getCurrentUser } from "../../services/auth";
@@ -499,7 +500,14 @@ export default function PemeriksaanDokterT3Complete() {
       });
       return;
     }
-    if (!kehamilan) { alert("Data kehamilan tidak ditemukan."); return; }
+    if (!kehamilan) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Data Tidak Ditemukan',
+        text: 'Data kehamilan tidak ditemukan.',
+      });
+      return;
+    }
     setSaving(true);
 
     try {
