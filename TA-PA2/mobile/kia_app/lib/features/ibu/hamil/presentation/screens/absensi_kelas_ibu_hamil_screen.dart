@@ -128,7 +128,8 @@ class _AbsensiKelasIbuHamilScreenState
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Absensi berhasil disimpan ($savedCount/$_maxSesi sesi).'),
+          content:
+              Text('Absensi berhasil disimpan ($savedCount/$_maxSesi sesi).'),
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -153,10 +154,24 @@ class _AbsensiKelasIbuHamilScreenState
     return Scaffold(
       backgroundColor: const Color(0xFFF6F8FC),
       appBar: AppBar(
-        title: const Text('Absensi Kelas Ibu Hamil'),
-        backgroundColor: const Color(0xFF2F80ED),
-        foregroundColor: Colors.white,
+        backgroundColor: Colors.white,
         elevation: 0,
+        centerTitle: true,
+        title: const Text(
+          'Absensi Kelas Ibu Hamil',
+          style: TextStyle(
+            color: Color(0xFF1E293B),
+            fontSize: 16,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1.0),
+          child: Container(
+            color: Colors.grey.shade200,
+            height: 1.0,
+          ),
+        ),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -307,9 +322,8 @@ class _AbsensiKelasIbuHamilScreenState
       decoration: BoxDecoration(
         border: Border(
           top: BorderSide(
-            color: index == 0
-                ? const Color(0xFFD7DEE9)
-                : const Color(0xFFE8EDF4),
+            color:
+                index == 0 ? const Color(0xFFD7DEE9) : const Color(0xFFE8EDF4),
           ),
         ),
       ),
