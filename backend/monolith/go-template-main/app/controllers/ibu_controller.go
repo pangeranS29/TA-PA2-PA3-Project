@@ -46,50 +46,50 @@ func (c *IbuController) Create(ctx echo.Context) error {
 		})
 	}
 
-	 var req createIbuRequest
-    if err := ctx.Bind(&req); err != nil {
-        return ctx.JSON(http.StatusBadRequest, models.Response{
-            StatusCode: http.StatusBadRequest,
-            Message:    "Format request tidak valid: " + err.Error(),
-        })
-    }
+	var req createIbuRequest
+	if err := ctx.Bind(&req); err != nil {
+		return ctx.JSON(http.StatusBadRequest, models.Response{
+			StatusCode: http.StatusBadRequest,
+			Message:    "Format request tidak valid: " + err.Error(),
+		})
+	}
 
-    if req.IDKependudukan == 0 {
-        return ctx.JSON(http.StatusBadRequest, models.Response{
-            StatusCode: http.StatusBadRequest,
-            Message:    "id_kependudukan wajib diisi dan harus lebih dari 0",
-        })
-    }
+	if req.IDKependudukan == 0 {
+		return ctx.JSON(http.StatusBadRequest, models.Response{
+			StatusCode: http.StatusBadRequest,
+			Message:    "id_kependudukan wajib diisi dan harus lebih dari 0",
+		})
+	}
 
-    ibu := &models.Ibu{
-        IDKependudukan: req.IDKependudukan,
-        IDSuami:        req.IDSuami,
-        Gravida:        req.Gravida,
-        Paritas:        req.Paritas,
-        Abortus:        req.Abortus,
-    }
+	ibu := &models.Ibu{
+		IDKependudukan: req.IDKependudukan,
+		IDSuami:        req.IDSuami,
+		Gravida:        req.Gravida,
+		Paritas:        req.Paritas,
+		Abortus:        req.Abortus,
+	}
 
-    // validasi nilai negatif (sama seperti sebelumnya)
-    if req.Gravida < 0 || req.Paritas < 0 || req.Abortus < 0 {
-        // ... kirim error bad request
-    }
+	// validasi nilai negatif (sama seperti sebelumnya)
+	if req.Gravida < 0 || req.Paritas < 0 || req.Abortus < 0 {
+		// ... kirim error bad request
+	}
 
-    // ⭐ PERUBAHAN: tangkap hasil kembalian
-    createdIbu, err := c.usecase.Create(ibu)
-    if err != nil {
-        fmt.Println("Error creating ibu:", err.Error())
-        return ctx.JSON(http.StatusInternalServerError, models.Response{
-            StatusCode: http.StatusInternalServerError,
-            Message:    "Gagal membuat data ibu: " + err.Error(),
-        })
-    }
+	// ⭐ PERUBAHAN: tangkap hasil kembalian
+	createdIbu, err := c.usecase.Create(ibu)
+	if err != nil {
+		fmt.Println("Error creating ibu:", err.Error())
+		return ctx.JSON(http.StatusInternalServerError, models.Response{
+			StatusCode: http.StatusInternalServerError,
+			Message:    "Gagal membuat data ibu: " + err.Error(),
+		})
+	}
 
-    // ⭐ KEMBALIKAN data ibu yang sesungguhnya (bisa data lama atau baru)
-    return ctx.JSON(http.StatusCreated, models.Response{
-        StatusCode: http.StatusCreated,
-        Message:    "Berhasil membuat data ibu",
-        Data:       createdIbu,
-    })
+	// ⭐ KEMBALIKAN data ibu yang sesungguhnya (bisa data lama atau baru)
+	return ctx.JSON(http.StatusCreated, models.Response{
+		StatusCode: http.StatusCreated,
+		Message:    "Berhasil membuat data ibu",
+		Data:       createdIbu,
+	})
 }
 
 // GetByID - Mengambil data ibu berdasarkan ID
@@ -239,35 +239,36 @@ func (c *IbuController) GetDashboard(ctx echo.Context) error {
 		Data:       list,
 	})
 }
+
 // GetByPendudukID - Cek apakah penduduk sudah terdaftar sebagai ibu
 func (c *IbuController) GetByPendudukID(ctx echo.Context) error {
-    pendudukID, err := strconv.ParseInt(ctx.Param("pendudukId"), 10, 32)
-    if err != nil {
-        return ctx.JSON(http.StatusBadRequest, models.Response{
-            StatusCode: http.StatusBadRequest,
-            Message:    "ID penduduk tidak valid",
-        })
-    }
+	pendudukID, err := strconv.ParseInt(ctx.Param("pendudukId"), 10, 32)
+	if err != nil {
+		return ctx.JSON(http.StatusBadRequest, models.Response{
+			StatusCode: http.StatusBadRequest,
+			Message:    "ID penduduk tidak valid",
+		})
+	}
 
-    ibu, err := c.usecase.GetByPendudukID(int32(pendudukID))
-    if err != nil {
-        return ctx.JSON(http.StatusInternalServerError, models.Response{
-            StatusCode: http.StatusInternalServerError,
-            Message:    "Terjadi kesalahan: " + err.Error(),
-        })
-    }
+	ibu, err := c.usecase.GetByPendudukID(int32(pendudukID))
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, models.Response{
+			StatusCode: http.StatusInternalServerError,
+			Message:    "Terjadi kesalahan: " + err.Error(),
+		})
+	}
 
-    if ibu == nil {
-        return ctx.JSON(http.StatusOK, models.Response{
-            StatusCode: http.StatusOK,
-            Message:    "Penduduk belum terdaftar sebagai ibu",
-            Data:       nil,
-        })
-    }
+	if ibu == nil {
+		return ctx.JSON(http.StatusOK, models.Response{
+			StatusCode: http.StatusOK,
+			Message:    "Penduduk belum terdaftar sebagai ibu",
+			Data:       nil,
+		})
+	}
 
-    return ctx.JSON(http.StatusOK, models.Response{
-        StatusCode: http.StatusOK,
-        Message:    "Penduduk sudah terdaftar sebagai ibu",
-        Data:       ibu,
-    })
+	return ctx.JSON(http.StatusOK, models.Response{
+		StatusCode: http.StatusOK,
+		Message:    "Penduduk sudah terdaftar sebagai ibu",
+		Data:       ibu,
+	})
 }

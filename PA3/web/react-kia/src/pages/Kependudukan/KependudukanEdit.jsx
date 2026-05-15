@@ -9,7 +9,7 @@ export default function KependudukanEdit() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
-    no_kk: "",
+    kartu_keluarga_id: "",
     nik: "",
     dusun: "",
     nama_lengkap: "",
@@ -20,7 +20,7 @@ export default function KependudukanEdit() {
     pekerjaan: "",
     pendidikan_terakhir: "",
     alamat: "",
-    telepon: "",
+    nomor_telepon: "",
   });
 
   useEffect(() => {
@@ -28,7 +28,7 @@ export default function KependudukanEdit() {
       try {
         const data = await getKependudukanById(id);
         setForm({
-          no_kk: data.no_kk || "",
+          kartu_keluarga_id: data.kartu_keluarga_id || "",
           nik: data.nik || "",
           dusun: data.dusun || "",
           nama_lengkap: data.nama_lengkap || "",
@@ -39,7 +39,7 @@ export default function KependudukanEdit() {
           pekerjaan: data.pekerjaan || "",
           pendidikan_terakhir: data.pendidikan_terakhir || "",
           alamat: data.alamat || "",
-          telepon: data.telepon || "",
+          nomor_telepon: data.nomor_telepon || "",
         });
       } catch (err) {
         console.error(err);
@@ -78,7 +78,7 @@ export default function KependudukanEdit() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div><label>Nama Lengkap</label><input name="nama_lengkap" value={form.nama_lengkap} onChange={handleChange} className="w-full border rounded px-3 py-2" required /></div>
             <div><label>NIK</label><input name="nik" value={form.nik} onChange={handleChange} className="w-full border rounded px-3 py-2" required /></div>
-            <div><label>No. KK</label><input name="no_kk" value={form.no_kk} onChange={handleChange} className="w-full border rounded px-3 py-2" /></div>
+            <div><label>No. KK</label><input name="kartu_keluarga_id" value={form.kartu_keluarga_id} onChange={handleChange} className="w-full border rounded px-3 py-2" /></div>
             <div><label>Tempat Lahir</label><input name="tempat_lahir" value={form.tempat_lahir} onChange={handleChange} className="w-full border rounded px-3 py-2" /></div>
             <div><label>Tanggal Lahir</label><input type="date" name="tanggal_lahir" value={form.tanggal_lahir} onChange={handleChange} className="w-full border rounded px-3 py-2" /></div>
             <div><label>Jenis Kelamin</label><select name="jenis_kelamin" value={form.jenis_kelamin} onChange={handleChange} className="w-full border rounded px-3 py-2"><option>Perempuan</option><option>Laki-laki</option></select></div>
@@ -87,7 +87,7 @@ export default function KependudukanEdit() {
             <div><label>Pekerjaan</label><input name="pekerjaan" value={form.pekerjaan} onChange={handleChange} className="w-full border rounded px-3 py-2" /></div>
             <div><label>Dusun</label><input name="dusun" value={form.dusun} onChange={handleChange} className="w-full border rounded px-3 py-2" /></div>
             <div className="md:col-span-2"><label>Alamat</label><textarea name="alamat" value={form.alamat} onChange={handleChange} className="w-full border rounded px-3 py-2" rows="2" /></div>
-            <div><label>Telepon</label><input name="telepon" value={form.telepon} onChange={handleChange} className="w-full border rounded px-3 py-2" /></div>
+            <div><label>Nomor Telepon</label><input name="nomor_telepon" value={form.nomor_telepon} onChange={handleChange} className="w-full border rounded px-3 py-2" /></div>
           </div>
           <button type="submit" disabled={loading} className="bg-indigo-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 w-full justify-center">
             {loading ? <Loader2 className="animate-spin" size={18} /> : <Save size={18} />} Simpan Perubahan

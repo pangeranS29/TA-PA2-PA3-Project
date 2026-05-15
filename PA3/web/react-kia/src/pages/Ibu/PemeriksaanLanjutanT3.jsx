@@ -1,6 +1,7 @@
 // src/pages/Ibu/PemeriksaanLanjutanT3.jsx
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import Swal from "sweetalert2";
 import MainLayout from "../../components/Layout/MainLayout";
 import { getKehamilanByIbuId } from "../../services/kehamilan";
 import { getLanjutanT3ByKehamilanId, createLanjutanT3, updateLanjutanT3 } from "../../services/pemeriksaanDokter";
@@ -93,8 +94,17 @@ export default function PemeriksaanLanjutanT3() {
       };
       if (data) await updateLanjutanT3(data.id_lanjutan_t3, payload);
       else await createLanjutanT3(payload);
-      alert("Pemeriksaan Lanjutan T3 berhasil disimpan");
-    } catch (err) { alert("Gagal menyimpan"); console.error(err); }
+      await Swal.fire({
+        icon: 'success',
+        title: 'Berhasil',
+        text: 'Pemeriksaan Lanjutan T3 berhasil disimpan',
+        timer: 2000,
+        showConfirmButton: false
+      });
+    } catch (err) {
+      Swal.fire('Error', 'Gagal menyimpan data.', 'error');
+      console.error(err);
+    }
     finally { setSaving(false); }
   };
 

@@ -21,6 +21,8 @@ type Main struct {
 	PemantauanPertumbuhan  PemantauanPertumbuhanRepository
 	PengukuranLilA         PengukuranLilaRepository
 	CatatanPelayanan       CatatanPelayananRepository
+	KategoriTandaBahaya    *KategoriTandaBahayaRepository
+	SkriningPemantauan     *SkriningPemantauanRepository
 
 	// New repositories (semua pointer, mengikuti pola Anak)
 	User                          *UserRepository
@@ -79,6 +81,12 @@ type Main struct {
 	EdukasiAturanPorsiMPASI  AturanPorsiMPASIRepository
 	EdukasiJadwalHarianMPASI JadwalHarianMPASIRepository
 	EdukasiResepMPASI        ResepMPASIRepository
+
+	// Edukasi Digital
+	
+	// EdukasiTandaBahayaTrimester EdukasiTandaBahayaTrimesterRepository
+
+	LaporanIbu                  LaporanIbuRepository
 }
 
 type Options struct {
@@ -136,6 +144,8 @@ func Init(opts Options) *Main {
 	m.PemantauanPertumbuhan = NewPemantauanPertumbuhanRepository(opts.Postgres)
 	m.PengukuranLilA = NewPengukuranLilaRepository(opts.Postgres)
 	m.CatatanPelayanan = NewCatatanPelayananRepository(opts.Postgres)
+	m.KategoriTandaBahaya = NewKategoriTandaBahayaRepository(opts.Postgres)
+	// m.SkriningPemantauan = NewSkriningPemantauanRepository(opts.Postgres)
 	m.JenisPelayanan = NewJenisPelayananRepository(opts.Postgres)
 	m.KategoriUmur = NewKategoriUmurRepository(opts.Postgres)
 
@@ -162,6 +172,7 @@ func Init(opts Options) *Main {
 	m.EdukasiAturanPorsiMPASI = NewAturanPorsiMPASIRepository(opts.Postgres)
 	m.EdukasiJadwalHarianMPASI = NewJadwalHarianMPASIRepository(opts.Postgres)
 	m.EdukasiResepMPASI = NewResepMPASIRepository(opts.Postgres)
+	m.LaporanIbu = NewLaporanIbuRepository(opts.Postgres)
 
 	return m
 }

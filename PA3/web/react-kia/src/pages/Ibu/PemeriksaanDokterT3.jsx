@@ -1,6 +1,7 @@
 // src/pages/Ibu/PemeriksaanDokterT3.jsx
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import Swal from "sweetalert2";
 import MainLayout from "../../components/Layout/MainLayout";
 import { getKehamilanByIbuId } from "../../services/kehamilan";
 import { getDokterT3ByKehamilanId, createDokterT3, updateDokterT3 } from "../../services/pemeriksaanDokter";
@@ -76,8 +77,17 @@ export default function PemeriksaanDokterT3() {
       floatFields.forEach(f => { payload[f] = parseFloat(form[f]) || null; });
       if (data) await updateDokterT3(data.id_trimester_3, payload);
       else await createDokterT3(payload);
-      alert("Pemeriksaan Dokter Trimester 3 berhasil disimpan");
-    } catch (err) { alert("Gagal menyimpan"); console.error(err); }
+      await Swal.fire({
+        icon: 'success',
+        title: 'Berhasil',
+        text: 'Pemeriksaan Dokter Trimester 3 berhasil disimpan',
+        timer: 2000,
+        showConfirmButton: false
+      });
+    } catch (err) {
+      Swal.fire('Error', 'Gagal menyimpan data.', 'error');
+      console.error(err);
+    }
     finally { setSaving(false); }
   };
 
