@@ -75,6 +75,8 @@ type Main struct {
 	EdukasiKesehatanMental      EdukasiKesehatanMentalUsecase
 	EdukasiPerawatanAnak        EdukasiPerawatanAnakUseCase
 	EdukasiMPASI                EdukasiMPASIUsecase
+	LaporanIbu 					LaporanIbuUsecase
+		
 }
 
 type Options struct {
@@ -185,6 +187,7 @@ func Init(opts Options) *Main {
 	m.EdukasiKesehatanMental = NewEdukasiKesehatanMentalUsecase(opts.Repository.EdukasiKesehatanMental)
 	m.EdukasiPerawatanAnak = NewEdukasiPerawatanAnakUseCase(opts.Repository.EdukasiPerawatanAnak)
 	m.EdukasiMPASI = NewEdukasiMPASIUsecase(opts.Repository.EdukasiMPASI)
+	m.LaporanIbu = NewLaporanIbuUsecase(opts.Repository.LaporanIbu)
 
 	return m
 }

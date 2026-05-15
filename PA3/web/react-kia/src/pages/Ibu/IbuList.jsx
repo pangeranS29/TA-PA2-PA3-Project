@@ -1,16 +1,14 @@
 // src/pages/Ibu/IbuList.jsx
 import React, { useEffect, useState, useMemo } from "react";
-import { Link } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import MainLayout from "../../components/Layout/MainLayout";
 import { getIbuDashboard } from "../../services/ibu";
 import { 
-  Plus, Search, 
-  Users, Eye, Edit, Filter, 
+  Plus, Search, Users, Eye, Edit, Filter, 
   Activity, AlertTriangle, UserCheck
 } from "lucide-react";
 
-// Style guide compliant badge helpers
+// Badge untuk status kehamilan (trimester)
 const trimesterBadge = (status) => {
   if (status === "TRIMESTER 1") return "bg-[#E1F5EE] text-[#085041]";
   if (status === "TRIMESTER 2") return "bg-[#FAEEDA] text-[#633806]";
@@ -19,12 +17,24 @@ const trimesterBadge = (status) => {
   return "bg-gray-100 text-gray-800";
 };
 
-const riskLabel = (risk) => {
+// Normalisasi: database -> tiga kategori (PERLU_RUJUKAN, PERLU_TINDAKAN, NORMAL)
+const normalizeRiskStatus = (risk) => {
   const upperRisk = (risk || "").toUpperCase();
-  if (upperRisk === "TINGGI") return { label: "Tinggi", class: "bg-[#FCEBEB] text-[#791F1F]" };
-  if (upperRisk === "SEDANG") return { label: "Sedang", class: "bg-[#FAEEDA] text-[#633806]" };
-  if (upperRisk === "RENDAH") return { label: "Rendah", class: "bg-[#E1F5EE] text-[#085041]" };
-  return { label: "Normal", class: "bg-gray-100 text-gray-800" };
+  if (upperRisk === "PERLU RUJUKAN" || upperRisk === "TINGGI") return "PERLU_RUJUKAN";
+  if (upperRisk === "PERLU TINDAKAN" || upperRisk === "SEDANG") return "PERLU_TINDAKAN";
+  return "NORMAL";
+};
+
+// Mapping ke tampilan label & warna
+const riskLabel = (risk) => {
+  const normalized = normalizeRiskStatus(risk);
+  if (normalized === "PERLU_RUJUKAN") {
+    return { label: "Tinggi", class: "bg-red-100 text-red-700 border border-red-200" };
+  }
+  if (normalized === "PERLU_TINDAKAN") {
+    return { label: "Sedang", class: "bg-yellow-100 text-yellow-700 border border-yellow-200" };
+  }
+  return { label: "Normal", class: "bg-green-100 text-green-700 border border-green-200" };
 };
 
 export default function IbuList() {
@@ -61,12 +71,12 @@ export default function IbuList() {
     return () => clearTimeout(timer);
   }, [search]);
 
-  // Reset page saat filter/search/toggle berubah
+  // Reset page saat filter berubah
   useEffect(() => {
     setCurrentPage(1);
   }, [debouncedSearch, filterRisiko, filterTrimester, showHistory]);
 
-  // Data aktif vs riwayat
+  // Data aktif (masih hamil) vs semua
   const activeOnlyList = useMemo(() => {
     return ibuList.filter(ibu => ibu.status_kehamilan?.startsWith("TRIMESTER"));
   }, [ibuList]);
@@ -81,22 +91,21 @@ export default function IbuList() {
     }
     if (filterRisiko) {
       data = data.filter(ibu => 
-        (ibu.status_risiko || "").toUpperCase() === filterRisiko.toUpperCase()
+        normalizeRiskStatus(ibu.status_risiko) === filterRisiko
       );
     }
     if (filterTrimester) {
       data = data.filter(ibu => ibu.status_kehamilan === filterTrimester);
     }
-    // Sort by id_ibu descending (newest first)
     return data.sort((a, b) => (b.id_ibu || 0) - (a.id_ibu || 0));
   }, [ibuList, activeOnlyList, showHistory, debouncedSearch, filterRisiko, filterTrimester]);
 
-  // Statistik
-  const totalAktifRows = activeOnlyList.length;
+  // Statistik berdasarkan risiko ternormalisasi pada kehamilan aktif
   const uniqueIbuAktif = new Set(activeOnlyList.map(i => i.id_ibu)).size;
-  const totalRisikoTinggiAktif = activeOnlyList.filter(i => 
-    (i.status_risiko || "").toUpperCase() === "TINGGI"
-  ).length;
+  const totalAktifRows = activeOnlyList.length;
+  const totalTinggi = activeOnlyList.filter(i => normalizeRiskStatus(i.status_risiko) === "PERLU_RUJUKAN").length;
+  const totalSedang = activeOnlyList.filter(i => normalizeRiskStatus(i.status_risiko) === "PERLU_TINDAKAN").length;
+  const totalNormal = activeOnlyList.filter(i => normalizeRiskStatus(i.status_risiko) === "NORMAL").length;
 
   // Pagination
   const totalPages = Math.ceil(displayedData.length / itemsPerPage);
@@ -147,7 +156,7 @@ export default function IbuList() {
     <MainLayout>
       <div className="p-4 bg-white min-h-screen">
         {/* STATS CARDS */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
+        <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 mb-5">
           <button
             onClick={() => {
               setFilterRisiko("");
@@ -166,16 +175,29 @@ export default function IbuList() {
           </button>
 
           <button
-            onClick={() => filterByRisiko("TINGGI")}
-            className={`bg-white rounded-lg shadow-sm p-3 border-l-4 border-[#A32D2D] text-left hover:shadow-md transition ${
-              filterRisiko === "TINGGI" && !showHistory ? "ring-2 ring-[#A32D2D]/30" : ""
+            onClick={() => filterByRisiko("PERLU_RUJUKAN")}
+            className={`bg-white rounded-lg shadow-sm p-3 border-l-4 border-red-600 text-left hover:shadow-md transition ${
+              filterRisiko === "PERLU_RUJUKAN" && !showHistory ? "ring-2 ring-red-300" : ""
             }`}
           >
-            <div className="flex items-center gap-2 text-[#A32D2D] mb-1">
+            <div className="flex items-center gap-2 text-red-600 mb-1">
               <AlertTriangle size={16} />
-              <span className="text-sm font-medium">RISIKO TINGGI (AKTIF)</span>
+              <span className="text-sm font-medium">RISIKO TINGGI</span>
             </div>
-            <p className="text-xl font-bold text-gray-800">{totalRisikoTinggiAktif}</p>
+            <p className="text-xl font-bold text-gray-800">{totalTinggi}</p>
+          </button>
+
+          <button
+            onClick={() => filterByRisiko("PERLU_TINDAKAN")}
+            className={`bg-white rounded-lg shadow-sm p-3 border-l-4 border-yellow-500 text-left hover:shadow-md transition ${
+              filterRisiko === "PERLU_TINDAKAN" && !showHistory ? "ring-2 ring-yellow-300" : ""
+            }`}
+          >
+            <div className="flex items-center gap-2 text-yellow-600 mb-1">
+              <Activity size={16} />
+              <span className="text-sm font-medium">RISIKO SEDANG</span>
+            </div>
+            <p className="text-xl font-bold text-gray-800">{totalSedang}</p>
           </button>
 
           <div className="bg-white rounded-lg shadow-sm p-3 border-l-4 border-[#3B6D11]">
@@ -202,7 +224,7 @@ export default function IbuList() {
             />
           </div>
 
-          <div className="flex flex-wrap lg:flex-nowrap gap-2 items-center justify-end items-center">
+          <div className="flex flex-wrap lg:flex-nowrap gap-2 items-center justify-end">
             <div className="relative flex-shrink-0">
               <select
                 className="pl-3 pr-8 py-2 border border-[#E2E8F0] rounded-lg bg-white text-sm"
@@ -210,9 +232,9 @@ export default function IbuList() {
                 onChange={(e) => setFilterRisiko(e.target.value)}
               >
                 <option value="">Semua Risiko</option>
-                <option value="TINGGI">Tinggi</option>
-                <option value="SEDANG">Sedang</option>
-                <option value="RENDAH">Rendah</option>
+                <option value="PERLU_RUJUKAN">Tinggi</option>
+                <option value="PERLU_TINDAKAN">Sedang</option>
+                <option value="NORMAL">Normal</option>
               </select>
               <Filter size={12} className="absolute right-3 top-2.5 text-gray-400 pointer-events-none" />
             </div>
@@ -243,7 +265,7 @@ export default function IbuList() {
               to="/data-ibu/create"
               className="bg-[#185FA5] text-white px-5 py-2 rounded-full flex items-center gap-2 hover:bg-[#0F4A82] transition text-sm font-semibold whitespace-nowrap"
             >
-              <Plus size={16} /> Tambah
+              <Plus size={16} /> Tambah Ibu Hamil
             </Link>
           </div>
         </div>
@@ -314,24 +336,27 @@ export default function IbuList() {
                           >
                             <Eye size={14} /> Detail
                           </button>
-                          {isActive ? (
-                            <button
-                              onClick={() => navigate(`/data-ibu/${ibu.id_ibu}/edit?kehamilan_id=${ibu.kehamilan_id}`)}
-                              className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-[#185FA5] text-[#185FA5] bg-transparent text-xs font-medium hover:bg-[#185FA5]/5 whitespace-nowrap"
-                            >
-                              <Edit size={14} /> Edit
-                            </button>
-                          ) : (
-                            <button
-                              disabled
-                              className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-gray-300 text-gray-400 bg-gray-100 text-xs cursor-not-allowed whitespace-nowrap"
-                            >
-                              <Edit size={14} /> Selesai
-                            </button>
-                          )}
+                          {isActive ? 
+                            (
+                              <button
+                                onClick={() => navigate(`/data-ibu/${ibu.id_ibu}/edit?kehamilan_id=${ibu.kehamilan_id}`)}
+                                className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-[#185FA5] text-[#185FA5] bg-transparent text-xs font-medium hover:bg-[#185FA5]/5 whitespace-nowrap"
+                              >
+                                <Edit size={14} /> Edit
+                              </button>
+                            ) 
+                            : 
+                            (
+                              <button
+                                disabled
+                                className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-gray-300 text-gray-400 bg-gray-100 text-xs cursor-not-allowed whitespace-nowrap"
+                              >
+                                <Edit size={14} /> Selesai
+                              </button>
+                            )}
                         </div>
-                      </td>
-                    </tr>
+                       </td>
+                     </tr>
                   );
                 })}
               </tbody>
@@ -356,10 +381,7 @@ export default function IbuList() {
               <span className="text-base text-gray-600">data</span>
             </div>
 
-         
-
             <div className="flex items-center gap-1">
-              {/* Generate page numbers */}
               {Array.from({ length: totalPages || 1 }, (_, i) => i + 1).map((page) => (
                 <button
                   key={page}

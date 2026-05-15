@@ -22,9 +22,10 @@ import {
   ClipboardEdit,
   TableProperties,
   ClipboardList,
+  ShieldPlus,
   BookOpenCheck,
 } from "lucide-react";
-
+import logo from "./LOGO.png";
 const baseItemClass = (isActive) =>
   `flex items-center gap-2 px-3 py-2.5 rounded-lg transition-all duration-200 group ${isActive
     ? "bg-blue-50 text-blue-600 font-semibold"
@@ -208,9 +209,9 @@ const Sidebar = () => {
     <aside className="w-64 h-screen bg-white border-r border-gray-100 flex flex-col p-4">
       {/* Header Logo */}
       <div className="flex items-center gap-2.5 mb-6">
-        <div className="bg-blue-600 p-1.5 rounded-lg text-white shadow-lg shadow-blue-100 flex-shrink-0">
-          <ShieldPlus size={24} />
-        </div>
+        <div className=" p-1.5 rounded-lg text-white shadow-lg shadow-blue-100 flex-shrink-0">
+  <img src={logo} alt="Logo" className="w-6 h-6 object-contain" />
+</div>
         <div className="min-w-0">
           <h1 className="text-base font-bold text-slate-800 leading-tight">KIA Cerdas</h1>
           <p className="text-[11px] text-slate-400">Dashboard {isDokter ? "Dokter" : isBidan ? "Bidan" : "Admin"}</p>
@@ -293,7 +294,7 @@ const Sidebar = () => {
         )}
 
         {/* Menu Pengaturan untuk semua role */}
-        {renderNavLink(settingsMenu)}
+        {/* {renderNavLink(settingsMenu)} */}
       </nav>
     </aside>
   );

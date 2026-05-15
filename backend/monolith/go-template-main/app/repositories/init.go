@@ -77,6 +77,7 @@ type Main struct {
 	EdukasiKesehatanMental      EdukasiKesehatanMentalRepository
 	EdukasiPerawatanAnak        EdukasiPerawatanAnakRepository
 	EdukasiMPASI                EdukasiMPASIRepository
+	LaporanIbu                  LaporanIbuRepository
 }
 
 type Options struct {
@@ -158,6 +159,7 @@ func Init(opts Options) *Main {
 	m.EdukasiKesehatanMental = NewEdukasiKesehatanMentalRepository(opts.Postgres)
 	m.EdukasiPerawatanAnak = NewEdukasiPerawatanAnakRepository(opts.Postgres)
 	m.EdukasiMPASI = NewEdukasiMPASIRepository(opts.Postgres)
+	m.LaporanIbu = NewLaporanIbuRepository(opts.Postgres)
 
 	return m
 }

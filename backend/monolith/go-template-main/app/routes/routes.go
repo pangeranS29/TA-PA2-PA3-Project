@@ -523,6 +523,10 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	tenaga.GET("/pemeriksaan-dokter-t3-complete", controller.PemeriksaanDokterCombined.GetT3ByKehamilan)
 	tenaga.DELETE("/pemeriksaan-dokter-t3-complete/:id", controller.PemeriksaanDokterCombined.DeleteT3)
 
+
+	// untuk laporan ibu
+	tenaga.GET("/laporan/ibu/preview",controller.LaporanIbu.Preview,)
+	tenaga.GET("/laporan/ibu/export/excel",controller.LaporanIbu.ExportExcel)
 	//==== IBU ====
 	ibu := e.Group("/ibu")
 	ibu.Use(middlewares.JWTAuth(controller.JWTSecret()))

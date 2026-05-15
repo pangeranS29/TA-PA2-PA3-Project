@@ -5,7 +5,7 @@ import Swal from "sweetalert2";
 import MainLayout from "../../components/Layout/MainLayout";
 import { getKehamilanByIbuId } from "../../services/kehamilan";
 import { getRujukanByKehamilanId, createRujukan, updateRujukan } from "../../services/rujukanService";
-import { getCurrentUser, isDokterUser } from "../../services/auth";
+import { getCurrentUser, isBidanUser } from "../../services/auth";
 import { Save, Plus, Edit2, CheckCircle, X, Eye, EyeOff, ArrowLeft } from "lucide-react";
 
 // ============================================================
@@ -97,7 +97,7 @@ export default function Rujukan() {
   const { id: ibuId } = useParams();
   const navigate = useNavigate();
   const user = getCurrentUser();
-  const isDokter = isDokterUser(user);
+  const isDokter = isBidanUser(user);
 
   const [kehamilan, setKehamilan] = useState(null);
   const [data, setData] = useState(null);
