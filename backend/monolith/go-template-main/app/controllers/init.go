@@ -72,6 +72,7 @@ type Main struct {
 	EdukasiKesehatanMental      *EdukasiKesehatanMentalController
 	EdukasiPerawatanAnak        *EdukasiPerawatanAnakController
 	EdukasiMPASI                *EdukasiMPASIController
+	LaporanIbu                  *LaporanIbuController
 }
 
 type Options struct {
@@ -158,6 +159,7 @@ func Init(opts Options) *Main {
 	m.EdukasiKesehatanMental = NewEdukasiKesehatanMentalController(opts.UseCases.EdukasiKesehatanMental)
 	m.EdukasiPerawatanAnak = NewEdukasiPerawatanAnakController(opts.UseCases.EdukasiPerawatanAnak)
 	m.EdukasiMPASI = NewEdukasiMPASIController(opts.UseCases.EdukasiMPASI)
+	m.LaporanIbu = NewLaporanIbuController(opts.UseCases.LaporanIbu,)
 
 	return m
 }

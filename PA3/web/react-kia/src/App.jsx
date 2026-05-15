@@ -43,6 +43,7 @@ import DetailAnak from "./pages/Anak/detail";
 // Monitoring & Laporan
 import Monitoring from "./pages/Monitoring";
 import Laporan from "./pages/Laporan";
+import LaporanIbuPreview from "./pages/previewlaporanibu";
 import IbuCreate from "./pages/Ibu/IbuCreate";
 
 // Kependudukan
@@ -127,6 +128,7 @@ import PosyanduList from "./pages/ManajemenBidanKader/PosyanduList";
 import BidanList from "./pages/ManajemenBidanKader/BidanList";
 import KaderList from "./pages/ManajemenBidanKader/KaderList";
 
+
 const HomeRedirect = () => {
   if (!isAuthenticated()) {
     return <Navigate to="/login" replace />;
@@ -202,6 +204,7 @@ function App() {
           {/* Monitoring & Laporan */}
           <Route path="/monitoring" element={<Monitoring />} />
           <Route path="/laporan" element={<Laporan />} />
+          <Route path="/laporan/ibu/preview" element={<LaporanIbuPreview />}/>
         </Route>
 
         {/* ADMIN ROUTES */}

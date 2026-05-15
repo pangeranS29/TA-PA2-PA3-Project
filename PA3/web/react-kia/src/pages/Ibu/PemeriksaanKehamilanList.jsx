@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from "react";
-import { useParams, useSearchParams, Link } from "react-router-dom";
+import { useParams, useSearchParams, Link, useNavigate } from "react-router-dom";
 import MainLayout from "../../components/Layout/MainLayout";
 import { getKehamilanByIbuId } from "../../services/kehamilan";
 import { getPemeriksaanKehamilanByKehamilanId } from "../../services/pemeriksaanKehamilan";
@@ -18,9 +18,9 @@ import {
   Filler,
 } from "chart.js";
 
-import { Plus, AlertTriangle, Activity, Scale, Heart, Droplets, Home } from "lucide-react";
+import { Plus, AlertTriangle, Activity, Scale, Heart, Droplets, FileText } from "lucide-react";
+import Swal from "sweetalert2";
 
-// Registrasi ChartJS
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -33,7 +33,7 @@ ChartJS.register(
 
 // Helper Buku KIA
 const getBatasBB = (minggu, kategoriIMT) => {
-  let rateMin = 0.35, rateMax = 0.50, t1Min = 0.5, t1Max = 2.0; // Default Normal
+  let rateMin = 0.35, rateMax = 0.50, t1Min = 0.5, t1Max = 2.0;
   const kat = kategoriIMT?.toLowerCase() || "";
   if (kat.includes("kurang")) { rateMin = 0.44; rateMax = 0.58; t1Min = 1.0; t1Max = 2.0; }
   else if (kat.includes("overweight")) { rateMin = 0.23; rateMax = 0.33; t1Min = 0.5; t1Max = 1.0; }
@@ -49,40 +49,20 @@ const getBatasBB = (minggu, kategoriIMT) => {
 };
 
 export default function PemeriksaanKehamilanList() {
+  const navigate = useNavigate();
   const { id: ibuId } = useParams();
   const [searchParams] = useSearchParams();
   const kehamilanIdQuery = searchParams.get("kehamilan_id");
 
-  // Role: dokter hanya baca, bidan bisa edit/create
   const user = getCurrentUser();
   const isDokter = isDokterUser(user);
-  const canEdit = !isDokter; // bidan bisa edit/create
+  const canEdit = !isDokter;
 
   const [kehamilan, setKehamilan] = useState(null);
   const [examinations, setExaminations] = useState([]);
   const [grafik, setGrafik] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  // Breadcrumb component
-  const Breadcrumb = () => {
-    if (!kehamilan) return null;
-    return (
-      <div className="flex items-center gap-2 text-sm text-gray-500 mb-4 flex-wrap">
-        <Link to="/dashboard" className="hover:text-indigo-600 flex items-center gap-1">
-          <Home size={14} /> Beranda
-        </Link>
-        <span>/</span>
-        <Link to="/data-ibu" className="hover:text-indigo-600">Data Ibu</Link>
-        <span>/</span>
-        <Link to={`/data-ibu/${ibuId}?kehamilan_id=${kehamilan.id}`} className="hover:text-indigo-600">
-          Detail Ibu
-        </Link>
-        <span>/</span>
-        <span className="text-gray-700 font-medium">Pemantauan ANC</span>
-      </div>
-    );
-  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -116,9 +96,7 @@ export default function PemeriksaanKehamilanList() {
           getGrafikehamilanByKehamilanId(selectedKehamilan.id),
         ]);
 
-        setExaminations(
-          (examRes || []).sort((a, b) => a.kunjungan_ke - b.kunjungan_ke)
-        );
+        setExaminations((examRes || []).sort((a, b) => a.kunjungan_ke - b.kunjungan_ke));
         setGrafik(grafikRes?.data || grafikRes || null);
       } catch (err) {
         console.error(err);
@@ -139,10 +117,15 @@ export default function PemeriksaanKehamilanList() {
   const kategoriIMT = grafik?.kategori_imt;
 
   const getRiskStyles = (status) => {
-    const s = status?.toLowerCase() || "";
-    if (s.includes("tinggi")) return "bg-red-50 border-red-200 text-red-700";
-    if (s.includes("sedang")) return "bg-yellow-50 border-yellow-200 text-yellow-700";
+    if (status === "PERLU RUJUKAN") return "bg-red-50 border-red-200 text-red-700";
+    if (status === "PERLU TINDAKAN") return "bg-yellow-50 border-yellow-200 text-yellow-700";
     return "bg-green-50 border-green-200 text-green-700";
+  };
+
+  const getBadgeStyles = (status) => {
+    if (status === "PERLU RUJUKAN") return "bg-red-100 text-red-700 border-red-200";
+    if (status === "PERLU TINDAKAN") return "bg-yellow-100 text-yellow-700 border-yellow-200";
+    return "bg-green-100 text-green-700 border-green-200";
   };
 
   const commonOptions = {
@@ -163,7 +146,7 @@ export default function PemeriksaanKehamilanList() {
       {
         label: "Batas Atas (+2cm)",
         data: tfu.map((d) => d.minggu + 2),
-        borderColor: "#10b981", 
+        borderColor: "#10b981",
         borderDash: [5, 5],
         borderWidth: 1,
         pointRadius: 0,
@@ -177,12 +160,12 @@ export default function PemeriksaanKehamilanList() {
         borderWidth: 1,
         pointRadius: 0,
         fill: '-1',
-        backgroundColor: "rgba(16, 185, 129, 0.15)", 
+        backgroundColor: "rgba(16, 185, 129, 0.15)",
       },
       {
         label: "TFU Pasien (cm)",
         data: tfu.map((d) => d.value),
-        borderColor: "#4f46e5", 
+        borderColor: "#4f46e5",
         backgroundColor: "#4f46e5",
         borderWidth: 3,
         pointRadius: 5,
@@ -267,7 +250,7 @@ export default function PemeriksaanKehamilanList() {
       {
         label: `Batas Atas PBB`,
         data: bb.map((d) => getBatasBB(d.minggu, kategoriIMT).max),
-        borderColor: "#ec4899", 
+        borderColor: "#ec4899",
         borderDash: [5, 5],
         borderWidth: 1,
         pointRadius: 0,
@@ -296,6 +279,7 @@ export default function PemeriksaanKehamilanList() {
   }), [bb, kategoriIMT]);
 
   const latestExam = examinations.at(-1);
+  const hasExaminations = examinations.length > 0;
 
   if (loading) return <MainLayout><div className="p-10 text-center">Memuat data medis...</div></MainLayout>;
   if (error) return <MainLayout><div className="p-10 text-center text-red-600">{error}</div></MainLayout>;
@@ -303,28 +287,67 @@ export default function PemeriksaanKehamilanList() {
 
   const withKehamilan = (path) => `${path}?kehamilan_id=${kehamilan.id}`;
 
+  const handleRujukClick = (e) => {
+    e.preventDefault();
+    Swal.fire({
+      title: 'Konfirmasi Rujukan',
+      text: `Ibu ini memiliki status "${risk.status_risiko}". Lanjutkan ke form rujukan?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Ya, Rujuk',
+      cancelButtonText: 'Batal',
+      reverseButtons: true,
+    }).then((result) => {
+      if (result.isConfirmed) {
+        navigate(withKehamilan(`/data-ibu/${ibuId}/rujukan`));
+      }
+    });
+  };
+
+  // Tampilkan peringatan hanya jika sudah ada pemeriksaan dan statusnya bukan NORMAL
+  const showWarning = hasExaminations && risk && risk.status_risiko !== "NORMAL";
+
   return (
     <MainLayout>
       <div className="p-6 max-w-6xl mx-auto space-y-6">
-        
-        {/* Breadcrumb */}
-        <Breadcrumb />
-
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <div>
-            <h1 className="text-3xl font-extrabold text-gray-900">Pemantauan ANC</h1>
-            <p className="text-gray-500 italic">Berdasarkan Standar Buku KIA & Skrining Risiko</p>
-            <p className="text-xs text-gray-400 mt-1">Kehamilan ID: {kehamilan.id}</p>
+          <div className="flex-1">
+            <div className="flex items-center gap-3 flex-wrap">
+              <h1 className="text-3xl font-extrabold text-gray-900">Pemantauan ANC</h1>
+              {/* Badge status risiko hanya jika sudah ada pemeriksaan */}
+              {hasExaminations && risk && (
+                <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide border ${getBadgeStyles(risk.status_risiko)}`}>
+                  <span className="w-2 h-2 rounded-full bg-current animate-pulse"></span>
+                  {risk.status_risiko}
+                </span>
+              )}
+            </div>
+            <p className="text-gray-500 italic mt-1">Berdasarkan Standar Buku KIA & Skrining Risiko</p>
+            {/* Peringatan hanya jika sudah ada pemeriksaan dan status bukan NORMAL */}
+            {showWarning && (
+              <div className={`mt-2 text-sm p-2 rounded-lg inline-block ${risk.status_risiko === "PERLU RUJUKAN" ? "text-red-600 bg-red-50" : "text-yellow-700 bg-yellow-50"}`}>
+                ⚠️ Ibu hamil dengan status {risk.status_risiko} memerlukan perhatian khusus.
+                {risk.status_risiko === "PERLU RUJUKAN" && " Segera lakukan rujukan."}
+              </div>
+            )}
           </div>
-          {canEdit && (
-            <Link
-              to={withKehamilan(`/data-ibu/${ibuId}/pemeriksaan-rutin/baru`)}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 transition-all shadow-lg shadow-indigo-200"
-            >
-              <Plus size={20} /> Catat Pemeriksaan
-            </Link>
-          )}
+
+          <div className="flex gap-3 flex-shrink-0">
+            {canEdit && (
+              <Link to={withKehamilan(`/data-ibu/${ibuId}/pemeriksaan-rutin/baru`)} className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 transition-all shadow-md hover:shadow-lg">
+                <Plus size={20} /> Catat Pemeriksaan
+              </Link>
+            )}
+            {/* Tombol Rujukan hanya jika sudah ada pemeriksaan dan status PERLU RUJUKAN */}
+            {hasExaminations && risk && risk.status_risiko === "PERLU RUJUKAN" && (
+              <button onClick={handleRujukClick} className="bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 transition-all shadow-md hover:shadow-lg">
+                <AlertTriangle size={18} /> Rujuk Segera
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Pesan role */}
@@ -334,18 +357,18 @@ export default function PemeriksaanKehamilanList() {
           </div>
         )}
 
-        {/* Status Risiko */}
-        {risk && (
+        {/* Status Risiko (banner) - hanya jika sudah ada pemeriksaan */}
+        {hasExaminations && risk && (
           <div className={`border-l-4 p-5 rounded-r-2xl shadow-sm flex gap-4 ${getRiskStyles(risk.status_risiko)}`}>
             <AlertTriangle className="flex-shrink-0" size={28} />
             <div>
-              <h3 className="font-bold text-lg uppercase tracking-wide">Status: {risk.status_risiko} (Skor: {risk.skor_risiko})</h3>
+              <h3 className="font-bold text-lg uppercase tracking-wide">Status: {risk.status_risiko}</h3>
               <p className="text-sm leading-relaxed">{risk.ringkasan}</p>
             </div>
           </div>
         )}
 
-        {/* Summary Cards */}
+        {/* Summary Cards - tetap tampil */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
             <div className="flex items-center gap-3 text-indigo-600 mb-2">
@@ -381,49 +404,85 @@ export default function PemeriksaanKehamilanList() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
             <h2 className="font-bold text-gray-700 mb-4 flex items-center gap-2">📈 Tinggi Fundus (TFU)</h2>
-            <div className="h-64"><Line data={chartTFU} options={commonOptions} /></div>
+            {tfu.length === 0 ? (
+              <div className="h-64 flex flex-col items-center justify-center text-gray-400 bg-gray-50 rounded-xl">
+                <FileText size={48} strokeWidth={1.5} />
+                <p className="mt-2 text-sm">Belum ada data TFU</p>
+              </div>
+            ) : (
+              <div className="h-64"><Line data={chartTFU} options={commonOptions} /></div>
+            )}
           </div>
           <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
             <h2 className="font-bold text-gray-700 mb-4 flex items-center gap-2">💓 Detak Jantung Janin</h2>
-            <div className="h-64"><Line data={chartDJJ} options={commonOptions} /></div>
+            {djj.length === 0 ? (
+              <div className="h-64 flex flex-col items-center justify-center text-gray-400 bg-gray-50 rounded-xl">
+                <FileText size={48} strokeWidth={1.5} />
+                <p className="mt-2 text-sm">Belum ada data DJJ</p>
+              </div>
+            ) : (
+              <div className="h-64"><Line data={chartDJJ} options={commonOptions} /></div>
+            )}
           </div>
           <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
             <h2 className="font-bold text-gray-700 mb-4 flex items-center gap-2">🩸 Tekanan Darah</h2>
-            <div className="h-64"><Line data={chartTD} options={commonOptions} /></div>
+            {td.length === 0 ? (
+              <div className="h-64 flex flex-col items-center justify-center text-gray-400 bg-gray-50 rounded-xl">
+                <FileText size={48} strokeWidth={1.5} />
+                <p className="mt-2 text-sm">Belum ada data tekanan darah</p>
+              </div>
+            ) : (
+              <div className="h-64"><Line data={chartTD} options={commonOptions} /></div>
+            )}
           </div>
           <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
             <h2 className="font-bold text-gray-700 mb-4 flex items-center gap-2">⚖️ Grafik Berat Badan (PBB)</h2>
-            <div className="h-64"><Line data={chartBB} options={commonOptions} /></div>
+            {bb.length === 0 ? (
+              <div className="h-64 flex flex-col items-center justify-center text-gray-400 bg-gray-50 rounded-xl">
+                <FileText size={48} strokeWidth={1.5} />
+                <p className="mt-2 text-sm">Belum ada data berat badan</p>
+              </div>
+            ) : (
+              <div className="h-64"><Line data={chartBB} options={commonOptions} /></div>
+            )}
           </div>
         </div>
 
         {/* Riwayat Pemeriksaan */}
         <div className="space-y-4">
           <h2 className="text-xl font-bold text-gray-800">Riwayat Pemeriksaan</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {examinations.map((exam) => (
-              <div key={exam.id_periksa} className="group bg-white p-5 rounded-2xl shadow-sm border border-gray-100 hover:border-indigo-300 transition-all">
-                <div className="flex justify-between items-start mb-3">
-                  <span className="bg-gray-100 text-gray-600 text-[10px] font-bold px-2 py-1 rounded-md uppercase">Kunjungan {exam.kunjungan_ke}</span>
-                  {latestExam?.id_periksa === exam.id_periksa && (
-                    <span className="flex items-center gap-1 text-[10px] font-bold bg-green-100 text-green-700 px-2 py-1 rounded-md">
-                      <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div> TERBARU
-                    </span>
-                  )}
-                </div>
-                <p className="text-gray-400 text-xs mb-1">Tanggal Periksa</p>
-                <p className="font-bold text-gray-800 mb-4">{new Date(exam.tanggal_periksa).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
-                <Link
-                  to={withKehamilan(`/data-ibu/${ibuId}/pemeriksaan-rutin/${exam.id_periksa}`)}
-                  className="w-full block text-center py-2 bg-gray-50 group-hover:bg-indigo-600 group-hover:text-white text-indigo-600 rounded-xl text-sm font-semibold transition-all"
-                >
-                  Lihat Detail
+          {!hasExaminations ? (
+            <div className="bg-white rounded-2xl border border-gray-100 p-12 text-center">
+              <FileText size={64} className="mx-auto text-gray-300 mb-4" strokeWidth={1.5} />
+              <p className="text-gray-500">Belum ada pemeriksaan yang tercatat.</p>
+              {canEdit && (
+                <Link to={withKehamilan(`/data-ibu/${ibuId}/pemeriksaan-rutin/baru`)} className="inline-block mt-4 bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-xl text-sm transition-all">
+                  + Catat Pemeriksaan Pertama
                 </Link>
-              </div>
-            ))}
-          </div>
+              )}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {examinations.map((exam) => (
+                <div key={exam.id_periksa} className="group bg-white p-5 rounded-2xl shadow-sm border border-gray-100 hover:border-indigo-300 transition-all">
+                  <div className="flex justify-between items-start mb-3">
+                    <span className="bg-gray-100 text-gray-600 text-[10px] font-bold px-2 py-1 rounded-md uppercase">Kunjungan {exam.kunjungan_ke}</span>
+                    {latestExam?.id_periksa === exam.id_periksa && (
+                      <span className="flex items-center gap-1 text-[10px] font-bold bg-green-100 text-green-700 px-2 py-1 rounded-md">
+                        <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div> TERBARU
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-gray-400 text-xs mb-1">Tanggal Periksa</p>
+                  <p className="font-bold text-gray-800 mb-4">{new Date(exam.tanggal_periksa).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                  <Link to={withKehamilan(`/data-ibu/${ibuId}/pemeriksaan-rutin/${exam.id_periksa}`)} className="w-full block text-center py-2 bg-gray-50 group-hover:bg-indigo-600 group-hover:text-white text-indigo-600 rounded-xl text-sm font-semibold transition-all">
+                    Lihat Detail
+                  </Link>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
-
       </div>
     </MainLayout>
   );
