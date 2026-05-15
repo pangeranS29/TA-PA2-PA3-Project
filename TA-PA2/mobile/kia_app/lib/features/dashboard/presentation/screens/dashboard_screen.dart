@@ -35,6 +35,9 @@ import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/grafi
 import 'package:ta_pa2_pa3_project/features/edukasi/presentation/screens/edukasi_screen_all.dart';
 import 'package:ta_pa2_pa3_project/features/profil/presentation/screens/profil_screen.dart';
 
+// MODUL IMUNISASI
+import 'package:ta_pa2_pa3_project/features/ibu/imunisasi/data/services/imunisasi_service.dart';
+
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
 
@@ -51,14 +54,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
   KehamilanAktifModel? _kehamilanAktif;
 
   final _ibuApiService = IbuApiService();
+  final _imunisasiService = ImunisasiService();
   bool _loadingAnak = false;
   List<IbuAnakModel>? _anakSaya;
+
+  int _overdueCount = 0;
 
   @override
   void initState() {
     super.initState();
     _loadKehamilanAktif();
     _loadDataAnak();
+    _loadImunisasi();
   }
 
   Future<void> _loadDataAnak() async {
@@ -76,9 +83,29 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
+  Future<void> _loadImunisasi() async {
+    try {
+      final result = await _imunisasiService.getJadwalImunisasi();
+
+      final totalTerlewat = result.fold<int>(
+        0,
+        (sum, anak) => sum + anak.jumlahTerlewat,
+      );
+
+      if (!mounted) return;
+
+      setState(() {
+        _overdueCount = totalTerlewat;
+      });
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
   @override
   void dispose() {
     _ibuApiService.dispose();
+    _imunisasiService.dispose();
     super.dispose();
   }
 
@@ -217,6 +244,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       body: body,
       bottomNavigationBar: DashboardBottomNav(
         currentIndex: _selectedNavIndex,
+        overdueCount: _overdueCount,
         onTap: (i) => setState(() => _selectedNavIndex = i),
       ),
     );
@@ -226,7 +254,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return SingleChildScrollView(
       child: Column(
         children: [
-          const DashboardHeader(),
+          DashboardHeader(
+            overdueCount: _overdueCount,
+            onOpenImunisasi: () {
+              setState(() {
+                _selectedNavIndex = 3;
+              });
+            },
+          ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Column(
@@ -285,15 +320,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  // ─────────────────────────────────────────────
-  // [MODUL: IBU - Hamil] Konten tab Hamil
-  // Urutan sesuai desain lib_desain:
-  //   1. Card progress kehamilan
-  //   2. Card buah janin
-  //   3. MENU CEPAT (6 item, 3 kolom)
-  //   4. Menu Hamil (card navigasi)
-  //   5. Banner surat rujukan
-  // ─────────────────────────────────────────────
   Widget _buildHamilContent() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

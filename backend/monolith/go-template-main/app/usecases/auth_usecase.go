@@ -296,11 +296,11 @@ func (m *Main) Login(req *models.LoginRequest) (*models.LoginResponse, error) {
 		TargetApp:     destination.TargetApp,
 		RedirectRoute: destination.RedirectRoute,
 	}
-	if canonicalRoleName == "Ibu" {
+	// if canonicalRoleName == "Ibu" {
 
-		_ = m.GenerateJadwalImunisasi(
-			user.ID,
-		)
-	}
+	// 	_ = m.GenerateJadwalImunisasi(
+	// 		user.ID,
+	// 	)
+	// }
 	return res, nil
 }

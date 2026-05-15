@@ -30,14 +30,29 @@ func (m *Main) GetJadwalImunisasi(
 
 			anakMap[row.AnakID] =
 				&models.JadwalImunisasiResponse{
-					AnakID:       row.AnakID,
-					NamaAnak:     row.NamaAnak,
-					TanggalLahir: row.TanggalLahir,
-					Jadwal:       []models.JadwalImunisasiItem{},
+					AnakID:         row.AnakID,
+					NamaAnak:       row.NamaAnak,
+					TanggalLahir:   row.TanggalLahir,
+					JumlahTerlewat: 0,
+					Jadwal:         []models.JadwalImunisasiItem{},
 				}
 		}
 
 		if row.JadwalID != 0 {
+
+			// Count imunisasi terlewat
+			switch row.StatusID {
+
+			// Terlewat
+			case 3:
+				anakMap[row.AnakID].
+					JumlahTerlewat++
+
+			// Terlambat & Krisis ikut dihitung
+			case 4, 5:
+				anakMap[row.AnakID].
+					JumlahTerlewat++
+			}
 
 			anakMap[row.AnakID].
 				Jadwal =

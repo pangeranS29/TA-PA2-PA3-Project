@@ -3,7 +3,13 @@ import 'package:ta_pa2_pa3_project/core/services/auth_session.dart';
 import 'package:ta_pa2_pa3_project/core/themes/app_theme.dart';
 
 class DashboardHeader extends StatelessWidget {
-  const DashboardHeader({super.key});
+  final int overdueCount;
+  final VoidCallback onOpenImunisasi;
+  const DashboardHeader({
+    super.key,
+    required this.overdueCount,
+    required this.onOpenImunisasi,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -68,7 +74,6 @@ class DashboardHeader extends StatelessWidget {
               ),
             ],
           ),
-
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
@@ -80,38 +85,117 @@ class DashboardHeader extends StatelessWidget {
               color: Colors.white,
               elevation: 6,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(16),
               ),
-              icon: const Icon(
-                Icons.notifications_none,
-                color: Colors.white,
-              ),
-              onSelected: (value) {},
-              itemBuilder: (context) => [
-                const PopupMenuItem(
-                  value: 'notif',
-                  enabled: false,
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.notifications_off_outlined,
-                        size: 18,
-                        color: Colors.grey,
-                      ),
-                      SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          'Belum ada notifikasi',
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: Colors.black87,
+              onSelected: (value) {
+                if (value == 'imunisasi') {
+                  onOpenImunisasi();
+                }
+              },
+              icon: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  const Icon(
+                    Icons.notifications_none,
+                    color: Colors.white,
+                  ),
+
+                  // Badge tanda seru merah
+                  if (overdueCount > 0)
+                    Positioned(
+                      right: -2,
+                      top: -2,
+                      child: Container(
+                        width: 16,
+                        height: 16,
+                        decoration: const BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Center(
+                          child: Text(
+                            '!',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                       ),
-                    ],
+                    ),
+                ],
+              ),
+              itemBuilder: (context) {
+                if (overdueCount > 0) {
+                  return [
+                    PopupMenuItem(
+                      value: 'imunisasi',
+                      child: SizedBox(
+                        width: 220,
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Icon(
+                              Icons.warning_amber_rounded,
+                              color: Colors.orange,
+                              size: 22,
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Ada $overdueCount imunisasi terlewat',
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 13,
+                                    ),
+                                  ),
+                                  const SizedBox(
+                                    height: 4,
+                                  ),
+                                  const Text(
+                                    'Ketuk untuk melihat',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.blue,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ];
+                }
+
+                return [
+                  const PopupMenuItem(
+                    value: 'kosong',
+                    enabled: false,
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.notifications_off_outlined,
+                          size: 18,
+                          color: Colors.grey,
+                        ),
+                        SizedBox(width: 8),
+                        Text(
+                          'Belum ada notifikasi',
+                          style: TextStyle(
+                            fontSize: 13,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ];
+              },
             ),
           ),
         ],

@@ -72,31 +72,25 @@ class EdukasiScreenAll extends StatelessWidget {
       length: 2,
       child: Scaffold(
         backgroundColor: const Color(0xFFF1F5F9),
-
         appBar: AppBar(
           backgroundColor: Colors.white,
           elevation: 0,
-
           title: const Text(
             'Edukasi',
             style: TextStyle(
-              color: Colors.black87,
-              fontWeight: FontWeight.bold,
+              color: Color(0xFF1E293B),
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
             ),
           ),
-
           centerTitle: true,
-
           iconTheme: const IconThemeData(
             color: Colors.black87,
           ),
-
           bottom: const TabBar(
             indicatorColor: Colors.blue,
-
             labelColor: Colors.blue,
             unselectedLabelColor: Colors.grey,
-
             tabs: [
               Tab(
                 text: 'Ibu',
@@ -109,7 +103,6 @@ class EdukasiScreenAll extends StatelessWidget {
             ],
           ),
         ),
-
         body: TabBarView(
           children: [
             _buildEdukasiList(edukasiIbu),
@@ -123,10 +116,8 @@ class EdukasiScreenAll extends StatelessWidget {
   Widget _buildEdukasiList(List<Map<String, dynamic>> data) {
     return Padding(
       padding: const EdgeInsets.all(16),
-
       child: ListView.builder(
         itemCount: data.length,
-
         itemBuilder: (context, index) {
           final item = data[index];
 
@@ -139,16 +130,12 @@ class EdukasiScreenAll extends StatelessWidget {
                 ),
               );
             },
-
             child: Container(
               margin: const EdgeInsets.only(bottom: 16),
-
               padding: const EdgeInsets.all(18),
-
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(20),
-
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withOpacity(0.05),
@@ -157,26 +144,21 @@ class EdukasiScreenAll extends StatelessWidget {
                   ),
                 ],
               ),
-
               child: Row(
                 children: [
                   Container(
                     padding: const EdgeInsets.all(14),
-
                     decoration: BoxDecoration(
                       color: Colors.blue.shade50,
                       borderRadius: BorderRadius.circular(16),
                     ),
-
                     child: Icon(
                       item['icon'],
                       size: 28,
                       color: Colors.blue,
                     ),
                   ),
-
                   const SizedBox(width: 16),
-
                   Expanded(
                     child: Text(
                       item['title'],
@@ -186,7 +168,6 @@ class EdukasiScreenAll extends StatelessWidget {
                       ),
                     ),
                   ),
-
                   const Icon(
                     Icons.arrow_forward_ios,
                     size: 18,

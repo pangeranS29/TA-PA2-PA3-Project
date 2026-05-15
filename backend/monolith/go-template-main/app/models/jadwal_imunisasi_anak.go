@@ -30,6 +30,7 @@ type JadwalImunisasiResponse struct {
 	AnakID       int32                    `json:"anak_id"`
 	NamaAnak     string                   `json:"nama_anak"`
 	TanggalLahir *time.Time               `json:"tanggal_lahir,omitempty"`
+	JumlahTerlewat       int              `json:"jumlah_terlewat"`
 	Jadwal       []JadwalImunisasiItem    `json:"jadwal"`
 }
 
