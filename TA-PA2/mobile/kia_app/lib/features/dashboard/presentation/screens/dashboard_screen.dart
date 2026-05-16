@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ta_pa2_pa3_project/core/services/auth_session.dart';
 import 'package:ta_pa2_pa3_project/core/themes/app_theme.dart';
 import 'package:ta_pa2_pa3_project/features/dashboard/presentation/widgets/dashboard_header.dart';
 import 'package:ta_pa2_pa3_project/features/dashboard/presentation/widgets/dashboard_bottom_nav.dart';
@@ -15,7 +16,9 @@ import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/rujuk
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/pemantauan_ibu_hamil_screen.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/catatan_pelayanan_menu_screen.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/log_ttd_mms_screen.dart';
+import 'package:ta_pa2_pa3_project/features/ibu/imunisasi/data/models/imunisasi_model.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/imunisasi/presentation/screens/imunisasi_screen.dart';
+import 'package:ta_pa2_pa3_project/features/ibu/imunisasi/presentation/screens/pilih_anak.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/nifas/presentation/screens/nifas_screen.dart';
 // MODUL ANAK
 import 'package:ta_pa2_pa3_project/features/anak/tumbuh_kembang/presentation/screens/anak/pilih_anak_screen.dart';
@@ -57,15 +60,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
   final _imunisasiService = ImunisasiService();
   bool _loadingAnak = false;
   List<IbuAnakModel>? _anakSaya;
-
+  List<ImunisasiModel> _imunisasiData = [];
   int _overdueCount = 0;
+
+  bool _loadingImunisasi = false;
+  String? _imunisasiError;
 
   @override
   void initState() {
     super.initState();
     _loadKehamilanAktif();
     _loadDataAnak();
-    _loadImunisasi();
+    Future.delayed(const Duration(milliseconds: 300), () {
+      if (mounted) _loadImunisasi();
+    });
   }
 
   Future<void> _loadDataAnak() async {
@@ -84,21 +92,36 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Future<void> _loadImunisasi() async {
-    try {
-      final result = await _imunisasiService.getJadwalImunisasi();
+    final token = AuthSession.token;
+    if (token == null || token.isEmpty) return;
 
-      final totalTerlewat = result.fold<int>(
+    setState(() {
+      _loadingImunisasi = true;
+      _imunisasiError = null;
+    });
+
+    try {
+      final List<ImunisasiModel> result =
+          await _imunisasiService.getJadwalImunisasi();
+
+      if (!mounted) return;
+
+      final int totalTerlewat = result.fold<int>(
         0,
         (sum, anak) => sum + anak.jumlahTerlewat,
       );
 
-      if (!mounted) return;
-
       setState(() {
+        _imunisasiData = result;
         _overdueCount = totalTerlewat;
+        _loadingImunisasi = false;
       });
     } catch (e) {
-      debugPrint(e.toString());
+      if (!mounted) return;
+      setState(() {
+        _imunisasiError = e.toString();
+        _loadingImunisasi = false;
+      });
     }
   }
 
@@ -234,7 +257,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     } else if (_selectedNavIndex == 2) {
       body = const EdukasiScreenAll();
     } else if (_selectedNavIndex == 3) {
-      body = const ImunisasiScreen();
+      body = PilihAnakImunisasiScreen(tujuan: 'imunisasi');
     } else {
       body = const ProfilScreen();
     }
@@ -245,7 +268,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
       bottomNavigationBar: DashboardBottomNav(
         currentIndex: _selectedNavIndex,
         overdueCount: _overdueCount,
-        onTap: (i) => setState(() => _selectedNavIndex = i),
+        onTap: (i) {
+          setState(() {
+            _selectedNavIndex = i;
+          });
+          // 🔥 PERBAIKAN: Jika user menekan tab Beranda (index 0), tarik data terbaru dari API
+          if (i == 0) {
+            _loadImunisasi();
+            _loadDataAnak();
+          }
+        },
       ),
     );
   }
@@ -255,6 +287,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       child: Column(
         children: [
           DashboardHeader(
+            data: _imunisasiData,
             overdueCount: _overdueCount,
             onOpenImunisasi: () {
               setState(() {

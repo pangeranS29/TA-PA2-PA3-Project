@@ -39,6 +39,8 @@ type JadwalImunisasiItem struct {
 	JadwalID         uint       `json:"jadwal_id"`
 	NamaDosis        string     `json:"nama_dosis"`
 	TanggalEstimasi  *time.Time `json:"tanggal_estimasi,omitempty"`
+	Deskripsi        string     `json:"deskripsi"`
+	EfekSamping      string     `json:"efek_samping"`
 	StatusID         uint       `json:"status_id"`
 	Status           string     `json:"status"`
 }

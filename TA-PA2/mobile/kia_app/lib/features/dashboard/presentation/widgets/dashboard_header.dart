@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:ta_pa2_pa3_project/core/services/auth_session.dart';
 import 'package:ta_pa2_pa3_project/core/themes/app_theme.dart';
+import 'package:ta_pa2_pa3_project/features/ibu/imunisasi/data/models/imunisasi_model.dart';
 
 class DashboardHeader extends StatelessWidget {
-  final int overdueCount;
+  final List<ImunisasiModel> data;
   final VoidCallback onOpenImunisasi;
+  final int overdueCount;
+
   const DashboardHeader({
     super.key,
-    required this.overdueCount,
+    required this.data,
     required this.onOpenImunisasi,
+    required this.overdueCount,
   });
 
   @override
@@ -54,26 +58,10 @@ class DashboardHeader extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 8),
-              const Row(
-                children: [
-                  Icon(
-                    Icons.calendar_today,
-                    color: Colors.white70,
-                    size: 14,
-                  ),
-                  SizedBox(width: 4),
-                  Text(
-                    "Trimester 2 • Bebas keluhan berat",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-              ),
             ],
           ),
+
+          /// NOTIF ICON
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
@@ -89,7 +77,7 @@ class DashboardHeader extends StatelessWidget {
               ),
               onSelected: (value) {
                 if (value == 'imunisasi') {
-                  onOpenImunisasi();
+                  onOpenImunisasi(); // nanti diarahkan ke Pilih Anak
                 }
               },
               icon: Stack(
@@ -100,7 +88,7 @@ class DashboardHeader extends StatelessWidget {
                     color: Colors.white,
                   ),
 
-                  // Badge tanda seru merah
+                  /// BADGE jadi TANDA SERU
                   if (overdueCount > 0)
                     Positioned(
                       right: -2,
@@ -126,13 +114,15 @@ class DashboardHeader extends StatelessWidget {
                     ),
                 ],
               ),
+
+              /// POPUP
               itemBuilder: (context) {
                 if (overdueCount > 0) {
                   return [
                     PopupMenuItem(
                       value: 'imunisasi',
                       child: SizedBox(
-                        width: 220,
+                        width: 240,
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -147,17 +137,23 @@ class DashboardHeader extends StatelessWidget {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    'Ada $overdueCount imunisasi terlewat',
+                                    'Total $overdueCount imunisasi perlu perhatian',
                                     style: const TextStyle(
                                       fontWeight: FontWeight.w600,
                                       fontSize: 13,
                                     ),
                                   ),
-                                  const SizedBox(
-                                    height: 4,
-                                  ),
+                                  const SizedBox(height: 4),
                                   const Text(
-                                    'Ketuk untuk melihat',
+                                    'Termasuk: terlewat, terlambat, krisis',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 6),
+                                  const Text(
+                                    'Ketuk untuk memilih anak',
                                     style: TextStyle(
                                       fontSize: 12,
                                       color: Colors.blue,
@@ -185,12 +181,7 @@ class DashboardHeader extends StatelessWidget {
                           color: Colors.grey,
                         ),
                         SizedBox(width: 8),
-                        Text(
-                          'Belum ada notifikasi',
-                          style: TextStyle(
-                            fontSize: 13,
-                          ),
-                        ),
+                        Text('Belum ada notifikasi'),
                       ],
                     ),
                   ),
