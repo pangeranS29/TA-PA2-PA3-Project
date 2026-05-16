@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:ta_pa2_pa3_project/core/services/auth_session.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/data/services/kehamilan_api_service.dart';
 import 'package:ta_pa2_pa3_project/core/constants/app_colors.dart';
+import 'package:ta_pa2_pa3_project/core/constants/api_constants.dart';
 
 class CatatanPelayananT1Screen extends StatefulWidget {
   const CatatanPelayananT1Screen({super.key});
@@ -37,7 +38,9 @@ class _CatatanPelayananT1ScreenState extends State<CatatanPelayananT1Screen> {
 
       final response = await http.get(
         Uri.parse(
-          "http://localhost:8080/modul-ibu/catatan-pelayanan-t1?kehamilan_id=${kehamilan.id}",
+          ApiConstants.catatanPelayananT1(
+            kehamilan.id,
+          ),
         ),
         headers: {
           "Authorization": "Bearer $token",

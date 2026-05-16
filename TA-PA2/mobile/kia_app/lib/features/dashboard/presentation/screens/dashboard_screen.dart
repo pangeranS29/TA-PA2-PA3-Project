@@ -1763,12 +1763,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
   final _ibuApiService = IbuApiService();
   bool _loadingAnak = false;
   List<IbuAnakModel>? _anakSaya;
+  List<dynamic> _rujukanList = [];
 
   @override
   void initState() {
     super.initState();
     _loadKehamilanAktif();
     _loadDataAnak();
+    _loadRujukan();
   }
 
   Future<void> _loadDataAnak() async {
@@ -1830,6 +1832,27 @@ class _DashboardScreenState extends State<DashboardScreen> {
   //     if (mounted) setState(() => _loadingKehamilan = false);
   //   }
   // }
+      Future<void> _loadRujukan() async {
+    try {
+
+      final kehamilan =
+          await _kehamilanService
+              .getKehamilanAktif();
+
+      final data =
+          await _kehamilanService
+              .getRujukanByKehamilanId(
+                kehamilan.id,
+              );
+
+      if (!mounted) return;
+
+      setState(() {
+        _rujukanList = data;
+      });
+
+    } catch (_) {}
+  }
 
   Future<void> _openHamilJourney() async {
     if (_loadingKehamilan) return;
@@ -2214,6 +2237,10 @@ Widget _buildNifasShortcut() {
         //     ),
         //   ),
         // ),
+
+        const SizedBox(height: 16),
+
+        _buildDangerAlert(),
         const SizedBox(height: 32),
 
         const Text('MENU CEPAT',
@@ -2318,10 +2345,6 @@ Widget _buildNifasShortcut() {
           }).toList(),
         ),
         const SizedBox(height: 32),
-
-        // [MODUL: IBU] Surat rujukan
-        _buildDangerAlert(),
-        const SizedBox(height: 40),
       ],
     );
   }
@@ -2574,38 +2597,64 @@ Widget _buildNifasShortcut() {
   // [MODUL: IBU - Hamil] Banner surat rujukan
   // ─────────────────────────────────────────────
   Widget _buildDangerAlert() {
+    final bool hasRujukan = _rujukanList.isNotEmpty;
+
     return InkWell(
       borderRadius: BorderRadius.circular(16),
       onTap: () => Navigator.push(
         context,
-        MaterialPageRoute(builder: (_) => const RujukanListScreen()),
+        MaterialPageRoute(
+          builder: (_) => const RujukanListScreen(),
+        ),
       ),
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: const Color(0xFFEFF6FF),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.blue.shade100),
+          border: Border.all(
+            color: Colors.blue.shade100,
+          ),
         ),
         child: Row(
           children: [
-            Icon(Icons.description_outlined, color: Colors.blue.shade700),
+            Icon(
+              Icons.description_outlined,
+              color: Colors.blue.shade700,
+            ),
             const SizedBox(width: 12),
-            const Expanded(
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Surat Rekomendasi Rujukan',
-                      style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.blue,
-                          fontWeight: FontWeight.bold)),
-                  Text('Belum ada surat rekomendasi rujukan saat ini',
-                      style: TextStyle(fontSize: 11, color: Colors.black54)),
+                  Text(
+                    'Surat Rekomendasi Rujukan',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.blue.shade700,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    hasRujukan
+                        ? 'Tap untuk melihat surat rujukan dan langkah yang perlu Ibu lakukan'
+                        : 'Saat ini belum ada surat rekomendasi rujukan',
+                    style: TextStyle(
+                      fontSize: 11,
+                      height: 1.4,
+                      color: hasRujukan
+                          ? Colors.blue.shade700
+                          : Colors.black54,
+                    ),
+                  ),
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right, color: Colors.blue),
+            Icon(
+              hasRujukan ? Icons.chevron_right : Icons.info_outline,
+              color: Colors.blue.shade700,
+            ),
           ],
         ),
       ),

@@ -68,7 +68,12 @@ class ApiConstants {
   static const String checklistProsesMelahirkan = '/modul-ibu/proses-melahirkan/me';
   static const String saveChecklistProsesMelahirkan = '/modul-ibu/proses-melahirkan';
 
-    static const String riwayatProsesMelahirkan = '/modul-ibu/riwayat-proses-melahirkan/me';
+  static const String riwayatProsesMelahirkan = '/modul-ibu/riwayat-proses-melahirkan/me';
+  static const String rujukanIbu = '/modul-ibu/rujukan';
+  static String get ringkasanPersalinan =>'$baseUrl/modul-ibu/ringkasan-persalinan/me';
+  static String catatanPelayananT1(int kehamilanId,) =>'$baseUrl/modul-ibu/catatan-pelayanan-t1?kehamilan_id=$kehamilanId';
+  static String catatanPelayananT2(int kehamilanId,) =>'$baseUrl/modul-ibu/catatan-pelayanan-t2?kehamilan_id=$kehamilanId';
+  static String catatanPelayananT3(int kehamilanId,) =>'$baseUrl/modul-ibu/catatan-pelayanan-t3?kehamilan_id=$kehamilanId';
 
   /*
    *
@@ -113,4 +118,15 @@ class ApiConstants {
           int anakId, String rentangUsia) =>
       '/ibu/perawatan/anak/$anakId/rentang-usia/${Uri.encodeComponent(rentangUsia)}';
   static const String ibuKeluhanAnak = '/ibu/keluhan-anak';
+
+
+  // MODUL EDUKASI ==================================================
+  static String get edukasiASI =>'$baseUrl/edukasi-menyusui-asi';
+  static String get edukasiIMD =>'$baseUrl/edukasi-imd';
+  static String get edukasiKesehatanMental =>'$baseUrl/edukasi-kesehatan-mental';
+  static String get edukasiNifas =>'$baseUrl/edukasi-nifas';
+  static String get edukasiTandaMelahirkan =>'$baseUrl/edukasi-tanda-melahirkan';
+  static String edukasiTrimester(
+  String trimester,) =>'$baseUrl/edukasi-trimester/$trimester';
+  static String edukasiTrimesterKategori(String trimester,String kategori,) =>'$baseUrl/edukasi-trimester/$trimester/$kategori';
 }

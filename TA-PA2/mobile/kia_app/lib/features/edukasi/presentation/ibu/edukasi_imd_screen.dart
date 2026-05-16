@@ -19,9 +19,7 @@ class _EdukasiIMDScreenState extends State<EdukasiIMDScreen> {
     super.initState();
 
     final repository = EdukasiIMDRepository(
-      EdukasiIMDService(
-        baseUrl: 'http://localhost:8080',
-      ),
+      EdukasiIMDService(),
     );
 
     futureData = repository.getAllEdukasiIMD();

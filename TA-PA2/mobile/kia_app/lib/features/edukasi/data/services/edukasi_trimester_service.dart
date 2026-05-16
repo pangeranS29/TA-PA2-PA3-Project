@@ -1,47 +1,60 @@
 import 'dart:convert';
-import 'package:http/http.dart' as http;
+
+import 'package:http/http.dart'
+    as http;
+
+import 'package:ta_pa2_pa3_project/core/constants/api_constants.dart';
 
 class EdukasiTrimesterService {
-  final String baseUrl;
-
-  EdukasiTrimesterService({
-    required this.baseUrl,
-  });
 
   Future<List<dynamic>> getByTrimester(
     String trimester,
   ) async {
+
     final response = await http.get(
       Uri.parse(
-        '$baseUrl/edukasi-trimester/$trimester',
+        ApiConstants.edukasiTrimester(
+          trimester,
+        ),
       ),
     );
 
     if (response.statusCode == 200) {
-      return jsonDecode(response.body);
-    } else {
-      throw Exception(
-        'Gagal mengambil data trimester',
+
+      return jsonDecode(
+        response.body,
       );
     }
+
+    throw Exception(
+      'Gagal mengambil data trimester',
+    );
   }
 
   Future<List<dynamic>> getByKategori(
     String trimester,
     String kategori,
   ) async {
+
     final response = await http.get(
       Uri.parse(
-        '$baseUrl/edukasi-trimester/$trimester/$kategori',
+        ApiConstants
+            .edukasiTrimesterKategori(
+          trimester,
+          kategori,
+        ),
       ),
     );
 
     if (response.statusCode == 200) {
-      return jsonDecode(response.body);
-    } else {
-      throw Exception(
-        'Gagal mengambil data kategori',
+
+      return jsonDecode(
+        response.body,
       );
     }
+
+    throw Exception(
+      'Gagal mengambil data kategori',
+    );
   }
 }

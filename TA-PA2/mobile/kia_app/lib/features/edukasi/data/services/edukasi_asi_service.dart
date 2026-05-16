@@ -1,26 +1,29 @@
 import 'dart:convert';
-import 'package:http/http.dart' as http;
+
+import 'package:http/http.dart'as http;
+
+import 'package:ta_pa2_pa3_project/core/constants/api_constants.dart';
 
 class EdukasiASIService {
-  final String baseUrl;
 
-  EdukasiASIService({
-    required this.baseUrl,
-  });
+  Future<List<dynamic>>
+      getEdukasiASI() async {
 
-  Future<List<dynamic>> getEdukasiASI() async {
     final response = await http.get(
       Uri.parse(
-        '$baseUrl/edukasi-menyusui-asi',
+        ApiConstants.edukasiASI,
       ),
     );
 
     if (response.statusCode == 200) {
-      return jsonDecode(response.body);
-    } else {
-      throw Exception(
-        'Gagal mengambil data edukasi ASI',
+
+      return jsonDecode(
+        response.body,
       );
     }
+
+    throw Exception(
+      'Gagal mengambil data edukasi ASI',
+    );
   }
 }

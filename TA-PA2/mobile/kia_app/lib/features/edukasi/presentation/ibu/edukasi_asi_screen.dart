@@ -25,9 +25,7 @@ class _EdukasiASIScreenState
 
     final repository =
         EdukasiASIRepository(
-      EdukasiASIService(
-        baseUrl: 'http://localhost:8080',
-      ),
+      EdukasiASIService(),
     );
 
     futureData =

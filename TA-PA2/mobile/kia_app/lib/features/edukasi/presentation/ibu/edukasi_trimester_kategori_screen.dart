@@ -41,9 +41,7 @@ class _EdukasiTrimesterKategoriScreenState
       getKategoriFromDatabase() async {
     final repository =
         EdukasiTrimesterRepository(
-      EdukasiTrimesterService(
-        baseUrl: 'http://localhost:8080',
-      ),
+      EdukasiTrimesterService(),
     );
 
     final data =

@@ -27,9 +27,7 @@ class _EdukasiKesehatanMentalScreenState
 
     final repository =
         EdukasiKesehatanMentalRepository(
-      EdukasiKesehatanMentalService(
-        baseUrl: 'http://localhost:8080',
-      ),
+      EdukasiKesehatanMentalService(),
     );
 
     futureData =

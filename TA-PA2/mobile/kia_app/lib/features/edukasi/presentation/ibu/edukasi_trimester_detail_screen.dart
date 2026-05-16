@@ -33,9 +33,7 @@ class _EdukasiTrimesterDetailScreenState
 
     final repository =
         EdukasiTrimesterRepository(
-      EdukasiTrimesterService(
-        baseUrl: 'http://localhost:8080',
-      ),
+      EdukasiTrimesterService(),
     );
 
     futureData =
