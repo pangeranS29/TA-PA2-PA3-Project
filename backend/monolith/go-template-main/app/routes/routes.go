@@ -30,15 +30,15 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	informasiUmum.PUT("/:id", controller.InformasiUmum.Update)
 	informasiUmum.DELETE("/:id", controller.InformasiUmum.Delete)
 
-		// ==================== EDUKASI IBU ====================
+	// ==================== EDUKASI IBU ====================
 	e.GET("/edukasi-imd", controller.EdukasiIMD.GetAll)
 	e.GET("/edukasi-kesehatan-mental", controller.EdukasiKesehatanMental.GetAll)
 	e.GET("/edukasi-menyusui-asi", controller.EdukasiMenyusuiASI.GetAll)
 	e.GET("/edukasi-nifas", controller.EdukasiNifas.GetAll)
 	e.GET("/edukasi-tanda-melahirkan", controller.EdukasiTandaMelahirkan.GetAll)
-	e.GET("/edukasi-trimester",controller.EdukasiTrimester.GetAll,)
-	e.GET("/edukasi-trimester/:trimester",controller.EdukasiTrimester.GetByTrimester,)
-	e.GET("/edukasi-trimester/:trimester/:kategori",controller.EdukasiTrimester.GetByKategori,)
+	e.GET("/edukasi-trimester", controller.EdukasiTrimester.GetAll)
+	e.GET("/edukasi-trimester/:trimester", controller.EdukasiTrimester.GetByTrimester)
+	e.GET("/edukasi-trimester/:trimester/:kategori", controller.EdukasiTrimester.GetByKategori)
 	// ==================== MODUL ADMIN  ====================
 
 	admin := e.Group("/admin")
@@ -462,10 +462,10 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	ibuk.GET("/grafik-evaluasi-kehamilan/v2", controller.GrafikEvaluasiKehamilan.GetGrafikOnTheFlyForOrangtua)
 	ibuk.GET("/grafik-evaluasi-kehamilan/:id", controller.GrafikEvaluasiKehamilan.GetByIDForOrangtua)
 	ibuk.GET("/grafik-peningkatan-bb/v2", controller.GrafikPeningkatanBB.GetGrafikBBForOrangtua)
-	
+
 	// Keterangan Lahir
 	ibuk.GET("/keterangan-lahir/me", controller.KeteranganLahir.GetMine)
-	
+
 	ibu := e.Group("/ibu")
 	ibu.Use(middlewares.JWTAuth(controller.JWTSecret()))
 	ibu.Use(middlewares.Ibu())
@@ -490,23 +490,26 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	// Catatan: Ibu tidak memiliki akses UPDATE/DELETE/VERIFY untuk menjaga integritas rekam medis
 	ibu.GET("/keluhan-anak", controller.KeluhanAnak.GetByAnakIDForIbu)
 	ibu.GET("/keluhan-anak/:id", controller.KeluhanAnak.GetByIDForIbu)
-	
+
 	// ==================== IMUNISASI ====================
 	ibu.GET("/jadwal-imunisasi", controller.GetJadwalImunisasi)
 	ibu.GET("/jadwal-imunisasi/anak/:anak_id", controller.GetJadwalImunisasiByAnakID)
 	ibu.PUT("/jadwal-imunisasi/:id/tanggal-estimasi", controller.UpdateTanggalEstimasi)
 	ibu.GET("/jadwal-imunisasi/:id", controller.GetJadwalByID)
 
+	kader := e.Group("/kader")
+	kader.Use(middlewares.JWTAuth(controller.JWTSecret()))
+	kader.Use(middlewares.Kader())
+	kader.GET("/kunjungan-imunisasi",controller.GetAllKunjunganImunisasi)
+	kader.GET("/kunjungan-imunisasi/:id",controller.GetKunjunganImunisasiByID)
+	kader.PUT("/kunjungan-imunisasi/:id/status", controller.UpdateStatusKunjungan)
 
-	
 	// ==================== KELUHAN ANAK ====================
-	
+
 	tenaga.GET("/keluhan-anak/:anak_id", controller.KeluhanAnak.GetByAnakID)
 	tenaga.GET("/keluhan-anak/detail/:id", controller.KeluhanAnak.GetByID)
 	tenaga.POST("/keluhan-anak", controller.KeluhanAnak.Create)
 	tenaga.PUT("/keluhan-anak/:id", controller.KeluhanAnak.Update)
 	tenaga.DELETE("/keluhan-anak/:id", controller.KeluhanAnak.Delete)
-
-	
 
 }
