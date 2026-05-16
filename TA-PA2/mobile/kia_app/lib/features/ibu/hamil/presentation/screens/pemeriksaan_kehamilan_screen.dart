@@ -40,27 +40,27 @@ class _PemeriksaanKehamilanScreenState
   }
 
   bool _isSameTrimester(String value) {
-  final v = value.toLowerCase().trim();
+    final v = value.toLowerCase().trim();
 
-  if (widget.trimester == 1) {
-    return v == 't1' ||
-        v == '1' ||
-        v == 'i' ||
-        v.contains('trimester i');
+    if (widget.trimester == 1) {
+      return v == 't1' ||
+          v == '1' ||
+          v == 'i' ||
+          v.contains('trimester i');
+    }
+
+    if (widget.trimester == 2) {
+      return v == 't2' ||
+          v == '2' ||
+          v == 'ii' ||
+          v.contains('trimester ii');
+    }
+
+    return v == 't3' ||
+        v == '3' ||
+        v == 'iii' ||
+        v.contains('trimester iii');
   }
-
-  if (widget.trimester == 2) {
-    return v == 't2' ||
-        v == '2' ||
-        v == 'ii' ||
-        v.contains('trimester ii');
-  }
-
-  return v == 't3' ||
-      v == '3' ||
-      v == 'iii' ||
-      v.contains('trimester iii');
-}
 
   String _formatDate(String? value) {
     if (value == null || value.isEmpty) return '-';
@@ -68,18 +68,8 @@ class _PemeriksaanKehamilanScreenState
     if (date == null) return '-';
 
     final months = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'Mei',
-      'Jun',
-      'Jul',
-      'Agt',
-      'Sep',
-      'Okt',
-      'Nov',
-      'Des'
+      'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
+      'Jul', 'Agt', 'Sep', 'Okt', 'Nov', 'Des'
     ];
 
     return '${date.day} ${months[date.month - 1]} ${date.year}';
@@ -284,7 +274,7 @@ class _PemeriksaanCard extends StatelessWidget {
                           color: Color(0xFF172033),
                         ),
                       ),
-                      const SizedBox(height: 6),
+                      const SizedBox(height: 4),
                       Text(
                         tanggal,
                         style: const TextStyle(
@@ -300,6 +290,22 @@ class _PemeriksaanCard extends StatelessWidget {
                           _MiniBadge(label: tempat),
                           _MiniBadge(label: "TD $tekanan"),
                           _MiniBadge(label: beratBadan),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      
+                      Row(
+                        children: const [
+                          Icon(Icons.ads_click_rounded, size: 14, color: AppColors.primary),
+                          SizedBox(width: 4),
+                          Text(
+                            'Tap untuk lihat hasil evaluasimu',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.primary,
+                            ),
+                          ),
                         ],
                       ),
                     ],
@@ -528,7 +534,7 @@ class _MiniBadge extends StatelessWidget {
           fontSize: 11,
           color: AppColors.primary,
           fontWeight: FontWeight.w700,
-        ),
+         ),
       ),
     );
   }

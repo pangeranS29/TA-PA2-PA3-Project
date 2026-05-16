@@ -2065,6 +2065,34 @@ Widget _buildNifasShortcut() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // --- ADD: BANNER TEKS PANDUAN UNTUK PERSONA ABI (IBU DESA) ---
+        Container(
+          margin: const EdgeInsets.only(bottom: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          decoration: BoxDecoration(
+            color: const Color(0xFFEBF5FF), 
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: const Color(0xFFBFDBFE)),
+          ),
+          child: Row(
+            children: const [
+              Icon(Icons.lightbulb_outline, color: Color(0xFF2563EB), size: 20),
+              SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  'Bunda, yuk ketuk kartu di bawah ini untuk melihat kondisi kehamilanmu saat ini!',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF1E3A8A),
+                    height: 1.3,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+
         // Progress kehamilan — klik navigasi ke JourneyScreen
         InkWell(
           borderRadius: BorderRadius.circular(20),
@@ -2365,7 +2393,7 @@ Widget _buildNifasShortcut() {
           ),
         const SizedBox(height: 24),
 
-        const Text('Menu', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey)),
+        const Text('MENU CEPAT', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey)),
         const SizedBox(height: 16),
 
         // [WIDGET: DashboardTumbuhQuickMenu] — 6 menu cepat modul anak
@@ -2396,14 +2424,14 @@ Widget _buildNifasShortcut() {
                         context,
                         MaterialPageRoute(
                             builder: (_) =>
-                                const MpasiMenuScreen()));
+                                const PilihAnakScreen(tujuan: 'mpasi')));
                     break;
                   case 'edukasi':
                     // [MODUL: ANAK] Langsung ke EdukasiScreen (tidak butuh pilih anak)
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (_) => const EdukasiScreenAll()));
+                            builder: (_) => const EdukasiScreen()));
                     break;
                   case 'bahaya':
                     // [MODUL: ANAK] Pilih anak → SkriningBahayaScreen
