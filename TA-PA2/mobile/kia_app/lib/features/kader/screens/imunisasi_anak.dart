@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:ta_pa2_pa3_project/features/kader/widgets/dashboard_bottom_nav.dart';
 import 'package:ta_pa2_pa3_project/features/kader/screens/profil_screen.dart';
 
-
 class AnakImunisasiDetailScreen extends StatefulWidget {
   const AnakImunisasiDetailScreen({super.key});
 
@@ -70,11 +69,14 @@ class _AnakImunisasiDetailScreenState extends State<AnakImunisasiDetailScreen> {
             _sectionTitle("Informasi Orang Tua"),
             _infoCard([
               _infoRow("Nama Ibu", "Ibu Randi"),
-              _infoRow("No HP", "0812-3456-7890"),
+              _infoRow(
+                "No HP",
+                "0812-3456-7890",
+                onTap: () {
+                  // TODO: open dialer
+                },
+              ),
             ]),
-            const SizedBox(height: 16),
-            _sectionTitle("Aksi"),
-            _actionCard(),
             const SizedBox(height: 16),
             _sectionTitle("Kunjungan"),
             _visitActionCard(),
@@ -175,140 +177,6 @@ class _AnakImunisasiDetailScreenState extends State<AnakImunisasiDetailScreen> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  // ================= ACTION CARD =================
-  Widget _actionCard() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          )
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          /// ================= Saran =================
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.blue.shade50,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.blue.shade100),
-            ),
-            child: const Row(
-              children: [
-                Icon(Icons.lightbulb_outline, color: Colors.blue),
-                SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    "Saran: Kunjungi keluarga ini untuk tindak lanjut imunisasi.",
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 16),
-
-          /// ================= Tombol Visit =================
-          _visitButton(),
-
-          const SizedBox(height: 16),
-
-          /// ================= Kontak Ibu (CLICKABLE) =================
-          Material(
-            color: Colors.transparent,
-            child: InkWell(
-              borderRadius: BorderRadius.circular(12),
-              onTap: () {
-                // TODO: call / whatsapp
-              },
-              child: Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.green.shade50,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.green.shade100),
-                ),
-                child: Row(
-                  children: const [
-                    Icon(Icons.phone, color: Colors.green),
-                    SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        "Kontak Ibu",
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                    Icon(
-                      Icons.chevron_right,
-                      color: Colors.green,
-                    )
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ================= VISIT BUTTON =================
-  Widget _visitButton() {
-    return Container(
-      width: double.infinity,
-      height: 52,
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF0EA5E9), Color(0xFF38BDF8)],
-        ),
-        borderRadius: BorderRadius.circular(14),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.blue.withOpacity(0.25),
-            blurRadius: 12,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(14),
-          onTap: () {},
-          child: const Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.directions_walk, color: Colors.white),
-              SizedBox(width: 10),
-              Text(
-                "Kunjungi Keluarga",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }
@@ -652,15 +520,43 @@ class _AnakImunisasiDetailScreenState extends State<AnakImunisasiDetailScreen> {
     );
   }
 
-  Widget _infoRow(String label, String value) {
+  Widget _infoRow(
+    String label,
+    String value, {
+    VoidCallback? onTap,
+  }) {
+    final isClickable = onTap != null;
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Row(
-        children: [
-          Expanded(
-              child: Text(label, style: const TextStyle(color: Colors.grey))),
-          Text(value, style: const TextStyle(fontWeight: FontWeight.w600)),
-        ],
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(8),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                label,
+                style: const TextStyle(color: Colors.grey),
+              ),
+            ),
+            Row(
+              children: [
+                Text(
+                  value,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: isClickable ? Colors.blue : Colors.black,
+                  ),
+                ),
+                if (isClickable) ...[
+                  const SizedBox(width: 6),
+                  const Icon(Icons.phone, size: 16, color: Colors.blue),
+                ]
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
