@@ -143,14 +143,6 @@ class DashboardHeader extends StatelessWidget {
                                       fontSize: 13,
                                     ),
                                   ),
-                                  const SizedBox(height: 4),
-                                  const Text(
-                                    'Termasuk: terlewat, terlambat, krisis',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.grey,
-                                    ),
-                                  ),
                                   const SizedBox(height: 6),
                                   const Text(
                                     'Ketuk untuk memilih anak',

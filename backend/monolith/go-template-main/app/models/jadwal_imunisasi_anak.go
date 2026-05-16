@@ -27,20 +27,39 @@ func (JadwalImunisasiAnak) TableName() string {
 // TanggalLahir  *time.Time     `json:"tanggal_lahir,omitempty" gorm:"column:tanggal_lahir;type:date"`
 
 type JadwalImunisasiResponse struct {
-	AnakID       int32                    `json:"anak_id"`
-	NamaAnak     string                   `json:"nama_anak"`
-	TanggalLahir *time.Time               `json:"tanggal_lahir,omitempty"`
-	JumlahTerlewat       int              `json:"jumlah_terlewat"`
-	Jadwal       []JadwalImunisasiItem    `json:"jadwal"`
+	AnakID         int32                 `json:"anak_id"`
+	NamaAnak       string                `json:"nama_anak"`
+	TanggalLahir   *time.Time            `json:"tanggal_lahir,omitempty"`
+	JumlahTerlewat int                   `json:"jumlah_terlewat"`
+	Jadwal         []JadwalImunisasiItem `json:"jadwal"`
 }
 
-
 type JadwalImunisasiItem struct {
-	JadwalID         uint       `json:"jadwal_id"`
-	NamaDosis        string     `json:"nama_dosis"`
-	TanggalEstimasi  *time.Time `json:"tanggal_estimasi,omitempty"`
-	Deskripsi        string     `json:"deskripsi"`
-	EfekSamping      string     `json:"efek_samping"`
-	StatusID         uint       `json:"status_id"`
-	Status           string     `json:"status"`
+	JadwalID        uint       `json:"jadwal_id"`
+	NamaDosis       string     `json:"nama_dosis"`
+	TanggalEstimasi *time.Time `json:"tanggal_estimasi,omitempty"`
+	Deskripsi       string     `json:"deskripsi"`
+	EfekSamping     string     `json:"efek_samping"`
+	StatusID        uint       `json:"status_id"`
+	Status          string     `json:"status"`
+}
+
+type UpdateTanggalEstimasiRequest struct {
+    TanggalEstimasi string `json:"tanggal_estimasi"`
+}
+
+type JadwalImunisasiJoin struct {
+	AnakID          int32
+	NamaAnak        string
+	TanggalLahir    *time.Time
+
+	JadwalID        uint
+	NamaDosis       string
+	TanggalEstimasi *time.Time
+
+	StatusID        uint
+	Status          string
+
+	Deskripsi       string
+	EfekSamping     string
 }

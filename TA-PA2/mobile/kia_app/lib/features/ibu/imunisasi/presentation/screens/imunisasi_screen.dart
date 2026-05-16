@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/imunisasi/data/models/imunisasi_model.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/imunisasi/data/services/imunisasi_service.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/imunisasi/presentation/screens/imunisasi_detail.dart';
+import 'package:ta_pa2_pa3_project/features/ibu/imunisasi/presentation/screens/ubah_jadwal.dart';
 
 class ImunisasiScreen extends StatefulWidget {
   final int anakId;
@@ -63,7 +64,7 @@ class _ImunisasiScreenState extends State<ImunisasiScreen> {
         return Colors.red.shade900;
 
       default:
-        return Colors.grey;
+        return Colors.greenAccent;
     }
   }
 
@@ -121,7 +122,11 @@ class _ImunisasiScreenState extends State<ImunisasiScreen> {
     );
   }
 
-  Widget _buildImunisasiItem(BuildContext context, dynamic item) {
+  Widget _buildImunisasiItem(
+    BuildContext context,
+    dynamic item, {
+    required bool isEditable,
+  }) {
     final date = item.tanggalEstimasi;
 
     final day = date != null ? DateFormat('dd').format(date) : '--';
@@ -252,17 +257,28 @@ class _ImunisasiScreenState extends State<ImunisasiScreen> {
                 /// UBAH JADWAL (SECONDARY - WHITE)
                 Expanded(
                   child: OutlinedButton.icon(
-                    onPressed: () {
-                      // TODO: ubah jadwal
-                    },
-                    icon: const Icon(
+                    onPressed: isEditable
+                        ? () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => UbahJadwalScreen(
+                                  jadwalId: item.jadwalId,
+                                ),
+                              ),
+                            );
+                          }
+                        : null,
+                    icon: Icon(
                       Icons.event_repeat_rounded,
                       size: 18,
-                      color: Colors.black,
+                      color: isEditable ? Colors.black : Colors.grey,
                     ),
-                    label: const Text(
+                    label: Text(
                       'Ubah Jadwal',
-                      style: TextStyle(color: Colors.black),
+                      style: TextStyle(
+                        color: isEditable ? Colors.black : Colors.grey,
+                      ),
                     ),
                     style: OutlinedButton.styleFrom(
                       backgroundColor: Colors.white,
@@ -391,26 +407,7 @@ class _ImunisasiScreenState extends State<ImunisasiScreen> {
                       if (index == 0) {
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 6),
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.info_outline_rounded,
-                                size: 16,
-                                color: Colors.grey.shade500,
-                              ),
-                              const SizedBox(width: 6),
-                              Expanded(
-                                child: Text(
-                                  'Tap nama vaksin untuk melihat detail atau mengatur jadwal.',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.grey.shade600,
-                                    fontStyle: FontStyle.italic,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
+                          child: Row(),
                         );
                       }
 
@@ -504,8 +501,9 @@ class _ImunisasiScreenState extends State<ImunisasiScreen> {
                               subtitle:
                                   '${perhatian.length} imunisasi perlu diperhatikan',
                             ),
-                            ...perhatian.map(
-                                (item) => _buildImunisasiItem(context, item)),
+                            ...perhatian.map((item) => _buildImunisasiItem(
+                                context, item,
+                                isEditable: true)),
                           ],
 
                           if (mendekati.isNotEmpty) ...[
@@ -515,18 +513,20 @@ class _ImunisasiScreenState extends State<ImunisasiScreen> {
                               subtitle:
                                   '${mendekati.length} imunisasi mendekati jadwal',
                             ),
-                            ...mendekati.map(
-                                (item) => _buildImunisasiItem(context, item)),
+                            ...mendekati.map((item) => _buildImunisasiItem(
+                                context, item,
+                                isEditable: true)),
                           ],
 
                           if (lainnya.isNotEmpty) ...[
                             _buildSectionHeader(
-                              title: 'Lainnya',
-                              color: Colors.blueGrey,
-                              subtitle: '${lainnya.length} imunisasi lainnya',
+                              title: 'Selesai',
+                              color: Colors.greenAccent,
+                              subtitle: '${lainnya.length} imunisasi selesai',
                             ),
-                            ...lainnya.map(
-                                (item) => _buildImunisasiItem(context, item)),
+                            ...lainnya.map((item) => _buildImunisasiItem(
+                                context, item,
+                                isEditable: false)),
                           ],
                         ],
                       );
@@ -592,7 +592,7 @@ class _ImunisasiDetailModalContent extends StatelessWidget {
       case 'krisis':
         return Colors.red;
       default:
-        return Colors.grey;
+        return Colors.green;
     }
   }
 

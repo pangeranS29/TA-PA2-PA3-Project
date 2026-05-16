@@ -16,7 +16,6 @@ class ImunisasiModel {
   });
 
   factory ImunisasiModel.fromJson(Map<String, dynamic> json) {
-
     return ImunisasiModel(
       anakId: json['anak_id'] ?? 0,
       namaAnak: json['nama_anak'] ?? '',
@@ -88,6 +87,68 @@ class JadwalImunisasiModel {
       'status': status,
       'deskripsi': deskripsi,
       'efek_samping': efekSamping,
+    };
+  }
+}
+
+class ImunisasiDetailModel {
+  final int anakId;
+  final String namaAnak;
+  final DateTime? tanggalLahir;
+  final int jumlahTerlewat;
+  final List<JadwalImunisasiModel> jadwal;
+
+  ImunisasiDetailModel({
+    required this.anakId,
+    required this.namaAnak,
+    required this.tanggalLahir,
+    required this.jumlahTerlewat,
+    required this.jadwal,
+  });
+
+  factory ImunisasiDetailModel.fromJson(Map<String, dynamic> json) {
+    final rawJadwal = json['jadwal'];
+
+    List<JadwalImunisasiModel> jadwalList = [];
+
+    if (rawJadwal is List) {
+      jadwalList = rawJadwal
+          .whereType<Map>() // amanin tipe
+          .map((e) => JadwalImunisasiModel.fromJson(
+                Map<String, dynamic>.from(e),
+              ))
+          .toList();
+    }
+
+    return ImunisasiDetailModel(
+      anakId: (json['anak_id'] as num?)?.toInt() ?? 0,
+      namaAnak: json['nama_anak'] ?? '',
+      tanggalLahir: _parseDate(json['tanggal_lahir']),
+      jumlahTerlewat: (json['jumlah_terlewat'] as num?)?.toInt() ?? 0,
+      jadwal: jadwalList,
+    );
+  }
+
+  static DateTime? _parseDate(dynamic value) {
+    if (value == null) return null;
+    try {
+      return DateTime.parse(value);
+    } catch (_) {
+      return null;
+    }
+  }
+}
+
+class UpdateTanggalEstimasiRequest {
+  final String tanggalEstimasi;
+
+  UpdateTanggalEstimasiRequest({
+    required this.tanggalEstimasi,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      "tanggal_estimasi": tanggalEstimasi,
     };
   }
 }

@@ -492,9 +492,14 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	ibu.GET("/keluhan-anak/:id", controller.KeluhanAnak.GetByIDForIbu)
 	
 	// ==================== IMUNISASI ====================
-	// ==================== KELUHAN ANAK ====================
 	ibu.GET("/jadwal-imunisasi", controller.GetJadwalImunisasi)
-	ibu.GET("/jadwal-imunisasi/:anak_id", controller.GetJadwalImunisasiByAnakID)
+	ibu.GET("/jadwal-imunisasi/anak/:anak_id", controller.GetJadwalImunisasiByAnakID)
+	ibu.PUT("/jadwal-imunisasi/:id/tanggal-estimasi", controller.UpdateTanggalEstimasi)
+	ibu.GET("/jadwal-imunisasi/:id", controller.GetJadwalByID)
+
+
+	
+	// ==================== KELUHAN ANAK ====================
 	
 	tenaga.GET("/keluhan-anak/:anak_id", controller.KeluhanAnak.GetByAnakID)
 	tenaga.GET("/keluhan-anak/detail/:id", controller.KeluhanAnak.GetByID)
