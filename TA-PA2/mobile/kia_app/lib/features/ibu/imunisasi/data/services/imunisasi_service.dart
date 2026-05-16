@@ -37,7 +37,6 @@ class ImunisasiService {
 
       final body = jsonDecode(response.body) as Map<String, dynamic>;
 
-
       if (response.statusCode < 200 || response.statusCode >= 300) {
         final msg = body['message'];
         final errorText = (msg is List) ? msg.join(', ') : (msg ?? 'Gagal');
@@ -62,7 +61,7 @@ class ImunisasiService {
     int anakId,
   ) async {
     final uri = Uri.parse(
-      '${ApiConstants.baseUrl}/ibu/jadwal-imunisasi/$anakId',
+      '${ApiConstants.baseUrl}/ibu/jadwal-imunisasi/anak/$anakId',
     );
 
     try {
@@ -98,6 +97,73 @@ class ImunisasiService {
       return [];
     } catch (e) {
       debugPrint("Error di ImunisasiService (getJadwalImunisasiByAnakId): $e");
+      rethrow;
+    }
+  }
+
+  Future<ImunisasiDetailModel> getJadwalImunisasiById(int id) async {
+    final uri = Uri.parse(
+      '${ApiConstants.baseUrl}/ibu/jadwal-imunisasi/$id',
+    );
+
+    try {
+      final response = await _client.get(
+        uri,
+        headers: _headers,
+      );
+
+      if (response.statusCode == 404) {
+        throw Exception('Data jadwal tidak ditemukan');
+      }
+
+      final body = jsonDecode(response.body) as Map<String, dynamic>;
+
+      if (response.statusCode < 200 || response.statusCode >= 300) {
+        final msg = body['message'];
+        final errorText = (msg is List)
+            ? msg.join(', ')
+            : (msg ?? 'Gagal mengambil detail jadwal');
+        throw Exception(errorText);
+      }
+
+      // ✅ FIX UTAMA DI SINI
+      return ImunisasiDetailModel.fromJson(body);
+    } catch (e) {
+      debugPrint("Error getJadwalImunisasiById: $e");
+      rethrow;
+    }
+  }
+
+  Future<void> updateTanggalEstimasi(
+    int id,
+    String tanggal,
+  ) async {
+    final uri = Uri.parse(
+      '${ApiConstants.baseUrl}/ibu/jadwal-imunisasi/$id/tanggal-estimasi',
+    );
+
+    try {
+      final body = jsonEncode({
+        "tanggal_estimasi": tanggal, // format: YYYY-MM-DD
+      });
+
+      final response = await _client.put(
+        uri,
+        headers: _headers,
+        body: body,
+      );
+
+      final decoded = jsonDecode(response.body);
+
+      if (response.statusCode < 200 || response.statusCode >= 300) {
+        final msg = decoded['message'];
+        final errorText =
+            (msg is List) ? msg.join(', ') : (msg ?? 'Gagal update jadwal');
+
+        throw Exception(errorText);
+      }
+    } catch (e) {
+      debugPrint("Error updateTanggalEstimasi: $e");
       rethrow;
     }
   }

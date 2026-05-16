@@ -46,10 +46,24 @@ class _PilihAnakScreenState extends State<PilihAnakScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF1F5F9),
       appBar: AppBar(
-        title: const Text("Pilih Profil Anak"),
         backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
         elevation: 0,
+        centerTitle: true,
+        title: const Text(
+          'Pilih Profil Anak',
+          style: TextStyle(
+            color: Color(0xFF1E293B),
+            fontSize: 16,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1.0),
+          child: Container(
+            color: Colors.grey.shade200,
+            height: 1.0,
+          ),
+        ),
       ),
       body: FutureBuilder<List<IbuAnakModel>>(
         future: _anakFuture,
