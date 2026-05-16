@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 class ImunisasiModel {
   final int anakId;
   final String namaAnak;
@@ -13,23 +15,18 @@ class ImunisasiModel {
     required this.jumlahTerlewat,
   });
 
-  factory ImunisasiModel.fromJson(
-    Map<String, dynamic> json,
-  ) {
+  factory ImunisasiModel.fromJson(Map<String, dynamic> json) {
+
     return ImunisasiModel(
       anakId: json['anak_id'] ?? 0,
       namaAnak: json['nama_anak'] ?? '',
       tanggalLahir: json['tanggal_lahir'] != null
-          ? DateTime.parse(
-              json['tanggal_lahir'],
-            )
+          ? DateTime.parse(json['tanggal_lahir'])
           : null,
       jadwal: (json['jadwal'] as List?)
               ?.map(
                 (item) => JadwalImunisasiModel.fromJson(
-                  Map<String, dynamic>.from(
-                    item,
-                  ),
+                  Map<String, dynamic>.from(item),
                 ),
               )
               .toList() ??
@@ -44,6 +41,7 @@ class ImunisasiModel {
       'nama_anak': namaAnak,
       'tanggal_lahir': tanggalLahir?.toIso8601String(),
       'jadwal': jadwal.map((e) => e.toJson()).toList(),
+      'jumlah_terlewat': jumlahTerlewat,
     };
   }
 }
@@ -54,6 +52,8 @@ class JadwalImunisasiModel {
   final DateTime? tanggalEstimasi;
   final int statusId;
   final String status;
+  final String deskripsi;
+  final String efekSamping;
 
   JadwalImunisasiModel({
     required this.jadwalId,
@@ -61,21 +61,21 @@ class JadwalImunisasiModel {
     required this.tanggalEstimasi,
     required this.statusId,
     required this.status,
+    required this.deskripsi,
+    required this.efekSamping,
   });
 
-  factory JadwalImunisasiModel.fromJson(
-    Map<String, dynamic> json,
-  ) {
+  factory JadwalImunisasiModel.fromJson(Map<String, dynamic> json) {
     return JadwalImunisasiModel(
-      jadwalId: json['jadwal_id'] ?? 0,
+      jadwalId: (json['jadwal_id'] as num?)?.toInt() ?? 0,
       namaDosis: json['nama_dosis'] ?? '',
       tanggalEstimasi: json['tanggal_estimasi'] != null
-          ? DateTime.parse(
-              json['tanggal_estimasi'],
-            )
+          ? DateTime.parse(json['tanggal_estimasi'])
           : null,
-      statusId: json['status_id'] ?? 0,
+      statusId: (json['status_id'] as num?)?.toInt() ?? 0,
       status: json['status'] ?? '',
+      deskripsi: json['deskripsi'] ?? '',
+      efekSamping: json['efek_samping'] ?? '',
     );
   }
 
@@ -86,6 +86,8 @@ class JadwalImunisasiModel {
       'tanggal_estimasi': tanggalEstimasi?.toIso8601String(),
       'status_id': statusId,
       'status': status,
+      'deskripsi': deskripsi,
+      'efek_samping': efekSamping,
     };
   }
 }

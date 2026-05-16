@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/material.dart'; // Ditambahkan untuk debugPrint jika diperlukan
 import 'package:http/http.dart' as http;
 import 'package:ta_pa2_pa3_project/core/constants/api_constants.dart';
 import 'package:ta_pa2_pa3_project/core/services/auth_session.dart';
@@ -27,49 +28,78 @@ class ImunisasiService {
     };
   }
 
-  Future<List<ImunisasiModel>>
-  getJadwalImunisasi() async {
-    final uri = Uri.parse(
-      '${ApiConstants.baseUrl}/ibu/jadwal-imunisasi',
-    );
+  Future<List<ImunisasiModel>> getJadwalImunisasi() async {
+    final uri = Uri.parse('${ApiConstants.baseUrl}/ibu/jadwal-imunisasi');
+    try {
+      final response = await _client.get(uri, headers: _headers);
 
-    final response = await _client.get(
-      uri,
-      headers: _headers,
-    );
+      if (response.statusCode == 404) return [];
 
-    final body =
-        jsonDecode(response.body)
-            as Map<String, dynamic>;
+      final body = jsonDecode(response.body) as Map<String, dynamic>;
 
-    if (response.statusCode == 404) {
+
+      if (response.statusCode < 200 || response.statusCode >= 300) {
+        final msg = body['message'];
+        final errorText = (msg is List) ? msg.join(', ') : (msg ?? 'Gagal');
+        throw Exception(errorText);
+      }
+
+      final data = body['data'];
+      if (data is List) {
+        return data.map((item) {
+          final Map<String, dynamic> itemMap =
+              Map<String, dynamic>.from(item as Map);
+          return ImunisasiModel.fromJson(itemMap);
+        }).toList();
+      }
       return [];
+    } catch (e) {
+      rethrow;
     }
+  }
 
-    if (response.statusCode < 200 ||
-        response.statusCode >= 300) {
-      throw Exception(
-        body['message'] ??
-            'Gagal mengambil jadwal imunisasi',
+  Future<List<ImunisasiModel>> getJadwalImunisasiByAnakId(
+    int anakId,
+  ) async {
+    final uri = Uri.parse(
+      '${ApiConstants.baseUrl}/ibu/jadwal-imunisasi/$anakId',
+    );
+
+    try {
+      final response = await _client.get(
+        uri,
+        headers: _headers,
       );
+
+      if (response.statusCode == 404) {
+        return [];
+      }
+
+      final body = jsonDecode(response.body) as Map<String, dynamic>;
+
+      if (response.statusCode < 200 || response.statusCode >= 300) {
+        final msg = body['message'];
+        final errorText = (msg is List)
+            ? msg.join(', ')
+            : (msg ?? 'Gagal mengambil jadwal imunisasi anak');
+        throw Exception(errorText);
+      }
+
+      final data = body['data'];
+
+      if (data is List) {
+        return data.map((item) {
+          final Map<String, dynamic> itemMap =
+              Map<String, dynamic>.from(item as Map);
+          return ImunisasiModel.fromJson(itemMap);
+        }).toList();
+      }
+
+      return [];
+    } catch (e) {
+      debugPrint("Error di ImunisasiService (getJadwalImunisasiByAnakId): $e");
+      rethrow;
     }
-
-    final data = body['data'];
-
-    if (data is List) {
-      return data
-          .map(
-            (item) =>
-                ImunisasiModel.fromJson(
-              Map<String, dynamic>.from(
-                item,
-              ),
-            ),
-          )
-          .toList();
-    }
-
-    return [];
   }
 
   void dispose() {
