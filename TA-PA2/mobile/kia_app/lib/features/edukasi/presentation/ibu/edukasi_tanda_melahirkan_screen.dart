@@ -30,9 +30,7 @@ class _EdukasiTandaMelahirkanScreenState
 
     final repository =
         EdukasiTandaMelahirkanRepository(
-      EdukasiTandaMelahirkanService(
-        baseUrl: 'http://localhost:8080',
-      ),
+      EdukasiTandaMelahirkanService(),
     );
 
     futureData = repository

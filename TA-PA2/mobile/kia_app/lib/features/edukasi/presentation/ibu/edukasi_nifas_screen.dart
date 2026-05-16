@@ -27,9 +27,7 @@ class _EdukasiNifasScreenState
 
     final repository =
         EdukasiNifasRepository(
-      EdukasiNifasService(
-        baseUrl: 'http://localhost:8080',
-      ),
+      EdukasiNifasService(),
     );
 
     futureData =

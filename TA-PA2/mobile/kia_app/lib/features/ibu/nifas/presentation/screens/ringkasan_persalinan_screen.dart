@@ -28,9 +28,7 @@ class _RingkasanPersalinanScreenState
     super.initState();
 
     final repository = RingkasanPersalinanRepository(
-      RingkasanPersalinanService(
-        baseUrl: 'http://localhost:8080',
-      ),
+      RingkasanPersalinanService(),
     );
 
     futureData = repository.getData(widget.token);
