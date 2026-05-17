@@ -8,16 +8,17 @@ import {
   Activity, AlertTriangle, UserCheck
 } from "lucide-react";
 
-// Badge untuk status kehamilan (trimester)
-const trimesterBadge = (status) => {
+// Badge untuk status kehamilan (trimester + nifas)
+const statusBadge = (status) => {
   if (status === "TRIMESTER 1") return "bg-[#E1F5EE] text-[#085041]";
   if (status === "TRIMESTER 2") return "bg-[#FAEEDA] text-[#633806]";
   if (status === "TRIMESTER 3") return "bg-[#DCFCE7] text-[#3B6D11]";
+  if (status === "NIFAS") return "bg-[#DBEAFE] text-[#1E3A8A]";       // biru untuk nifas
   if (status === "NON-AKTIF") return "bg-gray-200 text-gray-700";
   return "bg-gray-100 text-gray-800";
 };
 
-// Normalisasi: database -> tiga kategori (PERLU_RUJUKAN, PERLU_TINDAKAN, NORMAL)
+// Normalisasi risiko
 const normalizeRiskStatus = (risk) => {
   const upperRisk = (risk || "").toUpperCase();
   if (upperRisk === "PERLU RUJUKAN" || upperRisk === "TINGGI") return "PERLU_RUJUKAN";
@@ -25,7 +26,6 @@ const normalizeRiskStatus = (risk) => {
   return "NORMAL";
 };
 
-// Mapping ke tampilan label & warna
 const riskLabel = (risk) => {
   const normalized = normalizeRiskStatus(risk);
   if (normalized === "PERLU_RUJUKAN") {
@@ -76,13 +76,21 @@ export default function IbuList() {
     setCurrentPage(1);
   }, [debouncedSearch, filterRisiko, filterTrimester, showHistory]);
 
-  // Data aktif (masih hamil) vs semua
+  // Data aktif = TRIMESTER 1/2/3 atau NIFAS
   const activeOnlyList = useMemo(() => {
-    return ibuList.filter(ibu => ibu.status_kehamilan?.startsWith("TRIMESTER"));
+    return ibuList.filter(ibu => 
+      ibu.status_kehamilan?.startsWith("TRIMESTER") || ibu.status_kehamilan === "NIFAS"
+    );
   }, [ibuList]);
 
+  // Data riwayat = NON-AKTIF
+  const historyList = useMemo(() => {
+    return ibuList.filter(ibu => ibu.status_kehamilan === "NON-AKTIF");
+  }, [ibuList]);
+
+  // Data yang ditampilkan sesuai toggle
   const displayedData = useMemo(() => {
-    let data = showHistory ? ibuList : activeOnlyList;
+    let data = showHistory ? historyList : activeOnlyList;
 
     if (debouncedSearch) {
       data = data.filter(ibu =>
@@ -94,18 +102,21 @@ export default function IbuList() {
         normalizeRiskStatus(ibu.status_risiko) === filterRisiko
       );
     }
-    if (filterTrimester) {
+    if (filterTrimester && !showHistory) {
+      // Filter trimester hanya untuk data aktif (karena riwayat tidak punya trimester)
       data = data.filter(ibu => ibu.status_kehamilan === filterTrimester);
     }
     return data.sort((a, b) => (b.id_ibu || 0) - (a.id_ibu || 0));
-  }, [ibuList, activeOnlyList, showHistory, debouncedSearch, filterRisiko, filterTrimester]);
+  }, [activeOnlyList, historyList, showHistory, debouncedSearch, filterRisiko, filterTrimester]);
 
-  // Statistik berdasarkan risiko ternormalisasi pada kehamilan aktif
-  const uniqueIbuAktif = new Set(activeOnlyList.map(i => i.id_ibu)).size;
+  // Statistik berdasarkan risiko pada kehamilan aktif (TRIMESTER + NIFAS)
   const totalAktifRows = activeOnlyList.length;
   const totalTinggi = activeOnlyList.filter(i => normalizeRiskStatus(i.status_risiko) === "PERLU_RUJUKAN").length;
   const totalSedang = activeOnlyList.filter(i => normalizeRiskStatus(i.status_risiko) === "PERLU_TINDAKAN").length;
   const totalNormal = activeOnlyList.filter(i => normalizeRiskStatus(i.status_risiko) === "NORMAL").length;
+
+  // Jumlah ibu unik aktif (bukan kehamilan)
+  const uniqueIbuAktif = new Set(activeOnlyList.map(i => i.id_ibu)).size;
 
   // Pagination
   const totalPages = Math.ceil(displayedData.length / itemsPerPage);
@@ -122,7 +133,7 @@ export default function IbuList() {
     <div className="text-center py-12">
       <Users size={48} className="mx-auto text-gray-300" />
       <p className="mt-2 text-gray-600 text-base">
-        {showHistory ? "Tidak ada riwayat kehamilan yang tersedia." : "Tidak ada ibu hamil aktif."}
+        {showHistory ? "Tidak ada riwayat kehamilan yang tersedia." : "Tidak ada ibu hamil atau nifas aktif."}
       </p>
       <button
         onClick={() => {
@@ -168,7 +179,7 @@ export default function IbuList() {
           >
             <div className="flex items-center gap-2 text-[#185FA5] mb-1">
               <Users size={16} />
-              <span className="text-sm font-medium">IBU HAMIL AKTIF</span>
+              <span className="text-sm font-medium">IBU HAMIL & NIFAS AKTIF</span>
             </div>
             <p className="text-xl font-bold text-gray-800">{uniqueIbuAktif}</p>
             <p className="text-xs text-gray-400">{totalAktifRows} kehamilan aktif</p>
@@ -206,7 +217,7 @@ export default function IbuList() {
               <span className="text-sm font-medium">STATUS TAMPILAN</span>
             </div>
             <p className="text-base font-semibold text-gray-800">
-              {showHistory ? "Riwayat selesai" : "Kehamilan aktif"}
+              {showHistory ? "Riwayat (NON-AKTIF)" : "Kehamilan Aktif + NIFAS"}
             </p>
           </div>
         </div>
@@ -239,19 +250,22 @@ export default function IbuList() {
               <Filter size={12} className="absolute right-3 top-2.5 text-gray-400 pointer-events-none" />
             </div>
 
-            <div className="relative flex-shrink-0">
-              <select
-                className="pl-3 pr-8 py-2 border border-[#E2E8F0] rounded-lg bg-white text-sm"
-                value={filterTrimester}
-                onChange={(e) => setFilterTrimester(e.target.value)}
-              >
-                <option value="">Semua Trimester</option>
-                <option value="TRIMESTER 1">Trimester 1</option>
-                <option value="TRIMESTER 2">Trimester 2</option>
-                <option value="TRIMESTER 3">Trimester 3</option>
-              </select>
-              <Filter size={12} className="absolute right-3 top-2.5 text-gray-400 pointer-events-none" />
-            </div>
+            {!showHistory && (
+              <div className="relative flex-shrink-0">
+                <select
+                  className="pl-3 pr-8 py-2 border border-[#E2E8F0] rounded-lg bg-white text-sm"
+                  value={filterTrimester}
+                  onChange={(e) => setFilterTrimester(e.target.value)}
+                >
+                  <option value="">Semua Status</option>
+                  <option value="TRIMESTER 1">Trimester 1</option>
+                  <option value="TRIMESTER 2">Trimester 2</option>
+                  <option value="TRIMESTER 3">Trimester 3</option>
+                  <option value="NIFAS">Nifas</option>
+                </select>
+                <Filter size={12} className="absolute right-3 top-2.5 text-gray-400 pointer-events-none" />
+              </div>
+            )}
 
             <button
               onClick={() => setShowHistory(!showHistory)}
@@ -305,16 +319,16 @@ export default function IbuList() {
               <tbody>
                 {paginatedData.map((ibu) => {
                   const risk = riskLabel(ibu.status_risiko);
-                  const isActive = ibu.status_kehamilan?.startsWith("TRIMESTER");
-                  const displayStatus = ibu.status_kehamilan === "NON-AKTIF" ? "Selesai" : (ibu.status_kehamilan || "-");
+                  const isActive = ibu.status_kehamilan?.startsWith("TRIMESTER") || ibu.status_kehamilan === "NIFAS";
+                  let displayStatus = ibu.status_kehamilan || "-";
+                  if (displayStatus === "NON-AKTIF") displayStatus = "Selesai";
+                  else if (displayStatus === "NIFAS") displayStatus = "Nifas";
+                  
                   return (
                     <tr key={`${ibu.id_ibu}-${ibu.kehamilan_id}`} className="border-t hover:bg-gray-50 transition">
-                      <td className="p-2 font-medium text-sm">
-                        {ibu.nama_lengkap}
-                        <div className="text-xs text-gray-400">ID: {ibu.id_ibu}</div>
-                      </td>
+                      <td className="p-2 font-medium text-sm">{ibu.nama_lengkap}</td>
                       <td className="p-2 text-center text-sm">
-                        <span className={`px-2 py-1 text-xs rounded-full inline-block ${trimesterBadge(ibu.status_kehamilan)}`}>
+                        <span className={`px-2 py-1 text-xs rounded-full inline-block ${statusBadge(ibu.status_kehamilan)}`}>
                           {displayStatus}
                         </span>
                       </td>
@@ -323,7 +337,7 @@ export default function IbuList() {
                           {risk.label}
                         </span>
                       </td>
-                      <td className="p-2 text-center text-sm">{ibu.usia_kehamilan} Minggu</td>
+                      <td className="p-2 text-center text-sm">{ibu.usia_kehamilan || "-"} {ibu.usia_kehamilan ? "Minggu" : ""}</td>
                       <td className="p-2 text-center text-sm">{ibu.dusun || "-"}</td>
                       <td className="p-2 text-center">
                         <div className="flex gap-1 justify-center items-center">
@@ -336,27 +350,20 @@ export default function IbuList() {
                           >
                             <Eye size={14} /> Detail
                           </button>
-                          {isActive ? 
-                            (
-                              <button
-                                onClick={() => navigate(`/data-ibu/${ibu.id_ibu}/edit?kehamilan_id=${ibu.kehamilan_id}`)}
-                                className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-[#185FA5] text-[#185FA5] bg-transparent text-xs font-medium hover:bg-[#185FA5]/5 whitespace-nowrap"
-                              >
-                                <Edit size={14} /> Edit
-                              </button>
-                            ) 
-                            : 
-                            (
-                              <button
-                                disabled
-                                className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-gray-300 text-gray-400 bg-gray-100 text-xs cursor-not-allowed whitespace-nowrap"
-                              >
-                                <Edit size={14} /> Selesai
-                              </button>
-                            )}
+                          {isActive ? (
+                            // Edit tombol dikomentari sesuai keinginan awal
+                            <></>
+                          ) : (
+                            <button
+                              disabled
+                              className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-gray-300 text-gray-400 bg-gray-100 text-xs cursor-not-allowed whitespace-nowrap"
+                            >
+                              <Edit size={14} /> Selesai
+                            </button>
+                          )}
                         </div>
-                       </td>
-                     </tr>
+                      </td>
+                    </tr>
                   );
                 })}
               </tbody>

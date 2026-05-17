@@ -90,11 +90,11 @@ const EvaluationView = ({
             <Plus size={16} /> Buat Evaluasi Baru
           </button>
         )}
-        {!canEdit && (
+        {/* {!canEdit && (
           <p className="text-gray-400 text-xs mt-2">
             Kehamilan sudah selesai (NON-AKTIF), tidak dapat menambahkan data baru.
           </p>
-        )}
+        )} */}
       </div>
     );
   }

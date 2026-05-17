@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import MainLayout from "../../components/Layout/MainLayout";
-import { getKehamilanByIbuId } from "../../services/kehamilan";
+import { getKehamilanByIbuId, updateStatusKehamilan } from "../../services/kehamilan";
 import { getNifasByKehamilanId, createNifas, updateNifas } from "../../services/nifas";
 import { 
   getCatatanNifasByKehamilanId, 
@@ -612,7 +612,28 @@ export default function PelayananNifas() {
       if (newCurrentData) {
         populateForm(newCurrentData);
       }
-      
+      // Jika kunjungan KF4 (29-42 hari), ubah status kehamilan menjadi NON-AKTIF
+if (selectedKunjungan === "KF4") {
+  try {
+    await updateStatusKehamilan(kehamilan.id, "NON-AKTIF");
+    setKehamilan(prev => ({ ...prev, status_kehamilan: "NON-AKTIF" }));
+    await Swal.fire({
+      icon: 'success',
+      title: 'Status Kehamilan',
+      text: 'Kehamilan telah ditandai NON-AKTIF karena masa nifas selesai.',
+      timer: 2000,
+      showConfirmButton: false
+    });
+  } catch (err) {
+    console.error("Gagal update status kehamilan:", err);
+    await Swal.fire({
+      icon: 'warning',
+      title: 'Perhatian',
+      text: 'Data nifas tersimpan, tetapi gagal mengubah status kehamilan menjadi NON-AKTIF. Silakan periksa kembali.',
+      confirmButtonText: 'OK'
+    });
+  }
+}
     } catch (err) {
       console.error("Error detail:", err);
       Swal.fire('Gagal Menyimpan', err.response?.data?.message || err.message, 'error');
