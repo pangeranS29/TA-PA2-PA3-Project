@@ -57,6 +57,13 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	bidan.PUT("/bidan/:id", controller.BidanUpdateBidan)
 	bidan.PATCH("/bidan/:id/status", controller.BidanUpdateBidanStatus)
 
+	// Jadwal layanan (Imunisasi) - dashboard bidan
+	bidan.GET("/dashboard/jadwal-layanan", controller.JadwalLayanan.GetAll)
+	bidan.POST("/dashboard/jadwal-layanan", controller.JadwalLayanan.Create)
+	bidan.GET("/dashboard/jadwal-layanan/:id", controller.JadwalLayanan.GetByID)
+	bidan.PUT("/dashboard/jadwal-layanan/:id", controller.JadwalLayanan.Update)
+	bidan.DELETE("/dashboard/jadwal-layanan/:id", controller.JadwalLayanan.Delete)
+
 	// Kader Management (Bidan manage Kader di posyandu mereka)
 	bidan.POST("/kader", controller.BidanCreateKader)
 	bidan.GET("/kader", controller.BidanListKader)
@@ -219,7 +226,7 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	lingkungan.GET("/history", controller.KesehatanLingkungan.GetHistory)
 	lingkungan.GET("/detail/:id", controller.KesehatanLingkungan.GetDetail)
 	lingkungan.POST("/submit", controller.KesehatanLingkungan.SubmitLembar)
-	
+
 	tenaga.POST("/lingkungan/kategori", controller.KesehatanLingkungan.CreateKategori)
 	tenaga.DELETE("/lingkungan/kategori/:id", controller.KesehatanLingkungan.DeleteKategori)
 	tenaga.POST("/lingkungan/kategori/:id/indikator", controller.KesehatanLingkungan.AddIndikator)
@@ -543,10 +550,9 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	tenaga.GET("/pemeriksaan-dokter-t3-complete", controller.PemeriksaanDokterCombined.GetT3ByKehamilan)
 	tenaga.DELETE("/pemeriksaan-dokter-t3-complete/:id", controller.PemeriksaanDokterCombined.DeleteT3)
 
-
 	// untuk laporan ibu
-	tenaga.GET("/laporan/ibu/preview",controller.LaporanIbu.Preview,)
-	tenaga.GET("/laporan/ibu/export/excel",controller.LaporanIbu.ExportExcel)
+	tenaga.GET("/laporan/ibu/preview", controller.LaporanIbu.Preview)
+	tenaga.GET("/laporan/ibu/export/excel", controller.LaporanIbu.ExportExcel)
 	//==== IBU ====
 	ibu := e.Group("/ibu")
 	ibu.Use(middlewares.JWTAuth(controller.JWTSecret()))

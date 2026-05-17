@@ -14,6 +14,7 @@ import {
   Users,
   Baby,
   Activity,
+  Calendar,
   BarChart3,
   Settings,
   UserCheck,
@@ -100,12 +101,12 @@ const Sidebar = () => {
         { path: "/pemantauan/kelola", name: "Kelola Pemantauan Anak", icon: ClipboardEdit },
       ],
     },
-    {
-      name: "Edukasi Digital",
-      icon: BookOpenCheck,
-      isDropdown: true,
-      dropdownKey: "edukasiDigital",
-      children: [
+        {
+          name: "Edukasi Digital",
+          icon: BookOpenCheck,
+          isDropdown: true,
+          dropdownKey: "edukasiDigital",
+          children: [
         { path: "/edukasi-digital/informasi-umum", name: "Informasi Umum", icon: ClipboardList },
         { path: "/edukasi-digital/trimester", name: "Edukasi Trimester", icon: ClipboardList },
         { path: "/edukasi-digital/tanda-melahirkan", name: "Tanda Melahirkan", icon: ClipboardList },
@@ -130,6 +131,7 @@ const Sidebar = () => {
         },
       ],
     },
+    { path: "/jadwal-layanan", name: "Jadwal Layanan", icon: Calendar },
     { path: "/laporan", name: "Laporan", icon: BarChart3 },
   ];
 

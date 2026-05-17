@@ -76,8 +76,9 @@ type Main struct {
 	EdukasiAturanPorsiMPASI  *AturanPorsiMPASIController
 	EdukasiJadwalHarianMPASI *JadwalHarianMPASIController
 	EdukasiResepMPASI        *ResepMPASIController
+	JadwalLayanan            *JadwalLayananController
 	// EdukasiTandaBahayaTrimester *EdukasiTandaBahayaTrimesterController
-	LaporanIbu                  *LaporanIbuController
+	LaporanIbu *LaporanIbuController
 }
 
 type Options struct {
@@ -170,7 +171,10 @@ func Init(opts Options) *Main {
 	m.EdukasiAturanPorsiMPASI = NewAturanPorsiMPASIController(opts.UseCases.EdukasiAturanPorsiMPASI)
 	m.EdukasiJadwalHarianMPASI = NewJadwalHarianMPASIController(opts.UseCases.EdukasiJadwalHarianMPASI)
 	m.EdukasiResepMPASI = NewResepMPASIController(opts.UseCases.EdukasiResepMPASI)
-	m.LaporanIbu = NewLaporanIbuController(opts.UseCases.LaporanIbu,)
+	m.LaporanIbu = NewLaporanIbuController(opts.UseCases.LaporanIbu)
+
+	// Jadwal layanan (imunisasi)
+	m.JadwalLayanan = NewJadwalLayananController(opts.UseCases.JadwalLayanan)
 
 	return m
 }
