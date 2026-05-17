@@ -478,7 +478,7 @@ export default function EdukasiDigitalCrudPage({
                                       {item.judul || "Tanpa Judul"}
                                     </p>
                                     <p className="text-[12px] text-slate-500 line-clamp-1 mt-0.5">
-                                      {item.deskripsi || item.isi_konten || "-"}
+                                      {item.deskripsi || item.isi_konten || item.konten || "-"}
                                     </p>
                                   </div>
                                 </div>

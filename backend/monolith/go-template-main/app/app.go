@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log"
 	"monitoring-service/app/controllers"
+
+	// "monitoring-service/app/models"
 	"time"
 
 	// "monitoring-service/app/models"
@@ -11,6 +13,7 @@ import (
 	"monitoring-service/app/routes"
 
 	// "monitoring-service/app/seed"
+	"monitoring-service/app/seeders"
 	"monitoring-service/app/usecases"
 	"monitoring-service/pkg/config"
 	"monitoring-service/pkg/database"
@@ -85,14 +88,7 @@ func (m *Main) Init() (err error) {
 	}
 	fmt.Println("✅ BERHASIL KONEK KE DATABASE")
 
-	//comment sementara
-
-	// // Migrate Tabel
-	// err = models.AutoMigrate(m.database.Postgres)
-	// if err != nil {
-	// 	return
-	// }
-	// Migrate Tabel
+	// Jalankan migrasi schema agar tabel baru selalu tersedia saat aplikasi start.
 	// err = models.AutoMigrate(m.database.Postgres)
 	// if err != nil {
 	// 	return
@@ -136,6 +132,10 @@ func (m *Main) Init() (err error) {
 	// if err := kategoriCapaianSeeder.Seed(); err != nil {
 	// 	return err
 	// }
+	kategoriCapaianSeeder := seeders.NewKategoriCapaianSeeder(m.database.Postgres)
+	if err := kategoriCapaianSeeder.Seed(); err != nil {
+		return err
+	}
 
 	m.repo = repositories.Init(repositories.Options{
 		Config:   m.cfg,

@@ -120,7 +120,7 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 
 	tenaga.GET("/anak", controller.Anak.AdminList)
 	tenaga.POST("/anak", controller.Anak.Create)
-	tenaga.POST("/anak/dengan-penduduk", controller.Anak.CreateDenganPenduduk)
+	// tenaga.POST("/anak/dengan-penduduk", controller.Anak.CreateDenganPenduduk)
 	tenaga.GET("/anak/:id", controller.Anak.Detail)
 	tenaga.PUT("/anak/:id", controller.Anak.Update)
 	tenaga.DELETE("/anak/:id", controller.Anak.Delete)
@@ -198,14 +198,21 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	tenaga.PUT("/pemantauan-anak/indikator/:id", controller.PemantauanAnak.UpdateKategori)
 	tenaga.DELETE("/pemantauan-anak/indikator/:id", controller.PemantauanAnak.DeleteKategori)
 
-	// ==================== PERKEMBANGAN ANAK ====================
-	tenaga.GET("/perkembangan-anak/rentang-usia", controller.PerkembanganAnak.GetRentangUsia)
-	tenaga.GET("/perkembangan-anak/kategori/:rentang_id", controller.PerkembanganAnak.GetKategori)
-	tenaga.POST("/perkembangan-anak", controller.PerkembanganAnak.Save)
-	tenaga.GET("/perkembangan-anak/history", controller.PerkembanganAnak.GetHistory)
-	tenaga.POST("/perkembangan-anak/kategori", controller.PerkembanganAnak.CreateKategori)
-	tenaga.PUT("/perkembangan-anak/kategori/:id", controller.PerkembanganAnak.UpdateKategori)
-	tenaga.DELETE("/perkembangan-anak/kategori/:id", controller.PerkembanganAnak.DeleteKategori)
+	// ==================== KATEGORI CAPAIAN (Lembar Perawatan Anak) ====================
+	tenaga.GET("/kategori-capaian", controller.KategoriCapaian.GetAll)
+	tenaga.GET("/kategori-capaian/:id", controller.KategoriCapaian.GetByID)
+	tenaga.POST("/kategori-capaian", controller.KategoriCapaian.Create)
+	tenaga.PUT("/kategori-capaian/:id", controller.KategoriCapaian.Update)
+	tenaga.DELETE("/kategori-capaian/:id", controller.KategoriCapaian.Delete)
+
+	// ==================== PERAWATAN ANAK (Lembar Capaian) ====================
+	tenaga.GET("/perawatan", controller.Perawatan.GetByAnakID)
+	tenaga.GET("/perawatan/:id", controller.Perawatan.GetByID)
+	tenaga.POST("/perawatan", controller.Perawatan.Create)
+	tenaga.PUT("/perawatan/:id", controller.Perawatan.Update)
+	tenaga.DELETE("/perawatan/:id", controller.Perawatan.Delete)
+
+
 
 	// ==================== KESEHATAN LINGKUNGAN ====================
 	// tenaga.GET("/kesehatan-lingkungan", controller.KesehatanLingkunganDanCatatanKader.GetAll)
