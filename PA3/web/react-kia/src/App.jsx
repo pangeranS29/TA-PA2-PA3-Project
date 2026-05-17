@@ -119,6 +119,8 @@ import MpasiJadwalHarianPage from "./pages/edukasi-digital/MpasiJadwalHarianPage
 import MpasiJadwalHarianFormPage from "./pages/edukasi-digital/MpasiJadwalHarianFormPage";
 import MpasiResepPage from "./pages/edukasi-digital/MpasiResepPage";
 import MpasiResepFormPage from "./pages/edukasi-digital/MpasiResepFormPage";
+import JadwalLayananPage from "./pages/jadwal-layanan/JadwalLayananPage";
+import JadwalLayananForm from "./pages/jadwal-layanan/JadwalLayananForm";
 import KeluhanAnak from "./pages/Anak/Keluhan/KeluhanAnak";
 import PemantauanAnakPage from "./pages/Anak/Pemantauan/PemantauanAnakPage";
 import PerkembanganAnakPage from "./pages/Anak/Perkembangan/PerkembanganAnakPage";
@@ -294,6 +296,9 @@ function App() {
         <Route path="/edukasi-digital/mpasi-jadwal-harian" element={<MpasiJadwalHarianPage />} />
         <Route path="/edukasi-digital/mpasi-jadwal-harian/form" element={<MpasiJadwalHarianFormPage />} />
         <Route path="/edukasi-digital/mpasi-jadwal-harian/form/:id" element={<MpasiJadwalHarianFormPage />} />
+        <Route path="/jadwal-layanan" element={<JadwalLayananPage />} />
+        <Route path="/jadwal-layanan/form" element={<JadwalLayananForm />} />
+        <Route path="/jadwal-layanan/form/:id" element={<JadwalLayananForm />} />
         
         <Route path="/edukasi-digital/mpasi-resep" element={<MpasiResepPage />} />
         <Route path="/edukasi-digital/mpasi-resep/form" element={<MpasiResepFormPage />} />
