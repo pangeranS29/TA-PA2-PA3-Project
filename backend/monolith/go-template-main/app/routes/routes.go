@@ -503,6 +503,8 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	kader.GET("/kunjungan-imunisasi",controller.GetAllKunjunganImunisasi)
 	kader.GET("/kunjungan-imunisasi/:id",controller.GetKunjunganImunisasiByID)
 	kader.PUT("/kunjungan-imunisasi/:id/status", controller.UpdateStatusKunjungan)
+	kader.PUT("/kunjungan-imunisasi/:id/tanggal-kunjungan", controller.UpdateTanggalKunjungan)
+	// kader.POST("/kunjungan-imunisasi",controller.CreateJadwalKunjunganImunisasi)
 
 	// ==================== KELUHAN ANAK ====================
 

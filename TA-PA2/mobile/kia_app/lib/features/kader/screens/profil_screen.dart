@@ -29,14 +29,14 @@ class _ProfilScreenState extends State<ProfilScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_ios_new,
-            color: Color(0xFF1E293B),
-            size: 20,
-          ),
-          onPressed: () => Navigator.pop(context),
-        ),
+        // leading: IconButton(
+        //   icon: const Icon(
+        //     Icons.arrow_back_ios_new,
+        //     color: Color(0xFF1E293B),
+        //     size: 20,
+        //   ),
+        //   onPressed: () => Navigator.pop(context),
+        // ),
         title: const Text(
           'Profil',
           style: TextStyle(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ta_pa2_pa3_project/core/services/auth_session.dart';
-import 'package:ta_pa2_pa3_project/features/kader/screens/imunisasi_anak.dart';
+import 'package:ta_pa2_pa3_project/features/kader/screens/daftar_kunjungan.dart';
+import 'package:ta_pa2_pa3_project/features/kader/screens/detail_kunjungan_imunisasi.dart';
 import 'package:ta_pa2_pa3_project/features/kader/screens/profil_screen.dart';
 import 'package:ta_pa2_pa3_project/features/kader/widgets/dashboard_bottom_nav.dart';
 import 'package:ta_pa2_pa3_project/features/kader/widgets/dashboard_header.dart';
@@ -64,7 +65,7 @@ class _DashboardKaderScreenState extends State<DashboardKaderScreen> {
         body = _buildHomeBody();
         break;
       case 1:
-        body = const Center(child: Text('Data Kader'));
+        body = const Center(child: Text('Kunjungan'));
         break;
       case 2:
         body = const ProfilScreen();
@@ -128,15 +129,14 @@ class _DashboardKaderScreenState extends State<DashboardKaderScreen> {
                 const SizedBox(height: 10),
 
                 _buildEscalationCard(
-                  title: 'Tindak Lanjut: Randi',
-                  desc: 'Ada jadwal kunjungan yang perlu dilakukan segera.',
+                  title: 'Ada jadwal kunjungan yang perlu dilakukan segera.',
                   level: 'Sedang',
                   icon: Icons.warning_amber_rounded,
                   onTap: () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => const AnakImunisasiDetailScreen(),
+                        builder: (_) => const KunjunganScreen(),
                       ),
                     );
                   },
@@ -144,9 +144,6 @@ class _DashboardKaderScreenState extends State<DashboardKaderScreen> {
 
                 const SizedBox(height: 24),
 
-                /// =========================
-                /// RINGKASAN
-                /// =========================
                 const Text(
                   'Ringkasan Desa',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -233,7 +230,6 @@ class _DashboardKaderScreenState extends State<DashboardKaderScreen> {
   /// =========================
   Widget _buildEscalationCard({
     required String title,
-    required String desc,
     required String level,
     required IconData icon,
     required VoidCallback onTap,
@@ -268,11 +264,7 @@ class _DashboardKaderScreenState extends State<DashboardKaderScreen> {
                       fontSize: 15,
                     ),
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    desc,
-                    style: const TextStyle(fontSize: 13),
-                  ),
+
                   const SizedBox(height: 8),
                   Row(
                     children: [
