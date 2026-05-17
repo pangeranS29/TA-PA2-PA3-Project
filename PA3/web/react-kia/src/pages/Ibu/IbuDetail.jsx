@@ -130,7 +130,7 @@ export default function IbuDetail() {
     return (
       <MainLayout>
         <div className="min-h-screen flex items-center justify-center bg-[#F7FAFB]">
-          <div className="text-[#185FA5] text-lg">Memuat data...</div>
+          <div className="text-[#185FA5] text-sm">Memuat data...</div>
         </div>
       </MainLayout>
     );
@@ -139,7 +139,7 @@ export default function IbuDetail() {
     return (
       <MainLayout>
         <div className="min-h-screen flex items-center justify-center bg-[#F7FAFB]">
-          <div className="text-[#A32D2D] text-lg">Data ibu tidak ditemukan</div>
+          <div className="text-[#A32D2D] text-sm">Data ibu tidak ditemukan</div>
         </div>
       </MainLayout>
     );
@@ -147,12 +147,12 @@ export default function IbuDetail() {
   if (error)
     return (
       <MainLayout>
-        <div className="min-h-screen bg-[#F7FAFB] p-6">
-          <div className="bg-red-50 border-l-4 border-[#A32D2D] p-4 mb-4 text-[#A32D2D]">
+        <div className="min-h-screen bg-[#F7FAFB] p-4">
+          <div className="bg-[#FCEBEB] border-l-4 border-[#A32D2D] p-3 mb-3 text-[#791F1F] text-sm">
             {error}
           </div>
-          <Link to="/data-ibu" className="text-[#185FA5] flex items-center gap-2">
-            <ArrowLeft size={18} /> Kembali ke daftar
+          <Link to="/data-ibu" className="text-[#185FA5] flex items-center gap-2 text-sm">
+            <ArrowLeft size={16} /> Kembali ke daftar
           </Link>
         </div>
       </MainLayout>
@@ -161,12 +161,12 @@ export default function IbuDetail() {
   if (!kehamilan)
     return (
       <MainLayout>
-        <div className="min-h-screen bg-[#F7FAFB] p-6">
-          <div className="bg-yellow-50 border-l-4 border-[#BA7517] p-4 text-[#BA7517]">
+        <div className="min-h-screen bg-[#F7FAFB] p-4">
+          <div className="bg-[#FAEEDA] border-l-4 border-[#BA7517] p-3 text-[#633806] text-sm">
             Belum ada data kehamilan.
           </div>
-          <Link to="/data-ibu" className="text-[#185FA5] flex items-center gap-2 mt-4">
-            <ArrowLeft size={18} /> Kembali
+          <Link to="/data-ibu" className="text-[#185FA5] flex items-center gap-2 mt-3 text-sm">
+            <ArrowLeft size={16} /> Kembali
           </Link>
         </div>
       </MainLayout>
@@ -181,198 +181,198 @@ export default function IbuDetail() {
   return (
     <MainLayout>
       <div className="min-h-screen bg-[#F7FAFB]">
-        <div className="max-w-7xl mx-auto p-5 space-y-6">
+        <div className="max-w-7xl mx-auto p-4 space-y-4">
           {/* Header dengan tombol navigasi primary dan badge informasi */}
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
             {/* Secondary Button: Kembali ke Ibu */}
             <Link
               to="/data-ibu"
-              className="inline-flex items-center gap-2 px-5 py-3 rounded-full border border-[#185FA5] text-[#185FA5] text-base font-semibold hover:bg-[#185FA5]/5 transition w-fit"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-[#185FA5] text-[#185FA5] text-sm font-semibold hover:bg-[#185FA5]/5 transition w-fit"
             >
-              <ArrowLeft size={20} />
-              <span>Kembali ke Ibu</span>
+              <ArrowLeft size={16} />
+              <span>Kembali</span>
             </Link>
 
             {/* Badge informasi kehamilan */}
-            <div className="flex flex-wrap gap-3">
-              <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-sm text-sm md:text-base">
-                <Calendar size={18} className="text-[#0F6E56]" />
-                <span className="text-gray-700">HPHT: <span className="font-medium">{formatDate(kehamilan.hpht)}</span></span>
+            <div className="flex flex-wrap gap-2">
+              <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-xl shadow-sm text-xs md:text-sm border border-gray-100">
+                <Calendar size={16} className="text-[#0F6E56]" />
+                <span className="text-gray-700">HPHT: <span className="font-semibold">{formatDate(kehamilan.hpht)}</span></span>
               </div>
-              <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-sm text-sm md:text-base">
-                <Target size={18} className="text-[#BA7517]" />
-                <span className="text-gray-700">HPL: <span className="font-medium">{formatDate(kehamilan.taksiran_persalinan)}</span></span>
+              <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-xl shadow-sm text-xs md:text-sm border border-gray-100">
+                <Target size={16} className="text-[#BA7517]" />
+                <span className="text-gray-700">HPL: <span className="font-semibold">{formatDate(kehamilan.taksiran_persalinan)}</span></span>
               </div>
-              <div className="flex items-center gap-2 bg-[#E1F5EE] px-4 py-2 rounded-full text-sm md:text-base">
-                <Baby size={18} className="text-[#0F6E56]" />
+              <div className="flex items-center gap-2 bg-[#E1F5EE] px-4 py-2 rounded-xl text-xs md:text-sm border border-[#0F6E56]/20">
+                <Baby size={16} className="text-[#085041]" />
                 <span className="text-[#085041] font-semibold">Usia: {usiaKehamilan}</span>
               </div>
             </div>
           </div>
 
           {/* Kartu Identitas Ibu dan Suami - menggunakan card design system */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {/* Card Data Ibu */}
-            <div className="bg-white shadow-sm rounded-xl p-4 md:p-5">
-              <h2 className="text-[22px] font-semibold text-[#185FA5] flex items-center gap-2 mb-4">
-                <Users size={24} /> Data Ibu
+            <div className="bg-white shadow-sm rounded-xl p-4 border border-gray-100">
+              <h2 className="text-base font-semibold text-[#185FA5] flex items-center gap-2 mb-3">
+                <Users size={18} /> Data Ibu
               </h2>
-              <div className="grid grid-cols-2 gap-y-3 gap-x-4 text-base">
-                <span className="text-gray-500">Nama Lengkap</span>
-                <span className="font-medium text-gray-800">{kependudukan.nama_lengkap || "-"}</span>
+              <div className="grid grid-cols-2 gap-y-2 gap-x-3 text-sm">
+                <span className="text-gray-500 text-xs">Nama Lengkap</span>
+                <span className="font-medium text-gray-800 text-sm">{kependudukan.nama_lengkap || "-"}</span>
                 
-                <span className="text-gray-500">NIK</span>
-                <span className="text-gray-800">{kependudukan.nik || "-"}</span>
+                <span className="text-gray-500 text-xs">NIK</span>
+                <span className="text-gray-800 text-sm">{kependudukan.nik || "-"}</span>
                 
-                <span className="text-gray-500">Tanggal Lahir</span>
-                <span className="text-gray-800">{kependudukan.tanggal_lahir || "-"} ({ibu.usia || 0} tahun)</span>
+                <span className="text-gray-500 text-xs">Tanggal Lahir</span>
+                <span className="text-gray-800 text-sm">{kependudukan.tanggal_lahir || "-"} ({ibu.usia || 0} tahun)</span>
                 
-                <span className="text-gray-500">Golongan Darah</span>
-                <span className="text-gray-800">{kependudukan.golongan_darah || "-"} {ibu.rhesus === "Positif" ? "(Rh+)" : ""}</span>
+                <span className="text-gray-500 text-xs">Golongan Darah</span>
+                <span className="text-gray-800 text-sm">{kependudukan.golongan_darah || "-"} {ibu.rhesus === "Positif" ? "(Rh+)" : ""}</span>
                 
-                <span className="text-gray-500">Alamat</span>
-                <span className="text-gray-800">{kependudukan.dusun || "-"}</span>
+                <span className="text-gray-500 text-xs">Alamat</span>
+                <span className="text-gray-800 text-sm">{kependudukan.dusun || "-"}</span>
               </div>
             </div>
 
             {/* Card Data Suami */}
-            <div className="bg-white shadow-sm rounded-xl p-4 md:p-5">
-              <h2 className="text-[22px] font-semibold text-[#0F6E56] flex items-center gap-2 mb-4">
-                <Heart size={24} /> Data Suami
+            <div className="bg-white shadow-sm rounded-xl p-4 border border-gray-100">
+              <h2 className="text-base font-semibold text-[#0F6E56] flex items-center gap-2 mb-3">
+                <Heart size={18} /> Data Suami
               </h2>
-              <div className="grid grid-cols-2 gap-y-3 gap-x-4 text-base">
-                <span className="text-gray-500">Nama Lengkap</span>
-                <span className="font-medium text-gray-800">Nicholas Sitorus</span>
+              <div className="grid grid-cols-2 gap-y-2 gap-x-3 text-sm">
+                <span className="text-gray-500 text-xs">Nama Lengkap</span>
+                <span className="font-medium text-gray-800 text-sm">Nicholas Sitorus</span>
                 
-                <span className="text-gray-500">NIK</span>
-                <span className="text-gray-800">121212141306050001</span>
+                <span className="text-gray-500 text-xs">NIK</span>
+                <span className="text-gray-800 text-sm">121212141306050001</span>
                 
-                <span className="text-gray-500">Pekerjaan</span>
-                <span className="text-gray-800">Wiraswasta</span>
+                <span className="text-gray-500 text-xs">Pekerjaan</span>
+                <span className="text-gray-800 text-sm">Wiraswasta</span>
                 
-                <span className="text-gray-500">Golongan Darah</span>
-                <span className="text-gray-800">B</span>
+                <span className="text-gray-500 text-xs">Golongan Darah</span>
+                <span className="text-gray-800 text-sm">B</span>
 
-                <span className="text-gray-500">Alamat</span>
-                <span className="text-gray-800">Dusun Hutagurgur</span>
+                <span className="text-gray-500 text-xs">Alamat</span>
+                <span className="text-gray-800 text-sm">Dusun Hutagurgur</span>
               </div>
             </div>
           </div>
 
           {/* Jalur Pelayanan KIA - dengan card dan tombol rounded-full */}
           {/* Jalur Pelayanan KIA - gaya seragam untuk semua link */}
-<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
   {/* Skrining & Evaluasi */}
-  <div className="bg-white shadow-sm rounded-xl overflow-hidden">
-    <div className="bg-[#185FA5]/10 px-4 py-3 border-b border-[#185FA5]/20">
-      <h3 className="text-base font-bold text-[#185FA5] uppercase tracking-wide flex items-center gap-2">
-        <ClipboardList size={18} /> Skrining & Evaluasi
+  <div className="bg-white shadow-sm rounded-xl overflow-hidden border border-gray-100">
+    <div className="bg-transparent px-4 py-3 border-b border-gray-200">
+      <h3 className="text-sm font-semibold text-[#185FA5] uppercase tracking-wide flex items-center gap-2">
+        <ClipboardList size={16} /> Skrining & Evaluasi
       </h3>
     </div>
-    <div className="p-4 space-y-2">
+    <div className="p-4 space-y-1">
       <Link 
         to={withKehamilan(`/data-ibu/${id}/evaluasi-kesehatan`)}
-        className="flex items-center gap-3 w-full text-left p-3 rounded-lg hover:bg-gray-50 text-gray-700 text-base"
+        className="flex items-center gap-2 w-full text-left p-2.5 rounded-lg hover:bg-gray-50 text-gray-700 text-sm"
       >
-        <Activity size={18} className="text-[#0F6E56]" /> Evaluasi Kesehatan
+        <Activity size={16} className="text-[#0F6E56] flex-shrink-0" /> Evaluasi Kesehatan
       </Link>
       <Link 
         to={withKehamilan(`/data-ibu/${id}/skrining-preeklampsia`)}
-        className="flex items-center gap-3 w-full text-left p-3 rounded-lg hover:bg-gray-50 text-gray-700 text-base"
+        className="flex items-center gap-2 w-full text-left p-2.5 rounded-lg hover:bg-gray-50 text-gray-700 text-sm"
       >
-        <Search size={18} className="text-[#BA7517]" /> Skrining Preeklampsia
+        <Search size={16} className="text-[#BA7517] flex-shrink-0" /> Skrining Preeklampsia
       </Link>
       <Link 
         to={withKehamilan(`/data-ibu/${id}/Skrining-Diabetes-Melitus-Gestasional`)}
-        className="flex items-center gap-3 w-full text-left p-3 rounded-lg hover:bg-gray-50 text-gray-700 text-base"
+        className="flex items-center gap-2 w-full text-left p-2.5 rounded-lg hover:bg-gray-50 text-gray-700 text-sm"
       >
-        <Droplet size={18} className="text-[#185FA5]" /> Skrining DMG
+        <Droplet size={16} className="text-[#185FA5] flex-shrink-0" /> Skrining DMG
       </Link>
     </div>
   </div>
 
   {/* Pemantauan ANC */}
-  <div className="bg-white shadow-sm rounded-xl overflow-hidden">
-    <div className="bg-[#0F6E56]/10 px-4 py-3 border-b border-[#0F6E56]/20">
-      <h3 className="text-base font-bold text-[#0F6E56] uppercase tracking-wide flex items-center gap-2">
-        <Stethoscope size={18} /> Pemantauan ANC
+  <div className="bg-white shadow-sm rounded-xl overflow-hidden border border-gray-100">
+    <div className="bg-transparent px-4 py-3 border-b border-gray-200">
+      <h3 className="text-sm font-semibold text-[#0F6E56] uppercase tracking-wide flex items-center gap-2">
+        <Stethoscope size={16} /> Pemantauan ANC
       </h3>
     </div>
-    <div className="p-4 space-y-3">
+    <div className="p-4 space-y-1">
       {/* Input ANC Rutin (sekarang gaya link biasa) */}
       <Link 
         to={withKehamilan(`/data-ibu/${id}/pemeriksaan-rutin`)}
-        className="flex items-center gap-3 w-full text-left p-3 rounded-lg hover:bg-gray-50 text-gray-700 text-base"
+        className="flex items-center gap-2 w-full text-left p-2.5 rounded-lg hover:bg-gray-50 text-gray-700 text-sm"
       >
-        <Activity size={18} className="text-[#185FA5]" /> Input ANC Rutin
+        <Activity size={16} className="text-[#185FA5] flex-shrink-0" /> Input ANC Rutin
       </Link>
       {/* Tombol Trimester disusun vertikal, tanpa rounded-full */}
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-1.5 pt-1">
         <button 
           onClick={handleT1Click} 
           disabled={checkingT1}
-          className="w-full flex items-center gap-3 p-3 rounded-lg border border-[#185FA5] text-[#185FA5] text-base font-semibold hover:bg-[#185FA5]/5 disabled:opacity-50"
+          className="w-full flex items-center gap-2 p-2.5 rounded-lg border border-[#185FA5] text-[#185FA5] text-sm font-semibold hover:bg-[#185FA5]/5 disabled:opacity-50 transition"
         >
-          {checkingT1 ? <Loader2 size={18} className="animate-spin" /> : <UserPlus size={18} />} Trimester 1
+          {checkingT1 ? <Loader2 size={14} className="animate-spin" /> : <UserPlus size={14} />} Trimester 1
         </button>
         <button 
           onClick={handleT3Click} 
           disabled={checkingT3}
-          className="w-full flex items-center gap-3 p-3 rounded-lg border border-[#185FA5] text-[#185FA5] text-base font-semibold hover:bg-[#185FA5]/5 disabled:opacity-50"
+          className="w-full flex items-center gap-2 p-2.5 rounded-lg border border-[#185FA5] text-[#185FA5] text-sm font-semibold hover:bg-[#185FA5]/5 disabled:opacity-50 transition"
         >
-          {checkingT3 ? <Loader2 size={18} className="animate-spin" /> : <UserPlus size={18} />} Trimester 3
+          {checkingT3 ? <Loader2 size={14} className="animate-spin" /> : <UserPlus size={14} />} Trimester 3
         </button>
       </div>
     </div>
   </div>
 
   {/* Persalinan & Nifas */}
-  <div className="bg-white shadow-sm rounded-xl overflow-hidden">
-    <div className="bg-[#BA7517]/10 px-4 py-3 border-b border-[#BA7517]/20">
-      <h3 className="text-base font-bold text-[#BA7517] uppercase tracking-wide flex items-center gap-2">
-        <Hospital size={18} /> Persalinan & Nifas
+  <div className="bg-white shadow-sm rounded-xl overflow-hidden border border-gray-100">
+    <div className="bg-transparent px-4 py-3 border-b border-gray-200">
+      <h3 className="text-sm font-semibold text-[#BA7517] uppercase tracking-wide flex items-center gap-2">
+        <Hospital size={16} /> Persalinan & Nifas
       </h3>
     </div>
-    <div className="p-4 space-y-2">
+    <div className="p-4 space-y-1">
       <Link 
         to={withKehamilan(`/data-ibu/${id}/rencana-persalinan`)}
-        className="flex items-center gap-3 w-full text-left p-3 rounded-lg hover:bg-gray-50 text-gray-700 text-base"
+        className="flex items-center gap-2 w-full text-left p-2.5 rounded-lg hover:bg-gray-50 text-gray-700 text-sm"
       >
-        <FileText size={18} className="text-[#BA7517]" /> Rencana Persalinan
+        <FileText size={16} className="text-[#BA7517] flex-shrink-0" /> Rencana Persalinan
       </Link>
       <Link 
         to={withKehamilan(`/data-ibu/${id}/pelayanan-persalinan`)}
-        className="flex items-center gap-3 w-full text-left p-3 rounded-lg hover:bg-gray-50 text-gray-700 text-base"
+        className="flex items-center gap-2 w-full text-left p-2.5 rounded-lg hover:bg-gray-50 text-gray-700 text-sm"
       >
-        <Baby size={18} className="text-[#0F6E56]" /> Riwayat Melahirkan
+        <Baby size={16} className="text-[#0F6E56] flex-shrink-0" /> Riwayat Melahirkan
       </Link>
       <Link 
         to={withKehamilan(`/data-ibu/${id}/pelayanan-nifas`)}
-        className="flex items-center gap-3 w-full text-left p-3 rounded-lg hover:bg-gray-50 text-gray-700 text-base"
+        className="flex items-center gap-2 w-full text-left p-2.5 rounded-lg hover:bg-gray-50 text-gray-700 text-sm"
       >
-        <Heart size={18} className="text-[#185FA5]" /> Pelayanan Nifas
+        <Heart size={16} className="text-[#185FA5] flex-shrink-0" /> Pelayanan Nifas
       </Link>
     </div>
   </div>
 
   {/* Rujukan Medis */}
-  <div className="bg-white shadow-sm rounded-xl overflow-hidden">
-    <div className="bg-[#A32D2D]/10 px-4 py-3 border-b border-[#A32D2D]/20">
-      <h3 className="text-base font-bold text-[#A32D2D] uppercase tracking-wide flex items-center gap-2">
-        <AlertTriangle size={18} /> Rujukan Medis
+  <div className="bg-white shadow-sm rounded-xl overflow-hidden border border-gray-100">
+    <div className="bg-transparent px-4 py-3 border-b border-gray-200">
+      <h3 className="text-sm font-semibold text-[#A32D2D] uppercase tracking-wide flex items-center gap-2">
+        <AlertTriangle size={16} /> Rujukan Medis
       </h3>
     </div>
-    <div className="p-4 space-y-2">
+    <div className="p-4 space-y-1">
       {/* Buat / Lihat Rujukan menjadi link biasa */}
       <Link 
         to={withKehamilan(`/data-ibu/${id}/rujukan`)}
-        className="flex items-center gap-3 w-full text-left p-3 rounded-lg hover:bg-gray-50 text-gray-700 text-base"
+        className="flex items-center gap-2 w-full text-left p-2.5 rounded-lg hover:bg-gray-50 text-gray-700 text-sm"
       >
-        <AlertTriangle size={18} className="text-[#A32D2D]" /> Buat / Lihat Rujukan
+        <AlertTriangle size={16} className="text-[#A32D2D] flex-shrink-0" /> Buat / Lihat Rujukan
       </Link>
       <Link 
         to="/daftar-rujukan"
-        className="block text-center text-[#185FA5] text-base font-semibold py-2 hover:underline"
+        className="block text-center text-[#185FA5] text-sm font-semibold py-2.5 hover:underline"
       >
         Daftar Semua Rujukan
       </Link>

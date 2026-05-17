@@ -63,6 +63,12 @@ func RunAllSeed(db *gorm.DB) error {
 		// 	return err
 		// }
 
+		// 6. Edukasi ibu hamil & nifas
+		// if err := SeederEdukasiIbuHamil(tx); err != nil {
+		// 	log.Println("❌ SeederEdukasiIbuHamil failed:", err)
+		// 	return err
+		// }
+
 		log.Println("✅ All seeding success")
 		return nil
 	})

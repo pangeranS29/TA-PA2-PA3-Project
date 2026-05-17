@@ -62,6 +62,12 @@ func (r *edukasiMPASIRepository) GetMateriAll() ([]models.MateriMPASI, error) {
 	err := r.db.Find(&data).Error
 	return data, err
 }
+
+func (r *edukasiMPASIRepository) GetAll() ([]models.EdukasiMPASI, error) {
+	var data []models.EdukasiMPASI
+	err := r.db.Order("bulan_min asc, judul asc").Find(&data).Error
+	return data, err
+}
 func (r *edukasiMPASIRepository) GetMateriByID(id int32) (*models.MateriMPASI, error) {
 	var data models.MateriMPASI
 	err := r.db.First(&data, id).Error

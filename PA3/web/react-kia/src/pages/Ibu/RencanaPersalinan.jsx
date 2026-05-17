@@ -116,7 +116,11 @@ export default function RencanaPersalinan() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!canEdit) {
-      alert("Anda tidak memiliki izin untuk mengubah data.");
+      Swal.fire({
+        icon: 'error',
+        title: 'Akses Ditolak',
+        text: 'Anda tidak memiliki izin untuk mengubah data.'
+      });
       return;
     }
     if (!kehamilan) {

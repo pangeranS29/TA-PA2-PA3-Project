@@ -1,6 +1,7 @@
 // src/pages/Ibu/PemeriksaanDokterT1Complete.jsx
 import React, { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate, Link, useLocation } from "react-router-dom";
+import Swal from "sweetalert2";
 import MainLayout from "../../components/Layout/MainLayout";
 import { getKehamilanByIbuId } from "../../services/kehamilan";
 import { getCurrentUser } from "../../services/auth";
@@ -383,7 +384,12 @@ export default function PemeriksaanDokterT1Complete() {
 
     if (Object.keys(errors).length > 0) {
       setValidationErrors(errors);
-      alert("Mohon lengkapi semua data yang wajib diisi!");
+      Swal.fire({
+        icon: 'warning',
+        title: 'Data Belum Lengkap',
+        text: 'Mohon lengkapi semua data yang wajib diisi sebelum melanjutkan.',
+        confirmButtonColor: '#4f46e5'
+      });
       return;
     }
     setCurrentStep(currentStep + 1);
@@ -405,7 +411,12 @@ export default function PemeriksaanDokterT1Complete() {
     const errors = validateStep4();
     if (Object.keys(errors).length > 0) {
       setValidationErrors(errors);
-      alert("Mohon lengkapi semua data yang wajib diisi!");
+      Swal.fire({
+        icon: 'warning',
+        title: 'Data Belum Lengkap',
+        text: 'Mohon lengkapi semua data yang wajib diisi sebelum menyimpan.',
+        confirmButtonColor: '#4f46e5'
+      });
       return;
     }
     if (!kehamilan) {
@@ -455,16 +466,32 @@ export default function PemeriksaanDokterT1Complete() {
 
       if (existingData) {
         await updateDokterT1Complete(existingData.id, payload);
-        alert("Data berhasil diperbarui!");
+        await Swal.fire({
+          icon: 'success',
+          title: 'Berhasil',
+          text: 'Data pemeriksaan berhasil diperbarui!',
+          timer: 2000,
+          showConfirmButton: false
+        });
       } else {
         await createDokterT1Complete(payload);
-        alert("Data berhasil disimpan!");
+        await Swal.fire({
+          icon: 'success',
+          title: 'Berhasil',
+          text: 'Data pemeriksaan berhasil disimpan!',
+          timer: 2000,
+          showConfirmButton: false
+        });
       }
       navigate(`/data-ibu/${id}/pemeriksaan-dokter-t1-complete/detail`);
     } catch (err) {
       console.error("Error saving:", err);
       const errorMsg = err.response?.data?.message || err.message || "Terjadi kesalahan";
-      alert("Gagal menyimpan: " + errorMsg);
+      Swal.fire({
+        icon: 'error',
+        title: 'Gagal Menyimpan',
+        text: "Terjadi kesalahan saat menyimpan: " + errorMsg
+      });
     } finally {
       setSaving(false);
     }

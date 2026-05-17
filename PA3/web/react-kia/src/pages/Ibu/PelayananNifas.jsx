@@ -10,6 +10,7 @@ import {
   updateCatatanNifas, 
   deleteCatatanNifas 
 } from "../../services/catatanNifas";
+import Swal from "sweetalert2";
 import { Save, ArrowLeft, Edit2, CheckCircle, FileText, X, Trash2, Plus, Home } from "lucide-react";
 
 // ============================================================
@@ -479,7 +480,11 @@ export default function PelayananNifas() {
   // Fungsi untuk menyimpan catatan
   const handleSaveCatatan = async (catatanForm) => {
     if (!kehamilan) {
-      alert("Data kehamilan tidak ditemukan!");
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Data kehamilan tidak ditemukan!'
+      });
       return;
     }
     
@@ -540,7 +545,7 @@ export default function PelayananNifas() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!kehamilan) {
-      alert("Data kehamilan tidak ditemukan!");
+      Swal.fire('Error', 'Data kehamilan tidak ditemukan!', 'error');
       return;
     }
     setSaving(true);
@@ -577,10 +582,22 @@ export default function PelayananNifas() {
       
       if (existing) {
         await updateNifas(existing.id, payload);
-        alert("Data pelayanan nifas berhasil diperbarui");
+        await Swal.fire({
+          icon: 'success',
+          title: 'Diperbarui',
+          text: 'Data pelayanan nifas berhasil diperbarui',
+          timer: 2000,
+          showConfirmButton: false
+        });
       } else {
         await createNifas(payload);
-        alert("Data pelayanan nifas berhasil disimpan");
+        await Swal.fire({
+          icon: 'success',
+          title: 'Berhasil',
+          text: 'Data pelayanan nifas berhasil disimpan',
+          timer: 2000,
+          showConfirmButton: false
+        });
       }
       
       // Refresh data nifas
@@ -598,7 +615,7 @@ export default function PelayananNifas() {
       
     } catch (err) {
       console.error("Error detail:", err);
-      alert("Gagal menyimpan data nifas: " + (err.response?.data?.message || err.message));
+      Swal.fire('Gagal Menyimpan', err.response?.data?.message || err.message, 'error');
     } finally {
       setSaving(false);
     }

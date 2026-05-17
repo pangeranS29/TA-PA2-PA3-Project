@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import Swal from "sweetalert2";
 import MainLayout from "../../components/Layout/MainLayout";
 import { Line } from "react-chartjs-2";
 import { Save, X } from "lucide-react";
@@ -84,9 +85,16 @@ export default function GrafikEvaluasi() {
       // 🔥 FIX JUGA DI SINI
       setGrafikTFU(chart?.data?.grafik_tfu || []);
       setGrafikDJJ(chart?.data?.grafik_djj || []);
+      await Swal.fire({
+        icon: 'success',
+        title: 'Berhasil',
+        text: 'Data berhasil disimpan',
+        timer: 1500,
+        showConfirmButton: false
+      });
     } catch (err) {
       console.error(err);
-      alert("Gagal menyimpan data");
+      Swal.fire('Error', 'Gagal menyimpan data', 'error');
     } finally {
       setSaving(false);
     }

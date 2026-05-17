@@ -1,4 +1,5 @@
 import React from "react";
+import LembarPerawatanAnak from "./pages/penanda-perkembangan-anak/LembarPerawatanAnak";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import Dashboard from "./pages/Dashboard";
@@ -9,10 +10,7 @@ import RencanaPersalinanRedirect from './pages/Ibu/RencanaPersalinanRedirect';
 import AdminRoute from "./routes/AdminRoute";
 import AdminAkunKeluargaCreate from "./pages/Admin/AkunKeluargaCreate";
 import AkunKeluargaManagement from "./pages/Admin/AkunKeluargaManagement";
-import TenagaKesehatanManagement from "./pages/Admin/TenagaKesehatanManagement";
-import JadwalLayanan from "./pages/Admin/JadwalLayanan";
-import InformasiUmumList from "./pages/InformasiUmum/InformasiUmumList";
-import InformasiUmumForm from "./pages/InformasiUmum/InformasiUmumForm";
+import { getPostLoginRoute, isAuthenticated } from "./services/auth";
 
 // Data Ibu
 import IbuList from "./pages/Ibu/IbuList";
@@ -45,6 +43,7 @@ import DetailAnak from "./pages/Anak/detail";
 // Monitoring & Laporan
 import Monitoring from "./pages/Monitoring";
 import Laporan from "./pages/Laporan";
+import LaporanIbuPreview from "./pages/previewlaporanibu";
 import IbuCreate from "./pages/Ibu/IbuCreate";
 
 // Kependudukan
@@ -94,8 +93,8 @@ import LihatDataPemantauan from "./pages/Pemantauan-anak/LihatDataPemantauan";
 import KesehatanLingkunganCatatanPage from "./pages/Pencatatan/KesehatanLingkunganCatatan";
 import InformasiUmumPage from "./pages/edukasi-digital/InformasiUmumPage";
 import InformasiUmumFormPage from "./pages/edukasi-digital/InformasiUmumFormPage";
-import TandaBahayaTrimesterPage from "./pages/edukasi-digital/TandaBahayaTrimesterPage";
-import TandaBahayaTrimesterFormPage from "./pages/edukasi-digital/TandaBahayaTrimesterFormPage";
+import TrimesterPage from "./pages/edukasi-digital/TrimesterPage";
+import TrimesterFormPage from "./pages/edukasi-digital/TrimesterFormPage";
 import TandaMelahirkanPage from "./pages/edukasi-digital/TandaMelahirkanPage";
 import TandaMelahirkanFormPage from "./pages/edukasi-digital/TandaMelahirkanFormPage";
 import ImdPage from "./pages/edukasi-digital/ImdPage";
@@ -114,15 +113,29 @@ import PerawatanAnakPage from "./pages/edukasi-digital/PerawatanAnakPage";
 import PerawatanAnakFormPage from "./pages/edukasi-digital/PerawatanAnakFormPage";
 import MpasiPage from "./pages/edukasi-digital/MpasiPage";
 import MpasiFormPage from "./pages/edukasi-digital/MpasiFormPage";
+import MpasiAturanPorsiPage from "./pages/edukasi-digital/MpasiAturanPorsiPage";
+import MpasiAturanPorsiFormPage from "./pages/edukasi-digital/MpasiAturanPorsiFormPage";
+import MpasiJadwalHarianPage from "./pages/edukasi-digital/MpasiJadwalHarianPage";
+import MpasiJadwalHarianFormPage from "./pages/edukasi-digital/MpasiJadwalHarianFormPage";
+import MpasiResepPage from "./pages/edukasi-digital/MpasiResepPage";
+import MpasiResepFormPage from "./pages/edukasi-digital/MpasiResepFormPage";
+import JadwalLayananPage from "./pages/jadwal-layanan/JadwalLayananPage";
+import JadwalLayananForm from "./pages/jadwal-layanan/JadwalLayananForm";
 import KeluhanAnak from "./pages/Anak/Keluhan/KeluhanAnak";
 import PemantauanAnakPage from "./pages/Anak/Pemantauan/PemantauanAnakPage";
-import PerkembanganAnakPage from "./pages/Anak/Perkembangan/PerkembanganAnakPage";
+
 import LihatDataPerkembangan from "./pages/penanda-perkembangan-anak/LihatDataPerkembangan";
 import KelolaPerkembangan from "./pages/penanda-perkembangan-anak/KelolaPerkembangan";
 import KelolaLingkungan from "./pages/KesehatanLingkungan/KelolaLingkungan";
 import DataLingkungan from "./pages/KesehatanLingkungan/DataLingkungan";
 import DetailLembarLingkungan from "./pages/KesehatanLingkungan/DetailLembarLingkungan";
 import PertumbuhanIndex from "./pages/Pertumbuhan/index";
+
+// Manajemen Bidan Kader
+import PosyanduList from "./pages/ManajemenBidanKader/PosyanduList";
+import BidanList from "./pages/ManajemenBidanKader/BidanList";
+import KaderList from "./pages/ManajemenBidanKader/KaderList";
+
 
 const HomeRedirect = () => {
   if (!isAuthenticated()) {
@@ -146,6 +159,11 @@ function App() {
           <Route path="/kependudukan" element={<KependudukanList />} />
           <Route path="/kependudukan/create" element={<KependudukanCreate />} />
           <Route path="/kependudukan/edit/:id" element={<KependudukanEdit />} />
+
+          {/* Manajemen Bidan Kader & Posyandu */}
+          <Route path="/manajemen-posyandu" element={<PosyanduList />} />
+          <Route path="/manajemen-bidan" element={<BidanList />} />
+          <Route path="/manajemen-kader" element={<KaderList />} />
 
           {/* Data Ibu */}
           <Route path="/data-ibu/create" element={<IbuCreate />} />
@@ -194,6 +212,7 @@ function App() {
           {/* Monitoring & Laporan */}
           <Route path="/monitoring" element={<Monitoring />} />
           <Route path="/laporan" element={<Laporan />} />
+          <Route path="/laporan/ibu/preview" element={<LaporanIbuPreview />}/>
         </Route>
 
         {/* ADMIN ROUTES */}
@@ -201,11 +220,6 @@ function App() {
           <Route path="/dashboard/admin" element={<Dashboard />} />
           <Route path="/dashboard/admin/akun-keluarga" element={<AdminAkunKeluargaCreate />} />
           <Route path="/dashboard/admin/manajemen-keluarga" element={<AkunKeluargaManagement />} />
-          <Route path="/dashboard/admin/tenaga-kesehatan" element={<TenagaKesehatanManagement />} />
-          <Route path="/dashboard/admin/jadwal-layanan" element={<JadwalLayanan />} />
-          <Route path="/dashboard/admin/informasi-umum" element={<InformasiUmumList />} />
-          <Route path="/dashboard/admin/informasi-umum/create" element={<InformasiUmumForm />} />
-          <Route path="/dashboard/admin/informasi-umum/edit/:id" element={<InformasiUmumForm />} />
         </Route>
 
         {/* ── RUTE ANAK (tanpa auth wrapper) ── */}
@@ -225,7 +239,8 @@ function App() {
         <Route path="/data-anak/lila/:id/edit/:lilaId" element={<PelayananLilaEdit />} />
         <Route path="/data-anak/keluhan/:id" element={<KeluhanAnak />} />
         <Route path="/data-anak/pemantauan/:id" element={<PemantauanAnakPage />} />
-        <Route path="/data-anak/perkembangan/:id" element={<PerkembanganAnakPage />} />
+        <Route path="/data-anak/perawatan/:id" element={<LembarPerawatanAnak />} />
+
 
         <Route path="/dashboard/dokter" element={<ProtectedRoute allowedRoles={["dokter"]}> <Dashboard /></ProtectedRoute>}/>
         {/* ── PEMANTAUAN & PERKEMBANGAN ── */}
@@ -243,9 +258,9 @@ function App() {
         <Route path="/edukasi-digital/informasi-umum" element={<InformasiUmumPage />} />
         <Route path="/edukasi-digital/informasi-umum/form" element={<InformasiUmumFormPage />} />
         <Route path="/edukasi-digital/informasi-umum/form/:id" element={<InformasiUmumFormPage />} />
-        <Route path="/edukasi-digital/tanda-bahaya-trimester" element={<TandaBahayaTrimesterPage />} />
-        <Route path="/edukasi-digital/tanda-bahaya-trimester/form" element={<TandaBahayaTrimesterFormPage />} />
-        <Route path="/edukasi-digital/tanda-bahaya-trimester/form/:id" element={<TandaBahayaTrimesterFormPage />} />
+        <Route path="/edukasi-digital/trimester" element={<TrimesterPage />} />
+        <Route path="/edukasi-digital/trimester/form" element={<TrimesterFormPage />} />
+        <Route path="/edukasi-digital/trimester/form/:id" element={<TrimesterFormPage />} />
         <Route path="/edukasi-digital/tanda-melahirkan" element={<TandaMelahirkanPage />} />
         <Route path="/edukasi-digital/tanda-melahirkan/form" element={<TandaMelahirkanFormPage />} />
         <Route path="/edukasi-digital/tanda-melahirkan/form/:id" element={<TandaMelahirkanFormPage />} />
@@ -273,6 +288,22 @@ function App() {
         <Route path="/edukasi-digital/mpasi" element={<MpasiPage />} />
         <Route path="/edukasi-digital/mpasi/form" element={<MpasiFormPage />} />
         <Route path="/edukasi-digital/mpasi/form/:id" element={<MpasiFormPage />} />
+        
+        {/* MPASI Sub-modules */}
+        <Route path="/edukasi-digital/mpasi-aturan-porsi" element={<MpasiAturanPorsiPage />} />
+        <Route path="/edukasi-digital/mpasi-aturan-porsi/form" element={<MpasiAturanPorsiFormPage />} />
+        <Route path="/edukasi-digital/mpasi-aturan-porsi/form/:id" element={<MpasiAturanPorsiFormPage />} />
+        
+        <Route path="/edukasi-digital/mpasi-jadwal-harian" element={<MpasiJadwalHarianPage />} />
+        <Route path="/edukasi-digital/mpasi-jadwal-harian/form" element={<MpasiJadwalHarianFormPage />} />
+        <Route path="/edukasi-digital/mpasi-jadwal-harian/form/:id" element={<MpasiJadwalHarianFormPage />} />
+        <Route path="/jadwal-layanan" element={<JadwalLayananPage />} />
+        <Route path="/jadwal-layanan/form" element={<JadwalLayananForm />} />
+        <Route path="/jadwal-layanan/form/:id" element={<JadwalLayananForm />} />
+        
+        <Route path="/edukasi-digital/mpasi-resep" element={<MpasiResepPage />} />
+        <Route path="/edukasi-digital/mpasi-resep/form" element={<MpasiResepFormPage />} />
+        <Route path="/edukasi-digital/mpasi-resep/form/:id" element={<MpasiResepFormPage />} />
 
         {/* ── DOKTER ── */}
         <Route path="/dashboard/dokter" element={<ProtectedRoute allowedRoles={["dokter"]}><DokterDashboard /></ProtectedRoute>} />
