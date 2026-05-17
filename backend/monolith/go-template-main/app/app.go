@@ -5,7 +5,6 @@ import (
 	"log"
 	"monitoring-service/app/controllers"
 
-	"monitoring-service/app/models"
 	"time"
 
 	// "monitoring-service/app/models"
@@ -88,11 +87,8 @@ func (m *Main) Init() (err error) {
 	}
 	fmt.Println("✅ BERHASIL KONEK KE DATABASE")
 
-	// Jalankan migrasi schema agar tabel baru selalu tersedia saat aplikasi start.
-	err = models.AutoMigrate(m.database.Postgres)
-	if err != nil {
-		return
-	}
+	// Auto-migrate dimatikan agar startup tidak mengubah schema database secara otomatis.
+	// Jalankan migrasi manual bila memang dibutuhkan.
 
 	// // Seeder
 	// err = seed.RunAllSeed(m.database.Postgres)

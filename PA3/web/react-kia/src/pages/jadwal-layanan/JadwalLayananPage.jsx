@@ -65,6 +65,12 @@ function isUpcoming(tanggal) {
   return dateKey > getTodayKey();
 }
 
+function isPast(tanggal) {
+  const dateKey = getDateKey(tanggal);
+  if (!dateKey) return false;
+  return dateKey < getTodayKey();
+}
+
 function normalizeTimeValue(value) {
   if (!value) return "";
   if (typeof value === "string") {
@@ -110,13 +116,26 @@ function getLayananColor(name = "") {
   return LAYANAN_COLORS[h % LAYANAN_COLORS.length];
 }
 
+function getStatusBadgeClass(status) {
+  switch (status) {
+    case "done":
+      return "text-emerald-700 bg-emerald-50 border border-emerald-200";
+    case "today":
+      return "text-sky-700 bg-sky-50 border border-sky-200";
+    case "upcoming":
+      return "text-amber-700 bg-amber-50 border border-amber-200";
+    default:
+      return "text-slate-600 bg-slate-100 border border-slate-200";
+  }
+}
+
 // ─── tab config ─────────────────────────────────────────────────────────────
 
 const TABS = [
   {
     key: "today",
     label: "Hari Ini",
-    sub: "Jadwal layanan hari ini",
+    sub: "Semua jadwal hari ini, termasuk yang selesai",
     Icon: CalendarDays,
     emptyTitle: "Belum ada jadwal hari ini",
     emptySub: "Tambahkan jadwal untuk sesi imunisasi hari ini.",
@@ -134,7 +153,7 @@ const TABS = [
   {
     key: "done",
     label: "Sudah Selesai",
-    sub: "Riwayat layanan yang lalu",
+    sub: "Riwayat layanan sebelum hari ini",
     Icon: CalendarCheck,
     emptyTitle: "Belum ada riwayat layanan",
     emptySub: "Jadwal yang sudah lewat akan tercatat di sini.",
@@ -248,21 +267,33 @@ function ScheduleRow({ r, onEdit, onDelete, deleting }) {
             {r.layanan || "-"}
           </span>
           {done ? (
-            <span className="text-xs text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">
+            <span
+              className={`text-xs font-semibold px-2 py-0.5 rounded-full ${getStatusBadgeClass(
+                "done"
+              )}`}
+            >
               Selesai
             </span>
           ) : today ? (
-            <span className="inline-flex items-center gap-1 text-xs font-semibold text-sky-700 bg-sky-50 px-2 py-0.5 rounded-full">
-              <span className="w-1.5 h-1.5 rounded-full bg-sky-400" />
+            <span
+              className={`inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full ${getStatusBadgeClass(
+                "today"
+              )}`}
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-sky-500" />
               Hari Ini
             </span>
           ) : upcoming ? (
-            <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            <span
+              className={`inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full ${getStatusBadgeClass(
+                "upcoming"
+              )}`}
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
               Mendatang
             </span>
           ) : (
-            <span className="text-xs text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">
+            <span className="text-xs text-slate-600 bg-slate-100 px-2 py-0.5 rounded-full border border-slate-200">
               Selesai
             </span>
           )}
@@ -337,12 +368,18 @@ export default function JadwalLayananPage() {
       else if (Array.isArray(data?.items)) rows = data.items;
       else rows = [];
 
-      // Normalize tanggal to ISO date strings and sort ascending
-      rows = rows.map((r) => ({ ...r })).sort((a, b) => {
-        const da = a.tanggal ? new Date(a.tanggal) : new Date(0);
-        const db = b.tanggal ? new Date(b.tanggal) : new Date(0);
-        return da - db;
-      });
+      // Normalize tanggal to ISO date strings and sort ascending by date + time.
+      rows = rows
+        .map((r) => ({ ...r }))
+        .sort((a, b) => {
+          const dateA = getDateKey(a.tanggal) || "0000-00-00";
+          const dateB = getDateKey(b.tanggal) || "0000-00-00";
+          if (dateA !== dateB) return dateA.localeCompare(dateB);
+
+          const timeA = normalizeTimeValue(a.waktu_mulai || a.waktu) || "00:00";
+          const timeB = normalizeTimeValue(b.waktu_mulai || b.waktu) || "00:00";
+          return timeA.localeCompare(timeB);
+        });
 
       setAllRows(rows);
     } catch {
@@ -377,11 +414,11 @@ export default function JadwalLayananPage() {
   };
 
   // Kategori per tab
-  const doneRows = allRows.filter((r) => isDone(r));
-  const todayRows = allRows.filter((r) => isToday(r.tanggal) && !isDone(r));
+  const todayRows = allRows.filter((r) => isToday(r.tanggal));
   const upcomingRows = allRows.filter(
     (r) => !isDone(r) && !isToday(r.tanggal) && isUpcoming(r.tanggal)
   );
+  const doneRows = allRows.filter((r) => isPast(r.tanggal));
 
   const tabCounts = { today: todayRows.length, upcoming: upcomingRows.length, done: doneRows.length };
   const filteredRows = { today: todayRows, upcoming: upcomingRows, done: doneRows }[activeTab];
@@ -427,7 +464,7 @@ export default function JadwalLayananPage() {
               </div>
               <div className="px-6 py-3 text-center">
                 <p className="text-2xl font-bold text-[#185FA5]">{tabCounts.today}</p>
-                <p className="text-xs text-slate-400 mt-0.5">Kunjungan hari ini</p>
+                <p className="text-xs text-slate-400 mt-0.5">Jadwal hari ini</p>
               </div>
               <div className="px-6 py-3 text-center">
                 <p className="text-2xl font-bold text-slate-500">{tabCounts.upcoming}</p>
