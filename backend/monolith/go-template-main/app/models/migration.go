@@ -85,6 +85,7 @@ func AutoMigrate(db *gorm.DB) error {
 		&KategoriCapaian{},
 		&Perawatan{},
 		&PemantauanIndikator{},
+		&KategoriCapaian{},
 
 		// Perkembangan Anak
 		// &RentangUsiaPerkembangan{},
