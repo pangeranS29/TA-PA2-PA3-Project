@@ -32,7 +32,8 @@ func (m *Main) GetKunjunganImunisasiByID(
 			NamaAnak:     row.NamaAnak,
 			TanggalLahir: row.TanggalLahir,
 
-			NamaIbu: row.NamaIbu,
+			NamaIbu:         row.NamaIbu,
+			NomorTeleponIbu: row.NomorTeleponIbu,
 
 			NamaVaksin:      row.NamaVaksin,
 			NamaDosis:       row.NamaDosis,
@@ -104,3 +105,37 @@ func (m *Main) UpdateStatusKunjungan(
 			statusID,
 		)
 }
+
+func (m *Main) UpdateTanggalKunjungan(
+	kunjunganID uint,
+	tanggalKunjungan string,
+) error {
+
+	// cek data exist
+	data, err :=
+		m.repository.
+			GetKunjunganImunisasiByID(
+				kunjunganID,
+			)
+
+	if err != nil {
+		return err
+	}
+
+	// kalau tidak ditemukan
+	if data == nil ||
+		data.KunjunganID == 0 {
+
+		return fmt.Errorf(
+			"kunjungan tidak ditemukan",
+		)
+	}
+
+	// update tanggal kunjungan
+	return m.repository.
+		UpdateTanggalKunjungan(
+			kunjunganID,
+			tanggalKunjungan,
+		)
+}
+

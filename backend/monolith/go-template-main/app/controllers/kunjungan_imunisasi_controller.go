@@ -173,3 +173,77 @@ func (m *Main) UpdateStatusKunjungan(
 		nil,
 	)
 }
+
+func (m *Main) UpdateTanggalKunjungan(
+	c echo.Context,
+) error {
+
+	idParam := c.Param("id")
+
+	kunjunganID, err :=
+		strconv.Atoi(idParam)
+
+	if err != nil ||
+		kunjunganID <= 0 {
+
+		return helpers.Response(
+			c,
+			http.StatusBadRequest,
+			[]string{
+				"id tidak valid",
+			},
+		)
+	}
+
+	var req models.UpdateTanggalKunjunganRequest
+
+	if err := c.Bind(&req); err != nil {
+
+		return helpers.Response(
+			c,
+			http.StatusBadRequest,
+			[]string{
+				"invalid request",
+			},
+		)
+	}
+
+	if req.TanggalKunjungan == "" {
+
+		return helpers.Response(
+			c,
+			http.StatusBadRequest,
+			[]string{
+				"tanggal_kunjungan wajib diisi",
+			},
+		)
+	}
+
+	err =
+		m.usecases.
+			UpdateTanggalKunjungan(
+				uint(kunjunganID),
+				req.TanggalKunjungan,
+			)
+
+	if err != nil {
+
+		return helpers.Response(
+			c,
+			http.StatusInternalServerError,
+			[]string{
+				err.Error(),
+			},
+		)
+	}
+
+	return helpers.StandardResponse(
+		c,
+		http.StatusOK,
+		[]string{
+			"success",
+		},
+		nil,
+		nil,
+	)
+}

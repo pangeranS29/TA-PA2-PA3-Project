@@ -26,7 +26,7 @@ type KunjunganImunisasiDetailResponse struct {
 	TanggalLahir *time.Time `json:"tanggal_lahir,omitempty"`
 
 	NamaIbu string `json:"nama_ibu"`
-
+	NomorTeleponIbu string `json:"nomor_telepon_ibu"`
 	NamaVaksin      string     `json:"nama_vaksin"`
 	NamaDosis       string     `json:"nama_dosis"`
 	JadwalImunisasi *time.Time `json:"jadwal_imunisasi,omitempty"`
@@ -41,4 +41,8 @@ type KunjunganImunisasiResponse struct {
 
 type UpdateStatusKunjunganRequest struct {
 	StatusKunjunganID uint `json:"status_kunjungan_id"`
+}
+
+type UpdateTanggalKunjunganRequest struct {
+	TanggalKunjungan string `json:"tanggal_kunjungan"`
 }
