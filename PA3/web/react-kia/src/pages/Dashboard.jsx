@@ -3,8 +3,9 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import MainLayout from "../components/Layout/MainLayout";
 import { getIbuDashboard } from "../services/ibu";
+import { getJadwalLayananList } from "../services/jadwalLayanan";
 
-// Ikon (sama, tidak diubah)
+// Ikon (pakai yang sudah ada, tanpa lucide-react)
 const icons = {
   home: <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" /><polyline points="9,22 9,12 15,12 15,22" /></svg>,
   users: <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 00-3-3.87" /><path d="M16 3.13a4 4 0 010 7.75" /></svg>,
@@ -23,7 +24,51 @@ const icons = {
   ambulance: <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M5 13h4v4H5zm6 0h4v4h-4z"/><path d="M18 16h-3v-4h3a2 2 0 012 2v2a2 2 0 01-2 2z"/><path d="M6 16H4a2 2 0 01-2-2v-2a2 2 0 012-2h14"/><path d="M9 12V8a2 2 0 012-2h6a2 2 0 012 2v4"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg>,
 };
 
-// StatCard (sama)
+// Helper untuk jadwal (hanya untuk hitung jadwal hari ini)
+function getDateKey(value) {
+  if (!value) return "";
+  const d = new Date(value);
+  if (isNaN(d.getTime())) return "";
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+function getTodayKey() {
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+function isToday(tanggal) {
+  return getDateKey(tanggal) === getTodayKey();
+}
+function isDone(row) {
+  if (!row || !row.tanggal) return false;
+  const todayKey = getTodayKey();
+  const dateKey = getDateKey(row.tanggal);
+  if (!dateKey) return false;
+  if (dateKey < todayKey) return true;
+  if (dateKey > todayKey) return false;
+  // Jika hari ini, cek waktu selesai sederhana (abaikan)
+  return false;
+}
+
+// Normalisasi risiko
+const normalizeRisk = (risk) => {
+  const upperRisk = (risk || "").toUpperCase();
+  if (upperRisk === "PERLU RUJUKAN" || upperRisk === "TINGGI") return "Tinggi";
+  if (upperRisk === "PERLU TINDAKAN" || upperRisk === "SEDANG" || upperRisk === "SEDAMNG") return "Sedang";
+  return "Normal";
+};
+const getFilterFromRisk = (risk) => {
+  if (risk === "Tinggi") return "PERLU RUJUKAN";
+  if (risk === "Sedang") return "PERLU TINDAKAN";
+  return "NORMAL";
+};
+
+// Komponen StatCard
 function StatCard({ label, value, icon, iconBg, iconColor, sub1, sub2 }) {
   return (
     <div style={{ background: "#fff", borderRadius: 10, padding: "14px 16px", border: "1px solid #e2e8f0", cursor: "default" }}>
@@ -40,16 +85,14 @@ function StatCard({ label, value, icon, iconBg, iconColor, sub1, sub2 }) {
   );
 }
 
-// Komponen Bar Chart - tinggi diperbesar menjadi 260px
+// Komponen Bar Chart
 function VerticalRiskChart({ data, onBarClick, activeRisk }) {
   const categories = [
     { label: "Risiko Tinggi", key: "Tinggi", color: "#ef4444", filter: "PERLU RUJUKAN" },
     { label: "Risiko Sedang", key: "Sedang", color: "#f59e0b", filter: "PERLU TINDAKAN" },
     { label: "Risiko Rendah / Normal", key: "Normal", color: "#10b981", filter: "NORMAL" }
   ];
-  
   const maxValue = Math.max(data.Tinggi, data.Sedang, data.Normal, 1);
-  
   return (
     <div style={{ display: "flex", gap: 24, alignItems: "flex-end", marginTop: 12, height: 280 }}>
       {categories.map(cat => {
@@ -68,9 +111,7 @@ function VerticalRiskChart({ data, onBarClick, activeRisk }) {
               transform: isActive ? "translateY(-4px)" : "none",
             }}
             onMouseEnter={(e) => e.currentTarget.style.transform = "translateY(-4px)"}
-            onMouseLeave={(e) => {
-              if (!isActive) e.currentTarget.style.transform = "translateY(0)";
-            }}
+            onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.transform = "translateY(0)"; }}
           >
             <div style={{ height: 200, display: "flex", flexDirection: "column", justifyContent: "flex-end" }}>
               <div
@@ -82,8 +123,6 @@ function VerticalRiskChart({ data, onBarClick, activeRisk }) {
                   transition: "opacity 0.2s",
                   opacity: isActive ? 1 : 0.85,
                 }}
-                onMouseEnter={(e) => e.currentTarget.style.opacity = 0.8}
-                onMouseLeave={(e) => e.currentTarget.style.opacity = isActive ? 1 : 0.85}
               />
             </div>
             <div style={{ marginTop: 8, fontSize: 11, fontWeight: 600, color: "#1e293b" }}>{cat.label}</div>
@@ -97,20 +136,6 @@ function VerticalRiskChart({ data, onBarClick, activeRisk }) {
     </div>
   );
 }
-
-// Normalisasi status risiko
-const normalizeRisk = (risk) => {
-  const upperRisk = (risk || "").toUpperCase();
-  if (upperRisk === "PERLU RUJUKAN" || upperRisk === "TINGGI") return "Tinggi";
-  if (upperRisk === "PERLU TINDAKAN" || upperRisk === "SEDANG" || upperRisk === "SEDAMNG") return "Sedang";
-  return "Normal";
-};
-
-const getFilterFromRisk = (risk) => {
-  if (risk === "Tinggi") return "PERLU RUJUKAN";
-  if (risk === "Sedang") return "PERLU TINDAKAN";
-  return "NORMAL";
-};
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -128,7 +153,9 @@ export default function Dashboard() {
     resiko_normal: 0,
     per_dusun: [],
   });
+  const [todayScheduleCount, setTodayScheduleCount] = useState(0);
 
+  // Onboarding
   useEffect(() => {
     const hasSeen = localStorage.getItem("dashboard_onboarding_seen");
     if (!hasSeen) {
@@ -137,6 +164,7 @@ export default function Dashboard() {
     }
   }, []);
 
+  // Ambil data ibu
   useEffect(() => {
     const fetchDashboard = async () => {
       try {
@@ -146,9 +174,8 @@ export default function Dashboard() {
         if (response && response.data && Array.isArray(response.data)) rawData = response.data;
         else if (Array.isArray(response)) rawData = response;
         else throw new Error("Format response tidak sesuai");
-        
         setAllIbuData(rawData);
-        
+
         const kehamilanList = rawData.filter(item => item.kehamilan_id && item.kehamilan_id !== 0);
         const total_kehamilan = kehamilanList.length;
         const aktifList = kehamilanList.filter(item => item.status_kehamilan?.includes("TRIMESTER"));
@@ -156,14 +183,14 @@ export default function Dashboard() {
         const risikoTinggiList = kehamilanList.filter(item => normalizeRisk(item.status_risiko) === "Tinggi");
         const risikoSedangList = kehamilanList.filter(item => normalizeRisk(item.status_risiko) === "Sedang");
         const risikoNormalList = kehamilanList.filter(item => normalizeRisk(item.status_risiko) === "Normal");
-        
+
         const dusunMap = new Map();
         kehamilanList.forEach(item => {
           const dusun = item.dusun || "Tidak diketahui";
           dusunMap.set(dusun, (dusunMap.get(dusun) || 0) + 1);
         });
         const per_dusun = Array.from(dusunMap.entries()).map(([dusun, jumlah]) => ({ dusun, jumlah }));
-        
+
         setStats({
           total_kehamilan,
           kehamilan_aktif,
@@ -182,20 +209,41 @@ export default function Dashboard() {
     fetchDashboard();
   }, []);
 
+  // Ambil jumlah jadwal hari ini (opsional, tidak memblokir)
+  useEffect(() => {
+    const fetchScheduleCount = async () => {
+      try {
+        const data = await getJadwalLayananList();
+        let rows = [];
+        if (Array.isArray(data)) rows = data;
+        else if (Array.isArray(data?.data)) rows = data.data;
+        else if (Array.isArray(data?.items)) rows = data.items;
+        const todayCount = rows.filter(r => isToday(r.tanggal) && !isDone(r)).length;
+        setTodayScheduleCount(todayCount);
+      } catch (err) {
+        console.error("Gagal ambil jadwal:", err);
+        // Tetap 0, tidak perlu error
+      }
+    };
+    fetchScheduleCount();
+  }, []);
+
   const getFilteredIbuList = () => {
     if (!allIbuData.length) return [];
-    return allIbuData.filter(item => {
-      if (!item.kehamilan_id || item.kehamilan_id === 0) return false;
-      const normalized = normalizeRisk(item.status_risiko);
-      const filterValue = getFilterFromRisk(normalized);
-      return filterValue === selectedRiskFilter;
-    }).map(item => ({
-      nama: item.nama_lengkap,
-      detail: `Dusun ${item.dusun}, usia kehamilan ${item.usia_kehamilan} minggu`,
-      kehamilan_id: item.kehamilan_id,
-      ibu_id: item.id_ibu,
-      isRujukan: (item.status_risiko || "").toUpperCase() === "PERLU RUJUKAN"
-    }));
+    return allIbuData
+      .filter(item => {
+        if (!item.kehamilan_id || item.kehamilan_id === 0) return false;
+        const normalized = normalizeRisk(item.status_risiko);
+        const filterValue = getFilterFromRisk(normalized);
+        return filterValue === selectedRiskFilter;
+      })
+      .map(item => ({
+        nama: item.nama_lengkap,
+        detail: `Dusun ${item.dusun}, usia kehamilan ${item.usia_kehamilan} minggu`,
+        kehamilan_id: item.kehamilan_id,
+        ibu_id: item.id_ibu,
+        isRujukan: (item.status_risiko || "").toUpperCase() === "PERLU RUJUKAN"
+      }));
   };
 
   const filteredIbuList = getFilteredIbuList();
@@ -218,8 +266,14 @@ export default function Dashboard() {
     navigate(`/data-ibu?risiko=${encodeURIComponent(selectedRiskFilter)}`);
   };
 
-  if (loading) return <MainLayout><div style={{textAlign:"center",padding:40}}>Memuat data dashboard...</div></MainLayout>;
-  if (error) return <MainLayout><div style={{textAlign:"center",padding:40,color:"#ef4444"}}>{error}</div></MainLayout>;
+  const handleGoToJadwal = () => {
+    navigate("/jadwal-layanan");
+  };
+
+  if (loading) return <MainLayout><div style={{ textAlign: "center", padding: 40 }}>Memuat data dashboard...</div></MainLayout>;
+  if (error) return <MainLayout><div style={{ textAlign: "center", padding: 40, color: "#ef4444" }}>{error}</div></MainLayout>;
+
+  const totalRisiko = stats.resiko_tinggi + stats.resiko_sedang + stats.resiko_normal;
 
   const statCards = [
     {
@@ -260,28 +314,96 @@ export default function Dashboard() {
     },
   ];
 
-  const totalRisiko = stats.resiko_tinggi + stats.resiko_sedang + stats.resiko_normal;
-
   return (
     <MainLayout>
-      <div style={{ background: "#f0f4f8", borderRadius: 14, border: "1px solid #e2e8f0", overflow: "hidden", position: "relative" }}>
+      <div
+        style={{
+          background: "#f0f4f8",
+          borderRadius: 14,
+          border: "1px solid #e2e8f0",
+          overflow: "hidden",
+          position: "relative",
+        }}
+      >
         {showOnboarding && (
-          <div style={{ position: "absolute", top: 20, right: 20, background: "white", border: "1px solid #cbd5e1", borderRadius: 12, padding: "16px", boxShadow: "0 10px 25px -5px rgba(0,0,0,0.1)", zIndex: 50, maxWidth: 280 }}>
-            <div style={{display:"flex",justifyContent:"space-between",marginBottom:8}}><strong>✨ Panduan Singkat</strong><button onClick={()=>setShowOnboarding(false)} style={{background:"none",border:"none",fontSize:18,cursor:"pointer"}}>×</button></div>
-            <p style={{fontSize:13,marginBottom:8}}>• Klik batang grafik risiko untuk melihat daftar ibu dengan risiko tersebut di kolom kanan.</p>
-            <p style={{fontSize:13}}>• Klik nama ibu untuk detail pemeriksaan, atau tombol Rujuk untuk kasus perlu rujukan.</p>
+          <div
+            style={{
+              position: "absolute",
+              top: 20,
+              right: 20,
+              background: "white",
+              border: "1px solid #cbd5e1",
+              borderRadius: 12,
+              padding: "16px",
+              boxShadow: "0 10px 25px -5px rgba(0,0,0,0.1)",
+              zIndex: 50,
+              maxWidth: 280,
+            }}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
+              <strong>✨ Panduan Singkat</strong>
+              <button onClick={() => setShowOnboarding(false)} style={{ background: "none", border: "none", fontSize: 18, cursor: "pointer" }}>×</button>
+            </div>
+            <p style={{ fontSize: 13, marginBottom: 8 }}>• Klik batang grafik risiko untuk melihat daftar ibu dengan risiko tersebut di kolom kanan.</p>
+            <p style={{ fontSize: 13 }}>• Klik nama ibu untuk detail pemeriksaan, atau tombol Rujuk untuk kasus perlu rujukan.</p>
           </div>
         )}
 
         <div style={{ padding: "16px 20px" }}>
-          {/* Stat Cards */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))", gap: 12, marginBottom: 16 }}>
-            {statCards.map((s) => <StatCard key={s.label} {...s} />)}
+          {/* Shortcut Card Jadwal Hari Ini */}
+          <div
+            style={{
+              marginBottom: 16,
+              background: "linear-gradient(135deg, #185FA5 0%, #2c7cbf 100%)",
+              borderRadius: 12,
+              color: "white",
+              padding: "16px 20px",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <div style={{ background: "rgba(255,255,255,0.2)", borderRadius: 12, padding: 8 }}>
+                {icons.calendar}
+              </div>
+              <div>
+                <div style={{ fontSize: 14, fontWeight: 500, opacity: 0.9 }}>Jadwal Layanan Hari Ini</div>
+                <div style={{ fontSize: 28, fontWeight: "bold" }}>{todayScheduleCount} sesi</div>
+                <div style={{ fontSize: 11, opacity: 0.7 }}>Klik tombol untuk kelola jadwal</div>
+              </div>
+            </div>
+            <button
+              onClick={handleGoToJadwal}
+              style={{
+                background: "white",
+                color: "#185FA5",
+                border: "none",
+                borderRadius: 8,
+                padding: "8px 16px",
+                fontSize: 13,
+                fontWeight: "bold",
+                cursor: "pointer",
+                transition: "0.2s",
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#f0f4f8"}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "white"}
+            >
+              Lihat Jadwal →
+            </button>
           </div>
 
-          {/* Layout dua kolom dengan tinggi sama (auto stretch) */}
+          {/* Stat Cards */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))", gap: 12, marginBottom: 16 }}>
+            {statCards.map((s) => (
+              <StatCard key={s.label} {...s} />
+            ))}
+          </div>
+
+          {/* Layout dua kolom */}
           <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) 360px", gap: 12, marginBottom: 12 }}>
-            {/* Card Grafik Risiko - kiri */}
+            {/* Kiri: Grafik Risiko */}
             <div style={{ background: "#fff", borderRadius: 10, padding: "16px", border: "1px solid #e2e8f0", display: "flex", flexDirection: "column" }}>
               <h2 style={{ fontSize: 14, fontWeight: 700 }}>Status Risiko Kehamilan</h2>
               <p style={{ fontSize: 11.5, color: "#64748b", marginBottom: 8 }}>Klik batang untuk menampilkan daftar ibu.</p>
@@ -291,10 +413,12 @@ export default function Dashboard() {
                   onBarClick={handleRiskBarClick}
                   activeRisk={selectedRiskFilter}
                 />
-              ) : <div style={{textAlign:"center",padding:20,color:"#94a3b8"}}>Tidak ada data risiko</div>}
+              ) : (
+                <div style={{ textAlign: "center", padding: 20, color: "#94a3b8" }}>Tidak ada data risiko</div>
+              )}
             </div>
 
-            {/* Card Daftar Ibu - kanan (scrollable) */}
+            {/* Kanan: Daftar Ibu */}
             <div style={{ background: "#fff", borderRadius: 10, padding: "14px 16px", border: "1px solid #e2e8f0", display: "flex", flexDirection: "column" }}>
               <div style={{ flexShrink: 0 }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8, flexWrap: "wrap", gap: 8 }}>
@@ -302,8 +426,22 @@ export default function Dashboard() {
                     <h2 style={{ fontSize: 14, fontWeight: 700 }}>Ibu dengan {selectedRiskLabel}</h2>
                     <span style={{ fontSize: 11, background: "#fef2f2", color: "#ef4444", padding: "2px 8px", borderRadius: 20, fontWeight: 600 }}>{filteredIbuList.length} Ibu</span>
                   </div>
-                  <button onClick={handleViewAllFiltered}
-                    style={{ background: "#3b82f6", border: "none", borderRadius: 20, padding: "4px 12px", fontSize: 12, fontWeight: 500, color: "white", cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}>
+                  <button
+                    onClick={handleViewAllFiltered}
+                    style={{
+                      background: "#3b82f6",
+                      border: "none",
+                      borderRadius: 20,
+                      padding: "4px 12px",
+                      fontSize: 12,
+                      fontWeight: 500,
+                      color: "white",
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 4,
+                    }}
+                  >
                     Lihat Detail {icons.chevronRight}
                   </button>
                 </div>
@@ -313,60 +451,111 @@ export default function Dashboard() {
               </div>
               <div style={{ flex: 1, overflowY: "auto", maxHeight: 250 }}>
                 <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                  {filteredIbuList.length > 0 ? filteredIbuList.map((r, idx) => (
-                    <div key={idx} onClick={() => handleRiskClick(r.ibu_id, r.kehamilan_id)}
-                      style={{ background: "#fff", border: "1px solid #fecaca", borderRadius: 12, padding: "12px 14px", cursor: "pointer", transition: "all 0.2s", display: "flex", alignItems: "center", justifyContent: "space-between" }}
-                      onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "#fef2f2"; e.currentTarget.style.borderColor = "#fca5a5"; e.currentTarget.style.transform = "translateY(-2px)"; }}
-                      onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "#fff"; e.currentTarget.style.borderColor = "#fecaca"; e.currentTarget.style.transform = "translateY(0)"; }}>
-                      <div style={{ display: "flex", gap: 12, alignItems: "center", flex: 1 }}>
-                        <div style={{ background: "#fee2e2", borderRadius: 8, padding: 8, color: "#ef4444" }}>{icons.warn}</div>
-                        <div>
-                          <div style={{ fontSize: 13, fontWeight: 700 }}>{r.nama}</div>
-                          <div style={{ fontSize: 11, color: "#475569" }}>{r.detail}</div>
+                  {filteredIbuList.length > 0 ? (
+                    filteredIbuList.map((r, idx) => (
+                      <div
+                        key={idx}
+                        onClick={() => handleRiskClick(r.ibu_id, r.kehamilan_id)}
+                        style={{
+                          background: "#fff",
+                          border: "1px solid #fecaca",
+                          borderRadius: 12,
+                          padding: "12px 14px",
+                          cursor: "pointer",
+                          transition: "all 0.2s",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = "#fef2f2";
+                          e.currentTarget.style.borderColor = "#fca5a5";
+                          e.currentTarget.style.transform = "translateY(-2px)";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = "#fff";
+                          e.currentTarget.style.borderColor = "#fecaca";
+                          e.currentTarget.style.transform = "translateY(0)";
+                        }}
+                      >
+                        <div style={{ display: "flex", gap: 12, alignItems: "center", flex: 1 }}>
+                          <div style={{ background: "#fee2e2", borderRadius: 8, padding: 8, color: "#ef4444" }}>{icons.warn}</div>
+                          <div>
+                            <div style={{ fontSize: 13, fontWeight: 700 }}>{r.nama}</div>
+                            <div style={{ fontSize: 11, color: "#475569" }}>{r.detail}</div>
+                          </div>
+                        </div>
+                        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                          {r.isRujukan && (
+                            <button
+                              onClick={(e) => handleRujukClick(e, r.ibu_id, r.kehamilan_id)}
+                              style={{
+                                background: "#dc2626",
+                                border: "none",
+                                borderRadius: 16,
+                                padding: "4px 10px",
+                                fontSize: 10,
+                                fontWeight: "bold",
+                                color: "white",
+                                cursor: "pointer",
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 4,
+                              }}
+                            >
+                              {icons.ambulance} Rujuk
+                            </button>
+                          )}
+                          {icons.chevronRight}
                         </div>
                       </div>
-                      <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                        {r.isRujukan && (
-                          <button onClick={(e) => handleRujukClick(e, r.ibu_id, r.kehamilan_id)}
-                            style={{ background: "#dc2626", border: "none", borderRadius: 16, padding: "4px 10px", fontSize: 10, fontWeight: "bold", color: "white", cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}>
-                            {icons.ambulance} Rujuk
-                          </button>
-                        )}
-                        {icons.chevronRight}
-                      </div>
+                    ))
+                  ) : (
+                    <div style={{ textAlign: "center", padding: 30, background: "#f8fafc", borderRadius: 12, color: "#94a3b8" }}>
+                      Tidak ada ibu dengan {selectedRiskLabel.toLowerCase()}
                     </div>
-                  )) : <div style={{textAlign:"center", padding:30, background:"#f8fafc", borderRadius:12, color:"#94a3b8"}}>Tidak ada ibu dengan {selectedRiskLabel.toLowerCase()}</div>}
+                  )}
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Tabel Dusun - full width */}
+          {/* Tabel Dusun */}
           <div style={{ background: "#fff", borderRadius: 10, border: "1px solid #e2e8f0", overflowX: "auto" }}>
             <div style={{ padding: "14px 16px", borderBottom: "1px solid #e2e8f0" }}>
               <h2 style={{ fontSize: 14, fontWeight: 700 }}>Kehamilan per Dusun</h2>
             </div>
             <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 400 }}>
-              <thead><tr style={{background:"#f8fafc"}}>
-                <th style={{padding:"9px 14px",textAlign:"left",fontSize:11.5}}>Dusun</th>
-                <th style={{padding:"9px 14px",textAlign:"left",fontSize:11.5}}>Jumlah</th>
-                <th style={{padding:"9px 14px",textAlign:"left",fontSize:11.5}}>Persentase</th>
-               </tr></thead>
+              <thead>
+                <tr style={{ background: "#f8fafc" }}>
+                  <th style={{ padding: "9px 14px", textAlign: "left", fontSize: 11.5 }}>Dusun</th>
+                  <th style={{ padding: "9px 14px", textAlign: "left", fontSize: 11.5 }}>Jumlah</th>
+                  <th style={{ padding: "9px 14px", textAlign: "left", fontSize: 11.5 }}>Persentase</th>
+                </tr>
+              </thead>
               <tbody>
                 {stats.per_dusun.map((dusun, idx) => {
                   const percent = stats.total_kehamilan ? (dusun.jumlah / stats.total_kehamilan) * 100 : 0;
-                  return <tr key={dusun.dusun} style={{borderBottom: idx < stats.per_dusun.length-1 ? "1px solid #f1f5f9" : "none"}}>
-                    <td style={{padding:"10px 14px", fontSize:12.5}}>{dusun.dusun}</td>
-                    <td style={{padding:"10px 14px", fontSize:12.5, fontWeight:600}}>{dusun.jumlah}</td>
-                    <td style={{padding:"10px 14px", fontSize:12.5}}>
-                      <div style={{display:"flex", alignItems:"center", gap:8}}>
-                        <div style={{flex:1, background:"#e2e8f0", borderRadius:4, height:6}}><div style={{width:`${percent}%`, background:"#3b82f6", height:6, borderRadius:4}} /></div>
-                        <span style={{fontSize:11}}>{percent.toFixed(1)}%</span>
-                      </div>
-                    </td>
-                  </tr>;
+                  return (
+                    <tr key={dusun.dusun} style={{ borderBottom: idx < stats.per_dusun.length - 1 ? "1px solid #f1f5f9" : "none" }}>
+                      <td style={{ padding: "10px 14px", fontSize: 12.5 }}>{dusun.dusun}</td>
+                      <td style={{ padding: "10px 14px", fontSize: 12.5, fontWeight: 600 }}>{dusun.jumlah}</td>
+                      <td style={{ padding: "10px 14px", fontSize: 12.5 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                          <div style={{ flex: 1, background: "#e2e8f0", borderRadius: 4, height: 6 }}>
+                            <div style={{ width: `${percent}%`, background: "#3b82f6", height: 6, borderRadius: 4 }} />
+                          </div>
+                          <span style={{ fontSize: 11 }}>{percent.toFixed(1)}%</span>
+                        </div>
+                      </td>
+                    </tr>
+                  );
                 })}
-                {stats.per_dusun.length === 0 && <tr><td colSpan="3" style={{padding:20,textAlign:"center",color:"#94a3b8"}}>Belum ada data dusun</td></tr>}
+                {stats.per_dusun.length === 0 && (
+                  <tr>
+                    <td colSpan="3" style={{ padding: 20, textAlign: "center", color: "#94a3b8" }}>Belum ada data dusun</td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
