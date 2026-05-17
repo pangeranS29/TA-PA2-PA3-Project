@@ -74,11 +74,21 @@ package models
 // 		// // 		&GrafikPeningkatanBB{},
 // 		// // 		&PenjelasanHasilGrafik{},
 
-// 		// // 		// Persalinan
-// 		// // 		&RencanaPersalinan{},
-// 		// // 		&RingkasanPelayananPersalinan{},
-// 		// // 		&KeteranganLahir{},
-// 		// // 		&RiwayatProsesMelahirkan{},
+// Nifas & rujukan
+// &PelayananIbuNifas{},
+// &CatatanPelayananNifas{},
+// &Rujukan{},
+// &KategoriCapaian{},
+// &Perawatan{},
+// &PemantauanIndikator{},
+// &KategoriCapaian{},
+
+// Perkembangan Anak
+// &RentangUsiaPerkembangan{},
+// &IndikatorPerkembangan{},
+// &LembarPerkembangan{},
+// &DetailPerkembangan{},
+// }
 
 // 		// // 		// Nifas & rujukan
 // 		// // 		&PelayananIbuNifas{},

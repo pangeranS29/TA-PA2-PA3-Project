@@ -1,6 +1,7 @@
 // src/pages/Ibu/PemeriksaanLabJiwa.jsx
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import Swal from "sweetalert2";
 import MainLayout from "../../components/Layout/MainLayout";
 import { getKehamilanByIbuId } from "../../services/kehamilan";
 import { getLabJiwaByKehamilanId, createLabJiwa, updateLabJiwa } from "../../services/pemeriksaanDokter";
@@ -108,8 +109,17 @@ export default function PemeriksaanLabJiwa() {
       };
       if (data) await updateLabJiwa(data.id_lab_jiwa, payload);
       else await createLabJiwa(payload);
-      alert("Pemeriksaan Lab & Skrining Jiwa berhasil disimpan");
-    } catch (err) { alert("Gagal menyimpan"); console.error(err); }
+      await Swal.fire({
+        icon: 'success',
+        title: 'Berhasil',
+        text: 'Pemeriksaan Lab & Skrining Jiwa berhasil disimpan',
+        timer: 2000,
+        showConfirmButton: false
+      });
+    } catch (err) {
+      Swal.fire('Error', 'Gagal menyimpan data.', 'error');
+      console.error(err);
+    }
     finally { setSaving(false); }
   };
 

@@ -5,7 +5,7 @@ import { getAnak, deleteAnak } from "../../services/Anak";
 import { getRiwayatPertumbuhan, prediksiStunting } from "../../services/pertumbuhan";
 import {
   Plus, Search, Pencil, Trash2, ChevronLeft, ChevronRight,
-  Baby, AlertTriangle, CheckCircle, Minus
+  Baby, AlertTriangle, CheckCircle, Minus, RefreshCw, CalendarClock
 } from "lucide-react";
 
 export default function AnakListNakes() {
@@ -14,6 +14,7 @@ export default function AnakListNakes() {
   const [prediksiMap, setPrediksiMap] = useState({}); // { anakId: prediksiData }
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
+  const [activeQuickFilter, setActiveQuickFilter] = useState("all");
 
   // --- STATE PAGINATION ---
   const [currentPage, setCurrentPage] = useState(1);
@@ -72,8 +73,20 @@ export default function AnakListNakes() {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    const onKeyDown = (event) => {
+      if (event.altKey && event.key.toLowerCase() === "n") {
+        event.preventDefault();
+        navigate("/data-anak/create");
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [navigate]);
+
   const handleDelete = async (id, name) => {
-    if (!window.confirm(`Apakah Anda yakin ingin menghapus data ${name}?`)) return;
+    if (!window.confirm(`Hapus data anak \"${name}\"?\n\nTindakan ini tidak dapat dibatalkan.`)) return;
     try {
       await deleteAnak(id);
       setChildren((prev) => prev.filter((item) => item.id !== id));
@@ -91,12 +104,57 @@ export default function AnakListNakes() {
     });
   };
 
+  const getControlDate = (child) => {
+    const possibleKeys = [
+      "jadwal_kontrol_berikutnya",
+      "tanggal_kontrol_berikutnya",
+      "jadwal_kontrol",
+      "jadwal_kunjungan_berikutnya",
+      "next_visit_date",
+    ];
+
+    for (const key of possibleKeys) {
+      if (!child?.[key]) continue;
+      const parsedDate = new Date(child[key]);
+      if (!Number.isNaN(parsedDate.getTime())) return parsedDate;
+    }
+
+    return null;
+  };
+
+  const isInThisWeekWindow = (date) => {
+    if (!date) return false;
+    const now = new Date();
+    const start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const end = new Date(start);
+    end.setDate(end.getDate() + 7);
+    return date >= start && date <= end;
+  };
+
+  const isHighRisk = (prediksi) => {
+    const cls = prediksi?.classification;
+    return cls === "STUNTING" || cls === "AT_RISK";
+  };
+
   // --- LOGIC FILTER & PAGINATION ---
   const normalizedSearch = searchTerm.toLowerCase();
-  const filteredChildren = children.filter((c) =>
+  const searchFilteredChildren = children.filter((c) =>
     (c.nama || "").toLowerCase().includes(normalizedSearch) ||
     (c.kehamilan?.ibu?.nama_ibu || "").toLowerCase().includes(normalizedSearch)
   );
+
+  const filteredChildren = searchFilteredChildren.filter((c) => {
+    if (activeQuickFilter === "high-risk") {
+      return isHighRisk(prediksiMap[c.id]);
+    }
+    if (activeQuickFilter === "weekly-control") {
+      return isInThisWeekWindow(getControlDate(c));
+    }
+    return true;
+  });
+
+  const highRiskCount = children.filter((c) => isHighRisk(prediksiMap[c.id])).length;
+  const weeklyControlCount = children.filter((c) => isInThisWeekWindow(getControlDate(c))).length;
 
   // Hitung index data
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -110,28 +168,85 @@ export default function AnakListNakes() {
     setCurrentPage(1);
   };
 
+  const handleQuickFilterChange = (filterName) => {
+    setActiveQuickFilter(filterName);
+    setCurrentPage(1);
+  };
+
   return (
     <MainLayout>
       <div className="p-4 md:p-8 bg-[#f8fafc] min-h-screen">
 
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-800 tracking-tight">Daftar Anak</h1>
+      <div className="mb-8">
+        <div className="mb-5">
+          <h1 className="text-2xl font-bold text-gray-800 tracking-tight">Manajemen Data Anak</h1>
           <p className="text-gray-500 text-sm">Rekam data pertumbuhan anak secara terpusat.</p>
         </div>
-        
-        <div className="bg-blue-600 text-white px-6 py-3 rounded-2xl shadow-lg shadow-blue-100 flex items-center gap-4">
-          <div className="p-2 bg-white/20 rounded-xl">
-            <Baby size={24} />
-          </div>
-          <div>
-            <p className="text-[10px] text-indigo-100 font-bold uppercase tracking-wider">Total Data</p>
-            <p className="text-2xl font-black">{children.length} <span className="text-sm font-medium">Anak</span></p>
-          </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <button
+            type="button"
+            onClick={() => handleQuickFilterChange("all")}
+            className={`text-left rounded-2xl p-4 border transition-all ${
+              activeQuickFilter === "all"
+                ? "bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-100"
+                : "bg-white text-gray-700 border-gray-200 hover:border-blue-300"
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              <div className={`p-2 rounded-xl ${activeQuickFilter === "all" ? "bg-white/20" : "bg-blue-50"}`}>
+                <Baby size={20} className={activeQuickFilter === "all" ? "text-white" : "text-blue-600"} />
+              </div>
+              <div>
+                <p className={`text-[10px] font-bold uppercase tracking-wider ${activeQuickFilter === "all" ? "text-indigo-100" : "text-gray-500"}`}>Total Data</p>
+                <p className="text-xl font-black">{children.length} <span className="text-sm font-semibold">Anak</span></p>
+              </div>
+            </div>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => handleQuickFilterChange("high-risk")}
+            className={`text-left rounded-2xl p-4 border transition-all ${
+              activeQuickFilter === "high-risk"
+                ? "bg-rose-600 text-white border-rose-600 shadow-lg shadow-rose-100"
+                : "bg-white text-gray-700 border-gray-200 hover:border-rose-300"
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              <div className={`p-2 rounded-xl ${activeQuickFilter === "high-risk" ? "bg-white/20" : "bg-rose-50"}`}>
+                <AlertTriangle size={20} className={activeQuickFilter === "high-risk" ? "text-white" : "text-rose-600"} />
+              </div>
+              <div>
+                <p className={`text-[10px] font-bold uppercase tracking-wider ${activeQuickFilter === "high-risk" ? "text-rose-100" : "text-gray-500"}`}>Anak Risiko Tinggi</p>
+                <p className="text-xl font-black">{highRiskCount} <span className="text-sm font-semibold">Anak</span></p>
+              </div>
+            </div>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => handleQuickFilterChange("weekly-control")}
+            className={`text-left rounded-2xl p-4 border transition-all ${
+              activeQuickFilter === "weekly-control"
+                ? "bg-emerald-600 text-white border-emerald-600 shadow-lg shadow-emerald-100"
+                : "bg-white text-gray-700 border-gray-200 hover:border-emerald-300"
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              <div className={`p-2 rounded-xl ${activeQuickFilter === "weekly-control" ? "bg-white/20" : "bg-emerald-50"}`}>
+                <CalendarClock size={20} className={activeQuickFilter === "weekly-control" ? "text-white" : "text-emerald-600"} />
+              </div>
+              <div>
+                <p className={`text-[10px] font-bold uppercase tracking-wider ${activeQuickFilter === "weekly-control" ? "text-emerald-100" : "text-gray-500"}`}>Jadwal Kontrol Minggu Ini</p>
+                <p className="text-xl font-black">{weeklyControlCount} <span className="text-sm font-semibold">Anak</span></p>
+              </div>
+            </div>
+          </button>
         </div>
       </div>
 
-      <div className="bg-white rounded-t-2xl border-x border-t border-gray-100 p-6">
+      <div className="bg-white rounded-t-2xl border-x border-t border-gray-100 p-6 sticky top-4 md:top-6 z-20">
         <div className="flex flex-col md:flex-row justify-between gap-4">
           <div className="relative w-full max-w-md">
             <Search className="absolute left-3 top-1/2 -transform -translate-y-1/2 text-gray-400" size={18} />
@@ -142,11 +257,14 @@ export default function AnakListNakes() {
               onChange={handleSearchChange}
             />
           </div>
+
           <Link
             to="/data-anak/create"
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl flex items-center justify-center gap-2 font-bold transition-all shadow-md active:scale-95"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl flex items-center justify-center gap-2 font-bold transition-all shadow-md active:scale-95 whitespace-nowrap"
+            title="Tambah Data Anak (Alt+N)"
           >
             <Plus size={20} /> Tambah Data Anak
+            <span className="text-[10px] px-2 py-1 rounded-md bg-white/15 border border-white/20 font-semibold">Alt+N</span>
           </Link>
         </div>
       </div>
@@ -167,30 +285,40 @@ export default function AnakListNakes() {
 
           <tbody className="divide-y divide-gray-50">
             {loading ? (
-              [...Array(3)].map((_, i) => (
-                <tr key={i} className="animate-pulse">
-                  <td colSpan="6" className="p-6 text-center">Memuat data...</td>
-                </tr>
-              ))
+              <tr>
+                <td colSpan="7" className="py-16">
+                  <div className="flex flex-col items-center justify-center gap-3">
+                    <RefreshCw size={36} className="animate-spin text-blue-600" />
+                    <p className="text-[14px] text-slate-500 font-medium">Memuat data anak...</p>
+                  </div>
+                </td>
+              </tr>
+            ) : children.length === 0 ? (
+              <tr>
+                <td colSpan="7" className="text-center py-16">
+                  <div className="flex flex-col items-center justify-center gap-3">
+                    <p className="text-gray-500 font-semibold">Belum ada data anak</p>
+                    <p className="text-sm text-gray-400">Tambahkan data pertama untuk mulai pemantauan.</p>
+                    <Link
+                      to="/data-anak/create"
+                      className="mt-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg inline-flex items-center gap-2 text-sm font-bold"
+                    >
+                      <Plus size={16} /> Tambah Data Anak
+                    </Link>
+                  </div>
+                </td>
+              </tr>
             ) : currentItems.length === 0 ? (
               <tr>
-                <td colSpan="6" className="text-center py-20">
-                    <p className="text-gray-400">Tidak ada data ditemukan</p>
+                <td colSpan="7" className="text-center py-16">
+                  <p className="text-gray-500 font-medium">Tidak ada data yang sesuai dengan pencarian atau filter aktif.</p>
                 </td>
               </tr>
             ) : (
               currentItems.map((child) => (
                 <tr key={child.id} className="hover:bg-indigo-50/20 transition-colors group">
                   <td className="px-6 py-4 font-bold text-gray-800 text-sm">{child.nama}</td>
-                  <td className="px-6 py-4">
-                     <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase border ${
-                        (child.jenis_kelamin || "").toLowerCase().includes('laki') ? 'bg-blue-50 text-blue-700 border-blue-100' : 
-                        (child.jenis_kelamin || "").toLowerCase().includes('perem') ? 'bg-pink-50 text-pink-700 border-pink-100' :
-                        'bg-gray-50 text-gray-500 border-gray-100'
-                     }`}>
-                        {child.jenis_kelamin || "-"}
-                     </span>
-                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-700">{child.jenis_kelamin || "-"}</td>
                   <td className="px-6 py-4">
                     <RisikoBadge prediksi={prediksiMap[child.id]} />
                   </td>
@@ -200,7 +328,7 @@ export default function AnakListNakes() {
                   <td className="px-6 py-4">
                     <div className="flex items-center justify-center gap-2">
                        <Link to={`/data-anak/dashboard/${child.id}`} className="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow-sm active:scale-95">
-                         Pantau
+                         Detail
                        </Link>
                        <Link to={`/data-anak/edit/${child.id}`} className="p-1.5 text-gray-400 hover:text-amber-600"><Pencil size={14}/></Link>
                        <button onClick={() => handleDelete(child.id, child.nama)} className="p-1.5 text-gray-400 hover:text-red-600"><Trash2 size={14}/></button>
@@ -215,9 +343,9 @@ export default function AnakListNakes() {
         {/* --- UI CONTROLS PAGINATION --- */}
         <div className="flex items-center justify-between px-6 py-4 bg-gray-50/50 border-t border-gray-100">
           <p className="text-xs text-gray-500 font-medium">
-            Menampilkan <span className="text-indigo-600">{filteredChildren.length === 0 ? 0 : indexOfFirstItem + 1}</span> - <span className="text-indigo-600">{Math.min(indexOfLastItem, filteredChildren.length)}</span> dari <span className="text-indigo-600">{filteredChildren.length}</span> data
+            {filteredChildren.length === 0 ? 'Tidak ada data' : `Menampilkan ${indexOfFirstItem + 1}-${Math.min(indexOfLastItem, filteredChildren.length)} dari ${filteredChildren.length} data`}
           </p>
-          
+
           <div className="flex items-center gap-2">
             <button
               onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
@@ -226,15 +354,15 @@ export default function AnakListNakes() {
             >
               <ChevronLeft size={16} />
             </button>
-            
+
             <div className="flex gap-1">
               {[...Array(totalPages)].map((_, i) => (
                 <button
                   key={i}
                   onClick={() => setCurrentPage(i + 1)}
                   className={`w-8 h-8 rounded-lg text-xs font-bold transition-all ${
-                    currentPage === i + 1 
-                    ? "bg-indigo-600 text-white shadow-md shadow-indigo-100" 
+                    currentPage === i + 1
+                    ? "bg-indigo-600 text-white shadow-md shadow-indigo-100"
                     : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
                   }`}
                 >

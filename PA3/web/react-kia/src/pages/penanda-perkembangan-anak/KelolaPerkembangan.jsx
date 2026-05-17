@@ -1,106 +1,127 @@
 import React, { useEffect, useMemo, useState } from "react";
 import MainLayout from "../../components/Layout/MainLayout";
-import { Search, Plus, Pencil, Trash2, X, Check, ClipboardList } from "lucide-react";
+import { Search, Plus, Pencil, Trash2, X, Check, RotateCcw } from "lucide-react";
+import { getKategoriUmurList } from "../../services/kategoriUmur";
 import {
-  getRentangPerkembangan,
-  getKategoriPerkembangan,
-  createKategoriPerkembangan,
-  updateKategoriPerkembangan,
-  deleteKategoriPerkembangan
-} from "../../services/perkembanganAnak";
+  getPemantauanIndikatorList,
+  createPemantauanIndikator,
+  updatePemantauanIndikator,
+  deletePemantauanIndikator,
+} from "../../services/pemantauanIndikator";
 
 export default function KelolaPerkembangan() {
-  const [rentangList, setRentangList] = useState([]);
-  const [activeRentangId, setActiveRentangId] = useState("");
+  const [kategoriUmurList, setKategoriUmurList] = useState([]);
+  const [activeKategoriUsia, setActiveKategoriUsia] = useState("");
   const [query, setQuery] = useState("");
   const [dataIndikator, setDataIndikator] = useState({});
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
-  const [formText, setFormText] = useState("");
+  const [formKategoriUsia, setFormKategoriUsia] = useState("");
+  const [formDeskripsi, setFormDeskripsi] = useState("");
   const [formMode, setFormMode] = useState("add");
-  const [clickedBtn, setClickedBtn] = useState({ id: null, type: null });
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [notice, setNotice] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
 
+  const normalizeKategoriUmur = (items) => {
+    return (Array.isArray(items) ? items : []).map((item) => ({
+      ...item,
+      label: item?.kategori_umur || item?.KategoriUmur || item?.nama_rentang || item?.nama || "Kategori Umur",
+    }));
+  };
+
   useEffect(() => {
     const init = async () => {
       try {
-        const res = await getRentangPerkembangan();
-        const list = Array.isArray(res?.data) ? res.data : (Array.isArray(res) ? res : []);
-        setRentangList(list);
+        const list = normalizeKategoriUmur(await getKategoriUmurList());
+        setKategoriUmurList(list);
+
         if (list.length > 0) {
-          setActiveRentangId(String(list[0].id));
+          setActiveKategoriUsia(list[0].label);
+          setFormKategoriUsia(list[0].label);
         }
-      } catch (e) {
-        setErrorMsg("Gagal memuat kategori usia perkembangan");
+      } catch (error) {
+        setErrorMsg("Gagal memuat kategori umur");
       }
     };
+
     init();
   }, []);
 
   useEffect(() => {
-    if (!activeRentangId) return;
-    const t = setTimeout(() => {
-      fetchData(activeRentangId, query);
-    }, 300);
+    if (!activeKategoriUsia) return;
 
-    return () => clearTimeout(t);
-  }, [activeRentangId, query]);
+    const timeoutId = setTimeout(() => {
+      fetchData(activeKategoriUsia, query);
+    }, 250);
 
-  const fetchData = async (rentangId, q) => {
+    return () => clearTimeout(timeoutId);
+  }, [activeKategoriUsia, query]);
+
+  const fetchData = async (kategoriUsia, searchQuery) => {
     setIsLoading(true);
     setErrorMsg("");
 
     try {
-      const res = await getKategoriPerkembangan(rentangId);
-      const rows = Array.isArray(res?.data) ? res.data : (Array.isArray(res) ? res : []);
-
-      const filtered = q
-        ? rows.filter(item => item.indikator.toLowerCase().includes(q.toLowerCase()))
-        : rows;
-
+      const rows = await getPemantauanIndikatorList(kategoriUsia, searchQuery);
       setDataIndikator((prev) => ({
         ...prev,
-        [rentangId]: filtered,
+        [kategoriUsia]: Array.isArray(rows) ? rows : [],
       }));
     } catch (error) {
-      setErrorMsg("Gagal memuat data indikator perkembangan");
+      setDataIndikator((prev) => ({
+        ...prev,
+        [kategoriUsia]: [],
+      }));
+      setErrorMsg("Gagal memuat data indikator");
     } finally {
       setIsLoading(false);
     }
   };
 
   const currentData = useMemo(() => {
-    return dataIndikator[activeRentangId] || [];
-  }, [activeRentangId, dataIndikator]);
+    return dataIndikator[activeKategoriUsia] || [];
+  }, [activeKategoriUsia, dataIndikator]);
 
   const openAddModal = () => {
     setFormMode("add");
     setSelectedItem(null);
-    setFormText("");
+    setFormKategoriUsia(activeKategoriUsia || kategoriUmurList[0]?.label || "");
+    setFormDeskripsi("");
     setIsModalOpen(true);
   };
 
   const openEditModal = (item) => {
     setFormMode("edit");
     setSelectedItem(item);
-    setFormText(item.indikator);
+    setFormKategoriUsia(item.kategori_usia || activeKategoriUsia || "");
+    setFormDeskripsi(item.deskripsi || "");
     setIsModalOpen(true);
   };
 
   const closeModal = () => {
     setIsModalOpen(false);
     setSelectedItem(null);
-    setFormText("");
+    setFormKategoriUsia(activeKategoriUsia || kategoriUmurList[0]?.label || "");
+    setFormDeskripsi("");
   };
 
   const handleSave = async () => {
     if (isSubmitting) return;
-    const value = formText.trim();
-    if (!value) return;
+
+    const kategoriUsia = formKategoriUsia.trim();
+    const deskripsi = formDeskripsi.trim();
+
+    if (!kategoriUsia) {
+      setErrorMsg("Kategori umur wajib dipilih");
+      return;
+    }
+    if (!deskripsi) {
+      setErrorMsg("Deskripsi indikator wajib diisi");
+      return;
+    }
 
     setIsSubmitting(true);
     setErrorMsg("");
@@ -108,23 +129,23 @@ export default function KelolaPerkembangan() {
 
     try {
       if (formMode === "edit" && selectedItem) {
-        await updateKategoriPerkembangan(selectedItem.id, {
-          rentang_usia_perkembangan_id: Number(activeRentangId),
-          indikator: value,
+        await updatePemantauanIndikator(selectedItem.id, {
+          kategori_usia: kategoriUsia,
+          deskripsi,
         });
-        setNotice("Indikator perkembangan berhasil diperbarui");
+        setNotice("Indikator berhasil diperbarui");
       } else {
-        await createKategoriPerkembangan({
-          rentang_usia_perkembangan_id: Number(activeRentangId),
-          indikator: value,
+        await createPemantauanIndikator({
+          kategori_usia: kategoriUsia,
+          deskripsi,
         });
-        setNotice("Indikator perkembangan berhasil ditambahkan");
+        setNotice("Indikator berhasil ditambahkan");
       }
 
       closeModal();
-      await fetchData(activeRentangId, query);
+      await fetchData(activeKategoriUsia || kategoriUsia, query);
     } catch (error) {
-      setErrorMsg("Gagal menyimpan indikator: " + (error.response?.data?.message || error.message));
+      setErrorMsg("Gagal menyimpan indikator: " + (error?.response?.data?.message || error.message));
     } finally {
       setIsSubmitting(false);
     }
@@ -148,10 +169,10 @@ export default function KelolaPerkembangan() {
     setNotice("");
 
     try {
-      await deleteKategoriPerkembangan(selectedItem.id);
+      await deletePemantauanIndikator(selectedItem.id);
       setNotice("Indikator berhasil dihapus");
       closeDeleteModal();
-      await fetchData(activeRentangId, query);
+      await fetchData(activeKategoriUsia, query);
     } catch (error) {
       setErrorMsg("Gagal menghapus indikator");
     } finally {
@@ -161,57 +182,56 @@ export default function KelolaPerkembangan() {
 
   return (
     <MainLayout>
-      <div className="max-w-6xl mx-auto space-y-6">
-
+      <div className="p-6 space-y-6 bg-[#F8FAFC] min-h-screen">
         <div className="flex justify-center">
           <div className="relative w-full max-w-2xl">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
             <input
               type="text"
-              placeholder={`Cari penanda perkembangan...`}
-              className="w-full pl-12 pr-4 py-3 bg-white border border-slate-100 rounded-full text-sm shadow-sm focus:ring-2 focus:ring-indigo-100 outline-none transition-all"
+              placeholder="Cari indikator..."
+              className="w-full pl-12 pr-4 py-3 bg-white border border-slate-100 rounded-full text-sm shadow-sm focus:ring-2 focus:ring-blue-100 outline-none transition-all"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
             />
           </div>
         </div>
 
-        <div className="flex items-center justify-between px-2">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-slate-800">Kelola Indikator Perkembangan</h1>
-            <p className="text-sm text-slate-500 mt-1">Mengatur pertanyaan milestone perkembangan anak (29 hari - 6 tahun).</p>
+            <h1 className="text-2xl font-bold text-slate-800">Kelola Perawatan Anak</h1>
+            <p className="text-slate-500">Mengatur indikator perawatan anak berdasarkan kategori umur.</p>
           </div>
           <button
             onClick={openAddModal}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-lg text-sm font-medium flex items-center gap-2 transition-all shadow-sm"
+            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-all text-sm font-semibold shadow-sm shadow-blue-100"
           >
             <Plus size={18} /> Tambah Indikator
           </button>
         </div>
 
-        {notice && (
-          <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700 animate-in fade-in slide-in-from-top-1 duration-300">
+        {notice ? (
+          <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
             {notice}
           </div>
-        )}
+        ) : null}
 
-        {errorMsg && (
+        {errorMsg ? (
           <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
             {errorMsg}
           </div>
-        )}
+        ) : null}
 
         <div className="bg-slate-100/50 p-1.5 rounded-2xl flex flex-wrap gap-1">
-          {rentangList.map((rentang) => (
+          {kategoriUmurList.map((kategori) => (
             <button
-              key={rentang.id}
-              onClick={() => setActiveRentangId(String(rentang.id))}
-              className={`px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all ${activeRentangId === String(rentang.id)
-                ? "bg-white text-indigo-600 shadow-sm"
+              key={kategori.id}
+              onClick={() => setActiveKategoriUsia(kategori.label)}
+              className={`px-4 py-2.5 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all whitespace-nowrap ${activeKategoriUsia === kategori.label
+                ? "bg-white text-blue-600 shadow-sm"
                 : "text-slate-500 hover:bg-slate-100"
                 }`}
             >
-              {rentang.nama_rentang}
+              {kategori.label}
             </button>
           ))}
         </div>
@@ -219,28 +239,32 @@ export default function KelolaPerkembangan() {
         <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
           <div className="grid grid-cols-12 bg-slate-50/50 px-8 py-4 border-b border-slate-100 font-bold text-[10px] text-slate-400 uppercase tracking-widest">
             <div className="col-span-1 text-center">No</div>
-            <div className="col-span-9">Penanda Perkembangan</div>
+            <div className="col-span-3">Kategori Umur</div>
+            <div className="col-span-6">Indikator</div>
             <div className="col-span-2 text-right">Kelola</div>
           </div>
 
           <div className="divide-y divide-slate-100">
             {isLoading ? (
               <div className="p-20 text-center">
-                <p className="text-slate-400 text-sm italic">Memproses data...</p>
+                <p className="text-slate-400 text-sm italic">Memuat indikator...</p>
               </div>
             ) : currentData.length > 0 ? (
               currentData.map((item, index) => (
-                <div key={item.id} className="grid grid-cols-12 items-center px-8 py-6 hover:bg-slate-50/30 transition-all group">
-                  <div className="col-span-1 text-xs font-mono text-slate-400 text-center">
-                    {index + 1}
+                <div key={item.id} className="grid grid-cols-12 items-center px-8 py-5 hover:bg-slate-50/40 transition-all group">
+                  <div className="col-span-1 text-xs font-mono text-slate-300">
+                    {String(index + 1).padStart(2, '0')}
                   </div>
-                  <div className="col-span-9 pr-10 text-sm text-slate-700 leading-relaxed">
-                    {item.indikator}
+                  <div className="col-span-3 text-sm font-semibold text-blue-600">
+                    {item.kategori_usia}
                   </div>
-                  <div className="col-span-2 flex justify-end gap-2">
+                  <div className="col-span-6 pr-10 text-sm text-slate-700 leading-relaxed">
+                    {item.deskripsi}
+                  </div>
+                  <div className="col-span-2 flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button
                       onClick={() => openEditModal(item)}
-                      className="p-2 text-indigo-500 bg-indigo-50 hover:bg-indigo-600 hover:text-white rounded-lg transition-all"
+                      className="p-2 text-blue-500 bg-blue-50 hover:bg-blue-600 hover:text-white rounded-lg transition-all"
                     >
                       <Pencil size={18} />
                     </button>
@@ -255,16 +279,17 @@ export default function KelolaPerkembangan() {
               ))
             ) : (
               <div className="p-20 text-center">
-                <ClipboardList className="mx-auto text-slate-200 mb-4" size={48} />
-                <p className="text-slate-400 text-sm italic">Belum ada indikator untuk rentang usia ini.</p>
+                <p className="text-slate-400 text-sm italic">
+                  Belum ada indikator untuk kategori {activeKategoriUsia || "ini"}.
+                </p>
               </div>
             )}
           </div>
         </div>
 
         {isModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
-            <div className="w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden animate-in zoom-in-95 duration-200">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4">
+            <div className="w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden">
               <div className="flex items-center justify-between px-8 py-6 border-b border-slate-100 bg-slate-50/50">
                 <h2 className="text-xl font-bold text-slate-800">
                   {formMode === "add" ? "Tambah Indikator" : "Edit Indikator"}
@@ -275,17 +300,30 @@ export default function KelolaPerkembangan() {
               </div>
 
               <div className="p-8 space-y-6">
-                <div className="bg-indigo-50 px-4 py-2 rounded-xl inline-block text-[10px] font-black text-indigo-600 uppercase tracking-widest">
-                  {rentangList.find(r => String(r.id) === activeRentangId)?.nama_rentang}
-                </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">Deskripsi Indikator Perkembangan</label>
+                  <label className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">Kategori Umur <span className="text-red-500">*</span></label>
+                  <select
+                    value={formKategoriUsia}
+                    onChange={(e) => setFormKategoriUsia(e.target.value)}
+                    className="w-full rounded-2xl border border-slate-200 px-5 py-3 text-sm outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-400 transition-all"
+                  >
+                    <option value="">-- Pilih Kategori Umur --</option>
+                    {kategoriUmurList.map((kategori) => (
+                      <option key={kategori.id} value={kategori.label}>
+                        {kategori.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">Deskripsi Indikator</label>
                   <textarea
                     rows={6}
-                    value={formText}
-                    onChange={(e) => setFormText(e.target.value)}
-                    placeholder="Contoh: Anak bisa mengangkat kepala secara mandiri..."
-                    className="w-full rounded-2xl border border-slate-200 px-5 py-4 text-sm outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-400 transition-all resize-none"
+                    value={formDeskripsi}
+                    onChange={(e) => setFormDeskripsi(e.target.value)}
+                    placeholder="Contoh: Anak bisa mengenali suara ibu dan menoleh saat dipanggil..."
+                    className="w-full rounded-2xl border border-slate-200 px-5 py-4 text-sm outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-400 transition-all resize-none"
                   />
                 </div>
               </div>
@@ -300,7 +338,7 @@ export default function KelolaPerkembangan() {
                 <button
                   onClick={handleSave}
                   disabled={isSubmitting}
-                  className="px-8 py-2.5 text-sm font-bold rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-100 flex items-center gap-2 transition-all disabled:opacity-50"
+                  className="px-8 py-2.5 text-sm font-bold rounded-xl bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-100 flex items-center gap-2 transition-all disabled:opacity-50"
                 >
                   {isSubmitting ? <><RotateCcw className="animate-spin" size={16} /> MENYIMPAN...</> : <><Check size={18} /> SIMPAN INDIKATOR</>}
                 </button>
@@ -311,18 +349,18 @@ export default function KelolaPerkembangan() {
 
         {isDeleteModalOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
-            <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden">
               <div className="p-8 text-center space-y-4">
                 <div className="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Trash2 size={32} />
                 </div>
                 <h2 className="text-xl font-bold text-slate-800">Hapus Indikator?</h2>
                 <p className="text-sm text-slate-500 leading-relaxed">
-                  Indikator ini akan dihapus permanen dari bank soal perkembangan. Anda yakin?
+                  Indikator ini akan dihapus permanen. Anda yakin?
                 </p>
                 {selectedItem && (
                   <div className="text-xs bg-slate-50 rounded-xl p-4 text-slate-600 border border-slate-100 italic">
-                    "{selectedItem.indikator}"
+                    "{selectedItem.deskripsi}"
                   </div>
                 )}
               </div>
@@ -347,8 +385,4 @@ export default function KelolaPerkembangan() {
       </div>
     </MainLayout>
   );
-}
-
-function RotateCcw({ className, size }) {
-  return <div className={className}><Check size={size} /></div>; // Fallback icon or import actual RotateCcw if needed
 }

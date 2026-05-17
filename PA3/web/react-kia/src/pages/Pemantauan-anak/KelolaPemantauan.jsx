@@ -229,7 +229,7 @@ export default function KelolaPemantauan() {
 
         {/* Table Content */}
         <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-          <div className="grid grid-cols-12 bg-slate-50/50 px-8 py-4 border-b border-slate-100 font-bold text-[11px] text-slate-400 uppercase tracking-widest">
+          <div className={`grid grid-cols-12 bg-slate-50/50 px-8 py-4 border-b border-slate-100 font-bold text-[11px] text-slate-400 uppercase tracking-widest ${filteredData.length === 0 ? 'hidden' : ''}`}>
             <div className="col-span-1">No</div>
             <div className="col-span-9">Indikator Kondisi Kesehatan</div>
             <div className="col-span-2 text-right">Aksi Admin</div>

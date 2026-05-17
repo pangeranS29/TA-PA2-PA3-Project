@@ -21,13 +21,17 @@ func (r *IbuRepository) Create(ibu *models.Ibu) error {
 
 func (r *IbuRepository) FindByID(id int32) (*models.Ibu, error) {
 	var ibu models.Ibu
-	err := r.db.Preload("Kependudukan").First(&ibu, id).Error
+	err := r.db.Preload("Kependudukan").
+	Preload("Suami").
+	First(&ibu, id).Error
 	return &ibu, err
 }
 
 func (r *IbuRepository) FindAll() ([]models.Ibu, error) {
 	var list []models.Ibu
-	err := r.db.Preload("Kependudukan").Find(&list).Error
+	err := r.db.Preload("Kependudukan").
+	Preload("Suami").
+	Find(&list).Error
 	return list, err
 }
 
@@ -48,7 +52,7 @@ func (r *IbuRepository) FindAnakByUserID(userID int32) ([]models.Anak, error) {
 }
 
 func (r *IbuRepository) Update(ibu *models.Ibu) error {
-	return r.db.Save(ibu).Error
+	return r.db.Model(ibu).Updates(ibu).Error
 }
 
 func (r *IbuRepository) Delete(id int32) error {
@@ -65,6 +69,8 @@ func (r *IbuRepository) FindByPendudukID(pendudukID int32) (*models.Ibu, error) 
 	var ibu models.Ibu
 
 	err := r.db.
+		Preload("Kependudukan").
+		Preload("Suami").
 		Where("penduduk_id = ?", pendudukID). // ✅ FIX
 		First(&ibu).Error
 

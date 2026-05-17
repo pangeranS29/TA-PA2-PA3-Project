@@ -4,6 +4,15 @@ import MainLayout from "../../components/Layout/MainLayout";
 import { getAnakById } from "../../services/Anak";
 import { getPertumbuhanChart } from "../../services/pertumbuhan";
 import GrowthChart from "../../components/Dashboard/GrowthChart";
+import {
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+} from "recharts";
 
 import {
   ChevronLeft, Baby, Ruler, Activity, Calendar, User,
@@ -42,7 +51,13 @@ export default function AnakDashboard() {
           } else {
             throw new Error("Data tidak ditemukan");
           }
-          setChartData(resChart.data || resChart);
+          const chartResponse = resChart.data || resChart;
+          console.log("🔍 Chart API Response:", chartResponse);
+          if (chartResponse?.riwayat?.length > 0) {
+            console.log("📊 Sample record:", chartResponse.riwayat[0]);
+            console.log("🎯 LILA values:", chartResponse.riwayat.map(r => ({ usia: r.usia_ukur_bulan, lila: r.hasil_lila, lk: r.lingkar_kepala })));
+          }
+          setChartData(chartResponse);
         }
       } catch (err) {
         if (isMounted) {
@@ -106,36 +121,12 @@ export default function AnakDashboard() {
           <StatCard icon={<Ruler size={20} />} label="TB" value={lastGrowth?.tinggi_badan ? `${lastGrowth.tinggi_badan} cm` : "- cm"} color="blue" />
         </div>
 
-        {/* GRAFIK: Ukuran standar */}
-        <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm h-[400px]">
-          <div className="flex justify-between items-center mb-6">
-            <div className="flex gap-4">
-              <button
-                onClick={() => setActiveChart("bb_u")}
-                className={`text-sm font-bold px-3 py-1 rounded-lg transition-all ${activeChart === 'bb_u' ? 'bg-blue-50 text-blue-600' : 'text-gray-400 hover:bg-gray-50'}`}
-              >
-                Berat Badan
-              </button>
-              <button
-                onClick={() => setActiveChart("tb_u")}
-                className={`text-sm font-bold px-3 py-1 rounded-lg transition-all ${activeChart === 'tb_u' ? 'bg-blue-50 text-blue-600' : 'text-gray-400 hover:bg-gray-50'}`}
-              >
-                Tinggi Badan
-              </button>
-            </div>
-            <div className="flex items-center gap-2 text-xs text-gray-400 bg-gray-50 px-3 py-1 rounded-full">
-              <Activity size={12} />
-              Standar Permenkes 2/2020
-            </div>
-          </div>
-
-          <div className="h-[280px]">
-            <GrowthChart
-              data={chartData}
-              type={activeChart}
-              gender={child.jenis_kelamin}
-            />
-          </div>
+        {/* GRAFIK: Tampilkan 4 grafik kecil dalam tata letak seperti gambar pertama */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          <ChartCard title="Grafik Berat Badan (kg)" dataKey="berat_badan" data={growthData} color={themeColor} />
+          <ChartCard title="Grafik Tinggi Badan (cm)" dataKey="tinggi_badan" data={growthData} color="#8b5cf6" />
+          <ChartCard title="Grafik LILA (cm)" dataKey="hasil_lila" data={growthData} color="#f59e0b" />
+          <ChartCard title="Grafik Lingkar Kepala (cm)" dataKey="lingkar_kepala" data={growthData} color="#10b981" />
         </div>
 
         {/* MODAL: Versi Ringkas (Compact) */}
@@ -210,6 +201,52 @@ function StatCard({ icon, label, value, color }) {
       <div className="overflow-hidden">
         <p className="text-[10px] font-bold text-gray-400 uppercase tracking-tight">{label}</p>
         <p className="text-sm font-bold text-gray-800 truncate">{value}</p>
+      </div>
+    </div>
+  );
+}
+
+function ChartCard({ title, dataKey, data = [], color = "#3b82f6" }) {
+  const chartData = (data || [])
+    .map((r) => ({
+      name: `${r.usia_ukur_bulan} bln`,
+      value: r && r[dataKey] !== null && r[dataKey] !== undefined ? Number(r[dataKey]) : null,
+    }))
+    .filter(d => d.value !== null && !isNaN(d.value));
+
+  const hasData = chartData.length > 0;
+  
+  if (!hasData && dataKey !== "berat_badan" && dataKey !== "tinggi_badan") {
+    console.log(`📉 No data for ${dataKey}:`, {
+      totalRecords: data.length,
+      sampleValues: data.slice(0, 3).map(r => r[dataKey])
+    });
+  }
+
+  return (
+    <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm h-[260px]">
+      <div className="flex items-center justify-between mb-3">
+        <h4 className="font-bold text-gray-700">{title}</h4>
+        <div className="text-xs text-gray-400">Standar Permenkes 2/2020</div>
+      </div>
+      <div className="h-[180px]">
+        {hasData ? (
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={chartData} margin={{ top: 5, right: 12, left: 0, bottom: 5 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+              <XAxis dataKey="name" tick={{ fontSize: 10 }} />
+              <YAxis tick={{ fontSize: 10 }} />
+              <Tooltip />
+              <Line type="monotone" dataKey="value" stroke={color} strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} connectNulls />
+            </LineChart>
+          </ResponsiveContainer>
+        ) : (
+          <div className="h-full flex items-center justify-center text-gray-300 font-medium italic">Belum ada data untuk ditampilkan</div>
+        )}
+      </div>
+      <div className="flex items-center gap-2 pt-3 text-sm text-gray-500">
+        <span className="w-3 h-3 rounded-full" style={{ backgroundColor: color }} />
+        <span className="font-semibold">Data anak</span>
       </div>
     </div>
   );

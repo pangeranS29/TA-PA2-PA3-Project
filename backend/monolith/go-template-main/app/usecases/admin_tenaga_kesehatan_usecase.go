@@ -15,7 +15,6 @@ type AdminCreateBidanRequest struct {
 	NoSTR      string `json:"no_str"`
 	NoSIPB     string `json:"no_sipb"`
 	Status     string `json:"status"`
-	Email      string `json:"email"`
 }
 
 type AdminUpdateBidanRequest struct {
@@ -28,7 +27,6 @@ type AdminCreateKaderRequest struct {
 	PendudukID int32  `json:"penduduk_id"`
 	PosyanduID *int64 `json:"posyandu_id"`
 	Status     string `json:"status"`
-	Email      string `json:"email"`
 }
 
 type AdminUpdateKaderRequest struct {
@@ -37,7 +35,14 @@ type AdminUpdateKaderRequest struct {
 }
 
 type AdminCreatePosyanduRequest struct {
-	Nama string `json:"nama"`
+	IDPuskesmas int32  `json:"id_puskesmas" form:"id_puskesmas" binding:"required"`
+	Nama        string `json:"nama" form:"nama" binding:"required"`
+	Alamat      string `json:"alamat" form:"alamat"`
+}
+
+type AdminUpdatePosyanduRequest struct {
+	Nama   string `json:"nama" form:"nama"`
+	Alamat string `json:"alamat" form:"alamat"`
 }
 
 type AdminTenagaKesehatanUsecase struct {
@@ -101,6 +106,12 @@ func (u *AdminTenagaKesehatanUsecase) CreateBidan(req *AdminCreateBidanRequest) 
 		return nil, customerror.NewInternalServiceError("gagal memvalidasi data bidan")
 	}
 
+	if _, err := u.kaderRepo.FindByPendudukID(req.PendudukID); err == nil {
+		return nil, customerror.NewConflictError("penduduk sudah terdaftar sebagai kader")
+	} else if !isNotFound(err) {
+		return nil, customerror.NewInternalServiceError("gagal memvalidasi data kader")
+	}
+
 	if _, err := u.kependudukanRepo.FindByID(req.PendudukID); err != nil {
 		return nil, customerror.NewNotFoundError("penduduk tidak ditemukan")
 	}
@@ -143,6 +154,14 @@ func (u *AdminTenagaKesehatanUsecase) CreateBidan(req *AdminCreateBidanRequest) 
 
 func (u *AdminTenagaKesehatanUsecase) ListBidan(desa string) ([]repositories.BidanListItem, error) {
 	return u.bidanRepo.List(strings.TrimSpace(desa))
+}
+
+func (u *AdminTenagaKesehatanUsecase) GetBidanDetail(id int32) (*models.Bidan, error) {
+	data, err := u.bidanRepo.FindByID(id)
+	if err != nil {
+		return nil, customerror.NewNotFoundError("bidan tidak ditemukan")
+	}
+	return data, nil
 }
 
 func (u *AdminTenagaKesehatanUsecase) UpdateBidan(id int32, req *AdminUpdateBidanRequest) (*models.Bidan, error) {
@@ -210,6 +229,12 @@ func (u *AdminTenagaKesehatanUsecase) CreateKader(req *AdminCreateKaderRequest) 
 		return nil, customerror.NewInternalServiceError("gagal memvalidasi data kader")
 	}
 
+	if _, err := u.bidanRepo.FindByPendudukID(req.PendudukID); err == nil {
+		return nil, customerror.NewConflictError("penduduk sudah terdaftar sebagai bidan")
+	} else if !isNotFound(err) {
+		return nil, customerror.NewInternalServiceError("gagal memvalidasi data bidan")
+	}
+
 	if _, err := u.kependudukanRepo.FindByID(req.PendudukID); err != nil {
 		return nil, customerror.NewNotFoundError("penduduk tidak ditemukan")
 	}
@@ -246,6 +271,14 @@ func (u *AdminTenagaKesehatanUsecase) CreateKader(req *AdminCreateKaderRequest) 
 
 func (u *AdminTenagaKesehatanUsecase) ListKader(desa string) ([]repositories.KaderListItem, error) {
 	return u.kaderRepo.List(strings.TrimSpace(desa))
+}
+
+func (u *AdminTenagaKesehatanUsecase) GetKaderDetail(id int32) (*models.Kader, error) {
+	data, err := u.kaderRepo.FindByID(id)
+	if err != nil {
+		return nil, customerror.NewNotFoundError("kader tidak ditemukan")
+	}
+	return data, nil
 }
 
 func (u *AdminTenagaKesehatanUsecase) UpdateKader(id int32, req *AdminUpdateKaderRequest) (*models.Kader, error) {
@@ -297,9 +330,21 @@ func (u *AdminTenagaKesehatanUsecase) CreatePosyandu(req *AdminCreatePosyanduReq
 	if req == nil {
 		return customerror.NewBadRequestError("request tidak valid")
 	}
+	if req.IDPuskesmas == 0 {
+		return customerror.NewBadRequestError("id_puskesmas wajib diisi")
+	}
+	if strings.TrimSpace(req.Nama) == "" {
+		return customerror.NewBadRequestError("nama posyandu wajib diisi")
+	}
 
-	if err := u.kependudukanRepo.CreatePosyandu(req.Nama); err != nil {
-		return customerror.NewBadRequestError(err.Error())
+	posyandu := &models.Posyandu{
+		IDPuskesmas: req.IDPuskesmas,
+		Nama:        strings.TrimSpace(req.Nama),
+		Alamat:      strings.TrimSpace(req.Alamat),
+	}
+
+	if err := u.kependudukanRepo.CreatePosyandu(posyandu); err != nil {
+		return customerror.NewInternalServiceError("gagal menyimpan data posyandu: " + err.Error())
 	}
 
 	return nil
@@ -307,4 +352,44 @@ func (u *AdminTenagaKesehatanUsecase) CreatePosyandu(req *AdminCreatePosyanduReq
 
 func (u *AdminTenagaKesehatanUsecase) ListPosyandu(search string) ([]repositories.PosyanduItem, error) {
 	return u.kependudukanRepo.ListPosyandu(search)
+}
+
+func (u *AdminTenagaKesehatanUsecase) ListPenduduk(search string) ([]repositories.EligiblePendudukItem, error) {
+	return u.kependudukanRepo.ListEligibleForRole("bidan", search, "", "")
+}
+
+func (u *AdminTenagaKesehatanUsecase) GetPosyanduDetail(id int32) (*models.Posyandu, error) {
+	if id == 0 {
+		return nil, customerror.NewBadRequestError("id posyandu tidak valid")
+	}
+
+	posyandu, err := u.kependudukanRepo.FindPosyanduByID(id)
+	if err != nil {
+		return nil, customerror.NewNotFoundError("posyandu tidak ditemukan")
+	}
+
+	return posyandu, nil
+}
+
+func (u *AdminTenagaKesehatanUsecase) UpdatePosyandu(id int32, req *AdminUpdatePosyanduRequest) (*models.Posyandu, error) {
+	if req == nil {
+		return nil, customerror.NewBadRequestError("request tidak valid")
+	}
+
+	posyandu, err := u.kependudukanRepo.FindPosyanduByID(id)
+	if err != nil {
+		return nil, customerror.NewNotFoundError("posyandu tidak ditemukan")
+	}
+
+	if strings.TrimSpace(req.Nama) != "" {
+		posyandu.Nama = strings.TrimSpace(req.Nama)
+	}
+
+	posyandu.Alamat = strings.TrimSpace(req.Alamat)
+
+	if err := u.kependudukanRepo.UpdatePosyandu(posyandu); err != nil {
+		return nil, customerror.NewInternalServiceError("gagal memperbarui data posyandu")
+	}
+
+	return posyandu, nil
 }

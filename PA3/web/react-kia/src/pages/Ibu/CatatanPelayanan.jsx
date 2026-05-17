@@ -1,6 +1,7 @@
 // src/pages/Ibu/CatatanPelayanan.jsx
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import Swal from "sweetalert2";
 import MainLayout from "../../components/Layout/MainLayout";
 import { getKehamilanByIbuId } from "../../services/kehamilan";
 import { catatanT1, catatanT2, catatanT3, catatanNifas } from "../../services/catatanPelayanan";
@@ -121,9 +122,18 @@ export default function CatatanPelayanan() {
 
   // Handler DELETE catatan
   const handleDelete = async (recordId) => {
-    if (!window.confirm("Yakin ingin menghapus catatan ini?")) {
-      return;
-    }
+    const result = await Swal.fire({
+      title: 'Hapus Catatan?',
+      text: 'Yakin ingin menghapus catatan ini?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#dc2626',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Ya, Hapus!',
+      cancelButtonText: 'Batal'
+    });
+
+    if (!result.isConfirmed) return;
 
     setDeleteLoading(recordId);
     setError(null);
