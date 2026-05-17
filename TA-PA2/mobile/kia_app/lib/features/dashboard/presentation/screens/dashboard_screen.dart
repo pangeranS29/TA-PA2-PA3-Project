@@ -1703,6 +1703,7 @@
 
 
 import 'package:flutter/material.dart';
+import 'package:ta_pa2_pa3_project/core/services/auth_session.dart';
 import 'package:ta_pa2_pa3_project/core/themes/app_theme.dart';
 import 'package:ta_pa2_pa3_project/features/anak/mpasi/presentation/screens/mpasi_menu_screen.dart';
 // import 'package:ta_pa2_pa3_project/features/anak/mpasi/presentation/screens/mpasi/halaman_utama_mpasi.dart';
@@ -1721,6 +1722,9 @@ import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/rujuk
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/pemantauan_ibu_hamil_screen.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/catatan_pelayanan_menu_screen.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/log_ttd_mms_screen.dart';
+import 'package:ta_pa2_pa3_project/features/ibu/imunisasi/data/models/imunisasi_model.dart';
+import 'package:ta_pa2_pa3_project/features/ibu/imunisasi/presentation/screens/imunisasi_screen.dart';
+import 'package:ta_pa2_pa3_project/features/ibu/imunisasi/presentation/screens/pilih_anak.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/nifas/presentation/screens/nifas_screen.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/persalinan_screen.dart';
 // MODUL ANAK
@@ -1744,6 +1748,10 @@ import 'package:ta_pa2_pa3_project/core/services/auth_session.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/nifas/presentation/screens/ringkasan_persalinan_screen.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/nifas/presentation/screens/pelayanan_ibu_nifas_screen.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/nifas/presentation/screens/catatan_pelayanan_nifas_screen.dart';
+import 'package:ta_pa2_pa3_project/features/profil/presentation/screens/profil_screen.dart';
+
+// MODUL IMUNISASI
+import 'package:ta_pa2_pa3_project/features/ibu/imunisasi/data/services/imunisasi_service.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -1761,8 +1769,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
   KehamilanAktifModel? _kehamilanAktif;
 
   final _ibuApiService = IbuApiService();
+  final _imunisasiService = ImunisasiService();
   bool _loadingAnak = false;
   List<IbuAnakModel>? _anakSaya;
+  List<ImunisasiModel> _imunisasiData = [];
+  int _overdueCount = 0;
+
+  bool _loadingImunisasi = false;
+  String? _imunisasiError;
+
+
   List<dynamic> _rujukanList = [];
 
   @override
@@ -1770,7 +1786,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
     super.initState();
     _loadKehamilanAktif();
     _loadDataAnak();
-    _loadRujukan();
+    Future.delayed(const Duration(milliseconds: 300), () {
+      if (mounted) _loadImunisasi();
+    });
   }
 
   Future<void> _loadDataAnak() async {
@@ -1788,9 +1806,44 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
+  Future<void> _loadImunisasi() async {
+    final token = AuthSession.token;
+    if (token == null || token.isEmpty) return;
+
+    setState(() {
+      _loadingImunisasi = true;
+      _imunisasiError = null;
+    });
+
+    try {
+      final List<ImunisasiModel> result =
+          await _imunisasiService.getJadwalImunisasi();
+
+      if (!mounted) return;
+
+      final int totalTerlewat = result.fold<int>(
+        0,
+        (sum, anak) => sum + anak.jumlahTerlewat,
+      );
+
+      setState(() {
+        _imunisasiData = result;
+        _overdueCount = totalTerlewat;
+        _loadingImunisasi = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _imunisasiError = e.toString();
+        _loadingImunisasi = false;
+      });
+    }
+  }
+
   @override
   void dispose() {
     _ibuApiService.dispose();
+    _imunisasiService.dispose();
     super.dispose();
   }
 
@@ -1939,8 +1992,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
       // );
     } else if (_selectedNavIndex == 2) {
       body = const EdukasiScreenAll();
+    } else if (_selectedNavIndex == 3) {
+      body = PilihAnakImunisasiScreen(tujuan: 'imunisasi');
     } else {
-      body = const Center(child: Text('Profil'));
+      body = const ProfilScreen();
     }
 
     return Scaffold(
@@ -1948,7 +2003,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
       body: body,
       bottomNavigationBar: DashboardBottomNav(
         currentIndex: _selectedNavIndex,
-        onTap: (i) => setState(() => _selectedNavIndex = i),
+        overdueCount: _overdueCount,
+        onTap: (i) {
+          setState(() {
+            _selectedNavIndex = i;
+          });
+          // 🔥 PERBAIKAN: Jika user menekan tab Beranda (index 0), tarik data terbaru dari API
+          if (i == 0) {
+            _loadImunisasi();
+            _loadDataAnak();
+          }
+        },
       ),
     );
   }
@@ -1957,7 +2022,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return SingleChildScrollView(
       child: Column(
         children: [
-          const DashboardHeader(),
+          DashboardHeader(
+            data: _imunisasiData,
+            overdueCount: _overdueCount,
+            onOpenImunisasi: () {
+              setState(() {
+                _selectedNavIndex = 3;
+              });
+            },
+          ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Column(
@@ -2075,15 +2148,6 @@ Widget _buildNifasShortcut() {
     );
   }
 
-  // ─────────────────────────────────────────────
-  // [MODUL: IBU - Hamil] Konten tab Hamil
-  // Urutan sesuai desain lib_desain:
-  //   1. Card progress kehamilan
-  //   2. Card buah janin
-  //   3. MENU CEPAT (6 item, 3 kolom)
-  //   4. Menu Hamil (card navigasi)
-  //   5. Banner surat rujukan
-  // ─────────────────────────────────────────────
   Widget _buildHamilContent() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -2378,8 +2442,10 @@ Widget _buildNifasShortcut() {
         else
           // Tampilkan tombol request tambah jika belum ada data anak
           GestureDetector(
-            onTap: () => Navigator.push(context,
-                MaterialPageRoute(builder: (_) => const InputProfilAnakScreen())),
+            onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (_) => const InputProfilAnakScreen())),
             child: Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -2416,7 +2482,9 @@ Widget _buildNifasShortcut() {
           ),
         const SizedBox(height: 24),
 
-        const Text('MENU CEPAT', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey)),
+        const Text('MENU CEPAT',
+            style: TextStyle(
+                fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey)),
         const SizedBox(height: 16),
 
         // [WIDGET: DashboardTumbuhQuickMenu] — 6 menu cepat modul anak
@@ -2536,7 +2604,8 @@ Widget _buildNifasShortcut() {
     return Container(
       margin: const EdgeInsets.only(right: 16),
       padding: const EdgeInsets.all(16),
-      width: MediaQuery.of(context).size.width * 0.75, // Biar card berikutnya ngintip
+      width: MediaQuery.of(context).size.width *
+          0.75, // Biar card berikutnya ngintip
       decoration: BoxDecoration(
         color: const Color(0xFFEFF6FF), // Background biru sangat muda
         borderRadius: BorderRadius.circular(16),
@@ -2558,7 +2627,8 @@ Widget _buildNifasShortcut() {
               color: const Color(0xFF1E52A8), // Warna biru box icon
               borderRadius: BorderRadius.circular(16),
             ),
-            child: const Icon(Icons.person_outline, color: Colors.white, size: 32),
+            child:
+                const Icon(Icons.person_outline, color: Colors.white, size: 32),
           ),
           const SizedBox(width: 16),
           Expanded(
