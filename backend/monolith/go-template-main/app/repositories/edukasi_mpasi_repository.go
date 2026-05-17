@@ -28,7 +28,7 @@ func (r *edukasiMPASIRepository) Create(data *models.EdukasiMPASI) error {
 
 func (r *edukasiMPASIRepository) GetAll() ([]models.EdukasiMPASI, error) {
 	var data []models.EdukasiMPASI
-	err := r.db.Find(&data).Error
+	err := r.db.Order("bulan_min asc, judul asc").Find(&data).Error
 	return data, err
 }
 

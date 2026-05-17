@@ -1,11 +1,12 @@
 import React from "react";
 import EdukasiDigitalCrudPage from "./EdukasiDigitalCrudPage";
 
-const mpasiFields = [
-  { key: "judul", label: "Judul Edukasi MPASI", type: "text" },
-  { key: "gambar_url", label: "URL Gambar", type: "text" },
-  { key: "isi", label: "Isi Konten / Penjelasan", type: "textarea", rows: 6 },
-  { key: "resep", label: "Resep Makanan", type: "textarea", rows: 10 },
+const fields = [
+  { key: "judul", label: "Judul Edukasi MPASI", type: "text", required: true },
+  { key: "konten", label: "Konten", type: "textarea", rows: 6, required: true },
+  { key: "bulan_min", label: "Bulan Minimal (Opsional)", type: "number" },
+  { key: "bulan_max", label: "Bulan Maksimal (Opsional)", type: "number" },
+  { key: "gambar_url", label: "URL Gambar (opsional)", type: "text" },
 ];
 
 export default function MpasiFormPage() {
@@ -15,7 +16,7 @@ export default function MpasiFormPage() {
       resourcePath="edukasi-mpasi"
       view="form"
       listPath="/edukasi-digital/mpasi"
-      fields={mpasiFields}
+      fields={fields}
     />
   );
 }

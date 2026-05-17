@@ -56,28 +56,41 @@ type Main struct {
 	CatatanPelayananNifas         *CatatanPelayananNifasRepository
 	Rujukan                       *RujukanRepository
 	JenisPelayanan                JenisPelayananRepository
+	KategoriUmur                  KategoriUmurRepository
 
 	// Repository tambahan
 	KeluhanAnak         KeluhanAnakRepository
 	KesehatanLingkungan KesehatanLingkunganRepository
 	// KesehatanLingkunganDanCatatanKader *KesehatanLingkunganDanCatatanKaderRepository
-	PemantauanAnak PemantauanAnakRepository
-	// PerkembanganAnak                   PerkembanganAnakRepository
+	PemantauanAnak      PemantauanAnakRepository
 	PemantauanIndikator *PemantauanIndikatorRepository
 
+	// Perawatan Anak (Lembar Capaian)
+	KategoriCapaian KategoriCapaianRepository
+	Perawatan       PerawatanRepository
+
 	// Edukasi Digital
-	EdukasiInformasiUmum        EdukasiInformasiUmumRepository
-	EdukasiNifas                EdukasiNifasRepository
-	EdukasiTandaBahayaTrimester EdukasiTandaBahayaTrimesterRepository
-	EdukasiTandaMelahirkan      EdukasiTandaMelahirkanRepository
-	EdukasiImd                  EdukasiIMDRepository
-	EdukasiSetelahMelahirkan    EdukasiSetelahMelahirkanRepository
-	EdukasiMenyusuiAsi          EdukasiMenyusuiASIRepository
-	EdukasiPolaAsuh             EdukasiPolaAsuhRepository
-	EdukasiKesehatanMental      EdukasiKesehatanMentalRepository
-	EdukasiPerawatanAnak        EdukasiPerawatanAnakRepository
-	EdukasiMPASI                EdukasiMPASIRepository
-	LaporanIbu                  LaporanIbuRepository
+	EdukasiInformasiUmum     EdukasiInformasiUmumRepository
+	EdukasiNifas             EdukasiNifasRepository
+	EdukasiTrimester         EdukasiTrimesterRepository
+	EdukasiTandaMelahirkan   EdukasiTandaMelahirkanRepository
+	EdukasiImd               EdukasiIMDRepository
+	EdukasiSetelahMelahirkan EdukasiSetelahMelahirkanRepository
+	EdukasiMenyusuiAsi       EdukasiMenyusuiASIRepository
+	EdukasiPolaAsuh          EdukasiPolaAsuhRepository
+	EdukasiKesehatanMental   EdukasiKesehatanMentalRepository
+	EdukasiPerawatanAnak     EdukasiPerawatanAnakRepository
+	EdukasiMPASI             EdukasiMPASIRepository
+	EdukasiAturanPorsiMPASI  AturanPorsiMPASIRepository
+	EdukasiJadwalHarianMPASI JadwalHarianMPASIRepository
+	JadwalLayanan            JadwalLayananRepository
+	EdukasiResepMPASI        ResepMPASIRepository
+
+	// Edukasi Digital
+
+	// EdukasiTandaBahayaTrimester EdukasiTandaBahayaTrimesterRepository
+
+	LaporanIbu LaporanIbuRepository
 }
 
 type Options struct {
@@ -138,19 +151,23 @@ func Init(opts Options) *Main {
 	m.KategoriTandaBahaya = NewKategoriTandaBahayaRepository(opts.Postgres)
 	// m.SkriningPemantauan = NewSkriningPemantauanRepository(opts.Postgres)
 	m.JenisPelayanan = NewJenisPelayananRepository(opts.Postgres)
+	m.KategoriUmur = NewKategoriUmurRepository(opts.Postgres)
 
 	// Repository tambahan
 	m.KeluhanAnak = NewKeluhanAnakRepository(opts.Postgres)
 	m.KesehatanLingkungan = NewKesehatanLingkunganRepository(opts.Postgres)
 	// m.KesehatanLingkunganDanCatatanKader = NewKesehatanLingkunganDanCatatanKaderRepository(opts.Postgres)
 	m.PemantauanAnak = NewPemantauanAnakRepository(opts.Postgres)
-	// m.PerkembanganAnak = NewPerkembanganAnakRepository(opts.Postgres)
 	m.PemantauanIndikator = NewPemantauanIndikatorRepository(opts.Postgres)
+
+	// Perawatan Anak (Lembar Capaian)
+	m.KategoriCapaian = NewKategoriCapaianRepository(opts.Postgres)
+	m.Perawatan = NewPerawatanRepository(opts.Postgres)
 
 	// Edukasi Digital
 	m.EdukasiInformasiUmum = NewEdukasiInformasiUmumRepository(opts.Postgres)
 	m.EdukasiNifas = NewEdukasiNifasRepository(opts.Postgres)
-	m.EdukasiTandaBahayaTrimester = NewEdukasiTandaBahayaTrimesterRepository(opts.Postgres)
+	m.EdukasiTrimester = NewEdukasiTrimesterRepository(opts.Postgres)
 	m.EdukasiTandaMelahirkan = NewEdukasiTandaMelahirkanRepository(opts.Postgres)
 	m.EdukasiImd = NewEdukasiIMDRepository(opts.Postgres)
 	m.EdukasiSetelahMelahirkan = NewEdukasiSetelahMelahirkanRepository(opts.Postgres)
@@ -159,6 +176,10 @@ func Init(opts Options) *Main {
 	m.EdukasiKesehatanMental = NewEdukasiKesehatanMentalRepository(opts.Postgres)
 	m.EdukasiPerawatanAnak = NewEdukasiPerawatanAnakRepository(opts.Postgres)
 	m.EdukasiMPASI = NewEdukasiMPASIRepository(opts.Postgres)
+	m.EdukasiAturanPorsiMPASI = NewAturanPorsiMPASIRepository(opts.Postgres)
+	m.EdukasiJadwalHarianMPASI = NewJadwalHarianMPASIRepository(opts.Postgres)
+	m.JadwalLayanan = NewJadwalLayananRepository(opts.Postgres)
+	m.EdukasiResepMPASI = NewResepMPASIRepository(opts.Postgres)
 	m.LaporanIbu = NewLaporanIbuRepository(opts.Postgres)
 
 	return m
