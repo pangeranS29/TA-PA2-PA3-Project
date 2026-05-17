@@ -684,6 +684,21 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	ibu.DELETE("/perawatan/:id", controller.DeletePerawatan)
 	// Catatan: Ibu tidak memiliki akses UPDATE/DELETE/VERIFY untuk menjaga integritas rekam medis
 
+	// ==================== IMUNISASI ====================
+	ibu.GET("/jadwal-imunisasi", controller.GetJadwalImunisasi)
+	ibu.GET("/jadwal-imunisasi/anak/:anak_id", controller.GetJadwalImunisasiByAnakID)
+	ibu.PUT("/jadwal-imunisasi/:id/tanggal-estimasi", controller.UpdateTanggalEstimasi)
+	ibu.GET("/jadwal-imunisasi/:id", controller.GetJadwalByID)
+
+	kader := e.Group("/kader")
+	kader.Use(middlewares.JWTAuth(controller.JWTSecret()))
+	kader.Use(middlewares.Kader())
+	kader.GET("/kunjungan-imunisasi", controller.GetAllKunjunganImunisasi)
+	kader.GET("/kunjungan-imunisasi/:id", controller.GetKunjunganImunisasiByID)
+	kader.PUT("/kunjungan-imunisasi/:id/status", controller.UpdateStatusKunjungan)
+	kader.PUT("/kunjungan-imunisasi/:id/tanggal-kunjungan", controller.UpdateTanggalKunjungan)
+	// kader.POST("/kunjungan-imunisasi",controller.CreateJadwalKunjunganImunisasi)
+
 	// ==================== KELUHAN ANAK ====================
 	ibu.GET("/keluhan-anak", controller.KeluhanAnak.GetByAnakIDForIbu)
 	ibu.GET("/keluhan-anak/:id", controller.KeluhanAnak.GetByIDForIbu)
