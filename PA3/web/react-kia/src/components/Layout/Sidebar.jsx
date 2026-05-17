@@ -96,8 +96,8 @@ const Sidebar = () => {
       children: [
         // { path: "/monitoring", name: "Rekap Wilayah", icon: BarChart3 },
         { path: "/pemantauan/lihat", name: "Data Pemantauan Anak", icon: TableProperties },
-        { path: "/pemantauan/perkembangan", name: "Data Perkembangan Anak", icon: TableProperties },
-        { path: "/pemantauan/kelola-perkembangan", name: "Kelola Penanda Perkembangan Anak", icon: ClipboardEdit },
+        { path: "/pemantauan/perkembangan", name: "Data Perawatan Anak", icon: TableProperties },
+        { path: "/pemantauan/kelola-perkembangan", name: "Kelola Perawatan Anak", icon: ClipboardEdit },
         { path: "/pemantauan/kelola", name: "Kelola Pemantauan Anak", icon: ClipboardEdit },
       ],
     },
@@ -174,6 +174,7 @@ const Sidebar = () => {
     <NavLink
       key={item.path}
       to={item.path}
+      end
       className={({ isActive }) => `${baseItemClass(isActive)} ${className}`}
     >
       {({ isActive }) => (
@@ -198,6 +199,9 @@ const Sidebar = () => {
   const renderDropdown = (item, isNested = false) => {
     const isOpen = dropdownOpen[item.dropdownKey];
     const hasActiveChild = hasActiveDescendant(item);
+    const childContainerClass = isNested
+      ? "ml-3 pl-3 space-y-0.5 border-l border-slate-200"
+      : "ml-3 pl-3 space-y-0.5 border-l border-slate-200";
 
     return (
       <div key={item.dropdownKey} className="space-y-0.5">
@@ -218,8 +222,12 @@ const Sidebar = () => {
         </button>
 
         {(isOpen || hasActiveChild) && (
-          <div className="ml-3 pl-3 space-y-0.5 border-l border-slate-200">
-            {item.children.map((child) => renderNavLink(child, "text-sm px-3 py-2 rounded-lg"))}
+          <div className={childContainerClass}>
+            {item.children.map((child) => (
+              child.isDropdown
+                ? renderDropdown(child, true)
+                : renderNavLink(child, "text-sm px-3 py-2 rounded-lg")
+            ))}
           </div>
         )}
       </div>

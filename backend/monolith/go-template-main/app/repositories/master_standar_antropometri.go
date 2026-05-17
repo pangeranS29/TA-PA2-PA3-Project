@@ -23,7 +23,49 @@ func (m *Main) GetStandarAntropometri(parameter, jenisKelamin string, nilaiSumbu
 		Order("nilai_sumbu_x ASC").First(&upper).Error
 
 	if lowerErr != nil && upperErr != nil {
-		return nil, customerror.NewNotFoundError("master standar antropometri tidak ditemukan")
+		// jika tidak ada data untuk kombinasi parameter+gender, coba tanpa filter gender
+		var anyLower models.MasterStandarAntropometri
+		anyLowerErr := m.postgres.Where("parameter = ? AND nilai_sumbu_x <= ?", parameter, nilaiSumbuX).
+			Order("nilai_sumbu_x DESC").First(&anyLower).Error
+
+		var anyUpper models.MasterStandarAntropometri
+		anyUpperErr := m.postgres.Where("parameter = ? AND nilai_sumbu_x >= ?", parameter, nilaiSumbuX).
+			Order("nilai_sumbu_x ASC").First(&anyUpper).Error
+
+		if anyLowerErr != nil && anyUpperErr != nil {
+			return nil, customerror.NewNotFoundError("master standar antropometri tidak ditemukan")
+		}
+
+		if anyLowerErr != nil {
+			return &anyUpper, nil
+		}
+		if anyUpperErr != nil {
+			return &anyLower, nil
+		}
+
+		if anyUpper.NilaiSumbuX == anyLower.NilaiSumbuX {
+			return &anyLower, nil
+		}
+
+		ratio := (nilaiSumbuX - anyLower.NilaiSumbuX) / (anyUpper.NilaiSumbuX - anyLower.NilaiSumbuX)
+		interpolate := func(a, b float64) float64 {
+			return a + ratio*(b-a)
+		}
+
+		interpolated := models.MasterStandarAntropometri{
+			Parameter:    parameter,
+			JenisKelamin: anyLower.JenisKelamin,
+			NilaiSumbuX:  nilaiSumbuX,
+			SD3Neg:       interpolate(anyLower.SD3Neg, anyUpper.SD3Neg),
+			SD2Neg:       interpolate(anyLower.SD2Neg, anyUpper.SD2Neg),
+			SD1Neg:       interpolate(anyLower.SD1Neg, anyUpper.SD1Neg),
+			Median:       interpolate(anyLower.Median, anyUpper.Median),
+			SD1Pos:       interpolate(anyLower.SD1Pos, anyUpper.SD1Pos),
+			SD2Pos:       interpolate(anyLower.SD2Pos, anyUpper.SD2Pos),
+			SD3Pos:       interpolate(anyLower.SD3Pos, anyUpper.SD3Pos),
+		}
+
+		return &interpolated, nil
 	}
 
 	if lowerErr != nil {

@@ -6,13 +6,11 @@ import {
   addCatatanPertumbuhan,
   deleteCatatanPertumbuhan,
   updateCatatanPertumbuhan,
-  prediksiStunting,
-  getLatestPrediksi,
 } from "../../services/pertumbuhan";
 import { getAnakById } from "../../services/Anak";
 import {
   ChevronLeft, Plus, Trash2, Calendar, Scale, Ruler,
-  Info, Pencil, Brain, AlertTriangle, CheckCircle, TrendingUp,
+  Info, Pencil, TrendingUp,
 } from "lucide-react";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
@@ -27,8 +25,6 @@ export default function PertumbuhanIndex() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [currentId, setCurrentId] = useState(null);
-  const [prediksi, setPrediksi] = useState(null);
-  const [prediksiLoading, setPrediksiLoading] = useState(false);
   const [activeChart, setActiveChart] = useState("bb");
 
   const initialForm = {
@@ -58,18 +54,8 @@ export default function PertumbuhanIndex() {
     }
   };
 
-  const fetchPrediksi = async () => {
-    try {
-      const res = await getLatestPrediksi(id);
-      setPrediksi(res);
-    } catch {
-      // belum ada prediksi
-    }
-  };
-
   useEffect(() => {
     fetchData();
-    fetchPrediksi();
   }, [id]);
 
   const handleOpenAdd = () => {
@@ -111,43 +97,10 @@ export default function PertumbuhanIndex() {
       }
       setIsModalOpen(false);
       await fetchData();
-      // Prediksi otomatis setelah simpan jika ada LILA
-      await runPrediksiOtomatis();
     } catch (err) {
       console.error("Save Error:", err);
       const msg = err.response?.data?.message || err.message || "Gagal menyimpan data";
       alert(msg);
-    }
-  };
-
-  const runPrediksiOtomatis = async () => {
-    try {
-      // Ambil riwayat terbaru setelah save
-      const res = await getRiwayatPertumbuhan(id);
-      const latestRiwayat = res.data || [];
-      const lastWithLila = [...latestRiwayat].reverse().find((r) => r.hasil_lila && r.hasil_lila > 0);
-      const last = lastWithLila || latestRiwayat[latestRiwayat.length - 1];
-      if (!last || !last.hasil_lila) return; // tidak ada LILA, skip
-
-      const rawGender = anak?.jenis_kelamin || "";
-      const jenisKelamin = rawGender.toLowerCase().includes("perempuan") ? "Perempuan" : "Laki-laki";
-
-      setPrediksiLoading(true);
-      const res2 = await prediksiStunting({
-        anak_id:         parseInt(id),
-        berat_lahir_kg:  anak?.berat_lahir_kg,
-        tinggi_lahir_cm: anak?.tinggi_lahir_cm,
-        berat_badan:     last.berat_badan,
-        tinggi_badan:    last.tinggi_badan,
-        hasil_lila:      last.hasil_lila,
-        usia_ukur_bulan: last.usia_ukur_bulan,
-        jenis_kelamin:   jenisKelamin,
-      });
-      setPrediksi(res2);
-    } catch {
-      // prediksi gagal, abaikan
-    } finally {
-      setPrediksiLoading(false);
     }
   };
 
@@ -177,20 +130,16 @@ export default function PertumbuhanIndex() {
     lk:   r.lingkar_kepala || null,
   }));
 
-  const clsStyle = (cls) => {
-    if (cls === "STUNTING") return { bg: "bg-red-50 border-red-200",    text: "text-red-700",    icon: <AlertTriangle size={20} className="text-red-500" />,    label: "STUNTING"  };
-    if (cls === "AT_RISK")  return { bg: "bg-orange-50 border-orange-200", text: "text-orange-700", icon: <AlertTriangle size={20} className="text-orange-500" />, label: "BERISIKO"  };
-    return                         { bg: "bg-green-50 border-green-200",  text: "text-green-700",  icon: <CheckCircle   size={20} className="text-green-500" />,   label: "NORMAL"    };
-  };
-
   if (loading) return (
     <MainLayout>
       <div className="p-10 text-center font-medium text-gray-400 animate-pulse">Memuat data...</div>
     </MainLayout>
   );
 
-  const lastData  = riwayat[riwayat.length - 1] || riwayat[0];
-  const predStyle = prediksi ? clsStyle(prediksi.classification) : null;
+  const lastData = riwayat.length > 0
+    ? [...riwayat].sort((a, b) => new Date(b.tgl_ukur) - new Date(a.tgl_ukur))[0]
+    : null;
+  const lastStatus = deriveStatusFromZScore(lastData);
 
   return (
     <MainLayout>
@@ -221,39 +170,6 @@ export default function PertumbuhanIndex() {
               </button>
             </div>
           </div>
-
-          {/* ── PANEL PREDIKSI ML ── */}
-          {prediksiLoading && (
-            <div className="rounded-3xl border border-purple-200 bg-purple-50 p-4 flex items-center gap-3">
-              <div className="w-4 h-4 border-2 border-purple-400 border-t-transparent rounded-full animate-spin" />
-              <p className="text-sm font-semibold text-purple-700">Menganalisis risiko stunting...</p>
-            </div>
-          )}
-          {!prediksiLoading && prediksi && predStyle && (
-            <div className={`rounded-3xl border p-6 ${predStyle.bg}`}>
-              <div className="flex flex-col md:flex-row gap-6 items-start">
-                <div className="flex items-center gap-3">
-                  {predStyle.icon}
-                  <div>
-                    <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Hasil Prediksi ML</p>
-                    <p className={`text-2xl font-black ${predStyle.text}`}>{predStyle.label}</p>
-                  </div>
-                </div>
-                <div className="flex flex-wrap gap-3 flex-1">
-                  <StatChip label="Risiko Stunting" value={`${(prediksi.risk_percentage ?? prediksi.stunting_risk ?? 0).toFixed(1)}%`} color="purple" />
-                  <StatChip label="Confidence"      value={`${(prediksi.confidence ?? 0).toFixed(1)}%`}                                color="blue"   />
-                  <StatChip label="Z-Score TB/U"    value={(prediksi.z_score_tb_u_estimated ?? prediksi.z_score_tb_u ?? 0).toFixed(2)} color="indigo" />
-                  <StatChip label="Status TB/U"     value={prediksi.status_tb_u ?? "-"}                                                color="gray"   />
-                </div>
-              </div>
-              {(prediksi.rekomendasi || prediksi.message) && (
-                <div className="mt-4 p-4 bg-white/60 rounded-2xl">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Rekomendasi</p>
-                  <p className="text-sm font-semibold text-gray-700 leading-relaxed">{prediksi.rekomendasi || prediksi.message}</p>
-                </div>
-              )}
-            </div>
-          )}
 
           {/* ── GRAFIK + PANEL KANAN ── */}
           <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
@@ -336,9 +252,9 @@ export default function PertumbuhanIndex() {
                 </h4>
                 <div className="space-y-2">
                   {[
-                    { label: "BB/U",  val: lastData?.status_bb_u  },
-                    { label: "TB/U",  val: lastData?.status_tb_u  },
-                    { label: "BB/TB", val: lastData?.status_bb_tb },
+                    { label: "BB/U",  val: lastStatus.statusBBU  },
+                    { label: "TB/U",  val: lastStatus.statusTBU  },
+                    { label: "BB/TB", val: lastStatus.statusBBTB },
                   ].map(({ label, val }) => (
                     <div key={label} className="flex items-center justify-between">
                       <span className="text-[10px] font-black text-gray-400 uppercase">{label}</span>
@@ -346,23 +262,6 @@ export default function PertumbuhanIndex() {
                     </div>
                   ))}
                 </div>
-              </div>
-
-              <div className="bg-purple-50 border border-purple-100 p-5 rounded-3xl">
-                <h4 className="text-xs font-black text-purple-700 uppercase tracking-widest mb-2 flex items-center gap-2">
-                  <Brain size={14} /> Prediksi Stunting
-                </h4>
-                {prediksiLoading ? (
-                  <p className="text-[10px] text-purple-600 font-medium">Menganalisis data...</p>
-                ) : prediksi ? (
-                  <p className="text-[10px] text-purple-600 leading-relaxed font-medium">
-                    Prediksi diperbarui otomatis setiap kali data pengukuran disimpan.
-                  </p>
-                ) : (
-                  <p className="text-[10px] text-purple-600 leading-relaxed font-medium">
-                    Prediksi akan berjalan otomatis saat menyimpan data pengukuran dengan <strong>LILA</strong>.
-                  </p>
-                )}
               </div>
             </div>
           </div>
@@ -412,16 +311,25 @@ export default function PertumbuhanIndex() {
                         <span className="inline-block px-2.5 py-1 bg-emerald-50 text-emerald-700 rounded-lg text-xs font-bold">{r.lingkar_kepala || "-"}</span>
                       </td>
                       <td className="px-5 py-4">
+                        {(() => {
+                          const rowStatus = deriveStatusFromZScore(r);
+                          return (
                         <div className="flex flex-col gap-1">
                           <div className="flex items-center gap-1.5">
                             <span className="text-[9px] font-black text-gray-400 w-8">BB/U:</span>
-                            <StatusBadge status={r.status_bb_u} />
+                            <StatusBadge status={rowStatus.statusBBU} />
                           </div>
                           <div className="flex items-center gap-1.5">
                             <span className="text-[9px] font-black text-gray-400 w-8">TB/U:</span>
-                            <StatusBadge status={r.status_tb_u} />
+                            <StatusBadge status={rowStatus.statusTBU} />
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-[9px] font-black text-gray-400 w-8">BB/TB:</span>
+                            <StatusBadge status={rowStatus.statusBBTB} />
                           </div>
                         </div>
+                          );
+                        })()}
                       </td>
                       <td className="px-5 py-4">
                         <div className="flex items-center justify-end gap-1.5">
@@ -531,12 +439,6 @@ export default function PertumbuhanIndex() {
                 />
               </div>
 
-              <div className="p-3 bg-purple-50 rounded-2xl border border-purple-100">
-                <p className="text-[10px] font-bold text-purple-600">
-                  Prediksi stunting ML akan berjalan otomatis setelah menyimpan jika LILA diisi.
-                </p>
-              </div>
-
               <div className="flex gap-3 pt-2">
                 <button type="button" onClick={() => setIsModalOpen(false)}
                   className="flex-1 py-4 rounded-2xl font-black text-gray-400 hover:bg-gray-100 transition-all">
@@ -557,6 +459,89 @@ export default function PertumbuhanIndex() {
 
 // ── Helper Components ─────────────────────────────────────────────────────
 
+function parseZScore(value) {
+  if (value === null || value === undefined || value === "") return null;
+  const raw = typeof value === "string" ? value.replace(",", ".") : value;
+  const parsed = Number(raw);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function firstValidZScore(candidates) {
+  for (const candidate of candidates) {
+    const parsed = parseZScore(candidate);
+    if (parsed !== null) return parsed;
+  }
+  return null;
+}
+
+function normalizeStatusText(value) {
+  if (value === null || value === undefined) return null;
+  const text = String(value).trim();
+  if (!text) return null;
+  if (text.toLowerCase() === "data standar tidak tersedia") return null;
+  return text;
+}
+
+function labelFromZScoreBBU(z) {
+  if (z === null) return null;
+  if (z < -3) return "Berat Badan Sangat Kurang";
+  if (z < -2) return "Berat Badan Kurang";
+  if (z <= 1) return "Normal";
+  if (z <= 2) return "Risiko Berat Badan Lebih";
+  return "Berat Badan Lebih";
+}
+
+function labelFromZScoreTBU(z) {
+  if (z === null) return null;
+  if (z < -3) return "Sangat Pendek";
+  if (z < -2) return "Pendek";
+  if (z <= 3) return "Normal";
+  return "Tinggi";
+}
+
+function labelFromZScoreBBTB(z) {
+  if (z === null) return null;
+  if (z < -3) return "Gizi Buruk";
+  if (z < -2) return "Gizi Kurang";
+  if (z <= 1) return "Gizi Baik";
+  if (z <= 2) return "Berisiko Gizi Lebih";
+  if (z <= 3) return "Gizi Lebih";
+  return "Obesitas";
+}
+
+function deriveStatusFromZScore(row) {
+  const zBBU = firstValidZScore([
+    row?.z_score_bb_u,
+    row?.zScoreBBU,
+    row?.zscore_bb_u,
+    row?.z_score?.bb_u,
+  ]);
+
+  const zTBU = firstValidZScore([
+    row?.z_score_tb_u,
+    row?.zScoreTBU,
+    row?.zscore_tb_u,
+    row?.z_score?.tb_u,
+  ]);
+
+  const zBBTB = firstValidZScore([
+    row?.z_score_bb_tb,
+    row?.zScoreBBTB,
+    row?.zscore_bb_tb,
+    row?.z_score?.bb_tb,
+  ]);
+
+  const fallbackBBU = normalizeStatusText(row?.status_bb_u) || normalizeStatusText(row?.statusBBU);
+  const fallbackTBU = normalizeStatusText(row?.status_tb_u) || normalizeStatusText(row?.statusTBU);
+  const fallbackBBTB = normalizeStatusText(row?.status_bb_tb) || normalizeStatusText(row?.statusBBTB);
+
+  return {
+    statusBBU: labelFromZScoreBBU(zBBU) || fallbackBBU || "Belum dihitung",
+    statusTBU: labelFromZScoreTBU(zTBU) || fallbackTBU || "Belum dihitung",
+    statusBBTB: labelFromZScoreBBTB(zBBTB) || fallbackBBTB || "Belum dihitung",
+  };
+}
+
 function StatusBadge({ status }) {
   if (!status || status === "Data Standar Tidak Tersedia") {
     return <span className="px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-tight bg-gray-100 text-gray-400">-</span>;
@@ -569,21 +554,6 @@ function StatusBadge({ status }) {
   if (isWarning)  cls = "bg-orange-100 text-orange-700";
   if (isCritical) cls = "bg-red-100 text-red-700";
   return <span className={`px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-tight ${cls}`}>{status}</span>;
-}
-
-function StatChip({ label, value, color }) {
-  const map = {
-    purple: "bg-purple-100 text-purple-700",
-    blue:   "bg-blue-100 text-blue-700",
-    indigo: "bg-indigo-100 text-indigo-700",
-    gray:   "bg-gray-100 text-gray-700",
-  };
-  return (
-    <div className={`px-4 py-2 rounded-2xl ${map[color] || map.gray}`}>
-      <p className="text-[9px] font-black uppercase tracking-widest opacity-60">{label}</p>
-      <p className="text-base font-black">{value}</p>
-    </div>
-  );
 }
 
 function MiniStat({ label, value, unit }) {

@@ -288,6 +288,30 @@ func validateCreatePertumbuhanRequest(req *models.CreatePertumbuhanRequest) erro
 	return nil
 }
 
+func (m *Main) recalculateAntropometri(catatan *models.CatatanPertumbuhan, gender string) {
+	if catatan == nil {
+		return
+	}
+
+	stdBBU, _ := m.repository.GetStandarAntropometri(ParamBBU, gender, float64(catatan.UsiaUkurBulan))
+	if stdBBU != nil {
+		catatan.ZScoreBBU = hitungZScore(catatan.BeratBadan, stdBBU)
+		catatan.StatusBBU = interpretasiStatusBBU(catatan.ZScoreBBU)
+	}
+
+	stdTBU, _ := m.repository.GetStandarAntropometri(ParamTBU, gender, float64(catatan.UsiaUkurBulan))
+	if stdTBU != nil {
+		catatan.ZScoreTBU = hitungZScore(catatan.TinggiBadan, stdTBU)
+		catatan.StatusTBU = interpretasiStatusTBU(catatan.ZScoreTBU)
+	}
+
+	stdBBTB, _ := m.repository.GetStandarAntropometri(ParamBBTB, gender, catatan.TinggiBadan)
+	if stdBBTB != nil {
+		catatan.ZScoreBBTB = hitungZScore(catatan.BeratBadan, stdBBTB)
+		catatan.StatusBBTB = interpretasiStatusBBTB(catatan.ZScoreBBTB)
+	}
+}
+
 func (m *Main) AddCatatanPertumbuhan(req *models.CreatePertumbuhanRequest) error {
 	if err := validateCreatePertumbuhanRequest(req); err != nil {
 		return err
@@ -324,29 +348,12 @@ func (m *Main) AddCatatanPertumbuhan(req *models.CreatePertumbuhanRequest) error
 			gender := sanitizeGender(rawGender)
 
 			catatan.UsiaUkurBulan = catatan.HitungUsiaBulan(tanggalLahir)
-
-			stdBBU, _ := m.repository.GetStandarAntropometri(ParamBBU, gender, float64(catatan.UsiaUkurBulan))
-			if stdBBU != nil {
-				catatan.ZScoreBBU = hitungZScore(catatan.BeratBadan, stdBBU)
-				catatan.StatusBBU = interpretasiStatusBBU(catatan.ZScoreBBU)
-			}
-
-			stdTBU, _ := m.repository.GetStandarAntropometri(ParamTBU, gender, float64(catatan.UsiaUkurBulan))
-			if stdTBU != nil {
-				catatan.ZScoreTBU = hitungZScore(catatan.TinggiBadan, stdTBU)
-				catatan.StatusTBU = interpretasiStatusTBU(catatan.ZScoreTBU)
-			}
+			m.recalculateAntropometri(catatan, gender)
 
 			stdIMTU, _ := m.repository.GetStandarAntropometri(ParamIMTU, gender, float64(catatan.UsiaUkurBulan))
 			if stdIMTU != nil {
 				catatan.ZScoreIMTU = hitungZScore(catatan.IMT, stdIMTU)
 				catatan.StatusIMTU = interpretasiStatusIMTU(catatan.ZScoreIMTU)
-			}
-
-			stdBBTB, _ := m.repository.GetStandarAntropometri(ParamBBTB, gender, catatan.TinggiBadan)
-			if stdBBTB != nil {
-				catatan.ZScoreBBTB = hitungZScore(catatan.BeratBadan, stdBBTB)
-				catatan.StatusBBTB = interpretasiStatusBBTB(catatan.ZScoreBBTB)
 			}
 
 			if catatan.LingkarKepala > 0 {
@@ -446,6 +453,7 @@ func (m *Main) GetRiwayatPertumbuhan(anakID uint) ([]models.CatatanPertumbuhanRe
 	var res []models.CatatanPertumbuhanResponse
 	var prev *models.CatatanPertumbuhan
 	for _, val := range data {
+		m.recalculateAntropometri(&val, gender)
 		stdBBU, _ := m.repository.GetStandarAntropometri(ParamBBU, gender, float64(val.UsiaUkurBulan))
 
 		statusNaik, statusBGM, kbmMinGram, kenaikanGram, statusInfo := hitungKMSStatus(val, prev, stdBBU)
@@ -511,6 +519,7 @@ func (m *Main) GetDetailCatatanPertumbuhan(id uint) (*models.CatatanPertumbuhanR
 	}
 
 	stdBBU, _ := m.repository.GetStandarAntropometri(ParamBBU, gender, float64(data.UsiaUkurBulan))
+	m.recalculateAntropometri(data, gender)
 	statusNaik, statusBGM, kbmMinGram, kenaikanGram, statusInfo := hitungKMSStatus(*data, prev, stdBBU)
 
 	return &models.CatatanPertumbuhanResponse{
@@ -586,26 +595,12 @@ func (m *Main) UpdateCatatanPertumbuhan(id uint, req *models.UpdatePertumbuhanRe
 
 	data.UsiaUkurBulan = data.HitungUsiaBulan(tanggalLahir)
 	data.IMT = data.HitungIMT()
+	m.recalculateAntropometri(data, gender)
 
-	stdBBU, _ := m.repository.GetStandarAntropometri(ParamBBU, gender, float64(data.UsiaUkurBulan))
-	if stdBBU != nil {
-		data.ZScoreBBU = hitungZScore(data.BeratBadan, stdBBU)
-		data.StatusBBU = interpretasiStatusBBU(data.ZScoreBBU)
-	}
-	stdTBU, _ := m.repository.GetStandarAntropometri(ParamTBU, gender, float64(data.UsiaUkurBulan))
-	if stdTBU != nil {
-		data.ZScoreTBU = hitungZScore(data.TinggiBadan, stdTBU)
-		data.StatusTBU = interpretasiStatusTBU(data.ZScoreTBU)
-	}
 	stdIMTU, _ := m.repository.GetStandarAntropometri(ParamIMTU, gender, float64(data.UsiaUkurBulan))
 	if stdIMTU != nil {
 		data.ZScoreIMTU = hitungZScore(data.IMT, stdIMTU)
 		data.StatusIMTU = interpretasiStatusIMTU(data.ZScoreIMTU)
-	}
-	stdBBTB, _ := m.repository.GetStandarAntropometri(ParamBBTB, gender, data.TinggiBadan)
-	if stdBBTB != nil {
-		data.ZScoreBBTB = hitungZScore(data.BeratBadan, stdBBTB)
-		data.StatusBBTB = interpretasiStatusBBTB(data.ZScoreBBTB)
 	}
 	if data.LingkarKepala > 0 {
 		stdLKU, _ := m.repository.GetStandarAntropometri(ParamLKU, gender, float64(data.UsiaUkurBulan))

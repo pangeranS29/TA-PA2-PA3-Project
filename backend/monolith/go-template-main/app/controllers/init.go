@@ -53,13 +53,16 @@ type Main struct {
 	KategoriUmur                  *KategoriUmurController
 	Kader                         *KaderController
 
-	// Controller tambahan (sebelumnya hilang dari routes)
+	// Controller tambahan
 	KeluhanAnak         *KeluhanAnakController
 	KesehatanLingkungan *KesehatanLingkunganController
 	// KesehatanLingkunganDanCatatanKader *KesehatanLingkunganDanCatatanKaderController
 	PemantauanAnak      *PemantauanAnakController
-	PerkembanganAnak    *PerkembanganAnakController
 	PemantauanIndikator *PemantauanIndikatorController
+
+	// Perawatan Anak (Lembar Capaian)
+	KategoriCapaian *KategoriCapaianController
+	Perawatan       *PerawatanController
 
 	// Edukasi Digital
 	EdukasiInformasiUmum     *EdukasiInformasiUmumController
@@ -151,8 +154,11 @@ func Init(opts Options) *Main {
 	// 	opts.UseCases.Ibu,
 	// )
 	m.PemantauanAnak = NewPemantauanAnakController(opts.UseCases.PemantauanAnak)
-	m.PerkembanganAnak = NewPerkembanganAnakController(opts.UseCases.PerkembanganAnak)
 	m.PemantauanIndikator = NewPemantauanIndikatorController(opts.UseCases.PemantauanIndikator)
+
+	// Perawatan Anak (Lembar Capaian)
+	m.KategoriCapaian = NewKategoriCapaianController(opts.UseCases.KategoriCapaian)
+	m.Perawatan = NewPerawatanController(opts.UseCases.Perawatan)
 
 	// Edukasi Digital
 	m.EdukasiInformasiUmum = NewEdukasiInformasiUmumController(opts.UseCases.EdukasiInformasiUmum)

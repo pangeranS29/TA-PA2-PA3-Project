@@ -1,4 +1,5 @@
 import React from "react";
+import LembarPerawatanAnak from "./pages/penanda-perkembangan-anak/LembarPerawatanAnak";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import Login from "./pages/Login";
@@ -123,7 +124,7 @@ import JadwalLayananPage from "./pages/jadwal-layanan/JadwalLayananPage";
 import JadwalLayananForm from "./pages/jadwal-layanan/JadwalLayananForm";
 import KeluhanAnak from "./pages/Anak/Keluhan/KeluhanAnak";
 import PemantauanAnakPage from "./pages/Anak/Pemantauan/PemantauanAnakPage";
-import PerkembanganAnakPage from "./pages/Anak/Perkembangan/PerkembanganAnakPage";
+
 import LihatDataPerkembangan from "./pages/penanda-perkembangan-anak/LihatDataPerkembangan";
 import KelolaPerkembangan from "./pages/penanda-perkembangan-anak/KelolaPerkembangan";
 import KelolaLingkungan from "./pages/KesehatanLingkungan/KelolaLingkungan";
@@ -239,7 +240,8 @@ function App() {
         <Route path="/data-anak/lila/:id/edit/:lilaId" element={<PelayananLilaEdit />} />
         <Route path="/data-anak/keluhan/:id" element={<KeluhanAnak />} />
         <Route path="/data-anak/pemantauan/:id" element={<PemantauanAnakPage />} />
-        <Route path="/data-anak/perkembangan/:id" element={<PerkembanganAnakPage />} />
+        <Route path="/data-anak/perawatan/:id" element={<LembarPerawatanAnak />} />
+
 
         <Route path="/dashboard/dokter" element={<ProtectedRoute allowedRoles={["dokter"]}> <Dashboard /></ProtectedRoute>}/>
         {/* ── PEMANTAUAN & PERKEMBANGAN ── */}
