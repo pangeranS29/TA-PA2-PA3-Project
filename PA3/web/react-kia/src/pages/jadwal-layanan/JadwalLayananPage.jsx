@@ -17,6 +17,7 @@ import {
   getJadwalLayananList,
   deleteJadwalLayanan,
 } from "../../services/jadwalLayanan";
+import { listPosyanduForDropdown } from "../../services/adminTenagaKesehatan";
 import { useNavigate } from "react-router-dom";
 
 // ─── helpers ────────────────────────────────────────────────────────────────
@@ -127,6 +128,20 @@ function getStatusBadgeClass(status) {
     default:
       return "text-slate-600 bg-slate-100 border border-slate-200";
   }
+}
+
+function getPosyanduLabel(row, posyanduMap = {}) {
+  const nested =
+    row?.posyandu?.nama_posyandu ||
+    row?.posyandu?.nama ||
+    row?.posyandu?.name ||
+    row?.posyandu?.alamat;
+  if (nested) return nested;
+
+  const id = row?.posyandu_id;
+  if (id && posyanduMap[id]) return posyanduMap[id];
+
+  return id ? `Posyandu ${id}` : "Posyandu";
 }
 
 // ─── tab config ─────────────────────────────────────────────────────────────
@@ -240,7 +255,7 @@ function EmptyState({ tab, onAdd }) {
   );
 }
 
-function ScheduleRow({ r, onEdit, onDelete, deleting }) {
+function ScheduleRow({ r, onEdit, onDelete, deleting, posyanduMap }) {
   const { day, num, mon } = formatDateParts(r.tanggal);
   const color = getLayananColor(r.layanan);
   const done = isDone(r);
@@ -304,10 +319,10 @@ function ScheduleRow({ r, onEdit, onDelete, deleting }) {
             {waktuMulai || "-"}
             {waktuSelesai ? ` - ${waktuSelesai}` : ""}
           </span>
-          {(r.posyandu?.nama || r.posyandu_id) && (
+          {(r.posyandu?.nama || r.posyandu?.name || r.posyandu?.alamat || r.posyandu_id) && (
             <span className="flex items-center gap-1">
               <MapPin size={11} />
-              {r.posyandu?.nama || `Posyandu #${r.posyandu_id}`}
+              {getPosyanduLabel(r, posyanduMap)}
             </span>
           )}
           {/* kapasitas removed */}
@@ -349,6 +364,7 @@ function ScheduleRow({ r, onEdit, onDelete, deleting }) {
 
 export default function JadwalLayananPage() {
   const [allRows, setAllRows] = useState([]);
+  const [posyanduMap, setPosyanduMap] = useState({});
   const [loading, setLoading] = useState(false);
   const [tabLoading, setTabLoading] = useState(false);
   const [error, setError] = useState("");
@@ -392,6 +408,24 @@ export default function JadwalLayananPage() {
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  useEffect(() => {
+    const loadPosyandu = async () => {
+      try {
+        const data = await listPosyanduForDropdown({ page: 1, per_page: 100 });
+        const map = {};
+        for (const item of Array.isArray(data) ? data : []) {
+          const name = item?.nama_posyandu || item?.nama || item?.name || item?.alamat;
+          if (item?.id && name) map[item.id] = name;
+        }
+        setPosyanduMap(map);
+      } catch {
+        // Keep the generic fallback if the lookup request fails.
+      }
+    };
+
+    loadPosyandu();
+  }, []);
 
   const handleTabChange = (key) => {
     if (key === activeTab) return;
@@ -517,6 +551,7 @@ export default function JadwalLayananPage() {
                   <ScheduleRow
                     key={r.id}
                     r={r}
+                    posyanduMap={posyanduMap}
                     onEdit={(id) => navigate(`/jadwal-layanan/form/${id}`)}
                     onDelete={handleDelete}
                     deleting={deleting}

@@ -33,19 +33,19 @@ func (r *jadwalLayananRepository) Create(data *models.JadwalLayanan) error {
 
 func (r *jadwalLayananRepository) GetAll() ([]models.JadwalLayanan, error) {
 	var data []models.JadwalLayanan
-	err := r.db.Order("tanggal asc, waktu_mulai asc").Find(&data).Error
+	err := r.db.Preload("Posyandu").Order("tanggal asc, waktu_mulai asc").Find(&data).Error
 	return data, err
 }
 
 func (r *jadwalLayananRepository) GetByID(id int32) (*models.JadwalLayanan, error) {
 	var data models.JadwalLayanan
-	err := r.db.First(&data, id).Error
+	err := r.db.Preload("Posyandu").First(&data, id).Error
 	return &data, err
 }
 
 func (r *jadwalLayananRepository) GetByPosyandu(posyanduID int32) ([]models.JadwalLayanan, error) {
 	var data []models.JadwalLayanan
-	err := r.db.Where("posyandu_id = ?", posyanduID).Order("tanggal asc, waktu_mulai asc").Find(&data).Error
+	err := r.db.Preload("Posyandu").Where("posyandu_id = ?", posyanduID).Order("tanggal asc, waktu_mulai asc").Find(&data).Error
 	return data, err
 }
 
@@ -62,7 +62,7 @@ func (r *jadwalLayananRepository) GetByDateRange(posyanduID *int32, from, to *ti
 	} else if to != nil {
 		q = q.Where("tanggal <= ?", to.Format("2006-01-02"))
 	}
-	err := q.Order("tanggal asc, waktu_mulai asc").Find(&data).Error
+	err := q.Preload("Posyandu").Order("tanggal asc, waktu_mulai asc").Find(&data).Error
 	return data, err
 }
 
@@ -72,7 +72,7 @@ func (r *jadwalLayananRepository) GetUpcoming(limit int) ([]models.JadwalLayanan
 	now := time.Now()
 	today := now.Format("2006-01-02")
 	nowTime := now.Format("15:04:05")
-	err := r.db.Where("tanggal > ? OR (tanggal = ? AND (waktu_selesai IS NULL OR waktu_selesai >= ?))", today, today, nowTime).
+	err := r.db.Preload("Posyandu").Where("tanggal > ? OR (tanggal = ? AND (waktu_selesai IS NULL OR waktu_selesai >= ?))", today, today, nowTime).
 		Order("tanggal asc, waktu_mulai asc").Limit(limit).Find(&data).Error
 	return data, err
 }
