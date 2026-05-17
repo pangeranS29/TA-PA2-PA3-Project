@@ -241,4 +241,3 @@ func calculateStatusID(
 		return 5 // krisis
 	}
 }
-

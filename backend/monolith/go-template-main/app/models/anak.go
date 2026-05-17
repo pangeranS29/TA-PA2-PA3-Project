@@ -19,6 +19,7 @@ type Anak struct {
 	NamaIbu         string         `json:"nama_ibu"`
 	NamaAyah        string         `json:"nama_ayah"`
 	IbuID           int32          `json:"ibu_id"`
+	TanggalLahir    *time.Time     `json:"tanggal_lahir,omitempty" gorm:"column:tanggal_lahir;type:date"`
 	CreatedAt       time.Time      `json:"created_at"`
 	UpdatedAt       time.Time      `json:"updated_at"`
 	DeletedAt       gorm.DeletedAt `json:"-" gorm:"index"`
