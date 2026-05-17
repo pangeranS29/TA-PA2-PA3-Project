@@ -56,10 +56,43 @@ func (r *PemeriksaanKehamilanRepository) FindByKehamilanID(kehamilanID int32) ([
 
 	return list, nil
 }
+
 // ================= UPDATE ==================== //
 
 func (r *PemeriksaanKehamilanRepository) Update(p *models.PemeriksaanKehamilan) error {
-	result := r.db.Save(p)
+	// Gunakan map eksplisit agar GORM hanya update kolom di tabel
+	// pemeriksaan_kehamilan saja, tanpa menyentuh tabel relasi (Kehamilan, Ibu, dll)
+	result := r.db.Model(&models.PemeriksaanKehamilan{}).
+		Where("id_periksa = ?", p.IDPeriksa).
+		Updates(map[string]interface{}{
+			"trimester":                 p.Trimester,
+			"kunjungan_ke":              p.KunjunganKe,
+			"minggu_kehamilan":          p.MingguKehamilan,
+			"tanggal_periksa":           p.TanggalPeriksa,
+			"tempat_periksa":            p.TempatPeriksa,
+			"berat_badan":               p.BeratBadan,
+			"tinggi_badan":              p.TinggiBadan,
+			"lingkar_lengan_atas":       p.LingkarLenganAtas,
+			"sistole":                   p.Sistole,
+			"diastole":                  p.Diastole,
+			"tinggi_rahim":              p.TinggiRahim,
+			"letak_denyut_jantung_bayi": p.LetakDenyutJantungBayi,
+			"denyut_jantung_janin":      p.DenyutJantungJanin,
+			"status_imunisasi_tetanus":  p.StatusImunisasiTetanus,
+			"konseling":                 p.Konseling,
+			"skrining_dokter":           p.SkriningDokter,
+			"tablet_tambah_darah":       p.TabletTambahDarah,
+			"tes_lab_hb":                p.TesLabHb,
+			"tes_golongan_darah":        p.TesGolonganDarah,
+			"tes_lab_protein_urine":     p.TesLabProteinUrine,
+			"tes_lab_gula_darah":        p.TesLabGulaDarah,
+			"usg":                       p.USG,
+			"tripel_eliminasi":          p.TripelEliminasi,
+			"tata_laksana_kasus":        p.TataLaksanaKasus,
+			"skor_risiko":               p.SkorRisiko,
+			"status_risiko":             p.StatusRisiko,
+			"detail_risiko":             p.DetailRisiko,
+		})
 
 	if result.Error != nil {
 		return result.Error
@@ -90,7 +123,6 @@ func (r *PemeriksaanKehamilanRepository) Delete(id int32) error {
 
 // ============ OPTIONAL (ADVANCED) ============ //
 
-// Ambil kunjungan terakhir (penting untuk dashboard & risk terbaru)
 func (r *PemeriksaanKehamilanRepository) FindLatestByKehamilanID(kehamilanID int32) (*models.PemeriksaanKehamilan, error) {
 	var p models.PemeriksaanKehamilan
 

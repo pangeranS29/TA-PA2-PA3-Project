@@ -351,6 +351,7 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	tenaga.GET("/kehamilan", controller.Kehamilan.GetByIbuID)
 	tenaga.PUT("/kehamilan/:id", controller.Kehamilan.Update)
 	tenaga.DELETE("/kehamilan/:id", controller.Kehamilan.Delete)
+	tenaga.PUT("/kehamilan/:id/status", controller.Kehamilan.UpdateStatus)
 
 	// ==================== PEMERIKSAAN KEHAMILAN (RUTIN) ====================
 	tenaga.POST("/pemeriksaan-kehamilan", controller.PemeriksaanKehamilan.Create)

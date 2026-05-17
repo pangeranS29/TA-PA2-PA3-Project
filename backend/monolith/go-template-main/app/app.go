@@ -12,7 +12,7 @@ import (
 	"monitoring-service/app/routes"
 
 	// "monitoring-service/app/seed"
-	"monitoring-service/app/seeders"
+	// "monitoring-service/app/seeders"
 	"monitoring-service/app/usecases"
 	"monitoring-service/pkg/config"
 	"monitoring-service/pkg/database"
@@ -128,10 +128,10 @@ func (m *Main) Init() (err error) {
 	// if err := kategoriCapaianSeeder.Seed(); err != nil {
 	// 	return err
 	// }
-	kategoriCapaianSeeder := seeders.NewKategoriCapaianSeeder(m.database.Postgres)
-	if err := kategoriCapaianSeeder.Seed(); err != nil {
-		return err
-	}
+	// kategoriCapaianSeeder := seeders.NewKategoriCapaianSeeder(m.database.Postgres)
+	// if err := kategoriCapaianSeeder.Seed(); err != nil {
+	// 	return err
+	// }
 
 	m.repo = repositories.Init(repositories.Options{
 		Config:   m.cfg,
