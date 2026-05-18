@@ -139,6 +139,7 @@ const Sidebar = () => {
   const dokterMenuItems = [
     { path: "/data-ibu", name: "Data Ibu", icon: Users },
     { path: "/laporan", name: "Laporan", icon: BarChart3 },
+    { path: "/daftar-rujukan", name: "Rujukan", icon: ClipboardList },
   ];
 
   // Menu admin (kelola keluarga)
