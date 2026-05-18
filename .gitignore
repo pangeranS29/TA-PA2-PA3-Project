@@ -1,0 +1,33 @@
+# Python Virtual Environments
+**/venv/
+**/env/
+**/.venv/
+MachineLearning/venv/
+MachineLearning/.venv/
+
+# Python Cache
+**/__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+
+# Machine Learning
+*.pth
+*.pkl
+*.model
+
+# Node modules
+**/node_modules/
+**/npm-debug.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
