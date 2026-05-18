@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:ta_pa2_pa3_project/features/ibu/hamil/data/services/evaluasi_kesehatan_ibu_api_service.dart';
-import 'package:ta_pa2_pa3_project/features/ibu/hamil/data/models/evaluasi_kesehatan_ibu_model.dart';
 import 'package:ta_pa2_pa3_project/core/constants/app_colors.dart';
+import 'package:ta_pa2_pa3_project/features/ibu/hamil/data/models/evaluasi_kesehatan_ibu_model.dart';
+import 'package:ta_pa2_pa3_project/features/ibu/hamil/data/services/evaluasi_kesehatan_ibu_api_service.dart';
+
+// IMPORT HALAMAN EDUKASI
+import 'package:ta_pa2_pa3_project/features/edukasi/presentation/ibu/konten_edukasi_ibu_screen.dart';
 
 class HasilEvaluasiKesehatanScreen extends StatefulWidget {
   const HasilEvaluasiKesehatanScreen({super.key});
@@ -30,15 +33,47 @@ class _HasilEvaluasiKesehatanScreenState
 
   String _formatDate(String? value) {
     if (value == null || value.isEmpty) return '-';
+
     final date = DateTime.tryParse(value);
     if (date == null) return '-';
 
     final months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
-      'Jul', 'Agt', 'Sep', 'Okt', 'Nov', 'Des'
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'Mei',
+      'Jun',
+      'Jul',
+      'Agt',
+      'Sep',
+      'Okt',
+      'Nov',
+      'Des'
     ];
 
     return '${date.day} ${months[date.month - 1]} ${date.year}';
+  }
+
+  // SNACKBAR HUBUNGI BIDAN
+  void _hubungiBidan() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          "Menghubungkan ke bidan...",
+        ),
+      ),
+    );
+  }
+
+  // PINDAH HALAMAN EDUKASI
+  void _pelajariLebihLanjut() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const KontenEdukasiIbuScreen(),
+      ),
+    );
   }
 
   @override
@@ -55,17 +90,21 @@ class _HasilEvaluasiKesehatanScreenState
         future: _future,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
           }
 
           if (snapshot.hasError) {
             return _EmptyState(
               title: "Data evaluasi belum tersedia",
-              message: snapshot.error.toString().replaceFirst('Exception: ', ''),
+              message:
+                  snapshot.error.toString().replaceFirst('Exception: ', ''),
             );
           }
 
           final data = snapshot.data;
+
           if (data == null) {
             return const _EmptyState(
               title: "Data evaluasi belum tersedia",
@@ -76,17 +115,76 @@ class _HasilEvaluasiKesehatanScreenState
           return ListView(
             padding: const EdgeInsets.all(20),
             children: [
-              _HeaderCard(data: data, formatDate: _formatDate),
+              _HeaderCard(
+                data: data,
+                formatDate: _formatDate,
+              ),
+
               const SizedBox(height: 16),
+
+              // TOMBOL HUBUNGI BIDAN
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: _hubungiBidan,
+                  icon: const Icon(Icons.phone),
+                  label: const Text("Hubungi Bidan Sekarang"),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 12),
+
+              // TOMBOL EDUKASI
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton(
+                  onPressed: _pelajariLebihLanjut,
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.primary,
+                    side: BorderSide(
+                      color: AppColors.primary,
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
+                  child: const Text(
+                    "Pelajari Lebih Lanjut",
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 18),
 
               _InfoCard(
                 title: "Antropometri",
                 icon: Icons.monitor_weight_outlined,
                 children: [
-                  _InfoRow("Tinggi badan", "${data.tbCm ?? '-'} cm"),
-                  _InfoRow("Berat badan", "${data.bbKg ?? '-'} kg"),
-                  _InfoRow("IMT", data.imtKategori),
-                  _InfoRow("LILA", "${data.lilaCm ?? '-'} cm"),
+                  _InfoRow(
+                    "Tinggi badan",
+                    "${data.tbCm ?? '-'} cm",
+                  ),
+                  _InfoRow(
+                    "Berat badan",
+                    "${data.bbKg ?? '-'} kg",
+                  ),
+                  _InfoRow(
+                    "IMT",
+                    data.imtKategori,
+                  ),
+                  _InfoRow(
+                    "LILA",
+                    "${data.lilaCm ?? '-'} cm",
+                  ),
                 ],
               ),
 
@@ -94,9 +192,15 @@ class _HasilEvaluasiKesehatanScreenState
                 title: "Imunisasi TT",
                 icon: Icons.verified_user_outlined,
                 children: [
-                  _InfoRow("Status TT", data.statusTTText),
+                  _InfoRow(
+                    "Status TT",
+                    data.statusTTText,
+                  ),
                   if (data.imunisasiLainnyaCovid19.isNotEmpty)
-                    _InfoRow("Imunisasi lainnya", data.imunisasiLainnyaCovid19),
+                    _InfoRow(
+                      "Imunisasi lainnya",
+                      data.imunisasiLainnyaCovid19,
+                    ),
                 ],
               ),
 
@@ -104,7 +208,10 @@ class _HasilEvaluasiKesehatanScreenState
                 title: "Riwayat Kesehatan",
                 icon: Icons.medical_information_outlined,
                 children: [
-                  _InfoRow("Riwayat", data.riwayatKesehatanText),
+                  _InfoRow(
+                    "Riwayat",
+                    data.riwayatKesehatanText,
+                  ),
                 ],
               ),
 
@@ -112,7 +219,10 @@ class _HasilEvaluasiKesehatanScreenState
                 title: "Perilaku Berisiko",
                 icon: Icons.warning_amber_rounded,
                 children: [
-                  _InfoRow("Perilaku", data.perilakuBerisikoText),
+                  _InfoRow(
+                    "Perilaku",
+                    data.perilakuBerisikoText,
+                  ),
                 ],
               ),
 
@@ -120,7 +230,10 @@ class _HasilEvaluasiKesehatanScreenState
                 title: "Riwayat Keluarga",
                 icon: Icons.family_restroom_outlined,
                 children: [
-                  _InfoRow("Riwayat", data.riwayatKeluargaText),
+                  _InfoRow(
+                    "Riwayat",
+                    data.riwayatKeluargaText,
+                  ),
                 ],
               ),
 
@@ -172,10 +285,70 @@ class _HeaderCard extends StatelessWidget {
               fontWeight: FontWeight.w800,
             ),
           ),
+
           const SizedBox(height: 14),
-          _HeaderRow("Tanggal Periksa", formatDate(data.tanggalPeriksa)),
-          _HeaderRow("Dokter", data.namaDokter),
-          _HeaderRow("Fasilitas", data.fasilitasKesehatan),
+
+          _HeaderRow(
+            "Tanggal Periksa",
+            formatDate(data.tanggalPeriksa),
+          ),
+
+          _HeaderRow(
+            "Dokter",
+            data.namaDokter,
+          ),
+
+          _HeaderRow(
+            "Fasilitas",
+            data.fasilitasKesehatan,
+          ),
+
+          const SizedBox(height: 18),
+
+          // BADGE RISIKO
+          Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 14,
+              vertical: 8,
+            ),
+            decoration: BoxDecoration(
+              color: Colors.orange,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: const Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.warning_amber_rounded,
+                  color: Colors.white,
+                  size: 18,
+                ),
+                SizedBox(width: 6),
+                Text(
+                  "Risiko Sedang",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 14),
+
+          // PENJELASAN
+          const Text(
+            "Tekanan darah ibu perlu diperhatikan. "
+            "Sebaiknya lakukan konsultasi dengan bidan "
+            "atau puskesmas terdekat untuk pemeriksaan lebih lanjut.",
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 13,
+              height: 1.5,
+            ),
+          ),
         ],
       ),
     );
@@ -198,7 +371,10 @@ class _HeaderRow extends StatelessWidget {
             width: 120,
             child: Text(
               label,
-              style: const TextStyle(color: Colors.white70, fontSize: 12),
+              style: const TextStyle(
+                color: Colors.white70,
+                fontSize: 12,
+              ),
             ),
           ),
           Expanded(
@@ -236,7 +412,9 @@ class _InfoCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFFE5ECF6)),
+        border: Border.all(
+          color: const Color(0xFFE5ECF6),
+        ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.03),
@@ -256,7 +434,11 @@ class _InfoCard extends StatelessWidget {
                   color: const Color(0xFFEAF4FF),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(icon, color: AppColors.primary, size: 21),
+                child: Icon(
+                  icon,
+                  color: AppColors.primary,
+                  size: 21,
+                ),
               ),
               const SizedBox(width: 12),
               Expanded(
