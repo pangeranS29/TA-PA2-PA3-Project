@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:ta_pa2_pa3_project/core/services/auth_session.dart';
 import 'package:ta_pa2_pa3_project/features/anak/pemantauan/data/services/lembar_pemantauan_api_service.dart';
 import 'package:ta_pa2_pa3_project/features/anak/pemantauan/data/models/lembar_pemantauan_dynamic_model.dart';
 
@@ -18,40 +17,34 @@ class LembarPemantauanScreen extends StatefulWidget {
 }
 
 class _LembarPemantauanScreenState extends State<LembarPemantauanScreen>
-    with SingleTickerProviderStateMixin {
+    {
   final LembarPemantauanApiService _service = LembarPemantauanApiService();
-  late TabController _tabController;
 
   int? _selectedPeriode = 1;
   final TextEditingController _namaPemeriksaController =
-      TextEditingController(text: AuthSession.userName ?? 'Ibu');
+      TextEditingController(text: '-');
 
   bool _loadingRentang = true;
   bool _loadingKategori = false;
   bool _submitting = false;
-  bool _loadingRecords = false;
 
   List<RentangUsiaModel> _rentangUsia = const [];
   List<KategoriTandaSakitModel> _kategori = const [];
-  List<LembarPemantauanModel> _lembarRecords = const [];
-  // List<Map<String, dynamic>> _lembarRecords = const [];
   int? _selectedRentangId;
+  RentangUsiaModel? _selectedRentang;
   final Map<int, bool> _checks = {};
   DateTime _tanggalPeriksa = DateTime.now();
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
     _loadRentangUsia();
-    _loadLembarRecords();
   }
 
   @override
   void dispose() {
     _service.dispose();
     _namaPemeriksaController.dispose();
-    _tabController.dispose();
     super.dispose();
   }
 
@@ -62,17 +55,29 @@ class _LembarPemantauanScreenState extends State<LembarPemantauanScreen>
 
     try {
       final rentang = await _service.getRentangUsia();
+      
+      // Auto-select rentang usia berdasarkan usia anak
       int? selectedId;
       if (rentang.isNotEmpty) {
-        selectedId = rentang.first.id;
-        final initialNama = widget.initialRentangNama?.toLowerCase().trim();
-        if (initialNama != null && initialNama.isNotEmpty) {
-          for (final item in rentang) {
-            if (item.namaRentang.toLowerCase().trim() == initialNama) {
-              selectedId = item.id;
-              break;
+        final usiaText = widget.anak?['usia_teks']?.toString().toLowerCase() ?? '';
+        selectedId = _determineRentangUsiaByAge(usiaText, rentang);
+        
+        // Jika tidak bisa determine dari usia, coba dari initial nama
+        if (selectedId == null) {
+          final initialNama = widget.initialRentangNama?.toLowerCase().trim();
+          if (initialNama != null && initialNama.isNotEmpty) {
+            for (final item in rentang) {
+              if (item.namaRentang.toLowerCase().trim() == initialNama) {
+                selectedId = item.id;
+                break;
+              }
             }
           }
+        }
+        
+        // Fallback ke yang pertama
+        if (selectedId == null) {
+          selectedId = rentang.first.id;
         }
       }
 
@@ -80,6 +85,13 @@ class _LembarPemantauanScreenState extends State<LembarPemantauanScreen>
       setState(() {
         _rentangUsia = rentang;
         _selectedRentangId = selectedId;
+        _selectedRentang = rentang.isNotEmpty
+            ? rentang.firstWhere(
+                (item) => item.id == selectedId,
+                orElse: () => rentang.first,
+              )
+            : null;
+        _selectedPeriode = 1;
         _loadingRentang = false;
       });
 
@@ -93,6 +105,68 @@ class _LembarPemantauanScreenState extends State<LembarPemantauanScreen>
       });
       _showError('Gagal memuat rentang usia: $e');
     }
+  }
+
+  /// Determine rentang usia ID berdasarkan usia anak dalam teks
+  int? _determineRentangUsiaByAge(String usiaText, List<RentangUsiaModel> rentangList) {
+    if (usiaText.isEmpty) return null;
+    
+    // Parse usia_teks format: "1 Tahun 3 Bulan", "28 Hari", dll
+    int years = 0;
+    int months = 0;
+    int days = 0;
+    
+    final matches = RegExp(r'(\d+)\s*(tahun|bulan|hari|minggu)').allMatches(usiaText);
+    for (final match in matches) {
+      final value = int.tryParse(match.group(1) ?? '') ?? 0;
+      final unit = (match.group(2) ?? '').toLowerCase();
+      
+      if (unit.contains('tahun')) {
+        years = value;
+      } else if (unit.contains('bulan')) {
+        months = value;
+      } else if (unit.contains('minggu')) {
+        // Convert minggu to days
+        days = value * 7;
+      } else if (unit.contains('hari')) {
+        days += value;
+      }
+    }
+    
+    // Calculate total days
+    final totalDays = (years * 365) + (months * 30) + days;
+    
+    // Map to rentang usia based on database definition:
+    // 0-28 Hari: <= 28 days
+    // 29 Hari - 3 Bulan: 29-90 days
+    // 3-6 Bulan: 91-180 days
+    // 6-12 Bulan: 181-365 days
+    // 12-24 Bulan: 366-730 days
+    // 2-6 Tahun: 731+ days
+    
+    int targetRentangId = -1;
+    if (totalDays <= 28) {
+      targetRentangId = 1; // 0-28 Hari
+    } else if (totalDays <= 90) {
+      targetRentangId = 2; // 29 Hari - 3 Bulan
+    } else if (totalDays <= 180) {
+      targetRentangId = 3; // 3-6 Bulan
+    } else if (totalDays <= 365) {
+      targetRentangId = 4; // 6-12 Bulan
+    } else if (totalDays <= 730) {
+      targetRentangId = 5; // 12-24 Bulan
+    } else {
+      targetRentangId = 6; // 2-6 Tahun
+    }
+    
+    // Verify target exists in rentang list
+    for (final rentang in rentangList) {
+      if (rentang.id == targetRentangId) {
+        return targetRentangId;
+      }
+    }
+    
+    return null;
   }
 
   Future<void> _loadKategori(int rentangUsiaId) async {
@@ -121,50 +195,6 @@ class _LembarPemantauanScreenState extends State<LembarPemantauanScreen>
     }
   }
 
-  Future<void> _loadLembarRecords() async {
-    setState(() {
-      _loadingRecords = true;
-    });
-
-    try {
-      final anakRaw = widget.anak?['id'];
-      final anakId = anakRaw is int
-          ? anakRaw
-          : int.tryParse((anakRaw ?? '').toString()) ?? 0;
-
-      if (anakId > 0) {
-        final records = await _service.getRiwayatPemantauan(anakId);
-        if (!mounted) return;
-        setState(() {
-          _lembarRecords = records;
-        });
-      }
-    } catch (e) {
-      if (!mounted) return;
-      _showError('Gagal memuat data riwayat pemantauan: $e');
-    } finally {
-      if (mounted) {
-        setState(() {
-          _loadingRecords = false;
-        });
-      }
-    }
-  }
-
-  Future<void> _pickTanggal() async {
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: _tanggalPeriksa,
-      firstDate: DateTime(2020),
-      lastDate: DateTime(2100),
-    );
-
-    if (picked != null) {
-      setState(() {
-        _tanggalPeriksa = picked;
-      });
-    }
-  }
 
   Future<void> _submit() async {
     final anakRaw = widget.anak?['id'];
@@ -173,7 +203,9 @@ class _LembarPemantauanScreenState extends State<LembarPemantauanScreen>
         : int.tryParse((anakRaw ?? '').toString()) ?? 0;
     final rentangUsiaId = _selectedRentangId ?? 0;
     final periode = _selectedPeriode ?? 0;
-    final namaPemeriksa = _namaPemeriksaController.text.trim();
+    final namaPemeriksa = _namaPemeriksaController.text.trim().isEmpty
+      ? '-'
+      : _namaPemeriksaController.text.trim();
 
     if (anakId <= 0) {
       _showError('Data anak tidak valid. Silakan pilih ulang anak.');
@@ -183,8 +215,18 @@ class _LembarPemantauanScreenState extends State<LembarPemantauanScreen>
       _showError('Rentang usia wajib dipilih.');
       return;
     }
+    if (_selectedRentang == null) {
+      _showError('Data rentang usia tidak tersedia.');
+      return;
+    }
     if (periode <= 0) {
       _showError('Periode pemeriksaan harus dipilih.');
+      return;
+    }
+    if (periode > _selectedRentang!.maxPeriode) {
+      _showError(
+        'Periode pemeriksaan tidak boleh melebihi ${_selectedRentang!.maxPeriode} ${_selectedRentang!.satuanWaktu}.',
+      );
       return;
     }
     if (namaPemeriksa.isEmpty) {
@@ -224,18 +266,12 @@ class _LembarPemantauanScreenState extends State<LembarPemantauanScreen>
         const SnackBar(content: Text('Lembar pemantauan berhasil disimpan.')),
       );
 
-      // Reload records
-      await _loadLembarRecords();
-
       // Reset form
       setState(() {
         _selectedPeriode = 1;
         _checks.clear();
         _tanggalPeriksa = DateTime.now();
       });
-
-      // Switch to records tab
-      _tabController.animateTo(1);
     } catch (e) {
       _showError('Gagal menyimpan lembar pemantauan: $e');
     } finally {
@@ -260,68 +296,27 @@ class _LembarPemantauanScreenState extends State<LembarPemantauanScreen>
         .showSnackBar(SnackBar(content: Text(message)));
   }
 
-  Color _getStatusParafColor(String status) {
-    switch (status) {
-      case 'approved':
-        return Colors.green;
-      case 'rejected':
-        return Colors.red;
-      default:
-        return Colors.orange;
-    }
-  }
-
-  String _getStatusParafLabel(String status) {
-    switch (status) {
-      case 'approved':
-        return 'Disetujui';
-      case 'rejected':
-        return 'Ditolak';
-      default:
-        return 'Menunggu';
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF1F5F9),
       appBar: AppBar(
-  title: const Text(
-    'Lembar Pemantauan',
-    style: TextStyle(
-      color: Colors.black,
-      fontWeight: FontWeight.w600,
-    ),
-  ),
-  backgroundColor: Colors.white,
-  elevation: 1, // biar ada bayangan tipis
-  shadowColor: Colors.black12,
-  centerTitle: false,
-
-  iconTheme: const IconThemeData(
-    color: Colors.black,
-  ),
-
-  bottom: TabBar(
-    controller: _tabController,
-    labelColor: Colors.black,
-    unselectedLabelColor: Colors.grey,
-    indicatorColor: Color(0xFF2563EB),
-    indicatorWeight: 3,
-    tabs: const [
-      Tab(text: 'Isi Pemantauan'),
-      Tab(text: 'Riwayat'),
-    ],
-  ),
-),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          _buildFormTab(),
-          _buildRecordsTab(),
-        ],
+        title: const Text(
+          'Lembar Pemantauan',
+          style: TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        backgroundColor: Colors.white,
+        elevation: 1,
+        shadowColor: Colors.black12,
+        centerTitle: false,
+        iconTheme: const IconThemeData(
+          color: Colors.black,
+        ),
       ),
+      body: _buildFormTab(),
     );
   }
 
@@ -355,90 +350,6 @@ class _LembarPemantauanScreenState extends State<LembarPemantauanScreen>
               ],
             ),
           );
-  }
-
-  Widget _buildRecordsTab() {
-    return _loadingRecords
-        ? const Center(child: CircularProgressIndicator())
-        : RefreshIndicator(
-            onRefresh: _loadLembarRecords,
-            child: _lembarRecords.isEmpty
-                ? const Center(
-                    child: Text('Belum ada data pemantauan'),
-                  )
-                : ListView(
-                    padding: const EdgeInsets.all(16),
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(14),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(14),
-                          border: Border.all(color: const Color(0xFFE2E8F0)),
-                        ),
-                        child: SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: _buildRecordsTable(),
-                        ),
-                      ),
-                    ],
-                  ),
-          );
-  }
-
-  Widget _buildRecordsTable() {
-    return DataTable(
-      columns: const [
-        DataColumn(label: Text('No.')),
-        DataColumn(label: Text('Rentang Usia')), // Tambahan info rentang usia
-        DataColumn(label: Text('Periode')),
-        DataColumn(label: Text('Tanggal')),
-        DataColumn(label: Text('Pemeriksa')),
-        DataColumn(label: Text('Status')),
-        DataColumn(label: Text('Tgl Verifikasi')),
-      ],
-      rows: List<DataRow>.generate(
-        _lembarRecords.length,
-        (index) {
-          final record = _lembarRecords[index];
-          
-          // Konversi status teks dari backend ('Diterima', 'Ditolak', 'Menunggu verifikasi') 
-          // ke format yang sesuai dengan helper warna UI kamu
-          String statusColorKey = 'pending';
-          if (record.status == 'Diterima') statusColorKey = 'approved';
-          if (record.status == 'Ditolak') statusColorKey = 'rejected';
-
-          return DataRow(
-            cells: [
-              DataCell(Text((index + 1).toString())),
-              DataCell(Text(record.rentangUsia?.namaRentang ?? '-')),
-              DataCell(Text('Ke-${record.periodeWaktu}')),
-              DataCell(Text(record.tanggalPeriksa)),
-              DataCell(Text(record.namaPemeriksa.isNotEmpty ? record.namaPemeriksa : 'Ibu')),
-              DataCell(
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: _getStatusParafColor(statusColorKey).withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: Text(
-                    record.status,
-                    style: TextStyle(
-                      color: _getStatusParafColor(statusColorKey),
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-              // Jika statusnya sudah diubah Nakes, tampilkan tanggal update-nya
-              DataCell(Text(record.status != 'Menunggu verifikasi' ? record.updatedAt : '-')),
-            ],
-          );
-        },
-      ),
-    );
   }
 
   Widget _buildAnakInfoCard() {
@@ -544,8 +455,14 @@ class _LembarPemantauanScreenState extends State<LembarPemantauanScreen>
                 .toList(),
             onChanged: (value) {
               if (value == null || value == _selectedRentangId) return;
+              final selectedRentang = _rentangUsia.firstWhere(
+                (item) => item.id == value,
+                orElse: () => _rentangUsia.first,
+              );
               setState(() {
                 _selectedRentangId = value;
+                _selectedRentang = selectedRentang;
+                _selectedPeriode = 1;
               });
               _loadKategori(value);
             },
@@ -557,11 +474,11 @@ class _LembarPemantauanScreenState extends State<LembarPemantauanScreen>
               labelText: 'Periode Pemeriksaan',
               border: OutlineInputBorder(),
             ),
-            items: List<int>.generate(12, (i) => i + 1)
+            items: _buildPeriodeOptions()
                 .map(
                   (p) => DropdownMenuItem<int>(
                     value: p,
-                    child: Text('Pemeriksaan ke-$p'),
+                    child: Text(_buildPeriodeLabel(p)),
                   ),
                 )
                 .toList(),
@@ -571,34 +488,38 @@ class _LembarPemantauanScreenState extends State<LembarPemantauanScreen>
             },
           ),
           const SizedBox(height: 12),
-          // For ibu role show non-editable pemeriksa label; others can edit.
-          if ((AuthSession.role ?? '').toLowerCase() == 'ibu')
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF1F5F9),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: const Color(0xFFE2E8F0)),
-              ),
-              child: Text(
-                'Pemeriksa: ${AuthSession.userName ?? 'Ibu'}',
-                style: const TextStyle(color: Color(0xFF334155)),
-              ),
-            )
-          else
-            TextFormField(
-              controller: _namaPemeriksaController,
-              decoration: const InputDecoration(
-                labelText: 'Nama Pemeriksa',
-                border: OutlineInputBorder(),
-              ),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF1F5F9),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: const Color(0xFFE2E8F0)),
             ),
+            child: Text(
+              'Pemeriksa: -',
+              style: const TextStyle(color: Color(0xFF334155)),
+            ),
+          ),
           const SizedBox(height: 12),
-          OutlinedButton.icon(
-            onPressed: _pickTanggal,
-            icon: const Icon(Icons.calendar_today),
-            label: Text('Tanggal Periksa: ${_formatDate(_tanggalPeriksa)}'),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF1F5F9),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: const Color(0xFFE2E8F0)),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.calendar_today, size: 20, color: Color(0xFF64748B)),
+                const SizedBox(width: 8),
+                Text(
+                  'Tanggal Periksa: ${_formatDate(_tanggalPeriksa)}',
+                  style: const TextStyle(color: Color(0xFF334155)),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -659,5 +580,27 @@ class _LembarPemantauanScreenState extends State<LembarPemantauanScreen>
         ],
       ),
     );
+  }
+
+  List<int> _buildPeriodeOptions() {
+    final maxPeriode = _selectedRentang?.maxPeriode ?? 1;
+    return List<int>.generate(maxPeriode, (index) => index + 1);
+  }
+
+  String _buildPeriodeLabel(int periode) {
+    final satuan = _selectedRentang?.satuanWaktu.trim().toLowerCase() ?? '';
+    if (satuan == 'hari') {
+      return 'Hari ke-$periode';
+    }
+    if (satuan == 'minggu') {
+      return 'Minggu ke-$periode';
+    }
+    if (satuan == 'bulan') {
+      return 'Bulan ke-$periode';
+    }
+    if (satuan == 'tahun') {
+      return 'Tahun ke-$periode';
+    }
+    return 'Periode ke-$periode';
   }
 }

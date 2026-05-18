@@ -2515,7 +2515,7 @@ Widget _buildNifasShortcut() {
                         context,
                         MaterialPageRoute(
                             builder: (_) =>
-                                const PilihAnakScreen(tujuan: 'mpasi')));
+                                const MpasiMenuScreen()));
                     break;
                   case 'edukasi':
                     // [MODUL: ANAK] Langsung ke EdukasiScreen (tidak butuh pilih anak)

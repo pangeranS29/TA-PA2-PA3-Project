@@ -129,7 +129,7 @@ func Init(opts Options) *Main {
 	m.PemeriksaanDokterTrimester3 = NewPemeriksaanDokterTrimester3Controller(opts.UseCases.PemeriksaanDokterTrimester3)
 
 	m.InformasiUmum = NewInformasiUmumController(opts.UseCases.InformasiUmum)
-	// m.EdukasiMPASI = NewEdukasiMPASIController(opts.UseCases.EdukasiMPASI)
+	m.EdukasiMPASI = NewEdukasiMPASIController(opts.UseCases.EdukasiMPASI)
 	// Controller baru
 	m.Ibu = NewIbuController(opts.UseCases.Ibu)
 	// m.KartuKeluarga = NewKartuKeluargaController(opts.UseCases.KartuKeluarga)
