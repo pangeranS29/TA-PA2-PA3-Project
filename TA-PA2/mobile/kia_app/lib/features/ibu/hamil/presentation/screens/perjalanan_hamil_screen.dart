@@ -126,57 +126,57 @@ class _JourneyScreenState extends State<JourneyScreen> {
                     );
                   },
                 ),
-                const SizedBox(height: 14),
-                _buildFeatureCard(
-                  icon: Icons.summarize_outlined,
-                  iconColor: const Color(0xFFE0A300),
-                  iconBackground: const Color(0xFFFFF5D6),
-                  title: 'Keterangan Lahir',
-                  subtitle: 'Lihat ringkasan ibu bersalin, nifas, dan bayi saat lahir',
-                  borderColor: const Color(0xFFFFE3A3),
-                  // onTap: () => _openComingSoon('Ringkasan Pelayanan Proses Melahirkan'),
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      // builder: (_) => const RingkasanPelayananProsesMelahirkanScreen(),
-                      builder: (_) => const KeteranganLahirScreen(),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 14),
-                _buildFeatureCard(
-                  icon: Icons.fact_check_outlined,
-                  iconColor: const Color(0xFFE0A300),
-                  iconBackground: const Color(0xFFFFF5D6),
-                  title: 'Absensi Kelas Ibu Hamil',
-                  subtitle: 'Isi tanggal hadir sampai 9 sesi dan paraf kader',
-                  borderColor: const Color(0xFFFFE3A3),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const AbsensiKelasIbuHamilScreen(),
-                      ),
-                    );
-                  },
-                ),
-                const SizedBox(height: 14),
-                _buildFeatureCard(
-                  icon: Icons.medication_liquid_outlined,
-                  iconColor: AppColors.primary,
-                  iconBackground: const Color(0xFFEAF4FF),
-                  title: 'Log TTD/MMS',
-                  subtitle: 'Checklist harian minum tablet tambah darah atau MMS',
-                  borderColor: const Color(0xFFB7DBFF),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => LogTTDMMSScreen(hpht: widget.hpht,),
-                      ),
-                    );
-                  },
-                ),
+                // const SizedBox(height: 14),
+                // _buildFeatureCard(
+                //   icon: Icons.summarize_outlined,
+                //   iconColor: const Color(0xFFE0A300),
+                //   iconBackground: const Color(0xFFFFF5D6),
+                //   title: 'Keterangan Lahir',
+                //   subtitle: 'Lihat ringkasan ibu bersalin, nifas, dan bayi saat lahir',
+                //   borderColor: const Color(0xFFFFE3A3),
+                //   // onTap: () => _openComingSoon('Ringkasan Pelayanan Proses Melahirkan'),
+                //   onTap: () => Navigator.push(
+                //     context,
+                //     MaterialPageRoute(
+                //       // builder: (_) => const RingkasanPelayananProsesMelahirkanScreen(),
+                //       builder: (_) => const KeteranganLahirScreen(),
+                //     ),
+                //   ),
+                // ),
+                // const SizedBox(height: 14),
+                // _buildFeatureCard(
+                //   icon: Icons.fact_check_outlined,
+                //   iconColor: const Color(0xFFE0A300),
+                //   iconBackground: const Color(0xFFFFF5D6),
+                //   title: 'Absensi Kelas Ibu Hamil',
+                //   subtitle: 'Isi tanggal hadir sampai 9 sesi dan paraf kader',
+                //   borderColor: const Color(0xFFFFE3A3),
+                //   onTap: () {
+                //     Navigator.push(
+                //       context,
+                //       MaterialPageRoute(
+                //         builder: (_) => const AbsensiKelasIbuHamilScreen(),
+                //       ),
+                //     );
+                //   },
+                // ),
+                // const SizedBox(height: 14),
+                // _buildFeatureCard(
+                //   icon: Icons.medication_liquid_outlined,
+                //   iconColor: AppColors.primary,
+                //   iconBackground: const Color(0xFFEAF4FF),
+                //   title: 'Log TTD/MMS',
+                //   subtitle: 'Checklist harian minum tablet tambah darah atau MMS',
+                //   borderColor: const Color(0xFFB7DBFF),
+                //   onTap: () {
+                //     Navigator.push(
+                //       context,
+                //       MaterialPageRoute(
+                //         builder: (_) => LogTTDMMSScreen(hpht: widget.hpht,),
+                //       ),
+                //     );
+                //   },
+                // ),
                 const SizedBox(height: 24),
                 _buildJourneyStep(
                   trimester: 1,
