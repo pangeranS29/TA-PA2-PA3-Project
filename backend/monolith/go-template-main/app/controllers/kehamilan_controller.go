@@ -35,6 +35,10 @@ type createKehamilanRequest struct {
 	TB                       float64 `json:"tb,omitempty"`
 }
 
+type updateStatusRequest struct {
+	StatusKehamilan string `json:"status_kehamilan"`
+}
+
 func (c *KehamilanController) Create(ctx echo.Context) error {
 	var req createKehamilanRequest
 	if err := ctx.Bind(&req); err != nil {
@@ -207,4 +211,23 @@ func (c *KehamilanController) CheckActiveByIbuID(ctx echo.Context) error {
 	return helpers.StandardResponse(ctx, http.StatusOK, []string{message}, map[string]bool{
 		"is_active": isActive,
 	}, nil)
+}
+// UpdateStatus digunakan untuk mengubah status_kehamilan secara langsung
+func (c *KehamilanController) UpdateStatus(ctx echo.Context) error {
+	id, err := strconv.ParseInt(ctx.Param("id"), 10, 32)
+	if err != nil {
+		return helpers.Response(ctx, http.StatusBadRequest, []string{"id tidak valid"})
+	}
+	var req updateStatusRequest
+	if err := ctx.Bind(&req); err != nil {
+		return helpers.Response(ctx, http.StatusBadRequest, []string{"format request tidak valid"})
+	}
+	if req.StatusKehamilan == "" {
+		return helpers.Response(ctx, http.StatusBadRequest, []string{"status_kehamilan tidak boleh kosong"})
+	}
+	if err := c.usecase.UpdateStatusKehamilan(int32(id), req.StatusKehamilan); err != nil {
+		statusCode := customerror.GetStatusCode(err)
+		return helpers.Response(ctx, statusCode, []string{err.Error()})
+	}
+	return helpers.StandardResponse(ctx, http.StatusOK, []string{"Status kehamilan berhasil diperbarui"}, nil, nil)
 }

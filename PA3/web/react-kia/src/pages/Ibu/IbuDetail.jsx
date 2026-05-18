@@ -173,6 +173,7 @@ export default function IbuDetail() {
     );
 
   const kependudukan = ibu.kependudukan || {};
+  const suami = ibu.suami; // data suami dari API
   const usiaKehamilan = hitungUsiaKehamilan(kehamilan.hpht);
   const formatDate = (dateStr) => (dateStr ? new Date(dateStr).toLocaleDateString("id-ID") : "-");
 
@@ -184,7 +185,6 @@ export default function IbuDetail() {
         <div className="max-w-7xl mx-auto p-4 space-y-4">
           {/* Header dengan tombol navigasi primary dan badge informasi */}
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-            {/* Secondary Button: Kembali ke Ibu */}
             <Link
               to="/data-ibu"
               className="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-[#185FA5] text-[#185FA5] text-sm font-semibold hover:bg-[#185FA5]/5 transition w-fit"
@@ -193,7 +193,6 @@ export default function IbuDetail() {
               <span>Kembali</span>
             </Link>
 
-            {/* Badge informasi kehamilan */}
             <div className="flex flex-wrap gap-2">
               <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-xl shadow-sm text-xs md:text-sm border border-gray-100">
                 <Calendar size={16} className="text-[#0F6E56]" />
@@ -210,7 +209,7 @@ export default function IbuDetail() {
             </div>
           </div>
 
-          {/* Kartu Identitas Ibu dan Suami - menggunakan card design system */}
+          {/* Kartu Identitas Ibu dan Suami */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {/* Card Data Ibu */}
             <div className="bg-white shadow-sm rounded-xl p-4 border border-gray-100">
@@ -235,151 +234,149 @@ export default function IbuDetail() {
               </div>
             </div>
 
-            {/* Card Data Suami */}
+            {/* Card Data Suami - data dinamis dari API */}
             <div className="bg-white shadow-sm rounded-xl p-4 border border-gray-100">
               <h2 className="text-base font-semibold text-[#0F6E56] flex items-center gap-2 mb-3">
                 <Heart size={18} /> Data Suami
               </h2>
               <div className="grid grid-cols-2 gap-y-2 gap-x-3 text-sm">
                 <span className="text-gray-500 text-xs">Nama Lengkap</span>
-                <span className="font-medium text-gray-800 text-sm">Nicholas Sitorus</span>
+                <span className="font-medium text-gray-800 text-sm">{suami?.nama_lengkap || "-"}</span>
                 
                 <span className="text-gray-500 text-xs">NIK</span>
-                <span className="text-gray-800 text-sm">121212141306050001</span>
+                <span className="text-gray-800 text-sm">{suami?.nik || "-"}</span>
                 
                 <span className="text-gray-500 text-xs">Pekerjaan</span>
-                <span className="text-gray-800 text-sm">Wiraswasta</span>
+                <span className="text-gray-800 text-sm">{suami?.pekerjaan || "-"}</span>
                 
                 <span className="text-gray-500 text-xs">Golongan Darah</span>
-                <span className="text-gray-800 text-sm">B</span>
+                <span className="text-gray-800 text-sm">{suami?.golongan_darah || "-"}</span>
 
                 <span className="text-gray-500 text-xs">Alamat</span>
-                <span className="text-gray-800 text-sm">Dusun Hutagurgur</span>
+                <span className="text-gray-800 text-sm">{suami?.dusun || "-"}</span>
               </div>
+              {!suami && (
+                <div className="mt-3 text-xs text-gray-400 italic">Data suami tidak tersedia</div>
+              )}
             </div>
           </div>
 
-          {/* Jalur Pelayanan KIA - dengan card dan tombol rounded-full */}
-          {/* Jalur Pelayanan KIA - gaya seragam untuk semua link */}
-<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-  {/* Skrining & Evaluasi */}
-  <div className="bg-white shadow-sm rounded-xl overflow-hidden border border-gray-100">
-    <div className="bg-transparent px-4 py-3 border-b border-gray-200">
-      <h3 className="text-sm font-semibold text-[#185FA5] uppercase tracking-wide flex items-center gap-2">
-        <ClipboardList size={16} /> Skrining & Evaluasi
-      </h3>
-    </div>
-    <div className="p-4 space-y-1">
-      <Link 
-        to={withKehamilan(`/data-ibu/${id}/evaluasi-kesehatan`)}
-        className="flex items-center gap-2 w-full text-left p-2.5 rounded-lg hover:bg-gray-50 text-gray-700 text-sm"
-      >
-        <Activity size={16} className="text-[#0F6E56] flex-shrink-0" /> Evaluasi Kesehatan
-      </Link>
-      <Link 
-        to={withKehamilan(`/data-ibu/${id}/skrining-preeklampsia`)}
-        className="flex items-center gap-2 w-full text-left p-2.5 rounded-lg hover:bg-gray-50 text-gray-700 text-sm"
-      >
-        <Search size={16} className="text-[#BA7517] flex-shrink-0" /> Skrining Preeklampsia
-      </Link>
-      <Link 
-        to={withKehamilan(`/data-ibu/${id}/Skrining-Diabetes-Melitus-Gestasional`)}
-        className="flex items-center gap-2 w-full text-left p-2.5 rounded-lg hover:bg-gray-50 text-gray-700 text-sm"
-      >
-        <Droplet size={16} className="text-[#185FA5] flex-shrink-0" /> Skrining DMG
-      </Link>
-    </div>
-  </div>
+          {/* Jalur Pelayanan KIA */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            {/* Skrining & Evaluasi */}
+            <div className="bg-white shadow-sm rounded-xl overflow-hidden border border-gray-100">
+              <div className="bg-transparent px-4 py-3 border-b border-gray-200">
+                <h3 className="text-sm font-semibold text-[#185FA5] uppercase tracking-wide flex items-center gap-2">
+                  <ClipboardList size={16} /> Skrining & Evaluasi
+                </h3>
+              </div>
+              <div className="p-4 space-y-1">
+                <Link 
+                  to={withKehamilan(`/data-ibu/${id}/evaluasi-kesehatan`)}
+                  className="flex items-center gap-2 w-full text-left p-2.5 rounded-lg hover:bg-gray-50 text-gray-700 text-sm"
+                >
+                  <Activity size={16} className="text-[#0F6E56] flex-shrink-0" /> Evaluasi Kesehatan
+                </Link>
+                <Link 
+                  to={withKehamilan(`/data-ibu/${id}/skrining-preeklampsia`)}
+                  className="flex items-center gap-2 w-full text-left p-2.5 rounded-lg hover:bg-gray-50 text-gray-700 text-sm"
+                >
+                  <Search size={16} className="text-[#BA7517] flex-shrink-0" /> Skrining Preeklampsia
+                </Link>
+                <Link 
+                  to={withKehamilan(`/data-ibu/${id}/Skrining-Diabetes-Melitus-Gestasional`)}
+                  className="flex items-center gap-2 w-full text-left p-2.5 rounded-lg hover:bg-gray-50 text-gray-700 text-sm"
+                >
+                  <Droplet size={16} className="text-[#185FA5] flex-shrink-0" /> Skrining DMG
+                </Link>
+              </div>
+            </div>
 
-  {/* Pemantauan ANC */}
-  <div className="bg-white shadow-sm rounded-xl overflow-hidden border border-gray-100">
-    <div className="bg-transparent px-4 py-3 border-b border-gray-200">
-      <h3 className="text-sm font-semibold text-[#0F6E56] uppercase tracking-wide flex items-center gap-2">
-        <Stethoscope size={16} /> Pemantauan ANC
-      </h3>
-    </div>
-    <div className="p-4 space-y-1">
-      {/* Input ANC Rutin (sekarang gaya link biasa) */}
-      <Link 
-        to={withKehamilan(`/data-ibu/${id}/pemeriksaan-rutin`)}
-        className="flex items-center gap-2 w-full text-left p-2.5 rounded-lg hover:bg-gray-50 text-gray-700 text-sm"
-      >
-        <Activity size={16} className="text-[#185FA5] flex-shrink-0" /> Input ANC Rutin
-      </Link>
-      {/* Tombol Trimester disusun vertikal, tanpa rounded-full */}
-      <div className="flex flex-col gap-1.5 pt-1">
-        <button 
-          onClick={handleT1Click} 
-          disabled={checkingT1}
-          className="w-full flex items-center gap-2 p-2.5 rounded-lg border border-[#185FA5] text-[#185FA5] text-sm font-semibold hover:bg-[#185FA5]/5 disabled:opacity-50 transition"
-        >
-          {checkingT1 ? <Loader2 size={14} className="animate-spin" /> : <UserPlus size={14} />} Trimester 1
-        </button>
-        <button 
-          onClick={handleT3Click} 
-          disabled={checkingT3}
-          className="w-full flex items-center gap-2 p-2.5 rounded-lg border border-[#185FA5] text-[#185FA5] text-sm font-semibold hover:bg-[#185FA5]/5 disabled:opacity-50 transition"
-        >
-          {checkingT3 ? <Loader2 size={14} className="animate-spin" /> : <UserPlus size={14} />} Trimester 3
-        </button>
-      </div>
-    </div>
-  </div>
+            {/* Pemantauan ANC */}
+            <div className="bg-white shadow-sm rounded-xl overflow-hidden border border-gray-100">
+              <div className="bg-transparent px-4 py-3 border-b border-gray-200">
+                <h3 className="text-sm font-semibold text-[#0F6E56] uppercase tracking-wide flex items-center gap-2">
+                  <Stethoscope size={16} /> Pemantauan ANC
+                </h3>
+              </div>
+              <div className="p-4 space-y-1">
+                <Link 
+                  to={withKehamilan(`/data-ibu/${id}/pemeriksaan-rutin`)}
+                  className="flex items-center gap-2 w-full text-left p-2.5 rounded-lg hover:bg-gray-50 text-gray-700 text-sm"
+                >
+                  <Activity size={16} className="text-[#185FA5] flex-shrink-0" /> Input ANC Rutin
+                </Link>
+                <div className="flex flex-col gap-1.5 pt-1">
+                  <button 
+                    onClick={handleT1Click} 
+                    disabled={checkingT1}
+                    className="w-full flex items-center gap-2 p-2.5 rounded-lg border border-[#185FA5] text-[#185FA5] text-sm font-semibold hover:bg-[#185FA5]/5 disabled:opacity-50 transition"
+                  >
+                    {checkingT1 ? <Loader2 size={14} className="animate-spin" /> : <UserPlus size={14} />} Trimester 1
+                  </button>
+                  <button 
+                    onClick={handleT3Click} 
+                    disabled={checkingT3}
+                    className="w-full flex items-center gap-2 p-2.5 rounded-lg border border-[#185FA5] text-[#185FA5] text-sm font-semibold hover:bg-[#185FA5]/5 disabled:opacity-50 transition"
+                  >
+                    {checkingT3 ? <Loader2 size={14} className="animate-spin" /> : <UserPlus size={14} />} Trimester 3
+                  </button>
+                </div>
+              </div>
+            </div>
 
-  {/* Persalinan & Nifas */}
-  <div className="bg-white shadow-sm rounded-xl overflow-hidden border border-gray-100">
-    <div className="bg-transparent px-4 py-3 border-b border-gray-200">
-      <h3 className="text-sm font-semibold text-[#BA7517] uppercase tracking-wide flex items-center gap-2">
-        <Hospital size={16} /> Persalinan & Nifas
-      </h3>
-    </div>
-    <div className="p-4 space-y-1">
-      <Link 
-        to={withKehamilan(`/data-ibu/${id}/rencana-persalinan`)}
-        className="flex items-center gap-2 w-full text-left p-2.5 rounded-lg hover:bg-gray-50 text-gray-700 text-sm"
-      >
-        <FileText size={16} className="text-[#BA7517] flex-shrink-0" /> Rencana Persalinan
-      </Link>
-      <Link 
-        to={withKehamilan(`/data-ibu/${id}/pelayanan-persalinan`)}
-        className="flex items-center gap-2 w-full text-left p-2.5 rounded-lg hover:bg-gray-50 text-gray-700 text-sm"
-      >
-        <Baby size={16} className="text-[#0F6E56] flex-shrink-0" /> Riwayat Melahirkan
-      </Link>
-      <Link 
-        to={withKehamilan(`/data-ibu/${id}/pelayanan-nifas`)}
-        className="flex items-center gap-2 w-full text-left p-2.5 rounded-lg hover:bg-gray-50 text-gray-700 text-sm"
-      >
-        <Heart size={16} className="text-[#185FA5] flex-shrink-0" /> Pelayanan Nifas
-      </Link>
-    </div>
-  </div>
+            {/* Persalinan & Nifas */}
+            <div className="bg-white shadow-sm rounded-xl overflow-hidden border border-gray-100">
+              <div className="bg-transparent px-4 py-3 border-b border-gray-200">
+                <h3 className="text-sm font-semibold text-[#BA7517] uppercase tracking-wide flex items-center gap-2">
+                  <Hospital size={16} /> Persalinan & Nifas
+                </h3>
+              </div>
+              <div className="p-4 space-y-1">
+                <Link 
+                  to={withKehamilan(`/data-ibu/${id}/rencana-persalinan`)}
+                  className="flex items-center gap-2 w-full text-left p-2.5 rounded-lg hover:bg-gray-50 text-gray-700 text-sm"
+                >
+                  <FileText size={16} className="text-[#BA7517] flex-shrink-0" /> Rencana Persalinan
+                </Link>
+                <Link 
+                  to={withKehamilan(`/data-ibu/${id}/pelayanan-persalinan`)}
+                  className="flex items-center gap-2 w-full text-left p-2.5 rounded-lg hover:bg-gray-50 text-gray-700 text-sm"
+                >
+                  <Baby size={16} className="text-[#0F6E56] flex-shrink-0" /> Riwayat Melahirkan
+                </Link>
+                <Link 
+                  to={withKehamilan(`/data-ibu/${id}/pelayanan-nifas`)}
+                  className="flex items-center gap-2 w-full text-left p-2.5 rounded-lg hover:bg-gray-50 text-gray-700 text-sm"
+                >
+                  <Heart size={16} className="text-[#185FA5] flex-shrink-0" /> Pelayanan Nifas
+                </Link>
+              </div>
+            </div>
 
-  {/* Rujukan Medis */}
-  <div className="bg-white shadow-sm rounded-xl overflow-hidden border border-gray-100">
-    <div className="bg-transparent px-4 py-3 border-b border-gray-200">
-      <h3 className="text-sm font-semibold text-[#A32D2D] uppercase tracking-wide flex items-center gap-2">
-        <AlertTriangle size={16} /> Rujukan Medis
-      </h3>
-    </div>
-    <div className="p-4 space-y-1">
-      {/* Buat / Lihat Rujukan menjadi link biasa */}
-      <Link 
-        to={withKehamilan(`/data-ibu/${id}/rujukan`)}
-        className="flex items-center gap-2 w-full text-left p-2.5 rounded-lg hover:bg-gray-50 text-gray-700 text-sm"
-      >
-        <AlertTriangle size={16} className="text-[#A32D2D] flex-shrink-0" /> Buat / Lihat Rujukan
-      </Link>
-      <Link 
-        to="/daftar-rujukan"
-        className="block text-center text-[#185FA5] text-sm font-semibold py-2.5 hover:underline"
-      >
-        Daftar Semua Rujukan
-      </Link>
-    </div>
-  </div>
-</div>
-          {/* Catatan: semua tombol navigasi sudah dilengkapi ikon + teks, teks minimal 16sp, rounded-full untuk tombol aksi utama */}
+            {/* Rujukan Medis */}
+            <div className="bg-white shadow-sm rounded-xl overflow-hidden border border-gray-100">
+              <div className="bg-transparent px-4 py-3 border-b border-gray-200">
+                <h3 className="text-sm font-semibold text-[#A32D2D] uppercase tracking-wide flex items-center gap-2">
+                  <AlertTriangle size={16} /> Rujukan Medis
+                </h3>
+              </div>
+              <div className="p-4 space-y-1">
+                <Link 
+                  to={withKehamilan(`/data-ibu/${id}/rujukan`)}
+                  className="flex items-center gap-2 w-full text-left p-2.5 rounded-lg hover:bg-gray-50 text-gray-700 text-sm"
+                >
+                  <AlertTriangle size={16} className="text-[#A32D2D] flex-shrink-0" /> Buat / Lihat Rujukan
+                </Link>
+                <Link 
+                  to="/daftar-rujukan"
+                  className="block text-center text-[#185FA5] text-sm font-semibold py-2.5 hover:underline"
+                >
+                  Daftar Semua Rujukan
+                </Link>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </MainLayout>

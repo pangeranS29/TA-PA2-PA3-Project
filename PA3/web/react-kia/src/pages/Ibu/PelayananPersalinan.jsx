@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import MainLayout from "../../components/Layout/MainLayout";
-import { getKehamilanByIbuId, updateKehamilan } from "../../services/kehamilan";
+import { getKehamilanByIbuId, updateKehamilan, updateStatusKehamilan  } from "../../services/kehamilan";
 import { getIbuById } from "../../services/ibu";
 import {
   getRingkasanPersalinanByKehamilanId,
@@ -300,25 +300,6 @@ export default function PelayananPersalinan() {
     nama_penolong_kelahiran: "",
   });
 
-  // Breadcrumb component
-  const Breadcrumb = () => {
-    if (!kehamilan) return null;
-    return (
-      <div className="flex items-center gap-2 text-sm text-gray-500 mb-4 flex-wrap">
-        <Link to="/dashboard" className="hover:text-indigo-600 flex items-center gap-1">
-          <Home size={14} /> Beranda
-        </Link>
-        <span>/</span>
-        <Link to="/data-ibu" className="hover:text-indigo-600">Data Ibu</Link>
-        <span>/</span>
-        <Link to={`/data-ibu/${id}?kehamilan_id=${kehamilan.id}`} className="hover:text-indigo-600">
-          Detail Ibu
-        </Link>
-        <span>/</span>
-        <span className="text-gray-700 font-medium">Proses & Riwayat Melahirkan</span>
-      </div>
-    );
-  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -543,7 +524,29 @@ export default function PelayananPersalinan() {
         p_partus: payloadRingkasan.paritas,
         a_abortus: payloadRingkasan.abortus,
       }));
-      
+      // Update status kehamilan menjadi NIFAS
+try {
+  const currentStatus = kehamilan.status_kehamilan;
+  if (currentStatus !== "NIFAS" && currentStatus !== "NON-AKTIF") {
+    await updateStatusKehamilan(kehamilan.id, "NIFAS");
+    setKehamilan(prev => ({ ...prev, status_kehamilan: "NIFAS" }));
+    await Swal.fire({
+      icon: 'success',
+      title: 'Status Diperbarui',
+      text: 'Status kehamilan telah berubah menjadi NIFAS.',
+      timer: 1500,
+      showConfirmButton: false
+    });
+  }
+} catch (err) {
+  console.error("Gagal update status kehamilan:", err);
+  await Swal.fire({
+    icon: 'warning',
+    title: 'Perhatian',
+    text: 'Ringkasan tersimpan, tetapi gagal mengubah status kehamilan menjadi NIFAS. Silakan periksa kembali.',
+    confirmButtonText: 'OK'
+  });
+}
       // Jika ada nama anak, buat record Anak baru
       if (formRingkasan.nama_anak && formRingkasan.nama_anak.trim()) {
         const payloadAnak = {
@@ -749,9 +752,7 @@ export default function PelayananPersalinan() {
   return (
     <MainLayout>
       <div className="p-4 md:p-6 max-w-7xl w-full">
-        {/* Breadcrumb */}
-        <Breadcrumb />
-
+   
         {/* Header */}
         <div className="flex items-center gap-3 mb-5">
           <button onClick={() => navigate(-1)} className="p-2 rounded-full hover:bg-gray-100 flex-shrink-0">

@@ -3,6 +3,8 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import MainLayout from "../../components/Layout/MainLayout";
 import { getIbuList } from "../../services/ibu";
+import { getKehamilanByIbuId } from "../../services/kehamilan";
+import { getRujukanByKehamilanId } from "../../services/rujukanService";
 import { FileText, ArrowRight, User, AlertCircle, Search } from "lucide-react";
 
 export default function RujukanDashboard() {
@@ -13,8 +15,38 @@ export default function RujukanDashboard() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const data = await getIbuList();
-        setIbuList(data || []);
+        const allIbu = await getIbuList();
+        
+        // Filter hanya ibu yang memiliki rujukan dari bidan
+        const ibuWithRujukan = [];
+        
+        for (const ibu of allIbu || []) {
+          try {
+            // Ambil data kehamilan untuk ibu ini
+            const kehamilanList = await getKehamilanByIbuId(ibu.id_ibu);
+            
+            // Cek apakah ada rujukan untuk kehamilan ini
+            let hasRujukan = false;
+            if (kehamilanList && Array.isArray(kehamilanList)) {
+              for (const kehamilan of kehamilanList) {
+                const rujukanList = await getRujukanByKehamilanId(kehamilan.id);
+                if (rujukanList && (Array.isArray(rujukanList) ? rujukanList.length > 0 : true)) {
+                  hasRujukan = true;
+                  break;
+                }
+              }
+            }
+            
+            // Tambahkan ke list jika ada rujukan
+            if (hasRujukan) {
+              ibuWithRujukan.push(ibu);
+            }
+          } catch (err) {
+            console.error(`Gagal memproses ibu ${ibu.id_ibu}:`, err);
+          }
+        }
+        
+        setIbuList(ibuWithRujukan);
       } catch (err) {
         console.error("Gagal memuat daftar rujukan:", err);
       } finally {

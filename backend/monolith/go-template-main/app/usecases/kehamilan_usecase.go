@@ -19,6 +19,7 @@ type KehamilanUsecase interface {
 	GetDashboardIbuHamil() ([]repositories.KehamilanDashboardDTO, error)
 	ExistsActiveByIbuID(ibuID int32) (bool, error)
 	 UpdateAllActiveGestationalAge() error
+	 UpdateStatusKehamilan(id int32, status string) error
 }
 
 type kehamilanUsecase struct {
@@ -197,4 +198,24 @@ func (u *kehamilanUsecase) UpdateAllActiveGestationalAge() error {
 
     log.Printf("Selesai. Berhasil update %d dari %d kehamilan.", updated, len(kehamilans))
     return nil
+}
+// UpdateStatusKehamilan hanya mengubah status_kehamilan tanpa perhitungan ulang
+func (u *kehamilanUsecase) UpdateStatusKehamilan(id int32, status string) error {
+	existing, err := u.repo.FindByID(id)
+	if err != nil {
+		return errors.New("data kehamilan tidak ditemukan")
+	}
+	allowedStatus := map[string]bool{
+		"AKTIF":       true,
+		"NIFAS":       true,
+		"NON-AKTIF":   true,
+		"TRIMESTER 1": true,
+		"TRIMESTER 2": true,
+		"TRIMESTER 3": true,
+	}
+	if !allowedStatus[status] {
+		return errors.New("status tidak valid")
+	}
+	existing.StatusKehamilan = status
+	return u.repo.Update(existing) // atau panggil u.repo.UpdateStatusKehamilan(id, status) jika ingin lebih efisien
 }

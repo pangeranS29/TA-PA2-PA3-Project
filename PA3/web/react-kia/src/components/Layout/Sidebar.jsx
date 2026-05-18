@@ -14,6 +14,7 @@ import {
   Users,
   Baby,
   Activity,
+  Calendar,
   BarChart3,
   Settings,
   UserCheck,
@@ -22,9 +23,10 @@ import {
   ClipboardEdit,
   TableProperties,
   ClipboardList,
+  ShieldPlus,
   BookOpenCheck,
 } from "lucide-react";
-
+import logo from "./LOGO.png";
 const baseItemClass = (isActive) =>
   `flex items-center gap-2 px-3 py-2.5 rounded-lg transition-all duration-200 group ${isActive
     ? "bg-blue-50 text-blue-600 font-semibold"
@@ -46,6 +48,7 @@ const Sidebar = () => {
     edukasiDigital: pathname.startsWith("/edukasi-digital"),
     kesehatanLingkungan: pathname.startsWith("/pencatatan/kesehatan-lingkungan"),
     bidanKaderManagement: pathname.startsWith("/manajemen-posyandu") || pathname.startsWith("/manajemen-bidan") || pathname.startsWith("/manajemen-kader"),
+    mpasi: pathname.startsWith("/edukasi-digital/mpasi"),
   });
 
   const [dropdownOpen, setDropdownOpen] = useState(() => getDropdownOpenState(location.pathname));
@@ -82,7 +85,7 @@ const Sidebar = () => {
       dropdownKey: "kesehatanLingkungan",
       children: [
         { path: "/pencatatan/kesehatan-lingkungan", name: "Data Pencatatan", icon: TableProperties },
-        { path: "/pencatatan/kesehatan-lingkungan/kelola", name: "Kelola Indikator", icon: ClipboardEdit },
+        { path: "/pencatatan/kesehatan-lingkungan/kelola", name: "Kelola Pertanyaan", icon: ClipboardEdit },
       ],
     },
     {
@@ -91,21 +94,21 @@ const Sidebar = () => {
       isDropdown: true,
       dropdownKey: "monitoring",
       children: [
-        { path: "/monitoring", name: "Rekap Wilayah", icon: BarChart3 },
+        // { path: "/monitoring", name: "Rekap Wilayah", icon: BarChart3 },
         { path: "/pemantauan/lihat", name: "Data Pemantauan Anak", icon: TableProperties },
-        { path: "/pemantauan/perkembangan", name: "Data Perkembangan Anak", icon: TableProperties },
-        { path: "/pemantauan/kelola-perkembangan", name: "Kelola Penanda Perkembangan Anak", icon: ClipboardEdit },
+        { path: "/pemantauan/perkembangan", name: "Data Perawatan Anak", icon: TableProperties },
+        { path: "/pemantauan/kelola-perkembangan", name: "Kelola Perawatan Anak", icon: ClipboardEdit },
         { path: "/pemantauan/kelola", name: "Kelola Pemantauan Anak", icon: ClipboardEdit },
       ],
     },
-    {
-      name: "Edukasi Digital",
-      icon: BookOpenCheck,
-      isDropdown: true,
-      dropdownKey: "edukasiDigital",
-      children: [
+        {
+          name: "Edukasi Digital",
+          icon: BookOpenCheck,
+          isDropdown: true,
+          dropdownKey: "edukasiDigital",
+          children: [
         { path: "/edukasi-digital/informasi-umum", name: "Informasi Umum", icon: ClipboardList },
-        { path: "/edukasi-digital/tanda-bahaya-trimester", name: "Tanda Bahaya Trimester", icon: ClipboardList },
+        { path: "/edukasi-digital/trimester", name: "Edukasi Trimester", icon: ClipboardList },
         { path: "/edukasi-digital/tanda-melahirkan", name: "Tanda Melahirkan", icon: ClipboardList },
         { path: "/edukasi-digital/imd", name: "Edukasi IMD", icon: ClipboardList },
         { path: "/edukasi-digital/setelah-melahirkan", name: "Setelah Melahirkan", icon: ClipboardList },
@@ -114,9 +117,21 @@ const Sidebar = () => {
         { path: "/edukasi-digital/pola-asuh", name: "Pola Asuh", icon: ClipboardList },
         { path: "/edukasi-digital/kesehatan-mental", name: "Kesehatan Mental", icon: ClipboardList },
         { path: "/edukasi-digital/perawatan-anak", name: "Perawatan Anak", icon: ClipboardList },
-        { path: "/edukasi-digital/mpasi", name: "MPASI", icon: ClipboardList },
+        {
+          name: "MPASI",
+          icon: ClipboardList,
+          isDropdown: true,
+          dropdownKey: "mpasi",
+          children: [
+            { path: "/edukasi-digital/mpasi", name: "Materi MPASI", icon: ClipboardList },
+            { path: "/edukasi-digital/mpasi-aturan-porsi", name: "Aturan Porsi", icon: ClipboardList },
+            { path: "/edukasi-digital/mpasi-jadwal-harian", name: "Jadwal Harian", icon: ClipboardList },
+            { path: "/edukasi-digital/mpasi-resep", name: "Resep", icon: ClipboardList },
+          ],
+        },
       ],
     },
+    { path: "/jadwal-layanan", name: "Jadwal Layanan", icon: Calendar },
     { path: "/laporan", name: "Laporan", icon: BarChart3 },
   ];
 
@@ -124,6 +139,7 @@ const Sidebar = () => {
   const dokterMenuItems = [
     { path: "/data-ibu", name: "Data Ibu", icon: Users },
     { path: "/laporan", name: "Laporan", icon: BarChart3 },
+    { path: "/daftar-rujukan", name: "Rujukan", icon: ClipboardList },
   ];
 
   // Menu admin (kelola keluarga)
@@ -159,6 +175,7 @@ const Sidebar = () => {
     <NavLink
       key={item.path}
       to={item.path}
+      end
       className={({ isActive }) => `${baseItemClass(isActive)} ${className}`}
     >
       {({ isActive }) => (
@@ -173,16 +190,26 @@ const Sidebar = () => {
     </NavLink>
   );
 
-  const renderDropdown = (item) => {
+  const hasActiveDescendant = (item) => {
+    if (!item?.children?.length) {
+      return Boolean(item?.path && location.pathname.startsWith(item.path));
+    }
+    return item.children.some((child) => hasActiveDescendant(child));
+  };
+
+  const renderDropdown = (item, isNested = false) => {
     const isOpen = dropdownOpen[item.dropdownKey];
-    const hasActiveChild = item.children?.some((child) => location.pathname.startsWith(child.path));
+    const hasActiveChild = hasActiveDescendant(item);
+    const childContainerClass = isNested
+      ? "ml-3 pl-3 space-y-0.5 border-l border-slate-200"
+      : "ml-3 pl-3 space-y-0.5 border-l border-slate-200";
 
     return (
       <div key={item.dropdownKey} className="space-y-0.5">
         <button
           type="button"
           onClick={() => toggleDropdown(item.dropdownKey)}
-          className={`${baseItemClass(isOpen || hasActiveChild)} w-full`}
+          className={`${baseItemClass(isOpen || hasActiveChild)} w-full ${isNested ? "text-sm px-3 py-2 rounded-lg" : ""}`}
         >
           <item.icon
             size={18}
@@ -196,8 +223,12 @@ const Sidebar = () => {
         </button>
 
         {(isOpen || hasActiveChild) && (
-          <div className="ml-3 pl-3 space-y-0.5 border-l border-slate-200">
-            {item.children.map((child) => renderNavLink(child, "text-sm px-3 py-2 rounded-lg"))}
+          <div className={childContainerClass}>
+            {item.children.map((child) => (
+              child.isDropdown
+                ? renderDropdown(child, true)
+                : renderNavLink(child, "text-sm px-3 py-2 rounded-lg")
+            ))}
           </div>
         )}
       </div>
@@ -208,9 +239,9 @@ const Sidebar = () => {
     <aside className="w-64 h-screen bg-white border-r border-gray-100 flex flex-col p-4">
       {/* Header Logo */}
       <div className="flex items-center gap-2.5 mb-6">
-        <div className="bg-blue-600 p-1.5 rounded-lg text-white shadow-lg shadow-blue-100 flex-shrink-0">
-          <ShieldPlus size={24} />
-        </div>
+        <div className=" p-1.5 rounded-lg text-white shadow-lg shadow-blue-100 flex-shrink-0">
+  <img src={logo} alt="Logo" className="w-6 h-6 object-contain" />
+</div>
         <div className="min-w-0">
           <h1 className="text-base font-bold text-slate-800 leading-tight">KIA Cerdas</h1>
           <p className="text-[11px] text-slate-400">Dashboard {isDokter ? "Dokter" : isBidan ? "Bidan" : "Admin"}</p>
@@ -293,7 +324,7 @@ const Sidebar = () => {
         )}
 
         {/* Menu Pengaturan untuk semua role */}
-        {renderNavLink(settingsMenu)}
+        {/* {renderNavLink(settingsMenu)} */}
       </nav>
     </aside>
   );

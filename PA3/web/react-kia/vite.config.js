@@ -8,4 +8,11 @@ export default defineConfig({
     react(),
     babel({ presets: [reactCompilerPreset()] })
   ],
+  optimizeDeps: {
+    exclude: [
+      'react-chartjs-2',
+      'chart.js',
+      'react-select'
+    ]
+  }
 })

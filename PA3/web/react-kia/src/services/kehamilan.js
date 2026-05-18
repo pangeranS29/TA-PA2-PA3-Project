@@ -40,3 +40,11 @@ export const getKehamilanList = async () => {
   const response = await api.get(`${BASE}/all`);
   return response.data.data;
 };
+
+export const updateStatusKehamilan = async (id, status) => {
+  // Asumsikan endpoint: PUT /tenaga-kesehatan/kehamilan/:id/status
+  const response = await api.put(`${BASE}/${id}/status`, {
+    status_kehamilan: status,
+  });
+  return response.data;
+};

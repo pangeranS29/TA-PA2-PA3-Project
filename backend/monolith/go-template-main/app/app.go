@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"monitoring-service/app/controllers"
+
 	"time"
 
 	// "monitoring-service/app/models"
@@ -11,6 +12,7 @@ import (
 	"monitoring-service/app/routes"
 
 	// "monitoring-service/app/seed"
+	// "monitoring-service/app/seeders"
 	"monitoring-service/app/usecases"
 	"monitoring-service/pkg/config"
 	"monitoring-service/pkg/database"
@@ -85,18 +87,8 @@ func (m *Main) Init() (err error) {
 	}
 	fmt.Println("✅ BERHASIL KONEK KE DATABASE")
 
-	//comment sementara
-
-	// // Migrate Tabel
-	// err = models.AutoMigrate(m.database.Postgres)
-	// if err != nil {
-	// 	return
-	// }
-	// Migrate Tabel
-	// err = models.AutoMigrate(m.database.Postgres)
-	// if err != nil {
-	// 	return
-	// }
+	// Auto-migrate dimatikan agar startup tidak mengubah schema database secara otomatis.
+	// Jalankan migrasi manual bila memang dibutuhkan.
 
 	// // Seeder
 	// err = seed.RunAllSeed(m.database.Postgres)
@@ -130,6 +122,10 @@ func (m *Main) Init() (err error) {
 	// }
 	// masterLKUSeeder := seeders.NewMasterStandarLKUSeeder(m.database.Postgres)
 	// if err := masterLKUSeeder.Seed(); err != nil {
+	// 	return err
+	// }
+	// kategoriCapaianSeeder := seeders.NewKategoriCapaianSeeder(m.database.Postgres)
+	// if err := kategoriCapaianSeeder.Seed(); err != nil {
 	// 	return err
 	// }
 	// kategoriCapaianSeeder := seeders.NewKategoriCapaianSeeder(m.database.Postgres)

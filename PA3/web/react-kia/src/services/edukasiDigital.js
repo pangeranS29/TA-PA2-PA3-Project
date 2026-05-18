@@ -6,10 +6,10 @@ export const EDUKASI_RESOURCES = {
     label: "Informasi Umum",
     path: "edukasi-informasi-umum",
   },
-  tandaBahayaTrimester: {
-    key: "tandaBahayaTrimester",
-    label: "Tanda Bahaya Trimester",
-    path: "edukasi-tanda-bahaya-trimester",
+  trimester: {
+    key: "trimester",
+    label: "Edukasi Trimester",
+    path: "edukasi-trimester",
   },
   tandaMelahirkan: {
     key: "tandaMelahirkan",
