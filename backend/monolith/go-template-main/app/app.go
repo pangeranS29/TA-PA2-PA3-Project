@@ -87,8 +87,12 @@ func (m *Main) Init() (err error) {
 	}
 	fmt.Println("✅ BERHASIL KONEK KE DATABASE")
 
-	// Auto-migrate dimatikan agar startup tidak mengubah schema database secara otomatis.
-	// Jalankan migrasi manual bila memang dibutuhkan.
+	// // Migrate Tabel
+	// err = models.AutoMigrate(m.database.Postgres)
+	// if err != nil {
+	// 	return
+	// }
+
 
 	// // Seeder
 	// err = seed.RunAllSeed(m.database.Postgres)

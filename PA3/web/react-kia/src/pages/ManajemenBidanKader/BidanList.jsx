@@ -10,6 +10,7 @@ import {
   listPendudukForDropdown,
   adminTenagaErrorMessage,
 } from "../../services/adminTenagaKesehatan";
+import { registerUser } from "../../services/auth";
 import {
   Plus,
   Search,
@@ -45,6 +46,13 @@ export default function BidanList() {
     no_str: "",
     no_sipb: "",
     status: "aktif",
+  });
+  // State untuk akun user
+  const [userCreds, setUserCreds] = useState({
+    email: "",
+    phone_number: "",
+    password: "",
+    confirmPassword: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -108,6 +116,7 @@ export default function BidanList() {
 
   const resetForm = () => {
     setFormData({ penduduk_id: null, penduduk_selected: null, no_str: "", no_sipb: "", status: "aktif" });
+    setUserCreds({ email: "", phone_number: "", password: "", confirmPassword: "" });
     setFormError("");
   };
 
@@ -142,26 +151,83 @@ export default function BidanList() {
     resetForm();
   };
 
-  const handleCreateSubmit = async (e) => {
-    e.preventDefault();
+  // Validasi form create (termasuk akun)
+  const validateCreateForm = () => {
     if (!formData.penduduk_id) {
       setFormError("Pilih penduduk terlebih dahulu");
-      return;
+      return false;
     }
+    if (!userCreds.email) {
+      setFormError("Email wajib diisi");
+      return false;
+    }
+    if (!userCreds.email.includes("@")) {
+      setFormError("Email tidak valid");
+      return false;
+    }
+    if (!userCreds.password) {
+      setFormError("Password wajib diisi");
+      return false;
+    }
+    if (userCreds.password.length < 8) {
+      setFormError("Password minimal 8 karakter");
+      return false;
+    }
+    if (userCreds.password !== userCreds.confirmPassword) {
+      setFormError("Konfirmasi password tidak cocok");
+      return false;
+    }
+    return true;
+  };
+
+  const handleCreateSubmit = async (e) => {
+    e.preventDefault();
+    if (!validateCreateForm()) return;
+
     try {
       setIsSubmitting(true);
       setFormError("");
+
+      // 1. Ambil data penduduk yang dipilih (untuk nama lengkap)
+      const selectedPenduduk = pendudukList.find(p => p.id === formData.penduduk_id);
+      if (!selectedPenduduk) {
+        setFormError("Data penduduk tidak ditemukan");
+        return;
+      }
+
+      // 2. Registrasi user dengan role "Bidan" dan sertakan penduduk_id
+      const registerPayload = {
+        name: selectedPenduduk.nama_lengkap,
+        email: userCreds.email,
+        phone_number: userCreds.phone_number,
+        password: userCreds.password,
+        role_name: "Bidan",
+        penduduk_id: formData.penduduk_id, // Kirim penduduk_id ke user
+      };
+      await registerUser(registerPayload);
+
+      // 3. Buat entri bidan
       await createBidanBidan({
         penduduk_id: formData.penduduk_id,
         no_str: formData.no_str,
         no_sipb: formData.no_sipb,
         status: formData.status,
       });
+
       handleCloseModal();
+      // Refresh data bidan
       const data = await listBidanBidan({ search: debouncedSearch });
       setBidanList(data || []);
     } catch (err) {
-      setFormError(adminTenagaErrorMessage(err, "Gagal membuat bidan"));
+      console.error(err);
+      const errorMsg = err.response?.data?.message || err.message;
+      if (errorMsg.includes("email") && errorMsg.toLowerCase().includes("exists")) {
+        setFormError("Email sudah terdaftar, gunakan email lain.");
+      } else if (errorMsg.includes("penduduk") && errorMsg.toLowerCase().includes("already")) {
+        setFormError("Penduduk ini sudah terdaftar sebagai bidan atau user lain.");
+      } else {
+        setFormError(adminTenagaErrorMessage(err, "Gagal membuat bidan dan akun"));
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -326,7 +392,7 @@ export default function BidanList() {
         </div>
       </div>
 
-      {/* Create Modal */}
+      {/* Create Modal dengan field akun */}
       {showCreateModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
@@ -354,6 +420,59 @@ export default function BidanList() {
                   }
                   isLoading={loadingPenduduk}
                   placeholder="Ketik nama atau NIK penduduk..."
+                />
+              </div>
+
+              {/* Field akun user */}
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                  Email <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="email"
+                  value={userCreds.email}
+                  onChange={(e) => setUserCreds({ ...userCreds, email: e.target.value })}
+                  placeholder="email@example.com"
+                  className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                  Nomor Telepon <span className="text-gray-400 text-xs">(opsional)</span>
+                </label>
+                <input
+                  type="tel"
+                  value={userCreds.phone_number}
+                  onChange={(e) => setUserCreds({ ...userCreds, phone_number: e.target.value })}
+                  placeholder="08xxxxxxxxxx"
+                  className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                  Password <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="password"
+                  value={userCreds.password}
+                  onChange={(e) => setUserCreds({ ...userCreds, password: e.target.value })}
+                  placeholder="Minimal 8 karakter"
+                  className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                  Konfirmasi Password <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="password"
+                  value={userCreds.confirmPassword}
+                  onChange={(e) => setUserCreds({ ...userCreds, confirmPassword: e.target.value })}
+                  placeholder="Ulangi password"
+                  className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 

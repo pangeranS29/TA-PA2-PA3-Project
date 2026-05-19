@@ -5,7 +5,7 @@ import Swal from "sweetalert2";
 import MainLayout from "../../components/Layout/MainLayout";
 import { getKehamilanByIbuId } from "../../services/kehamilan";
 import { getSkriningByKehamilanId, createSkrining, updateSkrining } from "../../services/skrining";
-import { getCurrentUser, isDokterUser } from "../../services/auth";
+import { getCurrentUser, isBidanUser } from "../../services/auth";
 import {
   AlertCircle,
   Save,
@@ -28,7 +28,7 @@ export default function SkriningPreeklampsia() {
   const navigate = useNavigate();
 
   const user = getCurrentUser();
-  const isDokter = isDokterUser(user);
+  const isDokter = isBidanUser(user);
 
   const [kehamilan, setKehamilan] = useState(null);
   const [skrining, setSkrining] = useState(null);

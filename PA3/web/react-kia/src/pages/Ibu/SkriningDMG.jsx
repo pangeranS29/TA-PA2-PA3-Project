@@ -6,7 +6,7 @@ import MainLayout from "../../components/Layout/MainLayout";
 import { getKehamilanByIbuId } from "../../services/kehamilan";
 import { getSkriningDMByKehamilanId, createSkriningDM, updateSkriningDM } from "../../services/rujukanService";
 import { getCurrentUser, isDokterUser } from "../../services/auth";
-import { Save, ArrowLeft, Loader2, Edit, Plus, X, Eye, EyeOff } from "lucide-react";
+import { Save, ArrowLeft, Loader2, Edit, Plus, X, Eye, EyeOff, AlertCircle } from "lucide-react";
 
 export default function SkriningDMGestasional() {
   const { id: ibuId } = useParams();
@@ -23,6 +23,7 @@ export default function SkriningDMGestasional() {
   const [saving, setSaving] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [isActive, setIsActive] = useState(true);
+  const [errors, setErrors] = useState({});
 
   const canEdit = isDokter && isActive;
 
@@ -32,6 +33,31 @@ export default function SkriningDMGestasional() {
     gula_darah_2_jam_post_prandial_hasil: "",
     gula_darah_2_jam_post_prandial_rencana_tindak_lanjut: "",
   });
+
+  // Validasi form: hanya field hasil yang wajib diisi (harus angka, tidak negatif)
+  const validateForm = () => {
+    const newErrors = {};
+    if (!form.gula_darah_puasa_hasil || form.gula_darah_puasa_hasil.trim() === "") {
+      newErrors.gula_darah_puasa_hasil = "Hasil gula darah puasa wajib diisi";
+    } else if (isNaN(parseFloat(form.gula_darah_puasa_hasil))) {
+      newErrors.gula_darah_puasa_hasil = "Hasil harus berupa angka";
+    } else if (parseFloat(form.gula_darah_puasa_hasil) < 0) {
+      newErrors.gula_darah_puasa_hasil = "Hasil tidak boleh negatif";
+    }
+
+    if (!form.gula_darah_2_jam_post_prandial_hasil || form.gula_darah_2_jam_post_prandial_hasil.trim() === "") {
+      newErrors.gula_darah_2_jam_post_prandial_hasil = "Hasil gula darah 2 jam post prandial wajib diisi";
+    } else if (isNaN(parseFloat(form.gula_darah_2_jam_post_prandial_hasil))) {
+      newErrors.gula_darah_2_jam_post_prandial_hasil = "Hasil harus berupa angka";
+    } else if (parseFloat(form.gula_darah_2_jam_post_prandial_hasil) < 0) {
+      newErrors.gula_darah_2_jam_post_prandial_hasil = "Hasil tidak boleh negatif";
+    }
+
+    // Rencana tindak lanjut boleh kosong, tidak divalidasi
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const fetchData = async () => {
     try {
@@ -103,7 +129,12 @@ export default function SkriningDMGestasional() {
 
   const handleChange = (e) => {
     if (!canEdit) return;
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setForm({ ...form, [name]: value });
+    // Hapus error field yang sedang diedit
+    if (errors[name]) {
+      setErrors({ ...errors, [name]: "" });
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -124,14 +155,26 @@ export default function SkriningDMGestasional() {
       });
       return;
     }
+
+    // Validasi sebelum submit
+    if (!validateForm()) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Data Belum Lengkap',
+        text: 'Harap isi semua hasil pemeriksaan (nilai gula darah) dengan benar.',
+        confirmButtonColor: '#185FA5'
+      });
+      return;
+    }
+
     setSaving(true);
     try {
       const payload = {
         kehamilan_id: kehamilan.id,
-        gula_darah_puasa_hasil: form.gula_darah_puasa_hasil || "",
-        gula_darah_puasa_rencana_tindak_lanjut: form.gula_darah_puasa_rencana_tindak_lanjut || "",
-        gula_darah_2_jam_post_prandial_hasil: form.gula_darah_2_jam_post_prandial_hasil || "",
-        gula_darah_2_jam_post_prandial_rencana_tindak_lanjut: form.gula_darah_2_jam_post_prandial_rencana_tindak_lanjut || "",
+        gula_darah_puasa_hasil: form.gula_darah_puasa_hasil,
+        gula_darah_puasa_rencana_tindak_lanjut: form.gula_darah_puasa_rencana_tindak_lanjut,
+        gula_darah_2_jam_post_prandial_hasil: form.gula_darah_2_jam_post_prandial_hasil,
+        gula_darah_2_jam_post_prandial_rencana_tindak_lanjut: form.gula_darah_2_jam_post_prandial_rencana_tindak_lanjut,
       };
 
       if (data) {
@@ -149,6 +192,7 @@ export default function SkriningDMGestasional() {
       
       await fetchData();
       setShowForm(false);
+      setErrors({});
     } catch (err) {
       console.error(err);
       Swal.fire({
@@ -171,6 +215,7 @@ export default function SkriningDMGestasional() {
       return;
     }
     setShowForm(true);
+    setErrors({});
   };
 
   const handleAdd = () => {
@@ -183,10 +228,12 @@ export default function SkriningDMGestasional() {
       return;
     }
     setShowForm(true);
+    setErrors({});
   };
 
   const handleCancelForm = () => {
     setShowForm(false);
+    setErrors({});
   };
 
   // Fungsi untuk menentukan status risiko
@@ -211,16 +258,13 @@ export default function SkriningDMGestasional() {
   return (
     <MainLayout>
       <div className="min-h-screen bg-[#F7FAFB]">
-        <div className="max-w-4xl mx-auto p-5 space-y-5">
-          {/* Header */}
-          <div className="flex items-center gap-3">
-            <button onClick={() => navigate(-1)} className="p-2 rounded-lg hover:bg-gray-200 transition">
+        <div className="max-w-5xl mx-auto p-5 space-y-6">
+          {/* Header - disamakan dengan Skrining Preeklampsia */}
+          <div className="flex items-center gap-4">
+            <button onClick={() => navigate(-1)} className="p-2 rounded-full hover:bg-gray-100 transition">
               <ArrowLeft size={20} className="text-[#185FA5]" />
             </button>
-            <div>
-              <h1 className="text-[28px] font-bold text-gray-900">Skrining DM Gestasional</h1>
-              <p className="text-gray-500 text-base">Pemeriksaan profil glukosa untuk mendeteksi diabetes melitus gestasional.</p>
-            </div>
+            <h1 className="text-[28px] font-bold text-gray-900">Skrining DM Gestasional</h1>
           </div>
 
           {/* Banner peringatan status kehamilan dan hak akses */}
@@ -331,7 +375,7 @@ export default function SkriningDMGestasional() {
             </div>
           )}
 
-          {/* Form input (create / edit) */}
+          {/* Form input (create / edit) dengan validasi */}
           {showForm && (
             <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm p-5 space-y-6">
               <div className="flex justify-between items-center">
@@ -354,7 +398,9 @@ export default function SkriningDMGestasional() {
                   <h3 className="font-semibold text-base text-gray-800 mb-3">1. Gula Darah Puasa (GDP)</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-base font-medium mb-1">Hasil (mg/dL)</label>
+                      <label className="block text-base font-medium mb-1">
+                        Hasil (mg/dL) <span className="text-red-500">*</span>
+                      </label>
                       <input 
                         type="text" 
                         inputMode="numeric"
@@ -362,13 +408,18 @@ export default function SkriningDMGestasional() {
                         value={form.gula_darah_puasa_hasil} 
                         onChange={handleChange} 
                         disabled={!canEdit}
-                        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-base focus:border-[#185FA5] focus:ring-1 focus:ring-[#185FA5] disabled:bg-gray-100"
+                        className={`w-full border ${errors.gula_darah_puasa_hasil ? 'border-red-500' : 'border-gray-300'} rounded-lg px-3 py-2 text-base focus:border-[#185FA5] focus:ring-1 focus:ring-[#185FA5] disabled:bg-gray-100`}
                         placeholder="Contoh: 90" 
                       />
+                      {errors.gula_darah_puasa_hasil && (
+                        <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
+                          <AlertCircle size={14} /> {errors.gula_darah_puasa_hasil}
+                        </p>
+                      )}
                       <p className="text-sm text-gray-500 mt-1">Nilai normal: &lt; 92 mg/dL</p>
                     </div>
                     <div>
-                      <label className="block text-base font-medium mb-1">Rencana Tindak Lanjut</label>
+                      <label className="block text-base font-medium mb-1">Rencana Tindak Lanjut (opsional)</label>
                       <input 
                         type="text"
                         name="gula_darah_puasa_rencana_tindak_lanjut" 
@@ -387,7 +438,9 @@ export default function SkriningDMGestasional() {
                   <h3 className="font-semibold text-base text-gray-800 mb-3">2. Gula Darah 2 Jam Post Prandial (TTGO 75g)</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-base font-medium mb-1">Hasil (mg/dL)</label>
+                      <label className="block text-base font-medium mb-1">
+                        Hasil (mg/dL) <span className="text-red-500">*</span>
+                      </label>
                       <input 
                         type="text" 
                         inputMode="numeric"
@@ -395,13 +448,18 @@ export default function SkriningDMGestasional() {
                         value={form.gula_darah_2_jam_post_prandial_hasil} 
                         onChange={handleChange} 
                         disabled={!canEdit}
-                        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-base focus:border-[#185FA5] focus:ring-1 focus:ring-[#185FA5] disabled:bg-gray-100"
+                        className={`w-full border ${errors.gula_darah_2_jam_post_prandial_hasil ? 'border-red-500' : 'border-gray-300'} rounded-lg px-3 py-2 text-base focus:border-[#185FA5] focus:ring-1 focus:ring-[#185FA5] disabled:bg-gray-100`}
                         placeholder="Contoh: 140" 
                       />
+                      {errors.gula_darah_2_jam_post_prandial_hasil && (
+                        <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
+                          <AlertCircle size={14} /> {errors.gula_darah_2_jam_post_prandial_hasil}
+                        </p>
+                      )}
                       <p className="text-sm text-gray-500 mt-1">Nilai normal: &lt; 153 mg/dL</p>
                     </div>
                     <div>
-                      <label className="block text-base font-medium mb-1">Rencana Tindak Lanjut</label>
+                      <label className="block text-base font-medium mb-1">Rencana Tindak Lanjut (opsional)</label>
                       <input 
                         type="text"
                         name="gula_darah_2_jam_post_prandial_rencana_tindak_lanjut" 

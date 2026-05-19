@@ -54,3 +54,8 @@ export const getPostLoginRoute = () => {
   const user = getCurrentUser();
   return getUserRedirectRoute(user);
 };
+
+export const registerUser = async (userData) => {
+  const response = await api.post("/auth/register", userData);
+  return response.data; // Mengembalikan data user yang terdaftar
+};
