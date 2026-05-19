@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ta_pa2_pa3_project/features/anak/pemantauan/data/models/lembar_pemantauan_dynamic_model.dart';
 import 'package:ta_pa2_pa3_project/features/anak/pemantauan/data/services/lembar_pemantauan_api_service.dart';
+import 'package:ta_pa2_pa3_project/features/anak/pemantauan/presentation/screens/skrining/lembar_pemantauan_screen.dart';
 
 class RiwayatSkriningTandaBahayaScreen extends StatefulWidget {
   final Map<String, dynamic>? anak;
@@ -75,6 +76,46 @@ class _RiwayatSkriningTandaBahayaScreenState extends State<RiwayatSkriningTandaB
     }
   }
 
+  IconData _statusIcon(String status) {
+    switch (status) {
+      case 'Diterima':
+        return Icons.check_circle_rounded;
+      case 'Ditolak':
+        return Icons.error_rounded;
+      default:
+        return Icons.schedule_rounded;
+    }
+  }
+
+  void _openPemantauanHariIni() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => LembarPemantauanScreen(anak: widget.anak),
+      ),
+    );
+  }
+
+  void _showRecordHelp(LembarPemantauanModel record) {
+    showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Info Verifikasi'),
+        content: Text(
+          record.status == 'Menunggu verifikasi'
+              ? 'Data masih menunggu verifikasi. Jika perlu, hubungi kader setempat.'
+              : 'Status data masih belum terverifikasi. Anda bisa meninjau data atau hubungi kader.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Tutup'),
+          ),
+        ],
+      ),
+    );
+  }
+
   String _periodeLabel(LembarPemantauanModel record) {
     final satuan = record.rentangUsia?.satuanWaktu.toLowerCase().trim() ?? '';
     final periode = record.periodeWaktu;
@@ -116,12 +157,16 @@ class _RiwayatSkriningTandaBahayaScreenState extends State<RiwayatSkriningTandaB
                     padding: const EdgeInsets.all(20),
                     children: [
                       const SizedBox(height: 24),
+                      _buildPrimaryActionCard(),
+                      const SizedBox(height: 16),
                       _buildEmptyState(context),
                     ],
                   )
                 : ListView(
                     padding: const EdgeInsets.all(16),
                     children: [
+                      _buildPrimaryActionCard(),
+                      const SizedBox(height: 16),
                       _buildHeaderCard(),
                       const SizedBox(height: 16),
                       ..._records.map((record) {
@@ -188,7 +233,56 @@ class _RiwayatSkriningTandaBahayaScreenState extends State<RiwayatSkriningTandaB
                     color: Color(0xFF475569),
                   ),
                 ),
+                const SizedBox(height: 8),
+                Text(
+                  'Ini adalah catatan pemantauan bayimu. Tap untuk lihat detail atau tambah catatan baru.',
+                  style: TextStyle(
+                    fontSize: 12.5,
+                    height: 1.4,
+                    color: Colors.grey.shade700,
+                  ),
+                ),
               ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPrimaryActionCard() {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: const Color(0xFFEFF6FF),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFBFDBFE)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Row(
+            children: [
+              Icon(Icons.play_circle_fill_rounded,
+                  color: Color(0xFF2563EB)),
+              SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Isi pemantauan hari ini agar kader bisa segera menilai.',
+                  style: TextStyle(
+                    fontSize: 12.5,
+                    color: Color(0xFF1E3A8A),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton(
+              onPressed: _openPemantauanHariIni,
+              child: const Text('Isi Pemantauan Hari Ini'),
             ),
           ),
         ],
@@ -203,6 +297,7 @@ class _RiwayatSkriningTandaBahayaScreenState extends State<RiwayatSkriningTandaB
     final selectedGejalaList = detailSelesai
         .map((d) => d.kategoriTandaSakit?.gejala ?? 'Gejala tidak diketahui')
         .toList();
+    final statusIcon = _statusIcon(record.status);
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -253,13 +348,19 @@ class _RiwayatSkriningTandaBahayaScreenState extends State<RiwayatSkriningTandaB
                   color: statusColor.withOpacity(0.12),
                   borderRadius: BorderRadius.circular(999),
                 ),
-                child: Text(
-                  record.status,
-                  style: TextStyle(
-                    color: statusColor,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                  ),
+                child: Row(
+                  children: [
+                    Icon(statusIcon, size: 14, color: statusColor),
+                    const SizedBox(width: 6),
+                    Text(
+                      record.status,
+                      style: TextStyle(
+                        color: statusColor,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -336,6 +437,17 @@ class _RiwayatSkriningTandaBahayaScreenState extends State<RiwayatSkriningTandaB
             'Tgl verifikasi',
             record.status == 'Menunggu verifikasi' ? '-' : record.updatedAt,
           ),
+          if (record.status != 'Diterima') ...[
+            const SizedBox(height: 12),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: OutlinedButton.icon(
+                onPressed: () => _showRecordHelp(record),
+                icon: const Icon(Icons.help_outline_rounded),
+                label: const Text('Lihat Detail'),
+              ),
+            ),
+          ],
         ],
       ),
     );

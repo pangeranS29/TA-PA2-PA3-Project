@@ -263,7 +263,9 @@ class _LembarPemantauanScreenState extends State<LembarPemantauanScreen>
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Lembar pemantauan berhasil disimpan.')),
+        const SnackBar(
+          content: Text('Data pantauan berhasil disimpan. Kader akan diberitahu.'),
+        ),
       );
 
       // Reset form
@@ -317,6 +319,7 @@ class _LembarPemantauanScreenState extends State<LembarPemantauanScreen>
         ),
       ),
       body: _buildFormTab(),
+      bottomNavigationBar: _loadingRentang ? null : _buildSubmitBar(),
     );
   }
 
@@ -326,30 +329,63 @@ class _LembarPemantauanScreenState extends State<LembarPemantauanScreen>
         : RefreshIndicator(
             onRefresh: _loadRentangUsia,
             child: ListView(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 120),
               children: [
                 _buildAnakInfoCard(),
                 const SizedBox(height: 12),
                 _buildFormCard(),
                 const SizedBox(height: 16),
                 _buildGejalaCard(),
-                const SizedBox(height: 16),
-                SizedBox(
-                  height: 48,
-                  child: FilledButton(
-                    onPressed: _submitting ? null : _submit,
-                    child: _submitting
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : const Text('Simpan Pemantauan'),
-                  ),
-                ),
               ],
             ),
           );
+  }
+
+  Widget _buildSubmitBar() {
+    return SafeArea(
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.06),
+              blurRadius: 10,
+              offset: const Offset(0, -2),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Setelah selesai mengisi, tap Simpan agar data tersimpan.',
+              style: TextStyle(
+                fontSize: 12.5,
+                color: Color(0xFF475569),
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 10),
+            SizedBox(
+              width: double.infinity,
+              height: 52,
+              child: FilledButton(
+                onPressed: _submitting ? null : _submit,
+                child: _submitting
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Text('Simpan Data'),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildAnakInfoCard() {
