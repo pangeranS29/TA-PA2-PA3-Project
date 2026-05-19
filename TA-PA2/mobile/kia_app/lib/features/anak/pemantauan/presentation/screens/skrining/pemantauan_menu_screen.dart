@@ -207,7 +207,7 @@ class _PemantauanMenuScreenState extends State<PemantauanMenuScreen> {
           SizedBox(width: 10),
           Expanded(
             child: Text(
-              'Pilih kelompok usia yang sesuai untuk membuka kategori skrining tanda bahaya.',
+              'Pilih kelompok usia yang sesuai, lalu ketuk Skrining sekarang untuk mulai.',
               style: TextStyle(
                 fontSize: 12.5,
                 height: 1.45,
@@ -396,10 +396,9 @@ class _PemantauanMenuScreenState extends State<PemantauanMenuScreen> {
   }
 
   Widget _buildHistoryAction() {
-    return SizedBox(
-      width: double.infinity,
-      height: 52,
-      child: OutlinedButton.icon(
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: TextButton.icon(
         onPressed: () {
           Navigator.push(
             context,
@@ -411,7 +410,7 @@ class _PemantauanMenuScreenState extends State<PemantauanMenuScreen> {
           );
         },
         icon: const Icon(Icons.history_rounded),
-        label: const Text('Riwayat skrining'),
+        label: const Text('Lihat riwayat skrining'),
       ),
     );
   }

@@ -196,7 +196,10 @@ class _PerawatanPerkembanganScreenState
     });
 
     if (failCount == 0) {
-      _showSnack('✓ Data perawatan $range berhasil disimpan!', isSuccess: true);
+      _showSnack(
+        'Data perawatan $range berhasil disimpan. Kader akan diberitahu.',
+        isSuccess: true,
+      );
       setState(() {
         _tanggalPeriksaByRange[range] = _tanggalPeriksa;
       });
@@ -443,6 +446,7 @@ class _PerawatanPerkembanganScreenState
   // ─────────────────────────────────────────────────────────
   @override
   Widget build(BuildContext context) {
+    final activeRange = _ageRanges[_selectedAgeIndex];
     return Scaffold(
       backgroundColor: const Color(0xFFF1F5F9),
       appBar: AppBar(
@@ -473,15 +477,52 @@ class _PerawatanPerkembanganScreenState
         ),
       ),
       body: _buildKuesionerTab(),
+      bottomNavigationBar: _buildSubmitBar(activeRange),
     );
   }
 
   // ─────────────────────────────────────────────────────────
   // TAB 1: KUESIONER
   // ─────────────────────────────────────────────────────────
+  Widget _buildIntroCard() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFEFFDF7),
+        border: Border.all(color: const Color(0xFFBBF7D0)),
+      ),
+      child: const Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Perawatan Perkembangan',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF047857),
+            ),
+          ),
+          SizedBox(height: 6),
+          Text(
+            'Langkah singkat: 1. Pilih rentang usia. 2. Jawab semua pertanyaan. 3. Simpan data.',
+            style: TextStyle(
+              fontSize: 12.5,
+              color: Color(0xFF065F46),
+              height: 1.4,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildKuesionerTab() {
     return Column(
       children: [
+        _buildIntroCard(),
+        const SizedBox(height: 8),
+
         // Anak info + tanggal bar
         Container(
           color: Colors.white,
@@ -665,7 +706,7 @@ class _PerawatanPerkembanganScreenState
       color: const Color(0xFF059669),
       onRefresh: () => _loadRangeData(range),
       child: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 140),
         children: [
           // ── Materi Perawatan ──
           _buildMateriSection(range),
@@ -680,13 +721,6 @@ class _PerawatanPerkembanganScreenState
             _buildEmptyKuesioner(range)
           else
             _buildChecklistTable(range, kategori, checklist, _submittedByRange[range] ?? false),
-
-          const SizedBox(height: 16),
-
-          // ── Tombol Simpan ──
-          if (kategori.isNotEmpty)
-            _buildSubmitButton(range, isSubmitting, answeredCount, totalCount),
-
           const SizedBox(height: 32),
         ],
       ),
@@ -1143,6 +1177,50 @@ class _PerawatanPerkembanganScreenState
           ),
         ]
       ],
+    );
+  }
+
+  Widget _buildSubmitBar(String range) {
+    final kategori = _kategoriByRange[range] ?? [];
+    final answered =
+        _checklistByRange[range]?.values.where((v) => v != null).length ?? 0;
+    final total = kategori.length;
+    final isSubmitting = _submittingByRange[range] ?? false;
+
+    if (kategori.isEmpty && (_loadingByRange[range] ?? true)) {
+      return const SizedBox.shrink();
+    }
+
+    return SafeArea(
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.06),
+              blurRadius: 10,
+              offset: const Offset(0, -2),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Setelah selesai mengisi, tap Simpan agar data tersimpan.',
+              style: TextStyle(
+                fontSize: 12.5,
+                color: Color(0xFF475569),
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 8),
+            _buildSubmitButton(range, isSubmitting, answered, total),
+          ],
+        ),
+      ),
     );
   }
 
