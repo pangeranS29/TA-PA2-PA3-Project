@@ -24,7 +24,7 @@ type createKependudukanRequest struct {
 	NIK                string `json:"nik"`
 	Dusun              string `json:"dusun"`
 	Kecamatan          string `json:"kecamatan"`
-	Desa               string `json:"desa"`
+	DesaID             *int32 `json:"desa_id"`
 	NamaLengkap        string `json:"nama_lengkap"`
 	GolonganDarah      string `json:"golongan_darah"`
 	JenisKelamin       string `json:"jenis_kelamin"`
@@ -74,7 +74,7 @@ func (c *KependudukanController) Create(ctx echo.Context) error {
 		NIK:                nikPtr,
 		Dusun:              req.Dusun,
 		Kecamatan:          req.Kecamatan,
-		Desa:               req.Desa,
+		DesaID:             req.DesaID,
 		NamaLengkap:        req.NamaLengkap,
 		GolonganDarah:      req.GolonganDarah,
 		JenisKelamin:       req.JenisKelamin,
@@ -148,8 +148,8 @@ func (c *KependudukanController) Update(ctx echo.Context) error {
 	if req.Kecamatan != "" {
 		existing.Kecamatan = req.Kecamatan
 	}
-	if req.Desa != "" {
-		existing.Desa = req.Desa
+	if req.DesaID != nil {
+		existing.DesaID = req.DesaID
 	}
 	if req.NamaLengkap != "" {
 		existing.NamaLengkap = req.NamaLengkap

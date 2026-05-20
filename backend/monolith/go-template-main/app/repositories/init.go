@@ -85,6 +85,10 @@ type Main struct {
 	EdukasiJadwalHarianMPASI JadwalHarianMPASIRepository
 	JadwalLayanan            JadwalLayananRepository
 	EdukasiResepMPASI        ResepMPASIRepository
+	PemeriksaanAnak          PemeriksaanAnakRepository
+	PemeriksaanRemaja        PemeriksaanRemajaRepository
+	PemeriksaanDewasa        PemeriksaanDewasaRepository
+	PemeriksaanLansia        PemeriksaanLansiaRepository
 
 	// Edukasi Digital
 
@@ -181,6 +185,10 @@ func Init(opts Options) *Main {
 	m.JadwalLayanan = NewJadwalLayananRepository(opts.Postgres)
 	m.EdukasiResepMPASI = NewResepMPASIRepository(opts.Postgres)
 	m.LaporanIbu = NewLaporanIbuRepository(opts.Postgres)
+	m.PemeriksaanAnak = NewPemeriksaanAnakRepository(opts.Postgres)
+	m.PemeriksaanRemaja = NewPemeriksaanRemajaRepository(opts.Postgres)
+	m.PemeriksaanDewasa = NewPemeriksaanDewasaRepository(opts.Postgres)
+	m.PemeriksaanLansia = NewPemeriksaanLansiaRepository(opts.Postgres)
 
 	return m
 }

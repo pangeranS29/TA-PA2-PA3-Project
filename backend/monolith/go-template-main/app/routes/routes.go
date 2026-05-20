@@ -587,4 +587,24 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	ibu.GET("/pelayanan-ibu-nifas", controller.PelayananIbuNifas.GetByKehamilanID)
 	ibu.GET("/catatan-pelayanan-nifas", controller.CatatanPelayananNifas.GetByKehamilanID)
 
+	tenaga.GET("/pemeriksaan-anak", controller.PemeriksaanAnak.GetAll)
+	tenaga.POST("/pemeriksaan-anak", controller.PemeriksaanAnak.Create)
+	tenaga.GET("/pemeriksaan-anak/:id", controller.PemeriksaanAnak.GetByID)
+	tenaga.DELETE("/pemeriksaan-anak/:id", controller.PemeriksaanAnak.Delete)
+
+
+	tenaga.GET("/pemeriksaan-remaja", controller.PemeriksaanRemaja.GetAll)
+	tenaga.POST("/pemeriksaan-remaja", controller.PemeriksaanRemaja.Create)
+	tenaga.GET("/pemeriksaan-remaja/:id", controller.PemeriksaanRemaja.GetByID)
+	tenaga.DELETE("/pemeriksaan-remaja/:id", controller.PemeriksaanRemaja.Delete)
+
+	tenaga.GET("/pemeriksaan-dewasa", controller.PemeriksaanDewasa.GetAll)
+	tenaga.POST("/pemeriksaan-dewasa", controller.PemeriksaanDewasa.Create)
+	tenaga.GET("/pemeriksaan-dewasa/:id", controller.PemeriksaanDewasa.GetByID)
+	tenaga.DELETE("/pemeriksaan-dewasa/:id", controller.PemeriksaanDewasa.Delete)
+
+	tenaga.GET("/pemeriksaan-lansia", controller.PemeriksaanLansia.GetAll)
+	tenaga.POST("/pemeriksaan-lansia", controller.PemeriksaanLansia.Create)
+	tenaga.GET("/pemeriksaan-lansia/:id", controller.PemeriksaanLansia.GetByID)
+	tenaga.DELETE("/pemeriksaan-lansia/:id", controller.PemeriksaanLansia.Delete)
 }

@@ -194,6 +194,19 @@ func (m *Main) Register(req *models.RegisterRequest) error {
 		return err
 	}
 
+	var pendudukID *int64
+
+	if req.PendudukID != nil {
+		penduduk, err := m.repository.Kependudukan.FindByID(int32(*req.PendudukID))
+		if err != nil {
+			return customerror.NewBadRequestError("penduduk tidak ditemukan")
+		}
+
+		// penting: pastikan yang disimpan adalah ID benar
+		id := int64(penduduk.IDKependudukan)
+		pendudukID = &id
+	}
+
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return customerror.NewInternalServiceError("gagal memproses password")
@@ -205,6 +218,7 @@ func (m *Main) Register(req *models.RegisterRequest) error {
 		PhoneNumber: req.PhoneNumber,
 		Password:    string(hashedPassword),
 		RoleID:      role.ID,
+		PendudukID:  pendudukID,
 	}
 
 	if err := m.repository.CreateUser(user); err != nil {
