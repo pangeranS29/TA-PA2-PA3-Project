@@ -9,6 +9,7 @@ type PemantauanAnakRepository interface {
 	Create(record *models.LembarPemantauan) error
 	Update(record *models.LembarPemantauan) error
 	Delete(id uint) error
+	FindAll() ([]models.LembarPemantauan, error)
 	FindByID(id uint) (*models.LembarPemantauan, error)
 	FindByChildAndRange(anakID uint, rentangID uint) ([]models.LembarPemantauan, error)
 	GetByPeriode(anakID uint, rentangID uint, periode int) (*models.LembarPemantauan, error)
@@ -43,6 +44,12 @@ func (r *pemantauanAnakRepository) Update(record *models.LembarPemantauan) error
 
 func (r *pemantauanAnakRepository) Delete(id uint) error {
 	return r.db.Delete(&models.LembarPemantauan{}, id).Error
+}
+
+func (r *pemantauanAnakRepository) FindAll() ([]models.LembarPemantauan, error) {
+	var records []models.LembarPemantauan
+	err := r.db.Preload("DetailGejala.KategoriTandaSakit").Preload("Anak").Order("created_at desc").Limit(20).Find(&records).Error
+	return records, err
 }
 
 func (r *pemantauanAnakRepository) FindByID(id uint) (*models.LembarPemantauan, error) {

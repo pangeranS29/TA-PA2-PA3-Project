@@ -31,9 +31,9 @@ func (s *PemantauanAnakSeeder) Seed() error {
 		Indikators  []string
 	}{
 		{
-			Nama:       "29 Hari - 3 Bulan",
-			Satuan:     "Minggu",
-			MaxPeriode: 12,
+			Nama:       "0-3 bulan",
+			Satuan:     "bulan",
+			MaxPeriode: 3,
 			Indikators: []string{
 				"Sesak napas / cuping hidung kembang kempis / dada tertarik ke dalam",
 				"Batuk dengan bunyi grok-grok/mengi",
@@ -47,8 +47,8 @@ func (s *PemantauanAnakSeeder) Seed() error {
 			},
 		},
 		{
-			Nama:       "3 - 6 Bulan",
-			Satuan:     "Bulan",
+			Nama:       "3-6 bulan",
+			Satuan:     "bulan",
 			MaxPeriode: 6,
 			Indikators: []string{
 				"Tidak mau menyusu",
@@ -62,8 +62,20 @@ func (s *PemantauanAnakSeeder) Seed() error {
 			},
 		},
 		{
-			Nama:       "6 - 12 Bulan",
-			Satuan:     "Bulan",
+			Nama:       "6-9 bulan",
+			Satuan:     "bulan",
+			MaxPeriode: 9,
+			Indikators: []string{
+				"Kenaikan berat badan tidak sesuai",
+				"Diare",
+				"Demam/Panas",
+				"Batuk/Pilek",
+				"Masalah Kulit",
+			},
+		},
+		{
+			Nama:       "9-12 bulan",
+			Satuan:     "bulan",
 			MaxPeriode: 12,
 			Indikators: []string{
 				"Kenaikan berat badan tidak sesuai",
@@ -74,8 +86,20 @@ func (s *PemantauanAnakSeeder) Seed() error {
 			},
 		},
 		{
-			Nama:       "12 - 24 Bulan",
-			Satuan:     "Bulan",
+			Nama:       "12-18 bulan",
+			Satuan:     "bulan",
+			MaxPeriode: 18,
+			Indikators: []string{
+				"Kenaikan berat badan tidak sesuai",
+				"Diare",
+				"Demam/Panas",
+				"Batuk/Pilek",
+				"Masalah Kulit",
+			},
+		},
+		{
+			Nama:       "18-24 bulan",
+			Satuan:     "bulan",
 			MaxPeriode: 24,
 			Indikators: []string{
 				"Kenaikan berat badan tidak sesuai",
@@ -86,8 +110,44 @@ func (s *PemantauanAnakSeeder) Seed() error {
 			},
 		},
 		{
-			Nama:       "2 - 6 Tahun",
-			Satuan:     "Tahun",
+			Nama:       "2-3 tahun",
+			Satuan:     "tahun",
+			MaxPeriode: 3,
+			Indikators: []string{
+				"Kenaikan berat badan tidak sesuai",
+				"Diare",
+				"Demam/Panas",
+				"Batuk/Pilek",
+				"Masalah Kulit",
+			},
+		},
+		{
+			Nama:       "3-4 tahun",
+			Satuan:     "tahun",
+			MaxPeriode: 4,
+			Indikators: []string{
+				"Kenaikan berat badan tidak sesuai",
+				"Diare",
+				"Demam/Panas",
+				"Batuk/Pilek",
+				"Masalah Kulit",
+			},
+		},
+		{
+			Nama:       "4-5 tahun",
+			Satuan:     "tahun",
+			MaxPeriode: 5,
+			Indikators: []string{
+				"Kenaikan berat badan tidak sesuai",
+				"Diare",
+				"Demam/Panas",
+				"Batuk/Pilek",
+				"Masalah Kulit",
+			},
+		},
+		{
+			Nama:       "5-6 tahun",
+			Satuan:     "tahun",
 			MaxPeriode: 6,
 			Indikators: []string{
 				"Kenaikan berat badan tidak sesuai",

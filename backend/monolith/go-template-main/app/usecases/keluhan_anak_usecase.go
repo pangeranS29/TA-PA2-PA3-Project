@@ -9,6 +9,7 @@ type KeluhanAnakUseCase interface {
 	Create(data *models.KeluhanAnak) error
 	Update(id uint, data *models.KeluhanAnak) error
 	Delete(id uint) error
+	GetAll() ([]models.KeluhanAnak, error)
 	GetByAnakID(anakID uint) ([]models.KeluhanAnak, error)
 	GetByID(id uint) (*models.KeluhanAnak, error)
 }
@@ -39,6 +40,10 @@ func (u *keluhanAnakUseCase) Update(id uint, data *models.KeluhanAnak) error {
 
 func (u *keluhanAnakUseCase) Delete(id uint) error {
 	return u.repo.Delete(id)
+}
+
+func (u *keluhanAnakUseCase) GetAll() ([]models.KeluhanAnak, error) {
+	return u.repo.FindAll()
 }
 
 func (u *keluhanAnakUseCase) GetByAnakID(anakID uint) ([]models.KeluhanAnak, error) {

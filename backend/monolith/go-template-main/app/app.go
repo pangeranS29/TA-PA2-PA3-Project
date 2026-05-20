@@ -5,9 +5,9 @@ import (
 	"log"
 	"monitoring-service/app/controllers"
 
+	// "monitoring-service/app/models"
 	"time"
 
-	// "monitoring-service/app/models"
 	"monitoring-service/app/repositories"
 	"monitoring-service/app/routes"
 
@@ -89,14 +89,18 @@ func (m *Main) Init() (err error) {
 
 	// Auto-migrate dimatikan agar startup tidak mengubah schema database secara otomatis.
 	// Jalankan migrasi manual bila memang dibutuhkan.
+	// if err != nil {
+	// 	return
 
-	// // Seeder
+	// Seeder
 	// err = seed.RunAllSeed(m.database.Postgres)
 	// if err != nil {
+	// 	log.Println("Error: seed.RunAllSeed gagal:", err)
 	// 	return
 	// }
 
 	// SEEDER setelah migrate
+
 	// seeder kependudukan + anak
 	// kependudukanSeeder := seeders.NewKependudukanSeeder(m.database.Postgres)
 	// if err := kependudukanSeeder.Seed(); err != nil {
@@ -124,12 +128,21 @@ func (m *Main) Init() (err error) {
 	// if err := masterLKUSeeder.Seed(); err != nil {
 	// 	return err
 	// }
+	// Seeder rentang usia (aligned dengan kategori_umur)
+	// rentangUsiaSeeder := seeders.NewRentangUsiaSeeder(m.database.Postgres)
+	// if err := rentangUsiaSeeder.Seed(); err != nil {
+	// 	return err
+	// }
+
+	// Seeder kategori capaian (perkembangan anak)
 	// kategoriCapaianSeeder := seeders.NewKategoriCapaianSeeder(m.database.Postgres)
 	// if err := kategoriCapaianSeeder.Seed(); err != nil {
 	// 	return err
 	// }
-	// kategoriCapaianSeeder := seeders.NewKategoriCapaianSeeder(m.database.Postgres)
-	// if err := kategoriCapaianSeeder.Seed(); err != nil {
+
+	// Seeder pemantauan anak (monitoring kesehatan)
+	// pemantauanAnakSeeder := seeders.NewPemantauanAnakSeeder(m.database.Postgres)
+	// if err := pemantauanAnakSeeder.Seed(); err != nil {
 	// 	return err
 	// }
 

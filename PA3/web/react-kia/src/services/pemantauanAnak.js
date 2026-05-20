@@ -1,5 +1,10 @@
 import api from "./api";
 
+export const getAllPemantauan = async () => {
+  const res = await api.get("/tenaga-kesehatan/pemantauan-anak/all");
+  return res.data;
+};
+
 export const getPemantauanHistory = async (anakId, rentangId) => {
   const res = await api.get("/tenaga-kesehatan/pemantauan-anak/history", {
     params: { anak_id: anakId, rentang_usia_id: rentangId },

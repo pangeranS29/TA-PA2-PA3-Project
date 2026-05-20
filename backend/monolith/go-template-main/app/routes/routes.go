@@ -1,4 +1,4 @@
-﻿package routes
+package routes
 
 import (
 	"monitoring-service/app/controllers"
@@ -181,6 +181,7 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	tenaga.DELETE("/Catatan-Pelayanan/:id", controller.CatatanPelayanan.Delete)
 
 	// ==================== KELUHAN ANAK ====================
+	tenaga.GET("/keluhan-anak", controller.KeluhanAnak.GetAll)
 	tenaga.GET("/keluhan-anak/:anak_id", controller.KeluhanAnak.GetByAnakID)
 	tenaga.GET("/keluhan-anak/detail/:id", controller.KeluhanAnak.GetByID)
 	tenaga.POST("/keluhan-anak", controller.KeluhanAnak.Create)
@@ -188,6 +189,7 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	tenaga.DELETE("/keluhan-anak/:id", controller.KeluhanAnak.Delete)
 
 	// ==================== PEMANTAUAN ANAK ====================
+	tenaga.GET("/pemantauan-anak/all", controller.PemantauanAnak.GetAll)
 	tenaga.GET("/pemantauan-anak/history", controller.PemantauanAnak.GetHistory)
 	tenaga.GET("/pemantauan-anak/rentang-usia", controller.PemantauanAnak.GetRentangUsia)
 	tenaga.GET("/pemantauan-anak/kategori/:rentang_id", controller.PemantauanAnak.GetKategori)

@@ -46,6 +46,15 @@ func (c *PemantauanAnakController) GetHistory(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, echo.Map{"data": data})
 }
 
+func (c *PemantauanAnakController) GetAll(ctx echo.Context) error {
+	data, err := c.useCase.GetAllPemantauan()
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, echo.Map{"message": err.Error()})
+	}
+
+	return ctx.JSON(http.StatusOK, echo.Map{"data": data})
+}
+
 func (c *PemantauanAnakController) GetRentangUsia(ctx echo.Context) error {
 	data, err := c.useCase.GetRentangUsia()
 	if err != nil {

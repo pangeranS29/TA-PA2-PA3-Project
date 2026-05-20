@@ -1,5 +1,10 @@
 import api from "./api";
 
+export const getAllKeluhan = async () => {
+  const res = await api.get("/tenaga-kesehatan/keluhan-anak");
+  return res.data;
+};
+
 export const getKeluhanByAnakId = async (anakId) => {
   const res = await api.get(`/tenaga-kesehatan/keluhan-anak/${anakId}`);
   return res.data;

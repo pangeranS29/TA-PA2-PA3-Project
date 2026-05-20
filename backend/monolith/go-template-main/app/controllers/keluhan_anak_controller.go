@@ -57,6 +57,14 @@ func (c *KeluhanAnakController) GetByAnakID(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, models.Response{StatusCode: http.StatusOK, Data: data})
 }
 
+func (c *KeluhanAnakController) GetAll(ctx echo.Context) error {
+	data, err := c.useCase.GetAll()
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, models.Response{StatusCode: http.StatusInternalServerError, Message: err.Error()})
+	}
+	return ctx.JSON(http.StatusOK, models.Response{StatusCode: http.StatusOK, Data: data})
+}
+
 func (c *KeluhanAnakController) GetByID(ctx echo.Context) error {
 	id, _ := strconv.Atoi(ctx.Param("id"))
 	data, err := c.useCase.GetByID(uint(id))

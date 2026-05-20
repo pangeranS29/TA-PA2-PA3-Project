@@ -10,6 +10,7 @@ type KeluhanAnakRepository interface {
 	Create(data *models.KeluhanAnak) error
 	Update(data *models.KeluhanAnak) error
 	Delete(id uint) error
+	FindAll() ([]models.KeluhanAnak, error)
 	FindAllByAnakID(anakID uint) ([]models.KeluhanAnak, error)
 	FindByID(id uint) (*models.KeluhanAnak, error)
 }
@@ -34,11 +35,18 @@ func (r *keluhanAnakRepository) Delete(id uint) error {
 	return r.db.Delete(&models.KeluhanAnak{}, id).Error
 }
 
+func (r *keluhanAnakRepository) FindAll() ([]models.KeluhanAnak, error) {
+	var data []models.KeluhanAnak
+	err := r.db.Preload("Anak").Order("tanggal desc").Limit(20).Find(&data).Error
+	return data, err
+}
+
 func (r *keluhanAnakRepository) FindAllByAnakID(anakID uint) ([]models.KeluhanAnak, error) {
 	var data []models.KeluhanAnak
 	err := r.db.Where("anak_id = ?", anakID).Order("tanggal desc").Find(&data).Error
 	return data, err
 }
+
 
 func (r *keluhanAnakRepository) FindByID(id uint) (*models.KeluhanAnak, error) {
 	var data models.KeluhanAnak

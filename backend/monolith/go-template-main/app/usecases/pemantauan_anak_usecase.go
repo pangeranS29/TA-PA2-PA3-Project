@@ -8,6 +8,7 @@ import (
 
 type PemantauanAnakUseCase interface {
 	SavePemantauan(req *models.LembarPemantauanRequest) error
+	GetAllPemantauan() ([]models.LembarPemantauan, error)
 	GetHistory(anakID uint, rentangID uint) ([]models.LembarPemantauan, error)
 	GetRentangUsia() ([]models.RentangUsia, error)
 	GetKategoriByRentang(rentangID uint) ([]models.KategoriTandaSakit, error)
@@ -62,6 +63,10 @@ func (u *pemantauanAnakUseCase) SavePemantauan(req *models.LembarPemantauanReque
 	}
 
 	return u.repo.Create(record)
+}
+
+func (u *pemantauanAnakUseCase) GetAllPemantauan() ([]models.LembarPemantauan, error) {
+	return u.repo.FindAll()
 }
 
 func (u *pemantauanAnakUseCase) GetHistory(anakID uint, rentangID uint) ([]models.LembarPemantauan, error) {
