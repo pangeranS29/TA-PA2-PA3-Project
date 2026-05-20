@@ -1931,6 +1931,26 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildHomeBody() {
+    // --- LOGIKA PESAN KONTEKSTUAL BERDASARKAN KONDISI DATA TERKINI BUNDA (UNTUK USER TESTING Q4) ---
+    String contextualGuidanceText = 'Bunda, yuk ketuk kartu di bawah ini untuk melihat kondisi kesehatanmu saat ini!';
+    
+    if (_selectedPhase == 'Hamil') {
+      final week = _kehamilanAktif?.ukKehamilanSaatIni ?? 0;
+      if (week > 0 && week <= 12) {
+        contextualGuidanceText = 'Kehamilan Bunda di Trimester 1. Yuk ketuk kartu di bawah untuk melihat rangkuman kondisi kandungan awalmu!';
+      } else if (week > 12 && week <= 27) {
+        contextualGuidanceText = 'Janin Bunda berkembang baik di Trimester 2. Yuk ketuk kartu di bawah untuk memantau grafik kenaikan BB janin!';
+      } else if (week > 27) {
+        contextualGuidanceText = 'Persalinan makin dekat di Trimester 3, Bun! Yuk ketuk kartu di bawah untuk memeriksa kesiapan menyambut si kecil!';
+      }
+    } else if (_selectedPhase == 'Nifas') {
+      contextualGuidanceText = 'Bunda dalam masa nifas. Yuk ketuk menu di bawah untuk memastikan pemulihan fisik Bunda berjalan lancar!';
+    } else if (_selectedPhase == 'Menyusui') {
+      contextualGuidanceText = 'Semangat mengASIhi, Bunda! Yuk ketuk menu di bawah untuk melihat panduan posisi menyusui yang benar.';
+    } else if (_selectedPhase == 'Tumbuh') {
+      contextualGuidanceText = 'Ayo pantau tumbuh kembang si kecil, Bun! Ketuk menu di bawah untuk mencatat tinggi dan berat badan terbarunya.';
+    }
+
     return SingleChildScrollView(
       child: Column(
         children: [
@@ -1947,7 +1967,36 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   onPhaseSelected: (phase) =>
                       setState(() => _selectedPhase = phase),
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 24),
+
+                // --- DISPLAY UI BARU: BANNER PANDUAN KONTEKSTUAL YANG DINAMIS ---
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFEBF5FF), 
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: const Color(0xFFBFDBFE)),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.lightbulb_outline, color: Color(0xFF2F80ED), size: 20),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          contextualGuidanceText, // Menggunakan teks dinamis hasil analisa data di atas
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF1E3A8A),
+                            height: 1.3,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 24),
+
                 if (_selectedPhase == 'Hamil') _buildHamilContent(),
                 if (_selectedPhase == 'Nifas') _buildNifasShortcut(),
                 if (_selectedPhase == 'Menyusui') _buildMenyusuiShortcut(),
@@ -2082,7 +2131,7 @@ Widget _buildNifasShortcut() {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        week > 0 ? 'Kehamilan $week Minggu' : 'Kehamilan Aktif',
+                        week > 0 ? 'Kehamilan $week Minggu' : 'Kehamilan Active',
                         style: const TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 16),
                       ),
@@ -2142,10 +2191,6 @@ Widget _buildNifasShortcut() {
         const SizedBox(height: 32),
 
         // [WIDGET: DashboardQuickMenu] — 6 item, 3 kolom (sesuai desain lib_desain)
-        const Text('MENU CEPAT',
-            style: TextStyle(
-                fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey)),
-        const SizedBox(height: 16),
 
         // DISINI TADINYA YANG QUICK MENU YANG MENIMPA ITU
 
@@ -2365,7 +2410,7 @@ Widget _buildNifasShortcut() {
           ),
         const SizedBox(height: 24),
 
-        const Text('Menu', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey)),
+        const Text('MENU CEPAT', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey)),
         const SizedBox(height: 16),
 
         // [WIDGET: DashboardTumbuhQuickMenu] — 6 menu cepat modul anak
