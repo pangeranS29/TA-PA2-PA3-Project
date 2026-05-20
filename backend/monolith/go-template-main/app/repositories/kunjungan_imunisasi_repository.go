@@ -160,3 +160,51 @@ func (m *Main) UpdateTanggalKunjungan(
 			tanggalKunjungan,
 		).Error
 }
+
+func (m *Main) GetKunjunganImunisasiByStatus(
+	statusID uint,
+) (
+	[]KunjunganImunisasiJoin,
+	error,
+) {
+
+	var result []KunjunganImunisasiJoin
+
+	err := m.postgres.
+		Table("kunjungan_imunisasi ki").
+		Select(`
+			ki.id AS kunjungan_id,
+			ki.tanggal_kunjungan,
+			sk.status_kunjungan,
+
+			p_anak.nama_lengkap AS nama_anak
+		`).
+		Joins(`
+			INNER JOIN status_kunjungan sk
+			ON sk.id = ki.id_status_kunjungan
+		`).
+		Joins(`
+			INNER JOIN jadwal_imunisasi_anak jia
+			ON jia.id = ki.id_jadwal_imunisasi
+		`).
+		Joins(`
+			INNER JOIN anak a
+			ON a.id = jia.id_anak
+		`).
+		Joins(`
+			INNER JOIN penduduk p_anak
+			ON p_anak.id = a.penduduk_id
+		`).
+		Where(
+			"ki.id_status_kunjungan = ?",
+			statusID,
+		).
+		Order("ki.tanggal_kunjungan DESC").
+		Scan(&result).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}

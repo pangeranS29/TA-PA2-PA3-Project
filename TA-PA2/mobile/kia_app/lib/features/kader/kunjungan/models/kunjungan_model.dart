@@ -131,3 +131,39 @@ class UpdateTanggalKunjunganRequest {
   }
 }
 
+class StatusKunjunganCountModel {
+  final int statusId;
+  final String statusKunjungan;
+  final int jumlahKunjungan;
+
+  StatusKunjunganCountModel({
+    required this.statusId,
+    required this.statusKunjungan,
+    required this.jumlahKunjungan,
+  });
+
+  factory StatusKunjunganCountModel.fromJson(
+    Map<String, dynamic> json,
+  ) {
+    return StatusKunjunganCountModel(
+      statusId: (json['status_id'] as num?)?.toInt() ?? 0,
+      statusKunjungan:
+          json['status_kunjungan'] ?? '',
+      jumlahKunjungan:
+          (json['jumlah_kunjungan'] as num?)
+                  ?.toInt() ??
+              0,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'status_id': statusId,
+      'status_kunjungan':
+          statusKunjungan,
+      'jumlah_kunjungan':
+          jumlahKunjungan,
+    };
+  }
+}
+
