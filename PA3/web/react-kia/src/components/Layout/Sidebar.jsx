@@ -4,6 +4,7 @@ import { NavLink, useLocation } from "react-router-dom";
 import {
   getCurrentUser,
   getUserRedirectRoute,
+  isSuperadminUser,
   isAdminUser,
   isBidanUser,
   isDokterUser
@@ -35,6 +36,7 @@ const baseItemClass = (isActive) =>
 
 const Sidebar = () => {
   const user = getCurrentUser();
+  const isSuperadmin = isSuperadminUser(user);
   const isAdmin = isAdminUser(user);
   const isBidan = isBidanUser(user);
   const isDokter = isDokterUser(user);
@@ -151,9 +153,20 @@ const Sidebar = () => {
     []
   );
 
+  const superadminMenuItems = useMemo(
+    () => [
+      { path: "/superadmin/dashboard", name: "Dashboard", icon: LayoutGrid },
+      { path: "/superadmin/kelola-user", name: "Kelola User", icon: ShieldPlus },
+      { path: "/superadmin/kelola-desa", name: "Kelola Desa", icon: TableProperties },
+    ],
+    []
+  );
+
   // Menentukan menuItems berdasarkan role
   let menuItems = [];
-  if (isAdmin) {
+  if (isSuperadmin) {
+    menuItems = superadminMenuItems;
+  } else if (isAdmin) {
     menuItems = [{ path: dashboardPath, name: "Dashboard", icon: LayoutGrid }];
   } else if (isDokter) {
     menuItems = [

@@ -13,6 +13,30 @@ const headerByPath = (pathname) => {
     };
   }
 
+  if (pathname === "/superadmin/dashboard") {
+    return {
+      title: "Dashboard ",
+      subtitle: "Pantau ringkasan wilayah, daftar desa, dan aktivitas operasional secara cepat.",
+      variant: "hero",
+    };
+  }
+
+  if (pathname.startsWith("/superadmin/kelola-user") || pathname.startsWith("/superadmin/users")) {
+    return {
+      title: "Kelola User Superadmin",
+      subtitle: "Tambah bidan, assign admin desa, reset password, dan nonaktifkan user dari satu tempat.",
+      variant: "hero",
+    };
+  }
+
+  if (pathname.startsWith("/superadmin/kelola-desa") || pathname.startsWith("/superadmin/desa")) {
+    return {
+      title: "Kelola Desa",
+      subtitle: "Atur data desa, status aktif, dan informasi wilayah secara terpisah dari dashboard.",
+      variant: "hero",
+    };
+  }
+
   if (pathname.startsWith("/data-ibu")) {
     return {
       title: "Data Ibu",
@@ -95,6 +119,7 @@ const headerByPath = (pathname) => {
 
 const formatRole = (role) => {
   const normalized = (role || "").toString().trim().toLowerCase();
+  if (normalized === "superadmin") return "Superadmin";
   if (normalized === "admin") return "Admin";
   if (normalized === "bidan") return "Bidan";
   return "Petugas Medis";

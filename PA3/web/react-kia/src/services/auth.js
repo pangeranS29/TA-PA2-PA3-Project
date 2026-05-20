@@ -15,7 +15,7 @@ export const isBidanUser = (user) => normalizeRole(user?.role) === BIDAN_ROLE;
 export const getUserRedirectRoute = (user) => {
   
   const role = normalizeRole(user?.role);
-  if (role === SUPERADMIN_ROLE) return "/superadmin/desa";
+  if (role === SUPERADMIN_ROLE) return "/superadmin/dashboard";
   if (role === ADMIN_ROLE) return "/dashboard/admin";
   if (role === DOKTER_ROLE) return "/dashboard/dokter";
   if (role === BIDAN_ROLE) return "/dashboard/bidan";

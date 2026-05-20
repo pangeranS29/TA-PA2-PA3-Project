@@ -37,6 +37,22 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	admin.DELETE("/kartu-keluarga/:kartu_keluarga_id/anggota/:penduduk_id", controller.AdminDeleteAnggotaKeluarga)
 	admin.DELETE("/kartu-keluarga/:kartu_keluarga_id", controller.AdminDeleteKartuKeluarga)
 
+	// ==================== MODUL SUPERADMIN ====================
+	superadmin := e.Group("/superadmin")
+	superadmin.Use(middlewares.JWTAuth(controller.JWTSecret()))
+	superadmin.Use(middlewares.SuperAdminOnly())
+	superadmin.GET("/desa", controller.Desa.GetAll)
+	superadmin.GET("/desa/:id", controller.Desa.GetByID)
+	superadmin.POST("/desa", controller.Desa.Create)
+	superadmin.PUT("/desa/:id", controller.Desa.Update)
+	superadmin.PATCH("/desa/:id/nonaktif", controller.Desa.Deactivate)
+	superadmin.GET("/users", controller.ListUsers)
+	superadmin.GET("/users/:id", controller.GetUser)
+	superadmin.POST("/users/bidan", controller.CreateBidanUser)
+	superadmin.POST("/users/admin-desa", controller.CreateAdminDesaUser)
+	superadmin.PATCH("/users/:id/reset-password", controller.ResetPassword)
+	superadmin.PATCH("/users/:id/nonaktif", controller.DeactivateUser)
+
 	// ==================== MODUL BIDAN ====================
 
 	bidan := e.Group("/bidan")
@@ -50,12 +66,7 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	bidan.GET("/posyandu/:id", controller.BidanGetPosyanduDetail)
 	bidan.PUT("/posyandu/:id", controller.BidanUpdatePosyandu)
 
-	// Bidan Management (Bidan manage Bidan lain di posyandu mereka)
-	bidan.POST("/bidan", controller.BidanCreateBidan)
-	bidan.GET("/bidan", controller.BidanListBidan)
-	bidan.GET("/bidan/:id", controller.BidanGetBidanDetail)
-	bidan.PUT("/bidan/:id", controller.BidanUpdateBidan)
-	bidan.PATCH("/bidan/:id/status", controller.BidanUpdateBidanStatus)
+	// Bidan Management dipindahkan ke superadmin
 
 	// Jadwal layanan (Imunisasi) - dashboard bidan
 	bidan.GET("/dashboard/jadwal-layanan", controller.JadwalLayanan.GetAll)
@@ -64,12 +75,7 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	bidan.PUT("/dashboard/jadwal-layanan/:id", controller.JadwalLayanan.Update)
 	bidan.DELETE("/dashboard/jadwal-layanan/:id", controller.JadwalLayanan.Delete)
 
-	// Kader Management (Bidan manage Kader di posyandu mereka)
-	bidan.POST("/kader", controller.BidanCreateKader)
-	bidan.GET("/kader", controller.BidanListKader)
-	bidan.GET("/kader/:id", controller.BidanGetKaderDetail)
-	bidan.PUT("/kader/:id", controller.BidanUpdateKader)
-	bidan.PATCH("/kader/:id/status", controller.BidanUpdateKaderStatus)
+	// Kader Management dipindahkan ke superadmin
 
 	// ==================== MODUL Anak ====================
 	anak := e.Group("/anak")
@@ -211,8 +217,6 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	tenaga.POST("/perawatan", controller.Perawatan.Create)
 	tenaga.PUT("/perawatan/:id", controller.Perawatan.Update)
 	tenaga.DELETE("/perawatan/:id", controller.Perawatan.Delete)
-
-
 
 	// ==================== KESEHATAN LINGKUNGAN ====================
 	// tenaga.GET("/kesehatan-lingkungan", controller.KesehatanLingkunganDanCatatanKader.GetAll)

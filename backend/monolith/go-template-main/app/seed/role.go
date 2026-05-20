@@ -13,6 +13,7 @@ func SeederRole(db *gorm.DB) error {
 
 	defaultRoles := []string{
 		"Admin",
+		"Superadmin",
 		"Tenaga-kesehatan",
 		"Dokter",
 		"Kader",

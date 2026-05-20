@@ -27,6 +27,7 @@ type Main struct {
 	// New repositories (semua pointer, mengikuti pola Anak)
 	User                          *UserRepository
 	Role                          *RoleRepository
+	Desa                          *DesaRepository
 	KartuKeluarga                 *KartuKeluargaRepository
 	Kependudukan                  *KependudukanRepository
 	Bidan                         *BidanRepository
@@ -112,6 +113,7 @@ func Init(opts Options) *Main {
 	m.User = NewUserRepository(opts.Postgres)
 	m.Ibu = NewIbuRepository(opts.Postgres)
 	m.Role = NewRoleRepository(opts.Postgres)
+	m.Desa = NewDesaRepository(opts.Postgres)
 	m.KartuKeluarga = NewKartuKeluargaRepository(opts.Postgres)
 	m.Kependudukan = NewKependudukanRepository(opts.Postgres)
 	m.Bidan = NewBidanRepository(opts.Postgres)
@@ -183,4 +185,8 @@ func Init(opts Options) *Main {
 	m.LaporanIbu = NewLaporanIbuRepository(opts.Postgres)
 
 	return m
+}
+
+func (m *Main) DB() *gorm.DB {
+	return m.postgres
 }

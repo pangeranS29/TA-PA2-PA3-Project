@@ -21,6 +21,7 @@ type roleDestination struct {
 
 var roleDestinations = map[string]roleDestination{
 	"Admin":            {TargetApp: "website", RedirectRoute: "/dashboard/admin"},
+	"Superadmin":       {TargetApp: "website", RedirectRoute: "/superadmin/desa"},
 	"Dokter":           {TargetApp: "website", RedirectRoute: "/dashboard/dokter"},
 	"Tenaga-kesehatan": {TargetApp: "website", RedirectRoute: "/dashboard/tenaga-kesehatan"},
 	"Kader":            {TargetApp: "mobile", RedirectRoute: "/mobile/home-kader"},
@@ -36,6 +37,7 @@ var roleAliases = map[string]string{
 	"tenaga kesehatan": "Tenaga-kesehatan",
 	"kader":            "Kader",
 	"bidan":            "Bidan",
+	"superadmin":       "Superadmin",
 	"orangtua":         "Orangtua",
 	"orang tua":        "Orangtua",
 	"orang-tua":        "Orangtua",
@@ -203,6 +205,7 @@ func (m *Main) Register(req *models.RegisterRequest) error {
 		Name:        req.Name,
 		Email:       req.Email,
 		PhoneNumber: req.PhoneNumber,
+		IsActive:    true,
 		Password:    string(hashedPassword),
 		RoleID:      role.ID,
 	}
@@ -251,6 +254,10 @@ func (m *Main) Login(req *models.LoginRequest) (*models.LoginResponse, error) {
 			return nil, customerror.NewBadRequestError("email/nomor hp atau password salah")
 		}
 		return nil, err
+	}
+
+	if !user.IsActive {
+		return nil, customerror.NewBadRequestError("akun dinonaktifkan")
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password)); err != nil {

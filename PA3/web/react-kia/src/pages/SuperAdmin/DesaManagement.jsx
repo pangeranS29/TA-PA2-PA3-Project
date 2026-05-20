@@ -165,7 +165,7 @@ export default function DesaManagement() {
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-6">
           <div>
             <h1 className="text-3xl font-bold text-slate-800">Kelola Desa</h1>
-            <p className="text-slate-500 mt-1">Master data desa untuk akses superadmin</p>
+            <p className="text-slate-500 mt-1">Fitur terpisah untuk tambah, ubah, dan nonaktifkan desa</p>
           </div>
           <button
             onClick={openCreateModal}

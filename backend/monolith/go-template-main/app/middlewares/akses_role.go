@@ -48,7 +48,7 @@ func AdminOnly() echo.MiddlewareFunc {
 				})
 			}
 
-			if role != "Admin" {
+			if role != "Admin" && role != "Superadmin" {
 				return c.JSON(http.StatusForbidden, map[string]interface{}{
 					"status_code": http.StatusForbidden,
 					"message":     "Anda Tidak Memiliki Akses",
@@ -60,6 +60,29 @@ func AdminOnly() echo.MiddlewareFunc {
 	}
 }
 
+func SuperAdminOnly() echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			role, _ := c.Get("role").(string)
+
+			if role == "" {
+				return c.JSON(http.StatusUnauthorized, map[string]interface{}{
+					"status_code": http.StatusUnauthorized,
+					"message":     "role tidak ditemukan",
+				})
+			}
+
+			if role != "Superadmin" {
+				return c.JSON(http.StatusForbidden, map[string]interface{}{
+					"status_code": http.StatusForbidden,
+					"message":     "Anda Tidak Memiliki Akses",
+				})
+			}
+
+			return next(c)
+		}
+	}
+}
 
 func IbuOnly() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {

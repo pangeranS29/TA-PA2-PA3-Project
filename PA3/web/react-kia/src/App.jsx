@@ -136,7 +136,9 @@ import PertumbuhanIndex from "./pages/Pertumbuhan/index";
 import PosyanduList from "./pages/ManajemenBidanKader/PosyanduList";
 import BidanList from "./pages/ManajemenBidanKader/BidanList";
 import KaderList from "./pages/ManajemenBidanKader/KaderList";
-import DesaManagement from "./pages/SuperAdmin/DesaManagement";
+import SuperAdminDashboard from "./pages/SuperAdmin/Dashboard";
+import KelolaDesa from "./pages/SuperAdmin/KelolaDesa";
+import KelolaUser from "./pages/SuperAdmin/KelolaUser";
 
 
 const HomeRedirect = () => {
@@ -224,14 +226,11 @@ function App() {
           <Route path="/dashboard/admin/manajemen-keluarga" element={<AkunKeluargaManagement />} />
         </Route>
 
-        <Route
-          path="/superadmin/desa"
-          element={
-            <ProtectedRoute allowedRoles={["superadmin"]}>
-              <DesaManagement />
-            </ProtectedRoute>
-          }
-        />
+        <Route path="/superadmin/dashboard" element={<ProtectedRoute allowedRoles={["superadmin"]}><SuperAdminDashboard /></ProtectedRoute>} />
+        <Route path="/superadmin/kelola-user" element={<ProtectedRoute allowedRoles={["superadmin"]}><KelolaUser /></ProtectedRoute>} />
+        <Route path="/superadmin/kelola-desa" element={<ProtectedRoute allowedRoles={["superadmin"]}><KelolaDesa /></ProtectedRoute>} />
+        <Route path="/superadmin/users" element={<Navigate to="/superadmin/kelola-user" replace />} />
+        <Route path="/superadmin/desa" element={<Navigate to="/superadmin/kelola-desa" replace />} />
 
         {/* ── RUTE ANAK (tanpa auth wrapper) ── */}
         <Route path="/data-anak/dashboard/:id" element={<AnakDashboard />} />

@@ -12,6 +12,7 @@ const Breadcrumb = () => {
     dashboard: "Dashboard",
     admin: "Admin",
     dokter: "Dokter",
+    superadmin: "Superadmin",
 
     // Data Management
     "data-ibu": "Data Ibu",
@@ -92,6 +93,7 @@ const Breadcrumb = () => {
     // Admin
     "akun-keluarga": "Akun Keluarga",
     "manajemen-keluarga": "Manajemen Keluarga",
+    "kelola-desa": "Kelola Desa",
 
     // Actions
     create: "Tambah Baru",

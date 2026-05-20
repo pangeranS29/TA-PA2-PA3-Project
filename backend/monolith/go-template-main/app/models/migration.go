@@ -23,6 +23,7 @@ func AutoMigrate(db *gorm.DB) error {
 		&Kehamilan{},
 		&Anak{},
 		&Role{},
+		&Desa{},
 		&User{},
 		&Bidan{},
 		&Kader{},
