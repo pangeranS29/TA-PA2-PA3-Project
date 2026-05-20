@@ -86,7 +86,11 @@ type Main struct {
 	JadwalLayanan            JadwalLayananUsecase
 	EdukasiResepMPASI        ResepMPASIUsecase
 	// EdukasiTandaBahayaTrimester EdukasiTandaBahayaTrimesterUsecase
-	LaporanIbu LaporanIbuUsecase
+	LaporanIbu        LaporanIbuUsecase
+	PemeriksaanAnak   PemeriksaanAnakUsecase
+	PemeriksaanRemaja PemeriksaanRemajaUsecase
+	PemeriksaanDewasa PemeriksaanDewasaUsecase
+	PemeriksaanLansia PemeriksaanLansiaUsecase
 }
 
 type Options struct {
@@ -212,6 +216,10 @@ func Init(opts Options) *Main {
 
 	// Jadwal Layanan (imunisasi) usecase
 	m.JadwalLayanan = NewJadwalLayananUsecase(opts.Repository.JadwalLayanan)
+	m.PemeriksaanAnak = NewPemeriksaanAnakUsecase(opts.Repository.PemeriksaanAnak)
+	m.PemeriksaanRemaja = NewPemeriksaanRemajaUsecase(opts.Repository.PemeriksaanRemaja)
+	m.PemeriksaanDewasa = NewPemeriksaanDewasaUsecase(opts.Repository.PemeriksaanDewasa)
+	m.PemeriksaanLansia = NewPemeriksaanLansiaUsecase(opts.Repository.PemeriksaanLansia)
 
 	return m
 }
