@@ -247,3 +247,53 @@ func (m *Main) UpdateTanggalKunjungan(
 		nil,
 	)
 }
+
+func (m *Main) GetKunjunganImunisasiByStatus(
+	c echo.Context,
+) error {
+
+	idParam :=
+		c.Param("status_id")
+
+	statusID, err :=
+		strconv.Atoi(idParam)
+
+	if err != nil ||
+		statusID <= 0 {
+
+		return helpers.Response(
+			c,
+			http.StatusBadRequest,
+			[]string{
+				"status id tidak valid",
+			},
+		)
+	}
+
+	data, err :=
+		m.usecases.
+			GetKunjunganImunisasiByStatus(
+				uint(statusID),
+			)
+
+	if err != nil {
+
+		return helpers.Response(
+			c,
+			http.StatusInternalServerError,
+			[]string{
+				err.Error(),
+			},
+		)
+	}
+
+	return helpers.StandardResponse(
+		c,
+		http.StatusOK,
+		[]string{
+			constants.SUCCESS_RESPONSE_MESSAGE,
+		},
+		data,
+		nil,
+	)
+}
