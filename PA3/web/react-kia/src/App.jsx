@@ -136,6 +136,7 @@ import PertumbuhanIndex from "./pages/Pertumbuhan/index";
 import PosyanduList from "./pages/ManajemenBidanKader/PosyanduList";
 import BidanList from "./pages/ManajemenBidanKader/BidanList";
 import KaderList from "./pages/ManajemenBidanKader/KaderList";
+import DesaManagement from "./pages/SuperAdmin/DesaManagement";
 
 
 const HomeRedirect = () => {
@@ -222,6 +223,15 @@ function App() {
           <Route path="/dashboard/admin/akun-keluarga" element={<AdminAkunKeluargaCreate />} />
           <Route path="/dashboard/admin/manajemen-keluarga" element={<AkunKeluargaManagement />} />
         </Route>
+
+        <Route
+          path="/superadmin/desa"
+          element={
+            <ProtectedRoute allowedRoles={["superadmin"]}>
+              <DesaManagement />
+            </ProtectedRoute>
+          }
+        />
 
         {/* ── RUTE ANAK (tanpa auth wrapper) ── */}
         <Route path="/data-anak/dashboard/:id" element={<AnakDashboard />} />
