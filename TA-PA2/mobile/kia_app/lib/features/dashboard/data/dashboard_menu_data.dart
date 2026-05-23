@@ -60,24 +60,28 @@ class DashboardMenuData {
   static List<Map<String, dynamic>> tumbuhQuickMenuItems = [
     {
       'label': 'Pertumbuhan',
+      'desc': 'Pantau berat dan tinggi',
       'icon': Icons.scale,
       'color': Colors.blueAccent,
       'key': 'pertumbuhan',
     },
     {
       'label': 'Perkembangan',
+      'desc': 'Skrining tanda bahaya',
       'icon': Icons.self_improvement,
       'color': Colors.blueAccent,
       'key': 'pemantauan',
     },
     {
       'label': 'Catatan',
+      'desc': 'Lihat riwayat anak',
       'icon': Icons.assignment_outlined,
       'color': Colors.indigoAccent,
       'key': 'catatan',
     },
     {
       'label': 'Imunisasi',
+      'desc': 'Jadwal dan status',
       // 'icon': Icons.shield,
       'icon': Icons.health_and_safety_outlined,
       'color': Colors.orangeAccent,
@@ -85,6 +89,7 @@ class DashboardMenuData {
     },
     {
       'label': 'MPASI',
+      'desc': 'Menu makan bayi',
       'icon': Icons.restaurant_menu,
       'color': Colors.orangeAccent,
       'key': 'mpasi',

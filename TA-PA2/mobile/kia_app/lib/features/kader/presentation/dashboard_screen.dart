@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:ta_pa2_pa3_project/core/services/auth_session.dart';
-import 'package:ta_pa2_pa3_project/features/kader/screens/daftar_kunjungan.dart';
-import 'package:ta_pa2_pa3_project/features/kader/screens/detail_kunjungan_imunisasi.dart';
+import 'package:ta_pa2_pa3_project/features/kader/screens/pilih_status_kunjungan.dart';
 import 'package:ta_pa2_pa3_project/features/kader/screens/profil_screen.dart';
 import 'package:ta_pa2_pa3_project/features/kader/widgets/dashboard_bottom_nav.dart';
 import 'package:ta_pa2_pa3_project/features/kader/widgets/dashboard_header.dart';
+import 'package:ta_pa2_pa3_project/features/anak/pemantauan/presentation/screens/skrining/riwayat_skrining_tanda_bahaya_screen.dart';
 
 class DashboardKaderScreen extends StatefulWidget {
   const DashboardKaderScreen({super.key});
@@ -118,9 +118,6 @@ class _DashboardKaderScreenState extends State<DashboardKaderScreen> {
 
                 const SizedBox(height: 24),
 
-                /// =========================
-                /// PERINGATAN JADWAL (ACTION)
-                /// =========================
                 const Text(
                   'Peringatan Jadwal',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -136,7 +133,34 @@ class _DashboardKaderScreenState extends State<DashboardKaderScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => const KunjunganScreen(),
+                        builder: (_) => const PilihStatusKunjunganScreen(),
+                      ),
+                    );
+                  },
+                ),
+
+                const SizedBox(height: 24),
+
+                const Text(
+                  'Verifikasi Skrining',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+
+                const SizedBox(height: 10),
+
+                _buildFeatureActionCard(
+                  title: 'Periksa hasil skrining tanda bahaya anak.',
+                  subtitle:
+                      'Tinjau pengisian ibu dan berikan status verifikasi di sini.',
+                  icon: Icons.fact_check_rounded,
+                  accentColor: const Color(0xFF2563EB),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const RiwayatSkriningTandaBahayaScreen(
+                          showAllRecords: true,
+                        ),
                       ),
                     );
                   },
@@ -228,6 +252,98 @@ class _DashboardKaderScreenState extends State<DashboardKaderScreen> {
   /// =========================
   /// ESCALATION CARD (CLICKABLE)
   /// =========================
+  Widget _buildFeatureActionCard({
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required Color accentColor,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(18),
+      child: Container(
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              accentColor.withOpacity(0.12),
+              accentColor.withOpacity(0.05),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: accentColor.withOpacity(0.18)),
+          boxShadow: [
+            BoxShadow(
+              color: accentColor.withOpacity(0.08),
+              blurRadius: 18,
+              offset: const Offset(0, 6),
+            ),
+          ],
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.65),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Icon(icon, color: accentColor, size: 28),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      color: Colors.black87,
+                      fontWeight: FontWeight.w800,
+                      fontSize: 15.5,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      color: Colors.grey.shade700,
+                      fontSize: 12.5,
+                      height: 1.35,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Text(
+                        'Buka verifikasi',
+                        style: TextStyle(
+                          color: accentColor,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      Icon(
+                        Icons.arrow_forward_rounded,
+                        size: 16,
+                        color: accentColor,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildEscalationCard({
     required String title,
     required String level,
@@ -264,7 +380,6 @@ class _DashboardKaderScreenState extends State<DashboardKaderScreen> {
                       fontSize: 15,
                     ),
                   ),
-
                   const SizedBox(height: 8),
                   Row(
                     children: [

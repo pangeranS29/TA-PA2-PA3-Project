@@ -79,6 +79,8 @@ class _PemantauanMenuScreenState extends State<PemantauanMenuScreen> {
                     const SizedBox(height: 24),
                     _buildAgeInfoCard(),
                     const SizedBox(height: 20),
+                    _buildHistoryAction(),
+                    const SizedBox(height: 40),
                     _buildSummaryStrip(),
                     const SizedBox(height: 24),
                     _buildSectionHeader(),
@@ -89,8 +91,6 @@ class _PemantauanMenuScreenState extends State<PemantauanMenuScreen> {
                     const SizedBox(height: 18),
                     _buildPrimaryAction(),
                     const SizedBox(height: 12),
-                    _buildHistoryAction(),
-                    const SizedBox(height: 40),
                   ],
                 ),
               ),
@@ -207,7 +207,7 @@ class _PemantauanMenuScreenState extends State<PemantauanMenuScreen> {
           SizedBox(width: 10),
           Expanded(
             child: Text(
-              'Pilih kelompok usia yang sesuai untuk membuka kategori skrining tanda bahaya.',
+              'Pilih kelompok usia yang sesuai, lalu ketuk Skrining sekarang untuk mulai.',
               style: TextStyle(
                 fontSize: 12.5,
                 height: 1.45,
@@ -217,6 +217,26 @@ class _PemantauanMenuScreenState extends State<PemantauanMenuScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildHistoryAction() {
+    return Align(
+      alignment: Alignment.centerRight,
+      child: TextButton.icon(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => RiwayatSkriningTandaBahayaScreen(
+                anak: widget.anak,
+              ),
+            ),
+          );
+        },
+        icon: const Icon(Icons.history_rounded),
+        label: const Text('Lihat riwayat skrining'),
       ),
     );
   }
@@ -395,26 +415,6 @@ class _PemantauanMenuScreenState extends State<PemantauanMenuScreen> {
     );
   }
 
-  Widget _buildHistoryAction() {
-    return SizedBox(
-      width: double.infinity,
-      height: 52,
-      child: OutlinedButton.icon(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => RiwayatSkriningTandaBahayaScreen(
-                anak: widget.anak,
-              ),
-            ),
-          );
-        },
-        icon: const Icon(Icons.history_rounded),
-        label: const Text('Riwayat skrining'),
-      ),
-    );
-  }
 
   int _resolveAgeIndex(String usiaText) {
     final normalized = usiaText.toLowerCase();
