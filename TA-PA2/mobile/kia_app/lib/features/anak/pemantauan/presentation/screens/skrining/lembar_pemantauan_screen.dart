@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ta_pa2_pa3_project/features/anak/pemantauan/data/services/lembar_pemantauan_api_service.dart';
 import 'package:ta_pa2_pa3_project/features/anak/pemantauan/data/models/lembar_pemantauan_dynamic_model.dart';
+import 'package:ta_pa2_pa3_project/features/anak/pemantauan/presentation/screens/skrining/riwayat_skrining_tanda_bahaya_screen.dart';
 
 class LembarPemantauanScreen extends StatefulWidget {
   final Map<String, dynamic>? anak;
@@ -33,6 +34,7 @@ class _LembarPemantauanScreenState extends State<LembarPemantauanScreen>
   int? _selectedRentangId;
   RentangUsiaModel? _selectedRentang;
   final Map<int, bool> _checks = {};
+  final Map<int, Set<int>> _submittedPeriodsByRentangId = {};
   DateTime _tanggalPeriksa = DateTime.now();
 
   @override
@@ -97,6 +99,8 @@ class _LembarPemantauanScreenState extends State<LembarPemantauanScreen>
 
       if (selectedId != null) {
         await _loadKategori(selectedId);
+        await _loadRiwayatPemantauan();
+        _syncSelectedPeriodeForCurrentRentang();
       }
     } catch (e) {
       if (!mounted) return;
@@ -195,6 +199,48 @@ class _LembarPemantauanScreenState extends State<LembarPemantauanScreen>
     }
   }
 
+  Future<void> _loadRiwayatPemantauan() async {
+    final anakRaw = widget.anak?['id'];
+    final anakId = anakRaw is int
+        ? anakRaw
+        : int.tryParse((anakRaw ?? '').toString()) ?? 0;
+
+    if (anakId <= 0) return;
+
+    try {
+      final records = await _service.getRiwayatPemantauan(anakId);
+      final map = <int, Set<int>>{};
+
+      for (final record in records) {
+        map.putIfAbsent(record.rentangUsiaId, () => <int>{}).add(record.periodeWaktu);
+      }
+
+      if (!mounted) return;
+      setState(() {
+        _submittedPeriodsByRentangId
+          ..clear()
+          ..addAll(map);
+      });
+    } catch (_) {
+      // Riwayat tidak harus memblokir form.
+    }
+  }
+
+  void _syncSelectedPeriodeForCurrentRentang() {
+    final rentangId = _selectedRentangId;
+    final selectedRentang = _selectedRentang;
+    if (rentangId == null || selectedRentang == null) return;
+
+    final submitted = _submittedPeriodsByRentangId[rentangId] ?? <int>{};
+    final available = List<int>.generate(selectedRentang.maxPeriode, (index) => index + 1)
+        .where((periode) => !submitted.contains(periode))
+        .toList();
+
+    setState(() {
+      _selectedPeriode = available.isNotEmpty ? available.first : null;
+    });
+  }
+
 
   Future<void> _submit() async {
     final anakRaw = widget.anak?['id'];
@@ -268,12 +314,12 @@ class _LembarPemantauanScreenState extends State<LembarPemantauanScreen>
         ),
       );
 
-      // Reset form
-      setState(() {
-        _selectedPeriode = 1;
-        _checks.clear();
-        _tanggalPeriksa = DateTime.now();
-      });
+      if (!mounted) return;
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (_) => RiwayatSkriningTandaBahayaScreen(anak: widget.anak),
+        ),
+      );
     } catch (e) {
       _showError('Gagal menyimpan lembar pemantauan: $e');
     } finally {
@@ -498,31 +544,13 @@ class _LembarPemantauanScreenState extends State<LembarPemantauanScreen>
               setState(() {
                 _selectedRentangId = value;
                 _selectedRentang = selectedRentang;
-                _selectedPeriode = 1;
               });
               _loadKategori(value);
+              _syncSelectedPeriodeForCurrentRentang();
             },
           ),
           const SizedBox(height: 12),
-          DropdownButtonFormField<int>(
-            value: _selectedPeriode,
-            decoration: const InputDecoration(
-              labelText: 'Periode Pemeriksaan',
-              border: OutlineInputBorder(),
-            ),
-            items: _buildPeriodeOptions()
-                .map(
-                  (p) => DropdownMenuItem<int>(
-                    value: p,
-                    child: Text(_buildPeriodeLabel(p)),
-                  ),
-                )
-                .toList(),
-            onChanged: (v) {
-              if (v == null) return;
-              setState(() => _selectedPeriode = v);
-            },
-          ),
+            _buildPeriodeDropdown(),
           const SizedBox(height: 12),
           Container(
             width: double.infinity,
@@ -620,7 +648,66 @@ class _LembarPemantauanScreenState extends State<LembarPemantauanScreen>
 
   List<int> _buildPeriodeOptions() {
     final maxPeriode = _selectedRentang?.maxPeriode ?? 1;
-    return List<int>.generate(maxPeriode, (index) => index + 1);
+    final rentangId = _selectedRentangId;
+    final submitted = rentangId == null
+        ? <int>{}
+        : (_submittedPeriodsByRentangId[rentangId] ?? <int>{});
+    return List<int>.generate(maxPeriode, (index) => index + 1)
+        .where((periode) => !submitted.contains(periode))
+        .toList();
+  }
+
+  Widget _buildPeriodeDropdown() {
+    final options = _buildPeriodeOptions();
+    if (options.isEmpty) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF8FAFC),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: const Color(0xFFCBD5E1)),
+        ),
+        child: Text(
+          'Semua periode pada rentang usia ini sudah diisi.',
+          style: TextStyle(
+            color: Colors.grey.shade700,
+            fontSize: 12.5,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      );
+    }
+
+    final currentValue = options.contains(_selectedPeriode) ? _selectedPeriode : options.first;
+    if (currentValue != _selectedPeriode) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        setState(() {
+          _selectedPeriode = currentValue;
+        });
+      });
+    }
+
+    return DropdownButtonFormField<int>(
+      value: currentValue,
+      decoration: const InputDecoration(
+        labelText: 'Periode Pemeriksaan',
+        border: OutlineInputBorder(),
+      ),
+      items: options
+          .map(
+            (p) => DropdownMenuItem<int>(
+              value: p,
+              child: Text(_buildPeriodeLabel(p)),
+            ),
+          )
+          .toList(),
+      onChanged: (v) {
+        if (v == null) return;
+        setState(() => _selectedPeriode = v);
+      },
+    );
   }
 
   String _buildPeriodeLabel(int periode) {

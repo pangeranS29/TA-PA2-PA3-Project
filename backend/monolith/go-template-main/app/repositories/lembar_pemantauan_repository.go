@@ -57,6 +57,10 @@ func (r *lembarPemantauanRepository) FindByID(id uint) (*models.LembarPemantauan
 	err := r.db.
 		Where("id = ? AND deleted_at IS NULL", id).
 		Preload("Anak").
+		Preload("Anak.Penduduk").
+		Preload("Anak.Kehamilan").
+		Preload("Anak.Kehamilan.Ibu").
+		Preload("Anak.Kehamilan.Ibu.Kependudukan").
 		Preload("RentangUsia").
 		Preload("DetailGejala", func(db *gorm.DB) *gorm.DB {
 			return db.Where("deleted_at IS NULL")
@@ -78,6 +82,10 @@ func (r *lembarPemantauanRepository) FindByAnakID(anakID uint) ([]models.LembarP
 	err := r.db.
 		Where("anak_id = ? AND deleted_at IS NULL", anakID).
 		Preload("Anak").
+		Preload("Anak.Penduduk").
+		Preload("Anak.Kehamilan").
+		Preload("Anak.Kehamilan.Ibu").
+		Preload("Anak.Kehamilan.Ibu.Kependudukan").
 		Preload("RentangUsia").
 		Preload("DetailGejala", func(db *gorm.DB) *gorm.DB {
 			return db.Where("deleted_at IS NULL")
@@ -113,6 +121,10 @@ func (r *lembarPemantauanRepository) FindAll() ([]models.LembarPemantauan, error
 	err := r.db.
 		Where("deleted_at IS NULL").
 		Preload("Anak").
+		Preload("Anak.Penduduk").
+		Preload("Anak.Kehamilan").
+		Preload("Anak.Kehamilan.Ibu").
+		Preload("Anak.Kehamilan.Ibu.Kependudukan").
 		Preload("RentangUsia").
 		Preload("DetailGejala", func(db *gorm.DB) *gorm.DB {
 			return db.Where("deleted_at IS NULL")
