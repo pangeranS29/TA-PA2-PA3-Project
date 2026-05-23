@@ -266,8 +266,21 @@ func (m *Main) Login(req *models.LoginRequest) (*models.LoginResponse, error) {
 				return nil, customerror.NewBadRequestError("akun bidan nonaktif")
 			}
 		case "Kader":
+			fmt.Println("PendudukID:", *user.PendudukID)
+
 			kader, kErr := m.repository.Kader.FindByPendudukID(int32(*user.PendudukID))
-			if kErr != nil || strings.ToLower(strings.TrimSpace(kader.Status)) != "aktif" {
+
+			fmt.Println("Kader:", kader)
+			fmt.Println("Error:", kErr)
+
+			if kErr != nil {
+				fmt.Println("Find kader error:", kErr)
+				return nil, customerror.NewBadRequestError("akun kader nonaktif")
+			}
+
+			fmt.Println("Status kader:", kader.Status)
+
+			if strings.ToLower(strings.TrimSpace(kader.Status)) != "aktif" {
 				return nil, customerror.NewBadRequestError("akun kader nonaktif")
 			}
 		}
