@@ -687,6 +687,10 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	ibuk.GET("/absensi-kelas-ibu-hamil/me", controller.AbsensiKelasIbuHamil.GetMine)
 	ibuk.POST("/absensi-kelas-ibu-hamil", controller.AbsensiKelasIbuHamil.SaveMine)
 
+	// Absensi Kelas Ibu Balita
+	ibuk.GET("/absensi-kelas-ibu-balita/me", controller.AbsensiKelasIbuBalita.GetMine)
+	ibuk.POST("/absensi-kelas-ibu-balita", controller.AbsensiKelasIbuBalita.SaveMine)
+
 	// Checklist Pemantauan Ibu Nifas
 	ibuk.GET("/checklist-pemantauan-ibu-nifas/me", controller.ChecklistPemantauanIbuNifas.GetMine)
 	ibuk.POST("/checklist-pemantauan-ibu-nifas", controller.ChecklistPemantauanIbuNifas.SaveMine)

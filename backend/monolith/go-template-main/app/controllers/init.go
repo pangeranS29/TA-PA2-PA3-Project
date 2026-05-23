@@ -1,5 +1,6 @@
 package controllers
 
+//AbsensiKelasIbuBalita//
 import (
 	"monitoring-service/app/usecases"
 	"monitoring-service/pkg/config"
@@ -77,6 +78,7 @@ type Main struct {
 	PersiapanMelahirkan         *PersiapanMelahirkanController
 	ProsesMelahirkan            *ProsesMelahirkanController
 	AbsensiKelasIbuHamil        *AbsensiKelasIbuHamilController
+	AbsensiKelasIbuBalita       *AbsensiKelasIbuBalitaController
 	ChecklistPemantauanIbuNifas *ChecklistPemantauanIbuNifasController
 	WarnaTinja                  *WarnaTinjaController
 	KeluhanAnak                 *KeluhanAnakController
@@ -213,6 +215,7 @@ func Init(opts Options) *Main {
 	m.PersiapanMelahirkan = NewPersiapanMelahirkanController(opts.UseCases.PersiapanMelahirkan)
 	m.ProsesMelahirkan = NewProsesMelahirkanController(opts.UseCases.ProsesMelahirkan)
 	m.AbsensiKelasIbuHamil = NewAbsensiKelasIbuHamilController(opts.UseCases.AbsensiKelasIbuHamil)
+	m.AbsensiKelasIbuBalita = NewAbsensiKelasIbuBalitaController(opts.UseCases.AbsensiKelasIbuBalita)
 	m.ChecklistPemantauanIbuNifas = NewChecklistPemantauanIbuNifasController(
 		opts.UseCases.ChecklistPemantauanIbuNifas)
 	m.WarnaTinja = NewWarnaTinjaController(opts.UseCases.WarnaTinja)
