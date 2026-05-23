@@ -182,25 +182,25 @@ class MenuPemantauanScreen extends StatelessWidget {
                       iconColor: const Color(0xFFEA580C),
                     ),
                   ),
-                  const SizedBox(height: 12),
-                  // MENU 4: LINGKAR LENGAN ATAS (LiLA)
-                  InkWell(
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const LilaScreen()),
-                      // MaterialPageRoute(builder: (_) => const LilaScreen()),
-                    ),
-                    borderRadius: BorderRadius.circular(16),
-                    child: _menuCard(
-                      icon: Icons.pattern,
-                      title: 'Pola Asuh',
-                      subtitle: 'Informasi terkait pola asuh anak',
-                      color: const Color(0xFFF5F3FF),
-                      iconBgColor: const Color(0xFFEDE9FE),
-                      iconColor: const Color(0xFF7C3AED),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
+                  // const SizedBox(height: 12),
+                  // // MENU 4: LINGKAR LENGAN ATAS (LiLA)
+                  // InkWell(
+                  //   onTap: () => Navigator.push(
+                  //     context,
+                  //     MaterialPageRoute(builder: (_) => const LilaScreen()),
+                  //     // MaterialPageRoute(builder: (_) => const LilaScreen()),
+                  //   ),
+                  //   borderRadius: BorderRadius.circular(16),
+                  //   child: _menuCard(
+                  //     icon: Icons.pattern,
+                  //     title: 'Pola Asuh',
+                  //     subtitle: 'Informasi terkait pola asuh anak',
+                  //     color: const Color(0xFFF5F3FF),
+                  //     iconBgColor: const Color(0xFFEDE9FE),
+                  //     iconColor: const Color(0xFF7C3AED),
+                  //   ),
+                  // ),
+                  // const SizedBox(height: 12),
                 ],
               ),
             ),

@@ -161,6 +161,7 @@ class _WarnaTinjaScreenState extends State<WarnaTinjaScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(12),

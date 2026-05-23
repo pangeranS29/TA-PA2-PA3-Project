@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:ta_pa2_pa3_project/core/constants/api_constants.dart';
@@ -20,18 +22,28 @@ class AuthApiService {
     final uri = Uri.parse(
       '${ApiConstants.baseUrl}${ApiConstants.authLogin}',
     );
+    debugPrint('[auth] POST $uri');
 
-    final response = await _client.post(
-      uri,
-      headers: const {
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode({
-        'identifier': identifier,
-        'password': password,
-        if (fcmToken != null) 'fcm_token': fcmToken,
-      }),
-    );
+    http.Response response;
+    try {
+      response = await _client
+          .post(
+            uri,
+            headers: const {
+              'Content-Type': 'application/json',
+            },
+            body: jsonEncode({
+              'identifier': identifier,
+              'password': password,
+              if (fcmToken != null) 'fcm_token': fcmToken,
+            }),
+          )
+          .timeout(const Duration(seconds: 12));
+    } on TimeoutException {
+      throw Exception(
+        'Login timeout. Pastikan backend dapat diakses dari Android fisik.',
+      );
+    }
 
     if (response.statusCode < 200 || response.statusCode >= 300) {
       throw Exception(
