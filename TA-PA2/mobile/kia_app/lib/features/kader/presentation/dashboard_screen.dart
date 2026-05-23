@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ta_pa2_pa3_project/core/services/auth_session.dart';
 import 'package:ta_pa2_pa3_project/features/kader/screens/daftar_kunjungan.dart';
 import 'package:ta_pa2_pa3_project/features/kader/screens/detail_kunjungan_imunisasi.dart';
+import 'package:ta_pa2_pa3_project/features/kader/screens/pilih_status_kunjungan.dart';
 import 'package:ta_pa2_pa3_project/features/kader/screens/profil_screen.dart';
 import 'package:ta_pa2_pa3_project/features/kader/widgets/dashboard_bottom_nav.dart';
 import 'package:ta_pa2_pa3_project/features/kader/widgets/dashboard_header.dart';
@@ -136,7 +137,7 @@ class _DashboardKaderScreenState extends State<DashboardKaderScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => const KunjunganScreen(),
+                        builder: (_) => const PilihStatusKunjunganScreen(),
                       ),
                     );
                   },
