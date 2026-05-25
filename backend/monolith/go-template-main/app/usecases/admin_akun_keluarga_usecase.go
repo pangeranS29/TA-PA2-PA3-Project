@@ -194,9 +194,9 @@ func (u *AdminAkunKeluargaUsecase) CreateKartuKeluarga(req *AdminCreateKartuKelu
 
 		nikPtr := &anggota.NIK
 		penduduk := &models.Kependudukan{
-			KartuKeluargaID:    &kk.ID,
-			NIK:                nikPtr,
-			Dusun:              anggota.Dusun,
+			KartuKeluargaID: &kk.ID,
+			NIK:             nikPtr,
+			// Dusun:              anggota.Dusun,
 			NamaLengkap:        anggota.NamaLengkap,
 			GolonganDarah:      anggota.GolonganDarah,
 			JenisKelamin:       anggota.JenisKelamin,
@@ -468,7 +468,7 @@ func (u *AdminAkunKeluargaUsecase) UpdateAnggotaKeluarga(kartuKeluargaID int64, 
 	anggota.PendidikanTerakhir = req.PendidikanTerakhir
 	anggota.BacaHuruf = req.BacaHuruf
 	anggota.KedudukanKeluarga = req.KedudukanKeluarga
-	anggota.Dusun = req.Dusun
+	// anggota.Dusun = req.Dusun
 	anggota.AsalPenduduk = req.AsalPenduduk
 	anggota.TujuanPindah = req.TujuanPindah
 	anggota.TempatMeninggal = req.TempatMeninggal
@@ -528,13 +528,13 @@ func (u *AdminAkunKeluargaUsecase) AddAnggotaKeluarga(kartuKeluargaID int64, req
 		PendidikanTerakhir: strings.TrimSpace(req.PendidikanTerakhir),
 		BacaHuruf:          strings.TrimSpace(req.BacaHuruf),
 		KedudukanKeluarga:  strings.TrimSpace(req.KedudukanKeluarga),
-		Dusun:              strings.TrimSpace(req.Dusun),
-		AsalPenduduk:       strings.TrimSpace(req.AsalPenduduk),
-		TujuanPindah:       strings.TrimSpace(req.TujuanPindah),
-		TempatMeninggal:    strings.TrimSpace(req.TempatMeninggal),
-		Keterangan:         strings.TrimSpace(req.Keterangan),
-		CreatedAt:          time.Now(),
-		UpdatedAt:          time.Now(),
+		// Dusun:              strings.TrimSpace(req.Dusun),
+		AsalPenduduk:    strings.TrimSpace(req.AsalPenduduk),
+		TujuanPindah:    strings.TrimSpace(req.TujuanPindah),
+		TempatMeninggal: strings.TrimSpace(req.TempatMeninggal),
+		Keterangan:      strings.TrimSpace(req.Keterangan),
+		CreatedAt:       time.Now(),
+		UpdatedAt:       time.Now(),
 	}
 
 	if err := u.kependudukanRepo.Create(anggota); err != nil {
@@ -599,10 +599,10 @@ func mapPendudukToAnggota(a models.Kependudukan) AdminDetailKartuKeluargaAnggota
 		PendidikanTerakhir: a.PendidikanTerakhir,
 		BacaHuruf:          a.BacaHuruf,
 		KedudukanKeluarga:  a.KedudukanKeluarga,
-		Dusun:              a.Dusun,
-		AsalPenduduk:       a.AsalPenduduk,
-		TujuanPindah:       a.TujuanPindah,
-		TempatMeninggal:    a.TempatMeninggal,
-		Keterangan:         a.Keterangan,
+		// Dusun:              a.Dusun,
+		AsalPenduduk:    a.AsalPenduduk,
+		TujuanPindah:    a.TujuanPindah,
+		TempatMeninggal: a.TempatMeninggal,
+		Keterangan:      a.Keterangan,
 	}
 }
