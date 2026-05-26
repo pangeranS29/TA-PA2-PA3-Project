@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:ta_pa2_pa3_project/core/constants/app_colors.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/data/models/evaluasi_kesehatan_ibu_model.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/data/services/evaluasi_kesehatan_ibu_api_service.dart';
-
-// IMPORT HALAMAN EDUKASI
 import 'package:ta_pa2_pa3_project/features/edukasi/presentation/ibu/konten_edukasi_ibu_screen.dart';
 
 class HasilEvaluasiKesehatanScreen extends StatefulWidget {
@@ -49,24 +47,20 @@ class _HasilEvaluasiKesehatanScreenState
       'Sep',
       'Okt',
       'Nov',
-      'Des'
+      'Des',
     ];
 
     return '${date.day} ${months[date.month - 1]} ${date.year}';
   }
 
-  // SNACKBAR HUBUNGI BIDAN
   void _hubungiBidan() {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text(
-          "Menghubungkan ke bidan...",
-        ),
+        content: Text("Menghubungkan ke bidan..."),
       ),
     );
   }
 
-  // PINDAH HALAMAN EDUKASI
   void _pelajariLebihLanjut() {
     Navigator.push(
       context,
@@ -74,6 +68,105 @@ class _HasilEvaluasiKesehatanScreenState
         builder: (_) => const KontenEdukasiIbuScreen(),
       ),
     );
+  }
+
+  _RiskResult _hitungRisiko(EvaluasiKesehatanIbuModel data) {
+    int skor = 0;
+    final List<String> alasan = [];
+
+    final imt = data.imtKategori.toLowerCase();
+    if (imt.contains('kurus') ||
+        imt.contains('gemuk') ||
+        imt.contains('obesitas') ||
+        imt.contains('tidak normal')) {
+      skor += 2;
+      alasan.add('Kategori IMT tidak normal');
+    }
+
+    final lila = data.lilaCm;
+    if (lila != null && lila < 23.5) {
+      skor += 3;
+      alasan.add('LILA kurang dari 23,5 cm');
+    }
+
+    final riwayatKesehatan = data.riwayatKesehatanText.toLowerCase().trim();
+    if (riwayatKesehatan.isNotEmpty &&
+        riwayatKesehatan != '-' &&
+        riwayatKesehatan != 'tidak ada' &&
+        riwayatKesehatan != 'normal') {
+      skor += 3;
+      alasan.add('Memiliki riwayat kesehatan tertentu');
+    }
+
+    final perilakuBerisiko = data.perilakuBerisikoText.toLowerCase().trim();
+    if (perilakuBerisiko.isNotEmpty &&
+        perilakuBerisiko != '-' &&
+        perilakuBerisiko != 'tidak ada' &&
+        perilakuBerisiko != 'normal') {
+      skor += 2;
+      alasan.add('Terdapat perilaku berisiko');
+    }
+
+    final riwayatKeluarga = data.riwayatKeluargaText.toLowerCase().trim();
+    if (riwayatKeluarga.isNotEmpty &&
+        riwayatKeluarga != '-' &&
+        riwayatKeluarga != 'tidak ada' &&
+        riwayatKeluarga != 'normal') {
+      skor += 2;
+      alasan.add('Memiliki riwayat penyakit keluarga');
+    }
+
+    final inspeksiGabungan = [
+      data.inspeksiPorsio,
+      data.inspeksiUretra,
+      data.inspeksiVagina,
+      data.inspeksiVulva,
+      data.inspeksiFluksus,
+      data.inspeksiFluor,
+    ].join(' ').toLowerCase();
+
+    if (inspeksiGabungan.contains('tidak normal') ||
+        inspeksiGabungan.contains('abnormal') ||
+        inspeksiGabungan.contains('infeksi') ||
+        inspeksiGabungan.contains('kelainan') ||
+        inspeksiGabungan.contains('nyeri') ||
+        inspeksiGabungan.contains('keputihan') ||
+        inspeksiGabungan.contains('berbau') ||
+        inspeksiGabungan.contains('luka')) {
+      skor += 3;
+      alasan.add('Ditemukan indikasi tidak normal pada hasil inspeksi');
+    }
+
+    if (skor >= 7) {
+      return _RiskResult(
+        title: 'Risiko Tinggi',
+        description:
+            'Ibu memiliki beberapa faktor risiko. Disarankan segera melakukan konsultasi lanjutan ke tenaga kesehatan.',
+        color: const Color(0xFFE53935),
+        icon: Icons.error_outline,
+        reasons: alasan,
+      );
+    } else if (skor >= 3) {
+      return _RiskResult(
+        title: 'Risiko Sedang',
+        description:
+            'Terdapat beberapa faktor yang perlu diperhatikan. Tetap lakukan pemantauan dan pemeriksaan rutin.',
+        color: const Color(0xFFFFA000),
+        icon: Icons.warning_amber_rounded,
+        reasons: alasan,
+      );
+    } else {
+      return _RiskResult(
+        title: 'Risiko Rendah',
+        description:
+            'Belum ditemukan faktor risiko utama berdasarkan data evaluasi yang tersedia.',
+        color: const Color(0xFF2E7D32),
+        icon: Icons.check_circle_outline,
+        reasons: alasan.isEmpty
+            ? ['Tidak ada faktor risiko yang menonjol']
+            : alasan,
+      );
+    }
   }
 
   @override
@@ -98,8 +191,7 @@ class _HasilEvaluasiKesehatanScreenState
           if (snapshot.hasError) {
             return _EmptyState(
               title: "Data evaluasi belum tersedia",
-              message:
-                  snapshot.error.toString().replaceFirst('Exception: ', ''),
+              message: snapshot.error.toString().replaceFirst('Exception: ', ''),
             );
           }
 
@@ -112,6 +204,8 @@ class _HasilEvaluasiKesehatanScreenState
             );
           }
 
+          final risiko = _hitungRisiko(data);
+
           return ListView(
             padding: const EdgeInsets.all(20),
             children: [
@@ -122,7 +216,10 @@ class _HasilEvaluasiKesehatanScreenState
 
               const SizedBox(height: 16),
 
-              // TOMBOL HUBUNGI BIDAN
+              _RiskCard(result: risiko),
+
+              const SizedBox(height: 16),
+
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
@@ -142,7 +239,6 @@ class _HasilEvaluasiKesehatanScreenState
 
               const SizedBox(height: 12),
 
-              // TOMBOL EDUKASI
               SizedBox(
                 width: double.infinity,
                 child: OutlinedButton(
@@ -257,6 +353,142 @@ class _HasilEvaluasiKesehatanScreenState
   }
 }
 
+class _RiskResult {
+  final String title;
+  final String description;
+  final Color color;
+  final IconData icon;
+  final List<String> reasons;
+
+  const _RiskResult({
+    required this.title,
+    required this.description,
+    required this.color,
+    required this.icon,
+    required this.reasons,
+  });
+}
+
+class _RiskCard extends StatelessWidget {
+  final _RiskResult result;
+
+  const _RiskCard({
+    required this.result,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: result.color.withOpacity(0.25)),
+        boxShadow: [
+          BoxShadow(
+            color: result.color.withOpacity(0.08),
+            blurRadius: 14,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 46,
+                height: 46,
+                decoration: BoxDecoration(
+                  color: result.color.withOpacity(0.12),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Icon(
+                  result.icon,
+                  color: result.color,
+                  size: 26,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "Hasil Risiko Kesehatan",
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Color(0xFF7B8798),
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      result.title,
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: result.color,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Text(
+            result.description,
+            style: const TextStyle(
+              fontSize: 13,
+              color: Color(0xFF4B5563),
+              height: 1.45,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 14),
+          const Text(
+            "Dasar penilaian:",
+            style: TextStyle(
+              fontSize: 13,
+              color: Color(0xFF172033),
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          const SizedBox(height: 8),
+          ...result.reasons.map(
+            (item) => Padding(
+              padding: const EdgeInsets.only(bottom: 6),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(
+                    Icons.circle,
+                    size: 7,
+                    color: result.color,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      item,
+                      style: const TextStyle(
+                        fontSize: 12.5,
+                        color: Color(0xFF4B5563),
+                        height: 1.35,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _HeaderCard extends StatelessWidget {
   final EvaluasiKesehatanIbuModel data;
   final String Function(String?) formatDate;
@@ -285,70 +517,10 @@ class _HeaderCard extends StatelessWidget {
               fontWeight: FontWeight.w800,
             ),
           ),
-
           const SizedBox(height: 14),
-
-          _HeaderRow(
-            "Tanggal Periksa",
-            formatDate(data.tanggalPeriksa),
-          ),
-
-          _HeaderRow(
-            "Dokter",
-            data.namaDokter,
-          ),
-
-          _HeaderRow(
-            "Fasilitas",
-            data.fasilitasKesehatan,
-          ),
-
-          const SizedBox(height: 18),
-
-          // BADGE RISIKO
-          Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 14,
-              vertical: 8,
-            ),
-            decoration: BoxDecoration(
-              color: Colors.orange,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: const Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.warning_amber_rounded,
-                  color: Colors.white,
-                  size: 18,
-                ),
-                SizedBox(width: 6),
-                Text(
-                  "Risiko Sedang",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 13,
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 14),
-
-          // PENJELASAN
-          const Text(
-            "Tekanan darah ibu perlu diperhatikan. "
-            "Sebaiknya lakukan konsultasi dengan bidan "
-            "atau puskesmas terdekat untuk pemeriksaan lebih lanjut.",
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 13,
-              height: 1.5,
-            ),
-          ),
+          _HeaderRow("Tanggal Periksa", formatDate(data.tanggalPeriksa)),
+          _HeaderRow("Dokter", data.namaDokter),
+          _HeaderRow("Fasilitas", data.fasilitasKesehatan),
         ],
       ),
     );
@@ -412,9 +584,7 @@ class _InfoCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(
-          color: const Color(0xFFE5ECF6),
-        ),
+        border: Border.all(color: const Color(0xFFE5ECF6)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.03),
@@ -434,11 +604,7 @@ class _InfoCard extends StatelessWidget {
                   color: const Color(0xFFEAF4FF),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(
-                  icon,
-                  color: AppColors.primary,
-                  size: 21,
-                ),
+                child: Icon(icon, color: AppColors.primary, size: 21),
               ),
               const SizedBox(width: 12),
               Expanded(

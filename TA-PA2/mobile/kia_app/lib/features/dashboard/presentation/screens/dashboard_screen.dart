@@ -1723,6 +1723,8 @@ import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/catat
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/log_ttd_mms_screen.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/nifas/presentation/screens/nifas_screen.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/persalinan_screen.dart';
+import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/hasil_evaluasi_kesehatan_screen.dart';
+import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/skrining_preeklampsia_screen.dart';
 // MODUL ANAK
 import 'package:ta_pa2_pa3_project/features/anak/anak/presentation/screens/anak/pilih_anak_screen.dart';
 import 'package:ta_pa2_pa3_project/features/anak/anak/presentation/screens/anak/input_profil_anak_screen.dart';
@@ -2115,7 +2117,7 @@ Widget _buildNifasShortcut() {
             ],
           ),
         ),
-
+        
         // Progress kehamilan — klik navigasi ke JourneyScreen
         InkWell(
           borderRadius: BorderRadius.circular(20),
@@ -2190,6 +2192,10 @@ Widget _buildNifasShortcut() {
             ],
           ),
         ),
+
+        const SizedBox(height: 12),
+
+        _buildPemeriksaanIbuCard(),
         const SizedBox(height: 32),
 
         // [WIDGET: DashboardQuickMenu] — 6 item, 3 kolom (sesuai desain lib_desain)
@@ -2238,7 +2244,8 @@ Widget _buildNifasShortcut() {
         //   ),
         // ),
 
-        const SizedBox(height: 16),
+        const SizedBox(height: 20),
+        const SizedBox(height: 20),
 
         _buildDangerAlert(),
         const SizedBox(height: 32),
@@ -2592,6 +2599,7 @@ Widget _buildNifasShortcut() {
       ),
     );
   }
+  
 
   // ─────────────────────────────────────────────
   // [MODUL: IBU - Hamil] Banner surat rujukan
@@ -2660,4 +2668,217 @@ Widget _buildNifasShortcut() {
       ),
     );
   }
+
+  Widget _buildPemeriksaanIbuCard() {
+
+  return Container(
+
+    padding: const EdgeInsets.all(16),
+
+    decoration: BoxDecoration(
+
+      color: const Color(0xFFEFF6FF),
+
+      borderRadius:
+          BorderRadius.circular(18),
+
+      border: Border.all(
+        color: Colors.blue.shade100,
+      ),
+    ),
+
+    child: Column(
+
+      crossAxisAlignment:
+          CrossAxisAlignment.start,
+
+      children: [
+
+        Row(
+          children: [
+
+            Container(
+
+              padding:
+                  const EdgeInsets.all(10),
+
+              decoration: BoxDecoration(
+                color: Colors.blue.shade100,
+
+                borderRadius:
+                    BorderRadius.circular(
+                        14),
+              ),
+
+              child: Icon(
+                Icons.monitor_heart_outlined,
+
+                color: Colors.blue.shade700,
+              ),
+            ),
+
+            const SizedBox(width: 12),
+
+            Expanded(
+
+              child: Column(
+
+                crossAxisAlignment:
+                    CrossAxisAlignment.start,
+
+                children: [
+
+                  Text(
+                    "Pemeriksaan Ibu",
+
+                    style: TextStyle(
+                      fontSize: 14,
+
+                      fontWeight:
+                          FontWeight.bold,
+
+                      color:
+                          Colors.blue.shade900,
+                    ),
+                  ),
+
+                  const SizedBox(height: 4),
+
+                  Text(
+                    "Pantau hasil evaluasi kesehatan dan skrining kehamilan Ibu.",
+
+                    style: TextStyle(
+                      fontSize: 11,
+                      height: 1.4,
+
+                      color:
+                          Colors.blue.shade700,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+
+        const SizedBox(height: 16),
+
+        Row(
+          children: [
+
+            Expanded(
+              child: _menuPemeriksaan(
+                title:
+                    "Evaluasi\nKesehatan",
+
+                icon:
+                    Icons.health_and_safety_outlined,
+
+                onTap: () {
+
+                  Navigator.push(
+                    context,
+
+                    MaterialPageRoute(
+                      builder: (_) =>
+                          const HasilEvaluasiKesehatanScreen(),
+                    ),
+                  );
+
+                },
+              ),
+            ),
+
+            const SizedBox(width: 12),
+
+            Expanded(
+              child: _menuPemeriksaan(
+                title:
+                    "Skrining\nPreeklampsia",
+
+                icon:
+                    Icons.favorite_border,
+
+                onTap: () {
+
+                  Navigator.push(
+                    context,
+
+                    MaterialPageRoute(
+                      builder: (_) =>
+                          const SkriningPreeklampsiaScreen(),
+                    ),
+                  );
+
+                },
+              ),
+            ),
+          ],
+        ),
+      ],
+    ),
+  );
+}
+Widget _menuPemeriksaan({
+
+  required String title,
+  required IconData icon,
+  required VoidCallback onTap,
+
+}) {
+
+  return InkWell(
+
+    borderRadius:
+        BorderRadius.circular(14),
+
+    onTap: onTap,
+
+    child: Container(
+
+      padding: const EdgeInsets.symmetric(
+        vertical: 14,
+      ),
+
+      decoration: BoxDecoration(
+
+        color: Colors.white,
+
+        borderRadius:
+            BorderRadius.circular(14),
+
+        border: Border.all(
+          color: Colors.blue.shade100,
+        ),
+      ),
+
+      child: Column(
+        children: [
+
+          Icon(
+            icon,
+            color: Colors.blue.shade700,
+            size: 24,
+          ),
+
+          const SizedBox(height: 8),
+
+          Text(
+            title,
+
+            textAlign: TextAlign.center,
+
+            style: TextStyle(
+              fontSize: 11,
+
+              fontWeight: FontWeight.w600,
+
+              color: Colors.blue.shade900,
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
 }
