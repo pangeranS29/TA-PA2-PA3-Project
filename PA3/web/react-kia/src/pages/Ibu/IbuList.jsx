@@ -3,10 +3,13 @@ import React, { useEffect, useState, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import MainLayout from "../../components/Layout/MainLayout";
 import { getIbuDashboard } from "../../services/ibu";
+import { getLaporanSemuaIbu } from "../../services/laporanPrint";
+import { generatePDFLaporanSemuaIbu } from "../../utils/pdfGenerator";
 import { 
   Plus, Search, Users, Eye, Edit, Filter, 
-  Activity, AlertTriangle, UserCheck
+  Activity, AlertTriangle, UserCheck, Printer, Download
 } from "lucide-react";
+import Swal from "sweetalert2";
 
 // Badge untuk status kehamilan (trimester + nifas)
 const statusBadge = (status) => {
@@ -41,6 +44,7 @@ export default function IbuList() {
   const navigate = useNavigate();
   const [ibuList, setIbuList] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [printLoading, setPrintLoading] = useState(false);
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [filterRisiko, setFilterRisiko] = useState("");
@@ -127,6 +131,86 @@ export default function IbuList() {
     setFilterRisiko(prev => prev === risiko ? "" : risiko);
     setCurrentPage(1);
     setShowHistory(false);
+  };
+
+  const handlePrintAllReport = async () => {
+    if (activeOnlyList.length === 0) {
+      Swal.fire({
+        icon: "warning",
+        title: "Data Tidak Tersedia",
+        text: "Tidak ada data ibu hamil aktif untuk dicetak.",
+      });
+      return;
+    }
+
+    const confirmPrint = await Swal.fire({
+      icon: "question",
+      title: "Cetak Laporan Semua Ibu Hamil",
+      html: `<p>Akan mencetak laporan untuk <strong>${activeOnlyList.length} ibu hamil</strong>.</p>
+             <p>Proses ini mungkin memakan waktu beberapa saat. Lanjutkan?</p>`,
+      showCancelButton: true,
+      confirmButtonText: "Ya, Cetak",
+      cancelButtonText: "Batal",
+      confirmButtonColor: "#185FA5",
+    });
+
+    if (!confirmPrint.isConfirmed) return;
+
+    setPrintLoading(true);
+    try {
+      // Show loading toast
+      Swal.fire({
+        title: "Sedang mempersiapkan laporan...",
+        html: "Mengumpulkan data dari server. Mohon tunggu...",
+        didOpen: () => {
+          Swal.showLoading();
+        },
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+      });
+
+      // Fetch semua data laporan
+      const laporanData = await getLaporanSemuaIbu();
+
+      if (!laporanData || laporanData.length === 0) {
+        Swal.fire({
+          icon: "warning",
+          title: "Data Tidak Lengkap",
+          text: "Tidak dapat mengambil data laporan dari server.",
+        });
+        return;
+      }
+
+      // Update loading text
+      Swal.fire({
+        title: "Sedang membuat PDF...",
+        html: "Menggenerate file PDF. Mohon tunggu...",
+        didOpen: () => {
+          Swal.showLoading();
+        },
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+      });
+
+      // Generate PDF
+      await generatePDFLaporanSemuaIbu(laporanData);
+
+      // Success message
+      Swal.fire({
+        icon: "success",
+        title: "Berhasil!",
+        text: "Laporan telah diunduh dengan sukses.",
+      });
+    } catch (error) {
+      console.error("Error generating report:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Gagal Membuat Laporan",
+        text: error.message || "Terjadi kesalahan saat membuat laporan PDF.",
+      });
+    } finally {
+      setPrintLoading(false);
+    }
   };
 
   const EmptyState = () => (
@@ -273,6 +357,15 @@ export default function IbuList() {
             >
               <Activity size={14} />
               {showHistory ? "Sembunyikan" : "Riwayat"}
+            </button>
+
+            <button
+              onClick={handlePrintAllReport}
+              disabled={printLoading || activeOnlyList.length === 0}
+              className="px-4 py-2 rounded-full border border-[#3B6D11] text-[#3B6D11] bg-transparent flex items-center gap-2 transition text-sm font-medium hover:bg-[#3B6D11]/5 whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+              title={activeOnlyList.length === 0 ? "Tidak ada data ibu hamil aktif" : "Cetak laporan semua ibu hamil"}
+            >
+              <Printer size={14} /> Cetak Laporan
             </button>
 
             <Link

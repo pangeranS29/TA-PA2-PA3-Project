@@ -8,6 +8,8 @@ import {
   getDokterT1CompleteByKehamilanId,
   getDokterT3CompleteByKehamilanId,
 } from "../../services/pemeriksaanDokter";
+import { getLaporanLengkapByIbuId } from "../../services/laporanPrint";
+import { generatePDFLaporanIbu } from "../../utils/pdfGenerator";
 import { 
   ArrowLeft, 
   Users, 
@@ -25,8 +27,10 @@ import {
   Stethoscope,
   Hospital,
   Droplet,
-  UserPlus
+  UserPlus,
+  Printer
 } from "lucide-react";
+import Swal from "sweetalert2";
 
 export default function IbuDetail() {
   const { id } = useParams();
@@ -38,6 +42,7 @@ export default function IbuDetail() {
   const [kehamilan, setKehamilan] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [printLoading, setPrintLoading] = useState(false);
 
   const [checkingT1, setCheckingT1] = useState(false);
   const [checkingT3, setCheckingT3] = useState(false);
@@ -126,6 +131,52 @@ export default function IbuDetail() {
     }
   };
 
+  const handlePrintReport = async () => {
+    setPrintLoading(true);
+    try {
+      Swal.fire({
+        title: "Sedang mempersiapkan laporan...",
+        html: "Mengumpulkan data dari server. Mohon tunggu...",
+        didOpen: () => {
+          Swal.showLoading();
+        },
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+      });
+
+      // Fetch all report data
+      const laporanData = await getLaporanLengkapByIbuId(parseInt(id), kehamilan?.kehamilan_id || kehamilan?.id);
+
+      Swal.fire({
+        title: "Sedang membuat PDF...",
+        html: "Menggenerate file PDF. Mohon tunggu...",
+        didOpen: () => {
+          Swal.showLoading();
+        },
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+      });
+
+      // Generate PDF
+      await generatePDFLaporanIbu(laporanData, `Laporan_${ibu?.kependudukan?.nama_lengkap?.replace(/\s/g, "_")}`);
+
+      Swal.fire({
+        icon: "success",
+        title: "Berhasil!",
+        text: "Laporan telah diunduh dengan sukses.",
+      });
+    } catch (error) {
+      console.error("Error generating report:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Gagal Membuat Laporan",
+        text: error.message || "Terjadi kesalahan saat membuat laporan PDF.",
+      });
+    } finally {
+      setPrintLoading(false);
+    }
+  };
+
   if (loading)
     return (
       <MainLayout>
@@ -193,7 +244,7 @@ export default function IbuDetail() {
               <span>Kembali</span>
             </Link>
 
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 items-center justify-end">
               <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-xl shadow-sm text-xs md:text-sm border border-gray-100">
                 <Calendar size={16} className="text-[#0F6E56]" />
                 <span className="text-gray-700">HPHT: <span className="font-semibold">{formatDate(kehamilan.hpht)}</span></span>
@@ -206,6 +257,15 @@ export default function IbuDetail() {
                 <Baby size={16} className="text-[#085041]" />
                 <span className="text-[#085041] font-semibold">Usia: {usiaKehamilan}</span>
               </div>
+              <button
+                onClick={handlePrintReport}
+                disabled={printLoading}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[#3B6D11] text-[#3B6D11] text-sm font-semibold hover:bg-[#3B6D11]/5 transition disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                title="Cetak laporan ibu hamil"
+              >
+                <Printer size={16} />
+                <span>Cetak</span>
+              </button>
             </div>
           </div>
 
