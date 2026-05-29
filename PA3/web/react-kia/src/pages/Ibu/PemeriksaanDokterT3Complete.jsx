@@ -575,7 +575,6 @@ export default function PemeriksaanDokterT3Complete() {
         biometri_efwtbj_minggu: form.biometri_efwtbj_minggu ? parseInt(form.biometri_efwtbj_minggu) : null,
         usg_kecurigaan_temuan_abnormal: form.usg_kecurigaan_temuan_abnormal,
         usg_keterangan_temuan_abnormal: form.usg_keterangan_temuan_abnormal,
-        gambar_usg: imageBase64,
         // Skrining jiwa di tabel dokter T3
         tanggal_skrining_jiwa: form.tanggal_skrining_jiwa,
         skrining_jiwa_hasil: form.skrining_jiwa_hasil,

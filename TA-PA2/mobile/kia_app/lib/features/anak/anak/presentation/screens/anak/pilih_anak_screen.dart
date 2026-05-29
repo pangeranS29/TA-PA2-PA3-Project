@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 
 import 'package:ta_pa2_pa3_project/features/anak/anak/data/services/ibu_api_service.dart';
 import 'package:ta_pa2_pa3_project/features/anak/anak/data/models/ibu_anak_model.dart';
+import 'package:ta_pa2_pa3_project/features/anak/anak/data/models/anak_search_model.dart';
 import 'package:ta_pa2_pa3_project/features/anak/imunisasi/presentation/screens/imunisasi_screen.dart';
 // import 'package:ta_pa2_pa3_project/features/anak/mpasi/presentation/screens/halaman_utama_mpasi.dart';
 import 'package:ta_pa2_pa3_project/features/anak/pemantauan/presentation/screens/menu_pemantauan_screen.dart';
-import 'package:ta_pa2_pa3_project/features/anak/pertumbuhan/presentation/screens/detail_pertumbuhan_dummy_screen.dart';
+import 'package:ta_pa2_pa3_project/features/anak/pertumbuhan/presentation/screens/detail_pertumbuhan_screen.dart';
 import 'package:ta_pa2_pa3_project/features/anak/pemantauan/presentation/screens/skrining/pemantauan_menu_screen.dart';
 
 // Import CatatanMenuScreen (Sesuaikan path-nya jika berbeda)
@@ -189,13 +190,13 @@ class _PilihAnakScreenState extends State<PilihAnakScreen> {
                     builder: (_) => PemantauanMenuScreen(anak: anakMap),
                   ),
                 );
-              // } else if (widget.tujuan == 'mpasi') {
-              //   Navigator.push(
-              //     context,
-              //     MaterialPageRoute(
-              //       builder: (_) => HalamanUtamaMpasiScreen(anak: anakMap),
-              //     ),
-              //   );
+                // } else if (widget.tujuan == 'mpasi') {
+                //   Navigator.push(
+                //     context,
+                //     MaterialPageRoute(
+                //       builder: (_) => HalamanUtamaMpasiScreen(anak: anakMap),
+                //     ),
+                //   );
               } else if (widget.tujuan == 'pemantauan') {
                 Navigator.push(
                   context,
@@ -203,7 +204,7 @@ class _PilihAnakScreenState extends State<PilihAnakScreen> {
                     builder: (_) => MenuPemantauanScreen(anak: anakMap),
                   ),
                 );
-              } 
+              }
               // --- TAMBAHAN KONDISI UNTUK CATATAN ---
               else if (widget.tujuan == 'catatan') {
                 Navigator.push(
@@ -212,19 +213,31 @@ class _PilihAnakScreenState extends State<PilihAnakScreen> {
                     builder: (_) => CatatanMenuScreen(
                       // Pastikan model anak memiliki properti id dan nama
                       // Kita gunakan tryParse untuk memastikan tipenya int
-                      anakId: int.tryParse(anak.id.toString()) ?? 0, 
+                      anakId: int.tryParse(anak.id.toString()) ?? 0,
                       anakName: anak.nama,
                     ),
                   ),
                 );
-              } 
-              // --------------------------------------
+              }
+              // --- DEFAULT: Navigasi ke DetailPertumbuhanScreen (tujuan == 'pertumbuhan') ---
               else {
+                // Convert IbuAnakModel ke AnakSearchModel
+                final anakSearchModel = AnakSearchModel(
+                  id: anak.id,
+                  noKartuKeluarga:
+                      0, // Default jika tidak tersedia di IbuAnakModel
+                  namaAnak: anak.nama,
+                  jenisKelamin: anak.jenisKelamin,
+                  tanggalLahir: anak.tanggalLahir,
+                  beratLahir: 0, // Default jika tidak tersedia
+                  tinggiLahir: 0, // Default jika tidak tersedia
+                );
+
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => DetailPertumbuhanScreenDummy(
-                      anak: anakMap,
+                    builder: (_) => DetailPertumbuhanScreen(
+                      anak: anakSearchModel,
                     ),
                   ),
                 );

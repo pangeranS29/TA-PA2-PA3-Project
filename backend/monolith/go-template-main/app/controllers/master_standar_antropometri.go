@@ -1,40 +1,41 @@
 package controllers
 
-// import (
-// 	"monitoring-service/app/constants"
-// 	"monitoring-service/app/helpers"
-// 	"monitoring-service/app/models"
-// 	"monitoring-service/pkg/customerror"
-// 	"net/http"
+import (
+	"net/http"
 
-// 	"github.com/labstack/echo/v4"
-// )
+	"monitoring-service/app/constants"
+	"monitoring-service/app/helpers"
+	"monitoring-service/app/models"
+	"monitoring-service/pkg/customerror"
 
-// // GET
-// func (m *Main) GetMasterStandar(c echo.Context) error {
-// 	parameter := c.QueryParam("parameter")
-// 	jenisKelamin := c.QueryParam("jenis_kelamin")
+	"github.com/labstack/echo/v4"
+)
 
-// 	data, err := m.usecases.GetMasterStandar(parameter, jenisKelamin)
-// 	if err != nil {
-// 		return helpers.Response(c, customerror.GetStatusCode(err), []string{err.Error()})
-// 	}
+// GET
+func (m *Main) GetMasterStandar(c echo.Context) error {
+	parameter := c.QueryParam("parameter")
+	jenisKelamin := c.QueryParam("jenis_kelamin")
 
-// 	return helpers.StandardResponse(c, http.StatusOK, []string{constants.SUCCESS_RESPONSE_MESSAGE}, data, nil)
-// }
+	data, err := m.usecases.GetMasterStandar(parameter, jenisKelamin)
+	if err != nil {
+		return helpers.Response(c, customerror.GetStatusCode(err), []string{err.Error()})
+	}
 
-// // CREATE
-// func (m *Main) CreateMasterStandar(c echo.Context) error {
-// 	var req models.CreateMasterStandarRequest
-// 	if err := c.Bind(&req); err != nil {
-// 		return helpers.Response(c, http.StatusBadRequest, []string{"format request tidak valid"})
-// 	}
+	return helpers.StandardResponse(c, http.StatusOK, []string{constants.SUCCESS_RESPONSE_MESSAGE}, data, nil)
+}
 
-// 	if err := m.usecases.CreateMasterStandar(&req); err != nil {
-// 		return helpers.Response(c, customerror.GetStatusCode(err), []string{err.Error()})
-// 	}
+// CREATE
+func (m *Main) CreateMasterStandar(c echo.Context) error {
+	var req models.CreateMasterStandarRequest
+	if err := c.Bind(&req); err != nil {
+		return helpers.Response(c, http.StatusBadRequest, []string{"format request tidak valid"})
+	}
 
-// 	return helpers.StandardResponse(c, http.StatusCreated, []string{constants.SUCCESS_RESPONSE_MESSAGE}, map[string]string{
-// 		"message": "master standar antropometri berhasil ditambahkan",
-// 	}, nil)
-// }
+	if err := m.usecases.CreateMasterStandar(&req); err != nil {
+		return helpers.Response(c, customerror.GetStatusCode(err), []string{err.Error()})
+	}
+
+	return helpers.StandardResponse(c, http.StatusCreated, []string{constants.SUCCESS_RESPONSE_MESSAGE}, map[string]string{
+		"message": "master standar antropometri berhasil ditambahkan",
+	}, nil)
+}
