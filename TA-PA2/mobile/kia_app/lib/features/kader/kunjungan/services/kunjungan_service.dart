@@ -218,6 +218,122 @@ class KunjunganImunisasiService {
     }
   }
 
+  Future<List<StatusKunjunganCountModel>> getJumlahKunjunganByStatus() async {
+    final uri = Uri.parse(
+      '${ApiConstants.baseUrl}/kader/status-kunjungan/count',
+    );
+
+    try {
+      final response = await _client.get(
+        uri,
+        headers: _headers,
+      );
+
+      if (response.statusCode == 404) {
+        return [];
+      }
+
+      final body = jsonDecode(
+        response.body,
+      ) as Map<String, dynamic>;
+
+      if (response.statusCode < 200 || response.statusCode >= 300) {
+        final msg = body['message'];
+
+        final errorText = (msg is List)
+            ? msg.join(', ')
+            : (msg ?? 'Gagal mengambil jumlah kunjungan berdasarkan status');
+
+        throw Exception(
+          errorText,
+        );
+      }
+
+      final data = body['data'];
+
+      if (data is List) {
+        return data.map((
+          item,
+        ) {
+          final itemMap = Map<String, dynamic>.from(
+            item as Map,
+          );
+
+          return StatusKunjunganCountModel.fromJson(
+            itemMap,
+          );
+        }).toList();
+      }
+
+      return [];
+    } catch (e) {
+      debugPrint(
+        'Error getJumlahKunjunganByStatus: $e',
+      );
+
+      rethrow;
+    }
+  }
+
+  Future<List<KunjunganImunisasiModel>> getKunjunganImunisasiByStatus(
+    int statusId,
+  ) async {
+    final uri = Uri.parse(
+      '${ApiConstants.baseUrl}/kader/kunjungan-imunisasi/status/$statusId',
+    );
+
+    try {
+      final response = await _client.get(
+        uri,
+        headers: _headers,
+      );
+
+      if (response.statusCode == 404) {
+        return [];
+      }
+
+      final body = jsonDecode(
+        response.body,
+      ) as Map<String, dynamic>;
+
+      if (response.statusCode < 200 || response.statusCode >= 300) {
+        final msg = body['message'];
+
+        final errorText = (msg is List)
+            ? msg.join(', ')
+            : (msg ?? 'Gagal mengambil kunjungan berdasarkan status');
+
+        throw Exception(
+          errorText,
+        );
+      }
+
+      final data = body['data'];
+
+      if (data is List) {
+        return data.map((
+          item,
+        ) {
+          final itemMap = Map<String, dynamic>.from(
+            item as Map,
+          );
+
+          return KunjunganImunisasiModel.fromJson(
+            itemMap,
+          );
+        }).toList();
+      }
+
+      return [];
+    } catch (e) {
+      debugPrint(
+        'Error getKunjunganImunisasiByStatus: $e',
+      );
+
+      rethrow;
+    }
+  }
+
   void dispose() {
     _client.close();
   }

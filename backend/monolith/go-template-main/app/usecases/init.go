@@ -1,5 +1,7 @@
 package usecases
 
+
+//AbsensiKelasIbuBalita//
 import (
 	"monitoring-service/app/repositories"
 	"monitoring-service/pkg/config"
@@ -80,6 +82,7 @@ type Main struct {
 	PersiapanMelahirkan         PersiapanMelahirkanUsecase
 	ProsesMelahirkan            ProsesMelahirkanUsecase
 	AbsensiKelasIbuHamil        AbsensiKelasIbuHamilUsecase
+	AbsensiKelasIbuBalita       AbsensiKelasIbuBalitaUsecase
 	ChecklistPemantauanIbuNifas *ChecklistPemantauanIbuNifasUsecase
 	WarnaTinja                  WarnaTinjaUsecase
 	EdukasiIMD                  EdukasiIMDUsecase
@@ -259,6 +262,7 @@ func Init(opts Options) *Main {
 	m.PersiapanMelahirkan = NewPersiapanMelahirkanUsecase(opts.Repository.PersiapanMelahirkan)
 	m.ProsesMelahirkan = NewProsesMelahirkanUsecase(opts.Repository.ProsesMelahirkan)
 	m.AbsensiKelasIbuHamil = NewAbsensiKelasIbuHamilUsecase(opts.Repository.AbsensiKelasIbuHamil)
+	m.AbsensiKelasIbuBalita = NewAbsensiKelasIbuBalitaUsecase(opts.Repository.AbsensiKelasIbuBalita)
 	m.ChecklistPemantauanIbuNifas = NewChecklistPemantauanIbuNifasUsecase(
 		opts.Repository.ChecklistPemantauanIbuNifas,
 		opts.Repository.Kehamilan,
