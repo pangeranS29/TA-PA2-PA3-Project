@@ -49,7 +49,6 @@ const Sidebar = () => {
     monitoring: pathname.startsWith("/monitoring") || pathname.startsWith("/pemantauan"),
     edukasiDigital: pathname.startsWith("/edukasi-digital"),
     kesehatanLingkungan: pathname.startsWith("/pencatatan/kesehatan-lingkungan"),
-    bidanKaderManagement: pathname.startsWith("/manajemen-posyandu") || pathname.startsWith("/manajemen-bidan") || pathname.startsWith("/manajemen-kader"),
     mpasi: pathname.startsWith("/edukasi-digital/mpasi"),
   });
 
@@ -69,17 +68,6 @@ const Sidebar = () => {
     { path: "/daftar-anak", name: "Data Anak", icon: Baby },
     // { path: "/kependudukan", name: "Manajemen KK", icon: UserCheck },
     // { path: "/monitoring", name: "Monitoring", icon: Activity },
-    {
-      name: "Manajemen Bidan & Kader",
-      icon: BriefcaseMedical,
-      isDropdown: true,
-      dropdownKey: "bidanKaderManagement",
-      children: [
-        { path: "/manajemen-posyandu", name: "Kelola Posyandu", icon: TableProperties },
-        { path: "/manajemen-bidan", name: "Kelola Bidan", icon: UserCheck },
-        { path: "/manajemen-kader", name: "Kelola Kader", icon: UserPlus },
-      ],
-    },
     {
       name: "Kesehatan Lingkungan",
       icon: ClipboardList,
