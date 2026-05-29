@@ -175,17 +175,17 @@ export const generatePDFLaporanIbu = async (laporanData, fileName = "Laporan_Ibu
     addTitle("DATA KESEHATAN IBU HAMIL", 14);
 
     if (Array.isArray(evaluasiKesehatan)) {
-      const eval = evaluasiKesehatan[0];
-      if (eval) {
-        addContent("Tekanan Darah", eval?.tekanan_darah);
-        addContent("Berat Badan", `${eval?.berat_badan} kg`);
-        addContent("Tinggi Badan", `${eval?.tinggi_badan} cm`);
-        addContent("LILA", `${eval?.lila} cm`);
-        addContent("Hemoglobin", `${eval?.hemoglobin} g/dL`);
-        addContent("Riwayat Penyakit", eval?.riwayat_penyakit);
-        addContent("Alergi", eval?.alergi);
-        addContent("Status Risiko", eval?.status_risiko);
-        addContent("Catatan Kesehatan", eval?.catatan);
+      const evalData = evaluasiKesehatan[0];
+      if (evalData) {
+        addContent("Tekanan Darah", evalData?.tekanan_darah);
+        addContent("Berat Badan", `${evalData?.berat_badan} kg`);
+        addContent("Tinggi Badan", `${evalData?.tinggi_badan} cm`);
+        addContent("LILA", `${evalData?.lila} cm`);
+        addContent("Hemoglobin", `${evalData?.hemoglobin} g/dL`);
+        addContent("Riwayat Penyakit", evalData?.riwayat_penyakit);
+        addContent("Alergi", evalData?.alergi);
+        addContent("Status Risiko", evalData?.status_risiko);
+        addContent("Catatan Kesehatan", evalData?.catatan);
       }
     } else if (evaluasiKesehatan) {
       addContent("Tekanan Darah", evaluasiKesehatan?.tekanan_darah);
