@@ -1745,7 +1745,7 @@ import 'package:ta_pa2_pa3_project/features/ibu/nifas/presentation/screens/ringk
 import 'package:ta_pa2_pa3_project/features/ibu/nifas/presentation/screens/pelayanan_ibu_nifas_screen.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/nifas/presentation/screens/catatan_pelayanan_nifas_screen.dart';
 import 'package:ta_pa2_pa3_project/features/profil/presentation/screens/profil_screen.dart';
-
+import 'package:ta_pa2_pa3_project/features/absensi/presentation/screens/absensi_pilihan_screen.dart';
 // MODUL IMUNISASI
 import 'package:ta_pa2_pa3_project/features/ibu/imunisasi/data/services/imunisasi_service.dart';
 
@@ -1968,7 +1968,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     if (_selectedNavIndex == 0) {
       body = _buildHomeBody();
     } else if (_selectedNavIndex == 1) {
-      body = const AbsensiKelasIbuHamilScreen();
+      body = const AbsensiPilihanScreen();
       // body = const Center(
       //   child: Padding(
       //     padding: EdgeInsets.all(20),

@@ -139,3 +139,40 @@ func (m *Main) UpdateTanggalKunjungan(
 		)
 }
 
+
+func (m *Main) GetKunjunganImunisasiByStatus(
+	statusID uint,
+) (
+	[]models.KunjunganImunisasiResponse,
+	error,
+) {
+
+	rows, err :=
+		m.repository.
+			GetKunjunganImunisasiByStatus(
+				statusID,
+			)
+
+	if err != nil {
+		return nil, err
+	}
+
+	response :=
+		[]models.KunjunganImunisasiResponse{}
+
+	for _, row := range rows {
+
+		response =
+			append(
+				response,
+				models.KunjunganImunisasiResponse{
+					KunjunganID:      row.KunjunganID,
+					TanggalKunjungan: row.TanggalKunjungan,
+					StatusKunjungan:  row.StatusKunjungan,
+					NamaAnak:         row.NamaAnak,
+				},
+			)
+	}
+
+	return response, nil
+}

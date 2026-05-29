@@ -127,6 +127,49 @@ class LembarPemantauanApiService {
         .toList();
   }
 
+  Future<List<LembarPemantauanModel>> getSemuaPemantauan() async {
+    final uri = Uri.parse(
+      '${ApiConstants.baseUrl}/tenaga-kesehatan/lembar-pemantauan',
+    );
+
+    final response = await _client.get(uri, headers: _headers());
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw Exception(_extractErrorMessage(response.body, response.statusCode));
+    }
+
+    final decoded = jsonDecode(response.body) as Map<String, dynamic>;
+    final rawData = decoded['data'];
+    if (rawData is! List) return const [];
+
+    return rawData
+        .whereType<Map<String, dynamic>>()
+        .map(LembarPemantauanModel.fromJson)
+        .toList();
+  }
+
+  Future<void> verifyLembarPemantauan({
+    required int id,
+    required String status,
+    required String namaPemeriksa,
+  }) async {
+    final uri = Uri.parse(
+      '${ApiConstants.baseUrl}/tenaga-kesehatan/lembar-pemantauan/$id/verifikasi',
+    );
+
+    final response = await _client.patch(
+      uri,
+      headers: _headers(),
+      body: jsonEncode({
+        'status': status,
+        'nama_pemeriksa': namaPemeriksa,
+      }),
+    );
+
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw Exception(_extractErrorMessage(response.body, response.statusCode));
+    }
+  }
+
   void dispose() {
     _client.close();
   }

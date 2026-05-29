@@ -1,5 +1,7 @@
 package repositories
 
+
+//AbsensiKelasIbuBalita//
 import (
 	"monitoring-service/pkg/config"
 
@@ -74,7 +76,8 @@ type Main struct {
 	PemantauanIbuHamil   *PemantauanIbuHamilRepository
 	PersiapanMelahirkan  *PersiapanMelahirkanRepository
 	ProsesMelahirkan     *ProsesMelahirkanRepository
-	AbsensiKelasIbuHamil *AbsensiKelasIbuHamilRepository
+	AbsensiKelasIbuHamil  *AbsensiKelasIbuHamilRepository
+	AbsensiKelasIbuBalita *AbsensiKelasIbuBalitaRepository
 	WarnaTinja           WarnaTinjaRepository
 	EdukasiIMD           EdukasiIMDRepository
 	EdukasiMenyusuiASI   EdukasiMenyusuiASIRepository
@@ -214,6 +217,7 @@ func Init(opts Options) *Main {
 	m.PersiapanMelahirkan = NewPersiapanMelahirkanRepository(opts.Postgres)
 	m.ProsesMelahirkan = NewProsesMelahirkanRepository(opts.Postgres)
 	m.AbsensiKelasIbuHamil = NewAbsensiKelasIbuHamilRepository(opts.Postgres)
+	m.AbsensiKelasIbuBalita = NewAbsensiKelasIbuBalitaRepository(opts.Postgres)
 	m.WarnaTinja = NewWarnaTinjaRepository(opts.Postgres)
 
 	m.EdukasiIMD = NewEdukasiIMDRepository(opts.Postgres)

@@ -8,3 +8,9 @@ type StatusKunjungan struct {
 func (StatusKunjungan) TableName() string {
 	return "status_kunjungan"
 }
+
+type StatusKunjunganCountResponse struct {
+	StatusID        uint   `json:"status_id"`
+	StatusKunjungan string `json:"status_kunjungan"`
+	JumlahKunjungan int64  `json:"jumlah_kunjungan"`
+}

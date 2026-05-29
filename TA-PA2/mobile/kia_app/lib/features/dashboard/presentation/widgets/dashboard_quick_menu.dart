@@ -78,6 +78,7 @@ class DashboardTumbuhQuickMenu extends StatelessWidget {
     final screenWidth = MediaQuery.of(context).size.width;
     // Menggunakan (screenWidth - margin horizontal (40) - 2 * spacing (24)) / 3
     final itemWidth = (screenWidth - 40 - 24) / 3;
+    final itemHeight = itemWidth * 1.15;
 
     return Wrap(
       alignment: WrapAlignment.center,
@@ -86,7 +87,7 @@ class DashboardTumbuhQuickMenu extends StatelessWidget {
       children: items.map((item) {
         return SizedBox(
           width: itemWidth,
-          height: itemWidth, // asumsikan tinggi sama dengan lebar seperti di GridView
+          height: itemHeight,
           child: InkWell(
             onTap: item['onTap'] as VoidCallback? ?? () {},
             borderRadius: BorderRadius.circular(16),
@@ -112,6 +113,19 @@ class DashboardTumbuhQuickMenu extends StatelessWidget {
                     style: const TextStyle(fontSize: 12),
                     textAlign: TextAlign.center,
                   ),
+                  if (item['desc'] != null) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      item['desc'] as String,
+                      style: const TextStyle(
+                        fontSize: 10,
+                        color: Colors.black54,
+                      ),
+                      textAlign: TextAlign.center,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
                 ],
               ),
             ),

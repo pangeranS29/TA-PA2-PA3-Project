@@ -365,13 +365,15 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	tenaga.DELETE("/perawatan/:id", controller.DeletePerawatan)
 
 	// ==================== LEMBAR PEMANTAUAN ANAK ====================
-	tenaga.GET("/lembar-pemantauan", controller.LembarPemantauan.GetByAnakID)
-	tenaga.GET("/lembar-pemantauan/:id", controller.LembarPemantauan.GetByID)
-	tenaga.POST("/lembar-pemantauan", controller.LembarPemantauan.Create)
-	tenaga.PUT("/lembar-pemantauan/:id", controller.LembarPemantauan.Update)
-	tenaga.DELETE("/lembar-pemantauan/:id", controller.LembarPemantauan.Delete)
-	// TAMBAHAN: Endpoint untuk verifikasi oleh nakes
-	tenaga.PATCH("/lembar-pemantauan/:id/verifikasi", controller.LembarPemantauan.Verify)
+	pemantauanLembar := e.Group("/tenaga-kesehatan")
+	pemantauanLembar.Use(middlewares.JWTAuth(controller.JWTSecret()))
+	pemantauanLembar.Use(middlewares.PemantauanLembarAccess())
+	pemantauanLembar.GET("/lembar-pemantauan", controller.LembarPemantauan.GetByAnakID)
+	pemantauanLembar.GET("/lembar-pemantauan/:id", controller.LembarPemantauan.GetByID)
+	pemantauanLembar.POST("/lembar-pemantauan", controller.LembarPemantauan.Create)
+	pemantauanLembar.PUT("/lembar-pemantauan/:id", controller.LembarPemantauan.Update)
+	pemantauanLembar.DELETE("/lembar-pemantauan/:id", controller.LembarPemantauan.Delete)
+	pemantauanLembar.PATCH("/lembar-pemantauan/:id/verifikasi", controller.LembarPemantauan.Verify)
 
 	// ==================== MODUL IBU & KEHAMILAN ====================
 	tenaga.POST("/ibu", controller.Ibu.Create)
@@ -686,6 +688,10 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	ibuk.GET("/absensi-kelas-ibu-hamil/me", controller.AbsensiKelasIbuHamil.GetMine)
 	ibuk.POST("/absensi-kelas-ibu-hamil", controller.AbsensiKelasIbuHamil.SaveMine)
 
+	// Absensi Kelas Ibu Balita
+	ibuk.GET("/absensi-kelas-ibu-balita/me", controller.AbsensiKelasIbuBalita.GetMine)
+	ibuk.POST("/absensi-kelas-ibu-balita", controller.AbsensiKelasIbuBalita.SaveMine)
+
 	// Checklist Pemantauan Ibu Nifas
 	ibuk.GET("/checklist-pemantauan-ibu-nifas/me", controller.ChecklistPemantauanIbuNifas.GetMine)
 	ibuk.POST("/checklist-pemantauan-ibu-nifas", controller.ChecklistPemantauanIbuNifas.SaveMine)
@@ -759,7 +765,8 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	kader.GET("/kunjungan-imunisasi/:id", controller.GetKunjunganImunisasiByID)
 	kader.PUT("/kunjungan-imunisasi/:id/status", controller.UpdateStatusKunjungan)
 	kader.PUT("/kunjungan-imunisasi/:id/tanggal-kunjungan", controller.UpdateTanggalKunjungan)
-	// kader.POST("/kunjungan-imunisasi",controller.CreateJadwalKunjunganImunisasi)
+	kader.GET("/kunjungan-imunisasi/status/:status_id", controller.GetKunjunganImunisasiByStatus)
+	kader.GET("/status-kunjungan/count", controller.GetJumlahKunjunganByStatus)
 
 	// ==================== KELUHAN ANAK ====================
 	ibu.GET("/keluhan-anak", controller.KeluhanAnak.GetByAnakIDForIbu)

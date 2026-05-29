@@ -135,121 +135,123 @@ class _PilihAnakScreenState extends State<PilihAnakScreen> {
   Widget _buildItem(BuildContext context, IbuAnakModel anak) {
     final anakMap = anak.toChildMap();
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xFFE8F1FF),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.blue.shade200),
+        onTap: () => _openTujuan(context, anak, anakMap),
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 16),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: const Color(0xFFE8F1FF),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: Colors.blue.shade200),
+          ),
+          child: Row(
+            children: [
+              CircleAvatar(
+                backgroundColor: Colors.blue.shade100,
+                child: const Icon(Icons.person, color: Colors.blue),
+              ),
+              const SizedBox(width: 12),
+
+              // TEXT
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      anak.nama,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.blue,
+                      ),
+                    ),
+                    Text(
+                      anak.usiaTeks.isEmpty
+                          ? 'Siap untuk pemantauan anak'
+                          : anak.usiaTeks,
+                      style: const TextStyle(fontSize: 12),
+                    ),
+                  ],
+                ),
+              ),
+
+              // ICON KANAN
+              const CircleAvatar(
+                radius: 14,
+                backgroundColor: Colors.blue,
+                child: Icon(Icons.arrow_forward, size: 14, color: Colors.white),
+              ),
+            ],
+          ),
+        ),
       ),
-      child: Row(
-        children: [
-          CircleAvatar(
-            backgroundColor: Colors.blue.shade100,
-            child: const Icon(Icons.person, color: Colors.blue),
-          ),
-          const SizedBox(width: 12),
+    );
+  }
 
-          // TEXT
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  anak.nama,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.blue,
-                  ),
-                ),
-                Text(
-                  anak.usiaTeks.isEmpty
-                      ? 'Siap untuk pemantauan anak'
-                      : anak.usiaTeks,
-                  style: const TextStyle(fontSize: 12),
-                ),
-              ],
-            ),
+  void _openTujuan(
+    BuildContext context,
+    IbuAnakModel anak,
+    Map<String, dynamic> anakMap,
+  ) {
+    if (widget.tujuan == 'imunisasi') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => ImunisasiScreen(anak: anakMap),
+        ),
+      );
+      return;
+    }
+    if (widget.tujuan == 'bahaya') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => PemantauanMenuScreen(anak: anakMap),
+        ),
+      );
+      return;
+    }
+    if (widget.tujuan == 'pemantauan') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => MenuPemantauanScreen(anak: anakMap),
+        ),
+      );
+      return;
+    }
+    if (widget.tujuan == 'catatan') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => CatatanMenuScreen(
+            anakId: int.tryParse(anak.id.toString()) ?? 0,
+            anakName: anak.nama,
           ),
+        ),
+      );
+      return;
+    }
 
-          // ICON KANAN
-          InkWell(
-            onTap: () {
-              if (widget.tujuan == 'imunisasi') {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => ImunisasiScreen(anak: anakMap),
-                  ),
-                );
-              } else if (widget.tujuan == 'bahaya') {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => PemantauanMenuScreen(anak: anakMap),
-                  ),
-                );
-                // } else if (widget.tujuan == 'mpasi') {
-                //   Navigator.push(
-                //     context,
-                //     MaterialPageRoute(
-                //       builder: (_) => HalamanUtamaMpasiScreen(anak: anakMap),
-                //     ),
-                //   );
-              } else if (widget.tujuan == 'pemantauan') {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => MenuPemantauanScreen(anak: anakMap),
-                  ),
-                );
-              }
-              // --- TAMBAHAN KONDISI UNTUK CATATAN ---
-              else if (widget.tujuan == 'catatan') {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => CatatanMenuScreen(
-                      // Pastikan model anak memiliki properti id dan nama
-                      // Kita gunakan tryParse untuk memastikan tipenya int
-                      anakId: int.tryParse(anak.id.toString()) ?? 0,
-                      anakName: anak.nama,
-                    ),
-                  ),
-                );
-              }
-              // --- DEFAULT: Navigasi ke DetailPertumbuhanScreen (tujuan == 'pertumbuhan') ---
-              else {
-                // Convert IbuAnakModel ke AnakSearchModel
-                final anakSearchModel = AnakSearchModel(
-                  id: anak.id,
-                  noKartuKeluarga:
-                      0, // Default jika tidak tersedia di IbuAnakModel
-                  namaAnak: anak.nama,
-                  jenisKelamin: anak.jenisKelamin,
-                  tanggalLahir: anak.tanggalLahir,
-                  beratLahir: 0, // Default jika tidak tersedia
-                  tinggiLahir: 0, // Default jika tidak tersedia
-                );
+    final anakSearchModel = AnakSearchModel(
+      id: anak.id,
+      noKartuKeluarga: 0,
+      namaAnak: anak.nama,
+      jenisKelamin: anak.jenisKelamin,
+      tanggalLahir: anak.tanggalLahir,
+      beratLahir: 0,
+      tinggiLahir: 0,
+    );
 
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => DetailPertumbuhanScreen(
-                      anak: anakSearchModel,
-                    ),
-                  ),
-                );
-              }
-            },
-            child: const CircleAvatar(
-              radius: 14,
-              backgroundColor: Colors.blue,
-              child: Icon(Icons.arrow_forward, size: 14, color: Colors.white),
-            ),
-          ),
-        ],
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => DetailPertumbuhanScreen(
+          anak: anakSearchModel,
+        ),
       ),
     );
   }
