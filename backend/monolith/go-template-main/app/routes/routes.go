@@ -96,7 +96,8 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 
 	masterStandar := e.Group("/master-standar")
 	masterStandar.Use(middlewares.JWTAuth(controller.JWTSecret()))
-	_ = masterStandar
+	masterStandar.GET("", controller.GetMasterStandar)
+	masterStandar.POST("", controller.CreateMasterStandar)
 
 	// Kategori Capaian Routes
 	// kategoriCapaian := e.Group("/kategori-capaian")
@@ -139,11 +140,11 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	// ==================== MODUL ANAK & PELAYANAN ANAK (yang sudah ada) ====================
 
 	tenaga.GET("/anak", controller.Anak.AdminList)
-	tenaga.POST("/anak", controller.Anak.Create)
+	tenaga.POST("/anak", controller.Anak.Create, middlewares.BidanOnly())
 	// tenaga.POST("/anak/dengan-penduduk", controller.Anak.CreateDenganPenduduk)
 	tenaga.GET("/anak/:id", controller.Anak.Detail)
-	tenaga.PUT("/anak/:id", controller.Anak.Update)
-	tenaga.DELETE("/anak/:id", controller.Anak.Delete)
+	tenaga.PUT("/anak/:id", controller.Anak.Update, middlewares.BidanOnly())
+	tenaga.DELETE("/anak/:id", controller.Anak.Delete, middlewares.BidanOnly())
 
 	tenaga.GET("/pelayanan-kesehatan-anak", controller.PelayananKesehatanAnak.GetByAnakID)
 	tenaga.GET("/pelayanan-kesehatan-anak/:id", controller.PelayananKesehatanAnak.GetByID)
@@ -731,6 +732,10 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 
 	ibu.GET("/warna-tinja", controller.WarnaTinja.GetByAnakIDForIbu)
 	ibu.POST("/warna-tinja", controller.WarnaTinja.SaveForIbu)
+
+	// ==================== PERTUMBUHAN ANAK (IBU) ====================
+	ibu.GET("/pertumbuhan/anak/:anak_id", controller.GetRiwayatPertumbuhan)
+	ibu.GET("/pertumbuhan/chart/:anak_id", controller.GetPertumbuhanChart)
 
 	ibu.GET("/pemeriksaan-gigi", controller.PemeriksaanGigi.GetByAnakIDForIbu)
 	ibu.GET("/pengukuran-lila", controller.PengukuranLilA.GetByAnakIDForIbu)

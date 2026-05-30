@@ -52,28 +52,48 @@ class ApiConstants {
       '/modul-ibu/checklist-pemantauan-ibu-nifas/filled-days';
   static const String checklistNifasSave =
       '/modul-ibu/checklist-pemantauan-ibu-nifas';
-  static const String checklistNifasMe = '/modul-ibu/checklist-pemantauan-ibu-nifas/me';
-  static const String grafikEvaluasiKehamilanV2 = '/modul-ibu/grafik-evaluasi-kehamilan/v2';
-  static const String grafikPeningkatanBBV2 = '/modul-ibu/grafik-peningkatan-bb/v2';
+  static const String checklistNifasMe =
+      '/modul-ibu/checklist-pemantauan-ibu-nifas/me';
+  static const String grafikEvaluasiKehamilanV2 =
+      '/modul-ibu/grafik-evaluasi-kehamilan/v2';
+  static const String grafikPeningkatanBBV2 =
+      '/modul-ibu/grafik-peningkatan-bb/v2';
   static const String keteranganLahir = '/modul-ibu/keterangan-lahir/me';
 
-    // Pemeriksaan Dokter - list semua kunjungan (BARU)
-  static const String pemeriksaanDokterTrimester1All = '/modul-ibu/pemeriksaan-dokter-trimester-1/all';
-  static const String pemeriksaanDokterTrimester3All = '/modul-ibu/pemeriksaan-dokter-trimester-3/all';
+  // Pemeriksaan Dokter - list semua kunjungan (BARU)
+  static const String pemeriksaanDokterTrimester1All =
+      '/modul-ibu/pemeriksaan-dokter-trimester-1/all';
+  static const String pemeriksaanDokterTrimester3All =
+      '/modul-ibu/pemeriksaan-dokter-trimester-3/all';
 
-    // Persiapan Melahirkan (checklist ibu)
-  static const String persiapanMelahirkan = '/modul-ibu/persiapan-melahirkan/me';
-  static const String savePersiapanMelahirkan = '/modul-ibu/persiapan-melahirkan';
+  // Persiapan Melahirkan (checklist ibu)
+  static const String persiapanMelahirkan =
+      '/modul-ibu/persiapan-melahirkan/me';
+  static const String savePersiapanMelahirkan =
+      '/modul-ibu/persiapan-melahirkan';
   // Checklist Proses Melahirkan (checklist pemahaman ibu)
-  static const String checklistProsesMelahirkan = '/modul-ibu/proses-melahirkan/me';
-  static const String saveChecklistProsesMelahirkan = '/modul-ibu/proses-melahirkan';
+  static const String checklistProsesMelahirkan =
+      '/modul-ibu/proses-melahirkan/me';
+  static const String saveChecklistProsesMelahirkan =
+      '/modul-ibu/proses-melahirkan';
 
-  static const String riwayatProsesMelahirkan = '/modul-ibu/riwayat-proses-melahirkan/me';
+  static const String riwayatProsesMelahirkan =
+      '/modul-ibu/riwayat-proses-melahirkan/me';
   static const String rujukanIbu = '/modul-ibu/rujukan';
-  static String get ringkasanPersalinan =>'$baseUrl/modul-ibu/ringkasan-persalinan/me';
-  static String catatanPelayananT1(int kehamilanId,) =>'$baseUrl/modul-ibu/catatan-pelayanan-t1?kehamilan_id=$kehamilanId';
-  static String catatanPelayananT2(int kehamilanId,) =>'$baseUrl/modul-ibu/catatan-pelayanan-t2?kehamilan_id=$kehamilanId';
-  static String catatanPelayananT3(int kehamilanId,) =>'$baseUrl/modul-ibu/catatan-pelayanan-t3?kehamilan_id=$kehamilanId';
+  static String get ringkasanPersalinan =>
+      '$baseUrl/modul-ibu/ringkasan-persalinan/me';
+  static String catatanPelayananT1(
+    int kehamilanId,
+  ) =>
+      '$baseUrl/modul-ibu/catatan-pelayanan-t1?kehamilan_id=$kehamilanId';
+  static String catatanPelayananT2(
+    int kehamilanId,
+  ) =>
+      '$baseUrl/modul-ibu/catatan-pelayanan-t2?kehamilan_id=$kehamilanId';
+  static String catatanPelayananT3(
+    int kehamilanId,
+  ) =>
+      '$baseUrl/modul-ibu/catatan-pelayanan-t3?kehamilan_id=$kehamilanId';
 
   /*
    *
@@ -100,7 +120,7 @@ class ApiConstants {
   // Pertumbuhan dan Standar
   static const String pertumbuhan = '/pertumbuhan';
   static String riwayatPertumbuhanByAnakId(int anakId) =>
-      '/pertumbuhan/$anakId';
+      '/ibu/pertumbuhan/anak/$anakId';
   // Informasi Umum
   static const String masterStandar = '/master-standar';
   static const String informasiUmum = '/informasi-umum';
@@ -119,14 +139,21 @@ class ApiConstants {
       '/ibu/perawatan/anak/$anakId/rentang-usia/${Uri.encodeComponent(rentangUsia)}';
   static const String ibuKeluhanAnak = '/ibu/keluhan-anak';
 
-
   // MODUL EDUKASI ==================================================
-  static String get edukasiASI =>'$baseUrl/edukasi-menyusui-asi';
-  static String get edukasiIMD =>'$baseUrl/edukasi-imd';
-  static String get edukasiKesehatanMental =>'$baseUrl/edukasi-kesehatan-mental';
-  static String get edukasiNifas =>'$baseUrl/edukasi-nifas';
-  static String get edukasiTandaMelahirkan =>'$baseUrl/edukasi-tanda-melahirkan';
+  static String get edukasiASI => '$baseUrl/edukasi-menyusui-asi';
+  static String get edukasiIMD => '$baseUrl/edukasi-imd';
+  static String get edukasiKesehatanMental =>
+      '$baseUrl/edukasi-kesehatan-mental';
+  static String get edukasiNifas => '$baseUrl/edukasi-nifas';
+  static String get edukasiTandaMelahirkan =>
+      '$baseUrl/edukasi-tanda-melahirkan';
   static String edukasiTrimester(
-  String trimester,) =>'$baseUrl/edukasi-trimester/$trimester';
-  static String edukasiTrimesterKategori(String trimester,String kategori,) =>'$baseUrl/edukasi-trimester/$trimester/$kategori';
+    String trimester,
+  ) =>
+      '$baseUrl/edukasi-trimester/$trimester';
+  static String edukasiTrimesterKategori(
+    String trimester,
+    String kategori,
+  ) =>
+      '$baseUrl/edukasi-trimester/$trimester/$kategori';
 }

@@ -811,7 +811,6 @@
 //   }
 // }
 
-
 // import 'package:flutter/material.dart';
 // import 'package:ta_pa2_pa3_project/core/themes/app_theme.dart';
 // import 'package:ta_pa2_pa3_project/features/anak/mpasi/presentation/screens/mpasi_menu_screen.dart';
@@ -1700,8 +1699,6 @@
 //   }
 // }
 
-
-
 import 'package:flutter/material.dart';
 import 'package:ta_pa2_pa3_project/core/services/auth_session.dart';
 import 'package:ta_pa2_pa3_project/core/themes/app_theme.dart';
@@ -1729,7 +1726,6 @@ import 'package:ta_pa2_pa3_project/features/ibu/nifas/presentation/screens/nifas
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/persalinan_screen.dart';
 // MODUL ANAK
 import 'package:ta_pa2_pa3_project/features/anak/anak/presentation/screens/anak/pilih_anak_screen.dart';
-import 'package:ta_pa2_pa3_project/features/anak/anak/presentation/screens/anak/input_profil_anak_screen.dart';
 // import 'package:ta_pa2_pa3_project/features/anak/anak/presentation/screens/anak/cari_anak_screen.dart';
 import 'package:ta_pa2_pa3_project/features/anak/edukasi/presentation/screens/edukasi/edukasi_screen.dart';
 import 'package:ta_pa2_pa3_project/features/anak/anak/data/models/ibu_anak_model.dart';
@@ -1777,7 +1773,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   bool _loadingImunisasi = false;
   String? _imunisasiError;
-
 
   List<dynamic> _rujukanList = [];
 
@@ -1885,25 +1880,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
   //     if (mounted) setState(() => _loadingKehamilan = false);
   //   }
   // }
-      Future<void> _loadRujukan() async {
+  Future<void> _loadRujukan() async {
     try {
+      final kehamilan = await _kehamilanService.getKehamilanAktif();
 
-      final kehamilan =
-          await _kehamilanService
-              .getKehamilanAktif();
-
-      final data =
-          await _kehamilanService
-              .getRujukanByKehamilanId(
-                kehamilan.id,
-              );
+      final data = await _kehamilanService.getRujukanByKehamilanId(
+        kehamilan.id,
+      );
 
       if (!mounted) return;
 
       setState(() {
         _rujukanList = data;
       });
-
     } catch (_) {}
   }
 
@@ -2061,77 +2050,69 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-Widget _buildNifasShortcut() {
-  return Column(
-    children: [
+  Widget _buildNifasShortcut() {
+    return Column(
+      children: [
+        DashboardMenuCard(
+          title: 'Ringkasan Pelayanan Proses Melahirkan',
+          subtitle: 'Lihat hasil pelayanan proses melahirkan',
+          icon: Icons.child_friendly_rounded,
+          iconColor: AppColors.primary,
+          onTap: () {
+            final token = AuthSession.token ?? '';
 
-      DashboardMenuCard(
-        title: 'Ringkasan Pelayanan Proses Melahirkan',
-        subtitle: 'Lihat hasil pelayanan proses melahirkan',
-        icon: Icons.child_friendly_rounded,
-        iconColor: AppColors.primary,
-        onTap: () {
-          final token = AuthSession.token ?? '';
-
-          Navigator.push(
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => RingkasanPersalinanScreen(
+                  token: token,
+                ),
+              ),
+            );
+          },
+        ),
+        const SizedBox(height: 16),
+        DashboardMenuCard(
+          title: 'Pemantauan Ibu Nifas',
+          subtitle: 'Pantau masa nifas pasca persalinan',
+          icon: Icons.person_outline,
+          iconColor: AppColors.primary,
+          onTap: () => Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (_) => RingkasanPersalinanScreen(
-                token: token,
-              ),
+              builder: (_) => const NifasScreen(),
             ),
-          );
-        },
-      ),
-
-      const SizedBox(height: 16),
-
-      DashboardMenuCard(
-        title: 'Pemantauan Ibu Nifas',
-        subtitle: 'Pantau masa nifas pasca persalinan',
-        icon: Icons.person_outline,
-        iconColor: AppColors.primary,
-        onTap: () => Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => const NifasScreen(),
           ),
         ),
-      ),
-
-      const SizedBox(height: 16),
-
-      DashboardMenuCard(
-        title: 'Pelayanan Ibu Nifas',
-        subtitle: 'Lihat catatan pelayanan ibu nifas',
-        icon: Icons.medical_services_outlined,
-        iconColor: AppColors.primary,
-        onTap: () => Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => const PelayananIbuNifasScreen(),
+        const SizedBox(height: 16),
+        DashboardMenuCard(
+          title: 'Pelayanan Ibu Nifas',
+          subtitle: 'Lihat catatan pelayanan ibu nifas',
+          icon: Icons.medical_services_outlined,
+          iconColor: AppColors.primary,
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const PelayananIbuNifasScreen(),
+            ),
           ),
         ),
-      ),
-
-      const SizedBox(height: 16),
-
-      DashboardMenuCard(
-        title: 'Catatan Pelayanan Nifas',
-        subtitle: 'Lihat catatan pemeriksaan dan saran nifas',
-        icon: Icons.note_alt_outlined,
-        iconColor: AppColors.primary,
-        onTap: () => Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => const CatatanPelayananNifasScreen(),
+        const SizedBox(height: 16),
+        DashboardMenuCard(
+          title: 'Catatan Pelayanan Nifas',
+          subtitle: 'Lihat catatan pemeriksaan dan saran nifas',
+          icon: Icons.note_alt_outlined,
+          iconColor: AppColors.primary,
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const CatatanPelayananNifasScreen(),
+            ),
           ),
         ),
-      ),
-
-    ],
-  );
-}
+      ],
+    );
+  }
 
   Widget _buildMenyusuiShortcut() {
     return DashboardMenuCard(
@@ -2157,7 +2138,7 @@ Widget _buildNifasShortcut() {
           margin: const EdgeInsets.only(bottom: 16),
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
           decoration: BoxDecoration(
-            color: const Color(0xFFEBF5FF), 
+            color: const Color(0xFFEBF5FF),
             borderRadius: BorderRadius.circular(14),
             border: Border.all(color: const Color(0xFFBFDBFE)),
           ),
@@ -2440,44 +2421,35 @@ Widget _buildNifasShortcut() {
             ),
           )
         else
-          // Tampilkan tombol request tambah jika belum ada data anak
-          GestureDetector(
-            onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (_) => const InputProfilAnakScreen())),
-            child: Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.blue.shade200),
-                borderRadius: BorderRadius.circular(16),
-                color: Colors.blue.shade50,
-              ),
-              child: const Row(
-                children: [
-                  Icon(Icons.person_add, color: Colors.blue, size: 28),
-                  SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Request Tambah Profil Anak',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w600, fontSize: 14)),
-                        SizedBox(height: 4),
-                        Text('Mulai pantau tumbuh kembang si kecil',
-                            style:
-                                TextStyle(fontSize: 12, color: Colors.black54)),
-                      ],
-                    ),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.orange.shade200),
+              borderRadius: BorderRadius.circular(16),
+              color: Colors.orange.shade50,
+            ),
+            child: const Row(
+              children: [
+                Icon(Icons.info_outline, color: Colors.orange, size: 24),
+                SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Data anak ditambahkan oleh bidan',
+                        style: TextStyle(
+                            fontWeight: FontWeight.w600, fontSize: 14),
+                      ),
+                      SizedBox(height: 4),
+                      Text(
+                        'Silakan hubungi bidan untuk menambahkan atau memperbarui profil anak.',
+                        style: TextStyle(fontSize: 12, color: Colors.black54),
+                      ),
+                    ],
                   ),
-                  CircleAvatar(
-                    radius: 14,
-                    backgroundColor: Colors.blue,
-                    child: Icon(Icons.add, size: 16, color: Colors.white),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         const SizedBox(height: 24),
@@ -2514,8 +2486,7 @@ Widget _buildNifasShortcut() {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (_) =>
-                                const MpasiMenuScreen()));
+                            builder: (_) => const MpasiMenuScreen()));
                     break;
                   case 'edukasi':
                     // [MODUL: ANAK] Langsung ke EdukasiScreen (tidak butuh pilih anak)
@@ -2713,9 +2684,7 @@ Widget _buildNifasShortcut() {
                     style: TextStyle(
                       fontSize: 11,
                       height: 1.4,
-                      color: hasRujukan
-                          ? Colors.blue.shade700
-                          : Colors.black54,
+                      color: hasRujukan ? Colors.blue.shade700 : Colors.black54,
                     ),
                   ),
                 ],

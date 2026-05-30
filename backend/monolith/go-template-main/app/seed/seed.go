@@ -3,6 +3,8 @@ package seed
 import (
 	"log"
 
+	"monitoring-service/app/seeders"
+
 	"gorm.io/gorm"
 )
 
@@ -54,6 +56,32 @@ func RunAllSeed(db *gorm.DB) error {
 		// 6. Kategori Capaian Perkembangan Anak
 		if err := SeederKategoriCapaian(tx); err != nil {
 			log.Println("❌ SeederKategoriCapaian failed:", err)
+			return err
+		}
+
+		if err := seeders.NewMasterStandarBBUSeeder(tx).Seed(); err != nil {
+			log.Println("❌ MasterStandarBBUSeeder failed:", err)
+			return err
+		}
+		if err := seeders.NewMasterStandarTBUSeeder(tx).Seed(); err != nil {
+			log.Println("❌ MasterStandarTBUSeeder failed:", err)
+			return err
+		}
+		if err := seeders.NewMasterStandarIMTUSeeder(tx).Seed(); err != nil {
+			log.Println("❌ MasterStandarIMTUSeeder failed:", err)
+			return err
+		}
+		if err := seeders.NewMasterStandarBBTBSeeder(tx).Seed(); err != nil {
+			log.Println("❌ MasterStandarBBTBSeeder failed:", err)
+			return err
+		}
+		if err := seeders.NewMasterStandarLKUSeeder(tx).Seed(); err != nil {
+			log.Println("❌ MasterStandarLKUSeeder failed:", err)
+			return err
+		}
+
+		if err := seeders.NewDummyKIADataSeeder(tx).Seed(); err != nil {
+			log.Println("❌ DummyKIADataSeeder failed:", err)
 			return err
 		}
 
