@@ -25,6 +25,17 @@ func (m *Main) ListUsers(c echo.Context) error {
 	return helpers.StandardResponse(c, http.StatusOK, []string{constants.SUCCESS_RESPONSE_MESSAGE}, data, nil)
 }
 
+func (m *Main) ListPenduduk(c echo.Context) error {
+	search := c.QueryParam("search")
+
+	data, err := m.usecases.SuperadminUser.ListPenduduk(search)
+	if err != nil {
+		return helpers.Response(c, customerror.GetStatusCode(err), []string{err.Error()})
+	}
+
+	return helpers.StandardResponse(c, http.StatusOK, []string{constants.SUCCESS_RESPONSE_MESSAGE}, data, nil)
+}
+
 func (m *Main) GetUser(c echo.Context) error {
 	idRaw, err := strconv.ParseInt(c.Param("id"), 10, 32)
 	if err != nil {
@@ -67,6 +78,34 @@ func (m *Main) CreateAdminDesaUser(c echo.Context) error {
 	return helpers.StandardResponse(c, http.StatusCreated, []string{constants.SUCCESS_RESPONSE_MESSAGE}, data, nil)
 }
 
+func (m *Main) CreateKaderUser(c echo.Context) error {
+	var req usecases.SuperadminCreateKaderUserRequest
+	if err := c.Bind(&req); err != nil {
+		return helpers.Response(c, http.StatusBadRequest, []string{"format request tidak valid"})
+	}
+
+	data, createErr := m.usecases.SuperadminUser.CreateKaderUser(&req)
+	if createErr != nil {
+		return helpers.Response(c, customerror.GetStatusCode(createErr), []string{createErr.Error()})
+	}
+
+	return helpers.StandardResponse(c, http.StatusCreated, []string{constants.SUCCESS_RESPONSE_MESSAGE}, data, nil)
+}
+
+func (m *Main) CreateUser(c echo.Context) error {
+	var req usecases.SuperadminCreateUserRequest
+	if err := c.Bind(&req); err != nil {
+		return helpers.Response(c, http.StatusBadRequest, []string{"format request tidak valid"})
+	}
+
+	data, createErr := m.usecases.SuperadminUser.CreateUser(&req)
+	if createErr != nil {
+		return helpers.Response(c, customerror.GetStatusCode(createErr), []string{createErr.Error()})
+	}
+
+	return helpers.StandardResponse(c, http.StatusCreated, []string{constants.SUCCESS_RESPONSE_MESSAGE}, data, nil)
+}
+
 func (m *Main) ResetPassword(c echo.Context) error {
 	idRaw, err := strconv.ParseInt(c.Param("id"), 10, 32)
 	if err != nil {
@@ -86,6 +125,25 @@ func (m *Main) ResetPassword(c echo.Context) error {
 	return helpers.StandardResponse(c, http.StatusOK, []string{constants.SUCCESS_RESPONSE_MESSAGE}, data, nil)
 }
 
+func (m *Main) UpdateUserRole(c echo.Context) error {
+	idRaw, err := strconv.ParseInt(c.Param("id"), 10, 32)
+	if err != nil {
+		return helpers.Response(c, http.StatusBadRequest, []string{"id user tidak valid"})
+	}
+
+	var req usecases.SuperadminUpdateUserRoleRequest
+	if err := c.Bind(&req); err != nil {
+		return helpers.Response(c, http.StatusBadRequest, []string{"format request tidak valid"})
+	}
+
+	data, updateErr := m.usecases.SuperadminUser.UpdateUserRole(int32(idRaw), &req)
+	if updateErr != nil {
+		return helpers.Response(c, customerror.GetStatusCode(updateErr), []string{updateErr.Error()})
+	}
+
+	return helpers.StandardResponse(c, http.StatusOK, []string{constants.SUCCESS_RESPONSE_MESSAGE}, data, nil)
+}
+
 func (m *Main) DeactivateUser(c echo.Context) error {
 	idRaw, err := strconv.ParseInt(c.Param("id"), 10, 32)
 	if err != nil {
@@ -95,6 +153,20 @@ func (m *Main) DeactivateUser(c echo.Context) error {
 	data, deactivateErr := m.usecases.SuperadminUser.DeactivateUser(int32(idRaw))
 	if deactivateErr != nil {
 		return helpers.Response(c, customerror.GetStatusCode(deactivateErr), []string{deactivateErr.Error()})
+	}
+
+	return helpers.StandardResponse(c, http.StatusOK, []string{constants.SUCCESS_RESPONSE_MESSAGE}, data, nil)
+}
+
+func (m *Main) ActivateUser(c echo.Context) error {
+	idRaw, err := strconv.ParseInt(c.Param("id"), 10, 32)
+	if err != nil {
+		return helpers.Response(c, http.StatusBadRequest, []string{"id user tidak valid"})
+	}
+
+	data, activateErr := m.usecases.SuperadminUser.ActivateUser(int32(idRaw))
+	if activateErr != nil {
+		return helpers.Response(c, customerror.GetStatusCode(activateErr), []string{activateErr.Error()})
 	}
 
 	return helpers.StandardResponse(c, http.StatusOK, []string{constants.SUCCESS_RESPONSE_MESSAGE}, data, nil)

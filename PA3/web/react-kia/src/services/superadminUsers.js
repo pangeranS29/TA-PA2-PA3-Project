@@ -30,13 +30,33 @@ export const createAdminDesaUser = async (payload) => {
   return unwrapData(response);
 };
 
+export const createKaderUser = async (payload) => {
+  const response = await api.post("/superadmin/users/kader", payload);
+  return unwrapData(response);
+};
+
+export const createSuperadminUser = async (payload) => {
+  const response = await api.post("/superadmin/users", payload);
+  return unwrapData(response);
+};
+
 export const resetSuperadminUserPassword = async (userId, payload) => {
   const response = await api.patch(`/superadmin/users/${userId}/reset-password`, payload);
   return unwrapData(response);
 };
 
+export const updateSuperadminUserRole = async (userId, payload) => {
+  const response = await api.patch(`/superadmin/users/${userId}/role`, payload);
+  return unwrapData(response);
+};
+
 export const deactivateSuperadminUser = async (userId) => {
   const response = await api.patch(`/superadmin/users/${userId}/nonaktif`);
+  return unwrapData(response);
+};
+
+export const activateSuperadminUser = async (userId) => {
+  const response = await api.patch(`/superadmin/users/${userId}/aktif`);
   return unwrapData(response);
 };
 

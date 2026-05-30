@@ -144,7 +144,8 @@ const Sidebar = () => {
   const superadminMenuItems = useMemo(
     () => [
       { path: "/superadmin/dashboard", name: "Dashboard", icon: LayoutGrid },
-      { path: "/superadmin/kelola-user", name: "Kelola User", icon: ShieldPlus },
+      { path: "/superadmin/kelola-user", name: "Kelola Bidan&Kader&Admin desa", icon: ShieldPlus },
+      { path: "/superadmin/kelola-user-per-desa", name: "Kelola Akun User Per Desa", icon: Users },
       { path: "/superadmin/kelola-desa", name: "Kelola Desa", icon: TableProperties },
     ],
     []
@@ -262,25 +263,6 @@ const Sidebar = () => {
         {/* Menu khusus admin */}
         {isAdmin && (
           <div className="pt-1">
-            <NavLink
-              to="/dashboard/admin/tenaga-kesehatan"
-              className={({ isActive }) =>
-                `flex items-center gap-2 px-3 py-2.5 rounded-lg transition-all duration-200 group ${isActive
-                  ? "bg-blue-50 text-blue-600 font-semibold"
-                  : "text-slate-500 hover:bg-gray-50 hover:text-slate-700"
-                }`
-              }
-            >
-              {({ isActive }) => (
-                <>
-                  <BriefcaseMedical
-                    size={18}
-                    className={`flex-shrink-0 ${isActive ? "text-blue-600" : "text-slate-400 group-hover:text-slate-600"}`}
-                  />
-                  <span className="truncate text-sm">Mengelola Profile Bidan & Kader</span>
-                </>
-              )}
-            </NavLink>
 
             <button
               type="button"

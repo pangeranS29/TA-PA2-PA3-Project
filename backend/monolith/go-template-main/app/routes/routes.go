@@ -46,12 +46,17 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	superadmin.POST("/desa", controller.Desa.Create)
 	superadmin.PUT("/desa/:id", controller.Desa.Update)
 	superadmin.PATCH("/desa/:id/nonaktif", controller.Desa.Deactivate)
+	superadmin.GET("/penduduk", controller.ListPenduduk)
 	superadmin.GET("/users", controller.ListUsers)
 	superadmin.GET("/users/:id", controller.GetUser)
 	superadmin.POST("/users/bidan", controller.CreateBidanUser)
+	superadmin.POST("/users", controller.CreateUser)
 	superadmin.POST("/users/admin-desa", controller.CreateAdminDesaUser)
+	superadmin.POST("/users/kader", controller.CreateKaderUser)
 	superadmin.PATCH("/users/:id/reset-password", controller.ResetPassword)
+	superadmin.PATCH("/users/:id/role", controller.UpdateUserRole)
 	superadmin.PATCH("/users/:id/nonaktif", controller.DeactivateUser)
+	superadmin.PATCH("/users/:id/aktif", controller.ActivateUser)
 
 	// ==================== MODUL BIDAN ====================
 
@@ -595,7 +600,6 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	tenaga.POST("/pemeriksaan-anak", controller.PemeriksaanAnak.Create)
 	tenaga.GET("/pemeriksaan-anak/:id", controller.PemeriksaanAnak.GetByID)
 	tenaga.DELETE("/pemeriksaan-anak/:id", controller.PemeriksaanAnak.Delete)
-
 
 	tenaga.GET("/pemeriksaan-remaja", controller.PemeriksaanRemaja.GetAll)
 	tenaga.POST("/pemeriksaan-remaja", controller.PemeriksaanRemaja.Create)

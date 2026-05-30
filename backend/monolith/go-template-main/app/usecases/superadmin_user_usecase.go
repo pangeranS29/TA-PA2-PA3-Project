@@ -34,6 +34,31 @@ type SuperadminCreateAdminDesaUserRequest struct {
 	DesaID      *int32 `json:"desa_id"`
 }
 
+type SuperadminCreateKaderUserRequest struct {
+	PendudukID  int32  `json:"penduduk_id"`
+	Name        string `json:"name"`
+	Email       string `json:"email"`
+	PhoneNumber string `json:"phone_number"`
+	Password    string `json:"password"`
+	DesaID      *int32 `json:"desa_id"`
+	PosyanduID  *int64 `json:"posyandu_id,omitempty"`
+}
+
+type SuperadminCreateUserRequest struct {
+	PendudukID  *int64 `json:"penduduk_id,omitempty"`
+	Name        string `json:"name"`
+	Email       string `json:"email"`
+	PhoneNumber string `json:"phone_number"`
+	Password    string `json:"password"`
+	RoleName    string `json:"role_name"`
+	DesaID      *int32 `json:"desa_id"`
+}
+
+type SuperadminUpdateUserRoleRequest struct {
+	RoleName string `json:"role_name"`
+	DesaID   *int32 `json:"desa_id,omitempty"`
+}
+
 type SuperadminResetPasswordRequest struct {
 	Password string `json:"password"`
 }
@@ -45,6 +70,7 @@ type SuperadminUserUsecase struct {
 type SuperadminUserActionResponse struct {
 	User  *models.User  `json:"user"`
 	Bidan *models.Bidan `json:"bidan,omitempty"`
+	Kader *models.Kader `json:"kader,omitempty"`
 }
 
 func NewSuperadminUserUsecase(repo *repositories.Main) *SuperadminUserUsecase {
@@ -99,6 +125,10 @@ func (u *SuperadminUserUsecase) preparePassword(password string) (string, error)
 
 func (u *SuperadminUserUsecase) ListUsers(search, role, desa string) ([]repositories.UserListItem, error) {
 	return u.repo.User.List(search, role, desa)
+}
+
+func (u *SuperadminUserUsecase) ListPenduduk(search string) ([]repositories.EligiblePendudukItem, error) {
+	return u.repo.Kependudukan.ListAvailableForSuperadmin(search)
 }
 
 func (u *SuperadminUserUsecase) GetUser(id int32) (*models.User, error) {
@@ -271,7 +301,10 @@ func (u *SuperadminUserUsecase) CreateAdminDesaUser(req *SuperadminCreateAdminDe
 
 	role, err := u.repo.Role.FindByName("Admin")
 	if err != nil {
-		return nil, customerror.NewNotFoundError("role admin tidak ditemukan")
+		role, err = u.repo.Role.FindByName("Admin_desa")
+		if err != nil {
+			return nil, customerror.NewNotFoundError("role admin tidak ditemukan")
+		}
 	}
 
 	hashedPassword, err := u.preparePassword(req.Password)
@@ -300,6 +333,202 @@ func (u *SuperadminUserUsecase) CreateAdminDesaUser(req *SuperadminCreateAdminDe
 	return user, nil
 }
 
+func (u *SuperadminUserUsecase) CreateKaderUser(req *SuperadminCreateKaderUserRequest) (*SuperadminUserActionResponse, error) {
+	if req == nil {
+		return nil, customerror.NewBadRequestError("request tidak valid")
+	}
+	if req.PendudukID == 0 {
+		return nil, customerror.NewBadRequestError("penduduk_id wajib diisi")
+	}
+	if req.DesaID == nil || *req.DesaID == 0 {
+		return nil, customerror.NewBadRequestError("desa_id wajib diisi")
+	}
+
+	email, normalizedPhone, err := u.validateBaseUserFields(req.Name, req.Email, req.PhoneNumber, req.Password)
+	if err != nil {
+		return nil, err
+	}
+
+	if _, err := u.repo.Kependudukan.FindByID(req.PendudukID); err != nil {
+		return nil, customerror.NewNotFoundError("penduduk tidak ditemukan")
+	}
+	if _, err := u.repo.Desa.GetByID(*req.DesaID); err != nil {
+		return nil, customerror.NewNotFoundError("desa tidak ditemukan")
+	}
+
+	if _, err := u.repo.Bidan.FindByPendudukID(req.PendudukID); err == nil {
+		return nil, customerror.NewConflictError("penduduk sudah terdaftar sebagai bidan")
+	} else if !u.isNotFound(err) {
+		return nil, customerror.NewInternalServiceError("gagal memvalidasi data bidan")
+	}
+	if _, err := u.repo.Kader.FindByPendudukID(req.PendudukID); err == nil {
+		return nil, customerror.NewConflictError("penduduk sudah terdaftar sebagai kader")
+	} else if !u.isNotFound(err) {
+		return nil, customerror.NewInternalServiceError("gagal memvalidasi data kader")
+	}
+	if _, err := u.repo.User.FindByPendudukID(int64(req.PendudukID)); err == nil {
+		return nil, customerror.NewConflictError("penduduk sudah memiliki akun pengguna")
+	} else if !u.isNotFound(err) {
+		return nil, customerror.NewInternalServiceError("gagal memvalidasi akun pengguna")
+	}
+	if _, err := u.repo.User.FindByEmail(email); err == nil {
+		return nil, customerror.NewConflictError("email sudah terdaftar")
+	} else if !u.isNotFound(err) {
+		return nil, customerror.NewInternalServiceError("gagal memvalidasi email")
+	}
+	if _, err := u.repo.User.FindByPhoneNumber(normalizedPhone); err == nil {
+		return nil, customerror.NewConflictError("nomor hp sudah terdaftar")
+	} else if !u.isNotFound(err) {
+		return nil, customerror.NewInternalServiceError("gagal memvalidasi nomor hp")
+	}
+
+	role, err := u.repo.Role.FindByName("Kader")
+	if err != nil {
+		return nil, customerror.NewNotFoundError("role kader tidak ditemukan")
+	}
+
+	hashedPassword, err := u.preparePassword(req.Password)
+	if err != nil {
+		return nil, err
+	}
+
+	desaID := req.DesaID
+	pendudukID64 := int64(req.PendudukID)
+
+	var createdUser models.User
+	var createdKader models.Kader
+	err = u.repo.DB().Transaction(func(tx *gorm.DB) error {
+		createdUser = models.User{
+			Name:        strings.TrimSpace(req.Name),
+			Email:       email,
+			PhoneNumber: normalizedPhone,
+			DesaID:      desaID,
+			IsActive:    true,
+			Password:    hashedPassword,
+			RoleID:      role.ID,
+			PendudukID:  &pendudukID64,
+		}
+
+		if err := tx.Create(&createdUser).Error; err != nil {
+			return err
+		}
+
+		createdKader = models.Kader{
+			PendudukID: req.PendudukID,
+			PosyanduID: req.PosyanduID,
+			Status:     "aktif",
+		}
+
+		if err := tx.Create(&createdKader).Error; err != nil {
+			return err
+		}
+
+		return nil
+	})
+	if err != nil {
+		if strings.Contains(strings.ToLower(err.Error()), "unique") || strings.Contains(strings.ToLower(err.Error()), "duplicate") {
+			return nil, customerror.NewConflictError("data kader atau akun pengguna sudah terdaftar")
+		}
+		return nil, customerror.NewInternalServiceError("gagal membuat akun kader: " + err.Error())
+	}
+
+	return &SuperadminUserActionResponse{User: &createdUser, Kader: &createdKader}, nil
+}
+
+func (u *SuperadminUserUsecase) CreateUser(req *SuperadminCreateUserRequest) (*models.User, error) {
+	if req == nil {
+		return nil, customerror.NewBadRequestError("request tidak valid")
+	}
+	if req.DesaID == nil || *req.DesaID == 0 {
+		return nil, customerror.NewBadRequestError("desa_id wajib diisi")
+	}
+
+	roleName := strings.TrimSpace(req.RoleName)
+	if roleName == "" {
+		return nil, customerror.NewBadRequestError("role_name wajib diisi")
+	}
+
+	switch normalizeKey(roleName) {
+	case "admin", "admindesa", "bidan", "kader", "superadmin":
+		return nil, customerror.NewBadRequestError("role admin, bidan, kader, dan superadmin diatur dari halaman kelola akun khusus")
+	}
+
+	email, normalizedPhone, err := u.validateBaseUserFields(req.Name, req.Email, req.PhoneNumber, req.Password)
+	if err != nil {
+		return nil, err
+	}
+
+	if _, err := u.repo.Desa.GetByID(*req.DesaID); err != nil {
+		return nil, customerror.NewNotFoundError("desa tidak ditemukan")
+	}
+
+	var pendudukID *int64
+	if req.PendudukID != nil && *req.PendudukID > 0 {
+		if _, err := u.repo.Kependudukan.FindByID(int32(*req.PendudukID)); err != nil {
+			return nil, customerror.NewNotFoundError("penduduk tidak ditemukan")
+		}
+		pendudukID = req.PendudukID
+	}
+
+	if _, err := u.repo.User.FindByEmail(email); err == nil {
+		return nil, customerror.NewConflictError("email sudah terdaftar")
+	} else if !u.isNotFound(err) {
+		return nil, customerror.NewInternalServiceError("gagal memvalidasi email")
+	}
+	if _, err := u.repo.User.FindByPhoneNumber(normalizedPhone); err == nil {
+		return nil, customerror.NewConflictError("nomor hp sudah terdaftar")
+	} else if !u.isNotFound(err) {
+		return nil, customerror.NewInternalServiceError("gagal memvalidasi nomor hp")
+	}
+	if pendudukID != nil {
+		if _, err := u.repo.User.FindByPendudukID(*pendudukID); err == nil {
+			return nil, customerror.NewConflictError("penduduk sudah memiliki akun pengguna")
+		} else if !u.isNotFound(err) {
+			return nil, customerror.NewInternalServiceError("gagal memvalidasi akun pengguna")
+		}
+		if _, err := u.repo.Bidan.FindByPendudukID(int32(*pendudukID)); err == nil {
+			return nil, customerror.NewConflictError("penduduk sudah terdaftar sebagai bidan")
+		} else if !u.isNotFound(err) {
+			return nil, customerror.NewInternalServiceError("gagal memvalidasi data bidan")
+		}
+		if _, err := u.repo.Kader.FindByPendudukID(int32(*pendudukID)); err == nil {
+			return nil, customerror.NewConflictError("penduduk sudah terdaftar sebagai kader")
+		} else if !u.isNotFound(err) {
+			return nil, customerror.NewInternalServiceError("gagal memvalidasi data kader")
+		}
+	}
+
+	role, err := u.repo.Role.FindByName(normalizeRoleName(roleName))
+	if err != nil {
+		return nil, customerror.NewNotFoundError("role tidak ditemukan")
+	}
+
+	hashedPassword, err := u.preparePassword(req.Password)
+	if err != nil {
+		return nil, err
+	}
+
+	user := &models.User{
+		Name:        strings.TrimSpace(req.Name),
+		Email:       email,
+		PhoneNumber: normalizedPhone,
+		DesaID:      req.DesaID,
+		IsActive:    true,
+		Password:    hashedPassword,
+		RoleID:      role.ID,
+		PendudukID:  pendudukID,
+	}
+
+	if err := u.repo.DB().Create(user).Error; err != nil {
+		if strings.Contains(strings.ToLower(err.Error()), "unique") || strings.Contains(strings.ToLower(err.Error()), "duplicate") {
+			return nil, customerror.NewConflictError("data user sudah terdaftar")
+		}
+		return nil, customerror.NewInternalServiceError("gagal membuat akun user")
+	}
+
+	return user, nil
+}
+
 func (u *SuperadminUserUsecase) ResetPassword(id int32, req *SuperadminResetPasswordRequest) (*models.User, error) {
 	if id == 0 {
 		return nil, customerror.NewBadRequestError("id user tidak valid")
@@ -323,6 +552,64 @@ func (u *SuperadminUserUsecase) ResetPassword(id int32, req *SuperadminResetPass
 	}
 
 	user.Password = hashedPassword
+	return user, nil
+}
+
+func (u *SuperadminUserUsecase) UpdateUserRole(id int32, req *SuperadminUpdateUserRoleRequest) (*models.User, error) {
+	if id == 0 {
+		return nil, customerror.NewBadRequestError("id user tidak valid")
+	}
+	if req == nil {
+		return nil, customerror.NewBadRequestError("request tidak valid")
+	}
+
+	roleName := strings.TrimSpace(req.RoleName)
+	if roleName == "" {
+		return nil, customerror.NewBadRequestError("role_name wajib diisi")
+	}
+
+	normalizedRole := normalizeRoleName(roleName)
+	switch normalizedRole {
+	case "Admin", "Bidan", "Kader", "Superadmin":
+		return nil, customerror.NewBadRequestError("role admin, bidan, kader, dan superadmin diatur dari halaman kelola akun desa")
+	}
+
+	user, err := u.repo.User.FindByID(id)
+	if err != nil {
+		return nil, customerror.NewNotFoundError("user tidak ditemukan")
+	}
+
+	if strings.EqualFold(strings.TrimSpace(user.Role.Name), "Superadmin") {
+		return nil, customerror.NewBadRequestError("akun superadmin tidak dapat diubah")
+	}
+
+	role, err := u.repo.Role.FindByName(normalizedRole)
+	if err != nil {
+		return nil, customerror.NewNotFoundError("role tidak ditemukan")
+	}
+
+	updates := map[string]interface{}{
+		"role_id":    role.ID,
+		"updated_at": gorm.Expr("NOW()"),
+	}
+
+	if req.DesaID != nil {
+		if *req.DesaID == 0 {
+			return nil, customerror.NewBadRequestError("desa_id tidak valid")
+		}
+		if _, err := u.repo.Desa.GetByID(*req.DesaID); err != nil {
+			return nil, customerror.NewNotFoundError("desa tidak ditemukan")
+		}
+		updates["desa_id"] = req.DesaID
+		user.DesaID = req.DesaID
+	}
+
+	if err := u.repo.DB().Model(&models.User{}).Where("id = ?", id).Updates(updates).Error; err != nil {
+		return nil, customerror.NewInternalServiceError("gagal memperbarui role user")
+	}
+
+	user.Role = *role
+	user.RoleID = role.ID
 	return user, nil
 }
 
@@ -375,5 +662,57 @@ func (u *SuperadminUserUsecase) DeactivateUser(id int32) (*models.User, error) {
 	}
 
 	user.IsActive = false
+	return user, nil
+}
+
+func (u *SuperadminUserUsecase) ActivateUser(id int32) (*models.User, error) {
+	if id == 0 {
+		return nil, customerror.NewBadRequestError("id user tidak valid")
+	}
+
+	user, err := u.repo.User.FindByID(id)
+	if err != nil {
+		return nil, customerror.NewNotFoundError("user tidak ditemukan")
+	}
+
+	if strings.EqualFold(strings.TrimSpace(user.Role.Name), "Superadmin") {
+		return nil, customerror.NewBadRequestError("akun superadmin tidak dapat diubah statusnya")
+	}
+
+	if err := u.repo.DB().Transaction(func(tx *gorm.DB) error {
+		if err := tx.Model(&models.User{}).Where("id = ?", id).Updates(map[string]interface{}{
+			"is_active":  true,
+			"updated_at": gorm.Expr("NOW()"),
+		}).Error; err != nil {
+			return err
+		}
+
+		switch strings.TrimSpace(user.Role.Name) {
+		case "Bidan":
+			if user.PendudukID != nil {
+				if err := tx.Model(&models.Bidan{}).Where("penduduk_id = ? AND deleted_at IS NULL", *user.PendudukID).Updates(map[string]interface{}{
+					"status":     "aktif",
+					"updated_at": gorm.Expr("NOW()"),
+				}).Error; err != nil {
+					return err
+				}
+			}
+		case "Kader":
+			if user.PendudukID != nil {
+				if err := tx.Model(&models.Kader{}).Where("penduduk_id = ? AND deleted_at IS NULL", *user.PendudukID).Updates(map[string]interface{}{
+					"status":     "aktif",
+					"updated_at": gorm.Expr("NOW()"),
+				}).Error; err != nil {
+					return err
+				}
+			}
+		}
+
+		return nil
+	}); err != nil {
+		return nil, customerror.NewInternalServiceError("gagal mengaktifkan user")
+	}
+
+	user.IsActive = true
 	return user, nil
 }

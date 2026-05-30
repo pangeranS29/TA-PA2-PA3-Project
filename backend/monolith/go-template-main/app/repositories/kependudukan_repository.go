@@ -125,7 +125,7 @@ func (r *KependudukanRepository) ListEligibleForRole(role, search, kecamatan, de
 
 	var list []EligiblePendudukItem
 	q := r.db.Table("penduduk p").
-		Select("p.id, p.kartu_keluarga_id, p.nik, p.nama_lengkap, p.jenis_kelamin, p.kecamatan, p.desa").
+		Select("p.id, p.kartu_keluarga_id, p.nik, p.nama_lengkap, p.jenis_kelamin, p.kecamatan").
 		Where("p.deleted_at IS NULL")
 
 	if search != "" {
@@ -134,9 +134,6 @@ func (r *KependudukanRepository) ListEligibleForRole(role, search, kecamatan, de
 	}
 	if kecamatan != "" {
 		q = q.Where("COALESCE(p.kecamatan, '') = ?", kecamatan)
-	}
-	if desa != "" {
-		q = q.Where("COALESCE(p.desa, '') = ?", desa)
 	}
 
 	switch role {
@@ -150,6 +147,30 @@ func (r *KependudukanRepository) ListEligibleForRole(role, search, kecamatan, de
 
 	err := q.Order("p.nama_lengkap ASC").Scan(&list).Error
 	return list, err
+}
+
+func (r *KependudukanRepository) ListAvailableForSuperadmin(search string) ([]EligiblePendudukItem, error) {
+	search = strings.TrimSpace(search)
+
+	var list []EligiblePendudukItem
+	q := r.db.Table("penduduk p").
+		Select("p.id, p.kartu_keluarga_id, p.nik, p.nama_lengkap, p.jenis_kelamin, p.kecamatan").
+		Where("p.deleted_at IS NULL").
+		Where("NOT EXISTS (SELECT 1 FROM bidan b WHERE b.penduduk_id = p.id AND b.deleted_at IS NULL)").
+		Where("NOT EXISTS (SELECT 1 FROM kader k WHERE k.penduduk_id = p.id AND k.deleted_at IS NULL)").
+		Where("NOT EXISTS (SELECT 1 FROM pengguna u WHERE u.penduduk_id = p.id)").
+		Order("p.nama_lengkap ASC")
+
+	if search != "" {
+		pattern := "%" + search + "%"
+		q = q.Where("(p.nik ILIKE ? OR p.nama_lengkap ILIKE ?)", pattern, pattern)
+	}
+
+	if err := q.Scan(&list).Error; err != nil {
+		return nil, err
+	}
+
+	return list, nil
 }
 
 func detectPosyanduNameColumn(db *gorm.DB) (string, map[string]bool, error) {

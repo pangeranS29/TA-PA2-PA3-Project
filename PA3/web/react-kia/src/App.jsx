@@ -138,7 +138,8 @@ import BidanList from "./pages/ManajemenBidanKader/BidanList";
 import KaderList from "./pages/ManajemenBidanKader/KaderList";
 import SuperAdminDashboard from "./pages/SuperAdmin/Dashboard";
 import KelolaDesa from "./pages/SuperAdmin/KelolaDesa";
-import KelolaUser from "./pages/SuperAdmin/KelolaUser";
+import KelolaUser from "./pages/SuperAdmin/Kelola Bidan&Kader&Admin desa";
+import KelolaUserPerDesa from "./pages/SuperAdmin/Kelola Akun User Per Desa";
 
 
 const HomeRedirect = () => {
@@ -228,8 +229,10 @@ function App() {
 
         <Route path="/superadmin/dashboard" element={<ProtectedRoute allowedRoles={["superadmin"]}><SuperAdminDashboard /></ProtectedRoute>} />
         <Route path="/superadmin/kelola-user" element={<ProtectedRoute allowedRoles={["superadmin"]}><KelolaUser /></ProtectedRoute>} />
+        <Route path="/superadmin/kelola-user-per-desa" element={<ProtectedRoute allowedRoles={["superadmin"]}><KelolaUserPerDesa /></ProtectedRoute>} />
         <Route path="/superadmin/kelola-desa" element={<ProtectedRoute allowedRoles={["superadmin"]}><KelolaDesa /></ProtectedRoute>} />
         <Route path="/superadmin/users" element={<Navigate to="/superadmin/kelola-user" replace />} />
+        <Route path="/superadmin/user-desa" element={<Navigate to="/superadmin/kelola-user-per-desa" replace />} />
         <Route path="/superadmin/desa" element={<Navigate to="/superadmin/kelola-desa" replace />} />
 
         {/* ── RUTE ANAK (tanpa auth wrapper) ── */}

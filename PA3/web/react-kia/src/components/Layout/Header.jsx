@@ -21,10 +21,18 @@ const headerByPath = (pathname) => {
     };
   }
 
+  if (pathname.startsWith("/superadmin/kelola-user-per-desa") || pathname.startsWith("/superadmin/user-desa")) {
+    return {
+      title: "Kelola User Per Desa",
+      subtitle: "Atur role, reset password, dan nonaktifkan user biasa di tiap desa.",
+      variant: "hero",
+    };
+  }
+
   if (pathname.startsWith("/superadmin/kelola-user") || pathname.startsWith("/superadmin/users")) {
     return {
-      title: "Kelola User Superadmin",
-      subtitle: "Tambah bidan, assign admin desa, reset password, dan nonaktifkan user dari satu tempat.",
+      title: "Kelola bidan, kader, dan admin desa",
+      subtitle: "Tambah bidan, kader, dan admin desa, lalu reset password atau nonaktifkan akun khusus.",
       variant: "hero",
     };
   }
