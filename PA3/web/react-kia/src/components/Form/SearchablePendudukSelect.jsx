@@ -21,9 +21,16 @@ export default function SearchablePendudukSelect({
     [options, value],
   );
 
+  const getPendudukSearchText = (item) => {
+    const labelText = optionLabel(item);
+    const nikText = item?.nik || item?.nik_penduduk || item?.no_nik || item?.nik_ktp || "";
+    return `${labelText} ${nikText}`.trim();
+  };
+
   useEffect(() => {
+    if (open) return;
     setQuery(selectedOption ? optionLabel(selectedOption) : "");
-  }, [selectedOption, optionLabel]);
+  }, [selectedOption, optionLabel, open]);
 
   useEffect(() => {
     const handleDocumentClick = (event) => {
@@ -40,7 +47,7 @@ export default function SearchablePendudukSelect({
     const normalizedQuery = query.trim().toLowerCase();
     if (!normalizedQuery) return options;
 
-    return options.filter((item) => optionLabel(item).toLowerCase().includes(normalizedQuery));
+    return options.filter((item) => getPendudukSearchText(item).toLowerCase().includes(normalizedQuery));
   }, [options, optionLabel, query]);
 
   const handleInputChange = (event) => {
