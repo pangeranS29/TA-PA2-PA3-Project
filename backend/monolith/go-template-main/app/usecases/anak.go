@@ -75,9 +75,9 @@ func (u *AnakUseCase) CreateAnak(req models.CreateAnakRequest) (*models.AnakResp
 		TinggiLahirCm:   req.TinggiLahirCm,
 		AnakKe:          req.AnakKe,
 		LingkarKepalaCm: req.LingkarKepalaCm,
-		NamaIbu:         req.NamaIbu,
-		NamaAyah:        req.NamaAyah,
-		IbuID:           req.IbuID,
+		// NamaIbu:         req.NamaIbu,
+		// NamaAyah:        req.NamaAyah,
+		// IbuID:           req.IbuID,
 	}
 
 	if err := u.anakRepo.Create(anak); err != nil {
@@ -141,9 +141,9 @@ func (u *AnakUseCase) CreateAnakDenganPenduduk(req models.CreateAnakDenganPendud
 		TinggiLahirCm:   req.TinggiLahirCm,
 		AnakKe:          req.AnakKe,
 		LingkarKepalaCm: req.LingkarKepalaCm,
-		NamaIbu:         req.NamaIbu,
-		NamaAyah:        req.NamaAyah,
-		IbuID:           req.IbuID,
+		// NamaIbu:         req.NamaIbu,
+		// NamaAyah:        req.NamaAyah,
+		// IbuID:           req.IbuID,
 	}
 
 	if err := u.anakRepo.Create(anak); err != nil {
@@ -183,13 +183,13 @@ func (u *AnakUseCase) UpdateAnak(id int32, req models.UpdateAnakRequest) (*model
 		anak.LingkarKepalaCm = req.LingkarKepalaCm
 	}
 
-	if req.NamaIbu != nil {
-		anak.NamaIbu = *req.NamaIbu
-	}
+	// if req.NamaIbu != nil {
+	// 	anak.NamaIbu = *req.NamaIbu
+	// }
 
-	if req.NamaAyah != nil {
-		anak.NamaAyah = *req.NamaAyah
-	}
+	// if req.NamaAyah != nil {
+	// 	anak.NamaAyah = *req.NamaAyah
+	// }
 
 	if err := u.anakRepo.Update(anak); err != nil {
 		return nil, err
@@ -337,9 +337,9 @@ func (u *AnakUseCase) toAnakResponse(anak *models.Anak) models.AnakResponse {
 		TinggiLahirCm:   anak.TinggiLahirCm,
 		AnakKe:          anak.AnakKe,
 		LingkarKepalaCm: anak.LingkarKepalaCm,
-		NamaIbu:         anak.NamaIbu,
-		NamaAyah:        anak.NamaAyah,
-		IbuID:           anak.IbuID,
+		// NamaIbu:         anak.NamaIbu,
+		// NamaAyah:        anak.NamaAyah,
+		// IbuID:           anak.IbuID,
 	}
 
 	// Ambil data dari Penduduk (Kependudukan)
