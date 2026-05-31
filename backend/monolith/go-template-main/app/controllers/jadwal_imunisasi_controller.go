@@ -117,7 +117,7 @@ func (m *Main) GetJadwalImunisasiByAnakID(c echo.Context) error {
 		data,
 		nil,
 	)
-}	
+}
 
 func (m *Main) UpdateTanggalEstimasi(c echo.Context) error {
 
@@ -143,10 +143,11 @@ func (m *Main) UpdateTanggalEstimasi(c echo.Context) error {
 	claims := c.Get("auth_claims").(*models.AuthClaims)
 	userID := claims.UserID
 
-	err = m.usecases.UpdateTanggalEstimasi(
+	err = m.usecases.RequestPerubahanJadwal(
 		userID,
 		uint(jadwalID),
-		parsedDate,
+		parsedDate.Format("2006-01-02"),
+		req.Alasan,
 	)
 
 	if err != nil {

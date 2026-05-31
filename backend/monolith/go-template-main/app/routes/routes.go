@@ -757,13 +757,13 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	ibu.PUT("/perawatan/:id", controller.UpdatePerawatan)
 	ibu.DELETE("/perawatan/:id", controller.DeletePerawatan)
 	// Catatan: Ibu tidak memiliki akses UPDATE/DELETE/VERIFY untuk menjaga integritas rekam medis
-
+	
 	// ==================== IMUNISASI ====================
 	ibu.GET("/jadwal-imunisasi", controller.GetJadwalImunisasi)
 	ibu.GET("/jadwal-imunisasi/anak/:anak_id", controller.GetJadwalImunisasiByAnakID)
 	ibu.PUT("/jadwal-imunisasi/:id/tanggal-estimasi", controller.UpdateTanggalEstimasi)
 	ibu.GET("/jadwal-imunisasi/:id", controller.GetJadwalByID)
-
+	
 	// Request Perubahan Jadwal Imunisasi Ibu
 	ibu.POST("/jadwal-imunisasi/:id/request-perubahan", controller.RequestPerubahanJadwal)
 

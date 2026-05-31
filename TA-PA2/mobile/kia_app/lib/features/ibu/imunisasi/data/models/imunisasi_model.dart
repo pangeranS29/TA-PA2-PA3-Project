@@ -139,16 +139,19 @@ class ImunisasiDetailModel {
   }
 }
 
-class UpdateTanggalEstimasiRequest {
-  final String tanggalEstimasi;
+class RequestPerubahanJadwalRequest {
+  final String tanggalBaru;
+  final String alasan;
 
-  UpdateTanggalEstimasiRequest({
-    required this.tanggalEstimasi,
+  RequestPerubahanJadwalRequest({
+    required this.tanggalBaru,
+    required this.alasan,
   });
 
   Map<String, dynamic> toJson() {
     return {
-      "tanggal_estimasi": tanggalEstimasi,
+      "tanggal_estimasi": tanggalBaru,
+      "alasan": alasan,
     };
   }
 }

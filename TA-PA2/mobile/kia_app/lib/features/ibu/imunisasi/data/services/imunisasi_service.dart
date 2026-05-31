@@ -134,20 +134,22 @@ class ImunisasiService {
     }
   }
 
-  Future<void> updateTanggalEstimasi(
-    int id,
-    String tanggal,
+  Future<void> requestPerubahanJadwal(
+    int jadwalId,
+    String tanggalBaru,
+    String alasan,
   ) async {
     final uri = Uri.parse(
-      '${ApiConstants.baseUrl}/ibu/jadwal-imunisasi/$id/tanggal-estimasi',
+      '${ApiConstants.baseUrl}/ibu/jadwal-imunisasi/$jadwalId/request-perubahan',
     );
 
     try {
       final body = jsonEncode({
-        "tanggal_estimasi": tanggal, // format: YYYY-MM-DD
+        "tanggal_baru": tanggalBaru,
+        "alasan": alasan,
       });
 
-      final response = await _client.put(
+      final response = await _client.post(
         uri,
         headers: _headers,
         body: body,
@@ -158,12 +160,12 @@ class ImunisasiService {
       if (response.statusCode < 200 || response.statusCode >= 300) {
         final msg = decoded['message'];
         final errorText =
-            (msg is List) ? msg.join(', ') : (msg ?? 'Gagal update jadwal');
+            (msg is List) ? msg.join(', ') : (msg ?? 'Gagal mengirim request');
 
         throw Exception(errorText);
       }
     } catch (e) {
-      debugPrint("Error updateTanggalEstimasi: $e");
+      debugPrint("Error requestPerubahanJadwal: $e");
       rethrow;
     }
   }

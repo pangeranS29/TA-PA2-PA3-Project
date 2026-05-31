@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"monitoring-service/app/models"
 	"time"
+	// "time"
 )
 
 func (m *Main) GetJadwalImunisasi(
@@ -144,25 +145,40 @@ func (m *Main) GetJadwalImunisasiByAnakID(
 	return response, nil
 }
 
-func (m *Main) UpdateTanggalEstimasi(
+func (m *Main) RequestPerubahanJadwal(
 	userID int32,
 	jadwalID uint,
-	newDate time.Time,
+	newDate string,
+	alasan string,
 ) error {
 
-	// cek data exist (harus pakai userID juga)
+	// cek jadwal milik user
 	data, err := m.repository.GetJadwalImunisasiByJadwalID(userID, jadwalID)
 	if err != nil {
 		return err
 	}
 
-	// kalau tidak ditemukan
 	if data == nil || data.JadwalID == 0 {
 		return fmt.Errorf("jadwal tidak ditemukan")
 	}
 
-	// update langsung
-	return m.repository.UpdateTanggalEstimasi(jadwalID, newDate)
+	// ambil tanggal lama
+	oldDate := data.TanggalEstimasi.Format("2006-01-02")
+
+	parsedDate, err := time.Parse("2006-01-02", newDate)
+	if err != nil {
+		return fmt.Errorf("format tanggal tidak valid")
+	}
+	// create request
+	request := models.RequestPerubahanImunisasi{
+		IDJadwalImunisasi: int32(jadwalID),
+		IDStatusRequest:   2,
+		TanggalSebelum:    oldDate,
+		TanggalBaru:       parsedDate.Format("2006-01-02"),
+		Alasan:            alasan,
+	}
+
+	return m.repository.CreateRequestPerubahanJadwal(&request)
 }
 
 func (m *Main) GetJadwalImunisasiByJadwalID(

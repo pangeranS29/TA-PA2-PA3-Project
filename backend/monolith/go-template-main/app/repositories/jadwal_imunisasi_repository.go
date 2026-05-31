@@ -2,7 +2,7 @@ package repositories
 
 import (
 	"time"
-	// "monitoring-service/app/models"
+	"monitoring-service/app/models"
 )
 
 type JadwalImunisasiJoin struct {
@@ -161,15 +161,13 @@ func (m *Main) GetJadwalImunisasiByAnakID(
 	return result, nil
 }
 
-func (m *Main) UpdateTanggalEstimasi(
-	jadwalID uint,
-	newDate time.Time,
+func (m *Main) CreateRequestPerubahanJadwal(
+	request *models.RequestPerubahanImunisasi,
 ) error {
 
 	return m.postgres.
-		Table("jadwal_imunisasi_anak").
-		Where("id = ?", jadwalID).
-		Update("tanggal_estimasi", newDate).Error
+		Table("request_perubahan_imunisasi").
+		Create(request).Error
 }
 
 func (m *Main) GetJadwalImunisasiByJadwalID(

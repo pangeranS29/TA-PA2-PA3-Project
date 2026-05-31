@@ -92,14 +92,14 @@ func (m *Main) GetAllRequestPerubahanJadwal() (
 	return result, nil
 }
 
-func (m *Main) CreateRequestPerubahanJadwal(
-	request *models.RequestPerubahanImunisasi,
-) error {
+// func (m *Main) CreateRequestPerubahanJadwal(
+// 	request *models.RequestPerubahanImunisasi,
+// ) error {
 
-	return m.postgres.
-		Create(request).
-		Error
-}
+// 	return m.postgres.
+// 		Create(request).
+// 		Error
+// }
 
 // func (m *Main) ApproveRequestPerubahanJadwal(
 // 	requestID int32,

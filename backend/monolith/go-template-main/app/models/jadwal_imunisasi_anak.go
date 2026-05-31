@@ -43,21 +43,22 @@ type JadwalImunisasiItem struct {
 }
 
 type UpdateTanggalEstimasiRequest struct {
-    TanggalEstimasi string `json:"tanggal_estimasi"`
+	TanggalEstimasi string `json:"tanggal_estimasi"`
+	Alasan          string `json:"alasan"`
 }
 
 type JadwalImunisasiJoin struct {
-	AnakID          int32
-	NamaAnak        string
-	TanggalLahir    *time.Time
+	AnakID       int32
+	NamaAnak     string
+	TanggalLahir *time.Time
 
 	JadwalID        uint
 	NamaDosis       string
 	TanggalEstimasi *time.Time
 
-	StatusID        uint
-	Status          string
+	StatusID uint
+	Status   string
 
-	Deskripsi       string
-	EfekSamping     string
+	Deskripsi   string
+	EfekSamping string
 }
