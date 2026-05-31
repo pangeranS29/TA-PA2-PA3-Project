@@ -89,6 +89,12 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	bidan.PUT("/kader/:id", controller.BidanUpdateKader)
 	bidan.PATCH("/kader/:id/status", controller.BidanUpdateKaderStatus)
 
+	// Request Perubahan Jadwal Imunisasi
+	bidan.GET("/request-perubahan-jadwal-imunisasi", controller.GetAllRequestPerubahanJadwal)
+	bidan.PUT("/request-perubahan-jadwal-imunisasi/:id/approve", controller.ApproveRequestPerubahanJadwal)
+	bidan.PUT("/request-perubahan-jadwal-imunisasi/:id/reject", controller.RejectRequestPerubahanJadwal)
+	// bidan.GET("/request-perubahan-jadwal-imunisasi/:id", controller.GetRequestPerubahanByID)
+
 	// ==================== MODUL Anak ====================
 	anak := e.Group("/anak")
 	anak.Use(middlewares.JWTAuth(controller.JWTSecret()))
@@ -757,6 +763,9 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	ibu.GET("/jadwal-imunisasi/anak/:anak_id", controller.GetJadwalImunisasiByAnakID)
 	ibu.PUT("/jadwal-imunisasi/:id/tanggal-estimasi", controller.UpdateTanggalEstimasi)
 	ibu.GET("/jadwal-imunisasi/:id", controller.GetJadwalByID)
+
+	// Request Perubahan Jadwal Imunisasi Ibu
+	ibu.POST("/jadwal-imunisasi/:id/request-perubahan", controller.RequestPerubahanJadwal)
 
 	kader := e.Group("/kader")
 	kader.Use(middlewares.JWTAuth(controller.JWTSecret()))

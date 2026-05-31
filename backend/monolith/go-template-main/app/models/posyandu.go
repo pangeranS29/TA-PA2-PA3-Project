@@ -4,7 +4,9 @@ import "time"
 
 type Posyandu struct {
 	ID          int32      `gorm:"column:id;primaryKey;autoIncrement" json:"id"`
-	IDPuskesmas int32      `gorm:"column:id_puskesmas;not null" json:"id_puskesmas"`
+	IDPuskesmas int32      `gorm:"column:id_puskesmas;not null;index;constraint:OnDelete:CASCADE" json:"id_puskesmas"`
+	// PenggunaID   	uint       `json:"id_pengguna" gorm:"column:id_pengguna;not null;index;constraint:OnDelete:CASCADE"`
+	Puskesmas	  *Puskesmas  `json:"puskesmas,omitempty" gorm:"foreignKey:IDPuskesmas;constraint:OnDelete:CASCADE"`
 	Nama        string     `gorm:"column:nama;type:varchar(255);not null" json:"nama"`
 	Alamat      string     `gorm:"column:alamat;type:text" json:"alamat,omitempty"`
 	CreatedAt   time.Time  `gorm:"column:created_at" json:"created_at"`
