@@ -140,6 +140,7 @@ import SuperAdminDashboard from "./pages/SuperAdmin/Dashboard";
 import KelolaDesa from "./pages/SuperAdmin/KelolaDesa";
 import KelolaUser from "./pages/SuperAdmin/Kelola Bidan&Kader&Admin desa";
 import KelolaUserPerDesa from "./pages/SuperAdmin/Kelola Akun User Per Desa";
+import RequestPerubahanImunisasiPage from "./pages/RequestPerubahanImunisasi";
 
 
 const HomeRedirect = () => {
@@ -324,6 +325,10 @@ function App() {
         {/* ── DEFAULT ── */}
         <Route path="/" element={<HomeRedirect />} />
         <Route path="*" element={<HomeRedirect />} />
+
+
+          <Route path="/perubahan-jadwal-imunisasi" element={<RequestPerubahanImunisasiPage />} />
+
       </Routes>
     </BrowserRouter>
   );

@@ -25,6 +25,7 @@ import {
   TableProperties,
   ClipboardList,
   ShieldPlus,
+  CalendarClock,
   BookOpenCheck,
 } from "lucide-react";
 import logo from "./LOGO.png";
@@ -123,6 +124,7 @@ const Sidebar = () => {
     },
     { path: "/jadwal-layanan", name: "Jadwal Layanan", icon: Calendar },
     { path: "/laporan", name: "Laporan", icon: BarChart3 },
+    { path: "/perubahan-jadwal-imunisasi", name: "Perubahan Jadwal Imunisasi", icon: CalendarClock },
   ];
 
   // Menu untuk dokter (hanya Data Ibu & Laporan)
