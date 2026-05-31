@@ -1,21 +1,22 @@
-
-class ImunisasiModel {
+class RingkasanImunisasiModel {
   final int anakId;
   final String namaAnak;
   final DateTime? tanggalLahir;
   final List<JadwalImunisasiModel> jadwal;
   final int jumlahTerlewat;
+  final int jumlahSelesai;
 
-  ImunisasiModel({
+  RingkasanImunisasiModel({
     required this.anakId,
     required this.namaAnak,
     required this.tanggalLahir,
     required this.jadwal,
     required this.jumlahTerlewat,
+    required this.jumlahSelesai,
   });
 
-  factory ImunisasiModel.fromJson(Map<String, dynamic> json) {
-    return ImunisasiModel(
+  factory RingkasanImunisasiModel.fromJson(Map<String, dynamic> json) {
+    return RingkasanImunisasiModel(
       anakId: json['anak_id'] ?? 0,
       namaAnak: json['nama_anak'] ?? '',
       tanggalLahir: json['tanggal_lahir'] != null
@@ -30,6 +31,7 @@ class ImunisasiModel {
               .toList() ??
           [],
       jumlahTerlewat: (json['jumlah_terlewat'] as num?)?.toInt() ?? 0,
+      jumlahSelesai: (json['jumlah_selesai'] as num?)?.toInt() ?? 0,
     );
   }
 
@@ -40,6 +42,7 @@ class ImunisasiModel {
       'tanggal_lahir': tanggalLahir?.toIso8601String(),
       'jadwal': jadwal.map((e) => e.toJson()).toList(),
       'jumlah_terlewat': jumlahTerlewat,
+      'jumlah_selesai': jumlahSelesai,
     };
   }
 }
@@ -86,71 +89,6 @@ class JadwalImunisasiModel {
       'status': status,
       'deskripsi': deskripsi,
       'efek_samping': efekSamping,
-    };
-  }
-}
-
-class ImunisasiDetailModel {
-  final int anakId;
-  final String namaAnak;
-  final DateTime? tanggalLahir;
-  final int jumlahTerlewat;
-  final List<JadwalImunisasiModel> jadwal;
-
-  ImunisasiDetailModel({
-    required this.anakId,
-    required this.namaAnak,
-    required this.tanggalLahir,
-    required this.jumlahTerlewat,
-    required this.jadwal,
-  });
-
-  factory ImunisasiDetailModel.fromJson(Map<String, dynamic> json) {
-    final rawJadwal = json['jadwal'];
-
-    List<JadwalImunisasiModel> jadwalList = [];
-
-    if (rawJadwal is List) {
-      jadwalList = rawJadwal
-          .whereType<Map>() // amanin tipe
-          .map((e) => JadwalImunisasiModel.fromJson(
-                Map<String, dynamic>.from(e),
-              ))
-          .toList();
-    }
-
-    return ImunisasiDetailModel(
-      anakId: (json['anak_id'] as num?)?.toInt() ?? 0,
-      namaAnak: json['nama_anak'] ?? '',
-      tanggalLahir: _parseDate(json['tanggal_lahir']),
-      jumlahTerlewat: (json['jumlah_terlewat'] as num?)?.toInt() ?? 0,
-      jadwal: jadwalList,
-    );
-  }
-
-  static DateTime? _parseDate(dynamic value) {
-    if (value == null) return null;
-    try {
-      return DateTime.parse(value);
-    } catch (_) {
-      return null;
-    }
-  }
-}
-
-class RequestPerubahanJadwalRequest {
-  final String tanggalBaru;
-  final String alasan;
-
-  RequestPerubahanJadwalRequest({
-    required this.tanggalBaru,
-    required this.alasan,
-  });
-
-  Map<String, dynamic> toJson() {
-    return {
-      "tanggal_estimasi": tanggalBaru,
-      "alasan": alasan,
     };
   }
 }

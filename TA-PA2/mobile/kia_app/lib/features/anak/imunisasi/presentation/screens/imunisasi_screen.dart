@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ta_pa2_pa3_project/core/themes/app_theme.dart';
+import 'package:ta_pa2_pa3_project/features/anak/imunisasi/data/models/ringkasan_imunisasi_model.dart';
+import 'package:ta_pa2_pa3_project/features/anak/imunisasi/data/services/ringkasan_imunisasi_service.dart';
 
 class ImunisasiScreen extends StatefulWidget {
   final Map<String, dynamic>? anak;
@@ -13,16 +15,40 @@ class ImunisasiScreen extends StatefulWidget {
 class _ImunisasiScreenState extends State<ImunisasiScreen> {
   DateTime _focusedMonth = DateTime(2026, 4);
 
-  final List<int> _selesaiDays = [4, 10];
-  final List<int> _dijadwalkanDays = [24];
-  final int _todayDay = 17;
+  bool _isLoading = true;
+  RingkasanImunisasiModel? _data;
 
-  final List<Map<String, dynamic>> _riwayat = [
-    {'nama': 'K1 & K2', 'tanggal': '5 Apr 2026', 'status': 'selesai'},
-    {'nama': 'TT1 (Tetanus)', 'tanggal': '5 Apr 2026', 'status': 'selesai'},
-    {'nama': 'TT2 (Tetanus)', 'tanggal': '1 Apr 2026', 'status': 'selesai'},
-    {'nama': 'Hepatitis B', 'tanggal': '28 Apr 2026', 'status': 'menunggu'},
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _fetchData();
+  }
+
+  Future<void> _fetchData() async {
+    try {
+      final anakId = widget.anak?["id"];
+
+      final service = RingkasanImunisasiService();
+
+      final result = await service.getRingkasanImunisasiByAnakId(anakId);
+
+      if (result.isNotEmpty) {
+        setState(() {
+          _data = result.first;
+          _isLoading = false;
+        });
+      } else {
+        setState(() {
+          _data = null;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 
   String get _monthLabel {
     const months = [
@@ -57,47 +83,58 @@ class _ImunisasiScreenState extends State<ImunisasiScreen> {
 
   Color getStatusColor(String status) {
     switch (status.toLowerCase()) {
-      case 'selesai':
-        return const Color(0xFF1B9E5F);
-      case 'menunggu':
-        return const Color(0xFFF59E0B);
+      case 'mendekati':
+        return Colors.orange;
+      case 'jatuh tempo':
+        return Colors.blue;
+      case 'terlewat':
+        return Colors.red;
       case 'terlambat':
+        return Colors.deepOrange;
+      case 'krisis':
         return Colors.red;
       default:
-        return Colors.grey;
+        return Colors.green;
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final nama = _data?.namaAnak ?? (widget.anak?["nama"] ?? "").toString();
+
+    final selesai = _data?.jumlahSelesai ?? 0;
+    final terlewat = _data?.jumlahTerlewat ?? 0;
+    final jadwal = _data?.jadwal ?? [];
+
+    final total = jadwal.isEmpty ? 1 : jadwal.length;
+    final progress = total == 0 ? 0.0 : selesai / total;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF4F6FB),
-      body: Column(
-        children: [
-          _buildHeader(),
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(16, 20, 16, 24),
-              child: Column(
-                children: [
-                  _buildStatusCard(),
-                  const SizedBox(height: 14),
-                  _buildHistory(),
-                  const SizedBox(height: 14),
-                  _buildQuickAction(),
-                ],
-              ),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : Column(
+              children: [
+                _buildHeader(nama),
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.fromLTRB(16, 20, 16, 24),
+                    child: Column(
+                      children: [
+                        _buildStatusCard(selesai, total, progress),
+                        const SizedBox(height: 14),
+                        _buildHistory(jadwal),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ),
-        ],
-      ),
     );
   }
 
   // ================= HEADER =================
-  Widget _buildHeader() {
-    final nama = (widget.anak?["nama"] ?? "").toString();
-
+  Widget _buildHeader(String nama) {
     return Container(
       padding: const EdgeInsets.only(top: 55, left: 16, right: 16, bottom: 40),
       decoration: const BoxDecoration(
@@ -127,7 +164,10 @@ class _ImunisasiScreenState extends State<ImunisasiScreen> {
               ),
               Text(
                 nama,
-                style: const TextStyle(color: Colors.white70, fontSize: 12),
+                style: const TextStyle(
+                  color: Colors.white70,
+                  fontSize: 12,
+                ),
               ),
             ],
           ),
@@ -137,7 +177,7 @@ class _ImunisasiScreenState extends State<ImunisasiScreen> {
   }
 
   // ================= STATUS CARD =================
-  Widget _buildStatusCard() {
+  Widget _buildStatusCard(int selesai, int total, double progress) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: _cardDecoration(),
@@ -146,15 +186,18 @@ class _ImunisasiScreenState extends State<ImunisasiScreen> {
         children: [
           const Text(
             "PROGRESS IMUNISASI",
-            style:
-                TextStyle(fontSize: 11, color: Colors.grey, letterSpacing: 1),
+            style: TextStyle(
+              fontSize: 11,
+              color: Colors.grey,
+              letterSpacing: 1,
+            ),
           ),
           const SizedBox(height: 10),
           Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                "6",
+                "$selesai",
                 style: TextStyle(
                   fontSize: 36,
                   fontWeight: FontWeight.bold,
@@ -162,9 +205,9 @@ class _ImunisasiScreenState extends State<ImunisasiScreen> {
                 ),
               ),
               const SizedBox(width: 6),
-              const Padding(
-                padding: EdgeInsets.only(bottom: 6),
-                child: Text("/13 selesai"),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 6),
+                child: Text("/$total selesai"),
               ),
             ],
           ),
@@ -172,51 +215,24 @@ class _ImunisasiScreenState extends State<ImunisasiScreen> {
           ClipRRect(
             borderRadius: BorderRadius.circular(8),
             child: LinearProgressIndicator(
-              value: 6 / 24,
+              value: progress,
               minHeight: 8,
               backgroundColor: const Color(0xFFE5E7EB),
               color: TrimesterTheme.t1Primary,
             ),
           ),
           const SizedBox(height: 10),
-          const Text(
-            "Status imunisasi anak dipantau secara berkala sesuai jadwal nasional.",
-            style: TextStyle(fontSize: 11, color: Colors.grey),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ================= QUICK ACTION =================
-  Widget _buildQuickAction() {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: _cardDecoration(),
-      child: Row(
-        children: [
-          Expanded(
-            child: ElevatedButton.icon(
-              onPressed: () {},
-              icon: const Icon(Icons.calendar_month),
-              label: const Text("Lihat Jadwal"),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: TrimesterTheme.t1Primary,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 10),
+          // Text(
+          //   "Terlewat: $terlewat jadwal imunisasi",
+          //   style: const TextStyle(fontSize: 11, color: Colors.grey),
+          // ),
         ],
       ),
     );
   }
 
   // ================= HISTORY =================
-  Widget _buildHistory() {
+  Widget _buildHistory(List<JadwalImunisasiModel> jadwal) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: _cardDecoration(),
@@ -228,8 +244,8 @@ class _ImunisasiScreenState extends State<ImunisasiScreen> {
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 12),
-          ..._riwayat.map((e) {
-            final color = getStatusColor(e['status']);
+          ...jadwal.map((e) {
+            final color = getStatusColor(e.status);
 
             return Container(
               margin: const EdgeInsets.only(bottom: 12),
@@ -254,26 +270,36 @@ class _ImunisasiScreenState extends State<ImunisasiScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          e['nama'],
-                          style: const TextStyle(fontWeight: FontWeight.w600),
+                          e.namaDosis,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                         Text(
-                          e['tanggal'],
-                          style:
-                              const TextStyle(fontSize: 11, color: Colors.grey),
+                          e.tanggalEstimasi
+                                  ?.toIso8601String()
+                                  .split("T")
+                                  .first ??
+                              "",
+                          style: const TextStyle(
+                            fontSize: 11,
+                            color: Colors.grey,
+                          ),
                         ),
                       ],
                     ),
                   ),
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: color.withOpacity(0.15),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
-                      e['status'],
+                      e.status,
                       style: TextStyle(fontSize: 11, color: color),
                     ),
                   ),

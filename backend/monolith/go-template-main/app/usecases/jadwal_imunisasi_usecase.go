@@ -111,6 +111,7 @@ func (m *Main) GetJadwalImunisasiByAnakID(
 				NamaAnak:       row.NamaAnak,
 				TanggalLahir:   row.TanggalLahir,
 				JumlahTerlewat: 0,
+				JumlahSelesai:  0,
 				Jadwal:         []models.JadwalImunisasiItem{},
 			}
 		}
@@ -120,6 +121,9 @@ func (m *Main) GetJadwalImunisasiByAnakID(
 			switch row.StatusID {
 			case 3, 4, 5:
 				anakMap[row.AnakID].JumlahTerlewat++
+
+			case 6:
+				anakMap[row.AnakID].JumlahSelesai++ // 👈 TAMBAHAN INI
 			}
 
 			anakMap[row.AnakID].Jadwal = append(
