@@ -115,20 +115,8 @@ export default function EdukasiDigitalCrudPage({
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [editingId, setEditingId] = useState(null);
-  const initialForm = useMemo(() => {
-    if (fields && Array.isArray(fields)) {
-      const f = {};
-      fields.forEach((it) => {
-        if (it.type === "checkbox") {
-          f[it.key] = Boolean(it.default ?? false);
-          return;
-        }
-
-        f[it.key] = it.default ?? "";
-      });
-      return f;
-    }
-    return defaultFields;
+  const activeFields = useMemo(() => {
+    return fields && Array.isArray(fields) ? fields : defaultFields;
   }, [fields]);
 
   const initialForm = useMemo(() => {
@@ -749,7 +737,7 @@ export default function EdukasiDigitalCrudPage({
                       placeholder={`Masukkan ${f.label.toLowerCase()}`}
                       className="w-full border border-slate-200 bg-[#F7FAFB] rounded-xl px-4 py-3 text-[14px] focus:bg-white focus:border-[#185FA5] focus:ring-1 focus:ring-[#185FA5] outline-none transition-all"
                     />
-                    {f.key === "gambar_url" && value && (
+                    {f.key === "gambar_url" && value ? (
                       <div className="mt-2 w-full max-w-xs h-32 rounded-xl overflow-hidden border border-slate-200 bg-[#F7FAFB] relative">
                         <img 
                           src={value} 
