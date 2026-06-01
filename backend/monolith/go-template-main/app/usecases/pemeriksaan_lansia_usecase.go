@@ -11,6 +11,8 @@ type PemeriksaanLansiaUsecase interface {
 	GetByID(id int32) (*models.PemeriksaanLansia, error)
 	Update(data *models.PemeriksaanLansia) error
 	Delete(id int32) error
+	GetLatestRiskCountByPendudukIDs(pendudukIDs []int32) (map[string]int, error)
+	CountPendudukWithExamination(pendudukIDs []int32) (int64, error)
 }
 
 type pemeriksaanLansiaUsecase struct {
@@ -43,4 +45,10 @@ func (u *pemeriksaanLansiaUsecase) Update(data *models.PemeriksaanLansia) error 
 
 func (u *pemeriksaanLansiaUsecase) Delete(id int32) error {
 	return u.repo.Delete(id)
+}
+func (u *pemeriksaanLansiaUsecase) GetLatestRiskCountByPendudukIDs(pendudukIDs []int32) (map[string]int, error) {
+	return u.repo.GetLatestRiskCountByPendudukIDs(pendudukIDs)
+}
+func (u *pemeriksaanLansiaUsecase) CountPendudukWithExamination(pendudukIDs []int32) (int64, error) {
+    return u.repo.CountPendudukWithExamination(pendudukIDs)
 }

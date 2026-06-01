@@ -11,6 +11,8 @@ type PemeriksaanAnakUsecase interface {
 	GetByID(id int32) (*models.PemeriksaanAnak, error)
 	Update(data *models.PemeriksaanAnak) error
 	Delete(id int32) error
+	GetLatestRiskCountByPendudukIDs(pendudukIDs []int32) (map[string]int, error)
+	CountPendudukWithExamination(pendudukIDs []int32) (int64, error)
 }
 
 type pemeriksaanAnakUsecase struct {
@@ -43,4 +45,11 @@ func (u *pemeriksaanAnakUsecase) Update(data *models.PemeriksaanAnak) error {
 
 func (u *pemeriksaanAnakUsecase) Delete(id int32) error {
 	return u.repo.Delete(id)
+}
+func (u *pemeriksaanAnakUsecase) GetLatestRiskCountByPendudukIDs(pendudukIDs []int32) (map[string]int, error) {
+	return u.repo.GetLatestRiskCountByPendudukIDs(pendudukIDs)
+}
+
+func (u *pemeriksaanAnakUsecase) CountPendudukWithExamination(pendudukIDs []int32) (int64, error) {
+    return u.repo.CountPendudukWithExamination(pendudukIDs)
 }

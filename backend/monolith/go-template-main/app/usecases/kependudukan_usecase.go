@@ -16,6 +16,8 @@ type KependudukanUsecase interface {
 	Update(k *models.Kependudukan) error
 	Delete(id int32) error
 	GetRekapPerDusun(kecamatan, desa string) ([]repositories.RekapDusun, error)
+	GetAllActive() ([]models.Kependudukan, error)
+	GetAllActiveByDesaID(desaID int32) ([]models.Kependudukan, error)
 }
 
 type kependudukanUsecase struct {
@@ -77,4 +79,10 @@ func (u *kependudukanUsecase) Delete(id int32) error {
 }
 func (u *kependudukanUsecase) GetRekapPerDusun(kecamatan, desa string) ([]repositories.RekapDusun, error) {
 	return u.repo.GetRekapPerDusun(kecamatan, desa)
+}
+func (u *kependudukanUsecase) GetAllActive() ([]models.Kependudukan, error) {
+    return u.repo.GetAllActive()
+}
+func (u *kependudukanUsecase) GetAllActiveByDesaID(desaID int32) ([]models.Kependudukan, error) {
+    return u.repo.GetAllActiveByDesaID(desaID)  // Ganti u.kependudukanRepo menjadi u.repo
 }

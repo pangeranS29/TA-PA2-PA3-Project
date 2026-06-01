@@ -48,3 +48,12 @@ func (r *DesaRepository) Deactivate(id int32) error {
 	desa.UpdatedAt = now
 	return r.db.Save(desa).Error
 }
+
+func (r *DesaRepository) FindByID(id int32) (*models.Desa, error) {
+    var desa models.Desa
+    err := r.db.Where("id = ? AND deleted_at IS NULL", id).First(&desa).Error
+    if err != nil {
+        return nil, err
+    }
+    return &desa, nil
+}

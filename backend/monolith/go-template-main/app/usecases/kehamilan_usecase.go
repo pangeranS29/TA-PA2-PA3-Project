@@ -155,7 +155,7 @@ func determineTrimester(usia int32) string {
 	case usia <= 40:
 		return "TRIMESTER 3"
 	default:
-		return "Non-Aktif"
+		return "NON-AKTIF"
 	}
 }
 func (u *kehamilanUsecase) GetDashboardIbuHamil() ([]repositories.KehamilanDashboardDTO, error) {

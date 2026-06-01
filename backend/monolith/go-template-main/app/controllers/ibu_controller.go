@@ -7,6 +7,7 @@ import (
 
 	"monitoring-service/app/models"
 	"monitoring-service/app/usecases"
+	"monitoring-service/app/middlewares" 
 
 	"github.com/labstack/echo/v4"
 )
@@ -225,19 +226,23 @@ func (c *IbuController) Delete(ctx echo.Context) error {
 	})
 }
 func (c *IbuController) GetDashboard(ctx echo.Context) error {
-	list, err := c.usecase.GetDashboard()
-	if err != nil {
-		return ctx.JSON(http.StatusInternalServerError, models.Response{
-			StatusCode: 500,
-			Message:    err.Error(),
-		})
-	}
+    // Ambil desa_id dan role dari context (sudah diset middleware)
+    desaID := middlewares.GetDesaID(ctx)
+    role := middlewares.GetRole(ctx)
 
-	return ctx.JSON(http.StatusOK, models.Response{
-		StatusCode: 200,
-		Message:    "Dashboard ibu hamil",
-		Data:       list,
-	})
+    list, err := c.usecase.GetDashboard(desaID, role)
+    if err != nil {
+        return ctx.JSON(http.StatusInternalServerError, models.Response{
+            StatusCode: 500,
+            Message:    err.Error(),
+        })
+    }
+
+    return ctx.JSON(http.StatusOK, models.Response{
+        StatusCode: 200,
+        Message:    "Dashboard ibu hamil",
+        Data:       list,
+    })
 }
 
 // GetByPendudukID - Cek apakah penduduk sudah terdaftar sebagai ibu

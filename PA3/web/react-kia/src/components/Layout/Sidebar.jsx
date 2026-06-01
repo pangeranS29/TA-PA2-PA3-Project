@@ -28,6 +28,8 @@ import {
   BookOpenCheck,
 } from "lucide-react";
 import logo from "./LOGO.png";
+
+
 const baseItemClass = (isActive) =>
   `flex items-center gap-2 px-3 py-2.5 rounded-lg transition-all duration-200 group ${isActive
     ? "bg-blue-50 text-blue-600 font-semibold"
@@ -50,6 +52,7 @@ const Sidebar = () => {
     edukasiDigital: pathname.startsWith("/edukasi-digital"),
     kesehatanLingkungan: pathname.startsWith("/pencatatan/kesehatan-lingkungan"),
     mpasi: pathname.startsWith("/edukasi-digital/mpasi"),
+    pencatatanKesehatan: pathname.startsWith("/pencatatan-kesehatan"), 
   });
 
   const [dropdownOpen, setDropdownOpen] = useState(() => getDropdownOpenState(location.pathname));
@@ -122,6 +125,18 @@ const Sidebar = () => {
       ],
     },
     { path: "/jadwal-layanan", name: "Jadwal Layanan", icon: Calendar },
+     {
+  name: "Pencatatan Kesehatan",
+  icon: ClipboardList,            // gunakan ikon dari lucide-react (sudah diimport di atas)
+  isDropdown: true,
+  dropdownKey: "pencatatanKesehatan",   // unique key untuk dropdown
+  children: [
+    { path: "/pencatatan-kesehatan/anak", name: "Anak (0-12 tahun)", icon: Activity },
+    { path: "/pencatatan-kesehatan/remaja", name: "Remaja (13-18 tahun)", icon: Activity },
+    { path: "/pencatatan-kesehatan/dewasa", name: "Dewasa (19-59 tahun)", icon: Activity },
+    { path: "/pencatatan-kesehatan/lansia", name: "Lansia (≥60 tahun)", icon: Activity },
+  ],
+},
     { path: "/laporan", name: "Laporan", icon: BarChart3 },
   ];
 

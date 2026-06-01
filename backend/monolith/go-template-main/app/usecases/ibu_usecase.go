@@ -14,7 +14,7 @@ type IbuUsecase interface {
 	GetAll() ([]models.Ibu, error)
 	Update(ibu *models.Ibu) error
 	Delete(id int32) error
-	GetDashboard() ([]models.IbuDashboardDTO, error)
+	GetDashboard(desaID *int32, role string) ([]models.IbuDashboardDTO, error)
 	GetByPendudukID(pendudukID int32) (*models.Ibu, error)
 }
 
@@ -101,8 +101,8 @@ func (u *ibuUsecase) Delete(id int32) error {
 	return u.repo.Delete(id)
 }
 
-func (u *ibuUsecase) GetDashboard() ([]models.IbuDashboardDTO, error) {
-	return u.repo.GetDashboard()
+func (u *ibuUsecase) GetDashboard(desaID *int32, role string) ([]models.IbuDashboardDTO, error) {
+    return u.repo.GetDashboard(desaID, role)
 }
 func (u *ibuUsecase) GetByPendudukID(pendudukID int32) (*models.Ibu, error) {
     return u.repo.FindByPendudukID(pendudukID)

@@ -15,6 +15,12 @@ func normalizeRole(role string) string {
 	return role
 }
 
+func HasFullAccess(role string) bool {
+    normalized := normalizeRole(role)
+    // Dokter, Superadmin, Admin dapat melihat semua desa
+    return normalized == "dokter" || normalized == "superadmin" || normalized == "admin"
+}
+
 // GetRole mengambil role pengguna dari Echo context.
 func GetRole(c echo.Context) string {
 	role, _ := c.Get("role").(string)

@@ -141,6 +141,10 @@ import KelolaDesa from "./pages/SuperAdmin/KelolaDesa";
 import KelolaUser from "./pages/SuperAdmin/Kelola Bidan&Kader&Admin desa";
 import KelolaUserPerDesa from "./pages/SuperAdmin/Kelola Akun User Per Desa";
 
+// Detail penduduk
+import DetailPenduduk from "./pages/DetailPenduduk";
+import PencatatanKesehatan from "./pages/PencatatanKesehatan";
+import PencatatanKesehatanKategori from "./pages/PencatatanKesehatanKategori";
 
 const HomeRedirect = () => {
   if (!isAuthenticated()) {
@@ -324,6 +328,10 @@ function App() {
         {/* ── DEFAULT ── */}
         <Route path="/" element={<HomeRedirect />} />
         <Route path="*" element={<HomeRedirect />} />
+
+        <Route path="/data-penduduk/:id" element={<DetailPenduduk />} />
+        <Route path="/pencatatan-kesehatan" element={<PencatatanKesehatan />} />
+        <Route path="/pencatatan-kesehatan/:kategori" element={<PencatatanKesehatanKategori />} />
       </Routes>
     </BrowserRouter>
   );

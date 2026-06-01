@@ -87,6 +87,11 @@ type Main struct {
 	PemeriksaanRemaja *PemeriksaanRemajaController
 	PemeriksaanDewasa *PemeriksaanDewasaController
 	PemeriksaanLansia *PemeriksaanLansiaController
+	Dashboard         *DashboardController
+	PendudukRisk	  *PendudukRiskController
+	RiwayatCard *RiwayatCardController
+	Pencatatan 	  *PencatatanController
+	
 }
 
 type Options struct {
@@ -191,7 +196,20 @@ func Init(opts Options) *Main {
 	m.PemeriksaanRemaja = NewPemeriksaanRemajaController(opts.UseCases.PemeriksaanRemaja, opts.UseCases.Kependudukan)
 	m.PemeriksaanDewasa = NewPemeriksaanDewasaController(opts.UseCases.PemeriksaanDewasa, opts.UseCases.Kependudukan)
 	m.PemeriksaanLansia = NewPemeriksaanLansiaController(opts.UseCases.PemeriksaanLansia, opts.UseCases.Kependudukan)
+	// Buat DashboardUsecase dari usecase yang sudah tersedia
+	dashboardUsecase := usecases.NewDashboardUsecase(
+		opts.UseCases.Kependudukan,
+		opts.UseCases.PemeriksaanAnak,
+		opts.UseCases.PemeriksaanRemaja,
+		opts.UseCases.PemeriksaanDewasa,
+		opts.UseCases.PemeriksaanLansia,
+	)
 
+	// Inject ke controller
+	m.Dashboard = NewDashboardController(dashboardUsecase)
+	m.PendudukRisk = NewPendudukRiskController(opts.UseCases.PendudukRisk)
+	m.RiwayatCard = NewRiwayatCardController(opts.UseCases.RiwayatCard)
+	m.Pencatatan = NewPencatatanController(opts.UseCases.Pencatatan)
 	return m
 }
 

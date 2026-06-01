@@ -49,7 +49,26 @@ func JWTAuth(jwtSecret string) echo.MiddlewareFunc {
 
 			c.Set("auth_claims", claims)
 			c.Set("role", claims.Role)
+			c.Set("desa_id", claims.DesaID) 
 			return next(c)
 		}
 	}
+}
+
+// GetUserID mengambil user_id dari context
+func GetUserID(c echo.Context) int64 {
+	userID, ok := c.Get("user_id").(int64)
+	if !ok {
+		return 0
+	}
+	return userID
+}
+
+// GetDesaID mengambil desa_id dari context (bisa nil)
+func GetDesaID(c echo.Context) *int32 {
+	desaID, ok := c.Get("desa_id").(*int32)
+	if !ok {
+		return nil
+	}
+	return desaID
 }
