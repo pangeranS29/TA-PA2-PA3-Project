@@ -95,18 +95,17 @@ const Sidebar = () => {
         { path: "/pemantauan/kelola", name: "Kelola Pemantauan Anak", icon: ClipboardEdit },
       ],
     },
-        {
-          name: "Edukasi Digital",
-          icon: BookOpenCheck,
-          isDropdown: true,
-          dropdownKey: "edukasiDigital",
-          children: [
+    {
+      name: "Edukasi Digital",
+      icon: BookOpenCheck,
+      isDropdown: true,
+      dropdownKey: "edukasiDigital",
+      children: [
         { path: "/edukasi-digital/informasi-umum", name: "Informasi Umum", icon: ClipboardList },
         { path: "/edukasi-digital/trimester", name: "Edukasi Trimester", icon: ClipboardList },
         { path: "/edukasi-digital/tanda-melahirkan", name: "Tanda Melahirkan", icon: ClipboardList },
         { path: "/edukasi-digital/imd", name: "Edukasi IMD", icon: ClipboardList },
         { path: "/edukasi-digital/setelah-melahirkan", name: "Setelah Melahirkan", icon: ClipboardList },
-        { path: "/edukasi-digital/nifas", name: "Edukasi Nifas", icon: ClipboardList },
         { path: "/edukasi-digital/menyusui-asi", name: "Menyusui & ASI", icon: ClipboardList },
         { path: "/edukasi-digital/pola-asuh", name: "Pola Asuh", icon: ClipboardList },
         { path: "/edukasi-digital/kesehatan-mental", name: "Kesehatan Mental", icon: ClipboardList },
@@ -259,8 +258,8 @@ const Sidebar = () => {
       {/* Header Logo */}
       <div className="flex items-center gap-2.5 mb-6">
         <div className=" p-1.5 rounded-lg text-white shadow-lg shadow-blue-100 flex-shrink-0">
-  <img src={logo} alt="Logo" className="w-6 h-6 object-contain" />
-</div>
+          <img src={logo} alt="Logo" className="w-6 h-6 object-contain" />
+        </div>
         <div className="min-w-0">
           <h1 className="text-base font-bold text-slate-800 leading-tight">KIA Cerdas</h1>
           <p className="text-[11px] text-slate-400">Dashboard {isDokter ? "Dokter" : isBidan ? "Bidan" : "Admin"}</p>

@@ -71,7 +71,6 @@ type Main struct {
 
 	// Edukasi Digital
 	EdukasiInformasiUmum     EdukasiInformasiUmumUsecase
-	EdukasiNifas             EdukasiNifasUsecase
 	EdukasiTrimester         EdukasiTrimesterUsecase
 	EdukasiTandaMelahirkan   EdukasiTandaMelahirkanUsecase
 	EdukasiImd               EdukasiIMDUsecase
@@ -200,7 +199,6 @@ func Init(opts Options) *Main {
 
 	// Edukasi Digital
 	m.EdukasiInformasiUmum = NewEdukasiInformasiUmumUsecase(opts.Repository.EdukasiInformasiUmum)
-	m.EdukasiNifas = NewEdukasiNifasUsecase(opts.Repository.EdukasiNifas)
 	m.EdukasiTrimester = NewEdukasiTrimesterUsecase(opts.Repository.EdukasiTrimester)
 	// m.EdukasiNifas = NewEdukasiNifasUsecase(opts.Repository.EdukasiNifas)
 	// m.EdukasiTandaBahayaTrimester = NewEdukasiTandaBahayaTrimesterUsecase(opts.Repository.EdukasiTandaBahayaTrimester)

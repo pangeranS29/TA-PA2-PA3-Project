@@ -11,8 +11,8 @@ type EdukasiMenyusuiASI struct {
 	Masalah    string    `json:"masalah" gorm:"type:text"`
 	Solusi     string    `json:"solusi" gorm:"type:text"`
 	GambarURL  string    `json:"gambar_url" gorm:"type:text"`
-	CreatedAt  time.Time `json:"created_at" gorm:"->"`
-	UpdatedAt  time.Time `json:"updated_at" gorm:"->"`
+	CreatedAt  time.Time `json:"created_at"`
+	UpdatedAt  time.Time `json:"updated_at"`
 }
 
 func (EdukasiMenyusuiASI) TableName() string {

@@ -20,19 +20,19 @@ const icons = {
   calendar: <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>,
   report: <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><polyline points="14,2 14,8 20,8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /><polyline points="10,9 9,9 8,9" /></svg>,
   preg: <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="M12 8v4l3 3" /></svg>,
-  baby: <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 2a5 5 0 0 0-5 5c0 2.5 2 5 5 5s5-2.5 5-5a5 5 0 0 0-5-5z"/><path d="M7 13c-2 2-3 5-3 7h16c0-2-1-5-3-7"/><circle cx="9" cy="9" r="1"/><circle cx="15" cy="9" r="1"/></svg>,
-  school: <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M22 10v6M2 10l10-5 10 5-10 5-10-5z"/><path d="M6 10v4c0 1.5 3 3 6 3s6-1.5 6-3v-4"/></svg>,
-  teen: <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3c0 1.5 1 2.5 2 3"/><path d="M17 15v-2c0-2-2-4-5-4s-5 2-5 4v2"/><circle cx="9" cy="9" r="1"/><circle cx="15" cy="9" r="1"/><path d="M7 19h10"/></svg>,
-  adult: <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 2a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"/><path d="M20 22v-2a6 6 0 0 0-6-6h-4a6 6 0 0 0-6 6v2"/><rect x="16" y="8" width="4" height="8" rx="1"/><rect x="4" y="12" width="4" height="4" rx="1"/></svg>,
-  elderly: <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"/><path d="M18 22v-2a4 4 0 0 0-4-4h-4a4 4 0 0 0-4 4v2"/><path d="M8 11l-2 3 2 1"/><path d="M16 11l2 3-2 1"/><path d="M12 14v4"/></svg>,
+  baby: <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 2a5 5 0 0 0-5 5c0 2.5 2 5 5 5s5-2.5 5-5a5 5 0 0 0-5-5z" /><path d="M7 13c-2 2-3 5-3 7h16c0-2-1-5-3-7" /><circle cx="9" cy="9" r="1" /><circle cx="15" cy="9" r="1" /></svg>,
+  school: <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M22 10v6M2 10l10-5 10 5-10 5-10-5z" /><path d="M6 10v4c0 1.5 3 3 6 3s6-1.5 6-3v-4" /></svg>,
+  teen: <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3c0 1.5 1 2.5 2 3" /><path d="M17 15v-2c0-2-2-4-5-4s-5 2-5 4v2" /><circle cx="9" cy="9" r="1" /><circle cx="15" cy="9" r="1" /><path d="M7 19h10" /></svg>,
+  adult: <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 2a4 4 0 1 0 0 8 4 4 0 0 0 0-8z" /><path d="M20 22v-2a6 6 0 0 0-6-6h-4a6 6 0 0 0-6 6v2" /><rect x="16" y="8" width="4" height="8" rx="1" /><rect x="4" y="12" width="4" height="4" rx="1" /></svg>,
+  elderly: <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6z" /><path d="M18 22v-2a4 4 0 0 0-4-4h-4a4 4 0 0 0-4 4v2" /><path d="M8 11l-2 3 2 1" /><path d="M16 11l2 3-2 1" /><path d="M12 14v4" /></svg>,
   imm: <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 11-5.93-9.14" /><polyline points="22,4 12,14.01 9,11.01" /></svg>,
   sched: <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>,
   search: <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" /><path d="M21 21l-4.35-4.35" /></svg>,
   sync: <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="23,4 23,10 17,10" /><polyline points="1,20 1,14 7,14" /><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15" /></svg>,
   warn: <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>,
   chevronRight: <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="9,18 15,12 9,6" /></svg>,
-  ambulance: <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M5 13h4v4H5zm6 0h4v4h-4z"/><path d="M18 16h-3v-4h3a2 2 0 012 2v2a2 2 0 01-2 2z"/><path d="M6 16H4a2 2 0 01-2-2v-2a2 2 0 012-2h14"/><path d="M9 12V8a2 2 0 012-2h6a2 2 0 012 2v4"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg>,
-  info: <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>,
+  ambulance: <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M5 13h4v4H5zm6 0h4v4h-4z" /><path d="M18 16h-3v-4h3a2 2 0 012 2v2a2 2 0 01-2 2z" /><path d="M6 16H4a2 2 0 01-2-2v-2a2 2 0 012-2h14" /><path d="M9 12V8a2 2 0 012-2h6a2 2 0 012 2v4" /><circle cx="7" cy="17" r="2" /><circle cx="17" cy="17" r="2" /></svg>,
+  info: <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" /></svg>,
 };
 
 // ==================== Helper functions ====================
@@ -115,30 +115,30 @@ function getRiskCardStyle(risk) {
 }
 
 // ==================== Komponen Kartu Ringkasan (dengan onClick) ====================
-function RingkasanCard({ 
-  label, 
-  total, 
-  sub1Value, 
-  sub2Value, 
-  persentase, 
-  icon, 
-  color, 
-  bgColor, 
-  sub1Label, 
+function RingkasanCard({
+  label,
+  total,
+  sub1Value,
+  sub2Value,
+  persentase,
+  icon,
+  color,
+  bgColor,
+  sub1Label,
   sub2Label,
   cakupanLabel = "Cakupan",
   tooltipText = "Persentase sasaran yang telah menerima pelayanan",
-  onClick 
+  onClick
 }) {
   return (
-    <div 
+    <div
       onClick={onClick}
-      style={{ 
-        background: "#fff", 
-        borderRadius: 10, 
+      style={{
+        background: "#fff",
+        borderRadius: 10,
         padding: "10px 8px",
-        border: "1px solid #e2e8f0", 
-        textAlign: "center", 
+        border: "1px solid #e2e8f0",
+        textAlign: "center",
         boxShadow: "0 1px 2px rgba(0,0,0,0.02)",
         transition: "transform 0.1s ease",
         cursor: onClick ? "pointer" : "default",
@@ -279,113 +279,51 @@ export default function Dashboard() {
   }, []);
 
   // Fetch ibu hamil
-useEffect(() => {
-  const fetchIbu = async () => {
-    try {
-      setLoading(true);
-      const response = await getIbuDashboard();
+  useEffect(() => {
+    const fetchIbu = async () => {
+      try {
+        setLoading(true);
+        const response = await getIbuDashboard();
+        // Assume API returns data array directly or inside .data
+        const rawData = response?.data?.data ?? response?.data ?? [];
+        setAllIbuData(rawData);
 
-      // ========== HANDLING RESPONSE KOSONG / NULL ==========
-      let rawData = [];
+        // Process data safely
+        // Duplicate processing block removed - original duplicated logic was unnecessary
+        const kehamilanList = rawData.filter((item) => item.kehamilan_id && item.kehamilan_id !== 0);
+        const total_kehamilan = kehamilanList.length;
+        const aktifList = kehamilanList.filter((item) => item.status_kehamilan?.includes("TRIMESTER"));
+        const kehamilan_aktif = aktifList.length;
+        const risikoTinggiList = kehamilanList.filter((item) => normalizeRisk(item.status_risiko) === "Tinggi");
+        const risikoSedangList = kehamilanList.filter((item) => normalizeRisk(item.status_risiko) === "Sedang");
+        const risikoNormalList = kehamilanList.filter((item) => normalizeRisk(item.status_risiko) === "Normal");
 
-      // Jika response null, undefined, atau bukan object, anggap kosong
-      if (response === null || response === undefined) {
-        console.warn("Response kosong (null/undefined), gunakan array kosong");
-        rawData = [];
+        // Dusun aggregation
+        const dusunMap = new Map();
+        kehamilanList.forEach((item) => {
+          const dusun = item.dusun || "Tidak diketahui";
+          dusunMap.set(dusun, (dusunMap.get(dusun) || 0) + 1);
+        });
+        const per_dusun = Array.from(dusunMap.entries()).map(([dusun, jumlah]) => ({ dusun, jumlah }));
+
+        // Update state
+        setStatsIbu({
+          total_kehamilan,
+          kehamilan_aktif,
+          resiko_tinggi: risikoTinggiList.length,
+          resiko_sedang: risikoSedangList.length,
+          resiko_normal: risikoNormalList.length,
+          per_dusun,
+        });
+      } catch (err) {
+        console.error("Error fetchIbu:", err);
+        setError("Gagal memuat data ibu hamil: " + (err.response?.data?.message || err.message));
+      } finally {
+        setLoading(false);
       }
-      // Jika response adalah array langsung (misal [] atau [...])
-      else if (Array.isArray(response)) {
-        rawData = response;
-      }
-      // Jika response adalah object
-      else if (typeof response === 'object') {
-        // Coba ambil dari response.data
-        if (response.data !== undefined && response.data !== null) {
-          if (Array.isArray(response.data)) {
-            rawData = response.data;
-          } 
-          // Jika response.data adalah object, cek properti lain
-          else if (typeof response.data === 'object') {
-            // Cek berbagai kemungkinan properti yang berisi array
-            const possibleArrayProps = ['list', 'items', 'rows', 'records', 'data'];
-            let found = false;
-            for (let prop of possibleArrayProps) {
-              if (Array.isArray(response.data[prop])) {
-                rawData = response.data[prop];
-                found = true;
-                break;
-              }
-            }
-            if (!found) {
-              console.warn("Response.data tidak mengandung array, gunakan array kosong");
-              rawData = [];
-            }
-          } else {
-            // response.data bukan array dan bukan object (misal null, string, number)
-            console.warn("response.data bukan array/object, gunakan array kosong");
-            rawData = [];
-          }
-        } 
-        // Jika response.data tidak ada, cek properti langsung di response
-        else {
-          const possibleArrayProps = ['list', 'items', 'rows', 'records', 'data'];
-          let found = false;
-          for (let prop of possibleArrayProps) {
-            if (Array.isArray(response[prop])) {
-              rawData = response[prop];
-              found = true;
-              break;
-            }
-          }
-          if (!found) {
-            console.warn("Response tidak mengandung array, gunakan array kosong");
-            rawData = [];
-          }
-        }
-      } 
-      else {
-        // Response tipe lain (string, number, dll) – anggap kosong
-        console.warn("Response tipe tidak dikenal, gunakan array kosong", typeof response);
-        rawData = [];
-      }
-
-      // Debug: lihat hasil ekstraksi
-      console.log("Raw data setelah parsing:", rawData);
-      setAllIbuData(rawData);
-
-      // ========== PROSES DATA (tetap aman meski rawData kosong) ==========
-      const kehamilanList = rawData.filter((item) => item.kehamilan_id && item.kehamilan_id !== 0);
-      const total_kehamilan = kehamilanList.length;
-      const aktifList = kehamilanList.filter((item) => item.status_kehamilan?.includes("TRIMESTER"));
-      const kehamilan_aktif = aktifList.length;
-      const risikoTinggiList = kehamilanList.filter((item) => normalizeRisk(item.status_risiko) === "Tinggi");
-      const risikoSedangList = kehamilanList.filter((item) => normalizeRisk(item.status_risiko) === "Sedang");
-      const risikoNormalList = kehamilanList.filter((item) => normalizeRisk(item.status_risiko) === "Normal");
-
-      const dusunMap = new Map();
-      kehamilanList.forEach((item) => {
-        const dusun = item.dusun || "Tidak diketahui";
-        dusunMap.set(dusun, (dusunMap.get(dusun) || 0) + 1);
-      });
-      const per_dusun = Array.from(dusunMap.entries()).map(([dusun, jumlah]) => ({ dusun, jumlah }));
-
-      setStatsIbu({
-        total_kehamilan,
-        kehamilan_aktif,
-        resiko_tinggi: risikoTinggiList.length,
-        resiko_sedang: risikoSedangList.length,
-        resiko_normal: risikoNormalList.length,
-        per_dusun,
-      });
-    } catch (err) {
-      console.error("Error fetchIbu:", err);
-      setError("Gagal memuat data ibu hamil: " + (err.message || err));
-    } finally {
-      setLoading(false);
-    }
-  };
-  fetchIbu();
-}, []);
+    };
+    fetchIbu();
+  }, []);
 
   // Filter daftar ibu berdasarkan risiko terpilih (untuk tampilan risiko)
   useEffect(() => {
@@ -714,14 +652,14 @@ useEffect(() => {
               <RiskBarChart data={getRiskData()} onBarClick={handleBarClick} activeRisk={selectedKategori === "ibu-hamil" ? selectedRiskFilter : activeRiskKelompok} />
 
               {/* ===== RINGKASAN INFORMASI DI BAWAH GRAFIK ===== */}
-              <div style={{ 
-                marginTop: 16, 
-                display: "flex", 
-                gap: 12, 
-                flexWrap: "wrap", 
-                justifyContent: "space-between", 
-                borderTop: "1px solid #e2e8f0", 
-                paddingTop: 12 
+              <div style={{
+                marginTop: 16,
+                display: "flex",
+                gap: 12,
+                flexWrap: "wrap",
+                justifyContent: "space-between",
+                borderTop: "1px solid #e2e8f0",
+                paddingTop: 12
               }}>
                 {/* Total Sasaran */}
                 <div style={{ flex: 1, background: "#f8fafc", borderRadius: 8, padding: "8px 12px", textAlign: "center" }}>
