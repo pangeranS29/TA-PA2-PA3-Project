@@ -241,6 +241,7 @@ func (u *AnakUseCase) DeleteAnak(id int32) error {
 }
 
 // ====================== LIST ======================
+// AdminListAnak: untuk admin/superadmin, tampilkan semua. Mendukung filter opsional kehamilan_id.
 func (u *AnakUseCase) AdminListAnak(kehamilanID int32) ([]models.AnakResponse, error) {
 	var (
 		list []models.Anak
@@ -260,6 +261,39 @@ func (u *AnakUseCase) AdminListAnak(kehamilanID int32) ([]models.AnakResponse, e
 
 	result := make([]models.AnakResponse, 0, len(list))
 
+	for _, k := range list {
+		resp := u.toAnakResponse(&k)
+		result = append(result, resp)
+	}
+
+	return result, nil
+}
+
+// ListAnakByDesa: untuk bidan, hanya tampilkan anak di desa bidan.
+// Jika desaID nil (misalnya admin/dokter/superadmin), tampilkan semua.
+// Jika desaID ada, filter berdasarkan penduduk.desa_id.
+func (u *AnakUseCase) ListAnakByDesa(desaID *int32, kehamilanID int32) ([]models.AnakResponse, error) {
+	var (
+		list []models.Anak
+		err  error
+	)
+
+	if kehamilanID != 0 {
+		// Jika ada filter kehamilan_id, gunakan FindByKehamilanID
+		list, err = u.anakRepo.FindByKehamilanID(kehamilanID)
+	} else if desaID != nil && *desaID > 0 {
+		// Bidan login → filter berdasarkan desa_id
+		list, err = u.anakRepo.FindAllByDesaID(*desaID)
+	} else {
+		// Admin/Dokter/Superadmin → tampilkan semua
+		list, err = u.anakRepo.FindAll()
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]models.AnakResponse, 0, len(list))
 	for _, k := range list {
 		resp := u.toAnakResponse(&k)
 		result = append(result, resp)

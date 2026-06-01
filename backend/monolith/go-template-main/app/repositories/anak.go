@@ -44,6 +44,23 @@ func (r *AnakRepository) FindAll() ([]models.Anak, error) {
 
 }
 
+// FindAllByDesaID mengambil data anak yang penduduknya berada di desa tertentu.
+// Menggunakan JOIN ke tabel penduduk agar query efisien (filter di level DB, bukan di Go).
+func (r *AnakRepository) FindAllByDesaID(desaID int32) ([]models.Anak, error) {
+	var list []models.Anak
+
+	err := r.db.
+		Joins("JOIN penduduk ON penduduk.id = anak.penduduk_id").
+		Where("penduduk.desa_id = ?", desaID).
+		Preload("Penduduk").
+		Preload("Kehamilan.Ibu.Kependudukan").
+		Find(&list).Error
+	if err != nil {
+		return nil, err
+	}
+	return list, nil
+}
+
 func (r *AnakRepository) FindByID(id int32) (*models.Anak, error) {
 	var anak models.Anak
 	err := r.db.

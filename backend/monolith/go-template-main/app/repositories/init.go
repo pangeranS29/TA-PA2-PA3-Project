@@ -95,7 +95,8 @@ type Main struct {
 
 	// EdukasiTandaBahayaTrimester EdukasiTandaBahayaTrimesterRepository
 
-	LaporanIbu LaporanIbuRepository
+	LaporanIbu  LaporanIbuRepository
+	LaporanAnak LaporanAnakRepository
 }
 
 type Options struct {
@@ -186,6 +187,7 @@ func Init(opts Options) *Main {
 	m.JadwalLayanan = NewJadwalLayananRepository(opts.Postgres)
 	m.EdukasiResepMPASI = NewResepMPASIRepository(opts.Postgres)
 	m.LaporanIbu = NewLaporanIbuRepository(opts.Postgres)
+	m.LaporanAnak = NewLaporanAnakRepository(opts.Postgres)
 	m.PemeriksaanAnak = NewPemeriksaanAnakRepository(opts.Postgres)
 	m.PemeriksaanRemaja = NewPemeriksaanRemajaRepository(opts.Postgres)
 	m.PemeriksaanDewasa = NewPemeriksaanDewasaRepository(opts.Postgres)

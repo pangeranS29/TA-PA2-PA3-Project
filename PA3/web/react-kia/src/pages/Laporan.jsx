@@ -156,7 +156,7 @@ export default function Laporan() {
             </div>
           </div>
 
-          {/* Card Laporan Anak - PREVIEW INLINE (sementara) */}
+          {/* Card Laporan Anak */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
             <div className="p-6">
               <div className="flex items-center gap-3 mb-4">
@@ -174,58 +174,12 @@ export default function Laporan() {
               </div>
 
               <button
-                onClick={handlePreviewAnak}
-                disabled={loadingPreviewAnak}
-                className="w-full bg-green-50 text-green-700 border border-green-200 px-4 py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-green-100 transition-colors disabled:opacity-50"
+                onClick={() => navigate("/laporan/anak/preview")}
+                className="w-full bg-green-600 text-white px-4 py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-green-700 transition-colors"
               >
-                {loadingPreviewAnak ? (
-                  <Loader2 className="animate-spin" size={18} />
-                ) : (
-                  <Eye size={18} />
-                )}
-                {loadingPreviewAnak ? "Memuat Preview..." : "Preview Laporan Anak"}
+                <Eye size={18} /> Lihat & Export Laporan Anak
               </button>
             </div>
-
-            {/* Area Preview Anak (inline) */}
-            {(loadingPreviewAnak || previewAnak || errorPreviewAnak) && (
-              <div className="border-t border-gray-100 bg-gray-50 p-6">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="font-medium text-gray-700 flex items-center gap-2">
-                    <Table size={18} />
-                    Preview Data Anak
-                  </h3>
-                  {previewAnak && previewAnak.length > 0 && (
-                    <button
-                      onClick={handleExportAnak}
-                      disabled={loadingAnak}
-                      className="bg-green-600 text-white px-3 py-1.5 rounded-lg text-sm flex items-center gap-2 hover:bg-green-700 transition-colors disabled:opacity-50"
-                    >
-                      {loadingAnak ? (
-                        <Loader2 className="animate-spin" size={16} />
-                      ) : (
-                        <Download size={16} />
-                      )}
-                      {loadingAnak ? "Memproses..." : "Download Excel"}
-                    </button>
-                  )}
-                </div>
-
-                {loadingPreviewAnak && (
-                  <div className="flex justify-center py-8">
-                    <Loader2 className="animate-spin text-green-500" size={32} />
-                  </div>
-                )}
-
-                {errorPreviewAnak && (
-                  <div className="bg-red-50 text-red-700 p-4 rounded-lg text-center">
-                    {errorPreviewAnak}
-                  </div>
-                )}
-
-                {previewAnak && renderPreviewTable(previewAnak)}
-              </div>
-            )}
           </div>
         </div>
       </div>
