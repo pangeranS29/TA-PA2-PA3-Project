@@ -200,3 +200,39 @@ func (m *Main) GetJadwalByID(c echo.Context) error {
 
 	return c.JSON(200, data)
 }
+
+func (m *Main) SetJadwalSelesai(c echo.Context) error {
+
+	idParam := c.Param("id")
+
+	jadwalID, err := strconv.Atoi(idParam)
+	if err != nil || jadwalID <= 0 {
+		return helpers.Response(c, 400, []string{"id tidak valid"})
+	}
+
+	// 🔥 AMBIL USER LOGIN
+	claimsValue := c.Get("auth_claims")
+	claims, ok := claimsValue.(*models.AuthClaims)
+
+	if !ok || claims == nil || claims.UserID == 0 {
+		return helpers.Response(c, 401, []string{"unauthorized"})
+	}
+
+	// 🔥 KIRIM USERID + JADWAL ID
+	err = m.usecases.SetJadwalSelesai(
+		int32(claims.UserID),
+		uint(jadwalID),
+	)
+
+	if err != nil {
+		return helpers.Response(c, 500, []string{err.Error()})
+	}
+
+	return helpers.StandardResponse(
+		c,
+		200,
+		[]string{"jadwal berhasil diselesaikan"},
+		nil,
+		nil,
+	)
+}

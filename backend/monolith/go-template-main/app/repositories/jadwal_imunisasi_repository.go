@@ -240,3 +240,17 @@ func (m *Main) GetJadwalImunisasiByJadwalID(
 
 	return &result, nil
 }
+
+func (m *Main) UpdateStatusJadwalImunisasi(
+    jadwalID uint,
+    statusID uint,
+) error {
+
+    return m.postgres.
+        Table("jadwal_imunisasi_anak").
+        Where("id = ?", jadwalID).
+        Updates(map[string]interface{}{
+            "id_status_jadwal": statusID,
+            "updated_at": time.Now(),
+        }).Error
+}

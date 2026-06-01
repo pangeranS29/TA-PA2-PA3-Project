@@ -763,7 +763,8 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	ibu.GET("/jadwal-imunisasi/anak/:anak_id", controller.GetJadwalImunisasiByAnakID)
 	ibu.PUT("/jadwal-imunisasi/:id/tanggal-estimasi", controller.UpdateTanggalEstimasi)
 	ibu.GET("/jadwal-imunisasi/:id", controller.GetJadwalByID)
-	
+	ibu.PUT("/jadwal-imunisasi/:id/selesai", controller.SetJadwalSelesai)
+
 	// Request Perubahan Jadwal Imunisasi Ibu
 	ibu.POST("/jadwal-imunisasi/:id/request-perubahan", controller.RequestPerubahanJadwal)
 

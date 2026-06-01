@@ -170,6 +170,33 @@ class ImunisasiService {
     }
   }
 
+  Future<void> setJadwalSelesai(int jadwalId) async {
+    final uri = Uri.parse(
+      '${ApiConstants.baseUrl}/ibu/jadwal-imunisasi/$jadwalId/selesai',
+    );
+
+    try {
+      final response = await _client.put(
+        uri,
+        headers: _headers,
+      );
+
+      final body = jsonDecode(response.body);
+
+      if (response.statusCode < 200 || response.statusCode >= 300) {
+        final msg = body['message'];
+        final errorText = (msg is List)
+            ? msg.join(', ')
+            : (msg ?? 'Gagal menyelesaikan jadwal');
+
+        throw Exception(errorText);
+      }
+    } catch (e) {
+      debugPrint("Error setJadwalSelesai: $e");
+      rethrow;
+    }
+  }
+
   void dispose() {
     _client.close();
   }

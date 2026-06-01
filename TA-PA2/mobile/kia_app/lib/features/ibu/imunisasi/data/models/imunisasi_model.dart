@@ -1,4 +1,3 @@
-
 class ImunisasiModel {
   final int anakId;
   final String namaAnak;
@@ -151,6 +150,20 @@ class RequestPerubahanJadwalRequest {
     return {
       "tanggal_estimasi": tanggalBaru,
       "alasan": alasan,
+    };
+  }
+}
+
+class SetJadwalSelesaiRequest {
+  final int jadwalId;
+
+  SetJadwalSelesaiRequest({
+    required this.jadwalId,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      "id": jadwalId,
     };
   }
 }
