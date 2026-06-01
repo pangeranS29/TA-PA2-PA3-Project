@@ -66,17 +66,10 @@ type Main struct {
 	Perawatan       *PerawatanController
 
 	// Edukasi Digital
-<<<<<<< HEAD
-	EdukasiInformasiUmum        *EdukasiInformasiUmumController
-	EdukasiNifas                *EdukasiNifasController
-	EdukasiTandaBahayaTrimester *EdukasiTandaBahayaTrimesterController
-	// EdukasiTandaMelahirkan      *EdukasiTandaMelahirkanController
-=======
 	EdukasiInformasiUmum     *EdukasiInformasiUmumController
 	EdukasiNifas             *EdukasiNifasController
 	EdukasiTrimester         *EdukasiTrimesterController
 	EdukasiTandaMelahirkan   *EdukasiTandaMelahirkanController
->>>>>>> 9a739a5998c7885144f27c747e57ca06296d6a4e
 	EdukasiImd               *EdukasiIMDController
 	EdukasiSetelahMelahirkan *EdukasiSetelahMelahirkanController
 	EdukasiMenyusuiAsi       *EdukasiMenyusuiASIController
@@ -84,11 +77,6 @@ type Main struct {
 	EdukasiKesehatanMental   *EdukasiKesehatanMentalController
 	EdukasiPerawatanAnak     *EdukasiPerawatanAnakController
 	EdukasiMPASI             *EdukasiMPASIController
-<<<<<<< HEAD
-	AturanPorsiMPASI         *AturanPorsiMPASIController
-	JadwalHarianMPASI        *JadwalHarianMPASIController
-	ResepMPASI               *ResepMPASIController
-=======
 	EdukasiAturanPorsiMPASI  *AturanPorsiMPASIController
 	EdukasiJadwalHarianMPASI *JadwalHarianMPASIController
 	EdukasiResepMPASI        *ResepMPASIController
@@ -99,7 +87,6 @@ type Main struct {
 	PemeriksaanRemaja *PemeriksaanRemajaController
 	PemeriksaanDewasa *PemeriksaanDewasaController
 	PemeriksaanLansia *PemeriksaanLansiaController
->>>>>>> 9a739a5998c7885144f27c747e57ca06296d6a4e
 }
 
 type Options struct {
@@ -181,16 +168,10 @@ func Init(opts Options) *Main {
 
 	// Edukasi Digital
 	m.EdukasiInformasiUmum = NewEdukasiInformasiUmumController(opts.UseCases.EdukasiInformasiUmum)
-	m.EdukasiNifas = NewEdukasiNifasController(opts.UseCases.EdukasiNifas)
-<<<<<<< HEAD
-	m.EdukasiTandaBahayaTrimester = NewEdukasiTandaBahayaTrimesterController(opts.UseCases.EdukasiTandaBahayaTrimester)
-	// m.EdukasiTandaMelahirkan = NewEdukasiTandaMelahirkanController(opts.UseCases.EdukasiTandaMelahirkan)
-=======
 	m.EdukasiTrimester = NewEdukasiTrimesterController(opts.UseCases.EdukasiTrimester)
 	// m.EdukasiNifas = NewEdukasiNifasController(opts.UseCases.EdukasiNifas)
 	// m.EdukasiTandaBahayaTrimester = NewEdukasiTandaBahayaTrimesterController(opts.UseCases.EdukasiTandaBahayaTrimester)
 	m.EdukasiTandaMelahirkan = NewEdukasiTandaMelahirkanController(opts.UseCases.EdukasiTandaMelahirkan)
->>>>>>> 9a739a5998c7885144f27c747e57ca06296d6a4e
 	m.EdukasiImd = NewEdukasiIMDController(opts.UseCases.EdukasiImd)
 	m.EdukasiSetelahMelahirkan = NewEdukasiSetelahMelahirkanController(opts.UseCases.EdukasiSetelahMelahirkan)
 	m.EdukasiMenyusuiAsi = NewEdukasiMenyusuiASIController(opts.UseCases.EdukasiMenyusuiAsi)
@@ -198,11 +179,6 @@ func Init(opts Options) *Main {
 	m.EdukasiKesehatanMental = NewEdukasiKesehatanMentalController(opts.UseCases.EdukasiKesehatanMental)
 	m.EdukasiPerawatanAnak = NewEdukasiPerawatanAnakController(opts.UseCases.EdukasiPerawatanAnak)
 	m.EdukasiMPASI = NewEdukasiMPASIController(opts.UseCases.EdukasiMPASI)
-<<<<<<< HEAD
-	m.AturanPorsiMPASI = NewAturanPorsiMPASIController(opts.UseCases.AturanPorsiMPASI)
-	m.JadwalHarianMPASI = NewJadwalHarianMPASIController(opts.UseCases.JadwalHarianMPASI)
-	m.ResepMPASI = NewResepMPASIController(opts.UseCases.ResepMPASI)
-=======
 	m.EdukasiAturanPorsiMPASI = NewAturanPorsiMPASIController(opts.UseCases.EdukasiAturanPorsiMPASI)
 	m.EdukasiJadwalHarianMPASI = NewJadwalHarianMPASIController(opts.UseCases.EdukasiJadwalHarianMPASI)
 	m.EdukasiResepMPASI = NewResepMPASIController(opts.UseCases.EdukasiResepMPASI)
@@ -214,7 +190,6 @@ func Init(opts Options) *Main {
 	m.PemeriksaanRemaja = NewPemeriksaanRemajaController(opts.UseCases.PemeriksaanRemaja, opts.UseCases.Kependudukan)
 	m.PemeriksaanDewasa = NewPemeriksaanDewasaController(opts.UseCases.PemeriksaanDewasa, opts.UseCases.Kependudukan)
 	m.PemeriksaanLansia = NewPemeriksaanLansiaController(opts.UseCases.PemeriksaanLansia, opts.UseCases.Kependudukan)
->>>>>>> 9a739a5998c7885144f27c747e57ca06296d6a4e
 
 	return m
 }

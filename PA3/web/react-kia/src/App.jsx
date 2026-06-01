@@ -120,14 +120,10 @@ import MpasiJadwalHarianPage from "./pages/edukasi-digital/MpasiJadwalHarianPage
 import MpasiJadwalHarianFormPage from "./pages/edukasi-digital/MpasiJadwalHarianFormPage";
 import MpasiResepPage from "./pages/edukasi-digital/MpasiResepPage";
 import MpasiResepFormPage from "./pages/edukasi-digital/MpasiResepFormPage";
-<<<<<<< HEAD
-=======
 import JadwalLayananPage from "./pages/jadwal-layanan/JadwalLayananPage";
 import JadwalLayananForm from "./pages/jadwal-layanan/JadwalLayananForm";
->>>>>>> 9a739a5998c7885144f27c747e57ca06296d6a4e
 import KeluhanAnak from "./pages/Anak/Keluhan/KeluhanAnak";
 import PemantauanAnakPage from "./pages/Anak/Pemantauan/PemantauanAnakPage";
-
 import LihatDataPerkembangan from "./pages/penanda-perkembangan-anak/LihatDataPerkembangan";
 import KelolaPerkembangan from "./pages/penanda-perkembangan-anak/KelolaPerkembangan";
 import KelolaLingkungan from "./pages/KesehatanLingkungan/KelolaLingkungan";
@@ -304,28 +300,16 @@ function App() {
         <Route path="/edukasi-digital/mpasi" element={<MpasiPage />} />
         <Route path="/edukasi-digital/mpasi/form" element={<MpasiFormPage />} />
         <Route path="/edukasi-digital/mpasi/form/:id" element={<MpasiFormPage />} />
-<<<<<<< HEAD
-        <Route path="/edukasi-digital/mpasi-aturan-porsi" element={<MpasiAturanPorsiPage />} />
-        <Route path="/edukasi-digital/mpasi-aturan-porsi/form" element={<MpasiAturanPorsiFormPage />} />
-        <Route path="/edukasi-digital/mpasi-aturan-porsi/form/:id" element={<MpasiAturanPorsiFormPage />} />
-        <Route path="/edukasi-digital/mpasi-jadwal-harian" element={<MpasiJadwalHarianPage />} />
-        <Route path="/edukasi-digital/mpasi-jadwal-harian/form" element={<MpasiJadwalHarianFormPage />} />
-        <Route path="/edukasi-digital/mpasi-jadwal-harian/form/:id" element={<MpasiJadwalHarianFormPage />} />
-=======
-        
         {/* MPASI Sub-modules */}
         <Route path="/edukasi-digital/mpasi-aturan-porsi" element={<MpasiAturanPorsiPage />} />
         <Route path="/edukasi-digital/mpasi-aturan-porsi/form" element={<MpasiAturanPorsiFormPage />} />
         <Route path="/edukasi-digital/mpasi-aturan-porsi/form/:id" element={<MpasiAturanPorsiFormPage />} />
-        
         <Route path="/edukasi-digital/mpasi-jadwal-harian" element={<MpasiJadwalHarianPage />} />
         <Route path="/edukasi-digital/mpasi-jadwal-harian/form" element={<MpasiJadwalHarianFormPage />} />
         <Route path="/edukasi-digital/mpasi-jadwal-harian/form/:id" element={<MpasiJadwalHarianFormPage />} />
         <Route path="/jadwal-layanan" element={<JadwalLayananPage />} />
         <Route path="/jadwal-layanan/form" element={<JadwalLayananForm />} />
         <Route path="/jadwal-layanan/form/:id" element={<JadwalLayananForm />} />
-        
->>>>>>> 9a739a5998c7885144f27c747e57ca06296d6a4e
         <Route path="/edukasi-digital/mpasi-resep" element={<MpasiResepPage />} />
         <Route path="/edukasi-digital/mpasi-resep/form" element={<MpasiResepFormPage />} />
         <Route path="/edukasi-digital/mpasi-resep/form/:id" element={<MpasiResepFormPage />} />

@@ -13,9 +13,6 @@ import {
   Trash2, 
   Plus, 
   RefreshCw, 
-<<<<<<< HEAD
-  Image as ImageIcon
-=======
   BookOpen, 
   Image as ImageIcon,
   Eye,
@@ -24,7 +21,6 @@ import {
   Download,
   ChevronLeft,
   ChevronRight
->>>>>>> 9a739a5998c7885144f27c747e57ca06296d6a4e
 } from "lucide-react";
 
 const emptyForm = {
@@ -119,11 +115,6 @@ export default function EdukasiDigitalCrudPage({
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [editingId, setEditingId] = useState(null);
-<<<<<<< HEAD
-  const activeFields = useMemo(() => {
-    if (fields && Array.isArray(fields) && fields.length > 0) {
-      return fields;
-=======
   const initialForm = useMemo(() => {
     if (fields && Array.isArray(fields)) {
       const f = {};
@@ -136,7 +127,6 @@ export default function EdukasiDigitalCrudPage({
         f[it.key] = it.default ?? "";
       });
       return f;
->>>>>>> 9a739a5998c7885144f27c747e57ca06296d6a4e
     }
     return defaultFields;
   }, [fields]);
@@ -206,14 +196,6 @@ export default function EdukasiDigitalCrudPage({
           const item = await getEdukasiById(resourcePath, params.id);
           if (item) {
             setEditingId(String(guessId(item)));
-<<<<<<< HEAD
-            const nextForm = {};
-            activeFields.forEach((field) => {
-              const sourceValue = item[field.key] ?? (field.alt ? item[field.alt] : undefined);
-              nextForm[field.key] = normalizeFieldValue(field, sourceValue);
-            });
-            setForm(nextForm);
-=======
             if (fields && Array.isArray(fields)) {
               const f = {};
               fields.forEach((it) => {
@@ -248,7 +230,6 @@ export default function EdukasiDigitalCrudPage({
                 ringkasan: item.ringkasan || "",
               });
             }
->>>>>>> 9a739a5998c7885144f27c747e57ca06296d6a4e
           } else {
             setError("Data tidak ditemukan");
           }
@@ -278,21 +259,6 @@ export default function EdukasiDigitalCrudPage({
     };
 
     loadFormData();
-<<<<<<< HEAD
-  }, [location.state, view, params.id, resourcePath, activeFields, initialForm]);
-
-  const handleChange = (event) => {
-    const { name, type, value, checked } = event.target;
-    setForm((prev) => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
-  };
-
-  const toPayload = () => {
-    const payload = {};
-    activeFields.forEach((field) => {
-      payload[field.key] = parseFieldValue(field, form[field.key]);
-    });
-    return payload;
-=======
   }, [location.state, view, params.id, resourcePath, fields]);
 
   const materiIntiList = useMemo(() => {
@@ -384,7 +350,6 @@ export default function EdukasiDigitalCrudPage({
       hal_penting: (form.hal_penting || "").trim(),
       ringkasan: (form.ringkasan || "").trim(),
     };
->>>>>>> 9a739a5998c7885144f27c747e57ca06296d6a4e
   };
 
   const resetForm = () => {
@@ -546,41 +511,6 @@ export default function EdukasiDigitalCrudPage({
               </div>
             </div>
 
-<<<<<<< HEAD
-                  {/* Content Section */}
-                  <div className="flex-1 flex flex-col justify-between">
-                    <div>
-                      <div className="flex items-start justify-between gap-4">
-                        <h3 className="text-lg font-bold text-slate-800 group-hover:text-blue-600 transition-colors line-clamp-1">
-                          {guessTitle(item)}
-                        </h3>
-                        <span className="shrink-0 px-2.5 py-1 bg-blue-50 text-blue-600 rounded-full text-[10px] font-black uppercase tracking-widest">
-                          Edukasi
-                        </span>
-                      </div>
-                      <p className="text-sm text-slate-500 mt-2 line-clamp-2 leading-relaxed">
-                        {guessSummary(item)}
-                      </p>
-                    </div>
-
-                    <div className="mt-4 flex items-center justify-between">
-                      <div className="flex gap-2">
-                        <button
-                          type="button"
-                          onClick={() => handleEdit(item)}
-                          className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-amber-50 text-amber-600 text-xs font-bold hover:bg-amber-100 transition-colors border border-amber-100/50"
-                        >
-                          <Pencil size={14} /> Edit
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleDelete(item)}
-                          className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-rose-50 text-rose-600 text-xs font-bold hover:bg-rose-100 transition-colors border border-rose-100/50"
-                        >
-                          <Trash2 size={14} /> Hapus
-                        </button>
-                      </div>
-=======
             {/* UI Loader */}
             {loading ? (
               <div className="flex flex-col items-center justify-center py-16 gap-3">
@@ -706,7 +636,6 @@ export default function EdukasiDigitalCrudPage({
                       <button className="w-8 h-8 flex items-center justify-center rounded-lg border border-[#e2e8f0] text-slate-400 hover:bg-[#F7FAFB] hover:text-slate-700 transition-colors">
                         <ChevronRight size={16} />
                       </button>
->>>>>>> 9a739a5998c7885144f27c747e57ca06296d6a4e
                     </div>
                   </div>
                 )}
@@ -730,42 +659,6 @@ export default function EdukasiDigitalCrudPage({
                 <p className="text-[14px] text-slate-500 font-medium">Memuat data formulir...</p>
               </div>
             ) : (
-<<<<<<< HEAD
-            <form onSubmit={handleSubmit} className="space-y-3">
-              {activeFields.map((field) => {
-                const value = form[field.key] ?? "";
-                const requiredMark = field.required ? " *" : "";
-
-                if (field.type === "textarea" || field.type === "array") {
-                  return (
-                    <div key={field.key} className="space-y-1">
-                      <label className="text-sm font-medium text-slate-700">
-                        {field.label}{requiredMark}
-                      </label>
-                      <textarea
-                        name={field.key}
-                        value={value}
-                        onChange={handleChange}
-                        placeholder={field.label}
-                        rows={field.rows || 3}
-                        className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm focus:border-blue-400 focus:ring-1 focus:ring-blue-400 outline-none transition-all"
-                      />
-                    </div>
-                  );
-                }
-
-                if (field.type === "checkbox") {
-                  return (
-                    <label key={field.key} className="flex items-center gap-2 px-3 py-2 border border-slate-200 rounded-xl text-sm text-slate-700">
-                      <input
-                        type="checkbox"
-                        name={field.key}
-                        checked={Boolean(value)}
-                        onChange={handleChange}
-                      />
-                      {field.label}
-                    </label>
-=======
             <form onSubmit={handleSubmit} className="space-y-4">
               {(fields && Array.isArray(fields) ? fields : [
                 { key: "judul", label: "Judul", type: "text" },
@@ -842,37 +735,17 @@ export default function EdukasiDigitalCrudPage({
                         className="w-full border border-slate-200 bg-[#F7FAFB] rounded-xl px-4 py-3 text-[14px] focus:bg-white focus:border-[#185FA5] focus:ring-1 focus:ring-[#185FA5] outline-none transition-all"
                       />
                     </div>
->>>>>>> 9a739a5998c7885144f27c747e57ca06296d6a4e
                   );
                 }
 
                 return (
-<<<<<<< HEAD
-                  <div key={field.key} className="space-y-1">
-                    <label className="text-sm font-medium text-slate-700">
-                      {field.label}{requiredMark}
-                    </label>
-=======
                   <div key={f.key} className="space-y-1">
                     <label className="text-[14px] font-semibold text-slate-700 ml-1">{f.label}</label>
->>>>>>> 9a739a5998c7885144f27c747e57ca06296d6a4e
                     <input
                       type={field.type || "text"}
                       name={field.key}
                       value={value}
                       onChange={handleChange}
-<<<<<<< HEAD
-                      placeholder={field.placeholder || field.label}
-                      className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm focus:border-blue-400 focus:ring-1 focus:ring-blue-400 outline-none transition-all"
-                    />
-                    {(field.key === "gambar_url" || field.key === "thumbnail_url") && value ? (
-                      <div className="mt-2 w-full max-w-xs h-32 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 relative">
-                        <img
-                          src={value}
-                          alt="Preview"
-                          className="w-full h-full object-cover"
-                        />
-=======
                       placeholder={`Masukkan ${f.label.toLowerCase()}`}
                       className="w-full border border-slate-200 bg-[#F7FAFB] rounded-xl px-4 py-3 text-[14px] focus:bg-white focus:border-[#185FA5] focus:ring-1 focus:ring-[#185FA5] outline-none transition-all"
                     />
@@ -892,16 +765,12 @@ export default function EdukasiDigitalCrudPage({
                           <ImageIcon size={24} />
                           <span className="text-[12px] font-semibold uppercase">Invalid URL</span>
                         </div>
->>>>>>> 9a739a5998c7885144f27c747e57ca06296d6a4e
                       </div>
                     ) : null}
                   </div>
                 );
               })}
 
-<<<<<<< HEAD
-              {error ? <p className="text-sm text-red-600">{error}</p> : null}
-=======
               {/* Special Section: Materi Inti (Dynamic List) */}
               {(fields === null || fields.some(f => f.key === 'materi_inti')) && (
                 <div className="pt-4 border-t border-[#e2e8f0]">
@@ -964,7 +833,6 @@ export default function EdukasiDigitalCrudPage({
               )}
 
               {error ? <p className="text-[14px] text-[#A32D2D] bg-[#A32D2D]/10 p-3 rounded-lg">{error}</p> : null}
->>>>>>> 9a739a5998c7885144f27c747e57ca06296d6a4e
 
               <div className="flex gap-3 pt-4">
                 <button

@@ -98,13 +98,8 @@ const Sidebar = () => {
           dropdownKey: "edukasiDigital",
           children: [
         { path: "/edukasi-digital/informasi-umum", name: "Informasi Umum", icon: ClipboardList },
-<<<<<<< HEAD
-        { path: "/edukasi-digital/tanda-bahaya-trimester", name: "Edukasi Trimester", icon: ClipboardList },
-        // { path: "/edukasi-digital/tanda-melahirkan", name: "Tanda Melahirkan", icon: ClipboardList },
-=======
         { path: "/edukasi-digital/trimester", name: "Edukasi Trimester", icon: ClipboardList },
         { path: "/edukasi-digital/tanda-melahirkan", name: "Tanda Melahirkan", icon: ClipboardList },
->>>>>>> 9a739a5998c7885144f27c747e57ca06296d6a4e
         { path: "/edukasi-digital/imd", name: "Edukasi IMD", icon: ClipboardList },
         { path: "/edukasi-digital/setelah-melahirkan", name: "Setelah Melahirkan", icon: ClipboardList },
         { path: "/edukasi-digital/nifas", name: "Edukasi Nifas", icon: ClipboardList },
@@ -112,12 +107,6 @@ const Sidebar = () => {
         { path: "/edukasi-digital/pola-asuh", name: "Pola Asuh", icon: ClipboardList },
         { path: "/edukasi-digital/kesehatan-mental", name: "Kesehatan Mental", icon: ClipboardList },
         { path: "/edukasi-digital/perawatan-anak", name: "Perawatan Anak", icon: ClipboardList },
-<<<<<<< HEAD
-        { path: "/edukasi-digital/mpasi", name: "MPASI", icon: ClipboardList },
-        { path: "/edukasi-digital/mpasi-aturan-porsi", name: "MPASI Aturan Porsi", icon: ClipboardList },
-        { path: "/edukasi-digital/mpasi-jadwal-harian", name: "MPASI Jadwal Harian", icon: ClipboardList },
-        { path: "/edukasi-digital/mpasi-resep", name: "MPASI Resep", icon: ClipboardList },
-=======
         {
           name: "MPASI",
           icon: ClipboardList,
@@ -130,8 +119,6 @@ const Sidebar = () => {
             { path: "/edukasi-digital/mpasi-resep", name: "Resep", icon: ClipboardList },
           ],
         },
->>>>>>> 9a739a5998c7885144f27c747e57ca06296d6a4e
-      ],
     },
     { path: "/jadwal-layanan", name: "Jadwal Layanan", icon: Calendar },
     { path: "/laporan", name: "Laporan", icon: BarChart3 },

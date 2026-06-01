@@ -16,10 +16,7 @@ const fields = [
     type: "array",
     rows: 5,
     required: true,
-<<<<<<< HEAD
-=======
     placeholder: "Masukkan bahan (satu baris satu item)",
->>>>>>> 9a739a5998c7885144f27c747e57ca06296d6a4e
   },
   {
     key: "cara_membuat",
@@ -27,10 +24,7 @@ const fields = [
     type: "array",
     rows: 6,
     required: true,
-<<<<<<< HEAD
-=======
     placeholder: "Masukkan langkah (satu baris satu langkah)",
->>>>>>> 9a739a5998c7885144f27c747e57ca06296d6a4e
   },
   { key: "manfaat", label: "Manfaat", type: "textarea", rows: 3 },
   { key: "tips", label: "Tips", type: "textarea", rows: 3 },

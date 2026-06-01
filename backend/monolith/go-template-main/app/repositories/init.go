@@ -63,17 +63,6 @@ type Main struct {
 	KeluhanAnak         KeluhanAnakRepository
 	KesehatanLingkungan KesehatanLingkunganRepository
 	// KesehatanLingkunganDanCatatanKader *KesehatanLingkunganDanCatatanKaderRepository
-<<<<<<< HEAD
-	PemantauanAnak PemantauanAnakRepository
-	// PerkembanganAnak                   PerkembanganAnakRepository
-	PemantauanIndikator *PemantauanIndikatorRepository
-
-	// Edukasi Digital
-	EdukasiInformasiUmum        EdukasiInformasiUmumRepository
-	EdukasiNifas                EdukasiNifasRepository
-	EdukasiTandaBahayaTrimester EdukasiTandaBahayaTrimesterRepository
-	// EdukasiTandaMelahirkan      EdukasiTandaMelahirkanRepository
-=======
 	PemantauanAnak      PemantauanAnakRepository
 	PemantauanIndikator *PemantauanIndikatorRepository
 
@@ -86,7 +75,6 @@ type Main struct {
 	EdukasiNifas             EdukasiNifasRepository
 	EdukasiTrimester         EdukasiTrimesterRepository
 	EdukasiTandaMelahirkan   EdukasiTandaMelahirkanRepository
->>>>>>> 9a739a5998c7885144f27c747e57ca06296d6a4e
 	EdukasiImd               EdukasiIMDRepository
 	EdukasiSetelahMelahirkan EdukasiSetelahMelahirkanRepository
 	EdukasiMenyusuiAsi       EdukasiMenyusuiASIRepository
@@ -94,11 +82,6 @@ type Main struct {
 	EdukasiKesehatanMental   EdukasiKesehatanMentalRepository
 	EdukasiPerawatanAnak     EdukasiPerawatanAnakRepository
 	EdukasiMPASI             EdukasiMPASIRepository
-<<<<<<< HEAD
-	AturanPorsiMPASI         AturanPorsiMPASIRepository
-	JadwalHarianMPASI        JadwalHarianMPASIRepository
-	ResepMPASI               ResepMPASIRepository
-=======
 	EdukasiAturanPorsiMPASI  AturanPorsiMPASIRepository
 	EdukasiJadwalHarianMPASI JadwalHarianMPASIRepository
 	JadwalLayanan            JadwalLayananRepository
@@ -113,7 +96,6 @@ type Main struct {
 	// EdukasiTandaBahayaTrimester EdukasiTandaBahayaTrimesterRepository
 
 	LaporanIbu LaporanIbuRepository
->>>>>>> 9a739a5998c7885144f27c747e57ca06296d6a4e
 }
 
 type Options struct {
@@ -160,8 +142,6 @@ func Init(opts Options) *Main {
 	m.RingkasanPelayananPersalinan = NewRingkasanPelayananPersalinanRepository(opts.Postgres)
 	m.KeteranganLahir = NewKeteranganLahirRepository(opts.Postgres) // <-- TAMBAHKAN INI
 	m.RiwayatProsesMelahirkan = NewRiwayatProsesMelahirkanRepository(opts.Postgres)
-	m.PelayananIbuNifas = NewPelayananIbuNifasRepository(opts.Postgres)
-	m.CatatanPelayananNifas = NewCatatanPelayananNifasRepository(opts.Postgres)
 	m.Rujukan = NewRujukanRepository(opts.Postgres)
 
 	m.Neonatus = NewPelayananNeonatusRepository(opts.Postgres)
@@ -190,14 +170,8 @@ func Init(opts Options) *Main {
 
 	// Edukasi Digital
 	m.EdukasiInformasiUmum = NewEdukasiInformasiUmumRepository(opts.Postgres)
-	m.EdukasiNifas = NewEdukasiNifasRepository(opts.Postgres)
-<<<<<<< HEAD
-	m.EdukasiTandaBahayaTrimester = NewEdukasiTandaBahayaTrimesterRepository(opts.Postgres)
-	// m.EdukasiTandaMelahirkan = NewEdukasiTandaMelahirkanRepository(opts.Postgres)
-=======
 	m.EdukasiTrimester = NewEdukasiTrimesterRepository(opts.Postgres)
 	m.EdukasiTandaMelahirkan = NewEdukasiTandaMelahirkanRepository(opts.Postgres)
->>>>>>> 9a739a5998c7885144f27c747e57ca06296d6a4e
 	m.EdukasiImd = NewEdukasiIMDRepository(opts.Postgres)
 	m.EdukasiSetelahMelahirkan = NewEdukasiSetelahMelahirkanRepository(opts.Postgres)
 	m.EdukasiMenyusuiAsi = NewEdukasiMenyusuiASIRepository(opts.Postgres)
@@ -205,14 +179,6 @@ func Init(opts Options) *Main {
 	m.EdukasiKesehatanMental = NewEdukasiKesehatanMentalRepository(opts.Postgres)
 	m.EdukasiPerawatanAnak = NewEdukasiPerawatanAnakRepository(opts.Postgres)
 	m.EdukasiMPASI = NewEdukasiMPASIRepository(opts.Postgres)
-<<<<<<< HEAD
-	m.AturanPorsiMPASI = NewAturanPorsiMPASIRepository(opts.Postgres)
-	m.JadwalHarianMPASI = NewJadwalHarianMPASIRepository(opts.Postgres)
-	m.ResepMPASI = NewResepMPASIRepository(opts.Postgres)
-
-	return m
-}
-=======
 	m.EdukasiAturanPorsiMPASI = NewAturanPorsiMPASIRepository(opts.Postgres)
 	m.EdukasiJadwalHarianMPASI = NewJadwalHarianMPASIRepository(opts.Postgres)
 	m.JadwalLayanan = NewJadwalLayananRepository(opts.Postgres)
@@ -229,4 +195,3 @@ func Init(opts Options) *Main {
 func (m *Main) DB() *gorm.DB {
 	return m.postgres
 }
->>>>>>> 9a739a5998c7885144f27c747e57ca06296d6a4e

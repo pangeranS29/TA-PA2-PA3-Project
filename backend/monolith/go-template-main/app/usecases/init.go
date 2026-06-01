@@ -70,17 +70,9 @@ type Main struct {
 	Perawatan       PerawatanUsecase
 
 	// Edukasi Digital
-<<<<<<< HEAD
-	EdukasiInformasiUmum        EdukasiInformasiUmumUsecase
-	EdukasiNifas                EdukasiNifasUsecase
-	EdukasiTandaBahayaTrimester EdukasiTandaBahayaTrimesterUsecase
-	// EdukasiTandaMelahirkan      EdukasiTandaMelahirkanUsecase
-=======
 	EdukasiInformasiUmum     EdukasiInformasiUmumUsecase
-	EdukasiNifas             EdukasiNifasUsecase
 	EdukasiTrimester         EdukasiTrimesterUsecase
 	EdukasiTandaMelahirkan   EdukasiTandaMelahirkanUsecase
->>>>>>> 9a739a5998c7885144f27c747e57ca06296d6a4e
 	EdukasiImd               EdukasiIMDUsecase
 	EdukasiSetelahMelahirkan EdukasiSetelahMelahirkanUsecase
 	EdukasiMenyusuiAsi       EdukasiMenyusuiASIUsecase
@@ -88,11 +80,6 @@ type Main struct {
 	EdukasiKesehatanMental   EdukasiKesehatanMentalUsecase
 	EdukasiPerawatanAnak     EdukasiPerawatanAnakUseCase
 	EdukasiMPASI             EdukasiMPASIUsecase
-<<<<<<< HEAD
-	AturanPorsiMPASI         AturanPorsiMPASIUsecase
-	JadwalHarianMPASI        JadwalHarianMPASIUsecase
-	ResepMPASI               ResepMPASIUsecase
-=======
 	EdukasiAturanPorsiMPASI  AturanPorsiMPASIUsecase
 	EdukasiJadwalHarianMPASI JadwalHarianMPASIUsecase
 	JadwalLayanan            JadwalLayananUsecase
@@ -103,7 +90,6 @@ type Main struct {
 	PemeriksaanRemaja PemeriksaanRemajaUsecase
 	PemeriksaanDewasa PemeriksaanDewasaUsecase
 	PemeriksaanLansia PemeriksaanLansiaUsecase
->>>>>>> 9a739a5998c7885144f27c747e57ca06296d6a4e
 }
 
 type Options struct {
@@ -210,16 +196,10 @@ func Init(opts Options) *Main {
 
 	// Edukasi Digital
 	m.EdukasiInformasiUmum = NewEdukasiInformasiUmumUsecase(opts.Repository.EdukasiInformasiUmum)
-	m.EdukasiNifas = NewEdukasiNifasUsecase(opts.Repository.EdukasiNifas)
-<<<<<<< HEAD
-	m.EdukasiTandaBahayaTrimester = NewEdukasiTandaBahayaTrimesterUsecase(opts.Repository.EdukasiTandaBahayaTrimester)
-	// m.EdukasiTandaMelahirkan = NewEdukasiTandaMelahirkanUsecase(opts.Repository.EdukasiTandaMelahirkan)
-=======
 	m.EdukasiTrimester = NewEdukasiTrimesterUsecase(opts.Repository.EdukasiTrimester)
 	// m.EdukasiNifas = NewEdukasiNifasUsecase(opts.Repository.EdukasiNifas)
 	// m.EdukasiTandaBahayaTrimester = NewEdukasiTandaBahayaTrimesterUsecase(opts.Repository.EdukasiTandaBahayaTrimester)
 	m.EdukasiTandaMelahirkan = NewEdukasiTandaMelahirkanUsecase(opts.Repository.EdukasiTandaMelahirkan)
->>>>>>> 9a739a5998c7885144f27c747e57ca06296d6a4e
 	m.EdukasiImd = NewEdukasiIMDUsecase(opts.Repository.EdukasiImd)
 	m.EdukasiSetelahMelahirkan = NewEdukasiSetelahMelahirkanUsecase(opts.Repository.EdukasiSetelahMelahirkan)
 	m.EdukasiMenyusuiAsi = NewEdukasiMenyusuiASIUsecase(opts.Repository.EdukasiMenyusuiAsi)
@@ -227,11 +207,6 @@ func Init(opts Options) *Main {
 	m.EdukasiKesehatanMental = NewEdukasiKesehatanMentalUsecase(opts.Repository.EdukasiKesehatanMental)
 	m.EdukasiPerawatanAnak = NewEdukasiPerawatanAnakUseCase(opts.Repository.EdukasiPerawatanAnak)
 	m.EdukasiMPASI = NewEdukasiMPASIUsecase(opts.Repository.EdukasiMPASI)
-<<<<<<< HEAD
-	m.AturanPorsiMPASI = NewAturanPorsiMPASIUsecase(opts.Repository.AturanPorsiMPASI)
-	m.JadwalHarianMPASI = NewJadwalHarianMPASIUsecase(opts.Repository.JadwalHarianMPASI)
-	m.ResepMPASI = NewResepMPASIUsecase(opts.Repository.ResepMPASI)
-=======
 	m.EdukasiAturanPorsiMPASI = NewAturanPorsiMPASIUsecase(opts.Repository.EdukasiAturanPorsiMPASI)
 	m.EdukasiJadwalHarianMPASI = NewJadwalHarianMPASIUsecase(opts.Repository.EdukasiJadwalHarianMPASI)
 	m.EdukasiResepMPASI = NewResepMPASIUsecase(opts.Repository.EdukasiResepMPASI)
@@ -243,7 +218,6 @@ func Init(opts Options) *Main {
 	m.PemeriksaanRemaja = NewPemeriksaanRemajaUsecase(opts.Repository.PemeriksaanRemaja)
 	m.PemeriksaanDewasa = NewPemeriksaanDewasaUsecase(opts.Repository.PemeriksaanDewasa)
 	m.PemeriksaanLansia = NewPemeriksaanLansiaUsecase(opts.Repository.PemeriksaanLansia)
->>>>>>> 9a739a5998c7885144f27c747e57ca06296d6a4e
 
 	return m
 }
