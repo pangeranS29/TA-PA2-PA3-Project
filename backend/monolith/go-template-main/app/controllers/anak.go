@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"monitoring-service/app/helpers"
+	"monitoring-service/app/middlewares"
 	"monitoring-service/app/models"
 	"monitoring-service/app/usecases"
 
@@ -44,7 +45,17 @@ func (h *AnakController) AdminList(c echo.Context) error {
 		kehamilanID = int32(id64)
 	}
 
-	list, err := h.anakUC.AdminListAnak(kehamilanID)
+	// Ambil desa_id dan role dari JWT context (sudah di-set oleh middleware)
+	desaID := middlewares.GetDesaID(c)
+	role := middlewares.GetRole(c)
+
+	// Jika role punya full access (dokter, superadmin, admin), tampilkan semua data
+	// Jika bidan, hanya tampilkan anak di desa bidan
+	if middlewares.HasFullAccess(role) {
+		desaID = nil // admin/dokter/superadmin → lihat semua
+	}
+
+	list, err := h.anakUC.ListAnakByDesa(desaID, kehamilanID)
 	if err != nil {
 		return helpers.StandardResponse(c, http.StatusInternalServerError, err.Error(), nil, nil)
 	}

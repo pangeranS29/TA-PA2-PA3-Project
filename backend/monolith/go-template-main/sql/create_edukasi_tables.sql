@@ -108,16 +108,16 @@ CREATE TABLE IF NOT EXISTS resep_mpasi (
     deleted_at TIMESTAMP WITH TIME ZONE
 );
 
-CREATE TABLE IF NOT EXISTS edukasi_nifas (
-    id SERIAL PRIMARY KEY,
-    judul VARCHAR(255) NOT NULL,
-    isi TEXT,
-    perawatan TEXT,
-    tanda_bahaya TEXT,
-    gambar_url TEXT,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
+-- CREATE TABLE IF NOT EXISTS edukasi_nifas (
+--     id SERIAL PRIMARY KEY,
+--     judul VARCHAR(255) NOT NULL,
+--     isi TEXT,
+--     perawatan TEXT,
+--     tanda_bahaya TEXT,
+--     gambar_url TEXT,
+--     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+--     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+-- );
 
 CREATE TABLE IF NOT EXISTS edukasi_perawatan_anak (
     id SERIAL PRIMARY KEY,

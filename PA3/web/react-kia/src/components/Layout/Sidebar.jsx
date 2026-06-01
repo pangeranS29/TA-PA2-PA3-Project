@@ -53,7 +53,7 @@ const Sidebar = () => {
     edukasiDigital: pathname.startsWith("/edukasi-digital"),
     kesehatanLingkungan: pathname.startsWith("/pencatatan/kesehatan-lingkungan"),
     mpasi: pathname.startsWith("/edukasi-digital/mpasi"),
-    pencatatanKesehatan: pathname.startsWith("/pencatatan-kesehatan"), 
+    pencatatanKesehatan: pathname.startsWith("/pencatatan-kesehatan"),
   });
 
   const [dropdownOpen, setDropdownOpen] = useState(() => getDropdownOpenState(location.pathname));
@@ -69,7 +69,7 @@ const Sidebar = () => {
   // Menu untuk bidan (lengkap)
   const bidanMenuItems = [
     { path: "/data-ibu", name: "Data Ibu", icon: Users },
-    { path: "/daftar-anak", name: "Data Anak", icon: Baby },
+    { path: "/daftar-anak", name: "Data Anak Balita", icon: Baby },
     // { path: "/kependudukan", name: "Manajemen KK", icon: UserCheck },
     // { path: "/monitoring", name: "Monitoring", icon: Activity },
     {
@@ -96,7 +96,7 @@ const Sidebar = () => {
       ],
     },
     {
-      name: "Edukasi Digital",
+      name: "Edukasi ",
       icon: BookOpenCheck,
       isDropdown: true,
       dropdownKey: "edukasiDigital",
@@ -125,18 +125,18 @@ const Sidebar = () => {
       ],
     },
     { path: "/jadwal-layanan", name: "Jadwal Layanan", icon: Calendar },
-     {
-  name: "Pencatatan Kesehatan",
-  icon: ClipboardList,            // gunakan ikon dari lucide-react (sudah diimport di atas)
-  isDropdown: true,
-  dropdownKey: "pencatatanKesehatan",   // unique key untuk dropdown
-  children: [
-    { path: "/pencatatan-kesehatan/anak", name: "Anak (0-12 tahun)", icon: Activity },
-    { path: "/pencatatan-kesehatan/remaja", name: "Remaja (13-18 tahun)", icon: Activity },
-    { path: "/pencatatan-kesehatan/dewasa", name: "Dewasa (19-59 tahun)", icon: Activity },
-    { path: "/pencatatan-kesehatan/lansia", name: "Lansia (≥60 tahun)", icon: Activity },
-  ],
-},
+    {
+      name: "Pencatatan Kesehatan",
+      icon: ClipboardList,            // gunakan ikon dari lucide-react (sudah diimport di atas)
+      isDropdown: true,
+      dropdownKey: "pencatatanKesehatan",   // unique key untuk dropdown
+      children: [
+        { path: "/pencatatan-kesehatan/anak", name: "Anak (0-12 tahun)", icon: Activity },
+        { path: "/pencatatan-kesehatan/remaja", name: "Remaja (13-18 tahun)", icon: Activity },
+        { path: "/pencatatan-kesehatan/dewasa", name: "Dewasa (19-59 tahun)", icon: Activity },
+        { path: "/pencatatan-kesehatan/lansia", name: "Lansia (≥60 tahun)", icon: Activity },
+      ],
+    },
     { path: "/laporan", name: "Laporan", icon: BarChart3 },
     { path: "/perubahan-jadwal-imunisasi", name: "Perubahan Jadwal Imunisasi", icon: CalendarClock },
   ];

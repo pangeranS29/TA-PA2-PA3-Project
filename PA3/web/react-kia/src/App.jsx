@@ -45,6 +45,7 @@ import DetailAnak from "./pages/Anak/detail";
 import Monitoring from "./pages/Monitoring";
 import Laporan from "./pages/Laporan";
 import LaporanIbuPreview from "./pages/previewlaporanibu";
+import LaporanAnakPreview from "./pages/previewlaporananak";
 import IbuCreate from "./pages/Ibu/IbuCreate";
 
 // Kependudukan
@@ -223,6 +224,7 @@ function App() {
           <Route path="/monitoring" element={<Monitoring />} />
           <Route path="/laporan" element={<Laporan />} />
           <Route path="/laporan/ibu/preview" element={<LaporanIbuPreview />}/>
+          <Route path="/laporan/anak/preview" element={<LaporanAnakPreview />}/>
         </Route>
 
         {/* ADMIN ROUTES */}

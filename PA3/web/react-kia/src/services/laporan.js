@@ -20,14 +20,22 @@ export const exportLaporanIbu = async (bulan, tahun) => {
   return response.data;
 };
 
-// Laporan anak (belum diubah)
-export const previewLaporanAnak = async () => {
-  const response = await api.get("/tenaga-kesehatan/laporan/anak/preview");
+// Laporan anak
+export const previewLaporanAnak = async (startDate, endDate) => {
+  let url = "/tenaga-kesehatan/laporan/anak/preview";
+  if (startDate && endDate) {
+    url += `?start_date=${startDate}&end_date=${endDate}`;
+  }
+  const response = await api.get(url);
   return response.data;
 };
 
-export const exportLaporanAnak = async () => {
-  const res = await api.get("/tenaga-kesehatan/laporan/anak", {
+export const exportLaporanAnak = async (startDate, endDate) => {
+  let url = "/tenaga-kesehatan/laporan/anak/export/excel";
+  if (startDate && endDate) {
+    url += `?start_date=${startDate}&end_date=${endDate}`;
+  }
+  const res = await api.get(url, {
     responseType: "blob",
   });
   return res.data;

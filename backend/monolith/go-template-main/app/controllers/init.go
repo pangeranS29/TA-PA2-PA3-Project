@@ -84,6 +84,7 @@ type Main struct {
 	JadwalLayanan            *JadwalLayananController
 	// EdukasiTandaBahayaTrimester *EdukasiTandaBahayaTrimesterController
 	LaporanIbu        *LaporanIbuController
+	LaporanAnak       *LaporanAnakController
 	PemeriksaanAnak   *PemeriksaanAnakController
 	PemeriksaanRemaja *PemeriksaanRemajaController
 	PemeriksaanDewasa *PemeriksaanDewasaController
@@ -189,6 +190,7 @@ func Init(opts Options) *Main {
 	m.EdukasiJadwalHarianMPASI = NewJadwalHarianMPASIController(opts.UseCases.EdukasiJadwalHarianMPASI)
 	m.EdukasiResepMPASI = NewResepMPASIController(opts.UseCases.EdukasiResepMPASI)
 	m.LaporanIbu = NewLaporanIbuController(opts.UseCases.LaporanIbu)
+	m.LaporanAnak = NewLaporanAnakController(opts.UseCases.LaporanAnak)
 
 	// Jadwal layanan (imunisasi)
 	m.JadwalLayanan = NewJadwalLayananController(opts.UseCases.JadwalLayanan)
