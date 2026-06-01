@@ -13,6 +13,38 @@ const headerByPath = (pathname) => {
     };
   }
 
+  if (pathname === "/superadmin/dashboard") {
+    return {
+      title: "Dashboard ",
+      subtitle: "Pantau ringkasan wilayah, daftar desa, dan aktivitas operasional secara cepat.",
+      variant: "hero",
+    };
+  }
+
+  if (pathname.startsWith("/superadmin/kelola-user-per-desa") || pathname.startsWith("/superadmin/user-desa")) {
+    return {
+      title: "Kelola User Per Desa",
+      subtitle: "Atur role, reset password, dan nonaktifkan user biasa di tiap desa.",
+      variant: "hero",
+    };
+  }
+
+  if (pathname.startsWith("/superadmin/kelola-user") || pathname.startsWith("/superadmin/users")) {
+    return {
+      title: "Kelola bidan, kader, dan admin desa",
+      subtitle: "Tambah bidan, kader, dan admin desa, lalu reset password atau nonaktifkan akun khusus.",
+      variant: "hero",
+    };
+  }
+
+  if (pathname.startsWith("/superadmin/kelola-desa") || pathname.startsWith("/superadmin/desa")) {
+    return {
+      title: "Kelola Desa",
+      subtitle: "Atur data desa, status aktif, dan informasi wilayah secara terpisah dari dashboard.",
+      variant: "hero",
+    };
+  }
+
   if (pathname.startsWith("/data-ibu")) {
     return {
       title: "Data Ibu",
@@ -95,6 +127,7 @@ const headerByPath = (pathname) => {
 
 const formatRole = (role) => {
   const normalized = (role || "").toString().trim().toLowerCase();
+  if (normalized === "superadmin") return "Superadmin";
   if (normalized === "admin") return "Admin";
   if (normalized === "bidan") return "Bidan";
   return "Petugas Medis";
@@ -124,34 +157,34 @@ const Header = () => {
   };
 
   return (
-    <header className="px-8 py-6 border-b border-gray-100 bg-white relative z-50">
-      <div className="bg-gradient-to-r from-blue-700 via-cyan-600 to-teal-600 text-white rounded-2xl p-6 shadow-lg flex flex-col md:flex-row md:items-start justify-between gap-4">
+    <header className="px-6 py-4 border-b border-gray-100 bg-white relative z-50">
+      <div className="bg-gradient-to-r from-blue-700 via-cyan-600 to-teal-600 text-white rounded-2xl p-4 md:p-5 shadow-lg flex flex-col md:flex-row md:items-start justify-between gap-3">
         <div className="min-w-0">
-          <h1 className="text-2xl md:text-3xl font-bold">{pageHeader.title}</h1>
-          <p className="text-cyan-100 mt-2 text-sm md:text-base">{pageHeader.subtitle}</p>
+          <h1 className="text-xl md:text-2xl font-bold leading-tight">{pageHeader.title}</h1>
+          <p className="text-cyan-100 mt-1.5 text-xs md:text-sm leading-relaxed">{pageHeader.subtitle}</p>
           {pageHeader.note && (
-            <p className="text-cyan-100 mt-2 text-xs md:text-sm">{pageHeader.note}</p>
+            <p className="text-cyan-100 mt-1.5 text-[11px] md:text-xs leading-relaxed">{pageHeader.note}</p>
           )}
         </div>
 
         <div className="relative md:flex-shrink-0" ref={dropdownRef}>
           <button
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            className={`flex items-center gap-3 p-1.5 pr-3 rounded-2xl transition-all duration-200 border ${
+            className={`flex items-center gap-2.5 p-1.5 pr-2.5 rounded-2xl transition-all duration-200 border ${
               isDropdownOpen ? "bg-white/20 border-white/30" : "border-white/20 hover:bg-white/15"
             }`}
           >
-            <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-white font-bold">
+            <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center text-white font-bold text-sm">
               {user?.name?.charAt(0) || "B"}
             </div>
 
             <div className="text-left hidden sm:block">
-              <p className="text-xs font-bold text-white leading-none">{user?.name || "Bidan Desa"}</p>
-              <p className="text-[10px] text-cyan-100 mt-1">{formatRole(user?.role)}</p>
+              <p className="text-[11px] font-bold text-white leading-none">{user?.name || "Bidan Desa"}</p>
+              <p className="text-[10px] text-cyan-100 mt-0.5">{formatRole(user?.role)}</p>
             </div>
 
             <ChevronDown
-              size={16}
+              size={14}
               className={`text-cyan-100 transition-transform duration-200 ${isDropdownOpen ? "rotate-180" : ""}`}
             />
           </button>

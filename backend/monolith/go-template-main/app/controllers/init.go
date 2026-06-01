@@ -20,6 +20,7 @@ type Main struct {
 	PemantauanPertumbuhan     *PemantauanPertumbuhanController
 	PengukuranLilA            *PengukuranLilAController
 	CatatanPelayanan          *CatatanPelayananController
+	KategoriTandaBahaya       *KategoriTandaBahayaController
 	PemeriksaanDokterCombined *PemeriksaanDokterCombinedController
 
 	// Controller baru untuk struktur kehamilan
@@ -43,26 +44,39 @@ type Main struct {
 	Rujukan                       *RujukanController
 	SkriningDMGestasional         *SkriningDMGestasionalController
 	SkriningPreeklampsia          *SkriningPreeklampsiaController
+	SkriningPemantauan            *SkriningPemantauanController
 	PelayananIbuNifas             *PelayananIbuNifasController
 	RiwayatKehamilanLalu          *RiwayatKehamilanLaluController
 	KeteranganLahir               *KeteranganLahirController
+	Desa                          *DesaController
 	Kependudukan                  *KependudukanController
 	JenisPelayanan                *JenisPelayananController
+	KategoriUmur                  *KategoriUmurController
 	Kader                         *KaderController
 
-	// Controller tambahan (sebelumnya hilang dari routes)
+	// Controller tambahan
 	KeluhanAnak         *KeluhanAnakController
 	KesehatanLingkungan *KesehatanLingkunganController
 	// KesehatanLingkunganDanCatatanKader *KesehatanLingkunganDanCatatanKaderController
-	PemantauanAnak *PemantauanAnakController
-	// PerkembanganAnak                   *PerkembanganAnakController
+	PemantauanAnak      *PemantauanAnakController
 	PemantauanIndikator *PemantauanIndikatorController
 
+	// Perawatan Anak (Lembar Capaian)
+	KategoriCapaian *KategoriCapaianController
+	Perawatan       *PerawatanController
+
 	// Edukasi Digital
+<<<<<<< HEAD
 	EdukasiInformasiUmum        *EdukasiInformasiUmumController
 	EdukasiNifas                *EdukasiNifasController
 	EdukasiTandaBahayaTrimester *EdukasiTandaBahayaTrimesterController
 	// EdukasiTandaMelahirkan      *EdukasiTandaMelahirkanController
+=======
+	EdukasiInformasiUmum     *EdukasiInformasiUmumController
+	EdukasiNifas             *EdukasiNifasController
+	EdukasiTrimester         *EdukasiTrimesterController
+	EdukasiTandaMelahirkan   *EdukasiTandaMelahirkanController
+>>>>>>> 9a739a5998c7885144f27c747e57ca06296d6a4e
 	EdukasiImd               *EdukasiIMDController
 	EdukasiSetelahMelahirkan *EdukasiSetelahMelahirkanController
 	EdukasiMenyusuiAsi       *EdukasiMenyusuiASIController
@@ -70,9 +84,22 @@ type Main struct {
 	EdukasiKesehatanMental   *EdukasiKesehatanMentalController
 	EdukasiPerawatanAnak     *EdukasiPerawatanAnakController
 	EdukasiMPASI             *EdukasiMPASIController
+<<<<<<< HEAD
 	AturanPorsiMPASI         *AturanPorsiMPASIController
 	JadwalHarianMPASI        *JadwalHarianMPASIController
 	ResepMPASI               *ResepMPASIController
+=======
+	EdukasiAturanPorsiMPASI  *AturanPorsiMPASIController
+	EdukasiJadwalHarianMPASI *JadwalHarianMPASIController
+	EdukasiResepMPASI        *ResepMPASIController
+	JadwalLayanan            *JadwalLayananController
+	// EdukasiTandaBahayaTrimester *EdukasiTandaBahayaTrimesterController
+	LaporanIbu        *LaporanIbuController
+	PemeriksaanAnak   *PemeriksaanAnakController
+	PemeriksaanRemaja *PemeriksaanRemajaController
+	PemeriksaanDewasa *PemeriksaanDewasaController
+	PemeriksaanLansia *PemeriksaanLansiaController
+>>>>>>> 9a739a5998c7885144f27c747e57ca06296d6a4e
 }
 
 type Options struct {
@@ -97,6 +124,7 @@ func Init(opts Options) *Main {
 	m.PemantauanPertumbuhan = NewPemantauanPertumbuhanController(opts.UseCases.PemantauanPertumbuhan)
 	m.PengukuranLilA = NewPengukuranLilAController(opts.UseCases.PengukuranLilA)
 	m.CatatanPelayanan = NewCatatanPelayananController(opts.UseCases.CatatanPelayanan)
+	m.KategoriTandaBahaya = NewKategoriTandaBahayaController(opts.UseCases.KategoriTandaBahaya)
 	m.PemeriksaanDokterTrimester1 = NewPemeriksaanDokterTrimester1Controller(opts.UseCases.PemeriksaanDokterTrimester1)
 	m.PemeriksaanDokterTrimester3 = NewPemeriksaanDokterTrimester3Controller(opts.UseCases.PemeriksaanDokterTrimester3)
 
@@ -123,11 +151,14 @@ func Init(opts Options) *Main {
 	m.Rujukan = NewRujukanController(opts.UseCases.Rujukan)
 	m.SkriningDMGestasional = NewSkriningDMGestasionalController(opts.UseCases.SkriningDMGestasional)
 	m.SkriningPreeklampsia = NewSkriningPreeklampsiaController(opts.UseCases.SkriningPreeklampsia)
+	// m.SkriningPemantauan = NewSkriningPemantauanController(opts.UseCases.SkriningPemantauan)
 	m.PelayananIbuNifas = NewPelayananIbuNifasController(opts.UseCases.PelayananIbuNifas)
 	m.RiwayatKehamilanLalu = NewRiwayatKehamilanLaluController(opts.UseCases.RiwayatKehamilanLalu)
 	m.KeteranganLahir = NewKeteranganLahirController(opts.UseCases.KeteranganLahir)
+	m.Desa = NewDesaController(opts.UseCases.Desa)
 	m.Kependudukan = NewKependudukanController(opts.UseCases.Kependudukan)
 	m.JenisPelayanan = NewJenisPelayananController(opts.UseCases.JenisPelayanan)
+	m.KategoriUmur = NewKategoriUmurController(opts.UseCases.KategoriUmur)
 	m.Kader = NewKaderController(opts.UseCases.Kader)
 	m.PemeriksaanDokterCombined = NewPemeriksaanDokterCombinedController(
 		opts.UseCases.PemeriksaanDokterTrimester1,
@@ -142,14 +173,24 @@ func Init(opts Options) *Main {
 	// 	opts.UseCases.Ibu,
 	// )
 	m.PemantauanAnak = NewPemantauanAnakController(opts.UseCases.PemantauanAnak)
-	// m.PerkembanganAnak = NewPerkembanganAnakController(opts.UseCases.PerkembanganAnak)
 	m.PemantauanIndikator = NewPemantauanIndikatorController(opts.UseCases.PemantauanIndikator)
+
+	// Perawatan Anak (Lembar Capaian)
+	m.KategoriCapaian = NewKategoriCapaianController(opts.UseCases.KategoriCapaian)
+	m.Perawatan = NewPerawatanController(opts.UseCases.Perawatan)
 
 	// Edukasi Digital
 	m.EdukasiInformasiUmum = NewEdukasiInformasiUmumController(opts.UseCases.EdukasiInformasiUmum)
 	m.EdukasiNifas = NewEdukasiNifasController(opts.UseCases.EdukasiNifas)
+<<<<<<< HEAD
 	m.EdukasiTandaBahayaTrimester = NewEdukasiTandaBahayaTrimesterController(opts.UseCases.EdukasiTandaBahayaTrimester)
 	// m.EdukasiTandaMelahirkan = NewEdukasiTandaMelahirkanController(opts.UseCases.EdukasiTandaMelahirkan)
+=======
+	m.EdukasiTrimester = NewEdukasiTrimesterController(opts.UseCases.EdukasiTrimester)
+	// m.EdukasiNifas = NewEdukasiNifasController(opts.UseCases.EdukasiNifas)
+	// m.EdukasiTandaBahayaTrimester = NewEdukasiTandaBahayaTrimesterController(opts.UseCases.EdukasiTandaBahayaTrimester)
+	m.EdukasiTandaMelahirkan = NewEdukasiTandaMelahirkanController(opts.UseCases.EdukasiTandaMelahirkan)
+>>>>>>> 9a739a5998c7885144f27c747e57ca06296d6a4e
 	m.EdukasiImd = NewEdukasiIMDController(opts.UseCases.EdukasiImd)
 	m.EdukasiSetelahMelahirkan = NewEdukasiSetelahMelahirkanController(opts.UseCases.EdukasiSetelahMelahirkan)
 	m.EdukasiMenyusuiAsi = NewEdukasiMenyusuiASIController(opts.UseCases.EdukasiMenyusuiAsi)
@@ -157,9 +198,23 @@ func Init(opts Options) *Main {
 	m.EdukasiKesehatanMental = NewEdukasiKesehatanMentalController(opts.UseCases.EdukasiKesehatanMental)
 	m.EdukasiPerawatanAnak = NewEdukasiPerawatanAnakController(opts.UseCases.EdukasiPerawatanAnak)
 	m.EdukasiMPASI = NewEdukasiMPASIController(opts.UseCases.EdukasiMPASI)
+<<<<<<< HEAD
 	m.AturanPorsiMPASI = NewAturanPorsiMPASIController(opts.UseCases.AturanPorsiMPASI)
 	m.JadwalHarianMPASI = NewJadwalHarianMPASIController(opts.UseCases.JadwalHarianMPASI)
 	m.ResepMPASI = NewResepMPASIController(opts.UseCases.ResepMPASI)
+=======
+	m.EdukasiAturanPorsiMPASI = NewAturanPorsiMPASIController(opts.UseCases.EdukasiAturanPorsiMPASI)
+	m.EdukasiJadwalHarianMPASI = NewJadwalHarianMPASIController(opts.UseCases.EdukasiJadwalHarianMPASI)
+	m.EdukasiResepMPASI = NewResepMPASIController(opts.UseCases.EdukasiResepMPASI)
+	m.LaporanIbu = NewLaporanIbuController(opts.UseCases.LaporanIbu)
+
+	// Jadwal layanan (imunisasi)
+	m.JadwalLayanan = NewJadwalLayananController(opts.UseCases.JadwalLayanan)
+	m.PemeriksaanAnak = NewPemeriksaanAnakController(opts.UseCases.PemeriksaanAnak, opts.UseCases.Kependudukan)
+	m.PemeriksaanRemaja = NewPemeriksaanRemajaController(opts.UseCases.PemeriksaanRemaja, opts.UseCases.Kependudukan)
+	m.PemeriksaanDewasa = NewPemeriksaanDewasaController(opts.UseCases.PemeriksaanDewasa, opts.UseCases.Kependudukan)
+	m.PemeriksaanLansia = NewPemeriksaanLansiaController(opts.UseCases.PemeriksaanLansia, opts.UseCases.Kependudukan)
+>>>>>>> 9a739a5998c7885144f27c747e57ca06296d6a4e
 
 	return m
 }

@@ -20,6 +20,7 @@ type Main struct {
 	PemantauanPertumbuhan  PemantauanPertumbuhanAnakUseCase
 	PengukuranLilA         PengukuranLilAUseCase
 	CatatanPelayanan       CatatanPelayananUseCase
+	KategoriTandaBahaya    KategoriTandaBahayaUsecase
 	Kependudukan           KependudukanUsecase
 	Kader                  KaderUsecase
 
@@ -51,22 +52,35 @@ type Main struct {
 	// RegisterOrangTua              *RegisterOrangTuaUsecase
 	AdminAkunKeluarga    *AdminAkunKeluargaUsecase
 	AdminTenagaKesehatan *AdminTenagaKesehatanUsecase
+	SuperadminUser       *SuperadminUserUsecase
+	Desa                 DesaUsecase
 	KeteranganLahir      KeteranganLahirUsecase
 	JenisPelayanan       JenisPelayananUsecase
+	KategoriUmur         KategoriUmurUsecase
 
 	// Usecase tambahan
 	KeluhanAnak         KeluhanAnakUseCase
 	KesehatanLingkungan KesehatanLingkunganUsecase
 	// KesehatanLingkunganDanCatatanKader KesehatanLingkunganDanCatatanKaderUsecase
-	PemantauanAnak PemantauanAnakUseCase
-	// PerkembanganAnak                   PerkembanganAnakUseCase
+	PemantauanAnak      PemantauanAnakUseCase
 	PemantauanIndikator PemantauanIndikatorUsecase
 
+	// Perawatan Anak (Lembar Capaian)
+	KategoriCapaian KategoriCapaianUsecase
+	Perawatan       PerawatanUsecase
+
 	// Edukasi Digital
+<<<<<<< HEAD
 	EdukasiInformasiUmum        EdukasiInformasiUmumUsecase
 	EdukasiNifas                EdukasiNifasUsecase
 	EdukasiTandaBahayaTrimester EdukasiTandaBahayaTrimesterUsecase
 	// EdukasiTandaMelahirkan      EdukasiTandaMelahirkanUsecase
+=======
+	EdukasiInformasiUmum     EdukasiInformasiUmumUsecase
+	EdukasiNifas             EdukasiNifasUsecase
+	EdukasiTrimester         EdukasiTrimesterUsecase
+	EdukasiTandaMelahirkan   EdukasiTandaMelahirkanUsecase
+>>>>>>> 9a739a5998c7885144f27c747e57ca06296d6a4e
 	EdukasiImd               EdukasiIMDUsecase
 	EdukasiSetelahMelahirkan EdukasiSetelahMelahirkanUsecase
 	EdukasiMenyusuiAsi       EdukasiMenyusuiASIUsecase
@@ -74,9 +88,22 @@ type Main struct {
 	EdukasiKesehatanMental   EdukasiKesehatanMentalUsecase
 	EdukasiPerawatanAnak     EdukasiPerawatanAnakUseCase
 	EdukasiMPASI             EdukasiMPASIUsecase
+<<<<<<< HEAD
 	AturanPorsiMPASI         AturanPorsiMPASIUsecase
 	JadwalHarianMPASI        JadwalHarianMPASIUsecase
 	ResepMPASI               ResepMPASIUsecase
+=======
+	EdukasiAturanPorsiMPASI  AturanPorsiMPASIUsecase
+	EdukasiJadwalHarianMPASI JadwalHarianMPASIUsecase
+	JadwalLayanan            JadwalLayananUsecase
+	EdukasiResepMPASI        ResepMPASIUsecase
+	// EdukasiTandaBahayaTrimester EdukasiTandaBahayaTrimesterUsecase
+	LaporanIbu        LaporanIbuUsecase
+	PemeriksaanAnak   PemeriksaanAnakUsecase
+	PemeriksaanRemaja PemeriksaanRemajaUsecase
+	PemeriksaanDewasa PemeriksaanDewasaUsecase
+	PemeriksaanLansia PemeriksaanLansiaUsecase
+>>>>>>> 9a739a5998c7885144f27c747e57ca06296d6a4e
 }
 
 type Options struct {
@@ -107,6 +134,7 @@ func Init(opts Options) *Main {
 	m.PemantauanPertumbuhan = NewPemantauanPertumbuhanUseCase(opts.Repository.PemantauanPertumbuhan)
 	m.PengukuranLilA = NewPengukuranLilAUseCase(opts.Repository.PengukuranLilA)
 	m.CatatanPelayanan = NewCatatanPelayananUseCase(opts.Repository.CatatanPelayanan)
+	m.KategoriTandaBahaya = NewKategoriTandaBahayaUsecase(opts.Repository.KategoriTandaBahaya)
 
 	// Inisialisasi usecase baru
 	// m.KartuKeluarga = NewKartuKeluargaUsecase(opts.Repository.KartuKeluarga)
@@ -139,8 +167,9 @@ func Init(opts Options) *Main {
 	m.Rujukan = NewRujukanUsecase(opts.Repository.Rujukan)
 	m.SkriningDMGestasional = NewSkriningDMGestasionalUsecase(opts.Repository.SkriningDMGestasional)
 	m.SkriningPreeklampsia = NewSkriningPreeklampsiaUsecase(opts.Repository.SkriningPreeklampsia)
+	// m.SkriningPemantauan = NewSkriningPemantauanUsecase(opts.Repository.SkriningPemantauan)
 	m.PelayananIbuNifas = NewPelayananIbuNifasUsecase(opts.Repository.PelayananIbuNifas)
-	m.Ibu = NewIbuUsecase(opts.Repository.Ibu)
+	m.Ibu = NewIbuUsecase(opts.Repository.Ibu, opts.Repository.Kependudukan)
 	m.RiwayatKehamilanLalu = NewRiwayatKehamilanLaluUsecase(opts.Repository.RiwayatKehamilanLalu)
 	m.Kependudukan = NewKependudukanUsecase(opts.Repository.Kependudukan)
 	m.Kader = NewKaderUsecase(opts.Repository.Kader, opts.Repository.Kependudukan)
@@ -162,22 +191,35 @@ func Init(opts Options) *Main {
 		opts.Repository.User,
 		opts.Repository.Role,
 	)
+	m.SuperadminUser = NewSuperadminUserUsecase(opts.Repository)
+	m.Desa = NewDesaUsecase(opts.Repository.Desa)
 	m.KeteranganLahir = NewKeteranganLahirUsecase(opts.Repository.KeteranganLahir)
 	m.JenisPelayanan = NewJenisPelayananUsecase(opts.Repository.JenisPelayanan)
+	m.KategoriUmur = NewKategoriUmurUsecase(opts.Repository.KategoriUmur)
 
 	// Usecase tambahan
 	m.KeluhanAnak = NewKeluhanAnakUseCase(opts.Repository.KeluhanAnak)
 	m.KesehatanLingkungan = NewKesehatanLingkunganUsecase(opts.Repository.KesehatanLingkungan)
 	// m.KesehatanLingkunganDanCatatanKader = NewKesehatanLingkunganDanCatatanKaderUsecase(opts.Repository.KesehatanLingkunganDanCatatanKader)
 	m.PemantauanAnak = NewPemantauanAnakUseCase(opts.Repository.PemantauanAnak)
-	// m.PerkembanganAnak = NewPerkembanganAnakUseCase(opts.Repository.PerkembanganAnak)
 	m.PemantauanIndikator = NewPemantauanIndikatorUsecase(opts.Repository.PemantauanIndikator)
+
+	// Perawatan Anak (Lembar Capaian)
+	m.KategoriCapaian = NewKategoriCapaianUsecase(opts.Repository.KategoriCapaian)
+	m.Perawatan = NewPerawatanUsecase(opts.Repository.Perawatan, opts.Repository.KategoriCapaian)
 
 	// Edukasi Digital
 	m.EdukasiInformasiUmum = NewEdukasiInformasiUmumUsecase(opts.Repository.EdukasiInformasiUmum)
 	m.EdukasiNifas = NewEdukasiNifasUsecase(opts.Repository.EdukasiNifas)
+<<<<<<< HEAD
 	m.EdukasiTandaBahayaTrimester = NewEdukasiTandaBahayaTrimesterUsecase(opts.Repository.EdukasiTandaBahayaTrimester)
 	// m.EdukasiTandaMelahirkan = NewEdukasiTandaMelahirkanUsecase(opts.Repository.EdukasiTandaMelahirkan)
+=======
+	m.EdukasiTrimester = NewEdukasiTrimesterUsecase(opts.Repository.EdukasiTrimester)
+	// m.EdukasiNifas = NewEdukasiNifasUsecase(opts.Repository.EdukasiNifas)
+	// m.EdukasiTandaBahayaTrimester = NewEdukasiTandaBahayaTrimesterUsecase(opts.Repository.EdukasiTandaBahayaTrimester)
+	m.EdukasiTandaMelahirkan = NewEdukasiTandaMelahirkanUsecase(opts.Repository.EdukasiTandaMelahirkan)
+>>>>>>> 9a739a5998c7885144f27c747e57ca06296d6a4e
 	m.EdukasiImd = NewEdukasiIMDUsecase(opts.Repository.EdukasiImd)
 	m.EdukasiSetelahMelahirkan = NewEdukasiSetelahMelahirkanUsecase(opts.Repository.EdukasiSetelahMelahirkan)
 	m.EdukasiMenyusuiAsi = NewEdukasiMenyusuiASIUsecase(opts.Repository.EdukasiMenyusuiAsi)
@@ -185,9 +227,23 @@ func Init(opts Options) *Main {
 	m.EdukasiKesehatanMental = NewEdukasiKesehatanMentalUsecase(opts.Repository.EdukasiKesehatanMental)
 	m.EdukasiPerawatanAnak = NewEdukasiPerawatanAnakUseCase(opts.Repository.EdukasiPerawatanAnak)
 	m.EdukasiMPASI = NewEdukasiMPASIUsecase(opts.Repository.EdukasiMPASI)
+<<<<<<< HEAD
 	m.AturanPorsiMPASI = NewAturanPorsiMPASIUsecase(opts.Repository.AturanPorsiMPASI)
 	m.JadwalHarianMPASI = NewJadwalHarianMPASIUsecase(opts.Repository.JadwalHarianMPASI)
 	m.ResepMPASI = NewResepMPASIUsecase(opts.Repository.ResepMPASI)
+=======
+	m.EdukasiAturanPorsiMPASI = NewAturanPorsiMPASIUsecase(opts.Repository.EdukasiAturanPorsiMPASI)
+	m.EdukasiJadwalHarianMPASI = NewJadwalHarianMPASIUsecase(opts.Repository.EdukasiJadwalHarianMPASI)
+	m.EdukasiResepMPASI = NewResepMPASIUsecase(opts.Repository.EdukasiResepMPASI)
+	m.LaporanIbu = NewLaporanIbuUsecase(opts.Repository.LaporanIbu)
+
+	// Jadwal Layanan (imunisasi) usecase
+	m.JadwalLayanan = NewJadwalLayananUsecase(opts.Repository.JadwalLayanan)
+	m.PemeriksaanAnak = NewPemeriksaanAnakUsecase(opts.Repository.PemeriksaanAnak)
+	m.PemeriksaanRemaja = NewPemeriksaanRemajaUsecase(opts.Repository.PemeriksaanRemaja)
+	m.PemeriksaanDewasa = NewPemeriksaanDewasaUsecase(opts.Repository.PemeriksaanDewasa)
+	m.PemeriksaanLansia = NewPemeriksaanLansiaUsecase(opts.Repository.PemeriksaanLansia)
+>>>>>>> 9a739a5998c7885144f27c747e57ca06296d6a4e
 
 	return m
 }

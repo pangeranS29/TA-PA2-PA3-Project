@@ -9,7 +9,24 @@ func AutoMigrate(db *gorm.DB) error {
 	models := []interface{}{
 		// Master
 		&KartuKeluarga{},
-		// &Kependudukan{},
+		&Desa{},
+		&Kependudukan{},
+		&Role{},
+		&User{},
+		&Ibu{},
+		&Kehamilan{},
+		&Anak{},
+		&Bidan{},
+		&Kader{},
+		&PemeriksaanAnak{},
+		&PemeriksaanRemaja{},
+		&PemeriksaanDewasa{},
+		&PemeriksaanLansia{},
+
+		&KategoriTandaBahaya{},
+		&SkriningPemantauan{},
+		&RentangUsia{},
+		&KategoriTandaSakit{},
 		// &Ibu{},
 		// &KategoriTandaBahaya{},
 		&SkriningPemantauan{},
@@ -23,6 +40,7 @@ func AutoMigrate(db *gorm.DB) error {
 		&Kehamilan{},
 		&Anak{},
 		&Role{},
+		&Desa{},
 		&User{},
 		&Bidan{},
 		&Kader{},
@@ -87,6 +105,16 @@ func AutoMigrate(db *gorm.DB) error {
 		&PelayananIbuNifas{},
 		&CatatanPelayananNifas{},
 		&Rujukan{},
+		&KategoriCapaian{},
+		&Perawatan{},
+		&PemantauanIndikator{},
+		&KategoriCapaian{},
+
+		// Perkembangan Anak
+		// &RentangUsiaPerkembangan{},
+		// &IndikatorPerkembangan{},
+		// &LembarPerkembangan{},
+		// &DetailPerkembangan{},
 	}
 
 	// Jalankan automigrate sekali saja

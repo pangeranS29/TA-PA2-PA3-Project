@@ -19,13 +19,15 @@ type Kependudukan struct {
 	KedudukanKeluarga  string     `gorm:"column:kedudukan_keluarga;type:text" json:"kedudukan_keluarga"`
 	Dusun              string     `gorm:"column:dusun;type:text" json:"dusun"`
 	Kecamatan          string     `gorm:"column:kecamatan;type:text" json:"kecamatan"`
-	Desa               string     `gorm:"column:desa;type:text" json:"desa"`
+	DesaID             *int32     `gorm:"column:desa_id" json:"desa_id,omitempty"`
+	Desa               *Desa      `gorm:"foreignKey:DesaID;references:ID" json:"desa,omitempty"`
 	TanggalPenambahan  *time.Time `gorm:"column:tanggal_penambahan" json:"tanggal_penambahan,omitempty"`
 	AsalPenduduk       string     `gorm:"column:asal_penduduk;type:text" json:"asal_penduduk"`
 	TanggalPengurangan *time.Time `gorm:"column:tanggal_pengurangan" json:"tanggal_pengurangan,omitempty"`
 	TujuanPindah       string     `gorm:"column:tujuan_pindah;type:text" json:"tujuan_pindah"`
 	TempatMeninggal    string     `gorm:"column:tempat_meninggal;type:text" json:"tempat_meninggal"`
 	Keterangan         string     `gorm:"column:keterangan;type:text" json:"keterangan"`
+	IsNonKTP           bool       `gorm:"column:is_non_ktp;default:false" json:"is_non_ktp"`
 	CreatedAt          time.Time  `gorm:"column:created_at" json:"created_at"`
 	UpdatedAt          time.Time  `gorm:"column:updated_at" json:"updated_at"`
 	DeletedAt          *time.Time `gorm:"column:deleted_at" json:"deleted_at,omitempty"`

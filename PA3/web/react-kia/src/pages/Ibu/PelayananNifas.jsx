@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import MainLayout from "../../components/Layout/MainLayout";
-import { getKehamilanByIbuId } from "../../services/kehamilan";
+import { getKehamilanByIbuId, updateStatusKehamilan } from "../../services/kehamilan";
 import { getNifasByKehamilanId, createNifas, updateNifas } from "../../services/nifas";
 import { 
   getCatatanNifasByKehamilanId, 
@@ -10,6 +10,7 @@ import {
   updateCatatanNifas, 
   deleteCatatanNifas 
 } from "../../services/catatanNifas";
+import Swal from "sweetalert2";
 import { Save, ArrowLeft, Edit2, CheckCircle, FileText, X, Trash2, Plus, Home } from "lucide-react";
 
 // ============================================================
@@ -479,7 +480,11 @@ export default function PelayananNifas() {
   // Fungsi untuk menyimpan catatan
   const handleSaveCatatan = async (catatanForm) => {
     if (!kehamilan) {
-      alert("Data kehamilan tidak ditemukan!");
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Data kehamilan tidak ditemukan!'
+      });
       return;
     }
     
@@ -540,7 +545,7 @@ export default function PelayananNifas() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!kehamilan) {
-      alert("Data kehamilan tidak ditemukan!");
+      Swal.fire('Error', 'Data kehamilan tidak ditemukan!', 'error');
       return;
     }
     setSaving(true);
@@ -577,10 +582,22 @@ export default function PelayananNifas() {
       
       if (existing) {
         await updateNifas(existing.id, payload);
-        alert("Data pelayanan nifas berhasil diperbarui");
+        await Swal.fire({
+          icon: 'success',
+          title: 'Diperbarui',
+          text: 'Data pelayanan nifas berhasil diperbarui',
+          timer: 2000,
+          showConfirmButton: false
+        });
       } else {
         await createNifas(payload);
-        alert("Data pelayanan nifas berhasil disimpan");
+        await Swal.fire({
+          icon: 'success',
+          title: 'Berhasil',
+          text: 'Data pelayanan nifas berhasil disimpan',
+          timer: 2000,
+          showConfirmButton: false
+        });
       }
       
       // Refresh data nifas
@@ -595,10 +612,31 @@ export default function PelayananNifas() {
       if (newCurrentData) {
         populateForm(newCurrentData);
       }
-      
+      // Jika kunjungan KF4 (29-42 hari), ubah status kehamilan menjadi NON-AKTIF
+if (selectedKunjungan === "KF4") {
+  try {
+    await updateStatusKehamilan(kehamilan.id, "NON-AKTIF");
+    setKehamilan(prev => ({ ...prev, status_kehamilan: "NON-AKTIF" }));
+    await Swal.fire({
+      icon: 'success',
+      title: 'Status Kehamilan',
+      text: 'Kehamilan telah ditandai NON-AKTIF karena masa nifas selesai.',
+      timer: 2000,
+      showConfirmButton: false
+    });
+  } catch (err) {
+    console.error("Gagal update status kehamilan:", err);
+    await Swal.fire({
+      icon: 'warning',
+      title: 'Perhatian',
+      text: 'Data nifas tersimpan, tetapi gagal mengubah status kehamilan menjadi NON-AKTIF. Silakan periksa kembali.',
+      confirmButtonText: 'OK'
+    });
+  }
+}
     } catch (err) {
       console.error("Error detail:", err);
-      alert("Gagal menyimpan data nifas: " + (err.response?.data?.message || err.message));
+      Swal.fire('Gagal Menyimpan', err.response?.data?.message || err.message, 'error');
     } finally {
       setSaving(false);
     }

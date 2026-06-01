@@ -56,6 +56,7 @@ func (r *KehamilanRepository) Delete(id int32) error {
 	}
 	return nil
 }
+// UpdateStatusKehamilan hanya mengubah kolom status_kehamilan berdasarkan ID
 func (r *KehamilanRepository) UpdateStatusKehamilan(id int32, status string) error {
 	return r.db.Model(&models.Kehamilan{}).
 		Where("id = ?", id).
@@ -140,3 +141,4 @@ func (r *KehamilanRepository) UpdateUsiaDanStatusKehamilan(id int32, usia int32,
             "status_kehamilan":      status,
         }).Error
 }
+

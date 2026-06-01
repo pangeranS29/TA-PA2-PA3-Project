@@ -1,6 +1,7 @@
 // src/pages/Ibu/PemeriksaanFisik.jsx
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import Swal from "sweetalert2";
 import MainLayout from "../../components/Layout/MainLayout";
 import { getKehamilanByIbuId } from "../../services/kehamilan";
 import { getPemeriksaanByKehamilanId, createPemeriksaan, updatePemeriksaan } from "../../services/pemeriksaan";
@@ -96,9 +97,15 @@ export default function PemeriksaanFisik() {
       } else {
         await createPemeriksaan(payload);
       }
-      alert("Pemeriksaan berhasil disimpan");
+      await Swal.fire({
+        icon: 'success',
+        title: 'Berhasil',
+        text: 'Pemeriksaan berhasil disimpan',
+        timer: 2000,
+        showConfirmButton: false
+      });
     } catch (err) {
-      alert("Gagal menyimpan pemeriksaan");
+      Swal.fire('Error', 'Gagal menyimpan pemeriksaan', 'error');
     } finally {
       setSaving(false);
     }

@@ -21,10 +21,13 @@ type Main struct {
 	PemantauanPertumbuhan  PemantauanPertumbuhanRepository
 	PengukuranLilA         PengukuranLilaRepository
 	CatatanPelayanan       CatatanPelayananRepository
+	KategoriTandaBahaya    *KategoriTandaBahayaRepository
+	SkriningPemantauan     *SkriningPemantauanRepository
 
 	// New repositories (semua pointer, mengikuti pola Anak)
 	User                          *UserRepository
 	Role                          *RoleRepository
+	Desa                          *DesaRepository
 	KartuKeluarga                 *KartuKeluargaRepository
 	Kependudukan                  *KependudukanRepository
 	Bidan                         *BidanRepository
@@ -54,11 +57,13 @@ type Main struct {
 	CatatanPelayananNifas         *CatatanPelayananNifasRepository
 	Rujukan                       *RujukanRepository
 	JenisPelayanan                JenisPelayananRepository
+	KategoriUmur                  KategoriUmurRepository
 
 	// Repository tambahan
 	KeluhanAnak         KeluhanAnakRepository
 	KesehatanLingkungan KesehatanLingkunganRepository
 	// KesehatanLingkunganDanCatatanKader *KesehatanLingkunganDanCatatanKaderRepository
+<<<<<<< HEAD
 	PemantauanAnak PemantauanAnakRepository
 	// PerkembanganAnak                   PerkembanganAnakRepository
 	PemantauanIndikator *PemantauanIndikatorRepository
@@ -68,6 +73,20 @@ type Main struct {
 	EdukasiNifas                EdukasiNifasRepository
 	EdukasiTandaBahayaTrimester EdukasiTandaBahayaTrimesterRepository
 	// EdukasiTandaMelahirkan      EdukasiTandaMelahirkanRepository
+=======
+	PemantauanAnak      PemantauanAnakRepository
+	PemantauanIndikator *PemantauanIndikatorRepository
+
+	// Perawatan Anak (Lembar Capaian)
+	KategoriCapaian KategoriCapaianRepository
+	Perawatan       PerawatanRepository
+
+	// Edukasi Digital
+	EdukasiInformasiUmum     EdukasiInformasiUmumRepository
+	EdukasiNifas             EdukasiNifasRepository
+	EdukasiTrimester         EdukasiTrimesterRepository
+	EdukasiTandaMelahirkan   EdukasiTandaMelahirkanRepository
+>>>>>>> 9a739a5998c7885144f27c747e57ca06296d6a4e
 	EdukasiImd               EdukasiIMDRepository
 	EdukasiSetelahMelahirkan EdukasiSetelahMelahirkanRepository
 	EdukasiMenyusuiAsi       EdukasiMenyusuiASIRepository
@@ -75,9 +94,26 @@ type Main struct {
 	EdukasiKesehatanMental   EdukasiKesehatanMentalRepository
 	EdukasiPerawatanAnak     EdukasiPerawatanAnakRepository
 	EdukasiMPASI             EdukasiMPASIRepository
+<<<<<<< HEAD
 	AturanPorsiMPASI         AturanPorsiMPASIRepository
 	JadwalHarianMPASI        JadwalHarianMPASIRepository
 	ResepMPASI               ResepMPASIRepository
+=======
+	EdukasiAturanPorsiMPASI  AturanPorsiMPASIRepository
+	EdukasiJadwalHarianMPASI JadwalHarianMPASIRepository
+	JadwalLayanan            JadwalLayananRepository
+	EdukasiResepMPASI        ResepMPASIRepository
+	PemeriksaanAnak          PemeriksaanAnakRepository
+	PemeriksaanRemaja        PemeriksaanRemajaRepository
+	PemeriksaanDewasa        PemeriksaanDewasaRepository
+	PemeriksaanLansia        PemeriksaanLansiaRepository
+
+	// Edukasi Digital
+
+	// EdukasiTandaBahayaTrimester EdukasiTandaBahayaTrimesterRepository
+
+	LaporanIbu LaporanIbuRepository
+>>>>>>> 9a739a5998c7885144f27c747e57ca06296d6a4e
 }
 
 type Options struct {
@@ -99,6 +135,7 @@ func Init(opts Options) *Main {
 	m.User = NewUserRepository(opts.Postgres)
 	m.Ibu = NewIbuRepository(opts.Postgres)
 	m.Role = NewRoleRepository(opts.Postgres)
+	m.Desa = NewDesaRepository(opts.Postgres)
 	m.KartuKeluarga = NewKartuKeluargaRepository(opts.Postgres)
 	m.Kependudukan = NewKependudukanRepository(opts.Postgres)
 	m.Bidan = NewBidanRepository(opts.Postgres)
@@ -135,21 +172,32 @@ func Init(opts Options) *Main {
 	m.PemantauanPertumbuhan = NewPemantauanPertumbuhanRepository(opts.Postgres)
 	m.PengukuranLilA = NewPengukuranLilaRepository(opts.Postgres)
 	m.CatatanPelayanan = NewCatatanPelayananRepository(opts.Postgres)
+	m.KategoriTandaBahaya = NewKategoriTandaBahayaRepository(opts.Postgres)
+	// m.SkriningPemantauan = NewSkriningPemantauanRepository(opts.Postgres)
 	m.JenisPelayanan = NewJenisPelayananRepository(opts.Postgres)
+	m.KategoriUmur = NewKategoriUmurRepository(opts.Postgres)
 
 	// Repository tambahan
 	m.KeluhanAnak = NewKeluhanAnakRepository(opts.Postgres)
 	m.KesehatanLingkungan = NewKesehatanLingkunganRepository(opts.Postgres)
 	// m.KesehatanLingkunganDanCatatanKader = NewKesehatanLingkunganDanCatatanKaderRepository(opts.Postgres)
 	m.PemantauanAnak = NewPemantauanAnakRepository(opts.Postgres)
-	// m.PerkembanganAnak = NewPerkembanganAnakRepository(opts.Postgres)
 	m.PemantauanIndikator = NewPemantauanIndikatorRepository(opts.Postgres)
+
+	// Perawatan Anak (Lembar Capaian)
+	m.KategoriCapaian = NewKategoriCapaianRepository(opts.Postgres)
+	m.Perawatan = NewPerawatanRepository(opts.Postgres)
 
 	// Edukasi Digital
 	m.EdukasiInformasiUmum = NewEdukasiInformasiUmumRepository(opts.Postgres)
 	m.EdukasiNifas = NewEdukasiNifasRepository(opts.Postgres)
+<<<<<<< HEAD
 	m.EdukasiTandaBahayaTrimester = NewEdukasiTandaBahayaTrimesterRepository(opts.Postgres)
 	// m.EdukasiTandaMelahirkan = NewEdukasiTandaMelahirkanRepository(opts.Postgres)
+=======
+	m.EdukasiTrimester = NewEdukasiTrimesterRepository(opts.Postgres)
+	m.EdukasiTandaMelahirkan = NewEdukasiTandaMelahirkanRepository(opts.Postgres)
+>>>>>>> 9a739a5998c7885144f27c747e57ca06296d6a4e
 	m.EdukasiImd = NewEdukasiIMDRepository(opts.Postgres)
 	m.EdukasiSetelahMelahirkan = NewEdukasiSetelahMelahirkanRepository(opts.Postgres)
 	m.EdukasiMenyusuiAsi = NewEdukasiMenyusuiASIRepository(opts.Postgres)
@@ -157,9 +205,28 @@ func Init(opts Options) *Main {
 	m.EdukasiKesehatanMental = NewEdukasiKesehatanMentalRepository(opts.Postgres)
 	m.EdukasiPerawatanAnak = NewEdukasiPerawatanAnakRepository(opts.Postgres)
 	m.EdukasiMPASI = NewEdukasiMPASIRepository(opts.Postgres)
+<<<<<<< HEAD
 	m.AturanPorsiMPASI = NewAturanPorsiMPASIRepository(opts.Postgres)
 	m.JadwalHarianMPASI = NewJadwalHarianMPASIRepository(opts.Postgres)
 	m.ResepMPASI = NewResepMPASIRepository(opts.Postgres)
 
 	return m
 }
+=======
+	m.EdukasiAturanPorsiMPASI = NewAturanPorsiMPASIRepository(opts.Postgres)
+	m.EdukasiJadwalHarianMPASI = NewJadwalHarianMPASIRepository(opts.Postgres)
+	m.JadwalLayanan = NewJadwalLayananRepository(opts.Postgres)
+	m.EdukasiResepMPASI = NewResepMPASIRepository(opts.Postgres)
+	m.LaporanIbu = NewLaporanIbuRepository(opts.Postgres)
+	m.PemeriksaanAnak = NewPemeriksaanAnakRepository(opts.Postgres)
+	m.PemeriksaanRemaja = NewPemeriksaanRemajaRepository(opts.Postgres)
+	m.PemeriksaanDewasa = NewPemeriksaanDewasaRepository(opts.Postgres)
+	m.PemeriksaanLansia = NewPemeriksaanLansiaRepository(opts.Postgres)
+
+	return m
+}
+
+func (m *Main) DB() *gorm.DB {
+	return m.postgres
+}
+>>>>>>> 9a739a5998c7885144f27c747e57ca06296d6a4e

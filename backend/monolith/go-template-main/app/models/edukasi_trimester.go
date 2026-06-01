@@ -2,7 +2,7 @@ package models
 
 import "time"
 
-type EdukasiTandaBahayaTrimester struct {
+type EdukasiTrimester struct {
 	ID        int32     `json:"id" gorm:"primaryKey;autoIncrement"`
 	Judul     string    `json:"judul" gorm:"type:varchar(255);not null"`
 	GambarURL string    `json:"gambar_url" gorm:"type:text"`
@@ -11,6 +11,6 @@ type EdukasiTandaBahayaTrimester struct {
 	UpdatedAt time.Time `json:"updated_at" gorm:"->"`
 }
 
-func (EdukasiTandaBahayaTrimester) TableName() string {
-	return "edukasi_tanda_bahaya_trimester"
+func (EdukasiTrimester) TableName() string {
+	return "edukasi_trimester"
 }

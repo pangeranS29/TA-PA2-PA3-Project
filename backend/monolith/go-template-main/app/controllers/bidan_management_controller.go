@@ -18,7 +18,15 @@ import (
 func (m *Main) BidanCreatePosyandu(c echo.Context) error {
 	var req usecases.AdminCreatePosyanduRequest
 	if err := c.Bind(&req); err != nil {
-		return helpers.Response(c, http.StatusBadRequest, []string{"format request tidak valid"})
+		return helpers.Response(c, http.StatusBadRequest, []string{"format request tidak valid: " + err.Error()})
+	}
+
+	// Explicit validation
+	if req.IDPuskesmas == 0 {
+		return helpers.Response(c, http.StatusBadRequest, []string{"id_puskesmas wajib diisi dan tidak boleh 0"})
+	}
+	if req.Nama == "" {
+		return helpers.Response(c, http.StatusBadRequest, []string{"nama wajib diisi"})
 	}
 
 	// TODO: Get posyandu_id dari bidan yang sedang login
@@ -43,16 +51,53 @@ func (m *Main) BidanListPosyandu(c echo.Context) error {
 	return helpers.StandardResponse(c, http.StatusOK, []string{constants.SUCCESS_RESPONSE_MESSAGE}, data, nil)
 }
 
+// BidanListPenduduk - Bidan melihat list penduduk untuk dropdown
+func (m *Main) BidanListPenduduk(c echo.Context) error {
+	search := c.QueryParam("search")
+
+	data, err := m.usecases.AdminTenagaKesehatan.ListPenduduk(search)
+	if err != nil {
+		return helpers.Response(c, customerror.GetStatusCode(err), []string{err.Error()})
+	}
+
+	return helpers.StandardResponse(c, http.StatusOK, []string{constants.SUCCESS_RESPONSE_MESSAGE}, data, nil)
+}
+
 // BidanGetPosyanduDetail - Bidan melihat detail posyandu
 func (m *Main) BidanGetPosyanduDetail(c echo.Context) error {
-	// TODO: Implementasi get detail posyandu
-	return helpers.Response(c, http.StatusNotImplemented, []string{"belum diimplementasi"})
+	idStr := c.Param("id")
+	id, err := strconv.ParseInt(idStr, 10, 32)
+	if err != nil {
+		return helpers.Response(c, http.StatusBadRequest, []string{"id tidak valid"})
+	}
+
+	data, err := m.usecases.AdminTenagaKesehatan.GetPosyanduDetail(int32(id))
+	if err != nil {
+		return helpers.Response(c, customerror.GetStatusCode(err), []string{err.Error()})
+	}
+
+	return helpers.StandardResponse(c, http.StatusOK, []string{constants.SUCCESS_RESPONSE_MESSAGE}, data, nil)
 }
 
 // BidanUpdatePosyandu - Bidan update posyandu
 func (m *Main) BidanUpdatePosyandu(c echo.Context) error {
-	// TODO: Implementasi update posyandu
-	return helpers.Response(c, http.StatusNotImplemented, []string{"belum diimplementasi"})
+	idStr := c.Param("id")
+	id, err := strconv.ParseInt(idStr, 10, 32)
+	if err != nil {
+		return helpers.Response(c, http.StatusBadRequest, []string{"id tidak valid"})
+	}
+
+	var req usecases.AdminUpdatePosyanduRequest
+	if err := c.Bind(&req); err != nil {
+		return helpers.Response(c, http.StatusBadRequest, []string{"format request tidak valid"})
+	}
+
+	data, err := m.usecases.AdminTenagaKesehatan.UpdatePosyandu(int32(id), &req)
+	if err != nil {
+		return helpers.Response(c, customerror.GetStatusCode(err), []string{err.Error()})
+	}
+
+	return helpers.StandardResponse(c, http.StatusOK, []string{constants.SUCCESS_RESPONSE_MESSAGE}, data, nil)
 }
 
 // ==================== BIDAN MANAGEMENT ====================
@@ -77,9 +122,6 @@ func (m *Main) BidanCreateBidan(c echo.Context) error {
 
 // BidanListBidan - Bidan melihat list bidan di posyandu mereka
 func (m *Main) BidanListBidan(c echo.Context) error {
-	// TODO: Get desa dari bidan yang sedang login
-	// Filter hanya bidan di posyandu yang sama
-
 	desa := c.QueryParam("desa")
 
 	data, err := m.usecases.AdminTenagaKesehatan.ListBidan(desa)
@@ -92,19 +134,24 @@ func (m *Main) BidanListBidan(c echo.Context) error {
 
 // BidanGetBidanDetail - Bidan melihat detail bidan lain
 func (m *Main) BidanGetBidanDetail(c echo.Context) error {
-	_, err := strconv.ParseInt(c.Param("id"), 10, 32)
+	idStr := c.Param("id")
+	id, err := strconv.ParseInt(idStr, 10, 32)
 	if err != nil {
 		return helpers.Response(c, http.StatusBadRequest, []string{"id bidan tidak valid"})
 	}
 
-	// TODO: Get detail bidan dari repository dan validate ownership
+	data, err := m.usecases.AdminTenagaKesehatan.GetBidanDetail(int32(id))
+	if err != nil {
+		return helpers.Response(c, customerror.GetStatusCode(err), []string{err.Error()})
+	}
 
-	return helpers.Response(c, http.StatusNotImplemented, []string{"belum diimplementasi"})
+	return helpers.StandardResponse(c, http.StatusOK, []string{constants.SUCCESS_RESPONSE_MESSAGE}, data, nil)
 }
 
 // BidanUpdateBidan - Bidan update bidan di posyandu mereka
 func (m *Main) BidanUpdateBidan(c echo.Context) error {
-	idRaw, err := strconv.ParseInt(c.Param("id"), 10, 32)
+	idStr := c.Param("id")
+	id, err := strconv.ParseInt(idStr, 10, 32)
 	if err != nil {
 		return helpers.Response(c, http.StatusBadRequest, []string{"id bidan tidak valid"})
 	}
@@ -114,11 +161,9 @@ func (m *Main) BidanUpdateBidan(c echo.Context) error {
 		return helpers.Response(c, http.StatusBadRequest, []string{"format request tidak valid"})
 	}
 
-	// TODO: Validate ownership - hanya bisa update bidan di posyandu mereka
-
-	data, updateErr := m.usecases.AdminTenagaKesehatan.UpdateBidan(int32(idRaw), &req)
-	if updateErr != nil {
-		return helpers.Response(c, customerror.GetStatusCode(updateErr), []string{updateErr.Error()})
+	data, err := m.usecases.AdminTenagaKesehatan.UpdateBidan(int32(id), &req)
+	if err != nil {
+		return helpers.Response(c, customerror.GetStatusCode(err), []string{err.Error()})
 	}
 
 	return helpers.StandardResponse(c, http.StatusOK, []string{constants.SUCCESS_RESPONSE_MESSAGE}, data, nil)
@@ -184,20 +229,24 @@ func (m *Main) BidanListKader(c echo.Context) error {
 
 // BidanGetKaderDetail - Bidan melihat detail kader
 func (m *Main) BidanGetKaderDetail(c echo.Context) error {
-	idRaw, err := strconv.ParseInt(c.Param("id"), 10, 32)
+	idStr := c.Param("id")
+	id, err := strconv.ParseInt(idStr, 10, 32)
 	if err != nil {
 		return helpers.Response(c, http.StatusBadRequest, []string{"id kader tidak valid"})
 	}
 
-	// TODO: Get kader detail dan validate ownership
+	data, err := m.usecases.AdminTenagaKesehatan.GetKaderDetail(int32(id))
+	if err != nil {
+		return helpers.Response(c, customerror.GetStatusCode(err), []string{err.Error()})
+	}
 
-	_ = idRaw
-	return helpers.Response(c, http.StatusNotImplemented, []string{"belum diimplementasi"})
+	return helpers.StandardResponse(c, http.StatusOK, []string{constants.SUCCESS_RESPONSE_MESSAGE}, data, nil)
 }
 
 // BidanUpdateKader - Bidan update kader di posyandu mereka
 func (m *Main) BidanUpdateKader(c echo.Context) error {
-	idRaw, err := strconv.ParseInt(c.Param("id"), 10, 32)
+	idStr := c.Param("id")
+	id, err := strconv.ParseInt(idStr, 10, 32)
 	if err != nil {
 		return helpers.Response(c, http.StatusBadRequest, []string{"id kader tidak valid"})
 	}
@@ -207,11 +256,9 @@ func (m *Main) BidanUpdateKader(c echo.Context) error {
 		return helpers.Response(c, http.StatusBadRequest, []string{"format request tidak valid"})
 	}
 
-	// TODO: Validate ownership - hanya bisa update kader di posyandu mereka
-
-	data, updateErr := m.usecases.AdminTenagaKesehatan.UpdateKader(int32(idRaw), &req)
-	if updateErr != nil {
-		return helpers.Response(c, customerror.GetStatusCode(updateErr), []string{updateErr.Error()})
+	data, err := m.usecases.AdminTenagaKesehatan.UpdateKader(int32(id), &req)
+	if err != nil {
+		return helpers.Response(c, customerror.GetStatusCode(err), []string{err.Error()})
 	}
 
 	return helpers.StandardResponse(c, http.StatusOK, []string{constants.SUCCESS_RESPONSE_MESSAGE}, data, nil)
@@ -219,7 +266,8 @@ func (m *Main) BidanUpdateKader(c echo.Context) error {
 
 // BidanUpdateKaderStatus - Bidan update status kader
 func (m *Main) BidanUpdateKaderStatus(c echo.Context) error {
-	idRaw, err := strconv.ParseInt(c.Param("id"), 10, 32)
+	idStr := c.Param("id")
+	id, err := strconv.ParseInt(idStr, 10, 32)
 	if err != nil {
 		return helpers.Response(c, http.StatusBadRequest, []string{"id kader tidak valid"})
 	}
@@ -231,9 +279,7 @@ func (m *Main) BidanUpdateKaderStatus(c echo.Context) error {
 		return helpers.Response(c, http.StatusBadRequest, []string{"format request tidak valid"})
 	}
 
-	// TODO: Validate ownership - hanya bisa update status kader di posyandu mereka
-
-	if err := m.usecases.AdminTenagaKesehatan.SetStatusKader(int32(idRaw), req.Status); err != nil {
+	if err := m.usecases.AdminTenagaKesehatan.SetStatusKader(int32(id), req.Status); err != nil {
 		return helpers.Response(c, customerror.GetStatusCode(err), []string{err.Error()})
 	}
 

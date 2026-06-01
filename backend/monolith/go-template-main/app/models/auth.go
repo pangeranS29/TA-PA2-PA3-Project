@@ -8,6 +8,7 @@ type RegisterRequest struct {
 	PhoneNumber string `json:"phone_number"`
 	Password    string `json:"password"`
 	RoleName    string `json:"role_name"`
+	PendudukID  *int64 `json:"penduduk_id"`
 }
 
 type LoginRequest struct {

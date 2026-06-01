@@ -21,6 +21,7 @@ type roleDestination struct {
 
 var roleDestinations = map[string]roleDestination{
 	"Admin":            {TargetApp: "website", RedirectRoute: "/dashboard/admin"},
+	"Superadmin":       {TargetApp: "website", RedirectRoute: "/superadmin/desa"},
 	"Dokter":           {TargetApp: "website", RedirectRoute: "/dashboard/dokter"},
 	"Tenaga-kesehatan": {TargetApp: "website", RedirectRoute: "/dashboard/tenaga-kesehatan"},
 	"Kader":            {TargetApp: "mobile", RedirectRoute: "/mobile/home-kader"},
@@ -36,6 +37,7 @@ var roleAliases = map[string]string{
 	"tenaga kesehatan": "Tenaga-kesehatan",
 	"kader":            "Kader",
 	"bidan":            "Bidan",
+	"superadmin":       "Superadmin",
 	"orangtua":         "Orangtua",
 	"orang tua":        "Orangtua",
 	"orang-tua":        "Orangtua",
@@ -194,6 +196,19 @@ func (m *Main) Register(req *models.RegisterRequest) error {
 		return err
 	}
 
+	var pendudukID *int64
+
+	if req.PendudukID != nil {
+		penduduk, err := m.repository.Kependudukan.FindByID(int32(*req.PendudukID))
+		if err != nil {
+			return customerror.NewBadRequestError("penduduk tidak ditemukan")
+		}
+
+		// penting: pastikan yang disimpan adalah ID benar
+		id := int64(penduduk.IDKependudukan)
+		pendudukID = &id
+	}
+
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return customerror.NewInternalServiceError("gagal memproses password")
@@ -203,8 +218,10 @@ func (m *Main) Register(req *models.RegisterRequest) error {
 		Name:        req.Name,
 		Email:       req.Email,
 		PhoneNumber: req.PhoneNumber,
+		IsActive:    true,
 		Password:    string(hashedPassword),
 		RoleID:      role.ID,
+		PendudukID:  pendudukID,
 	}
 
 	if err := m.repository.CreateUser(user); err != nil {
@@ -251,6 +268,10 @@ func (m *Main) Login(req *models.LoginRequest) (*models.LoginResponse, error) {
 			return nil, customerror.NewBadRequestError("email/nomor hp atau password salah")
 		}
 		return nil, err
+	}
+
+	if !user.IsActive {
+		return nil, customerror.NewBadRequestError("akun dinonaktifkan")
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password)); err != nil {

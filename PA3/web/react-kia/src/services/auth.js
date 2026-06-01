@@ -1,18 +1,21 @@
 import api from "./api";
 
 const ADMIN_ROLE = "admin";
+const SUPERADMIN_ROLE = "superadmin";
 const BIDAN_ROLE = "bidan";
 const DOKTER_ROLE = "dokter";
 
 const normalizeRole = (role) => (role || "").toString().trim().toLowerCase();
 
-export const isAdminUser = (user) => normalizeRole(user?.role) === ADMIN_ROLE;
+export const isSuperadminUser = (user) => normalizeRole(user?.role) === SUPERADMIN_ROLE;
+export const isAdminUser = (user) => [ADMIN_ROLE, SUPERADMIN_ROLE].includes(normalizeRole(user?.role));
 export const isDokterUser = (user) => normalizeRole(user?.role) === DOKTER_ROLE;
 export const isBidanUser = (user) => normalizeRole(user?.role) === BIDAN_ROLE;
 
 export const getUserRedirectRoute = (user) => {
   
   const role = normalizeRole(user?.role);
+  if (role === SUPERADMIN_ROLE) return "/superadmin/dashboard";
   if (role === ADMIN_ROLE) return "/dashboard/admin";
   if (role === DOKTER_ROLE) return "/dashboard/dokter";
   if (role === BIDAN_ROLE) return "/dashboard/bidan";
@@ -53,4 +56,9 @@ export const isAuthenticated = () => {
 export const getPostLoginRoute = () => {
   const user = getCurrentUser();
   return getUserRedirectRoute(user);
+};
+
+export const registerUser = async (userData) => {
+  const response = await api.post("/auth/register", userData);
+  return response.data; // Mengembalikan data user yang terdaftar
 };
