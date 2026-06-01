@@ -5,6 +5,7 @@ import "time"
 type AbsensiKelasIbuBalita struct {
 	ID    int32 `gorm:"primaryKey;autoIncrement" json:"id"`
 	IbuID int32 `gorm:"not null;index" json:"ibu_id"`
+	Ibu   *Ibu  `gorm:"foreignKey:IbuID" json:"ibu,omitempty"`
 
 	PertemuanKe  int32      `gorm:"not null" json:"pertemuan_ke"`
 	Tanggal      *time.Time `gorm:"type:date" json:"tanggal"`

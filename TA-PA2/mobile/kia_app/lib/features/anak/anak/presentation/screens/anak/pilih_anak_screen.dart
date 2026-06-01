@@ -6,7 +6,7 @@ import 'package:ta_pa2_pa3_project/features/anak/anak/data/models/anak_search_mo
 import 'package:ta_pa2_pa3_project/features/anak/imunisasi/presentation/screens/imunisasi_screen.dart';
 // import 'package:ta_pa2_pa3_project/features/anak/mpasi/presentation/screens/halaman_utama_mpasi.dart';
 import 'package:ta_pa2_pa3_project/features/anak/pemantauan/presentation/screens/menu_pemantauan_screen.dart';
-import 'package:ta_pa2_pa3_project/features/anak/pertumbuhan/presentation/screens/detail_pertumbuhan_screen.dart';
+import 'package:ta_pa2_pa3_project/features/anak/pertumbuhan/presentation/screens/pertumbuhan_info_screen.dart';
 import 'package:ta_pa2_pa3_project/features/anak/pemantauan/presentation/screens/skrining/pemantauan_menu_screen.dart';
 
 // Import CatatanMenuScreen (Sesuaikan path-nya jika berbeda)
@@ -249,9 +249,7 @@ class _PilihAnakScreenState extends State<PilihAnakScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => DetailPertumbuhanScreen(
-          anak: anakSearchModel,
-        ),
+        builder: (_) => PertumbuhanInfoScreen(anak: anakSearchModel),
       ),
     );
   }

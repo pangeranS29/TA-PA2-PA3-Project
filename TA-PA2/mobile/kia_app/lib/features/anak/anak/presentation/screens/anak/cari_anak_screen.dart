@@ -4,7 +4,7 @@ import 'package:ta_pa2_pa3_project/features/anak/pertumbuhan/data/services/pertu
 import 'package:ta_pa2_pa3_project/features/anak/anak/data/models/anak_search_model.dart';
 import 'package:ta_pa2_pa3_project/features/anak/pertumbuhan/data/repositories/pertumbuhan_repository.dart';
 import 'package:ta_pa2_pa3_project/features/anak/anak/presentation/widgets/index.dart';
-import 'package:ta_pa2_pa3_project/features/anak/pertumbuhan/presentation/screens/detail_pertumbuhan_screen.dart';
+import 'package:ta_pa2_pa3_project/features/anak/pertumbuhan/presentation/screens/pertumbuhan_info_screen.dart';
 
 enum SearchFilter { namaAnak, namaIbu, noKk }
 
@@ -327,7 +327,8 @@ class _CariAnakScreenState extends State<CariAnakScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => DetailPertumbuhanScreen(anak: anak),
+                    builder: (context) =>
+                        PertumbuhanInfoScreen(anak: anak),
                   ),
                 );
               },
