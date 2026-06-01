@@ -6,6 +6,7 @@ import (
 	"monitoring-service/app/models"
 	"monitoring-service/app/usecases"
 	"net/http"
+	"strconv"
 
 	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
@@ -13,10 +14,11 @@ import (
 
 type NeonatusController struct {
 	usecase usecases.NeonatusUsecase
+	db      *gorm.DB
 }
 
-func NewPelayananNeonatusController(uc usecases.NeonatusUsecase) *NeonatusController {
-	return &NeonatusController{usecase: uc}
+func NewPelayananNeonatusController(uc usecases.NeonatusUsecase, db *gorm.DB) *NeonatusController {
+	return &NeonatusController{usecase: uc, db: db}
 }
 
 // Create
@@ -160,5 +162,46 @@ func (c *NeonatusController) Delete(ctx echo.Context) error {
 
 	return ctx.JSON(http.StatusOK, map[string]string{
 		"message": "Berhasil hapus data",
+	})
+}
+
+// GetPeriodeByKategori - returns periode_kunjungan rows for a kategori_umur_id or kategori_umur name
+func (c *NeonatusController) GetPeriodeByKategori(ctx echo.Context) error {
+	kategoriIDStr := ctx.QueryParam("kategori_umur_id")
+	kategoriNama := ctx.QueryParam("kategori_umur")
+
+	var kategoriID int64
+
+	if kategoriIDStr != "" {
+		var err error
+		kategoriID, err = strconv.ParseInt(kategoriIDStr, 10, 32)
+		if err != nil {
+			return ctx.JSON(http.StatusBadRequest, map[string]string{"error": "kategori_umur_id tidak valid"})
+		}
+	} else if kategoriNama != "" {
+		// lookup by nama
+		var ku models.KategoriUmur
+		if err := c.db.Where("kategori_umur = ?", kategoriNama).First(&ku).Error; err != nil {
+			return ctx.JSON(http.StatusNotFound, map[string]string{"error": "kategori tidak ditemukan"})
+		}
+		kategoriID = int64(ku.ID)
+	} else {
+		// default: bayi_0_28_hari
+		var ku models.KategoriUmur
+		if err := c.db.Where("kategori_umur = ?", "bayi_0_28_hari").First(&ku).Error; err == nil {
+			kategoriID = int64(ku.ID)
+		} else {
+			kategoriID = 1
+		}
+	}
+
+	var periode []models.PeriodeKunjungan
+	if err := c.db.Where("kategori_umur_id = ?", kategoriID).Order("urutan asc").Find(&periode).Error; err != nil {
+		return ctx.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
+	}
+
+	return ctx.JSON(http.StatusOK, map[string]interface{}{
+		"kategori_umur_id": kategoriID,
+		"data":             periode,
 	})
 }

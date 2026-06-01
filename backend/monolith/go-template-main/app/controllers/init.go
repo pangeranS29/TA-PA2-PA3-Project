@@ -3,6 +3,8 @@ package controllers
 import (
 	"monitoring-service/app/usecases"
 	"monitoring-service/pkg/config"
+
+	"gorm.io/gorm"
 )
 
 type Main struct {
@@ -67,7 +69,6 @@ type Main struct {
 
 	// Edukasi Digital
 	EdukasiInformasiUmum     *EdukasiInformasiUmumController
-	EdukasiNifas             *EdukasiNifasController
 	EdukasiTrimester         *EdukasiTrimesterController
 	EdukasiTandaMelahirkan   *EdukasiTandaMelahirkanController
 	EdukasiImd               *EdukasiIMDController
@@ -97,6 +98,7 @@ type Main struct {
 type Options struct {
 	Config   *config.Config
 	UseCases *usecases.Main
+	DB       *gorm.DB
 }
 
 func Init(opts Options) *Main {
@@ -108,7 +110,7 @@ func Init(opts Options) *Main {
 	// Controller yang sudah ada (tidak diubah)
 	m.Anak = NewAnakController(opts.UseCases.Anak)
 	m.PelayananKesehatanAnak = NewPelayananKesehatanAnakController(opts.UseCases.PelayananKesehatanAnak)
-	m.Neonatus = NewPelayananNeonatusController(opts.UseCases.Neonatus)
+	m.Neonatus = NewPelayananNeonatusController(opts.UseCases.Neonatus, opts.DB)
 	m.PelayananGiziAnak = NewKunjunganGiziController(opts.UseCases.KunjunganGizi)
 	m.KunjunganVitamin = NewKunjunganVitaminController(opts.UseCases.KunjunganVitamin)
 	m.KunjunganImunisasi = NewKunjunganImunisasiController(opts.UseCases.KunjunganImunisasi)
@@ -173,9 +175,7 @@ func Init(opts Options) *Main {
 
 	// Edukasi Digital
 	m.EdukasiInformasiUmum = NewEdukasiInformasiUmumController(opts.UseCases.EdukasiInformasiUmum)
-	m.EdukasiNifas = NewEdukasiNifasController(opts.UseCases.EdukasiNifas)
 	m.EdukasiTrimester = NewEdukasiTrimesterController(opts.UseCases.EdukasiTrimester)
-	// m.EdukasiNifas = NewEdukasiNifasController(opts.UseCases.EdukasiNifas)
 	// m.EdukasiTandaBahayaTrimester = NewEdukasiTandaBahayaTrimesterController(opts.UseCases.EdukasiTandaBahayaTrimester)
 	m.EdukasiTandaMelahirkan = NewEdukasiTandaMelahirkanController(opts.UseCases.EdukasiTandaMelahirkan)
 	m.EdukasiImd = NewEdukasiIMDController(opts.UseCases.EdukasiImd)

@@ -1,4 +1,4 @@
-﻿package routes
+package routes
 
 import (
 	"monitoring-service/app/controllers"
@@ -147,6 +147,7 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	tenaga.POST("/Neonatus", controller.Neonatus.CreatePelayananHandler)
 	tenaga.PUT("/Neonatus/:id", controller.Neonatus.Update)
 	tenaga.DELETE("/Neonatus/:id", controller.Neonatus.Delete)
+	tenaga.GET("/periode-kunjungan", controller.Neonatus.GetPeriodeByKategori)
 
 	tenaga.GET("/Pelayanan-Gizi-Anak", controller.PelayananGiziAnak.GetByAnakID)
 	tenaga.GET("/Pelayanan-Gizi-Anak/:id", controller.PelayananGiziAnak.GetByID)
@@ -261,12 +262,6 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	tenaga.GET("/edukasi-trimester/:id", controller.EdukasiTrimester.GetByID)
 	tenaga.PUT("/edukasi-trimester/:id", controller.EdukasiTrimester.Update)
 	tenaga.DELETE("/edukasi-trimester/:id", controller.EdukasiTrimester.Delete)
-
-	tenaga.GET("/edukasi-nifas", controller.EdukasiNifas.GetAll)
-	tenaga.POST("/edukasi-nifas", controller.EdukasiNifas.Create)
-	tenaga.GET("/edukasi-nifas/:id", controller.EdukasiNifas.GetByID)
-	tenaga.PUT("/edukasi-nifas/:id", controller.EdukasiNifas.Update)
-	tenaga.DELETE("/edukasi-nifas/:id", controller.EdukasiNifas.Delete)
 
 	tenaga.GET("/edukasi-tanda-melahirkan", controller.EdukasiTandaMelahirkan.GetAll)
 	tenaga.POST("/edukasi-tanda-melahirkan", controller.EdukasiTandaMelahirkan.Create)

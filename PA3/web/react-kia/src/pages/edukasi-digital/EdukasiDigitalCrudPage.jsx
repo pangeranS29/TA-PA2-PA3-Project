@@ -114,6 +114,43 @@ export default function EdukasiDigitalCrudPage({
   useEffect(() => {
     if (view !== "form") return;
 
+    const mapItemToForm = (item) => {
+      if (!item) return initialForm;
+      if (fields && Array.isArray(fields)) {
+        const f = {};
+        fields.forEach((it) => {
+          if (it.type === "checkbox") {
+            f[it.key] = Boolean(item[it.key] ?? item[it.alt] ?? false);
+            return;
+          }
+
+          if (it.type === "array") {
+            const arr = item[it.key];
+            if (Array.isArray(arr)) {
+              f[it.key] = arr.join("\n");
+            } else {
+              f[it.key] = "";
+            }
+            return;
+          }
+
+          const current = item[it.key] ?? item[it.alt] ?? "";
+          f[it.key] = current === null || current === undefined ? "" : String(current);
+        });
+        return f;
+      }
+      return {
+        judul: item.judul || "",
+        gambar_url: item.gambar_url || "",
+        deskripsi: item.deskripsi || "",
+        isi_konten: item.isi_konten || item.isi || "",
+        isi: item.isi || "",
+        materi_inti: item.materi_inti || "",
+        hal_penting: item.hal_penting || "",
+        ringkasan: item.ringkasan || "",
+      };
+    };
+
     const loadFormData = async () => {
       setLoading(true);
       setError("");
@@ -123,40 +160,7 @@ export default function EdukasiDigitalCrudPage({
           const item = await getEdukasiById(resourcePath, params.id);
           if (item) {
             setEditingId(String(guessId(item)));
-            if (fields && Array.isArray(fields)) {
-              const f = {};
-              fields.forEach((it) => {
-                if (it.type === "checkbox") {
-                  f[it.key] = Boolean(item[it.key] ?? item[it.alt] ?? false);
-                  return;
-                }
-
-                if (it.type === "array") {
-                  const arr = item[it.key];
-                  if (Array.isArray(arr)) {
-                    f[it.key] = arr.join("\n");
-                  } else {
-                    f[it.key] = "";
-                  }
-                  return;
-                }
-
-                const current = item[it.key] ?? item[it.alt] ?? "";
-                f[it.key] = current === null || current === undefined ? "" : String(current);
-              });
-              setForm(f);
-            } else {
-              setForm({
-                judul: item.judul || "",
-                gambar_url: item.gambar_url || "",
-                deskripsi: item.deskripsi || "",
-                isi_konten: item.isi_konten || item.isi || "",
-                isi: item.isi || "",
-                materi_inti: item.materi_inti || "",
-                hal_penting: item.hal_penting || "",
-                ringkasan: item.ringkasan || "",
-              });
-            }
+            setForm(mapItemToForm(item));
           } else {
             setError("Data tidak ditemukan");
           }
@@ -166,19 +170,12 @@ export default function EdukasiDigitalCrudPage({
         const item = location.state?.item;
         if (!item) {
           setEditingId(null);
-          setForm(emptyForm);
+          setForm(initialForm);
           return;
         }
 
         setEditingId(String(guessId(item)));
-        setForm({
-          judul: item.judul || "",
-          gambar_url: item.gambar_url || "",
-          deskripsi: item.deskripsi || "",
-          isi_konten: item.isi_konten || item.isi || "",
-          materi_inti: item.materi_inti || "",
-          hal_penting: item.hal_penting || "",
-        });
+        setForm(mapItemToForm(item));
       } catch (err) {
         setError(err?.response?.data?.message || "Gagal memuat data");
         setForm(emptyForm);
@@ -313,7 +310,7 @@ export default function EdukasiDigitalCrudPage({
       resetForm();
       await loadData();
     } catch (err) {
-      setError(err?.response?.data?.message || "Gagal menyimpan data");
+      setError(err?.response?.data?.error || err?.response?.data?.message || err.message || "Gagal menyimpan data");
     } finally {
       setSaving(false);
     }

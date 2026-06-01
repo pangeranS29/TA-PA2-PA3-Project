@@ -9,8 +9,8 @@ type EdukasiTandaMelahirkan struct {
 	Tanda     string    `json:"tanda" gorm:"type:text"`
 	Tindakan  string    `json:"tindakan" gorm:"type:text"`
 	GambarURL string    `json:"gambar_url" gorm:"type:text"`
-	CreatedAt time.Time `json:"created_at" gorm:"->"`
-	UpdatedAt time.Time `json:"updated_at" gorm:"->"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 func (EdukasiTandaMelahirkan) TableName() string {

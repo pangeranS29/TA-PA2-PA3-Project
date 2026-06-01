@@ -72,7 +72,6 @@ type Main struct {
 
 	// Edukasi Digital
 	EdukasiInformasiUmum     EdukasiInformasiUmumRepository
-	EdukasiNifas             EdukasiNifasRepository
 	EdukasiTrimester         EdukasiTrimesterRepository
 	EdukasiTandaMelahirkan   EdukasiTandaMelahirkanRepository
 	EdukasiImd               EdukasiIMDRepository
@@ -173,7 +172,6 @@ func Init(opts Options) *Main {
 
 	// Edukasi Digital
 	m.EdukasiInformasiUmum = NewEdukasiInformasiUmumRepository(opts.Postgres)
-	m.EdukasiNifas = NewEdukasiNifasRepository(opts.Postgres)
 	m.EdukasiTrimester = NewEdukasiTrimesterRepository(opts.Postgres)
 	m.EdukasiTandaMelahirkan = NewEdukasiTandaMelahirkanRepository(opts.Postgres)
 	m.EdukasiImd = NewEdukasiIMDRepository(opts.Postgres)

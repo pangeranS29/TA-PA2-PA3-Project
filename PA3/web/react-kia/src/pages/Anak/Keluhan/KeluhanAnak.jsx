@@ -86,7 +86,9 @@ const KeluhanAnak = () => {
       setIsModalOpen(false);
       fetchData();
     } catch (err) {
-      alert("Gagal menyimpan data.");
+      console.error("Save error:", err);
+      const errMsg = err.response?.data?.message || err.response?.data?.Message || err.message || "Unknown error";
+      alert("Gagal menyimpan data: " + errMsg);
     } finally {
       setIsSubmitting(false);
     }

@@ -93,7 +93,6 @@ func (m *Main) Init() (err error) {
 	// 	return
 	// }
 
-
 	// // Seeder
 	// err = seed.RunAllSeed(m.database.Postgres)
 	// if err != nil {

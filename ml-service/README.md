@@ -37,6 +37,8 @@ Output akan disimpan di folder `models/`:
 - `scaler_latest.pkl` - Scaler untuk normalisasi features
 - `features_latest.pkl` - Nama-nama features
 
+> Service ini tidak melatih model setiap kali dijalankan. Model dilatih sekali lewat `train_model.py`, lalu `app.py` hanya memuat artefak `.pkl` tersebut saat runtime.
+
 ### 4. Run FastAPI Service
 
 ```bash
@@ -49,12 +51,22 @@ atau menggunakan uvicorn langsung:
 uvicorn app:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-### 5. Access API
+### 5. Run Streamlit Dashboard
+
+```bash
+streamlit run streamlit_app.py
+```
+
+Kalau ingin mengubah port, folder model, atau mematikan reload, buat file `.env` berdasarkan `.env.example`.
+
+### 6. Access API
 
 - **API Docs**: http://localhost:8000/docs
 - **Alternative Docs**: http://localhost:8000/redoc
 - **Health Check**: http://localhost:8000/health
 - **Info**: http://localhost:8000/info
+
+Untuk hasil visual, buka Streamlit dashboard pada alamat yang muncul di terminal, biasanya http://localhost:8501.
 
 ## 📝 API Endpoints
 
@@ -151,25 +163,40 @@ curl -X POST http://localhost:8000/predict \
 
 ## 📚 Model Information
 
-- **Algorithm**: Random Forest / Gradient Boosting / XGBoost
-- **Features**: 6 (BB, TB, LILA, Lingkar Kepala, Umur, Jenis Kelamin)
+- **Algorithm**: XGBoost + RandomizedSearchCV
+- **Features**: 10 engineered features from 6 core inputs
 - **Target**: Binary Classification (Stunting/Normal)
 - **Training Data**: Stunting.csv
+
+## 🔍 Training Workflow
+
+The training script now produces:
+
+- model before tuning
+- model after tuning
+- hyperparameter search using `RandomizedSearchCV`
+- performance comparison before vs after tuning
+- saved report at `models/training_report.json`
 
 ## 🔧 Configuration
 
 Edit `.env` untuk konfigurasi:
 - `FASTAPI_HOST`: Host untuk service (default: 0.0.0.0)
 - `FASTAPI_PORT`: Port untuk service (default: 8000)
+- `FASTAPI_RELOAD`: Mode reload saat development (default: true)
 - `MODEL_DIR`: Direktori model (default: ./models)
+- `MODEL_PATH`: File model utama
+- `SCALER_PATH`: File scaler
+- `FEATURES_PATH`: File daftar fitur
 
 ## 📊 Model Performance
 
-Hasil training dari dataset:
-- **Accuracy**: ~95%
-- **ROC AUC**: ~0.92
-- **Precision**: ~0.90
-- **Recall**: ~0.88
+Hasil training terakhir pada dataset ini:
+
+- **Before tuning**: Accuracy 0.9948, ROC AUC 0.9783, Precision 0.75, Recall 0.6667, F1 0.7059
+- **After tuning**: Accuracy 0.9948, ROC AUC 0.9835, Precision 0.75, Recall 0.6667, F1 0.7059
+
+Catatan kritis: dataset sangat imbalanced, sehingga accuracy tinggi tidak cukup untuk menilai model. Pada hasil ini tuning memberi perbaikan kecil di ROC AUC, tetapi metrik kelas minoritas masih sama, jadi analisis laporan sebaiknya menekankan bahwa tuning membantu ranking/probabilitas, bukan perubahan klasifikasi akhir yang besar.
 
 ## 🐛 Troubleshooting
 
