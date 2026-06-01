@@ -1,8 +1,14 @@
 package usecases
 
-
 //AbsensiKelasIbuBalita//
 import (
+	"context"
+	"log"
+
+	firebase "firebase.google.com/go/v4"
+	"firebase.google.com/go/v4/messaging"
+	"google.golang.org/api/option"
+
 	"monitoring-service/app/repositories"
 	"monitoring-service/pkg/config"
 )
@@ -10,6 +16,8 @@ import (
 type Main struct {
 	repository *repositories.Main
 	config     *config.Config
+
+	fcmClient *messaging.Client
 
 	// Usecase yang sudah ada
 	Anak                   *AnakUseCase
@@ -122,6 +130,44 @@ func Init(opts Options) *Main {
 	m := &Main{
 		repository: opts.Repository,
 		config:     opts.Config,
+	}
+
+	opt := option.WithCredentialsFile("firebase-service-account.json")
+
+	app, err := firebase.NewApp(
+		context.Background(),
+		nil,
+		opt,
+	)
+
+	if err != nil {
+
+		log.Printf(
+			"[FCM INIT] Firebase NewApp gagal: %v",
+			err,
+		)
+
+	} else {
+
+		client, err := app.Messaging(
+			context.Background(),
+		)
+
+		if err != nil {
+
+			log.Printf(
+				"[FCM INIT] Messaging client gagal: %v",
+				err,
+			)
+
+		} else {
+
+			log.Printf(
+				"[FCM INIT] Firebase berhasil diinisialisasi",
+			)
+
+			m.fcmClient = client
+		}
 	}
 
 	//  BUAT PREDIKSI USECASE (panggil service Python)

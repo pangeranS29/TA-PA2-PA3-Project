@@ -757,7 +757,7 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	ibu.PUT("/perawatan/:id", controller.UpdatePerawatan)
 	ibu.DELETE("/perawatan/:id", controller.DeletePerawatan)
 	// Catatan: Ibu tidak memiliki akses UPDATE/DELETE/VERIFY untuk menjaga integritas rekam medis
-	
+
 	// ==================== IMUNISASI ====================
 	ibu.GET("/jadwal-imunisasi", controller.GetJadwalImunisasi)
 	ibu.GET("/jadwal-imunisasi/anak/:anak_id", controller.GetJadwalImunisasiByAnakID)
@@ -767,6 +767,8 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 
 	// Request Perubahan Jadwal Imunisasi Ibu
 	ibu.POST("/jadwal-imunisasi/:id/request-perubahan", controller.RequestPerubahanJadwal)
+	ibu.POST("/test-fcm", controller.TestFCM)
+	ibu.POST("/test-reminder", controller.TestReminder)
 
 	kader := e.Group("/kader")
 	kader.Use(middlewares.JWTAuth(controller.JWTSecret()))

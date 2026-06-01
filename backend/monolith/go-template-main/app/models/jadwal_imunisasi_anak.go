@@ -18,6 +18,10 @@ type JadwalImunisasiAnak struct {
 	CreatedAt       time.Time      `gorm:"column:created_at" json:"created_at"`
 	UpdatedAt       time.Time      `gorm:"column:updated_at" json:"updated_at"`
 	DeletedAt       gorm.DeletedAt `gorm:"column:deleted_at;index" json:"deleted_at"`
+	// tracking reminder
+	IsSentH7 bool `gorm:"column:is_sent_h7" json:"is_sent_h7"`
+	IsSentH3 bool `gorm:"column:is_sent_h3" json:"is_sent_h3"`
+	IsSentH  bool `gorm:"column:is_sent_h" json:"is_sent_h"`
 }
 
 func (JadwalImunisasiAnak) TableName() string {
@@ -29,7 +33,7 @@ type JadwalImunisasiResponse struct {
 	NamaAnak       string                `json:"nama_anak"`
 	TanggalLahir   *time.Time            `json:"tanggal_lahir,omitempty"`
 	JumlahTerlewat int                   `json:"jumlah_terlewat"`
-	JumlahSelesai   int                   `json:"jumlah_selesai"`
+	JumlahSelesai  int                   `json:"jumlah_selesai"`
 	Jadwal         []JadwalImunisasiItem `json:"jadwal"`
 }
 
@@ -49,7 +53,7 @@ type UpdateTanggalEstimasiRequest struct {
 }
 
 type JadwalImunisasiJoin struct {
-	AnakID       int32
+	AnakID       uint
 	NamaAnak     string
 	TanggalLahir *time.Time
 
@@ -57,9 +61,12 @@ type JadwalImunisasiJoin struct {
 	NamaDosis       string
 	TanggalEstimasi *time.Time
 
-	StatusID uint
+	StatusID uint `gorm:"column:status_id"`
 	Status   string
 
 	Deskripsi   string
 	EfekSamping string
+	IsSentH7    bool
+	IsSentH3    bool
+	IsSentH     bool
 }

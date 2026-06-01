@@ -47,28 +47,29 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyDW8KWui9CONAbOA-yCrfUXMfTKLTIVgEE',
-    appId: '1:901600470237:web:c5060f31b451de23e72734',
-    messagingSenderId: '901600470237',
-    projectId: 'push-notifications-ec273',
-    authDomain: 'push-notifications-ec273.firebaseapp.com',
-    storageBucket: 'push-notifications-ec273.firebasestorage.app',
+    apiKey: 'AIzaSyB7HBNT5gEfbnCTSw1P_uhSU84mwLWwgiE',
+    appId: '1:40106977325:web:bffc5176c83c69b9f230a4',
+    messagingSenderId: '40106977325',
+    projectId: 'imunisasi-app',
+    authDomain: 'imunisasi-app.firebaseapp.com',
+    storageBucket: 'imunisasi-app.firebasestorage.app',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyBgxtbjrTI7zlR2m-E2YpdiE4hIWpc9sMc',
-    appId: '1:901600470237:android:e53cedd121c23277e72734',
-    messagingSenderId: '901600470237',
-    projectId: 'push-notifications-ec273',
-    storageBucket: 'push-notifications-ec273.firebasestorage.app',
+    apiKey: 'AIzaSyC8j4HBQLRDjFn9afFGHPpLp44YhBZfbvI',
+    appId: '1:40106977325:android:6d68456bbd978275f230a4',
+    messagingSenderId: '40106977325',
+    projectId: 'imunisasi-app',
+    storageBucket: 'imunisasi-app.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyBkR8vOvyxLkU9_Qx8nbEDF2Zq5IXOEr9g',
-    appId: '1:901600470237:ios:9a4321f9e6a456e3e72734',
-    messagingSenderId: '901600470237',
-    projectId: 'push-notifications-ec273',
-    storageBucket: 'push-notifications-ec273.firebasestorage.app',
+    apiKey: 'AIzaSyABmgLooYC0mxIeghign4TSVAdIN0o58fs',
+    appId: '1:40106977325:ios:ebfc224d7db5e906f230a4',
+    messagingSenderId: '40106977325',
+    projectId: 'imunisasi-app',
+    storageBucket: 'imunisasi-app.firebasestorage.app',
     iosBundleId: 'com.example.taPa2Pa3Project',
   );
+
 }

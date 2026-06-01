@@ -5,24 +5,24 @@ import (
 	"monitoring-service/app/models"
 )
 
-type JadwalImunisasiJoin struct {
-	AnakID          int32
-	NamaAnak        string
-	TanggalLahir    *time.Time
-	JadwalID        uint
-	NamaDosis       string
-	TanggalEstimasi *time.Time
-	Deskripsi       string
-	EfekSamping     string
-	StatusID        uint
-	Status          string
-}
+// type JadwalImunisasiJoin struct {
+// 	AnakID          int32
+// 	NamaAnak        string
+// 	TanggalLahir    *time.Time
+// 	JadwalID        uint
+// 	NamaDosis       string
+// 	TanggalEstimasi *time.Time
+// 	Deskripsi       string
+// 	EfekSamping     string
+// 	StatusID        uint
+// 	Status          string
+// }
 
 func (m *Main) GetJadwalImunisasiByUserID(
 	userID int32,
-) ([]JadwalImunisasiJoin, error) {
+) ([]models.JadwalImunisasiJoin, error) {
 
-	var result []JadwalImunisasiJoin
+	var result []models.JadwalImunisasiJoin
 
 	err := m.postgres.
 		Table("pengguna p").
@@ -92,9 +92,9 @@ func (m *Main) GetJadwalImunisasiByUserID(
 func (m *Main) GetJadwalImunisasiByAnakID(
 	userID int32,
 	anakID int32,
-) ([]JadwalImunisasiJoin, error) {
+) ([]models.JadwalImunisasiJoin, error) {
 
-	var result []JadwalImunisasiJoin
+	var result []models.JadwalImunisasiJoin
 
 	err := m.postgres.
 		Table("pengguna p").
@@ -173,9 +173,9 @@ func (m *Main) CreateRequestPerubahanJadwal(
 func (m *Main) GetJadwalImunisasiByJadwalID(
 	userID int32,
 	jadwalID uint,
-) (*JadwalImunisasiJoin, error) {
+) (*models.JadwalImunisasiJoin, error) {
 
-	var result JadwalImunisasiJoin
+	var result models.JadwalImunisasiJoin
 
 	err := m.postgres.
 		Table("pengguna p").

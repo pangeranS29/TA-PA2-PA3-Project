@@ -29,11 +29,11 @@ func (m *Main) GetJadwalImunisasi(
 	for _, row := range rows {
 
 		if _, exists :=
-			anakMap[row.AnakID]; !exists {
+			anakMap[int32(row.AnakID)]; !exists {
 
-			anakMap[row.AnakID] =
+			anakMap[int32(row.AnakID)] =
 				&models.JadwalImunisasiResponse{
-					AnakID:         row.AnakID,
+					AnakID:         int32(row.AnakID),
 					NamaAnak:       row.NamaAnak,
 					TanggalLahir:   row.TanggalLahir,
 					JumlahTerlewat: 0,
@@ -48,19 +48,16 @@ func (m *Main) GetJadwalImunisasi(
 
 			// Terlewat
 			case 3:
-				anakMap[row.AnakID].
-					JumlahTerlewat++
+				anakMap[int32(row.AnakID)].JumlahTerlewat++
 
 			// Terlambat & Krisis ikut dihitung
 			case 4, 5:
-				anakMap[row.AnakID].
-					JumlahTerlewat++
+				anakMap[int32(row.AnakID)].JumlahTerlewat++
 			}
 
-			anakMap[row.AnakID].
-				Jadwal =
+			anakMap[int32(row.AnakID)].Jadwal =
 				append(
-					anakMap[row.AnakID].Jadwal,
+					anakMap[int32(row.AnakID)].Jadwal,
 					models.JadwalImunisasiItem{
 						JadwalID:        row.JadwalID,
 						NamaDosis:       row.NamaDosis,
@@ -105,9 +102,9 @@ func (m *Main) GetJadwalImunisasiByAnakID(
 
 	for _, row := range rows {
 
-		if _, exists := anakMap[row.AnakID]; !exists {
-			anakMap[row.AnakID] = &models.JadwalImunisasiResponse{
-				AnakID:         row.AnakID,
+		if _, exists := anakMap[int32(row.AnakID)]; !exists {
+			anakMap[int32(row.AnakID)] = &models.JadwalImunisasiResponse{
+				AnakID:         int32(row.AnakID),
 				NamaAnak:       row.NamaAnak,
 				TanggalLahir:   row.TanggalLahir,
 				JumlahTerlewat: 0,
@@ -120,14 +117,14 @@ func (m *Main) GetJadwalImunisasiByAnakID(
 
 			switch row.StatusID {
 			case 3, 4, 5:
-				anakMap[row.AnakID].JumlahTerlewat++
+				anakMap[int32(row.AnakID)].JumlahTerlewat++
 
 			case 6:
-				anakMap[row.AnakID].JumlahSelesai++ // 👈 TAMBAHAN INI
+				anakMap[int32(row.AnakID)].JumlahSelesai++ // 👈 TAMBAHAN INI
 			}
 
-			anakMap[row.AnakID].Jadwal = append(
-				anakMap[row.AnakID].Jadwal,
+			anakMap[int32(row.AnakID)].Jadwal = append(
+				anakMap[int32(row.AnakID)].Jadwal,
 				models.JadwalImunisasiItem{
 					JadwalID:        row.JadwalID,
 					NamaDosis:       row.NamaDosis,
@@ -200,7 +197,7 @@ func (m *Main) GetJadwalImunisasiByJadwalID(
 	}
 
 	result := &models.JadwalImunisasiResponse{
-		AnakID:         row.AnakID,
+		AnakID:         int32(row.AnakID),
 		NamaAnak:       row.NamaAnak,
 		TanggalLahir:   row.TanggalLahir,
 		JumlahTerlewat: 0,
