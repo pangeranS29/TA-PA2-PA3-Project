@@ -90,6 +90,7 @@ type Main struct {
 	PemeriksaanRemaja        PemeriksaanRemajaRepository
 	PemeriksaanDewasa        PemeriksaanDewasaRepository
 	PemeriksaanLansia        PemeriksaanLansiaRepository
+	
 
 	// Edukasi Digital
 

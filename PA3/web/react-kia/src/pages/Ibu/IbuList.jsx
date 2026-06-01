@@ -350,7 +350,7 @@ export default function IbuList() {
                           >
                             <Eye size={14} /> Detail
                           </button>
-                          {isActive ? (
+                          {/* {isActive ? (
                             // Edit tombol dikomentari sesuai keinginan awal
                             <></>
                           ) : (
@@ -360,7 +360,7 @@ export default function IbuList() {
                             >
                               <Edit size={14} /> Selesai
                             </button>
-                          )}
+                          )} */}
                         </div>
                       </td>
                     </tr>

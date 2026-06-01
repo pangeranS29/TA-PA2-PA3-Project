@@ -680,9 +680,9 @@ export default function PemeriksaanKehamilanForm() {
               </button>
             ) : (
               <>
-                <button type="button" onClick={handleDebug} className="px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white font-semibold rounded-lg shadow flex items-center gap-2">
+                {/* <button type="button" onClick={handleDebug} className="px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white font-semibold rounded-lg shadow flex items-center gap-2">
                   🐞 Debug Payload
-                </button>
+                </button> */}
                 <button type="submit" disabled={saving} className="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-lg shadow flex items-center justify-center gap-2">
                   {saving ? <Loader2 className="animate-spin" size={20} /> : <Save size={20} />}
                   {saving ? "Menyimpan..." : "Simpan Pemeriksaan"}
@@ -692,7 +692,7 @@ export default function PemeriksaanKehamilanForm() {
           </div>
 
           {/* Debug panel */}
-          {showDebug && debugPayload && (
+          {/* {showDebug && debugPayload && (
             <div className="mt-6 p-4 bg-gray-900 text-white rounded-lg overflow-auto max-h-96">
               <div className="flex justify-between items-center mb-2">
                 <strong className="text-green-400">📦 Payload yang akan dikirim:</strong>
@@ -700,7 +700,7 @@ export default function PemeriksaanKehamilanForm() {
               </div>
               <pre className="text-xs whitespace-pre-wrap break-all">{JSON.stringify(debugPayload, null, 2)}</pre>
             </div>
-          )}
+          )} */}
         </form>
       </div>
     </MainLayout>

@@ -5,10 +5,37 @@ import (
 	"monitoring-service/app/models"
 	"strings"
 	"time"
+	"monitoring-service/app/middlewares"
 
 	"gorm.io/gorm"
 )
 
+// Interface KependudukanRepository
+type kependudukanRepository interface {
+    Create(k *models.Kependudukan) error
+    FindByID(id int32) (*models.Kependudukan, error)
+    FindByNIK(nik *string) (*models.Kependudukan, error)
+    FindByKartuKeluargaID(kkID int32) ([]models.Kependudukan, error)
+    GetAll() ([]models.Kependudukan, error)
+    Update(k *models.Kependudukan) error
+    Delete(id int32) error
+    ListByKartuKeluargaID(kartuKeluargaID int64) ([]models.Kependudukan, error)
+    FindByIDAndKartuKeluargaID(id int32, kartuKeluargaID int64) (*models.Kependudukan, error)
+    FindByNIKExceptID(nik string, exceptID int32) (*models.Kependudukan, error)
+    ListEligibleForRole(role, search, kecamatan, desa string) ([]EligiblePendudukItem, error)
+    CreatePosyandu(posyandu *models.Posyandu) error
+    ListPosyandu(search string) ([]PosyanduItem, error)
+    FindPosyanduByID(id int32) (*models.Posyandu, error)
+    UpdatePosyandu(posyandu *models.Posyandu) error
+    SoftDeleteByID(id int32) error
+    SoftDeleteByKartuKeluargaID(kartuKeluargaID int64) error
+    GetRekapPerDusun(kecamatan, desa string) ([]RekapDusun, error)
+    GetAllActive() ([]models.Kependudukan, error)
+	FindByAgeRange(minAge, maxAge int) ([]models.Kependudukan, error)
+	 GetAllActiveByDesaID(desaID int32) ([]models.Kependudukan, error)
+}
+
+// Implementasi privat
 type KependudukanRepository struct {
 	db *gorm.DB
 }
@@ -296,4 +323,33 @@ func (r *KependudukanRepository) GetRekapPerDusun(kecamatan, desa string) ([]Rek
 		Scan(&result).Error
 
 	return result, err
+}
+
+// GetAllActive mengambil semua penduduk yang tidak dihapus (deleted_at IS NULL)
+func (r *KependudukanRepository) GetAllActive() ([]models.Kependudukan, error) {
+    var penduduks []models.Kependudukan
+    err := r.db.Where("deleted_at IS NULL").Find(&penduduks).Error
+    return penduduks, err
+}
+
+func (r *KependudukanRepository) FindByAgeRange(minAge, maxAge int, desaID *int32, role string) ([]models.Kependudukan, error) {
+    var list []models.Kependudukan
+    query := r.db.Where("deleted_at IS NULL").
+        Where("tanggal_pengurangan IS NULL OR tanggal_pengurangan > NOW()").
+        Where("EXTRACT(YEAR FROM AGE(NOW(), tanggal_lahir)) BETWEEN ? AND ?", minAge, maxAge)
+
+    // Filter desa hanya jika role tidak memiliki akses penuh
+    if !middlewares.HasFullAccess(role) && desaID != nil {
+        query = query.Where("desa_id = ?", *desaID)
+    }
+
+    err := query.Find(&list).Error
+    return list, err
+}
+
+// GetAllActiveByDesaID mengambil semua penduduk aktif (deleted_at IS NULL) berdasarkan desa_id
+func (r *KependudukanRepository) GetAllActiveByDesaID(desaID int32) ([]models.Kependudukan, error) {
+    var list []models.Kependudukan
+    err := r.db.Where("desa_id = ? AND deleted_at IS NULL", desaID).Find(&list).Error
+    return list, err
 }

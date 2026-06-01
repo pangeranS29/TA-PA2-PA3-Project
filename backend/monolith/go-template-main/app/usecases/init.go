@@ -91,6 +91,9 @@ type Main struct {
 	PemeriksaanRemaja PemeriksaanRemajaUsecase
 	PemeriksaanDewasa PemeriksaanDewasaUsecase
 	PemeriksaanLansia PemeriksaanLansiaUsecase
+	PendudukRisk	  PendudukRiskUsecase
+	RiwayatCard RiwayatCardUsecase
+	Pencatatan 	  PencatatanUsecase
 }
 
 type Options struct {
@@ -220,6 +223,20 @@ func Init(opts Options) *Main {
 	m.PemeriksaanRemaja = NewPemeriksaanRemajaUsecase(opts.Repository.PemeriksaanRemaja)
 	m.PemeriksaanDewasa = NewPemeriksaanDewasaUsecase(opts.Repository.PemeriksaanDewasa)
 	m.PemeriksaanLansia = NewPemeriksaanLansiaUsecase(opts.Repository.PemeriksaanLansia)
-
+	m.PendudukRisk = NewPendudukRiskUsecase(opts.Repository.PemeriksaanAnak, opts.Repository.PemeriksaanRemaja, opts.Repository.PemeriksaanDewasa, opts.Repository.PemeriksaanLansia)
+	m.RiwayatCard = NewRiwayatCardUsecase(
+        opts.Repository.Kependudukan,
+        opts.Repository.PemeriksaanAnak,
+        opts.Repository.PemeriksaanRemaja,
+        opts.Repository.PemeriksaanDewasa,
+        opts.Repository.PemeriksaanLansia,
+    )
+	m.Pencatatan = NewPencatatanUsecase(
+    opts.Repository.Kependudukan,        
+    opts.Repository.PemeriksaanAnak,      //
+    opts.Repository.PemeriksaanRemaja,    // 
+    opts.Repository.PemeriksaanDewasa,    // 
+    opts.Repository.PemeriksaanLansia,    // 
+)
 	return m
 }

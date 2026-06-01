@@ -104,6 +104,7 @@ func AutoMigrate(db *gorm.DB) error {
 		&Perawatan{},
 		&PemantauanIndikator{},
 		&KategoriCapaian{},
+		&JadwalLayanan{},
 
 		// Perkembangan Anak
 		// &RentangUsiaPerkembangan{},

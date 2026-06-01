@@ -3,7 +3,7 @@ package repositories
 import (
 	"errors"
 	"monitoring-service/app/models"
-
+	"monitoring-service/app/middlewares" 
 	"gorm.io/gorm"
 )
 
@@ -121,73 +121,51 @@ func (r *IbuRepository) FindByPendudukID(pendudukID int32) (*models.Ibu, error) 
 
 // return result, err
 // }
-func (r *IbuRepository) GetDashboard() ([]models.IbuDashboardDTO, error) {
-	var result []models.IbuDashboardDTO
+func (r *IbuRepository) GetDashboard(desaID *int32, role string) ([]models.IbuDashboardDTO, error) {
+    var result []models.IbuDashboardDTO
 
-	err := r.db.
-		Table("ibu i").
-		Select(`
-			i.id as id_ibu,
-			kp.nama_lengkap,
-			kp.dusun,
+    query := r.db.
+        Table("ibu i").
+        Select(`
+            i.id as id_ibu,
+            kp.nama_lengkap,
+            kp.dusun,
+            k.status_kehamilan,
+            k.hpht,
+            k.uk_kehamilan_saat_ini as usia_kehamilan,
+            p.tanggal_periksa,
+            p.tempat_periksa,
+            p.trimester,
+            p.kunjungan_ke,
+            p.skor_risiko,
+            p.status_risiko,
+            p.sistole,
+            p.diastole,
+            p.tes_lab_hb as hb,
+            k.id as kehamilan_id
+        `).
+        Joins(`JOIN penduduk kp ON kp.id = i.penduduk_id`).
+        Joins(`LEFT JOIN kehamilan k ON k.ibu_id = i.id AND k.deleted_at IS NULL`).
+        Joins(`
+            LEFT JOIN pemeriksaan_kehamilan p ON p.id_periksa = (
+                SELECT p2.id_periksa
+                FROM pemeriksaan_kehamilan p2
+                WHERE p2.kehamilan_id = k.id
+                ORDER BY 
+                    p2.tanggal_periksa IS NULL,
+                    p2.tanggal_periksa DESC,
+                    p2.created_at DESC,
+                    p2.id_periksa DESC
+                LIMIT 1
+            )
+        `).
+        Order(`i.created_at DESC, i.id ASC, k.id ASC, p.tanggal_periksa DESC`)
 
-			k.status_kehamilan,
-			k.hpht,
-			k.uk_kehamilan_saat_ini as usia_kehamilan,
+    // Filter desa hanya jika role TIDAK memiliki akses penuh
+    if !middlewares.HasFullAccess(role) && desaID != nil {
+        query = query.Where("kp.desa_id = ?", *desaID)
+    }
 
-			p.tanggal_periksa,
-			p.tempat_periksa,
-			p.trimester,
-			p.kunjungan_ke,
-			p.skor_risiko,
-			p.status_risiko,
-			p.sistole,
-			p.diastole,
-			p.tes_lab_hb as hb,
-
-			k.id as kehamilan_id
-		`).
-
-		// JOIN DATA IBU
-		Joins(`
-			JOIN penduduk kp 
-			ON kp.id = i.penduduk_id
-		`).
-
-		//  SEMUA KEHAMILAN (tanpa soft delete)
-		Joins(`
-			LEFT JOIN kehamilan k 
-			ON k.ibu_id = i.id 
-			AND k.deleted_at IS NULL
-		`).
-
-		//  AMBIL 1 PEMERIKSAAN TERAKHIR PER KEHAMILAN (FIXED)
-		Joins(`
-			LEFT JOIN pemeriksaan_kehamilan p 
-			ON p.id_periksa = (
-				SELECT p2.id_periksa
-				FROM pemeriksaan_kehamilan p2
-				WHERE p2.kehamilan_id = k.id
-				ORDER BY 
-					p2.tanggal_periksa IS NULL,
-					p2.tanggal_periksa DESC,
-					p2.created_at DESC,
-					p2.id_periksa DESC
-				LIMIT 1
-			)
-		`).
-
-		// OPTIONAL: hanya ibu yang punya kehamilan
-		// .Where("k.id IS NOT NULL").
-
-		// ✅ SORTING
-		Order(`
-		 	i.created_at DESC,
-			i.id ASC,
-			k.id ASC,
-			p.tanggal_periksa DESC
-		`).
-		Scan(&result).Error
-
-	return result, err
+    err := query.Scan(&result).Error
+    return result, err
 }

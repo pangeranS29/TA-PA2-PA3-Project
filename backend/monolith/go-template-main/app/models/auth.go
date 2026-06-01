@@ -28,6 +28,8 @@ type LoginResponse struct {
 	Role          string `json:"role"`
 	TargetApp     string `json:"target_app"`
 	RedirectRoute string `json:"redirect_route"`
+	DesaID        *int32 `json:"desa_id,omitempty"`   // <-- tambah
+    DesaNama      string `json:"desa_nama,omitempty"`
 }
 
 type MeResponse struct {
@@ -46,5 +48,6 @@ type AuthClaims struct {
 	Role          string `json:"role"`
 	TargetApp     string `json:"target_app"`
 	RedirectRoute string `json:"redirect_route"`
+	 DesaID        *int32 `json:"desa_id,omitempty"` // tambahkan
 	jwt.RegisteredClaims
 }

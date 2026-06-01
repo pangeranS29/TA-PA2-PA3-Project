@@ -619,4 +619,18 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	tenaga.POST("/pemeriksaan-lansia", controller.PemeriksaanLansia.Create)
 	tenaga.GET("/pemeriksaan-lansia/:id", controller.PemeriksaanLansia.GetByID)
 	tenaga.DELETE("/pemeriksaan-lansia/:id", controller.PemeriksaanLansia.Delete)
+
+	tenaga.GET("/dashboard/jumlah-usia", controller.Dashboard.GetJumlahPerKelompokUsia)
+	tenaga.GET("/dashboard/kesehatan-per-kelompok", controller.Dashboard.GetKesehatanPerKelompok)
+	tenaga.GET("/dashboard/cakupan-pemeriksaan", controller.Dashboard.GetCakupanPemeriksaan)
+
+	tenaga.GET("/penduduk-by-risiko", controller.PendudukRisk.GetPendudukByRisk)
+	tenaga.GET("/penduduk/:id/riwayat-card", controller.RiwayatCard.GetRiwayatCard)
+	//untuk pencatatan kesehatan umum (anak, remaja, dewasa, lansia) dan get daftar penduduk berdasarkan kategori usia
+	tenaga.GET("/pencatatan/:kategori", controller.Pencatatan.GetDaftarPenduduk)
+    tenaga.POST("/pencatatan/anak", controller.Pencatatan.CreatePemeriksaanAnak)
+    tenaga.POST("/pencatatan/remaja", controller.Pencatatan.CreatePemeriksaanRemaja)
+    tenaga.POST("/pencatatan/dewasa", controller.Pencatatan.CreatePemeriksaanDewasa)
+    tenaga.POST("/pencatatan/lansia", controller.Pencatatan.CreatePemeriksaanLansia)
+	tenaga.GET("/pemeriksaan-riwayat", controller.Pencatatan.GetRiwayatPemeriksaan) 
 }

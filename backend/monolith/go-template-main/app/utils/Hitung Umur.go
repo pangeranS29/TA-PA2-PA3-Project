@@ -1,7 +1,9 @@
-
 package utils
 
-import "time"
+import (
+	"strings"
+	"time"
+)
 
 func HitungUmur(tanggalLahir time.Time) int {
 
@@ -18,4 +20,15 @@ func HitungUmur(tanggalLahir time.Time) int {
 	}
 
 	return umur
+}
+
+func NormalizeRisk(risk string) string {
+    upper := strings.ToUpper(risk)
+    if upper == "TINGGI" || upper == "PERLU RUJUKAN" {
+        return "Tinggi"
+    }
+    if upper == "SEDANG" || upper == "PERLU TINDAKAN" {
+        return "Sedang"
+    }
+    return "Normal"
 }

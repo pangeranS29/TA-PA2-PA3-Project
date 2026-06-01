@@ -1,4 +1,3 @@
-// app/usecases/laporan_ibu_usecase.go
 package usecases
 
 import (
@@ -12,65 +11,39 @@ import (
 )
 
 type LaporanIbuUsecase interface {
-	ExportExcelLaporanIbu() (string, error)
-	GetLaporanIbu() ([]models.LaporanIbu, error)
+	GetLaporanIbu(bulan, tahun int, desaID *int32, role string) ([]models.LaporanIbu, error)
+	ExportExcelLaporanIbu(bulan, tahun int, desaID *int32, role string) (string, error)
 }
 
 type laporanIbuUsecase struct {
 	repo repositories.LaporanIbuRepository
 }
 
-func NewLaporanIbuUsecase(
-	repo repositories.LaporanIbuRepository,
-) LaporanIbuUsecase {
+func NewLaporanIbuUsecase(repo repositories.LaporanIbuRepository) LaporanIbuUsecase {
 	return &laporanIbuUsecase{repo}
 }
 
-func (u *laporanIbuUsecase) GetLaporanIbu() ([]models.LaporanIbu, error) {
-	return u.repo.GetLaporanIbu()
+func (u *laporanIbuUsecase) GetLaporanIbu(bulan, tahun int, desaID *int32, role string) ([]models.LaporanIbu, error) {
+	return u.repo.GetLaporanIbu(bulan, tahun, desaID, role)
 }
 
-func (u *laporanIbuUsecase) ExportExcelLaporanIbu() (string, error) {
-
-	data, err := u.repo.GetLaporanIbu()
+func (u *laporanIbuUsecase) ExportExcelLaporanIbu(bulan, tahun int, desaID *int32, role string) (string, error) {
+	data, err := u.repo.GetLaporanIbu(bulan, tahun, desaID, role)
 	if err != nil {
 		return "", err
 	}
 
 	f := excelize.NewFile()
-
 	sheet := "Laporan Ibu"
-
 	f.SetSheetName("Sheet1", sheet)
 
 	headers := []string{
-		"NIK",
-		"Nama Ibu",
-		"Nama Suami",
-		"Tanggal Lahir",
-		"HPHT",
-		"HPL",
-		"Usia Kehamilan",
-		"Trimester",
-		"Gravida",
-		"Paritas",
-		"Abortus",
-		"BB Awal",
-		"Tinggi Badan",
-		"IMT",
-		"LILA",
-		"Tekanan Darah",
-		"Sistole",
-		"Diastole",
-		"Tinggi Fundus",
-		"Hb",
-		"Golongan Darah",
-		"Status Imunisasi",
-		"Tripel Eliminasi",
-		"Kunjungan ANC",
-		"Tindakan",
-		"Kecamatan",
-		"Desa",
+		"NIK", "Nama Ibu", "Nama Suami", "Tanggal Lahir", "HPHT", "HPL",
+		"Usia Kehamilan", "Trimester", "Gravida", "Paritas", "Abortus",
+		"BB Awal", "Tinggi Badan", "IMT", "LILA", "Tekanan Darah",
+		"Sistole", "Diastole", "Tinggi Fundus", "Hb", "Golongan Darah",
+		"Status Imunisasi", "Tripel Eliminasi", "Kunjungan ANC", "Tindakan",
+		"Kecamatan", "Desa",
 	}
 
 	for i, h := range headers {
@@ -79,9 +52,7 @@ func (u *laporanIbuUsecase) ExportExcelLaporanIbu() (string, error) {
 	}
 
 	for i, d := range data {
-
 		row := i + 2
-
 		f.SetCellValue(sheet, fmt.Sprintf("A%d", row), d.NIK)
 		f.SetCellValue(sheet, fmt.Sprintf("B%d", row), d.NamaIbu)
 		f.SetCellValue(sheet, fmt.Sprintf("C%d", row), d.NamaSuami)
@@ -111,15 +82,9 @@ func (u *laporanIbuUsecase) ExportExcelLaporanIbu() (string, error) {
 		f.SetCellValue(sheet, fmt.Sprintf("AA%d", row), d.Desa)
 	}
 
-	filename := fmt.Sprintf(
-		"laporan_ibu_%s.xlsx",
-		time.Now().Format("20060102_150405"),
-	)
-
-	err = f.SaveAs(filename)
-	if err != nil {
+	filename := fmt.Sprintf("laporan_ibu_%s.xlsx", time.Now().Format("20060102_150405"))
+	if err := f.SaveAs(filename); err != nil {
 		return "", err
 	}
-
 	return filename, nil
 }

@@ -128,7 +128,7 @@ func validateRegisterInput(req *models.RegisterRequest) error {
 	return nil
 }
 
-func (m *Main) buildAccessToken(user *models.User, destination roleDestination) (tokenString string, expiresIn int64, err error) {
+func (m *Main) buildAccessToken(user *models.User, destination roleDestination, desaID *int32) (tokenString string, expiresIn int64, err error) {
 	now := time.Now()
 	expiry := now.Add(time.Duration(m.config.JWTAccessTokenMins) * time.Minute)
 
@@ -139,6 +139,7 @@ func (m *Main) buildAccessToken(user *models.User, destination roleDestination) 
 		Role:          user.Role.Name,
 		TargetApp:     destination.TargetApp,
 		RedirectRoute: destination.RedirectRoute,
+		DesaID:        desaID,
 		RegisteredClaims: jwt.RegisteredClaims{
 			Subject:   fmt.Sprintf("%d", user.ID),
 			IssuedAt:  jwt.NewNumericDate(now),
@@ -300,7 +301,22 @@ func (m *Main) Login(req *models.LoginRequest) (*models.LoginResponse, error) {
 	}
 	user.Role.Name = canonicalRoleName
 
-	accessToken, expiresIn, err := m.buildAccessToken(user, destination)
+	// ========== AMBIL DESA ==========
+    var desaID *int32
+    var desaNama string
+    if user.PendudukID != nil {
+        penduduk, err := m.repository.Kependudukan.FindByID(int32(*user.PendudukID))
+        if err == nil && penduduk != nil && penduduk.DesaID != nil {
+            desaID = penduduk.DesaID
+            desa, err := m.repository.Desa.FindByID(*penduduk.DesaID)
+            if err == nil && desa != nil {
+                desaNama = desa.NamaDesa
+            }
+        }
+    }
+    // ========== END ==========
+
+	accessToken, expiresIn, err := m.buildAccessToken(user, destination, desaID)
 	if err != nil {
 		return nil, customerror.NewInternalServiceError("gagal membuat access token")
 	}
@@ -316,6 +332,8 @@ func (m *Main) Login(req *models.LoginRequest) (*models.LoginResponse, error) {
 		Role:          user.Role.Name,
 		TargetApp:     destination.TargetApp,
 		RedirectRoute: destination.RedirectRoute,
+		DesaID:        desaID,
+        DesaNama:      desaNama,
 	}
 
 	return res, nil
