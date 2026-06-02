@@ -76,62 +76,68 @@ class DashboardTumbuhQuickMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    // Menggunakan (screenWidth - margin horizontal (40) - 2 * spacing (24)) / 3
+    // Tetap pakai ukuran kartu lama, tetapi batasi lebar layout agar hanya muat 2 kartu per baris.
     final itemWidth = (screenWidth - 40 - 24) / 3;
     final itemHeight = itemWidth * 1.15;
+    final gridWidth = (itemWidth * 2) + 12;
 
-    return Wrap(
-      alignment: WrapAlignment.center,
-      spacing: 12,
-      runSpacing: 12,
-      children: items.map((item) {
-        return SizedBox(
-          width: itemWidth,
-          height: itemHeight,
-          child: InkWell(
-            onTap: item['onTap'] as VoidCallback? ?? () {},
-            borderRadius: BorderRadius.circular(16),
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
+    return Center(
+      child: SizedBox(
+        width: gridWidth,
+        child: Wrap(
+          alignment: WrapAlignment.center,
+          spacing: 12,
+          runSpacing: 12,
+          children: items.map((item) {
+            return SizedBox(
+              width: itemWidth,
+              height: itemHeight,
+              child: InkWell(
+                onTap: item['onTap'] as VoidCallback? ?? () {},
                 borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 6,
-                  ),
-                ],
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(item['icon'] as IconData,
-                      color: item['color'] as Color),
-                  const SizedBox(height: 6),
-                  Text(
-                    item['label'] as String,
-                    style: const TextStyle(fontSize: 12),
-                    textAlign: TextAlign.center,
-                  ),
-                  if (item['desc'] != null) ...[
-                    const SizedBox(height: 4),
-                    Text(
-                      item['desc'] as String,
-                      style: const TextStyle(
-                        fontSize: 10,
-                        color: Colors.black54,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 6,
                       ),
-                      textAlign: TextAlign.center,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ],
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(item['icon'] as IconData,
+                          color: item['color'] as Color),
+                      const SizedBox(height: 6),
+                      Text(
+                        item['label'] as String,
+                        style: const TextStyle(fontSize: 12),
+                        textAlign: TextAlign.center,
+                      ),
+                      if (item['desc'] != null) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          item['desc'] as String,
+                          style: const TextStyle(
+                            fontSize: 10,
+                            color: Colors.black54,
+                          ),
+                          textAlign: TextAlign.center,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
               ),
-            ),
-          ),
-        );
-      }).toList(),
+            );
+          }).toList(),
+        ),
+      ),
     );
   }
 }

@@ -123,9 +123,14 @@ class ApiConstants {
       '/ibu/pertumbuhan/anak/$anakId';
   // Informasi Umum
   static const String masterStandar = '/master-standar';
-  static const String informasiUmum = '/informasi-umum';
+    static const String edukasiInformasiUmum = '/edukasi-informasi-umum';
 
-  static String informasiUmumById(int id) => '/informasi-umum/$id';
+    static String edukasiInformasiUmumById(int id) =>
+            '/edukasi-informasi-umum/$id';
+
+    static const String informasiUmum = edukasiInformasiUmum;
+
+    static String informasiUmumById(int id) => edukasiInformasiUmumById(id);
   // Perawatan (Milestone/Perkembangan)
   static const String ibuKategoriCapaian = '/ibu/kategori-capaian';
   static String ibuKategoriCapaianByRentangUsia(String rentangUsia) =>

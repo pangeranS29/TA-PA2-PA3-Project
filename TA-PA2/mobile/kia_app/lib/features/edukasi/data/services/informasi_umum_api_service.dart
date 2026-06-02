@@ -29,21 +29,48 @@ class InformasiUmumApiService {
     return 'Request gagal ($statusCode)';
   }
 
+  List<Map<String, dynamic>> _extractListItems(dynamic rawData) {
+    if (rawData is List) {
+      return rawData.whereType<Map<String, dynamic>>().toList();
+    }
+
+    if (rawData is Map<String, dynamic>) {
+      final dynamic nestedData = rawData['data'];
+      if (nestedData is List) {
+        return nestedData.whereType<Map<String, dynamic>>().toList();
+      }
+
+      if (_looksLikeItem(rawData)) {
+        return <Map<String, dynamic>>[rawData];
+      }
+    }
+
+    return const [];
+  }
+
+  bool _looksLikeItem(Map<String, dynamic> value) {
+    return value.containsKey('id') &&
+        (value.containsKey('judul') || value.containsKey('konten'));
+  }
+
   Future<List<InformasiUmumModel>> listInformasiUmum() async {
-    final uri =
-        Uri.parse('${ApiConstants.baseUrl}${ApiConstants.informasiUmum}');
+    final uri = Uri.parse(
+      '${ApiConstants.baseUrl}${ApiConstants.edukasiInformasiUmum}',
+    );
     final response = await _client.get(uri);
 
     if (response.statusCode < 200 || response.statusCode >= 300) {
       throw Exception(_extractErrorMessage(response.body, response.statusCode));
     }
 
-    final decoded = jsonDecode(response.body) as Map<String, dynamic>;
-    final dynamic rawData = decoded['data'];
+    final dynamic decoded = jsonDecode(response.body);
+    final dynamic rawData = decoded is Map<String, dynamic>
+        ? decoded['data'] ?? decoded
+        : decoded;
 
-    if (rawData is List) {
-      return rawData
-          .whereType<Map<String, dynamic>>()
+    final items = _extractListItems(rawData);
+    if (items.isNotEmpty) {
+      return items
           .map(InformasiUmumModel.fromJson)
           .where((item) => item.isActive)
           .toList();
@@ -54,7 +81,7 @@ class InformasiUmumApiService {
 
   Future<InformasiUmumModel?> getInformasiUmumById(int id) async {
     final uri = Uri.parse(
-      '${ApiConstants.baseUrl}${ApiConstants.informasiUmumById(id)}',
+      '${ApiConstants.baseUrl}${ApiConstants.edukasiInformasiUmumById(id)}',
     );
     final response = await _client.get(uri);
 
@@ -62,8 +89,10 @@ class InformasiUmumApiService {
       throw Exception(_extractErrorMessage(response.body, response.statusCode));
     }
 
-    final decoded = jsonDecode(response.body) as Map<String, dynamic>;
-    final dynamic rawData = decoded['data'];
+    final dynamic decoded = jsonDecode(response.body);
+    final dynamic rawData = decoded is Map<String, dynamic>
+        ? decoded['data'] ?? decoded
+        : decoded;
 
     if (rawData is Map<String, dynamic>) {
       return InformasiUmumModel.fromJson(rawData);

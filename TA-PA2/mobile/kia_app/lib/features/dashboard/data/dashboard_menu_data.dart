@@ -61,47 +61,31 @@ class DashboardMenuData {
     {
       'label': 'Pertumbuhan',
       'desc': 'Pantau berat dan tinggi',
-      'icon': Icons.scale,
-      'color': Colors.blueAccent,
+      'icon': Icons.trending_up_rounded,
+      'color': Colors.deepOrange,
       'key': 'pertumbuhan',
     },
     {
       'label': 'Perkembangan',
       'desc': 'Skrining tanda bahaya',
-      'icon': Icons.self_improvement,
-      'color': Colors.blueAccent,
+      'icon': Icons.fact_check_outlined,
+      'color': Colors.amber,
       'key': 'pemantauan',
-    },
-    {
-      'label': 'Catatan',
-      'desc': 'Lihat riwayat anak',
-      'icon': Icons.assignment_outlined,
-      'color': Colors.indigoAccent,
-      'key': 'catatan',
-    },
-    {
-      'label': 'Imunisasi',
-      'desc': 'Jadwal dan status',
-      // 'icon': Icons.shield,
-      'icon': Icons.health_and_safety_outlined,
-      'color': Colors.orangeAccent,
-      'key': 'imunisasi',
     },
     {
       'label': 'MPASI',
       'desc': 'Menu makan bayi',
       'icon': Icons.restaurant_menu,
-      'color': Colors.orangeAccent,
+      'color': Colors.blue,
       'key': 'mpasi',
     },
-    // {
-    //   'label': 'Edukasi',
-    //   'icon': Icons.menu_book,
-    //   'color': Colors.orange,
-    //   'key': 'edukasi',
-    // },
-    
-    
+    {
+      'label': 'Catatan',
+      'desc': 'Lihat riwayat anak',
+      'icon': Icons.description_outlined,
+      'color': Colors.red,
+      'key': 'catatan',
+    },
   ];
 
   // Fase — hanya 3 fase (Menyusui dihapus sesuai desain lib_desain)

@@ -1,4 +1,4 @@
-package routes
+﻿package routes
 
 import (
 	"monitoring-service/app/controllers"
@@ -34,6 +34,8 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	e.GET("/edukasi-imd", controller.EdukasiIMD.GetAll)
 	e.GET("/edukasi-kesehatan-mental", controller.EdukasiKesehatanMental.GetAll)
 	e.GET("/edukasi-menyusui-asi", controller.EdukasiMenyusuiASI.GetAll)
+	e.GET("/edukasi-informasi-umum", controller.EdukasiInformasiUmum.GetAll)
+	e.GET("/edukasi-informasi-umum/:id", controller.EdukasiInformasiUmum.GetByID)
 	e.GET("/edukasi-nifas", controller.EdukasiNifas.GetAll)
 	e.GET("/edukasi-tanda-melahirkan", controller.EdukasiTandaMelahirkan.GetAll)
 	e.GET("/edukasi-trimester", controller.EdukasiTrimester.GetAll)
@@ -260,9 +262,7 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	tenaga.DELETE("/lingkungan/:id", controller.KesehatanLingkungan.DeleteLembar)
 
 	// ==================== EDUKASI DIGITAL ====================
-	tenaga.GET("/edukasi-informasi-umum", controller.EdukasiInformasiUmum.GetAll)
 	tenaga.POST("/edukasi-informasi-umum", controller.EdukasiInformasiUmum.Create)
-	tenaga.GET("/edukasi-informasi-umum/:id", controller.EdukasiInformasiUmum.GetByID)
 	tenaga.PUT("/edukasi-informasi-umum/:id", controller.EdukasiInformasiUmum.Update)
 	tenaga.DELETE("/edukasi-informasi-umum/:id", controller.EdukasiInformasiUmum.Delete)
 
