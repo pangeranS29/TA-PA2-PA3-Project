@@ -46,6 +46,10 @@ import 'package:ta_pa2_pa3_project/features/ibu/nifas/presentation/screens/catat
 // Profile Ibu
 import 'package:ta_pa2_pa3_project/features/ibu/profil/presentation/screens/profil_ibu_screen.dart';
 
+// edukasi 
+import 'package:ta_pa2_pa3_project/features/edukasi/presentation/ibu/edukasi_asi_screen.dart';
+import 'package:ta_pa2_pa3_project/features/edukasi/presentation/ibu/edukasi_imd_screen.dart';
+
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
 
@@ -395,19 +399,122 @@ Widget _buildNifasShortcut() {
 }
 
   Widget _buildMenyusuiShortcut() {
-    return DashboardMenuCard(
-      title: 'Menyusui',
-      subtitle: 'Lihat edukasi menyusui dan ASI',
-      icon: Icons.child_care_outlined,
-      iconColor: Colors.orange,
-      onTap: () => Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => const EdukasiScreenAll(),
+  return Column(
+    crossAxisAlignment:
+        CrossAxisAlignment.start,
+
+    children: [
+
+      Container(
+        width: double.infinity,
+
+        padding:
+            const EdgeInsets.all(15),
+
+        decoration: BoxDecoration(
+
+          color:
+              const Color(0xFFE8F2FF),
+
+          borderRadius:
+              BorderRadius.circular(24),
+
+          border: Border.all(
+            color:
+                const Color(0xFFBFDBFE),
+          ),
+        ),
+
+        child: Column(
+          crossAxisAlignment:
+              CrossAxisAlignment.start,
+
+          children: [
+
+            const Text(
+              'Pelajari ASI eksklusif, IMD, dan tips menyusui untuk kesehatan ibu dan bayi.',
+
+              style: TextStyle(
+                fontSize: 14,
+                height: 1.5,
+
+                color:
+                    Color(0xFF475569),
+              ),
+            ),
+          ],
         ),
       ),
-    );
-  }
+
+      const SizedBox(height: 15),
+
+      Row(
+        children: [
+
+          Expanded(
+            child: _buildMenyusuiMenu(
+              title: 'IMD',
+
+              subtitle:
+                  'Inisiasi Menyusu Dini',
+
+              icon:
+                  Icons.child_friendly,
+
+              color:
+                  const Color(
+                    0xFF3B82F6,
+                  ),
+
+              onTap: () {
+
+                Navigator.push(
+                  context,
+
+                  MaterialPageRoute(
+                    builder: (_) =>
+                        const EdukasiIMDScreen(),
+                  ),
+                );
+              },
+            ),
+          ),
+
+          const SizedBox(width: 12),
+
+          Expanded(
+            child: _buildMenyusuiMenu(
+              title: 'ASI Eksklusif',
+
+              subtitle:
+                  'Panduan menyusui',
+
+              icon:
+                  Icons.favorite,
+
+              color:
+                  const Color(
+                    0xFFEC4899,
+                  ),
+
+              onTap: () {
+
+                Navigator.push(
+                  context,
+
+                  MaterialPageRoute(
+                    builder: (_) =>
+                        const EdukasiASIScreen(),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    ],
+  );
+}
 
   // ─────────────────────────────────────────────
   // [MODUL: IBU - Hamil] Konten tab Hamil
@@ -1163,4 +1270,110 @@ Widget _menuPemeriksaan({
     ),
   );
 }
+
+Widget _buildMenyusuiMenu({
+
+  required String title,
+  required String subtitle,
+  required IconData icon,
+  required Color color,
+  required VoidCallback onTap,
+
+}) {
+
+  return InkWell(
+
+    borderRadius:
+        BorderRadius.circular(20),
+
+    onTap: onTap,
+
+    child: Container(
+
+      padding:
+          const EdgeInsets.all(16),
+
+      decoration: BoxDecoration(
+
+        color: Colors.white,
+
+        borderRadius:
+            BorderRadius.circular(22),
+
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black
+                .withOpacity(0.04),
+
+            blurRadius: 10,
+
+            offset:
+                const Offset(0, 4),
+          ),
+        ],
+      ),
+
+      child: Column(
+
+        crossAxisAlignment:
+            CrossAxisAlignment.start,
+
+        children: [
+
+          Container(
+
+            padding:
+                const EdgeInsets.all(10),
+
+            decoration: BoxDecoration(
+
+              color:
+                  color.withOpacity(
+                      0.12),
+
+              borderRadius:
+                  BorderRadius.circular(
+                      14),
+            ),
+
+            child: Icon(
+              icon,
+              color: color,
+              size: 24,
+            ),
+          ),
+
+          const SizedBox(height: 14),
+
+          Text(
+            title,
+
+            style: const TextStyle(
+              fontWeight:
+                  FontWeight.bold,
+
+              fontSize: 16,
+            ),
+          ),
+
+          const SizedBox(height: 4),
+
+          Text(
+            subtitle,
+
+            style: TextStyle(
+              fontSize: 12,
+
+              color:
+                  Colors.grey.shade600,
+
+              height: 1.4,
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
 }
