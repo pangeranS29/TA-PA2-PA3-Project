@@ -86,6 +86,9 @@ type Main struct {
 	EdukasiTandaMelahirkan      *EdukasiTandaMelahirkanController
 	EdukasiTrimester            *EdukasiTrimesterController
 	GrafikEvaluasiKehamilan     *GrafikEvaluasiKehamilanController
+
+	// Profile Ibu
+	ProfilIbu *ProfilIbuController
 }
 
 type Options struct {
@@ -194,6 +197,8 @@ func Init(opts Options) *Main {
 	m.EdukasiNifas = NewEdukasiNifasController(opts.UseCases.EdukasiNifas)
 	m.EdukasiTandaMelahirkan = NewEdukasiTandaMelahirkanController(opts.UseCases.EdukasiTandaMelahirkan)
 	m.EdukasiTrimester = NewEdukasiTrimesterController(opts.UseCases.EdukasiTrimester)
+	// Profile Ibu
+	m.ProfilIbu = NewProfilIbuController(opts.UseCases.ProfilIbu)
 	m.GrafikEvaluasiKehamilan = NewGrafikEvaluasiKehamilanController(opts.UseCases.GrafikEvaluasiKehamilan)
 	return m
 }

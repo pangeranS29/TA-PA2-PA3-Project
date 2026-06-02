@@ -56,6 +56,8 @@ class ApiConstants {
   static const String grafikEvaluasiKehamilanV2 = '/modul-ibu/grafik-evaluasi-kehamilan/v2';
   static const String grafikPeningkatanBBV2 = '/modul-ibu/grafik-peningkatan-bb/v2';
   static const String keteranganLahir = '/modul-ibu/keterangan-lahir/me';
+  // Profile Ibu 
+  static const String profilIbu = '/modul-ibu/profil';
 
     // Pemeriksaan Dokter - list semua kunjungan (BARU)
   static const String pemeriksaanDokterTrimester1All = '/modul-ibu/pemeriksaan-dokter-trimester-1/all';
