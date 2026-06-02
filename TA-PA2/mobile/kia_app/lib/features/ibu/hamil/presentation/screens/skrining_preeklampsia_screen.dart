@@ -324,7 +324,7 @@ class _SkriningPreeklampsiaScreenState
               }
 
               return ListView(
-                padding: const EdgeInsets.fromLTRB(20, 20, 20, 110),
+                padding: const EdgeInsets.fromLTRB(20, 20, 20, 25),
                 children: [
                   _SummaryCard(guidance: guidance),
                   const SizedBox(height: 14),
@@ -356,10 +356,7 @@ class _SkriningPreeklampsiaScreenState
                     items: data.pemeriksaanFisikItems,
                   ),
 
-                  _MedicalNoteCard(
-                    onContactMidwife: () =>
-                        _konfirmasiHubungiBidan(guidance),
-                  ),
+                  const _MedicalNoteCard(),
                 ],
               );
             },
@@ -794,11 +791,7 @@ class _AnswerRow extends StatelessWidget {
 }
 
 class _MedicalNoteCard extends StatelessWidget {
-  final VoidCallback onContactMidwife;
-
-  const _MedicalNoteCard({
-    required this.onContactMidwife,
-  });
+  const _MedicalNoteCard();
 
   @override
   Widget build(BuildContext context) {
@@ -835,30 +828,6 @@ class _MedicalNoteCard extends StatelessWidget {
                 ),
               ),
             ],
-          ),
-          const SizedBox(height: 14),
-          SizedBox(
-            height: 48,
-            width: double.infinity,
-            child: OutlinedButton.icon(
-              onPressed: onContactMidwife,
-              icon: const Icon(Icons.phone_in_talk_outlined),
-              label: const Text(
-                "Hubungi Bidan",
-                style: TextStyle(
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.primary,
-                side: BorderSide(
-                  color: AppColors.primary.withOpacity(0.35),
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
-                ),
-              ),
-            ),
           ),
         ],
       ),
