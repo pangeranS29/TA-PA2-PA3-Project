@@ -79,8 +79,6 @@ class _PemantauanMenuScreenState extends State<PemantauanMenuScreen> {
                     const SizedBox(height: 24),
                     _buildAgeInfoCard(),
                     const SizedBox(height: 20),
-                    _buildHistoryAction(),
-                    const SizedBox(height: 40),
                     _buildSummaryStrip(),
                     const SizedBox(height: 24),
                     _buildSectionHeader(),
@@ -91,6 +89,8 @@ class _PemantauanMenuScreenState extends State<PemantauanMenuScreen> {
                     const SizedBox(height: 18),
                     _buildPrimaryAction(),
                     const SizedBox(height: 12),
+                    _buildHistoryAction(),
+                    const SizedBox(height: 40),
                   ],
                 ),
               ),
@@ -217,26 +217,6 @@ class _PemantauanMenuScreenState extends State<PemantauanMenuScreen> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildHistoryAction() {
-    return Align(
-      alignment: Alignment.centerRight,
-      child: TextButton.icon(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => RiwayatSkriningTandaBahayaScreen(
-                anak: widget.anak,
-              ),
-            ),
-          );
-        },
-        icon: const Icon(Icons.history_rounded),
-        label: const Text('Lihat riwayat skrining'),
       ),
     );
   }
@@ -387,6 +367,26 @@ class _PemantauanMenuScreenState extends State<PemantauanMenuScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildHistoryAction() {
+    return Align(
+      alignment: Alignment.center,
+      child: TextButton.icon(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => RiwayatSkriningTandaBahayaScreen(
+                anak: widget.anak,
+              ),
+            ),
+          );
+        },
+        icon: const Icon(Icons.history_rounded),
+        label: const Text('Lihat riwayat skrining'),
       ),
     );
   }

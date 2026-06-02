@@ -230,6 +230,7 @@ class _PilihAnakScreenState extends State<PilihAnakScreen> {
           builder: (_) => CatatanMenuScreen(
             anakId: int.tryParse(anak.id.toString()) ?? 0,
             anakName: anak.nama,
+            usiaTeks: anak.usiaTeks,
           ),
         ),
       );

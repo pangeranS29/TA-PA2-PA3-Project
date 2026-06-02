@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ta_pa2_pa3_project/features/anak/pemantauan/data/models/warna_tinja_model.dart';
 import 'package:ta_pa2_pa3_project/features/anak/pemantauan/data/services/warna_tinja_api_service.dart';
+import 'package:ta_pa2_pa3_project/core/widgets/verification_popup.dart';
 
 class WarnaTinjaScreen extends StatefulWidget {
   final Map<String, dynamic> anak;
@@ -145,6 +146,47 @@ class _WarnaTinjaScreenState extends State<WarnaTinjaScreen> {
     }
   }
 
+  void _showExitPopup() {
+    showVerificationPopup(
+      context: context,
+      type: VerificationPopupType.exit,
+      title: 'Yakin ingin keluar?',
+      content: 'Apakah Anda yakin ingin keluar tanpa menyimpan? Data yang belum disimpan akan hilang dan tidak dapat dikembalikan.',
+      onConfirm: () {
+        Navigator.pop(context);
+        Navigator.pop(context);
+      },
+      onCancel: () => Navigator.pop(context),
+    );
+  }
+
+  void _showSavePopup() {
+    final keys = _periodeLabels.keys.toList(growable: false);
+    final filledCount = keys
+        .where((k) =>
+            _tanggalByPeriode[k] != null && _nomorWarnaByPeriode[k] != null)
+        .length;
+
+    if (filledCount == 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Isi minimal 1 periode terlebih dahulu.')),
+      );
+      return;
+    }
+
+    showVerificationPopup(
+      context: context,
+      type: VerificationPopupType.save,
+      title: 'Konfirmasi Simpan',
+      content: 'Apakah Anda yakin data warna tinja sudah benar? Data yang sudah disimpan tidak dapat diubah kembali.',
+      onConfirm: () {
+        Navigator.pop(context);
+        _simpan();
+      },
+      onCancel: () => Navigator.pop(context),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -153,8 +195,18 @@ class _WarnaTinjaScreenState extends State<WarnaTinjaScreen> {
             style: TextStyle(color: Colors.black87)),
         backgroundColor: Colors.white,
         iconTheme: const IconThemeData(color: Colors.black),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios, size: 20),
+          onPressed: _showExitPopup,
+        ),
       ),
-      body: _loading
+      body: PopScope(
+        canPop: false,
+        onPopInvoked: (didPop) {
+          if (didPop) return;
+          _showExitPopup();
+        },
+        child: _loading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
               padding: const EdgeInsets.all(16),
@@ -272,7 +324,7 @@ class _WarnaTinjaScreenState extends State<WarnaTinjaScreen> {
                     width: double.infinity,
                     height: 48,
                     child: ElevatedButton(
-                      onPressed: _saving ? null : _simpan,
+                      onPressed: _saving ? null : _showSavePopup,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFFEA580C),
                         shape: RoundedRectangleBorder(
@@ -288,6 +340,7 @@ class _WarnaTinjaScreenState extends State<WarnaTinjaScreen> {
                 ],
               ),
             ),
+      ),
     );
   }
 

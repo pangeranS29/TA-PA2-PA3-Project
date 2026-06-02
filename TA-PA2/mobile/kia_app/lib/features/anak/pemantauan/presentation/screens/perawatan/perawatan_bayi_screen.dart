@@ -1,21 +1,46 @@
 import 'package:flutter/material.dart';
+import 'package:ta_pa2_pa3_project/core/widgets/verification_popup.dart';
 
 class PerawatanBayiScreen extends StatelessWidget {
   const PerawatanBayiScreen({super.key});
+
+  void _showExitPopup(BuildContext context) {
+    showVerificationPopup(
+      context: context,
+      type: VerificationPopupType.exit,
+      title: 'Yakin ingin keluar?',
+      content: 'Apakah Anda yakin ingin keluar tanpa menyimpan? Data yang belum disimpan akan hilang dan tidak dapat dikembalikan.',
+      onConfirm: () {
+        Navigator.pop(context);
+        Navigator.pop(context);
+      },
+      onCancel: () => Navigator.pop(context),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
       length: 5,
-      child: Scaffold(
-        backgroundColor: const Color(0xFFF1F5F9),
-        appBar: AppBar(
-          title: const Text('Perawatan Bayi',
-              style: TextStyle(fontWeight: FontWeight.bold)),
-          backgroundColor: Colors.white,
-          foregroundColor: Colors.black87,
-          elevation: 0,
-          bottom: const TabBar(
+      child: PopScope(
+        canPop: false,
+        onPopInvoked: (didPop) {
+          if (didPop) return;
+          _showExitPopup(context);
+        },
+        child: Scaffold(
+          backgroundColor: const Color(0xFFF1F5F9),
+          appBar: AppBar(
+            title: const Text('Perawatan Bayi',
+                style: TextStyle(fontWeight: FontWeight.bold)),
+            backgroundColor: Colors.white,
+            foregroundColor: Colors.black87,
+            elevation: 0,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back_ios, size: 20),
+              onPressed: () => _showExitPopup(context),
+            ),
+            bottom: const TabBar(
             isScrollable: true,
             labelColor: Color(0xFF2563EB),
             unselectedLabelColor: Colors.grey,
@@ -39,6 +64,7 @@ class PerawatanBayiScreen extends StatelessWidget {
             _Tab912Bulan(),
           ],
         ),
+      ),
       ),
     );
   }
@@ -373,6 +399,20 @@ class _Tab028HariState extends State<_Tab028Hari> {
     );
   }
 
+  void _confirmSimpanKunjungan() {
+    showVerificationPopup(
+      context: context,
+      type: VerificationPopupType.save,
+      title: 'Konfirmasi Simpan',
+      content: 'Apakah Anda yakin data kunjungan sudah benar? Data yang sudah disimpan tidak dapat diubah kembali.',
+      onConfirm: () {
+        Navigator.pop(context);
+        _simpanKunjungan();
+      },
+      onCancel: () => Navigator.pop(context),
+    );
+  }
+
   void _simpanPerawatan() {
     setState(() => _perawatanSaved = true);
     ScaffoldMessenger.of(context).showSnackBar(
@@ -380,6 +420,20 @@ class _Tab028HariState extends State<_Tab028Hari> {
         content: Text('Data perawatan berhasil disimpan.'),
         backgroundColor: Color(0xFF16A34A),
       ),
+    );
+  }
+
+  void _confirmSimpanPerawatan() {
+    showVerificationPopup(
+      context: context,
+      type: VerificationPopupType.save,
+      title: 'Konfirmasi Simpan',
+      content: 'Apakah Anda yakin data perawatan sudah benar? Data yang sudah disimpan tidak dapat diubah kembali.',
+      onConfirm: () {
+        Navigator.pop(context);
+        _simpanPerawatan();
+      },
+      onCancel: () => Navigator.pop(context),
     );
   }
 
@@ -482,7 +536,7 @@ class _Tab028HariState extends State<_Tab028Hari> {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: _kunjunganSaved ? null : _simpanKunjungan,
+              onPressed: _kunjunganSaved ? null : _confirmSimpanKunjungan,
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF2563EB),
                 disabledBackgroundColor: Colors.grey.shade400,
@@ -566,7 +620,7 @@ class _Tab028HariState extends State<_Tab028Hari> {
             width: double.infinity,
             child: ElevatedButton(
               onPressed:
-                  (!_kunjunganSaved || _perawatanSaved) ? null : _simpanPerawatan,
+                  (!_kunjunganSaved || _perawatanSaved) ? null : _confirmSimpanPerawatan,
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF2563EB),
                 disabledBackgroundColor: Colors.grey.shade400,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import '../../../../pemantauan/data/models/perawatan_model.dart';
 import '../../../../pemantauan/data/services/perawatan_api_service.dart';
+import '../../../../../../core/widgets/verification_popup.dart';
 
 /// PerawatanPerkembanganScreen
 /// Menampilkan materi perawatan + kuesioner perkembangan anak per rentang usia
@@ -126,6 +127,34 @@ class _PerawatanPerkembanganScreenState
   }
 
 
+
+  void _showExitPopup() {
+    showVerificationPopup(
+      context: context,
+      type: VerificationPopupType.exit,
+      title: 'Yakin ingin keluar?',
+      content: 'Apakah Anda yakin ingin keluar tanpa menyimpan? Data yang belum disimpan akan hilang dan tidak dapat dikembalikan.',
+      onConfirm: () {
+        Navigator.pop(context);
+        Navigator.pop(context);
+      },
+      onCancel: () => Navigator.pop(context),
+    );
+  }
+
+  void _showSavePopup(String range) {
+    showVerificationPopup(
+      context: context,
+      type: VerificationPopupType.save,
+      title: 'Konfirmasi Simpan',
+      content: 'Apakah Anda yakin data perawatan/perkembangan sudah benar? Data yang sudah disimpan tidak dapat diubah kembali.',
+      onConfirm: () {
+        Navigator.pop(context);
+        _submit(range);
+      },
+      onCancel: () => Navigator.pop(context),
+    );
+  }
 
   Future<void> _submit(String range) async {
     final checklist = _checklistByRange[range] ?? {};
@@ -466,6 +495,10 @@ class _PerawatanPerkembanganScreenState
         backgroundColor: Colors.transparent,
         elevation: 0,
         foregroundColor: Colors.white,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: _showExitPopup,
+        ),
         flexibleSpace: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
@@ -476,7 +509,14 @@ class _PerawatanPerkembanganScreenState
           ),
         ),
       ),
-      body: _buildKuesionerTab(),
+      body: PopScope(
+        canPop: false,
+        onPopInvoked: (didPop) {
+          if (didPop) return;
+          _showExitPopup();
+        },
+        child: _buildKuesionerTab(),
+      ),
       bottomNavigationBar: _buildSubmitBar(activeRange),
     );
   }
@@ -1102,7 +1142,7 @@ class _PerawatanPerkembanganScreenState
         SizedBox(
           height: 50,
           child: ElevatedButton.icon(
-            onPressed: isDisabled ? null : () => _submit(range),
+            onPressed: isDisabled ? null : () => _showSavePopup(range),
             icon: isSubmitting
                 ? const SizedBox(
                     width: 18,
