@@ -1,147 +1,65 @@
 import 'package:flutter/material.dart';
-import 'package:ta_pa2_pa3_project/core/constants/app_colors.dart';
+
+// --- IMPOR WARNA MENGGUNAKAN RELATIVE PATH (AMAN DARI SEGALA MACAM PERUBAHAN BRANCH) ---
+import '../../../../core/constants/app_colors.dart';
 
 class EdukasiCard extends StatelessWidget {
   final String title;
-  final String duration;
+  final IconData icon; 
   final String category;
   final VoidCallback onTap;
 
   const EdukasiCard({
     super.key,
     required this.title,
-    required this.duration,
+    required this.icon,
     required this.category,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    final bool isVideo = category == 'VIDEO';
-
     return GestureDetector(
       onTap: onTap,
-
       child: Container(
         margin: const EdgeInsets.only(bottom: 16),
-
         decoration: BoxDecoration(
-          color: Colors.white,
-
-          borderRadius: BorderRadius.circular(18),
-
+          color: AppColors.card,
+          borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
-              blurRadius: 8,
+              color: AppColors.black.withOpacity(0.04),
+              blurRadius: 10,
               offset: const Offset(0, 4),
             ),
           ],
         ),
-
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-
             Container(
               height: 120,
-
-              decoration: BoxDecoration(
-                color: isVideo
-                    ? const Color(0xFFDDEEFF)
-                    : const Color(0xFFFFE9B3),
-
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(18),
-                ),
+              width: double.infinity,
+              decoration: const BoxDecoration(
+                color: AppColors.purpleLight, 
+                borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
               ),
-
               child: Center(
                 child: Icon(
-                  isVideo
-                      ? Icons.play_circle
-                      : Icons.menu_book,
-
-                  size: 50,
-
-                  color: AppColors.primary,
+                  icon,
+                  size: 44,
+                  color: AppColors.primary, 
                 ),
               ),
             ),
-
             Padding(
               padding: const EdgeInsets.all(14),
-
-              child: Row(
-                children: [
-
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 4,
-                    ),
-
-                    decoration: BoxDecoration(
-                      color: AppColors.primary,
-
-                      borderRadius:
-                          BorderRadius.circular(20),
-                    ),
-
-                    child: Text(
-                      category,
-
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 11,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-
-                  const Spacer(),
-
-                  Row(
-                    children: [
-
-                      const Icon(
-                        Icons.access_time,
-                        size: 15,
-                        color: Colors.grey,
-                      ),
-
-                      const SizedBox(width: 4),
-
-                      Text(
-                        duration,
-
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-
-            Padding(
-              padding: const EdgeInsets.only(
-                left: 14,
-                right: 14,
-                bottom: 16,
-              ),
-
-              child: Align(
-                alignment: Alignment.centerLeft,
-
-                child: Text(
-                  title,
-
-                  style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                  ),
+              child: Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 14, 
+                  fontWeight: FontWeight.w600, 
+                  color: AppColors.textPrimary,
                 ),
               ),
             ),
