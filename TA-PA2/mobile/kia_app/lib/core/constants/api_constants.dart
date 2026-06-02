@@ -145,6 +145,14 @@ class ApiConstants {
   static const String ibuKeluhanAnak = '/ibu/keluhan-anak';
 
   // MODUL EDUKASI ==================================================
+  // Edukasi Pola Asuh
+  static const String edukasiPolaAsuh = '/edukasi-pola-asuh';
+  static String edukasiPolaAsuhById(int id) => '/edukasi-pola-asuh/$id';
+
+  // Edukasi Perawatan Anak
+  static const String edukasiPerawatanAnak = '/edukasi-perawatan-anak';
+  static String edukasiPerawatanAnakById(int id) =>
+      '/edukasi-perawatan-anak/$id';
   static String get edukasiASI => '$baseUrl/edukasi-menyusui-asi';
   static String get edukasiIMD => '$baseUrl/edukasi-imd';
   static String get edukasiKesehatanMental =>

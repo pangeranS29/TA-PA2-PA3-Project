@@ -6,7 +6,6 @@ import 'pola_asuh_screen.dart';
 import 'package:ta_pa2_pa3_project/features/anak/informasi_umum/presentation/screens/informasi_umum/informasi_umum_detail_screen.dart';
 import 'package:ta_pa2_pa3_project/features/anak/informasi_umum/presentation/screens/informasi_umum/informasi_umum_screen.dart';
 import 'package:ta_pa2_pa3_project/features/anak/pemantauan/presentation/screens/perawatan/pilih_perawatan_screen.dart';
-import 'pedoman/pedoman_ibu_bayi_screen.dart';
 
 class EdukasiScreen extends StatefulWidget {
   final int? anakId;
@@ -118,16 +117,16 @@ class _EdukasiScreenState extends State<EdukasiScreen> {
                 delegate: SliverChildListDelegate(
                   [
                     _featureCard(
-                      icon: Icons.menu_book_rounded,
-                      title: 'Pedoman Ibu & Bayi',
-                      subtitle: 'Panduan kesehatan ibu & bayi',
-                      gradient: const [Color(0xFFDBEAFE), Color(0xFFEFF6FF)],
-                      iconColor: const Color(0xFF2563EB),
+                      icon: Icons.info_outline_rounded,
+                      title: 'Informasi Umum',
+                      subtitle: 'Artikel & tips terpercaya',
+                      gradient: const [Color(0xFFFCE7F3), Color(0xFFFDF2F8)],
+                      iconColor: const Color(0xFFDB2777),
                       onTap: () {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const PedomanIbuBayiScreen(),
+                            builder: (context) => const InformasiUmumScreen(),
                           ),
                         );
                       },
@@ -161,21 +160,6 @@ class _EdukasiScreenState extends State<EdukasiScreen> {
                               anakId: widget.anakId,
                               anakName: widget.anakName,
                             ),
-                          ),
-                        );
-                      },
-                    ),
-                    _featureCard(
-                      icon: Icons.info_outline_rounded,
-                      title: 'Informasi Umum',
-                      subtitle: 'Artikel & tips terpercaya',
-                      gradient: const [Color(0xFFFCE7F3), Color(0xFFFDF2F8)],
-                      iconColor: const Color(0xFFDB2777),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const InformasiUmumScreen(),
                           ),
                         );
                       },
@@ -393,7 +377,7 @@ class _EdukasiScreenState extends State<EdukasiScreen> {
                     ),
                     const SizedBox(height: 8),
                     const Text(
-                      'Temukan pedoman, pola asuh, perawatan, dan artikel web terbaru dalam satu tempat.',
+                      'Temukan informasi umum, pola asuh, perawatan, dan artikel web terbaru dalam satu tempat.',
                       style: TextStyle(
                         fontSize: 13.5,
                         color: Colors.white,
@@ -431,7 +415,7 @@ class _EdukasiScreenState extends State<EdukasiScreen> {
         Expanded(
           child: _statChip(
             icon: Icons.menu_book_rounded,
-            title: '4 Menu',
+            title: '3 Menu',
             subtitle: 'Siap dibuka',
           ),
         ),
