@@ -5,7 +5,7 @@ import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/hasil
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/absensi_kelas_ibu_hamil_screen.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/log_ttd_mms_screen.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/proses_melahirkan_screens.dart';
-import 'package:ta_pa2_pa3_project/core/constants/app_colors.dart';
+import 'package:ta_pa2_pa3_project/core/themes/app_colors.dart';
 
 class JourneyScreen extends StatefulWidget {
   final int currentWeek;

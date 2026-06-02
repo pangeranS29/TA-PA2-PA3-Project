@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:ta_pa2_pa3_project/core/constants/app_colors.dart';
+import 'package:ta_pa2_pa3_project/core/themes/app_colors.dart';
 import 'edukasi_filter_chip.dart';
+import 'package:ta_pa2_pa3_project/core/themes/app_colors.dart';
 
 class EdukasiSearchFilter extends StatelessWidget {
   final String selectedCategory;

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:ta_pa2_pa3_project/core/constants/app_colors.dart';
+import 'package:ta_pa2_pa3_project/core/themes/app_colors.dart';
 
 import '../../data/models/ringkasan_persalinan_model.dart';
 import '../../data/repositories/ringkasan_persalinan_repository.dart';

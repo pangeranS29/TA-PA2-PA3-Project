@@ -1,7 +1,7 @@
 // lib/features/ibu/hamil/presentation/screens/rujukan_detail_screen.dart
 
 import 'package:flutter/material.dart';
-import 'package:ta_pa2_pa3_project/core/constants/app_colors.dart';
+import 'package:ta_pa2_pa3_project/core/themes/app_colors.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class RujukanDetailScreen extends StatelessWidget {

@@ -1,7 +1,7 @@
 // lib/features/ibu/profil/presentation/screens/profil_ibu_screen.dart
 
 import 'package:flutter/material.dart';
-import 'package:ta_pa2_pa3_project/core/constants/app_colors.dart';
+import 'package:ta_pa2_pa3_project/core/themes/app_colors.dart';
 import 'package:ta_pa2_pa3_project/core/services/auth_session.dart';
 import 'package:ta_pa2_pa3_project/features/auth/data/datasources/auth_api_services.dart';
 import 'package:ta_pa2_pa3_project/features/auth/presentation/screens/login_screen.dart';

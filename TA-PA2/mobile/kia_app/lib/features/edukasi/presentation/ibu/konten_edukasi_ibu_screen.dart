@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:ta_pa2_pa3_project/core/themes/app_colors.dart';
 
 // --- IMPOR WARNA RESMI DARI FOLDER THEMES MENGGUNAKAN RELATIVE PATH YANG BENAR ---
-import '../../../../core/constants/app_colors.dart';
+import '../../../../core/themes/app_colors.dart';
 
 // --- IMPORT NAVIGASI SCREEN MENGGUNAKAN RELATIVE PATH ---
 import '../../../../features/dashboard/presentation/screens/dashboard_screen.dart'; 

@@ -37,7 +37,7 @@ import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/grafi
 
 // import edukasi
 import 'package:ta_pa2_pa3_project/features/edukasi/presentation/screens/edukasi_screen_all.dart';
-import 'package:ta_pa2_pa3_project/core/constants/app_colors.dart';
+import 'package:ta_pa2_pa3_project/core/themes/app_colors.dart';
 import 'package:ta_pa2_pa3_project/core/services/auth_session.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/nifas/presentation/screens/ringkasan_persalinan_screen.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/nifas/presentation/screens/pelayanan_ibu_nifas_screen.dart';
@@ -72,6 +72,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
     _loadKehamilanAktif();
     _loadDataAnak();
     _loadRujukan();
+  }
+
+  Future<void> _loadRujukan() async {
+    try {
+
+      final kehamilan =
+          await _kehamilanService
+              .getKehamilanAktif();
+
+      final data =
+          await _kehamilanService
+              .getRujukanByKehamilanId(
+                kehamilan.id,
+              );
+
+      if (!mounted) return;
+
+      setState(() {
+        _rujukanList = data;
+      });
+
+    } catch (_) {}
   }
 
   Future<void> _loadDataAnak() async {
@@ -133,27 +155,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
   //     if (mounted) setState(() => _loadingKehamilan = false);
   //   }
   // }
-      Future<void> _loadRujukan() async {
-    try {
-
-      final kehamilan =
-          await _kehamilanService
-              .getKehamilanAktif();
-
-      final data =
-          await _kehamilanService
-              .getRujukanByKehamilanId(
-                kehamilan.id,
-              );
-
-      if (!mounted) return;
-
-      setState(() {
-        _rujukanList = data;
-      });
-
-    } catch (_) {}
-  }
 
   Future<void> _openHamilJourney() async {
     if (_loadingKehamilan) return;
@@ -219,6 +220,43 @@ class _DashboardScreenState extends State<DashboardScreen> {
       'Des'
     ];
     return '${date.day} ${months[date.month - 1]} ${date.year}';
+  }
+
+  String _getContextualGuidanceText() {
+
+  if (_selectedPhase == 'Hamil') {
+
+    final week =
+        _kehamilanAktif
+            ?.ukKehamilanSaatIni ??
+        0;
+
+    if (week > 0 && week <= 12) {
+      return 'Bunda sedang di Trimester 1. Yuk cek kondisi awal kehamilan dan perkembangan janinmu!';
+    }
+
+    else if (week > 12 && week <= 27) {
+      return 'Bunda sudah di Trimester 2. Yuk pantau pertumbuhan janin dan kesehatan Bunda!';
+    }
+
+    else if (week > 27) {
+      return 'Trimester 3 sedang berjalan, Bun. Yuk cek kondisi kehamilanmu dan kesiapan persalinan!';
+    }
+  }
+
+  else if (_selectedPhase == 'Nifas') {
+    return 'Masa nifas juga penting, Bun. Yuk cek pemulihan tubuh Bunda secara rutin!';
+  }
+
+  else if (_selectedPhase == 'Menyusui') {
+    return 'Semangat memberi ASI ya, Bun! Yuk cek panduan dan kesehatan ibu menyusui.';
+  }
+
+  else if (_selectedPhase == 'Tumbuh') {
+    return 'Yuk pantau pertumbuhan dan perkembangan si kecil sesuai usianya!';
+  }
+
+  return 'Yuk cek kondisi kesehatan Bunda dan si kecil hari ini!';
   }
 
   @override
@@ -313,8 +351,6 @@ Widget _buildNifasShortcut() {
         },
       ),
 
-      const SizedBox(height: 16),
-
       DashboardMenuCard(
         title: 'Pemantauan Ibu Nifas',
         subtitle: 'Pantau masa nifas pasca persalinan',
@@ -328,8 +364,6 @@ Widget _buildNifasShortcut() {
         ),
       ),
 
-      const SizedBox(height: 16),
-
       DashboardMenuCard(
         title: 'Pelayanan Ibu Nifas',
         subtitle: 'Lihat catatan pelayanan ibu nifas',
@@ -342,8 +376,6 @@ Widget _buildNifasShortcut() {
           ),
         ),
       ),
-
-      const SizedBox(height: 16),
 
       DashboardMenuCard(
         title: 'Catatan Pelayanan Nifas',
@@ -400,12 +432,12 @@ Widget _buildNifasShortcut() {
             border: Border.all(color: const Color(0xFFBFDBFE)),
           ),
           child: Row(
-            children: const [
+            children: [
               Icon(Icons.lightbulb_outline, color: Color(0xFF2563EB), size: 20),
               SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  'Bunda, yuk ketuk kartu di bawah ini untuk melihat kondisi kehamilanmu saat ini!',
+                  _getContextualGuidanceText(),
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.bold,
@@ -531,6 +563,26 @@ Widget _buildNifasShortcut() {
             MaterialPageRoute(builder: (_) => const PersalinanScreen()),
           ),
         ),
+        DashboardMenuCard(
+          title: 'Surat Rekomendasi Rujukan',
+
+          subtitle:
+              _rujukanList.isNotEmpty
+                  ? '${_rujukanList.length} surat rujukan tersedia'
+                  : 'Belum ada surat rekomendasi rujukan saat ini',
+
+          icon: Icons.description_outlined,
+
+          iconColor: AppColors.blue500,
+
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) =>
+                  const RujukanListScreen(),
+            ),
+          ),
+        ),
         // DashboardMenuCard(
         //   title: 'Grafik Evaluasi Kehamilan',
         //   subtitle: 'Pantau TFU & DJJ selama kehamilan',
@@ -543,12 +595,6 @@ Widget _buildNifasShortcut() {
         //     ),
         //   ),
         // ),
-
-        const SizedBox(height: 20),
-        const SizedBox(height: 20),
-
-        _buildDangerAlert(),
-        const SizedBox(height: 32),
 
         const Text('MENU CEPAT',
             style: TextStyle(
@@ -564,7 +610,7 @@ Widget _buildNifasShortcut() {
         //         if (item['key'] == 'absensi') {
         //           Navigator.push(context,
         //               MaterialPageRoute(builder: (_) => const AbsensiKelasIbuHamilScreen()));
-        //           return;
+        //           return;  
         //         }
         //         if (item['key'] == 'catatan') {
         //           Navigator.push(context,
@@ -904,70 +950,6 @@ Widget _buildNifasShortcut() {
   // ─────────────────────────────────────────────
   // [MODUL: IBU - Hamil] Banner surat rujukan
   // ─────────────────────────────────────────────
-  Widget _buildDangerAlert() {
-    final bool hasRujukan = _rujukanList.isNotEmpty;
-
-    return InkWell(
-      borderRadius: BorderRadius.circular(16),
-      onTap: () => Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => const RujukanListScreen(),
-        ),
-      ),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: const Color(0xFFEFF6FF),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: Colors.blue.shade100,
-          ),
-        ),
-        child: Row(
-          children: [
-            Icon(
-              Icons.description_outlined,
-              color: Colors.blue.shade700,
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Surat Rekomendasi Rujukan',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.blue.shade700,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    hasRujukan
-                        ? 'Tap untuk melihat surat rujukan dan langkah yang perlu Ibu lakukan'
-                        : 'Saat ini belum ada surat rekomendasi rujukan',
-                    style: TextStyle(
-                      fontSize: 11,
-                      height: 1.4,
-                      color: hasRujukan
-                          ? Colors.blue.shade700
-                          : Colors.black54,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Icon(
-              hasRujukan ? Icons.chevron_right : Icons.info_outline,
-              color: Colors.blue.shade700,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
   Widget _buildPemeriksaanIbuCard() {
 

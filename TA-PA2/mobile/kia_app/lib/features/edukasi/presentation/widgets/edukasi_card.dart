@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 // --- IMPOR WARNA MENGGUNAKAN RELATIVE PATH (AMAN DARI SEGALA MACAM PERUBAHAN BRANCH) ---
-import '../../../../core/constants/app_colors.dart';
+import '../../../../core/themes/app_colors.dart';
+import 'package:ta_pa2_pa3_project/core/themes/app_colors.dart';
 
 class EdukasiCard extends StatelessWidget {
   final String title;
