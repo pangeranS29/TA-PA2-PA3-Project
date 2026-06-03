@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ta_pa2_pa3_project/database/local_database.dart';
 import 'app.dart';
 import 'core/services/auth_session.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -15,5 +16,7 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  await LocalDatabase.instance.database;
+  await LocalDatabase.instance.cekDaftarTabel();
   runApp(const KiaApp());
 }
