@@ -165,37 +165,37 @@ class _InputBblScreenState extends State<InputBblScreen> {
 
               const SizedBox(height: 20),
 
-              // ─── Seksi: Imunisasi & Skrining ─────────────────────────────
-              _SectionTitle(
-                  title: 'Imunisasi & Skrining', color: const Color(0xFFD97706)),
-              const SizedBox(height: 12),
-              _buildCard(
-                children: [
-                  _buildCheckTile(
-                    value: _imunisasiHB0,
-                    label: 'Imunisasi Hepatitis B (HB0)',
-                    subtitle: 'Sebelum 24 jam setelah lahir',
-                    color: const Color(0xFFD97706),
-                    onChanged: (v) => setState(() => _imunisasiHB0 = v!),
-                  ),
-                  const Divider(height: 1),
-                  _buildCheckTile(
-                    value: _skriningHipotiroid,
-                    label: 'Skrining Hipotiroid Kongenital (SHK)',
-                    subtitle: '48–72 jam setelah lahir',
-                    color: const Color(0xFFD97706),
-                    onChanged: (v) => setState(() => _skriningHipotiroid = v!),
-                  ),
-                  const Divider(height: 1),
-                  _buildCheckTile(
-                    value: _skriningPJB,
-                    label: 'Skrining Penyakit Jantung Bawaan (PJB) Kritis',
-                    subtitle: '24–48 jam setelah lahir',
-                    color: const Color(0xFFD97706),
-                    onChanged: (v) => setState(() => _skriningPJB = v!),
-                  ),
-                ],
-              ),
+              // // ─── Seksi: Imunisasi & Skrining ─────────────────────────────
+              // _SectionTitle(
+              //     title: 'Imunisasi & Skrining', color: const Color(0xFFD97706)),
+              // const SizedBox(height: 12),
+              // _buildCard(
+              //   children: [
+              //     _buildCheckTile(
+              //       value: _imunisasiHB0,
+              //       label: 'Imunisasi Hepatitis B (HB0)',
+              //       subtitle: 'Sebelum 24 jam setelah lahir',
+              //       color: const Color(0xFFD97706),
+              //       onChanged: (v) => setState(() => _imunisasiHB0 = v!),
+              //     ),
+              //     const Divider(height: 1),
+              //     _buildCheckTile(
+              //       value: _skriningHipotiroid,
+              //       label: 'Skrining Hipotiroid Kongenital (SHK)',
+              //       subtitle: '48–72 jam setelah lahir',
+              //       color: const Color(0xFFD97706),
+              //       onChanged: (v) => setState(() => _skriningHipotiroid = v!),
+              //     ),
+              //     const Divider(height: 1),
+              //     _buildCheckTile(
+              //       value: _skriningPJB,
+              //       label: 'Skrining Penyakit Jantung Bawaan (PJB) Kritis',
+              //       subtitle: '24–48 jam setelah lahir',
+              //       color: const Color(0xFFD97706),
+              //       onChanged: (v) => setState(() => _skriningPJB = v!),
+              //     ),
+              //   ],
+              // ),
 
               const SizedBox(height: 20),
 
