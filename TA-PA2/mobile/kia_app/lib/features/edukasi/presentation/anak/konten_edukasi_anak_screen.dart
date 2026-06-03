@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ta_pa2_pa3_project/core/themes/app_colors.dart';
 import 'package:ta_pa2_pa3_project/features/edukasi/data/models/edukasi_anak_item.dart';
-import 'package:ta_pa2_pa3_project/features/edukasi/data/models/informasi_umum_model.dart';
-import 'package:ta_pa2_pa3_project/features/edukasi/data/models/edukasi_pola_asuh_model.dart';
-import 'package:ta_pa2_pa3_project/features/edukasi/data/models/edukasi_perawatan_anak_model.dart';
 import 'package:ta_pa2_pa3_project/features/edukasi/data/services/informasi_umum_api_service.dart';
 import 'package:ta_pa2_pa3_project/features/edukasi/data/services/edukasi_pola_asuh_api_service.dart';
 import 'package:ta_pa2_pa3_project/features/edukasi/data/services/edukasi_perawatan_anak_api_service.dart';
@@ -52,20 +49,13 @@ class _KontenEdukasiAnakScreenState extends State<KontenEdukasiAnakScreen> {
       _errorMessage = null;
     });
 
+    final items = <EdukasiAnakItem>[];
+    final errors = <String>[];
+
+    // Load each source independently so one failure doesn't break everything
+    // 1. Informasi Umum
     try {
-      final results = await Future.wait([
-        _infoUmumService.listInformasiUmum(),
-        _polaAsuhService.listPolaAsuh(),
-        _perawatanService.listPerawatanAnak(),
-      ]);
-
-      final informasiUmumList = results[0] as List<InformasiUmumModel>;
-      final polaAsuhList = results[1] as List<EdukasiPolaAsuhModel>;
-      final perawatanList = results[2] as List<EdukasiPerawatanAnakModel>;
-
-      final items = <EdukasiAnakItem>[];
-
-      // Map Informasi Umum items
+      final informasiUmumList = await _infoUmumService.listInformasiUmum();
       for (final item in informasiUmumList) {
         items.add(EdukasiAnakItem(
           id: item.id,
@@ -80,8 +70,14 @@ class _KontenEdukasiAnakScreenState extends State<KontenEdukasiAnakScreen> {
           thumbnailUrl: item.thumbnailUrl,
         ));
       }
+    } catch (e) {
+      debugPrint('[EdukasiAnak] Gagal memuat Informasi Umum: $e');
+      errors.add('Informasi Umum');
+    }
 
-      // Map Pola Asuh items
+    // 2. Pola Asuh
+    try {
+      final polaAsuhList = await _polaAsuhService.listPolaAsuh();
       for (final item in polaAsuhList) {
         items.add(EdukasiAnakItem(
           id: item.id,
@@ -92,29 +88,41 @@ class _KontenEdukasiAnakScreenState extends State<KontenEdukasiAnakScreen> {
           thumbnailUrl: item.gambarUrl,
         ));
       }
+    } catch (e) {
+      debugPrint('[EdukasiAnak] Gagal memuat Pola Asuh: $e');
+      errors.add('Pola Asuh');
+    }
 
-      // Map Perawatan Anak items → displayed under 'Pedoman' filter
+    // 3. Perawatan Anak
+    try {
+      final perawatanList = await _perawatanService.listPerawatanAnak();
       for (final item in perawatanList) {
         items.add(EdukasiAnakItem(
           id: item.id,
           judul: item.judul,
-          kategori: 'Pedoman',
+          kategori: 'Perawatan',
           tipe: 'ARTIKEL',
           konten: item.isiKonten,
           thumbnailUrl: item.gambarUrl,
         ));
       }
-
-      setState(() {
-        _allItems = items;
-        _isLoading = false;
-      });
     } catch (e) {
-      setState(() {
-        _errorMessage = e.toString();
-        _isLoading = false;
-      });
+      debugPrint('[EdukasiAnak] Gagal memuat Perawatan: $e');
+      errors.add('Perawatan');
     }
+
+    if (!mounted) return;
+
+    setState(() {
+      _allItems = items;
+      _isLoading = false;
+      // Only show error if ALL sources failed
+      if (errors.length == 3) {
+        _errorMessage = 'Gagal memuat semua data edukasi';
+      } else {
+        _errorMessage = null;
+      }
+    });
   }
 
   List<EdukasiAnakItem> get _filteredItems {
@@ -174,9 +182,9 @@ class _KontenEdukasiAnakScreenState extends State<KontenEdukasiAnakScreen> {
                           selectedCategory: selectedCategory,
                           categories: const [
                             'Semua',
-                            'Pedoman',
-                            'Pola Asuh',
                             'Informasi Umum',
+                            'Pola Asuh',
+                            'Perawatan',
                           ],
                           onCategorySelected: (value) {
                             setState(() {

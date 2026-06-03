@@ -67,7 +67,7 @@ class DetailKontenEdukasiAnakScreen extends StatelessWidget {
             runSpacing: 8,
             children: [
               _Badge(
-                label: 'Pedoman',
+                label: item.kategori,
                 backgroundColor: const Color(0xFFE2E8F0),
                 textColor: const Color(0xFF334155),
               ),
