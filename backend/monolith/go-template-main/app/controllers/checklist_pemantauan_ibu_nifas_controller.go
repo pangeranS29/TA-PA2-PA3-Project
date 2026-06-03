@@ -110,6 +110,8 @@ func (ctrl *ChecklistPemantauanIbuNifasController) SaveMine(c echo.Context) erro
 		DarahNifasBerbau   bool `json:"darah_nifas_berbau"`
 		PendarahanBerat    bool `json:"pendarahan_berat"`
 		Keputihan          bool `json:"keputihan"`
+
+		Keluhan string `json:"keluhan"`	
 	}
 
 	req := new(Request)
@@ -149,6 +151,8 @@ func (ctrl *ChecklistPemantauanIbuNifasController) SaveMine(c echo.Context) erro
 		DarahNifasBerbau:   req.DarahNifasBerbau,
 		PendarahanBerat:    req.PendarahanBerat,
 		Keputihan:          req.Keputihan,
+
+		Keluhan: req.Keluhan,
 	}
 
 	if err := ctrl.usecase.Save(data); err != nil {

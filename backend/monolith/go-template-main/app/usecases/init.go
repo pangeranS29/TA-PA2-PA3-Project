@@ -111,6 +111,8 @@ type Main struct {
 	// EdukasiTandaBahayaTrimester EdukasiTandaBahayaTrimesterUsecase
 	LaporanIbu   LaporanIbuUsecase
 	EdukasiMPASI EdukasiMPASIUsecase
+	// Profile Ibu
+	ProfilIbu ProfilIbuUsecase
 }
 
 type Options struct {
@@ -274,5 +276,14 @@ func Init(opts Options) *Main {
 	m.EdukasiNifas = NewEdukasiNifasUsecase(opts.Repository.EdukasiNifas)
 	m.EdukasiTandaMelahirkan = NewEdukasiTandaMelahirkanUsecase(opts.Repository.EdukasiTandaMelahirkan)
 	// m.EdukasiTrimester = NewEdukasiTrimesterUseCase(opts.Repository.EdukasiTrimester)
+	// m.EdukasiTrimester = NewEdukasiTrimesterUseCase(opts.Repository.EdukasiTrimester)
+	// Profile Ibu
+	m.ProfilIbu = NewProfilIbuUsecase(
+		opts.Repository.User,
+		opts.Repository.Ibu,
+		opts.Repository.Kehamilan,
+		opts.Repository.EvaluasiKesehatanIbu,
+		opts.Repository.RiwayatKehamilanLalu,
+	)
 	return m
 }

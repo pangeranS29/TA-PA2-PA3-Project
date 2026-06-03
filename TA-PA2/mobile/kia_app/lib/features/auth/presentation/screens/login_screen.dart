@@ -38,11 +38,19 @@ class _LoginScreenState extends State<LoginScreen> {
 
     try {
       String? deviceFcmToken;
+      // try {
+      //   deviceFcmToken = await FirebaseMessaging.instance.getToken();
+      //   debugPrint("Berhasil mendapatkan FCM Token: $deviceFcmToken");
+      // } catch (e) {
+      //   debugPrint("Gagal mendapatkan FCM Token: $e");
+      // }
       try {
-        deviceFcmToken = await FirebaseMessaging.instance.getToken();
+        deviceFcmToken = await FirebaseMessaging.instance
+            .getToken()
+            .timeout(const Duration(seconds: 5));
         debugPrint("Berhasil mendapatkan FCM Token: $deviceFcmToken");
       } catch (e) {
-        debugPrint("Gagal mendapatkan FCM Token: $e");
+        debugPrint("Gagal mendapatkan FCM Token (skip): $e");
       }
 
       await _service.login(
