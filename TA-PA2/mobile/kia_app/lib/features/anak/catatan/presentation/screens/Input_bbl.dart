@@ -110,60 +110,60 @@ class _InputBblScreenState extends State<InputBblScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ─── Header ilustrasi / banner ───────────────────────────────
-              _BannerBBL(),
+              // // ─── Header ilustrasi / banner ───────────────────────────────
+              // _BannerBBL(),
 
-              const SizedBox(height: 20),
+              // const SizedBox(height: 20),
 
-              // ─── Seksi: Data Lahir ────────────────────────────────────────
-              _SectionTitle(title: 'Data Lahir', color: const Color(0xFF7C3AED)),
-              const SizedBox(height: 12),
-              _buildCard(
-                children: [
-                  _buildDateField(
-                    label: 'Tanggal Lahir',
-                    controller: _tanggalLahirController,
-                    onTap: _pickDate,
-                  ),
-                  const SizedBox(height: 12),
-                  _buildTextField(
-                    controller: _beratController,
-                    label: 'Berat Badan Lahir (gram)',
-                    hint: 'cth: 3200',
-                    keyboardType: TextInputType.number,
-                    validator: (v) {
-                      if (v == null || v.isEmpty) return 'Wajib diisi';
-                      final n = double.tryParse(v);
-                      if (n == null || n <= 0) return 'Masukkan angka yang valid';
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 12),
-                  _buildTextField(
-                    controller: _panjangController,
-                    label: 'Panjang Badan Lahir (cm)',
-                    hint: 'cth: 50',
-                    keyboardType: TextInputType.number,
-                    validator: (v) {
-                      if (v == null || v.isEmpty) return 'Wajib diisi';
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 12),
-                  _buildTextField(
-                    controller: _lingkarKepalController,
-                    label: 'Lingkar Kepala (cm)',
-                    hint: 'cth: 34',
-                    keyboardType: TextInputType.number,
-                    validator: (v) {
-                      if (v == null || v.isEmpty) return 'Wajib diisi';
-                      return null;
-                    },
-                  ),
-                ],
-              ),
+              // // ─── Seksi: Data Lahir ────────────────────────────────────────
+              // _SectionTitle(title: 'Data Lahir', color: const Color(0xFF7C3AED)),
+              // const SizedBox(height: 12),
+              // _buildCard(
+              //   children: [
+              //     _buildDateField(
+              //       label: 'Tanggal Lahir',
+              //       controller: _tanggalLahirController,
+              //       onTap: _pickDate,
+              //     ),
+              //     const SizedBox(height: 12),
+              //     _buildTextField(
+              //       controller: _beratController,
+              //       label: 'Berat Badan Lahir (gram)',
+              //       hint: 'cth: 3200',
+              //       keyboardType: TextInputType.number,
+              //       validator: (v) {
+              //         if (v == null || v.isEmpty) return 'Wajib diisi';
+              //         final n = double.tryParse(v);
+              //         if (n == null || n <= 0) return 'Masukkan angka yang valid';
+              //         return null;
+              //       },
+              //     ),
+              //     const SizedBox(height: 12),
+              //     _buildTextField(
+              //       controller: _panjangController,
+              //       label: 'Panjang Badan Lahir (cm)',
+              //       hint: 'cth: 50',
+              //       keyboardType: TextInputType.number,
+              //       validator: (v) {
+              //         if (v == null || v.isEmpty) return 'Wajib diisi';
+              //         return null;
+              //       },
+              //     ),
+              //     const SizedBox(height: 12),
+              //     _buildTextField(
+              //       controller: _lingkarKepalController,
+              //       label: 'Lingkar Kepala (cm)',
+              //       hint: 'cth: 34',
+              //       keyboardType: TextInputType.number,
+              //       validator: (v) {
+              //         if (v == null || v.isEmpty) return 'Wajib diisi';
+              //         return null;
+              //       },
+              //     ),
+              //   ],
+              // ),
 
-              const SizedBox(height: 20),
+              // const SizedBox(height: 20),
 
               // // ─── Seksi: Imunisasi & Skrining ─────────────────────────────
               // _SectionTitle(
