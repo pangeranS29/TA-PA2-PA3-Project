@@ -19,7 +19,7 @@ type Anak struct {
 	NamaIbu       string         `json:"nama_ibu"`
 	NamaAyah      string         `json:"nama_ayah"`
 	IbuID         int32          `json:"ibu_id"`
-	StatusPrediksi string        `gorm:"column:status_prediksi;type:varchar(30)" json:"status_prediksi"`
+	StatusPrediksi string        `gorm:"-" json:"status_prediksi"`
 	CreatedAt     time.Time      `json:"created_at"`
 	UpdatedAt     time.Time      `json:"updated_at"`
 	DeletedAt     gorm.DeletedAt `json:"-" gorm:"index"`

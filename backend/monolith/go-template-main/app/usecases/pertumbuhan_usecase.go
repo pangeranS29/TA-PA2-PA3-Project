@@ -404,11 +404,6 @@ func (m *Main) AddCatatanPertumbuhan(req *models.CreatePertumbuhanRequest) (*mod
 			fallbackStatus = "Stunting"
 		}
 
-		// Update status_prediksi di tabel anak
-		if errUpdate := m.repository.PrediksiStunting.UpdateAnakStatusPrediksi(int32(req.AnakID), fallbackStatus); errUpdate != nil {
-			fmt.Println("Warning: Gagal memperbarui status prediksi anak:", errUpdate)
-		}
-
 		// Buat objek mock prediksi stunting agar frontend tetap mendapatkan feedback
 		mockPrediksi := &models.PrediksiStunting{
 			AnakID:         int32(req.AnakID),

@@ -13,7 +13,6 @@ type PrediksiStuntingRepository interface {
 	SavePrediction(prediction *models.PrediksiStunting) error
 	GetPredictionByAnakID(anakID int32) ([]models.PrediksiStunting, error)
 	GetLatestPredictionByAnakID(anakID int32) (*models.PrediksiStunting, error)
-	UpdateAnakStatusPrediksi(anakID int32, status string) error
 }
 
 type prediksiStuntingRepository struct {
@@ -117,7 +116,4 @@ func (r *prediksiStuntingRepository) GetLatestPredictionByAnakID(anakID int32) (
 	return &prediction, nil
 }
 
-// UpdateAnakStatusPrediksi - perbarui status prediksi stunting terbaru di tabel anak
-func (r *prediksiStuntingRepository) UpdateAnakStatusPrediksi(anakID int32, status string) error {
-	return r.db.Model(&models.Anak{}).Where("id = ?", anakID).Update("status_prediksi", status).Error
-}
+
