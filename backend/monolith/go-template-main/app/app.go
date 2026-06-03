@@ -4,11 +4,12 @@ import (
 	"fmt"
 	"log"
 	"monitoring-service/app/controllers"
+
 	// "strings"
 
 	"time"
 
-	"monitoring-service/app/models"
+	// "monitoring-service/app/models"
 	"monitoring-service/app/repositories"
 	"monitoring-service/app/routes"
 
@@ -95,12 +96,11 @@ func (m *Main) Init() (err error) {
 	// // Sync sequences and map rentang_usia text to rentang_usia_id
 	// fixKategoriCapaianData(m.database.Postgres)
 
-
-		// Migrate Tabel
-	err = models.AutoMigrate(m.database.Postgres)
-	if err != nil {
-		return
-	}
+	// Migrate Tabel
+	// err = models.AutoMigrate(m.database.Postgres)
+	// if err != nil {
+	// 	return
+	// }
 	// // Seeder
 	// Jalankan migrasi schema agar tabel baru selalu tersedia saat aplikasi start.
 	// err = models.AutoMigrate(m.database.Postgres)
@@ -230,7 +230,7 @@ func (m *Main) close() {
 
 // func fixKategoriCapaianData(db *gorm.DB) {
 // 	log.Println("[MIGRATION] Memulai sinkronisasi data rentang_usia_id di kategori_capaian...")
-	
+
 // 	// 1. Sinkronkan sequence kategori_capaian_id_seq agar tidak terjadi duplicate key error
 // 	if err := db.Exec("SELECT setval('kategori_capaian_id_seq', COALESCE((SELECT MAX(id) FROM kategori_capaian), 1))").Error; err != nil {
 // 		log.Println("[MIGRATION] Gagal sinkronisasi sequence ID:", err)
