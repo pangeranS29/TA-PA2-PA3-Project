@@ -1,7 +1,10 @@
 package repositories
 
+//AbsensiKelasIbuBalita//
 import (
 	"monitoring-service/pkg/config"
+
+	// Coba dulu
 
 	"gorm.io/gorm"
 )
@@ -11,18 +14,20 @@ type Main struct {
 	config   *config.Config
 
 	// Existing
-	Anak                   *AnakRepository
-	PelayananKesehatanAnak PelayananKesehatanAnakRepository
-	Neonatus               PelayananNeonatusRepository
-	KunjunganGizi          KunjunganGiziRepository
-	KunjunganVitamin       KunjunganVitaminRepository
-	KunjunganImunisasi     KunjunganImunisasiRepository
-	PemeriksaanGigi        PemeriksaanGigiRepository
-	PemantauanPertumbuhan  PemantauanPertumbuhanRepository
-	PengukuranLilA         PengukuranLilaRepository
-	CatatanPelayanan       CatatanPelayananRepository
-	KategoriTandaBahaya    *KategoriTandaBahayaRepository
-	SkriningPemantauan     *SkriningPemantauanRepository
+	ChecklistPemantauanIbuNifas ChecklistPemantauanIbuNifasRepository
+	InformasiUmum               *InformasiUmumRepository
+	Anak                        *AnakRepository
+	PelayananKesehatanAnak      PelayananKesehatanAnakRepository
+	Neonatus                    PelayananNeonatusRepository
+	KunjunganGizi               KunjunganGiziRepository
+	KunjunganVitamin            KunjunganVitaminRepository
+	KunjunganImunisasi          KunjunganImunisasiRepository
+	PemeriksaanGigi             PemeriksaanGigiRepository
+	PemantauanPertumbuhan       PemantauanPertumbuhanRepository
+	PengukuranLilA              PengukuranLilaRepository
+	CatatanPelayanan            CatatanPelayananRepository
+	KategoriTandaBahaya         *KategoriTandaBahayaRepository
+	SkriningPemantauan          *SkriningPemantauanRepository
 
 	// New repositories (semua pointer, mengikuti pola Anak)
 	User                          *UserRepository
@@ -52,6 +57,8 @@ type Main struct {
 	RencanaPersalinan             *RencanaPersalinanRepository
 	RingkasanPelayananPersalinan  *RingkasanPelayananPersalinanRepository
 	KeteranganLahir               *KeteranganLahirRepository // <-- TAMBAHKAN INI
+	Bbl                           BblRepository
+	LembarPemantauan              LembarPemantauanRepository
 	RiwayatProsesMelahirkan       *RiwayatProsesMelahirkanRepository
 	PelayananIbuNifas             *PelayananIbuNifasRepository
 	CatatanPelayananNifas         *CatatanPelayananNifasRepository
@@ -60,16 +67,31 @@ type Main struct {
 	KategoriUmur                  KategoriUmurRepository
 
 	// Repository tambahan
-	KeluhanAnak         KeluhanAnakRepository
-	KesehatanLingkungan KesehatanLingkunganRepository
+	// KesehatanLingkunganDanCatatanKader *KesehatanLingkunganDanCatatanKaderRepository
+	// PerkembanganAnak                   PerkembanganAnakRepository
+
+	// Edukasi Digital
+	// EdukasiTandaBahayaTrimester EdukasiTandaBahayaTrimesterRepository
+	// MODUL IBU
+	LogTTDMMS             *LogTTDMMSRepository
+	PemantauanIbuHamil    *PemantauanIbuHamilRepository
+	PersiapanMelahirkan   *PersiapanMelahirkanRepository
+	ProsesMelahirkan      *ProsesMelahirkanRepository
+	AbsensiKelasIbuHamil  *AbsensiKelasIbuHamilRepository
+	AbsensiKelasIbuBalita *AbsensiKelasIbuBalitaRepository
+	WarnaTinja            WarnaTinjaRepository
+	EdukasiIMD            EdukasiIMDRepository
+	EdukasiMenyusuiASI    EdukasiMenyusuiASIRepository
+	KeluhanAnak           KeluhanAnakRepository
+	KesehatanLingkungan   KesehatanLingkunganRepository
 	// KesehatanLingkunganDanCatatanKader *KesehatanLingkunganDanCatatanKaderRepository
 	PemantauanAnak      PemantauanAnakRepository
 	PemantauanIndikator *PemantauanIndikatorRepository
 	AuditTrail          *AuditTrailRepository
 
 	// Perawatan Anak (Lembar Capaian)
-	KategoriCapaian KategoriCapaianRepository
-	Perawatan       PerawatanRepository
+	// KategoriCapaian KategoriCapaianRepository
+	Perawatan PerawatanRepository
 
 	// Edukasi Digital
 	EdukasiInformasiUmum     EdukasiInformasiUmumRepository
@@ -93,8 +115,8 @@ type Main struct {
 	PemeriksaanRemaja        PemeriksaanRemajaRepository
 	PemeriksaanDewasa        PemeriksaanDewasaRepository
 	PemeriksaanLansia        PemeriksaanLansiaRepository
-	Form							FormRepository // Repository untuk Form (misalnya untuk pertanyaan pemeriksaan)
-	Pemeriksaan   PemeriksaanRepository 
+	Form                     FormRepository // Repository untuk Form (misalnya untuk pertanyaan pemeriksaan)
+	Pemeriksaan              PemeriksaanRepository
 }
 
 type Options struct {
@@ -115,6 +137,7 @@ func Init(opts Options) *Main {
 	// New repositories
 	m.User = NewUserRepository(opts.Postgres)
 	m.Ibu = NewIbuRepository(opts.Postgres)
+	m.ChecklistPemantauanIbuNifas = NewChecklistPemantauanIbuNifasRepository(opts.Postgres)
 	m.Role = NewRoleRepository(opts.Postgres)
 	m.Desa = NewDesaRepository(opts.Postgres)
 	m.KartuKeluarga = NewKartuKeluargaRepository(opts.Postgres)
@@ -140,6 +163,8 @@ func Init(opts Options) *Main {
 	m.RencanaPersalinan = NewRencanaPersalinanRepository(opts.Postgres)
 	m.RingkasanPelayananPersalinan = NewRingkasanPelayananPersalinanRepository(opts.Postgres)
 	m.KeteranganLahir = NewKeteranganLahirRepository(opts.Postgres) // <-- TAMBAHKAN INI
+	m.Bbl = NewBblRepository(opts.Postgres)
+	m.LembarPemantauan = NewLembarPemantauanRepository(opts.Postgres)
 	m.RiwayatProsesMelahirkan = NewRiwayatProsesMelahirkanRepository(opts.Postgres)
 	m.PelayananIbuNifas = NewPelayananIbuNifasRepository(opts.Postgres)
 	m.CatatanPelayananNifas = NewCatatanPelayananNifasRepository(opts.Postgres)
@@ -153,6 +178,11 @@ func Init(opts Options) *Main {
 	m.PemantauanPertumbuhan = NewPemantauanPertumbuhanRepository(opts.Postgres)
 	m.PengukuranLilA = NewPengukuranLilaRepository(opts.Postgres)
 	m.CatatanPelayanan = NewCatatanPelayananRepository(opts.Postgres)
+	m.InformasiUmum = NewInformasiUmumRepository(opts.Postgres)
+	m.EdukasiMPASI = NewEdukasiMPASIRepository(opts.Postgres)
+	m.JenisPelayanan = NewJenisPelayananRepository(opts.Postgres)
+	m.Perawatan = NewPerawatanRepository(opts.Postgres)
+	m.KeluhanAnak = NewKeluhanAnakRepository(opts.Postgres)
 	m.KategoriTandaBahaya = NewKategoriTandaBahayaRepository(opts.Postgres)
 	// m.SkriningPemantauan = NewSkriningPemantauanRepository(opts.Postgres)
 	m.JenisPelayanan = NewJenisPelayananRepository(opts.Postgres)
@@ -167,7 +197,7 @@ func Init(opts Options) *Main {
 	m.AuditTrail = NewAuditTrailRepository(opts.Postgres)
 
 	// Perawatan Anak (Lembar Capaian)
-	m.KategoriCapaian = NewKategoriCapaianRepository(opts.Postgres)
+	// m.KategoriCapaian = NewKategoriCapaianRepository(opts.Postgres)
 	m.Perawatan = NewPerawatanRepository(opts.Postgres)
 
 	// Edukasi Digital
@@ -193,10 +223,39 @@ func Init(opts Options) *Main {
 	m.PemeriksaanDewasa = NewPemeriksaanDewasaRepository(opts.Postgres)
 	m.PemeriksaanLansia = NewPemeriksaanLansiaRepository(opts.Postgres)
 	m.Form = NewFormRepository(opts.Postgres) // Inisialisasi FormRepository dengan database yang sesuai
-	 m.Pemeriksaan = NewPemeriksaanRepository(opts.Postgres)
+	m.Pemeriksaan = NewPemeriksaanRepository(opts.Postgres)
+	return m
+
+	// MODUL IBU
+	m.LogTTDMMS = NewLogTTDMMSRepository(opts.Postgres)
+	m.PemantauanIbuHamil = NewPemantauanIbuHamilRepository(opts.Postgres)
+	m.PersiapanMelahirkan = NewPersiapanMelahirkanRepository(opts.Postgres)
+	m.ProsesMelahirkan = NewProsesMelahirkanRepository(opts.Postgres)
+	m.AbsensiKelasIbuHamil = NewAbsensiKelasIbuHamilRepository(opts.Postgres)
+	m.AbsensiKelasIbuBalita = NewAbsensiKelasIbuBalitaRepository(opts.Postgres)
+	m.WarnaTinja = NewWarnaTinjaRepository(opts.Postgres)
+
+	m.EdukasiIMD = NewEdukasiIMDRepository(opts.Postgres)
+	m.EdukasiKesehatanMental = NewEdukasiKesehatanMentalRepository(opts.Postgres)
+	m.EdukasiMenyusuiASI = NewEdukasiMenyusuiASIRepository(opts.Postgres)
+	// m.EdukasiNifas = NewEdukasiNifasRepository(opts.Postgres)
+	m.EdukasiTandaMelahirkan = NewEdukasiTandaMelahirkanRepository(opts.Postgres)
+	m.EdukasiTrimester = NewEdukasiTrimesterRepository(opts.Postgres)
 	return m
 }
 
-func (m *Main) DB() *gorm.DB {
-	return m.postgres
-}
+// func (m *Main) GetStandarAntropometri(gender int, usia string, indikator string) (*models.MasterStandarAntropometri, error) {
+//     return nil, nil
+// }
+
+// func (m *Main) GetMasterStandarByFilter(jenisKelamin string, usiaBulan int, indikator string) (*models.MasterStandarAntropometri, error) {
+//     return nil, nil
+// }
+
+// func (m *Main) GetStandarAntropometri(indikator string, jenisKelamin string, nilaiPengukuran float64) (*models.MasterStandarAntropometri, error) {
+// 	return nil, nil
+// }
+
+// func (m *Main) GetMasterStandarByFilter(indikator string, jenisKelamin string) ([]models.MasterStandarAntropometri, error) {
+// 	return nil, nil
+// }

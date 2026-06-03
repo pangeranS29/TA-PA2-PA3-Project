@@ -19,6 +19,8 @@ require (
 	gorm.io/gorm v1.31.1
 )
 
+require github.com/lib/pq v1.12.3
+
 require (
 	filippo.io/edwards25519 v1.1.0 // indirect
 	github.com/diegoholiveira/jsonlogic v2.3.1+incompatible // indirect

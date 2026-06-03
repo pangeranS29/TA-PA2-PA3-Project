@@ -24,6 +24,8 @@ func (JadwalImunisasiAnak) TableName() string {
 	return "jadwal_imunisasi_anak"
 }
 
+// TanggalLahir  *time.Time     `json:"tanggal_lahir,omitempty" gorm:"column:tanggal_lahir;type:date"`
+
 type JadwalImunisasiResponse struct {
 	AnakID         int32                 `json:"anak_id"`
 	NamaAnak       string                `json:"nama_anak"`

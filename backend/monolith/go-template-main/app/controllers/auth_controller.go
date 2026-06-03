@@ -63,6 +63,14 @@ func (m *Main) Login(c echo.Context) error {
 		m.recordAuthAudit(c, "LOGIN_FAILED", false, identifier, "", nil, statusCode, err.Error())
 		return helpers.Response(c, statusCode, []string{err.Error()})
 	}
+	if req.FcmToken != "" {
+
+		tokenReq := &models.TokenRequest{
+			PenggunaID: uint(data.UserID),
+			FcmToken:   req.FcmToken,
+		}
+		_ = m.usecases.SaveFCMToken(tokenReq)
+	}
 
 	userID := data.UserID
 	actorIdentifier := data.Email

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:ta_pa2_pa3_project/features/auth/data/datasources/auth_api_service.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:ta_pa2_pa3_project/core/services/auth_session.dart';
+import 'package:ta_pa2_pa3_project/features/auth/data/datasources/auth_api_services.dart';
 import 'package:ta_pa2_pa3_project/features/dashboard/presentation/screens/dashboard_screen.dart';
+import 'package:ta_pa2_pa3_project/features/kader/presentation/dashboard_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -34,15 +37,40 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     try {
+      String? deviceFcmToken;
+      // try {
+      //   deviceFcmToken = await FirebaseMessaging.instance.getToken();
+      //   debugPrint("Berhasil mendapatkan FCM Token: $deviceFcmToken");
+      // } catch (e) {
+      //   debugPrint("Gagal mendapatkan FCM Token: $e");
+      // }
+      try {
+        deviceFcmToken = await FirebaseMessaging.instance
+            .getToken()
+            .timeout(const Duration(seconds: 5));
+        debugPrint("Berhasil mendapatkan FCM Token: $deviceFcmToken");
+      } catch (e) {
+        debugPrint("Gagal mendapatkan FCM Token (skip): $e");
+      }
+
       await _service.login(
         identifier: _identifierController.text.trim(),
         password: _passwordController.text,
+        fcmToken: deviceFcmToken,
       );
 
       if (!mounted) return;
-
+// AMBIL ROLE DARI SESSION YANG BARU DISIMPAN
+      final role = AuthSession.role?.toLowerCase();
+      Widget destination;
+      if (role == 'kader') {
+        destination =
+            const DashboardKaderScreen(); // Arahkan ke dashboard kader
+      } else {
+        destination = const DashboardScreen(); // Default ke dashboard ibu
+      }
       Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => DashboardScreen()),
+        MaterialPageRoute(builder: (_) => destination),
         (route) => false,
       );
     } catch (e) {
@@ -136,7 +164,9 @@ class _LoginScreenState extends State<LoginScreen> {
                               });
                             },
                             icon: Icon(
-                              _obscure ? Icons.visibility_off : Icons.visibility,
+                              _obscure
+                                  ? Icons.visibility_off
+                                  : Icons.visibility,
                             ),
                           ),
                         ),
@@ -156,7 +186,8 @@ class _LoginScreenState extends State<LoginScreen> {
                               ? const SizedBox(
                                   width: 20,
                                   height: 20,
-                                  child: CircularProgressIndicator(strokeWidth: 2),
+                                  child:
+                                      CircularProgressIndicator(strokeWidth: 2),
                                 )
                               : const Text('Login'),
                         ),

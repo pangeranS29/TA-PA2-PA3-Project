@@ -10,12 +10,10 @@ import {
 import { getAnakById } from "../../services/Anak";
 import {
   ChevronLeft, Plus, Trash2, Calendar, Scale, Ruler,
-  Info, Pencil, TrendingUp,
+  Info, Pencil, TrendingUp, Target, Heart,
 } from "lucide-react";
-import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
-  ResponsiveContainer,
-} from "recharts";
+import { GrowthStatusCard, GrowthSummary } from "./components/GrowthStatusCard";
+import { GrowthChart } from "./components/GrowthChart";
 
 export default function PertumbuhanIndex() {
   const { id } = useParams();
@@ -184,7 +182,7 @@ export default function PertumbuhanIndex() {
 
             {/* Grafik */}
             <div className="xl:col-span-2 bg-white rounded-3xl border border-gray-100 shadow-sm p-6 space-y-4">
-              <div className="flex items-center justify-between flex-wrap gap-3">
+              <div className="flex items-center justify-between flex-wrap gap-3 mb-4">
                 <h3 className="text-base font-extrabold text-gray-900 flex items-center gap-2">
                   <TrendingUp size={18} className="text-indigo-500" /> Grafik Pertumbuhan
                 </h3>
@@ -204,75 +202,61 @@ export default function PertumbuhanIndex() {
                 </div>
               </div>
 
-              {chartData.length > 0 ? (
-                <ResponsiveContainer width="100%" height={280}>
-                  <LineChart data={chartData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                    <XAxis dataKey="bulan" tick={{ fontSize: 10, fontWeight: 700, fill: "#9ca3af" }} />
-                    <YAxis tick={{ fontSize: 10, fontWeight: 700, fill: "#9ca3af" }} />
-                    <Tooltip
-                      contentStyle={{ borderRadius: 16, border: "none", boxShadow: "0 4px 24px rgba(0,0,0,0.08)", fontSize: 12 }}
-                      formatter={(v) => [`${v} ${chartConfig[activeChart].unit}`, chartConfig[activeChart].label]}
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey={activeChart}
-                      stroke={chartConfig[activeChart].color}
-                      strokeWidth={3}
-                      dot={{ r: 5, fill: chartConfig[activeChart].color, strokeWidth: 2, stroke: "#fff" }}
-                      activeDot={{ r: 7 }}
-                      connectNulls
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              ) : (
-                <div className="h-[280px] flex items-center justify-center text-gray-300 font-medium italic">
-                  Belum ada data untuk ditampilkan
-                </div>
-              )}
-
-              <div className="flex flex-wrap gap-3 pt-2 border-t border-gray-50">
-                {Object.entries(chartConfig).map(([key, cfg]) => (
-                  <div key={key} className="flex items-center gap-1.5">
-                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: cfg.color }} />
-                    <span className="text-[10px] font-bold text-gray-500">{cfg.label}</span>
-                  </div>
-                ))}
-              </div>
+              <GrowthChart 
+                data={chartData}
+                activeChart={activeChart}
+                chartConfig={chartConfig}
+                onChartChange={setActiveChart}
+              />
             </div>
 
-            {/* Panel kanan */}
+            {/* Panel kanan - Ringkasan & Status */}
             <div className="space-y-4">
-              <div className="bg-gradient-to-br from-indigo-600 to-indigo-700 p-5 rounded-3xl text-white shadow-xl shadow-indigo-100 relative overflow-hidden">
-                <div className="absolute -bottom-4 -right-4 bg-white/10 w-24 h-24 rounded-full blur-2xl" />
-                <p className="text-[10px] font-bold uppercase tracking-widest opacity-70 mb-3">Pengukuran Terakhir</p>
-                <div className="grid grid-cols-2 gap-3">
-                  <MiniStat label="BB"   value={lastData?.berat_badan    ?? "-"} unit="kg" />
-                  <MiniStat label="TB"   value={lastData?.tinggi_badan   ?? "-"} unit="cm" />
-                  <MiniStat label="LILA" value={lastData?.hasil_lila     || "-"} unit="cm" />
-                  <MiniStat label="LK"   value={lastData?.lingkar_kepala || "-"} unit="cm" />
-                </div>
-              </div>
+              {/* Ringkasan Status */}
+              <GrowthSummary 
+                lastStatus={lastStatus}
+                lastData={lastData}
+                anak={anak}
+              />
 
+              {/* Pengukuran Terakhir */}
               <div className="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm">
-                <h4 className="text-xs font-black text-gray-700 uppercase tracking-widest mb-3 flex items-center gap-2">
-                  <Info size={14} className="text-indigo-500" /> Status Gizi Terakhir
-                </h4>
-                <div className="space-y-2">
-                  {[
-                    { label: "BB/U",  val: lastStatus.statusBBU  },
-                    { label: "TB/U",  val: lastStatus.statusTBU  },
-                    { label: "BB/TB", val: lastStatus.statusBBTB },
-                  ].map(({ label, val }) => (
-                    <div key={label} className="flex items-center justify-between">
-                      <span className="text-[10px] font-black text-gray-400 uppercase">{label}</span>
-                      <StatusBadge status={val} />
-                    </div>
-                  ))}
+                <p className="text-xs font-black text-gray-600 uppercase tracking-widest mb-4 flex items-center gap-2">
+                  <Scale size={14} className="text-indigo-500" /> Pengukuran Terakhir
+                </p>
+                <div className="grid grid-cols-2 gap-3">
+                  <MiniStat label="BB"   value={lastData?.berat_badan    ?? "-"} unit="kg" color="indigo" />
+                  <MiniStat label="TB"   value={lastData?.tinggi_badan   ?? "-"} unit="cm" color="purple" />
+                  <MiniStat label="LILA" value={lastData?.hasil_lila     || "-"} unit="cm" color="amber" />
+                  <MiniStat label="LK"   value={lastData?.lingkar_kepala || "-"} unit="cm" color="emerald" />
                 </div>
               </div>
             </div>
           </div>
+
+          {/* ── DETAIL STATUS GIZI LENGKAP ── */}
+          {lastData && (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <GrowthStatusCard 
+                status={lastStatus.statusBBU}
+                label="Berat Badan / Usia (BB/U)"
+                zScore={lastData.z_score_bb_u || lastData.zScoreBBU}
+                description="Menunjukkan status berat badan anak dibandingkan dengan standar usia"
+              />
+              <GrowthStatusCard 
+                status={lastStatus.statusTBU}
+                label="Tinggi Badan / Usia (TB/U)"
+                zScore={lastData.z_score_tb_u || lastData.zScoreTBU}
+                description="Menunjukkan pertumbuhan tinggi badan anak sesuai usia"
+              />
+              <GrowthStatusCard 
+                status={lastStatus.statusBBTB}
+                label="Berat Badan / Tinggi Badan (BB/TB)"
+                zScore={lastData.z_score_bb_tb || lastData.zScoreBBTB}
+                description="Menunjukkan proporsi berat badan terhadap tinggi badan"
+              />
+            </div>
+          )}
 
           {/* ── TABEL RIWAYAT ── */}
           <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
@@ -565,10 +549,17 @@ function StatusBadge({ status }) {
   return <span className={`px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-tight ${cls}`}>{status}</span>;
 }
 
-function MiniStat({ label, value, unit }) {
+function MiniStat({ label, value, unit, color = 'indigo' }) {
+  const colorMap = {
+    indigo: 'bg-indigo-50 text-indigo-700',
+    purple: 'bg-purple-50 text-purple-700',
+    amber: 'bg-amber-50 text-amber-700',
+    emerald: 'bg-emerald-50 text-emerald-700',
+  };
+
   return (
-    <div className="bg-white/10 rounded-2xl p-3">
-      <p className="text-[9px] font-black uppercase tracking-widest opacity-60">{label}</p>
+    <div className={`${colorMap[color]} rounded-xl p-3 text-center`}>
+      <p className="text-[9px] font-black uppercase tracking-widest opacity-70">{label}</p>
       <p className="text-lg font-black">
         {value} <span className="text-[10px] opacity-60">{unit}</span>
       </p>

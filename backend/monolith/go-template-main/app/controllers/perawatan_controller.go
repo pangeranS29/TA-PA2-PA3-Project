@@ -1,189 +1,304 @@
 package controllers
 
 import (
-	"monitoring-service/app/models"
-	"monitoring-service/app/usecases"
 	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/labstack/echo/v4"
+
+	"monitoring-service/app/constants"
+	"monitoring-service/app/helpers"
+	"monitoring-service/app/models"
+	"monitoring-service/pkg/customerror"
 )
 
 // ─────────────────────────────────────────────────────────
-// KATEGORI CAPAIAN CONTROLLER
+// PERAWATAN ENDPOINTS
 // ─────────────────────────────────────────────────────────
 
-type KategoriCapaianController struct {
-	useCase usecases.KategoriCapaianUsecase
+// CreatePerawatan handles POST /perawatan to create a new perawatan record
+// @Summary Create a new perawatan
+// @Description Create a new perawatan milestone/achievement record for a child
+// @Tags Perawatan
+// @Accept json
+// @Produce json
+// @Param request body models.CreatePerawatanRequest true "Perawatan request"
+// @Router /perawatan [post]
+func (m *Main) CreatePerawatan(c echo.Context) error {
+	var req models.CreatePerawatanRequest
+	if err := c.Bind(&req); err != nil {
+		return helpers.Response(c, http.StatusBadRequest, []string{"format request tidak valid"})
+	}
+
+	// Get auth claims for access control
+	var data *models.Perawatan
+	var usecaseErr error
+
+	claims, ok := c.Get("auth_claims").(*models.AuthClaims)
+	if ok && claims != nil && claims.Role == "ibu" {
+		// For ibu, use access control method
+		data, usecaseErr = m.usecases.Perawatan.CreatePerawatanForIbu(req, claims.UserID)
+	} else {
+		// For nakes, use regular method
+		data, usecaseErr = m.usecases.Perawatan.CreatePerawatan(req)
+	}
+
+	if usecaseErr != nil {
+		return helpers.Response(c, customerror.GetStatusCode(usecaseErr), []string{usecaseErr.Error()})
+	}
+
+	return helpers.StandardResponse(
+		c,
+		http.StatusCreated,
+		[]string{constants.SUCCESS_RESPONSE_MESSAGE},
+		data,
+		nil,
+	)
 }
 
-func NewKategoriCapaianController(useCase usecases.KategoriCapaianUsecase) *KategoriCapaianController {
-	return &KategoriCapaianController{useCase}
+// GetPerawatanByID handles GET /perawatan/:id to retrieve a single perawatan
+// @Summary Get perawatan by ID
+// @Description Retrieve a specific perawatan record by ID
+// @Tags Perawatan
+// @Produce json
+// @Param id path int true "Perawatan ID"
+// @Router /perawatan/:id [get]
+func (m *Main) GetPerawatanByID(c echo.Context) error {
+	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil || id == 0 {
+		return helpers.Response(c, http.StatusBadRequest, []string{"id tidak valid"})
+	}
+
+	data, usecaseErr := m.usecases.Perawatan.GetPerawatanByID(uint(id))
+	if usecaseErr != nil {
+		return helpers.Response(c, customerror.GetStatusCode(usecaseErr), []string{usecaseErr.Error()})
+	}
+
+	return helpers.StandardResponse(
+		c,
+		http.StatusOK,
+		[]string{constants.SUCCESS_RESPONSE_MESSAGE},
+		data,
+		nil,
+	)
 }
 
-func (c *KategoriCapaianController) GetAll(ctx echo.Context) error {
-	// Support filter by rentang_usia query param
-	rentang := ctx.QueryParam("rentang_usia")
-	if rentang != "" {
-		data, err := c.useCase.GetByRentangUsia(rentang)
-		if err != nil {
-			return ctx.JSON(http.StatusInternalServerError, models.Response{StatusCode: http.StatusInternalServerError, Message: err.Error()})
-		}
-		return ctx.JSON(http.StatusOK, models.Response{StatusCode: http.StatusOK, Data: data})
+// GetPerawatanByAnakID handles GET /perawatan/anak/:anak_id to retrieve all perawatan for a child
+// @Summary Get all perawatan for a child
+// @Description Retrieve all perawatan records for a specific child
+// @Tags Perawatan
+// @Produce json
+// @Param anak_id path int true "Child ID"
+// @Router /perawatan/anak/:anak_id [get]
+func (m *Main) GetPerawatanByAnakID(c echo.Context) error {
+	anakID, err := strconv.Atoi(c.Param("anak_id"))
+	if err != nil || anakID <= 0 {
+		return helpers.Response(c, http.StatusBadRequest, []string{"anak_id tidak valid"})
 	}
 
-	data, err := c.useCase.GetAll()
-	if err != nil {
-		return ctx.JSON(http.StatusInternalServerError, models.Response{StatusCode: http.StatusInternalServerError, Message: err.Error()})
+	// Get auth claims for access control
+	var data interface{}
+	var usecaseErr error
+
+	claims, ok := c.Get("auth_claims").(*models.AuthClaims)
+	if ok && claims != nil && claims.Role == "ibu" {
+		// For ibu, use access control method
+		data, usecaseErr = m.usecases.Perawatan.GetPerawatanByAnakIDForIbu(int32(anakID), claims.UserID)
+	} else {
+		// For nakes, use regular method
+		data, usecaseErr = m.usecases.Perawatan.GetPerawatanByAnakID(int32(anakID))
 	}
-	return ctx.JSON(http.StatusOK, models.Response{StatusCode: http.StatusOK, Data: data})
+
+	if usecaseErr != nil {
+		return helpers.Response(c, customerror.GetStatusCode(usecaseErr), []string{usecaseErr.Error()})
+	}
+
+	return helpers.StandardResponse(
+		c,
+		http.StatusOK,
+		[]string{constants.SUCCESS_RESPONSE_MESSAGE},
+		data,
+		nil,
+	)
 }
 
-func (c *KategoriCapaianController) GetByID(ctx echo.Context) error {
-	id, _ := strconv.Atoi(ctx.Param("id"))
-	data, err := c.useCase.GetByID(uint(id))
-	if err != nil {
-		return ctx.JSON(http.StatusNotFound, models.Response{StatusCode: http.StatusNotFound, Message: err.Error()})
+// GetPerawatanByAnakIDAndRentangUsia handles GET /perawatan/anak/:anak_id/rentang-usia/:rentang_usia
+// @Summary Get perawatan for a child by age range
+// @Description Retrieve perawatan records for a specific child within a specific age range
+// @Tags Perawatan
+// @Produce json
+// @Param anak_id path int true "Child ID"
+// @Param rentang_usia path string true "Age range (e.g., 0-12 Bulan, 1-2 Tahun)"
+// @Router /perawatan/anak/:anak_id/rentang-usia/:rentang_usia [get]
+func (m *Main) GetPerawatanByAnakIDAndRentangUsia(c echo.Context) error {
+	anakID, err := strconv.Atoi(c.Param("anak_id"))
+	if err != nil || anakID <= 0 {
+		return helpers.Response(c, http.StatusBadRequest, []string{"anak_id tidak valid"})
 	}
-	return ctx.JSON(http.StatusOK, models.Response{StatusCode: http.StatusOK, Data: data})
+
+	rentangUsia := c.Param("rentang_usia")
+	if rentangUsia == "" {
+		return helpers.Response(c, http.StatusBadRequest, []string{"rentang_usia tidak boleh kosong"})
+	}
+
+	// Get auth claims for access control
+	var data interface{}
+	var usecaseErr error
+
+	claims, ok := c.Get("auth_claims").(*models.AuthClaims)
+	if ok && claims != nil && claims.Role == "ibu" {
+		// For ibu, use access control method
+		data, usecaseErr = m.usecases.Perawatan.GetPerawatanByAnakIDAndRentangUsiaForIbu(int32(anakID), rentangUsia, claims.UserID)
+	} else {
+		// For nakes, use regular method
+		data, usecaseErr = m.usecases.Perawatan.GetPerawatanByAnakIDAndRentangUsia(int32(anakID), rentangUsia)
+	}
+
+	if usecaseErr != nil {
+		return helpers.Response(c, customerror.GetStatusCode(usecaseErr), []string{usecaseErr.Error()})
+	}
+
+	return helpers.StandardResponse(
+		c,
+		http.StatusOK,
+		[]string{constants.SUCCESS_RESPONSE_MESSAGE},
+		data,
+		nil,
+	)
 }
 
-func (c *KategoriCapaianController) Create(ctx echo.Context) error {
-	var data models.KategoriCapaian
-	if err := ctx.Bind(&data); err != nil {
-		return ctx.JSON(http.StatusBadRequest, models.Response{StatusCode: http.StatusBadRequest, Message: err.Error()})
+// UpdatePerawatan handles PUT /perawatan/:id to update an existing perawatan
+// @Summary Update perawatan
+// @Description Update an existing perawatan record
+// @Tags Perawatan
+// @Accept json
+// @Produce json
+// @Param id path int true "Perawatan ID"
+// @Param request body models.UpdatePerawatanRequest true "Perawatan update request"
+// @Router /perawatan/:id [put]
+func (m *Main) UpdatePerawatan(c echo.Context) error {
+	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil || id == 0 {
+		return helpers.Response(c, http.StatusBadRequest, []string{"id tidak valid"})
 	}
-	if err := c.useCase.Create(&data); err != nil {
-		return ctx.JSON(http.StatusInternalServerError, models.Response{StatusCode: http.StatusInternalServerError, Message: err.Error()})
+
+	var req models.UpdatePerawatanRequest
+	if bindErr := c.Bind(&req); bindErr != nil {
+		return helpers.Response(c, http.StatusBadRequest, []string{"format request tidak valid"})
 	}
-	return ctx.JSON(http.StatusCreated, models.Response{StatusCode: http.StatusCreated, Data: data})
+
+	// Get auth claims for access control
+	var data *models.Perawatan
+	var usecaseErr error
+
+	claims, ok := c.Get("auth_claims").(*models.AuthClaims)
+	if ok && claims != nil && claims.Role == "ibu" {
+		// For ibu, use access control method
+		data, usecaseErr = m.usecases.Perawatan.UpdatePerawatanForIbu(uint(id), req, claims.UserID)
+	} else {
+		// For nakes, use regular method
+		data, usecaseErr = m.usecases.Perawatan.UpdatePerawatan(uint(id), req)
+	}
+
+	if usecaseErr != nil {
+		return helpers.Response(c, customerror.GetStatusCode(usecaseErr), []string{usecaseErr.Error()})
+	}
+
+	return helpers.StandardResponse(
+		c,
+		http.StatusOK,
+		[]string{constants.SUCCESS_RESPONSE_MESSAGE},
+		data,
+		nil,
+	)
 }
 
-func (c *KategoriCapaianController) Update(ctx echo.Context) error {
-	id, _ := strconv.Atoi(ctx.Param("id"))
-	var data models.KategoriCapaian
-	if err := ctx.Bind(&data); err != nil {
-		return ctx.JSON(http.StatusBadRequest, models.Response{StatusCode: http.StatusBadRequest, Message: err.Error()})
+// DeletePerawatan handles DELETE /perawatan/:id to delete a perawatan
+// @Summary Delete perawatan
+// @Description Delete (soft delete) a perawatan record
+// @Tags Perawatan
+// @Produce json
+// @Param id path int true "Perawatan ID"
+// @Router /perawatan/:id [delete]
+func (m *Main) DeletePerawatan(c echo.Context) error {
+	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil || id == 0 {
+		return helpers.Response(c, http.StatusBadRequest, []string{"id tidak valid"})
 	}
-	if err := c.useCase.Update(uint(id), &data); err != nil {
-		return ctx.JSON(http.StatusInternalServerError, models.Response{StatusCode: http.StatusInternalServerError, Message: err.Error()})
-	}
-	return ctx.JSON(http.StatusOK, models.Response{StatusCode: http.StatusOK, Data: data})
-}
 
-func (c *KategoriCapaianController) Delete(ctx echo.Context) error {
-	id, _ := strconv.Atoi(ctx.Param("id"))
-	if err := c.useCase.Delete(uint(id)); err != nil {
-		return ctx.JSON(http.StatusInternalServerError, models.Response{StatusCode: http.StatusInternalServerError, Message: err.Error()})
+	// Get auth claims for access control
+	var usecaseErr error
+
+	claims, ok := c.Get("auth_claims").(*models.AuthClaims)
+	if ok && claims != nil && claims.Role == "ibu" {
+		// For ibu, use access control method
+		usecaseErr = m.usecases.Perawatan.DeletePerawatanForIbu(uint(id), claims.UserID)
+	} else {
+		// For nakes, use regular method
+		usecaseErr = m.usecases.Perawatan.DeletePerawatan(uint(id))
 	}
-	return ctx.JSON(http.StatusOK, models.Response{StatusCode: http.StatusOK, Message: "Deleted"})
+
+	if usecaseErr != nil {
+		return helpers.Response(c, customerror.GetStatusCode(usecaseErr), []string{usecaseErr.Error()})
+	}
+
+	return helpers.StandardResponse(
+		c,
+		http.StatusOK,
+		[]string{constants.SUCCESS_RESPONSE_MESSAGE},
+		map[string]string{"message": "perawatan berhasil dihapus"},
+		nil,
+	)
 }
 
 // ─────────────────────────────────────────────────────────
-// PERAWATAN CONTROLLER
+// KATEGORI CAPAIAN ENDPOINTS
 // ─────────────────────────────────────────────────────────
 
-type PerawatanController struct {
-	useCase usecases.PerawatanUsecase
+// GetAllKategoriCapaian handles GET /kategori-capaian to retrieve all milestone categories
+// @Summary Get all milestone categories
+// @Description Retrieve all kategori capaian (milestone categories) sorted by age range
+// @Tags KategoriCapaian
+// @Produce json
+// @Router /kategori-capaian [get]
+func (m *Main) GetAllKategoriCapaian(c echo.Context) error {
+	data, usecaseErr := m.usecases.Perawatan.GetAllKategoriCapaian()
+	if usecaseErr != nil {
+		return helpers.Response(c, customerror.GetStatusCode(usecaseErr), []string{usecaseErr.Error()})
+	}
+
+	return helpers.StandardResponse(
+		c,
+		http.StatusOK,
+		[]string{constants.SUCCESS_RESPONSE_MESSAGE},
+		data,
+		nil,
+	)
 }
 
-func NewPerawatanController(useCase usecases.PerawatanUsecase) *PerawatanController {
-	return &PerawatanController{useCase}
-}
-
-func (c *PerawatanController) GetByAnakID(ctx echo.Context) error {
-	anakIDStr := ctx.QueryParam("anak_id")
-	if anakIDStr == "" {
-		return ctx.JSON(http.StatusBadRequest, models.Response{StatusCode: http.StatusBadRequest, Message: "anak_id is required"})
-	}
-	anakID, err := strconv.Atoi(anakIDStr)
-	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, models.Response{StatusCode: http.StatusBadRequest, Message: "anak_id must be a number"})
-	}
-	data, err := c.useCase.GetByAnakID(int32(anakID))
-	if err != nil {
-		return ctx.JSON(http.StatusInternalServerError, models.Response{StatusCode: http.StatusInternalServerError, Message: err.Error()})
-	}
-	return ctx.JSON(http.StatusOK, models.Response{StatusCode: http.StatusOK, Data: data})
-}
-
-func (c *PerawatanController) GetByID(ctx echo.Context) error {
-	id, _ := strconv.Atoi(ctx.Param("id"))
-	data, err := c.useCase.GetByID(uint(id))
-	if err != nil {
-		return ctx.JSON(http.StatusNotFound, models.Response{StatusCode: http.StatusNotFound, Message: err.Error()})
-	}
-	return ctx.JSON(http.StatusOK, models.Response{StatusCode: http.StatusOK, Data: data})
-}
-
-// createPerawatanRequest adalah body request untuk POST /perawatan
-type createPerawatanRequest struct {
-	AnakID            int32  `json:"anak_id"`
-	KategoriCapaianID uint   `json:"kategori_capaian_id"`
-	Jawaban           *bool  `json:"jawaban"`
-	TanggalPeriksa    string `json:"tanggal_periksa"`
-}
-
-func (c *PerawatanController) Create(ctx echo.Context) error {
-	var req createPerawatanRequest
-	if err := ctx.Bind(&req); err != nil {
-		return ctx.JSON(http.StatusBadRequest, models.Response{StatusCode: http.StatusBadRequest, Message: err.Error()})
+// GetKategoriCapaianByRentangUsia handles GET /kategori-capaian/rentang-usia/:rentang_usia
+// @Summary Get milestone categories by age range
+// @Description Retrieve kategori capaian for a specific age range
+// @Tags KategoriCapaian
+// @Produce json
+// @Param rentang_usia path string true "Age range (e.g., 0-12 Bulan, 1-2 Tahun)"
+// @Router /kategori-capaian/rentang-usia/:rentang_usia [get]
+func (m *Main) GetKategoriCapaianByRentangUsia(c echo.Context) error {
+	rentangUsia := c.Param("rentang_usia")
+	if rentangUsia == "" {
+		return helpers.Response(c, http.StatusBadRequest, []string{"rentang_usia tidak boleh kosong"})
 	}
 
-	data := &models.Perawatan{
-		AnakID:            req.AnakID,
-		KategoriCapaianID: req.KategoriCapaianID,
-		Jawaban:           req.Jawaban,
+	data, usecaseErr := m.usecases.Perawatan.GetKategoriCapaianByRentangUsia(rentangUsia)
+	if usecaseErr != nil {
+		return helpers.Response(c, customerror.GetStatusCode(usecaseErr), []string{usecaseErr.Error()})
 	}
 
-	if req.TanggalPeriksa != "" {
-		t, err := time.Parse("2006-01-02", req.TanggalPeriksa)
-		if err == nil {
-			data.TanggalPeriksa = &t
-		}
-	}
-
-	if err := c.useCase.Create(data); err != nil {
-		return ctx.JSON(http.StatusInternalServerError, models.Response{StatusCode: http.StatusInternalServerError, Message: err.Error()})
-	}
-	return ctx.JSON(http.StatusCreated, models.Response{StatusCode: http.StatusCreated, Data: data})
-}
-
-// updatePerawatanRequest adalah body request untuk PUT /perawatan/:id
-type updatePerawatanRequest struct {
-	Jawaban        *bool  `json:"jawaban"`
-	TanggalPeriksa string `json:"tanggal_periksa"`
-}
-
-func (c *PerawatanController) Update(ctx echo.Context) error {
-	id, _ := strconv.Atoi(ctx.Param("id"))
-	var req updatePerawatanRequest
-	if err := ctx.Bind(&req); err != nil {
-		return ctx.JSON(http.StatusBadRequest, models.Response{StatusCode: http.StatusBadRequest, Message: err.Error()})
-	}
-
-	data := &models.Perawatan{
-		Jawaban: req.Jawaban,
-	}
-
-	if req.TanggalPeriksa != "" {
-		t, err := time.Parse("2006-01-02", req.TanggalPeriksa)
-		if err == nil {
-			data.TanggalPeriksa = &t
-		}
-	}
-
-	if err := c.useCase.Update(uint(id), data); err != nil {
-		return ctx.JSON(http.StatusInternalServerError, models.Response{StatusCode: http.StatusInternalServerError, Message: err.Error()})
-	}
-	return ctx.JSON(http.StatusOK, models.Response{StatusCode: http.StatusOK, Data: data})
-}
-
-func (c *PerawatanController) Delete(ctx echo.Context) error {
-	id, _ := strconv.Atoi(ctx.Param("id"))
-	if err := c.useCase.Delete(uint(id)); err != nil {
-		return ctx.JSON(http.StatusInternalServerError, models.Response{StatusCode: http.StatusInternalServerError, Message: err.Error()})
-	}
-	return ctx.JSON(http.StatusOK, models.Response{StatusCode: http.StatusOK, Message: "Deleted"})
+	return helpers.StandardResponse(
+		c,
+		http.StatusOK,
+		[]string{constants.SUCCESS_RESPONSE_MESSAGE},
+		data,
+		nil,
+	)
 }

@@ -1,134 +1,176 @@
 package models
 
-import (
-	"gorm.io/gorm"
-)
+import "gorm.io/gorm"
 
 func AutoMigrate(db *gorm.DB) error {
-	// Semua model dalam satu slice
+	// Semua model database dalam satu slice
 	models := []interface{}{
-		// Master
-		&KartuKeluarga{},
-		&Desa{},
-		&Kependudukan{},
+		// ==================== MASTER DATA ====================
 		&Role{},
 		&User{},
-		&AuditTrail{},
-		&Ibu{},
-		&Kehamilan{},
-		&Anak{},
+		&Desa{},
+		&KartuKeluarga{},
+		&Kependudukan{},
 		&Bidan{},
 		&Kader{},
+		&KaderPosyandu{},
+		&Posyandu{},
+
+		// ==================== ANAK & PERTUMBUHAN ====================
+		&Anak{},
+		&Pertumbuhan{},
+		&CatatanPertumbuhan{},
+		&RentangUsia{},
+		&KategoriUmur{},
+		&KategoriTandaBahaya{},
+		&KategoriTandaSakit{},
+		&SkriningPemantauan{},
+
+		// ==================== PELAYANAN ANAK ====================
+		&JenisPelayanan{},
+		&JenisPelayananKategori{},
+		&AturanPelayanan{},
+		&KunjunganAnak{},
+		&CatatanPelayanan{},
+
+		// ==================== PELAYANAN KESEHATAN SPESIFIK ANAK ====================
+		&Neonatus{},
+		&DetailPelayananNeonatus{},
+		&PeriodeKunjungan{},
+		&KunjunganGizi{},
+		&KunjunganVitamin{},
+		&DetailPelayananVitamin{},
+		&KunjunganImunisasi{},
+		&DetailPelayananImunisasi{},
+		&KehadiranImunisasi{},
+		&PeriksaGigi{},
+		&ASI{},
+		&MPASI{},
+
+		// ==================== PEMANTAUAN & DETEKSI DINI ANAK ====================
+		&DeteksiDiniPenyimpangan{},
+		&PengukuranLila{},
+		&LembarPemantauan{},
+		&DetailPemantauan{},
+		&Pemeriksaan{},
+		&FormPertanyaan{},
+		&FormAturanRisiko{},
+		&PrediksiStunting{},
+
+		// ==================== PERAWATAN ANAK ====================
+		&KategoriCapaian{},
+		&Perawatan{},
+		&PemantauanIndikator{},
+
+		// ==================== KESEHATAN LINGKUNGAN ====================
+		&KategoriLingkungan{},
+		&IndikatorLingkungan{},
+		&LembarLingkungan{},
+		&DetailLingkungan{},
+
+		// ==================== EDUKASI DIGITAL ====================
+		&InformasiUmum{},
+		&EdukasiInformasiUmum{},
+		&EdukasiTrimester{},
+		&EdukasiTandaMelahirkan{},
+		&EdukasiIMD{},
+		&EdukasiMenyusuiASI{},
+		&EdukasiSetelahMelahirkan{},
+		&EdukasiPolaAsuh{},
+		&EdukasiKesehatanMental{},
+		&EdukasiPerawatanAnak{},
+		&MateriMPASI{},
+		&AturanPorsiMPASI{},
+		&JadwalHarianMPASI{},
+		&ResepMPASI{},
+
+		// ==================== PEMERIKSAAN UMUM (LINTAS USIA) ====================
 		&PemeriksaanAnak{},
 		&PemeriksaanRemaja{},
 		&PemeriksaanDewasa{},
 		&PemeriksaanLansia{},
+		&Perangkat{},
 
-		&KategoriTandaBahaya{},
-		&SkriningPemantauan{},
-		&RentangUsia{},
-		&KategoriTandaSakit{},
-		// &Ibu{},
-		// &KategoriTandaBahaya{},
-		&SkriningPemantauan{},
-		&RentangUsia{},
-		&KategoriTandaSakit{},
-		// &KartuKeluarga{},
-		// &Kependudukan{},
-
-		// Relasi utama
-		// &ibu
+		// ==================== IBU & KEHAMILAN ====================
+		&Ibu{},
 		&Kehamilan{},
-		&Anak{},
-		&Role{},
-		&Desa{},
-		&User{},
-		&Bidan{},
-		&Kader{},
-
-		&Anak{},
-
-		// Evaluasi & riwayat
-		&EvaluasiKesehatanIbu{},
-		&RiwayatKehamilanLalu{},
-
-		// Pelayanan & lainnya
-		&JenisPelayanan{},
-		&JenisPelayananKategori{},
-		&KunjunganAnak{},
-		&AturanPelayanan{},
-		&KunjunganGizi{},
-		&KunjunganVitamin{},
-		&Neonatus{},
-		&DetailPelayananNeonatus{},
-		&DetailPelayananVitamin{},
-		&ASI{},
-		&MPASI{},
-		&CatatanPelayanan{},
-		&KehadiranImunisasi{},
-		&DetailPelayananImunisasi{},
-		&PeriksaGigi{},
-		&DeteksiDiniPenyimpangan{},
-		&PengukuranLila{},
-		&Pertumbuhan{},
-		&LembarPemantauan{},
-		&DetailPemantauan{},
-
-		// Kehamilan detail
 		&PemeriksaanKehamilan{},
+		&EvaluasiKesehatanIbu{},
 		&PemeriksaanDokterTrimester1{},
-		&PemeriksaanLaboratoriumJiwa{},
-		&CatatanPelayananTrimester1{},
-		&SkriningPreeklampsia{},
-		&SkriningDMGestasional{},
-		&CatatanPelayananTrimester2{},
 		&PemeriksaanDokterTrimester3{},
+		&PemeriksaanLaboratoriumJiwa{},
 		&PemeriksaanLanjutanTrimester3{},
+		&CatatanPelayananTrimester1{},
+		&CatatanPelayananTrimester2{},
 		&CatatanPelayananTrimester3{},
 
-		// Grafik & hasil
+		// ==================== SKRINING IBU HAMIL ====================
+		&SkriningPreeklampsia{},
+		&SkriningDMGestasional{},
+
+		// ==================== GRAFIK EVALUASI KEHAMILAN ====================
 		&GrafikEvaluasiKehamilan{},
 		&GrafikPeningkatanBB{},
 		&PenjelasanHasilGrafik{},
 
-		// Persalinan
+		// ==================== RENCANA & PROSES PERSALINAN ====================
 		&RencanaPersalinan{},
 		&RingkasanPelayananPersalinan{},
-		&KeteranganLahir{},
 		&RiwayatProsesMelahirkan{},
+		&ProsesMelahirkan{},
+		&KeteranganLahir{},
 
-		// Nifas & rujukan
+		// ==================== PELAYANAN IBU NIFAS ====================
 		&PelayananIbuNifas{},
 		&CatatanPelayananNifas{},
+		&ChecklistPemantauanIbuNifas{},
+		&WarnaTinjaAnak{},
+
+		// ==================== RIWAYAT KEHAMILAN & RUJUKAN ====================
+		&RiwayatKehamilanLalu{},
 		&Rujukan{},
-		&KategoriCapaian{},
-		&Perawatan{},
-		&PemantauanIndikator{},
-		&KategoriCapaian{},
+
+		// ==================== BBL (BAYI BARU LAHIR) ====================
+		&Bbl{},
+
+		// ==================== LAPORAN ====================
+		&LaporanIbu{},
+		&LaporanAnak{},
+
+		// ==================== MODUL IBU ====================
+		&LogTTDMMS{},
+		&PemantauanIbuHamil{},
+		&PersiapanMelahirkan{},
+		&AbsensiKelasIbuHamil{},
+		&AbsensiKelasIbuBalita{},
+
+		// ==================== PEMANTAUAN IBU ====================
+		&KategoriPemantauanIbu{},
+		&LembarPemantauanIbu{},
+		&DetailPemantauanIbu{},
+
+		// ==================== IMUNISASI ====================
+		&Vaksin{},
+		&DosisVaksin{},
+		&AturanVaksinAnak{},
+		&JadwalImunisasiAnak{},
+		&MasterImunisasi{},
+		&RequestPerubahanImunisasi{},
+
+		// ==================== JADWAL LAYANAN ====================
 		&JadwalLayanan{},
 
-		// Perkembangan Anak
-		// &RentangUsiaPerkembangan{},
-		// &IndikatorPerkembangan{},
-		// &LembarPerkembangan{},
-		// &DetailPerkembangan{},
-		&FormVersi{},
-		&FormPertanyaan{},
-		&FormAturanRisiko{},
-		&Pemeriksaan{},
+		// ==================== STANDAR ANTROPOMETRI ====================
+		&MasterStandarAntropometri{},
+
+		// ==================== AUDIT TRAIL ====================
+		&AuditTrail{},
 	}
 
-	// Jalankan automigrate sekali saja
+	// Jalankan automigrate
 	if err := db.AutoMigrate(models...); err != nil {
 		return err
 	}
-
-	// seeder
-	// log.Println("AutoMigrate selesai. Menjalankan Seeder...")
-	// seeder := seeders.NewSeeder(db)
-	// if err := seeder.Run(); err != nil {
-	// 	println("Error: seeder gagal dijalankan:", err.Error())
-	// }
 
 	return nil
 }

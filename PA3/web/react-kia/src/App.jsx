@@ -2,7 +2,6 @@ import React from "react";
 import LembarPerawatanAnak from "./pages/penanda-perkembangan-anak/LembarPerawatanAnak";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
-import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import PrivateRoute from "./routes/Private-routes";
 import RencanaPersalinanForm from './pages/Ibu/RencanaPersalinanForm';
@@ -161,7 +160,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         {/* PUBLIC */}
-        <Route path="/login" element={<Login />} />
+        <Route path="/login" element={<Navigate to="/dashboard" replace />} />
 
         {/* PROTECTED */}
         <Route element={<PrivateRoute />}>
@@ -217,8 +216,22 @@ function App() {
           
 {/* Data Anak */}
           <Route path="/daftar-anak" element={<AnakListNakes />} />
-          <Route path="/data-anak/create" element={<CreateAnak />} />
-          <Route path="/data-anak/edit/:id" element={<EditAnak />} />
+          <Route
+            path="/data-anak/create"
+            element={
+              <ProtectedRoute allowedRoles={["bidan"]}>
+                <CreateAnak />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/data-anak/edit/:id"
+            element={
+              <ProtectedRoute allowedRoles={["bidan"]}>
+                <EditAnak />
+              </ProtectedRoute>
+            }
+          />
           <Route path="/data-anak/:id" element={<DetailAnak />} />
 
           {/* Monitoring & Laporan */}
@@ -249,16 +262,44 @@ function App() {
         <Route path="/data-anak/pertumbuhan/:id" element={<PertumbuhanIndex />} />
         <Route path="/data-anak/neonatus/:id" element={<NeonatusIndex />} />
         <Route path="/data-anak/pelayanan-gizi/:id" element={<PelayananGiziIndex />} />
-        <Route path="/data-anak/pelayanan-gizi/:id/create" element={<PelayananGiziCreate />} />
+        <Route
+          path="/data-anak/pelayanan-gizi/:id/create"
+          element={
+            <ProtectedRoute allowedRoles={["bidan"]}>
+              <PelayananGiziCreate />
+            </ProtectedRoute>
+          }
+        />
         <Route path="/data-anak/pelayanan-vitamin/:id" element={<PelayananVitaminIndex />} />
-        <Route path="/data-anak/pelayanan-vitamin/:id/create" element={<PelayananVitaminCreate />} />
+        <Route
+          path="/data-anak/pelayanan-vitamin/:id/create"
+          element={
+            <ProtectedRoute allowedRoles={["bidan"]}>
+              <PelayananVitaminCreate />
+            </ProtectedRoute>
+          }
+        />
         <Route path="/data-anak/pelayanan-Imunisasi/:id" element={<PelayananImunisasiIndex />} />
         <Route path="/data-anak/pelayanan-Gigi/:id" element={<PelayananGigiIndex />} />
         <Route path="/data-anak/Tumbuh-kembang-Anak/:id" element={<TumbuhKembangAnak />} />
         <Route path="/data-anak/lila" element={<PelayananLilaGlobalList />} />
         <Route path="/data-anak/lila/:id" element={<PelayananLilaIndex />} />
-        <Route path="/data-anak/lila/:id/create" element={<PelayananLilaCreate />} />
-        <Route path="/data-anak/lila/:id/edit/:lilaId" element={<PelayananLilaEdit />} />
+        <Route
+          path="/data-anak/lila/:id/create"
+          element={
+            <ProtectedRoute allowedRoles={["bidan"]}>
+              <PelayananLilaCreate />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/data-anak/lila/:id/edit/:lilaId"
+          element={
+            <ProtectedRoute allowedRoles={["bidan"]}>
+              <PelayananLilaEdit />
+            </ProtectedRoute>
+          }
+        />
         <Route path="/data-anak/keluhan/:id" element={<KeluhanAnak />} />
         <Route path="/data-anak/pemantauan/:id" element={<PemantauanAnakPage />} />
         <Route path="/data-anak/perawatan/:id" element={<LembarPerawatanAnak />} />
