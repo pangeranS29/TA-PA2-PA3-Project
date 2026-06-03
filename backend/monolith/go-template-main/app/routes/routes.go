@@ -739,6 +739,12 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	ibu.GET("/warna-tinja", controller.WarnaTinja.GetByAnakIDForIbu)
 	ibu.POST("/warna-tinja", controller.WarnaTinja.SaveForIbu)
 
+	// ==================== BBL (BAYI BARU LAHIR) ====================
+	ibu.GET("/bbl/anak/:anak_id", controller.Bbl.GetByAnakID)
+	ibu.POST("/bbl/anak/:anak_id", controller.Bbl.Upsert)
+	tenaga.GET("/bbl/anak/:anak_id", controller.Bbl.GetByAnakID)
+	tenaga.POST("/bbl/anak/:anak_id", controller.Bbl.Upsert)
+
 	// ==================== PERTUMBUHAN ANAK (IBU) ====================
 	ibu.GET("/pertumbuhan/anak/:anak_id", controller.GetRiwayatPertumbuhan)
 	ibu.GET("/pertumbuhan/chart/:anak_id", controller.GetPertumbuhanChart)

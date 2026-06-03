@@ -56,6 +56,7 @@ type Main struct {
 	AdminAkunKeluarga    *AdminAkunKeluargaUsecase
 	AdminTenagaKesehatan *AdminTenagaKesehatanUsecase
 	KeteranganLahir      KeteranganLahirUsecase
+	Bbl                  BblUsecase
 	JenisPelayanan       JenisPelayananUsecase
 	KategoriUmur         KategoriUmurUsecase
 
@@ -186,6 +187,7 @@ func Init(opts Options) *Main {
 	m.Kependudukan = NewKependudukanUsecase(opts.Repository.Kependudukan)
 	m.Kader = NewKaderUsecase(opts.Repository.Kader, opts.Repository.Kependudukan)
 	m.KeteranganLahir = NewKeteranganLahirUsecase(opts.Repository.KeteranganLahir)
+	m.Bbl = NewBblUsecase(opts.Repository.Bbl)
 	m.Perawatan = NewPerawatanUsecase(opts.Repository)
 	// m.RegisterOrangTua = NewRegisterOrangTuaUsecase(
 	// 	opts.Repository.User,

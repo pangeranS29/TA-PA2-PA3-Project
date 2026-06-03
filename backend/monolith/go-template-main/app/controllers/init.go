@@ -68,7 +68,8 @@ type Main struct {
 	// Edukasi Digital
 	// EdukasiTandaBahayaTrimester *EdukasiTandaBahayaTrimesterController
 	LembarPemantauan *LembarPemantauanController
-	KeteranganLahir  *KeteranganLahirController // <-- TAMBAHKAN INI
+	KeteranganLahir  *KeteranganLahirController
+	Bbl              BblController
 	Kependudukan     *KependudukanController
 	JenisPelayanan   *JenisPelayananController
 
@@ -201,7 +202,8 @@ func Init(opts Options) *Main {
 	m.EdukasiPerawatanAnak = NewEdukasiPerawatanAnakController(opts.UseCases.EdukasiPerawatanAnak)
 	// m.EdukasiMPASI = NewEdukasiMPASIController(opts.UseCases.EdukasiMPASI)
 	m.LembarPemantauan = NewLembarPemantauanController(opts.UseCases.LembarPemantauan)
-	m.KeteranganLahir = NewKeteranganLahirController(opts.UseCases.KeteranganLahir) // <-- TAMBAHKAN INI
+	m.KeteranganLahir = NewKeteranganLahirController(opts.UseCases.KeteranganLahir)
+	m.Bbl = NewBblController(opts.UseCases.Bbl)
 	m.Kependudukan = NewKependudukanController(opts.UseCases.Kependudukan)
 	m.JenisPelayanan = NewJenisPelayananController(opts.UseCases.JenisPelayanan)
 	m.KeluhanAnak = NewKeluhanAnakController(opts.UseCases.KeluhanAnak)

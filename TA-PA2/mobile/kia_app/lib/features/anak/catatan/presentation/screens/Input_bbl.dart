@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../data/models/bbl_model.dart';
+import '../../data/services/bbl_api_service.dart';
 
 class InputBblScreen extends StatefulWidget {
   final String namaAnak;
@@ -23,11 +25,20 @@ class _InputBblScreenState extends State<InputBblScreen> {
 
   DateTime? _selectedDate;
 
+  bool _isLoading = false;
+  late BblApiService _apiService;
+
   // Checkbox pemeriksaan kesehatan
   bool _check0_6jam = false;
   bool _check6_48jam = false;
   bool _checkHari3_7 = false;
   bool _checkHari8_28 = false;
+
+  // Lock status (tidak bisa di-uncheck jika sudah true dari DB)
+  bool _locked0_6jam = false;
+  bool _locked6_48jam = false;
+  bool _lockedHari3_7 = false;
+  bool _lockedHari8_28 = false;
 
   // Imunisasi & skrining
   bool _imunisasiHB0 = false;
@@ -35,7 +46,49 @@ class _InputBblScreenState extends State<InputBblScreen> {
   bool _skriningPJB = false;
 
   @override
+  void initState() {
+    super.initState();
+    _apiService = BblApiService();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    if (widget.anakId == null) return;
+    final anakId = int.tryParse(widget.anakId!);
+    if (anakId == null) return;
+
+    setState(() => _isLoading = true);
+    try {
+      final bbl = await _apiService.getByAnakId(anakId);
+      if (bbl != null) {
+        setState(() {
+          _check0_6jam = bbl.jam06;
+          _locked0_6jam = bbl.jam06;
+
+          _check6_48jam = bbl.jam648;
+          _locked6_48jam = bbl.jam648;
+
+          _checkHari3_7 = bbl.hari37;
+          _lockedHari3_7 = bbl.hari37;
+
+          _checkHari8_28 = bbl.hari828;
+          _lockedHari8_28 = bbl.hari828;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Gagal memuat data BBL: $e'), backgroundColor: Colors.red),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  @override
   void dispose() {
+    _apiService.dispose();
     _beratController.dispose();
     _panjangController.dispose();
     _lingkarKepalController.dispose();
@@ -72,16 +125,43 @@ class _InputBblScreenState extends State<InputBblScreen> {
     }
   }
 
-  void _simpan() {
+  Future<void> _simpan() async {
+    if (widget.anakId == null) return;
+    final anakId = int.tryParse(widget.anakId!);
+    if (anakId == null) return;
+
     if (_formKey.currentState!.validate()) {
-      // TODO: simpan ke database / BLoC
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Data BBL berhasil disimpan!'),
-          backgroundColor: Color(0xFF7C3AED),
-        ),
-      );
-      Navigator.pop(context);
+      setState(() => _isLoading = true);
+      try {
+        final model = BblModel(
+          id: 0,
+          anakId: anakId,
+          jam06: _check0_6jam,
+          jam648: _check6_48jam,
+          hari37: _checkHari3_7,
+          hari828: _checkHari8_28,
+        );
+        
+        await _apiService.upsert(anakId, model);
+        
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Data BBL berhasil disimpan!'),
+              backgroundColor: Color(0xFF7C3AED),
+            ),
+          );
+          Navigator.pop(context);
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Gagal menyimpan data BBL: $e'), backgroundColor: Colors.red),
+          );
+        }
+      } finally {
+        if (mounted) setState(() => _isLoading = false);
+      }
     }
   }
 
@@ -217,28 +297,28 @@ class _InputBblScreenState extends State<InputBblScreen> {
                         child: _buildCheckBox(
                           value: _check0_6jam,
                           label: '0–6 jam\nsetelah lahir',
-                          onChanged: (v) => setState(() => _check0_6jam = v!),
+                          onChanged: _locked0_6jam ? null : (v) => setState(() => _check0_6jam = v!),
                         ),
                       ),
                       Expanded(
                         child: _buildCheckBox(
                           value: _check6_48jam,
                           label: '6–48 jam\nsetelah lahir',
-                          onChanged: (v) => setState(() => _check6_48jam = v!),
+                          onChanged: _locked6_48jam ? null : (v) => setState(() => _check6_48jam = v!),
                         ),
                       ),
                       Expanded(
                         child: _buildCheckBox(
                           value: _checkHari3_7,
                           label: 'Hari 3–7\nsetelah lahir',
-                          onChanged: (v) => setState(() => _checkHari3_7 = v!),
+                          onChanged: _lockedHari3_7 ? null : (v) => setState(() => _checkHari3_7 = v!),
                         ),
                       ),
                       Expanded(
                         child: _buildCheckBox(
                           value: _checkHari8_28,
                           label: 'Hari 8–28\nsetelah lahir',
-                          onChanged: (v) => setState(() => _checkHari8_28 = v!),
+                          onChanged: _lockedHari8_28 ? null : (v) => setState(() => _checkHari8_28 = v!),
                         ),
                       ),
                     ],
@@ -280,7 +360,7 @@ class _InputBblScreenState extends State<InputBblScreen> {
                 width: double.infinity,
                 height: 50,
                 child: ElevatedButton.icon(
-                  onPressed: _simpan,
+                  onPressed: _isLoading ? null : _simpan,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF7C3AED),
                     foregroundColor: Colors.white,
@@ -289,12 +369,18 @@ class _InputBblScreenState extends State<InputBblScreen> {
                     ),
                     elevation: 2,
                   ),
-                  icon: const Icon(Icons.save_alt_rounded),
-                  label: const Text(
-                    'Simpan Data BBL',
-                    style:
-                        TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
+                  icon: _isLoading 
+                      ? const SizedBox.shrink() 
+                      : const Icon(Icons.save_alt_rounded),
+                  label: _isLoading
+                      ? const SizedBox(
+                          width: 20, height: 20,
+                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                        )
+                      : const Text(
+                          'Simpan Data BBL',
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
                 ),
               ),
 
@@ -427,7 +513,7 @@ class _InputBblScreenState extends State<InputBblScreen> {
   Widget _buildCheckBox({
     required bool value,
     required String label,
-    required ValueChanged<bool?> onChanged,
+    required ValueChanged<bool?>? onChanged,
   }) {
     return Column(
       children: [
