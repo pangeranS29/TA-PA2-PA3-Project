@@ -296,9 +296,9 @@ class _CatatanMenuScreenState extends State<CatatanMenuScreen> {
         final item = _gigiList[i];
         return _buildRecordCard(
           icon: Icons.medical_services_outlined,
-          title: 'Pemeriksaan Gigi',
-          subtitle: '-',
-          description: 'Erupsi ${item.gigiBerlubang} gigi seri bawah',
+          title: 'Pemeriksaan Gigi - Bulan ke-${item.bulan}',
+          subtitle: 'Gigi: ${item.jumlahGigi} | Berlubang: ${item.gigiBerlubang}',
+          description: 'Plak: ${item.statusPlak} | Risiko: ${item.resikoGigiBerlubang}',
           date: _fmtDateShort(item.tanggal),
           onTap: () => showCatatanDetailGigi(context, item),
         );
@@ -319,9 +319,9 @@ class _CatatanMenuScreenState extends State<CatatanMenuScreen> {
         final item = _lilaList[i];
         return _buildRecordCard(
           icon: Icons.straighten_outlined,
-          title: 'Pengukuran',
-          subtitle: '-',
-          description: 'ukurang dari libraty anak',
+          title: 'Pengukuran LiLA - Bulan ke-${item.bulan}',
+          subtitle: 'Hasil LiLA: ${item.hasilLila} cm',
+          description: 'Kategori Risiko: ${item.kategoriRisiko}',
           date: _fmtDateShort(item.tanggal),
           onTap: () => showCatatanDetailLila(context, item),
         );

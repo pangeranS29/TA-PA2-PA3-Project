@@ -11,7 +11,6 @@ String _fmtDate(DateTime d) => DateFormat('dd MMMM yyyy', 'id_ID').format(d);
 void showCatatanDetailKesehatanAnak(BuildContext ctx, KeluhanAnakModel item) {
   _showSheet(ctx, icon: Icons.assignment_outlined, title: item.keluhan, children: [
     _InfoRow(icon: Icons.calendar_today, label: 'Tanggal', value: _fmtDate(item.tanggal)),
-    _InfoRow(icon: Icons.location_on_outlined, label: 'Fasilitas', value: item.pemeriksa ?? '-'),
     _InfoRow(icon: Icons.person_outline, label: 'Pemeriksa', value: item.pemeriksa ?? '-'),
     const SizedBox(height: 8),
     _SectionLabel('KELUHAN'),
@@ -28,43 +27,60 @@ void showCatatanDetailKesehatanAnak(BuildContext ctx, KeluhanAnakModel item) {
 }
 
 void showCatatanDetailGigi(BuildContext ctx, PemeriksaanGigiModel item) {
-  _showSheet(ctx, icon: Icons.assignment_outlined, title: 'Pemeriksaan Gigi', children: [
+  _showSheet(ctx, icon: Icons.medical_services_outlined, title: 'Pemeriksaan Gigi - Bulan ke-${item.bulan}', children: [
     _InfoRow(icon: Icons.calendar_today, label: 'Tanggal', value: _fmtDate(item.tanggal)),
-    _InfoRow(icon: Icons.location_on_outlined, label: 'Fasilitas', value: '-'),
-    _InfoRow(icon: Icons.person_outline, label: 'Pemeriksa', value: '-'),
+    _InfoRow(icon: Icons.child_care, label: 'Bulan ke-', value: '${item.bulan}'),
     const SizedBox(height: 12),
     _SectionLabel('JUMLAH GIGI'),
-    _SpinnerField('${item.jumlahGigi}'),
+    _SpinnerField('${item.jumlahGigi} gigi'),
     const SizedBox(height: 8),
     _SectionLabel('GIGI BERLUBANG'),
-    _SpinnerField('${item.gigiBerlubang}'),
+    _SpinnerField('${item.gigiBerlubang} gigi'),
     const SizedBox(height: 8),
     _SectionLabel('STATUS PLAK'),
-    _SpinnerField(item.statusPlak),
+    _StatusBadge(item.statusPlak, _getPlakColor(item.statusPlak)),
     const SizedBox(height: 8),
-    _SectionLabel('RESIKO KARIES'),
-    _DropdownField(item.resikoGigiBerlubang),
+    _SectionLabel('RISIKO GIGI BERLUBANG'),
+    _StatusBadge(item.resikoGigiBerlubang, _getRisikoColor(item.resikoGigiBerlubang)),
   ]);
 }
 
 void showCatatanDetailLila(BuildContext ctx, PengukuranLilaModel item) {
-  _showSheet(ctx, icon: Icons.assignment_outlined, title: 'Pemeriksaan LiLA', children: [
+  _showSheet(ctx, icon: Icons.straighten, title: 'Pengukuran LiLA - Bulan ke-${item.bulan}', children: [
     _InfoRow(icon: Icons.calendar_today, label: 'Tanggal', value: _fmtDate(item.tanggal)),
-    _InfoRow(icon: Icons.location_on_outlined, label: 'Fasilitas', value: '-'),
-    _InfoRow(icon: Icons.person_outline, label: 'Pemeriksa', value: '-'),
+    _InfoRow(icon: Icons.child_care, label: 'Bulan ke-', value: '${item.bulan}'),
     const SizedBox(height: 12),
-    _SectionLabel('KUNJUNGAN BULAN KE-'),
-    _SpinnerField('${item.bulan}'),
+    _SectionLabel('HASIL LINGKAR LENGAN ATAS'),
+    _SpinnerFieldWithUnit('${item.hasilLila}', 'cm'),
     const SizedBox(height: 8),
-    _SectionLabel('LINGKAR LENGAN ATAS'),
-    _SpinnerFieldWithUnit('${item.hasilLila}', 'mm'),
-    const SizedBox(height: 8),
-    _SectionLabel('STATUS PLAK'),
-    _SpinnerField(item.kategoriRisiko),
-    const SizedBox(height: 8),
-    _SectionLabel('RESIKO KARIES'),
-    _DropdownField(item.kategoriRisiko),
+    _SectionLabel('KATEGORI RISIKO'),
+    _StatusBadge(item.kategoriRisiko, _getKategoriRisikoColor(item.kategoriRisiko)),
   ]);
+}
+
+// --- Color helpers ---
+
+Color _getPlakColor(String status) {
+  final lower = status.toLowerCase();
+  if (lower == 'bersih' || lower.contains('tidak')) return const Color(0xFF10B981);
+  if (lower == 'kotor' || lower.contains('ada')) return const Color(0xFFF59E0B);
+  return const Color(0xFF9CA3AF);
+}
+
+Color _getRisikoColor(String risiko) {
+  final lower = risiko.toLowerCase();
+  if (lower == 'rendah') return const Color(0xFF10B981);
+  if (lower == 'sedang') return const Color(0xFFF59E0B);
+  if (lower == 'tinggi') return const Color(0xFFEF4444);
+  return const Color(0xFF9CA3AF);
+}
+
+Color _getKategoriRisikoColor(String kategori) {
+  final lower = kategori.toLowerCase();
+  if (lower == 'normal' || lower == 'hijau') return const Color(0xFF10B981);
+  if (lower == 'berisiko' || lower == 'kuning') return const Color(0xFFF59E0B);
+  if (lower == 'kurang gizi' || lower == 'buruk' || lower == 'merah') return const Color(0xFFEF4444);
+  return const Color(0xFF9CA3AF);
 }
 
 void _showSheet(BuildContext ctx, {required IconData icon, required String title, required List<Widget> children}) {
@@ -106,7 +122,8 @@ void _showSheet(BuildContext ctx, {required IconData icon, required String title
                       children: [
                         Text('DETAIL CATATAN', style: TextStyle(fontSize: 10, color: Colors.grey[500], fontWeight: FontWeight.w600, letterSpacing: 0.5)),
                         const SizedBox(height: 2),
-                        Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFF172033))),
+                        Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFF172033)),
+                          maxLines: 2, overflow: TextOverflow.ellipsis),
                       ],
                     ),
                   ),
@@ -238,21 +255,22 @@ class _SpinnerFieldWithUnit extends StatelessWidget {
   );
 }
 
-class _DropdownField extends StatelessWidget {
-  final String value;
-  const _DropdownField(this.value);
+class _StatusBadge extends StatelessWidget {
+  final String text;
+  final Color color;
+  const _StatusBadge(this.text, this.color);
   @override
   Widget build(BuildContext context) => Container(
+    width: double.infinity,
     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
     decoration: BoxDecoration(
+      color: color.withValues(alpha: 0.1),
       borderRadius: BorderRadius.circular(8),
-      border: Border.all(color: const Color(0xFFE5E7EB)),
+      border: Border.all(color: color.withValues(alpha: 0.3)),
     ),
-    child: Row(
-      children: [
-        Expanded(child: Text(value, style: const TextStyle(fontSize: 14))),
-        Icon(Icons.keyboard_arrow_down, size: 20, color: Colors.grey[400]),
-      ],
+    child: Text(
+      text,
+      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: color),
     ),
   );
 }
