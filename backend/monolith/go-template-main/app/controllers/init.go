@@ -91,18 +91,18 @@ type Main struct {
 	EdukasiTandaMelahirkan      *EdukasiTandaMelahirkanController
 
 	// Penambahan
-	EdukasiImd                  *EdukasiIMDController
-	EdukasiSetelahMelahirkan    *EdukasiSetelahMelahirkanController
-	EdukasiPolaAsuh             *EdukasiPolaAsuhController
-	EdukasiKesehatanMental      *EdukasiKesehatanMentalController
-	EdukasiPerawatanAnak        *EdukasiPerawatanAnakController
-	EdukasiMPASI                *EdukasiMPASIController
-	EdukasiAturanPorsiMPASI     *AturanPorsiMPASIController
-	EdukasiJadwalHarianMPASI    *JadwalHarianMPASIController
-	EdukasiResepMPASI           *ResepMPASIController
-	LaporanIbu                  *LaporanIbuController
-	JadwalLayanan               *JadwalLayananController
-	ProfilIbu                   *ProfilIbuController
+	EdukasiImd               *EdukasiIMDController
+	EdukasiSetelahMelahirkan *EdukasiSetelahMelahirkanController
+	EdukasiPolaAsuh          *EdukasiPolaAsuhController
+	EdukasiKesehatanMental   *EdukasiKesehatanMentalController
+	EdukasiPerawatanAnak     *EdukasiPerawatanAnakController
+	EdukasiMPASI             *EdukasiMPASIController
+	EdukasiAturanPorsiMPASI  *AturanPorsiMPASIController
+	EdukasiJadwalHarianMPASI *JadwalHarianMPASIController
+	EdukasiResepMPASI        *ResepMPASIController
+	LaporanIbu               *LaporanIbuController
+	JadwalLayanan            *JadwalLayananController
+	ProfilIbu                *ProfilIbuController
 
 	// EdukasiTrimester            *EdukasiTrimesterController
 	// GrafikEvaluasiKehamilan     *GrafikEvaluasiKehamilanController
@@ -198,7 +198,7 @@ func Init(opts Options) *Main {
 	m.EdukasiMenyusuiASI = NewEdukasiMenyusuiASIController(opts.UseCases.EdukasiMenyusuiASI)
 	m.EdukasiPolaAsuh = NewEdukasiPolaAsuhController(opts.UseCases.EdukasiPolaAsuh)
 	// m.EdukasiKesehatanMental = NewEdukasiKesehatanMentalController(opts.UseCases.EdukasiKesehatanMental)
-	// m.EdukasiPerawatanAnak = NewEdukasiPerawatanAnakController(opts.UseCases.EdukasiPerawatanAnak)
+	m.EdukasiPerawatanAnak = NewEdukasiPerawatanAnakController(opts.UseCases.EdukasiPerawatanAnak)
 	// m.EdukasiMPASI = NewEdukasiMPASIController(opts.UseCases.EdukasiMPASI)
 	m.LembarPemantauan = NewLembarPemantauanController(opts.UseCases.LembarPemantauan)
 	m.KeteranganLahir = NewKeteranganLahirController(opts.UseCases.KeteranganLahir) // <-- TAMBAHKAN INI
