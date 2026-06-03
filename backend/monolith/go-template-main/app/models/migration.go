@@ -112,6 +112,10 @@ func AutoMigrate(db *gorm.DB) error {
 		// &IndikatorPerkembangan{},
 		// &LembarPerkembangan{},
 		// &DetailPerkembangan{},
+		&FormVersi{},
+		&FormPertanyaan{},
+		&FormAturanRisiko{},
+		&Pemeriksaan{},
 	}
 
 	// Jalankan automigrate sekali saja

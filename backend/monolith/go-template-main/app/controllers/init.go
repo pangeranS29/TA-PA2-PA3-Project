@@ -95,6 +95,10 @@ type Main struct {
 	RiwayatCard *RiwayatCardController
 	Pencatatan 	  *PencatatanController
 	PrediksiStunting *PrediksiStuntingController
+	FormController	 *FormController
+	Pemeriksaan 	 *PemeriksaanController
+	
+	
 }
 
 type Options struct {
@@ -215,6 +219,8 @@ func Init(opts Options) *Main {
 	m.RiwayatCard = NewRiwayatCardController(opts.UseCases.RiwayatCard)
 	m.Pencatatan = NewPencatatanController(opts.UseCases.Pencatatan)
 	m.PrediksiStunting = NewPrediksiStuntingController(opts.UseCases.PrediksiStunting)
+	m.FormController = NewFormController(opts.UseCases.Form)
+	m.Pemeriksaan = NewPemeriksaanController(opts.UseCases.Pemeriksaan)
 	return m
 }
 

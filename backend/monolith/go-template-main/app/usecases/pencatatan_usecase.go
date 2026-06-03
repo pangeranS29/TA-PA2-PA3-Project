@@ -56,9 +56,9 @@ func (u *pencatatanUsecase) GetPendudukByKategori(kategori string, desaID *int32
     var minAge, maxAge int
     switch kategori {
     case "anak":
-        minAge, maxAge = 6, 12
+        minAge, maxAge = 6, 9
     case "remaja":
-        minAge, maxAge = 13, 18
+        minAge, maxAge = 10, 18
     case "dewasa":
         minAge, maxAge = 19, 59
     case "lansia":

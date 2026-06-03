@@ -93,9 +93,11 @@ type Main struct {
 	PemeriksaanRemaja PemeriksaanRemajaUsecase
 	PemeriksaanDewasa PemeriksaanDewasaUsecase
 	PemeriksaanLansia PemeriksaanLansiaUsecase
-	PendudukRisk      PendudukRiskUsecase
-	RiwayatCard       RiwayatCardUsecase
-	Pencatatan        PencatatanUsecase
+	PendudukRisk	  PendudukRiskUsecase
+	RiwayatCard RiwayatCardUsecase
+	Pencatatan 	  PencatatanUsecase
+	Form  FormUsecase
+	Pemeriksaan   PemeriksaanUsecase
 }
 
 type Options struct {
@@ -241,11 +243,13 @@ func Init(opts Options) *Main {
 		opts.Repository.PemeriksaanLansia,
 	)
 	m.Pencatatan = NewPencatatanUsecase(
-		opts.Repository.Kependudukan,
-		opts.Repository.PemeriksaanAnak,   //
-		opts.Repository.PemeriksaanRemaja, //
-		opts.Repository.PemeriksaanDewasa, //
-		opts.Repository.PemeriksaanLansia, //
-	)
+    opts.Repository.Kependudukan,        
+    opts.Repository.PemeriksaanAnak,      //
+    opts.Repository.PemeriksaanRemaja,    // 
+    opts.Repository.PemeriksaanDewasa,    // 
+    opts.Repository.PemeriksaanLansia,    // 
+)
+m.Form = NewFormUsecase(opts.Repository.Form) // Inisialisasi FormUsecase dengan repository yang sesuai
+ m.Pemeriksaan = NewPemeriksaanUsecase(opts.Repository.Form, opts.Repository.Pemeriksaan)
 	return m
 }

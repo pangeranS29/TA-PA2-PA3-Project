@@ -280,50 +280,60 @@ export default function Dashboard() {
 
   // Fetch ibu hamil
   useEffect(() => {
-    const fetchIbu = async () => {
-      try {
-        setLoading(true);
-        const response = await getIbuDashboard();
-        // Assume API returns data array directly or inside .data
-        const rawData = response?.data?.data ?? response?.data ?? [];
-        setAllIbuData(rawData);
+  const fetchIbu = async () => {
+    try {
+      setLoading(true);
+      const response = await getIbuDashboard();
 
-        // Process data safely
-        // Duplicate processing block removed - original duplicated logic was unnecessary
-        const kehamilanList = rawData.filter((item) => item.kehamilan_id && item.kehamilan_id !== 0);
-        const total_kehamilan = kehamilanList.length;
-        const aktifList = kehamilanList.filter((item) => item.status_kehamilan?.includes("TRIMESTER"));
-        const kehamilan_aktif = aktifList.length;
-        const risikoTinggiList = kehamilanList.filter((item) => normalizeRisk(item.status_risiko) === "Tinggi");
-        const risikoSedangList = kehamilanList.filter((item) => normalizeRisk(item.status_risiko) === "Sedang");
-        const risikoNormalList = kehamilanList.filter((item) => normalizeRisk(item.status_risiko) === "Normal");
-
-        // Dusun aggregation
-        const dusunMap = new Map();
-        kehamilanList.forEach((item) => {
-          const dusun = item.dusun || "Tidak diketahui";
-          dusunMap.set(dusun, (dusunMap.get(dusun) || 0) + 1);
-        });
-        const per_dusun = Array.from(dusunMap.entries()).map(([dusun, jumlah]) => ({ dusun, jumlah }));
-
-        // Update state
-        setStatsIbu({
-          total_kehamilan,
-          kehamilan_aktif,
-          resiko_tinggi: risikoTinggiList.length,
-          resiko_sedang: risikoSedangList.length,
-          resiko_normal: risikoNormalList.length,
-          per_dusun,
-        });
-      } catch (err) {
-        console.error("Error fetchIbu:", err);
-        setError("Gagal memuat data ibu hamil: " + (err.response?.data?.message || err.message));
-      } finally {
-        setLoading(false);
+      // 🔧 FIX: Sesuaikan dengan struktur yang dikembalikan service (array langsung)
+      let rawData = [];
+      if (Array.isArray(response)) {
+        rawData = response;
+      } else if (response?.data && Array.isArray(response.data)) {
+        rawData = response.data;
+      } else if (response?.data?.data && Array.isArray(response.data.data)) {
+        rawData = response.data.data;
+      } else {
+        console.error("Struktur response tidak dikenali:", response);
+        rawData = [];
       }
-    };
-    fetchIbu();
-  }, []);
+
+      console.log("Data ibu hamil (Dashboard):", rawData); // cek di console
+      setAllIbuData(rawData);
+
+      const kehamilanList = rawData.filter((item) => item.kehamilan_id && item.kehamilan_id !== 0);
+      const total_kehamilan = kehamilanList.length;
+      const aktifList = kehamilanList.filter((item) => item.status_kehamilan?.includes("TRIMESTER"));
+      const kehamilan_aktif = aktifList.length;
+
+      const risikoTinggiList = kehamilanList.filter((item) => normalizeRisk(item.status_risiko) === "Tinggi");
+      const risikoSedangList = kehamilanList.filter((item) => normalizeRisk(item.status_risiko) === "Sedang");
+      const risikoNormalList = kehamilanList.filter((item) => normalizeRisk(item.status_risiko) === "Normal");
+
+      const dusunMap = new Map();
+      kehamilanList.forEach((item) => {
+        const dusun = item.dusun && item.dusun.trim() ? item.dusun : "Tidak diketahui";
+        dusunMap.set(dusun, (dusunMap.get(dusun) || 0) + 1);
+      });
+      const per_dusun = Array.from(dusunMap.entries()).map(([dusun, jumlah]) => ({ dusun, jumlah }));
+
+      setStatsIbu({
+        total_kehamilan,
+        kehamilan_aktif,
+        resiko_tinggi: risikoTinggiList.length,
+        resiko_sedang: risikoSedangList.length,
+        resiko_normal: risikoNormalList.length,
+        per_dusun,
+      });
+    } catch (err) {
+      console.error("Error fetchIbu:", err);
+      setError("Gagal memuat data ibu hamil: " + (err.response?.data?.message || err.message));
+    } finally {
+      setLoading(false);
+    }
+  };
+  fetchIbu();
+}, []);
 
   // Filter daftar ibu berdasarkan risiko terpilih (untuk tampilan risiko)
   useEffect(() => {
