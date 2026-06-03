@@ -2,25 +2,16 @@ import 'package:flutter/material.dart';
 
 import 'package:ta_pa2_pa3_project/features/anak/anak/data/services/ibu_api_service.dart';
 import 'package:ta_pa2_pa3_project/features/anak/anak/data/models/ibu_anak_model.dart';
-<<<<<<< HEAD
-import 'package:ta_pa2_pa3_project/features/anak/imunisasi/presentation/screens/imunisasi_screen.dart';
-// import 'package:ta_pa2_pa3_project/features/anak/mpasi/presentation/screens/halaman_utama_mpasi.dart';
-import 'package:ta_pa2_pa3_project/features/anak/pemantauan/presentation/screens/menu_pemantauan_screen.dart';
-import 'package:ta_pa2_pa3_project/features/anak/pertumbuhan/presentation/screens/detail_pertumbuhan_dummy_screen.dart';
-=======
 import 'package:ta_pa2_pa3_project/features/anak/anak/data/models/anak_search_model.dart';
 import 'package:ta_pa2_pa3_project/features/anak/imunisasi/presentation/screens/imunisasi_screen.dart';
-// import 'package:ta_pa2_pa3_project/features/anak/mpasi/presentation/screens/halaman_utama_mpasi.dart';
 import 'package:ta_pa2_pa3_project/features/anak/pemantauan/presentation/screens/menu_pemantauan_screen.dart';
-import 'package:ta_pa2_pa3_project/features/anak/pertumbuhan/presentation/screens/detail_pertumbuhan_screen.dart';
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
+import 'package:ta_pa2_pa3_project/features/anak/pertumbuhan/presentation/screens/pertumbuhan_info_screen.dart';
 import 'package:ta_pa2_pa3_project/features/anak/pemantauan/presentation/screens/skrining/pemantauan_menu_screen.dart';
-
-// Import CatatanMenuScreen (Sesuaikan path-nya jika berbeda)
 import 'package:ta_pa2_pa3_project/features/anak/catatan/presentation/screens/catatan_menu_screen.dart';
 
-/// [tujuan] menentukan halaman tujuan setelah anak dipilih.
-/// Gunakan 'pertumbuhan' (default), 'imunisasi', 'pemantauan', atau 'catatan'.
+// ← Tambahkan import InputBblScreen
+import 'package:ta_pa2_pa3_project/features/anak/catatan/presentation/screens/Input_bbl.dart';
+
 class PilihAnakScreen extends StatefulWidget {
   final String tujuan;
 
@@ -162,8 +153,6 @@ class _PilihAnakScreenState extends State<PilihAnakScreen> {
                 child: const Icon(Icons.person, color: Colors.blue),
               ),
               const SizedBox(width: 12),
-
-              // TEXT
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -184,8 +173,6 @@ class _PilihAnakScreenState extends State<PilihAnakScreen> {
                   ],
                 ),
               ),
-
-              // ICON KANAN
               const CircleAvatar(
                 radius: 14,
                 backgroundColor: Colors.blue,
@@ -237,19 +224,28 @@ class _PilihAnakScreenState extends State<PilihAnakScreen> {
           builder: (_) => CatatanMenuScreen(
             anakId: int.tryParse(anak.id.toString()) ?? 0,
             anakName: anak.nama,
+            usiaTeks: anak.usiaTeks,
           ),
         ),
       );
       return;
     }
 
-<<<<<<< HEAD
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => DetailPertumbuhanScreenDummy(
-          anak: anakMap,
-=======
+    // ← Tambahkan kondisi ini
+    if (widget.tujuan == 'input_bbl') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => InputBblScreen(
+            namaAnak: anak.nama,
+            anakId: anak.id.toString(),
+          ),
+        ),
+      );
+      return;
+    }
+
+    // Default: pertumbuhan
     final anakSearchModel = AnakSearchModel(
       id: anak.id,
       noKartuKeluarga: 0,
@@ -263,15 +259,8 @@ class _PilihAnakScreenState extends State<PilihAnakScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => DetailPertumbuhanScreen(
-          anak: anakSearchModel,
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
-        ),
+        builder: (_) => PertumbuhanInfoScreen(anak: anakSearchModel),
       ),
     );
   }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c

@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-<<<<<<< HEAD
-=======
 import 'package:ta_pa2_pa3_project/core/services/auth_session.dart';
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
 
 class InputProfilAnakScreen extends StatefulWidget {
   const InputProfilAnakScreen({super.key});
@@ -15,19 +12,14 @@ class _InputProfilAnakScreenState extends State<InputProfilAnakScreen> {
   final TextEditingController namaController = TextEditingController();
   final TextEditingController tanggalLahirController = TextEditingController();
 
-<<<<<<< HEAD
-=======
   bool _forbiddenForIbu = false;
 
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
   String jenisKelamin = 'Laki-laki';
   String kondisi = 'Normal';
 
   double berat = 3.0;
   double panjang = 50.0;
 
-<<<<<<< HEAD
-=======
   @override
   void initState() {
     super.initState();
@@ -35,7 +27,6 @@ class _InputProfilAnakScreenState extends State<InputProfilAnakScreen> {
     _forbiddenForIbu = role == 'ibu';
   }
 
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
   Future<void> _selectDate(BuildContext context) async {
     DateTime? pickedDate = await showDatePicker(
       context: context,
@@ -61,8 +52,6 @@ class _InputProfilAnakScreenState extends State<InputProfilAnakScreen> {
 
   @override
   Widget build(BuildContext context) {
-<<<<<<< HEAD
-=======
     if (_forbiddenForIbu) {
       return Scaffold(
         backgroundColor: const Color(0xFFF5F7FA),
@@ -95,7 +84,6 @@ class _InputProfilAnakScreenState extends State<InputProfilAnakScreen> {
       );
     }
 
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FA),
       appBar: AppBar(
@@ -362,8 +350,4 @@ class _InputProfilAnakScreenState extends State<InputProfilAnakScreen> {
       ],
     );
   }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c

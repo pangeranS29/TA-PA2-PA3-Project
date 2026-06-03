@@ -47,7 +47,6 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-<<<<<<< HEAD
     apiKey: 'AIzaSyDW8KWui9CONAbOA-yCrfUXMfTKLTIVgEE',
     appId: '1:901600470237:web:c5060f31b451de23e72734',
     messagingSenderId: '901600470237',
@@ -73,31 +72,3 @@ class DefaultFirebaseOptions {
     iosBundleId: 'com.example.taPa2Pa3Project',
   );
 }
-=======
-    apiKey: 'AIzaSyB7HBNT5gEfbnCTSw1P_uhSU84mwLWwgiE',
-    appId: '1:40106977325:web:bffc5176c83c69b9f230a4',
-    messagingSenderId: '40106977325',
-    projectId: 'imunisasi-app',
-    authDomain: 'imunisasi-app.firebaseapp.com',
-    storageBucket: 'imunisasi-app.firebasestorage.app',
-  );
-
-  static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyC8j4HBQLRDjFn9afFGHPpLp44YhBZfbvI',
-    appId: '1:40106977325:android:6d68456bbd978275f230a4',
-    messagingSenderId: '40106977325',
-    projectId: 'imunisasi-app',
-    storageBucket: 'imunisasi-app.firebasestorage.app',
-  );
-
-  static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyABmgLooYC0mxIeghign4TSVAdIN0o58fs',
-    appId: '1:40106977325:ios:ebfc224d7db5e906f230a4',
-    messagingSenderId: '40106977325',
-    projectId: 'imunisasi-app',
-    storageBucket: 'imunisasi-app.firebasestorage.app',
-    iosBundleId: 'com.example.taPa2Pa3Project',
-  );
-
-}
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c

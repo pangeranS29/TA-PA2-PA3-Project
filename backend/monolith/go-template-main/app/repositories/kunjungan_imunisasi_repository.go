@@ -10,16 +10,8 @@ type KunjunganImunisasiDetailJoin struct {
 	NamaAnak     string
 	TanggalLahir *time.Time
 
-<<<<<<< HEAD
 	NamaIbu string
 	NomorTeleponIbu string
-=======
-	NamaIbu         string
-	NomorTeleponIbu string
-	NamaAyah        string
-	NomorTeleponAyah string
-	Dusun			string
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
 
 	NamaVaksin      string
 	NamaDosis       string
@@ -48,20 +40,10 @@ func (m *Main) GetKunjunganImunisasiByID(
 
 		p_anak.nama_lengkap AS nama_anak,
 		a.tanggal_lahir,
-<<<<<<< HEAD
-=======
-		d.nama_dusun AS dusun,
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
 
 		p_ibu.nama_lengkap AS nama_ibu,
 		p_ibu.telepon AS nomor_telepon_ibu,
 
-<<<<<<< HEAD
-=======
-		p_ayah.nama_lengkap AS nama_ayah,
-		p_ayah.telepon AS nomor_telepon_ayah,
-
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
 		v.nama AS nama_vaksin,
 		dv.nama_dosis,
 		jia.tanggal_estimasi AS jadwal_imunisasi
@@ -83,13 +65,6 @@ func (m *Main) GetKunjunganImunisasiByID(
 		ON p_anak.id = a.penduduk_id
 	`).
 		Joins(`
-<<<<<<< HEAD
-=======
-		LEFT JOIN dusun d
-		ON d.id = p_anak.dusun_id
-	`).
-		Joins(`
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
 		INNER JOIN kehamilan kh
 		ON kh.id = a.kehamilan_id
 	`).
@@ -102,13 +77,6 @@ func (m *Main) GetKunjunganImunisasiByID(
 		ON p_ibu.id = i.penduduk_id
 	`).
 		Joins(`
-<<<<<<< HEAD
-=======
-		LEFT JOIN penduduk p_ayah
-		ON p_ayah.id = i.suami_id
-	`).
-		Joins(`
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
 		LEFT JOIN dosis_vaksin dv
 		ON dv.id = jia.id_dosis_vaksin
 	`).
@@ -239,8 +207,4 @@ func (m *Main) GetKunjunganImunisasiByStatus(
 	}
 
 	return result, nil
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c

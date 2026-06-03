@@ -16,15 +16,9 @@ type Anak struct {
 	TinggiLahirCm   *float64       `json:"tinggi_lahir_cm,omitempty"`
 	AnakKe          int32          `json:"anak_ke"`
 	LingkarKepalaCm *float64       `json:"lingkar_kepala_cm,omitempty"`
-<<<<<<< HEAD
 	NamaIbu         string         `json:"nama_ibu"`
 	NamaAyah        string         `json:"nama_ayah"`
 	IbuID           int32          `json:"ibu_id"`
-=======
-	// NamaIbu         string         `json:"nama_ibu"`
-	// NamaAyah        string         `json:"nama_ayah"`
-	// IbuID           int32          `json:"ibu_id"`
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
 	TanggalLahir    *time.Time     `json:"tanggal_lahir,omitempty" gorm:"column:tanggal_lahir;type:date"`
 	CreatedAt       time.Time      `json:"created_at"`
 	UpdatedAt       time.Time      `json:"updated_at"`

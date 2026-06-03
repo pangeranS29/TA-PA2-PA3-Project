@@ -18,33 +18,19 @@ type JadwalImunisasiAnak struct {
 	CreatedAt       time.Time      `gorm:"column:created_at" json:"created_at"`
 	UpdatedAt       time.Time      `gorm:"column:updated_at" json:"updated_at"`
 	DeletedAt       gorm.DeletedAt `gorm:"column:deleted_at;index" json:"deleted_at"`
-<<<<<<< HEAD
-=======
-	// tracking reminder
-	IsSentH7 bool `gorm:"column:is_sent_h7" json:"is_sent_h7"`
-	IsSentH3 bool `gorm:"column:is_sent_h3" json:"is_sent_h3"`
-	IsSentH  bool `gorm:"column:is_sent_h" json:"is_sent_h"`
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
 }
 
 func (JadwalImunisasiAnak) TableName() string {
 	return "jadwal_imunisasi_anak"
 }
 
-<<<<<<< HEAD
 // TanggalLahir  *time.Time     `json:"tanggal_lahir,omitempty" gorm:"column:tanggal_lahir;type:date"`
 
-=======
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
 type JadwalImunisasiResponse struct {
 	AnakID         int32                 `json:"anak_id"`
 	NamaAnak       string                `json:"nama_anak"`
 	TanggalLahir   *time.Time            `json:"tanggal_lahir,omitempty"`
 	JumlahTerlewat int                   `json:"jumlah_terlewat"`
-<<<<<<< HEAD
-=======
-	JumlahSelesai  int                   `json:"jumlah_selesai"`
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
 	Jadwal         []JadwalImunisasiItem `json:"jadwal"`
 }
 
@@ -59,7 +45,6 @@ type JadwalImunisasiItem struct {
 }
 
 type UpdateTanggalEstimasiRequest struct {
-<<<<<<< HEAD
     TanggalEstimasi string `json:"tanggal_estimasi"`
 }
 
@@ -67,36 +52,14 @@ type JadwalImunisasiJoin struct {
 	AnakID          int32
 	NamaAnak        string
 	TanggalLahir    *time.Time
-=======
-	TanggalEstimasi string `json:"tanggal_estimasi"`
-	Alasan          string `json:"alasan"`
-}
-
-type JadwalImunisasiJoin struct {
-	AnakID       uint
-	NamaAnak     string
-	TanggalLahir *time.Time
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
 
 	JadwalID        uint
 	NamaDosis       string
 	TanggalEstimasi *time.Time
 
-<<<<<<< HEAD
 	StatusID        uint
 	Status          string
 
 	Deskripsi       string
 	EfekSamping     string
 }
-=======
-	StatusID uint `gorm:"column:status_id"`
-	Status   string
-
-	Deskripsi   string
-	EfekSamping string
-	IsSentH7    bool
-	IsSentH3    bool
-	IsSentH     bool
-}
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c

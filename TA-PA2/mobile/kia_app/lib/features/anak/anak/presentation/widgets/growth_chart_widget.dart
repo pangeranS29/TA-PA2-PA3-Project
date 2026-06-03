@@ -19,8 +19,6 @@ class GrowthChartWidget extends StatelessWidget {
     required this.xAxisLabel,
   }) : super(key: key);
 
-<<<<<<< HEAD
-=======
   double _roundDownToStep(double value, double step) {
     return (value / step).floor() * step;
   }
@@ -48,20 +46,14 @@ class GrowthChartWidget extends StatelessWidget {
     return const Color(0xFF2563EB);
   }
 
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
   /// Helper: Mengurutkan riwayat agar sinkron dengan index di grafik
   List<PertumbuhanModel> get _sortedRiwayat {
     final sorted = List<PertumbuhanModel>.from(riwayatPertumbuhan);
     sorted.sort((a, b) {
-<<<<<<< HEAD
-      double aX = selectedTab == 'BB/TB' ? a.tinggiBadan : a.usiaUkurBulan.toDouble();
-      double bX = selectedTab == 'BB/TB' ? b.tinggiBadan : b.usiaUkurBulan.toDouble();
-=======
       double aX =
           selectedTab == 'BB/TB' ? a.tinggiBadan : a.usiaUkurBulan.toDouble();
       double bX =
           selectedTab == 'BB/TB' ? b.tinggiBadan : b.usiaUkurBulan.toDouble();
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
       return aX.compareTo(bX);
     });
     return sorted;
@@ -73,18 +65,6 @@ class GrowthChartWidget extends StatelessWidget {
     if (sorted.isEmpty) return [];
 
     return sorted.map((r) {
-<<<<<<< HEAD
-      double xValue = selectedTab == 'BB/TB' ? r.tinggiBadan : r.usiaUkurBulan.toDouble();
-      double yValue;
-
-      switch (selectedTab) {
-        case 'TB/U': yValue = r.tinggiBadan; break;
-        case 'IMT/U': yValue = r.imt; break;
-        case 'LK/U': yValue = r.lingkarKepala; break;
-        case 'BB/U':
-        case 'BB/TB':
-        default: yValue = r.beratBadan; break;
-=======
       double xValue =
           selectedTab == 'BB/TB' ? r.tinggiBadan : r.usiaUkurBulan.toDouble();
       double yValue;
@@ -104,7 +84,6 @@ class GrowthChartWidget extends StatelessWidget {
         default:
           yValue = r.beratBadan;
           break;
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
       }
       return FlSpot(xValue, yValue);
     }).toList();
@@ -113,14 +92,6 @@ class GrowthChartWidget extends StatelessWidget {
   /// Helper untuk mengambil nilai Z-Score
   double _getZScoreForTab(PertumbuhanModel data) {
     switch (selectedTab) {
-<<<<<<< HEAD
-      case 'TB/U': return data.zScoreTBU;
-      case 'BB/TB': return data.zScoreBBTB;
-      case 'IMT/U': return data.zScoreIMTU;
-      case 'LK/U': return data.zScoreLKU;
-      case 'BB/U':
-      default: return data.zScoreBBU;
-=======
       case 'TB/U':
         return data.zScoreTBU;
       case 'BB/TB':
@@ -132,42 +103,23 @@ class GrowthChartWidget extends StatelessWidget {
       case 'BB/U':
       default:
         return data.zScoreBBU;
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
     }
   }
 
   /// Helper untuk garis standar WHO
   List<FlSpot> _getLine(double Function(MasterStandarModel) selector) {
     if (masterStandar.isEmpty) return [];
-<<<<<<< HEAD
-    return masterStandar.map((m) => FlSpot(m.nilaiSumbuX, selector(m))).toList();
-=======
     return masterStandar
         .map((m) => FlSpot(m.nilaiSumbuX, selector(m)))
         .toList();
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
   }
 
   /// Menentukan batas maksimal/minimal grafik agar pas di layar
   Map<String, dynamic> _getAxisRanges() {
-<<<<<<< HEAD
-    double minX = selectedTab == 'BB/TB' ? 45.0 : 0.0;
-    double maxX = selectedTab == 'BB/TB' ? 120.0 : (masterStandar.isNotEmpty ? masterStandar.last.nilaiSumbuX : 60.0);
-    double minY = double.infinity;
-    double maxY = 0;
-
-=======
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
     final childData = _getChildDataLine();
     final allSpots = [
       ..._getLine((m) => m.sd3Neg),
       ..._getLine((m) => m.sd3Pos),
-<<<<<<< HEAD
-      ...childData
-    ];
-
-    if (allSpots.isEmpty) return {'minX': 0.0, 'maxX': 60.0, 'minY': 0.0, 'maxY': 20.0};
-=======
       ...childData,
     ];
 
@@ -185,7 +137,6 @@ class GrowthChartWidget extends StatelessWidget {
 
     double minY = allSpots.first.y;
     double maxY = allSpots.first.y;
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
 
     for (final spot in allSpots) {
       if (spot.y < minY) minY = spot.y;
@@ -193,18 +144,11 @@ class GrowthChartWidget extends StatelessWidget {
     }
 
     return {
-<<<<<<< HEAD
-      'minX': minX,
-      'maxX': maxX,
-      'minY': (minY - 2).clamp(0.0, double.infinity),
-      'maxY': maxY + 2
-=======
       'minX': _roundDownToStep(rawMinX, xStep),
       'maxX': _roundUpToStep(rawMaxX, xStep),
       'minY':
           _roundDownToStep((minY - yStep).clamp(0.0, double.infinity), yStep),
       'maxY': _roundUpToStep(maxY + yStep, yStep),
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
     };
   }
 
@@ -216,14 +160,6 @@ class GrowthChartWidget extends StatelessWidget {
 
     // Setup Bar/Garis
     final barData = [
-<<<<<<< HEAD
-      LineChartBarData(spots: _getLine((m) => m.sd3Neg), color: Colors.black54, barWidth: 1.5, isCurved: true, dashArray: [5, 5], dotData: const FlDotData(show: false)),
-      LineChartBarData(spots: _getLine((m) => m.sd3Pos), color: Colors.black54, barWidth: 1.5, isCurved: true, dashArray: [5, 5], dotData: const FlDotData(show: false)),
-      LineChartBarData(spots: _getLine((m) => m.sd2Neg), color: Colors.red.withOpacity(0.6), barWidth: 1.5, isCurved: true, dashArray: [4, 4], dotData: const FlDotData(show: false)),
-      LineChartBarData(spots: _getLine((m) => m.sd2Pos), color: Colors.red.withOpacity(0.6), barWidth: 1.5, isCurved: true, dashArray: [4, 4], dotData: const FlDotData(show: false)),
-      LineChartBarData(spots: _getLine((m) => m.median), color: const Color(0xFF22C55E), barWidth: 2, isCurved: true, dotData: const FlDotData(show: false)),
-      
-=======
       LineChartBarData(
           spots: _getLine((m) => m.sd3Neg),
           color: Colors.black54,
@@ -259,20 +195,11 @@ class GrowthChartWidget extends StatelessWidget {
           isCurved: true,
           dotData: const FlDotData(show: false)),
 
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
       // Index 5: Data Anak (Garis Biru)
       if (childData.isNotEmpty)
         LineChartBarData(
           spots: childData,
           color: const Color(0xFF2563EB),
-<<<<<<< HEAD
-          barWidth: 2.5,
-          isCurved: false, // Dibikin lurus seperti Gambar 1
-          dotData: FlDotData(
-            show: true,
-            getDotPainter: (spot, percent, barData, index) => FlDotCirclePainter(
-              radius: 4, color: const Color(0xFF2563EB), strokeWidth: 2, strokeColor: Colors.white,
-=======
           barWidth: 3,
           isCurved: true,
           belowBarData: BarAreaData(
@@ -287,7 +214,6 @@ class GrowthChartWidget extends StatelessWidget {
               color: _statusColor(sortedRiwayat[index].statusBBU),
               strokeWidth: 2,
               strokeColor: Colors.white,
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
             ),
           ),
         ),
@@ -301,9 +227,6 @@ class GrowthChartWidget extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-<<<<<<< HEAD
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10)],
-=======
         border: Border.all(color: const Color(0xFFE5E7EB)),
         boxShadow: [
           BoxShadow(
@@ -312,101 +235,10 @@ class GrowthChartWidget extends StatelessWidget {
             offset: const Offset(0, 6),
           )
         ],
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-<<<<<<< HEAD
-          const Text('Grafik Pertumbuhan', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87)),
-          const SizedBox(height: 16),
-          AspectRatio(
-            aspectRatio: 1.5,
-            child: masterStandar.isEmpty 
-              ? Center(child: Text("Data standar $selectedTab belum tersedia", style: const TextStyle(color: Colors.grey)))
-              : LineChart(
-                  LineChartData(
-                    gridData: FlGridData(
-                      show: true,
-                      drawVerticalLine: true,
-                      getDrawingHorizontalLine: (value) => FlLine(color: Colors.grey.withOpacity(0.2), strokeWidth: 0.5),
-                      getDrawingVerticalLine: (value) => FlLine(color: Colors.grey.withOpacity(0.2), strokeWidth: 0.5),
-                    ),
-                    titlesData: FlTitlesData(
-                      rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                      topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                      bottomTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          reservedSize: 30,
-                          getTitlesWidget: (value, meta) => Padding(
-                            padding: const EdgeInsets.only(top: 8.0),
-                            child: Text(value.toInt().toString(), style: const TextStyle(fontSize: 10, color: Colors.grey)),
-                          ),
-                        ),
-                      ),
-                      leftTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          reservedSize: 40,
-                          getTitlesWidget: (value, meta) => Text(value.toStringAsFixed(1), style: const TextStyle(fontSize: 10, color: Colors.grey)),
-                        ),
-                      ),
-                    ),
-                    borderData: FlBorderData(
-                      show: true,
-                      border: Border(left: BorderSide(color: Colors.grey.shade300), bottom: BorderSide(color: Colors.grey.shade300)),
-                    ),
-                    minX: ranges['minX'], maxX: ranges['maxX'], minY: ranges['minY'], maxY: ranges['maxY'],
-                    
-                    // KONFIGURASI TOOLTIP (Teks melayang)
-                    lineTouchData: LineTouchData(
-                      enabled: false, // Matikan interaksi sentuh agar tidak muncul titik aneh pada garis standar (Gambar 2)
-                      touchTooltipData: LineTouchTooltipData(
-                        getTooltipColor: (_) => Colors.transparent, // Background tembus pandang (Seperti gambar 1)
-                        tooltipPadding: const EdgeInsets.only(bottom: 2),
-                        tooltipMargin: 4,
-                        getTooltipItems: (touchedSpots) {
-                          return touchedSpots.map((spot) {
-                            // Ambil ZScore dari data asli
-                            final dataAsli = sortedRiwayat[spot.spotIndex];
-                            final zScore = _getZScoreForTab(dataAsli);
-                            
-                            // Format: Nilai Aktual \n Z-Score
-                            return LineTooltipItem(
-                              '${spot.y.toStringAsFixed(2)}\n(Z: ${zScore.toStringAsFixed(2)})',
-                              const TextStyle(
-                                color: Color(0xFF2563EB), // Warna biru sama seperti garis data anak
-                                fontWeight: FontWeight.bold, 
-                                fontSize: 11,
-                                height: 1.2,
-                              ),
-                            );
-                          }).toList();
-                        },
-                      ),
-                    ),
-                    // TAMPILKAN TEKS SECARA PERMANEN (Tidak perlu disentuh)
-                    showingTooltipIndicators: childData.isNotEmpty 
-                      ? childData.asMap().entries.map((entry) {
-                          return ShowingTooltipIndicators([
-                            LineBarSpot(barData[childBarIndex], childBarIndex, entry.value),
-                          ]);
-                        }).toList()
-                      : [],
-                    lineBarsData: barData,
-                  ),
-                ),
-          ),
-          const SizedBox(height: 16),
-          Wrap(
-            spacing: 16,
-            runSpacing: 8,
-            children: [
-              _buildLegendItem('Median', Colors.green, false),
-              _buildLegendItem('Data Anak', const Color(0xFF2563EB), false),
-              _buildLegendItem('±2 SD', Colors.red, true),
-=======
           Row(
             children: [
               Container(
@@ -546,14 +378,10 @@ class GrowthChartWidget extends StatelessWidget {
               _buildLegendItem('Median', const Color(0xFF22C55E), false),
               _buildLegendItem('Data Anak', const Color(0xFF2563EB), false),
               _buildLegendItem('±2 SD', const Color(0xFFEF4444), true),
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
               _buildLegendItem('±3 SD', Colors.black54, true),
             ],
           ),
           const SizedBox(height: 12),
-<<<<<<< HEAD
-          Text('Sumbu X: $xAxisLabel | Sumbu Y: $yAxisLabel', style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
-=======
           Text(
             'X: $xAxisLabel • Y: $yAxisLabel',
             style: TextStyle(
@@ -562,25 +390,11 @@ class GrowthChartWidget extends StatelessWidget {
               fontWeight: FontWeight.w500,
             ),
           ),
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
         ],
       ),
     );
   }
 
-<<<<<<< HEAD
-  Widget _buildLegendItem(String label, Color color, bool isDashed) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(width: 16, height: 3, decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(2))),
-        const SizedBox(width: 6),
-        Text(label, style: const TextStyle(fontSize: 12, color: Colors.grey)),
-      ],
-    );
-  }
-}
-=======
   String _formatBottomTitle(double value) {
     if (selectedTab == 'BB/TB') {
       final rounded = value.round();
@@ -626,4 +440,3 @@ class GrowthChartWidget extends StatelessWidget {
     );
   }
 }
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c

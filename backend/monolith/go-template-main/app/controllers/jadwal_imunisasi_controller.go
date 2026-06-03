@@ -117,11 +117,7 @@ func (m *Main) GetJadwalImunisasiByAnakID(c echo.Context) error {
 		data,
 		nil,
 	)
-<<<<<<< HEAD
 }	
-=======
-}
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
 
 func (m *Main) UpdateTanggalEstimasi(c echo.Context) error {
 
@@ -147,18 +143,10 @@ func (m *Main) UpdateTanggalEstimasi(c echo.Context) error {
 	claims := c.Get("auth_claims").(*models.AuthClaims)
 	userID := claims.UserID
 
-<<<<<<< HEAD
 	err = m.usecases.UpdateTanggalEstimasi(
 		userID,
 		uint(jadwalID),
 		parsedDate,
-=======
-	err = m.usecases.RequestPerubahanJadwal(
-		userID,
-		uint(jadwalID),
-		parsedDate.Format("2006-01-02"),
-		req.Alasan,
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
 	)
 
 	if err != nil {
@@ -210,44 +198,4 @@ func (m *Main) GetJadwalByID(c echo.Context) error {
 	}
 
 	return c.JSON(200, data)
-<<<<<<< HEAD
 }
-=======
-}
-
-func (m *Main) SetJadwalSelesai(c echo.Context) error {
-
-	idParam := c.Param("id")
-
-	jadwalID, err := strconv.Atoi(idParam)
-	if err != nil || jadwalID <= 0 {
-		return helpers.Response(c, 400, []string{"id tidak valid"})
-	}
-
-	// 🔥 AMBIL USER LOGIN
-	claimsValue := c.Get("auth_claims")
-	claims, ok := claimsValue.(*models.AuthClaims)
-
-	if !ok || claims == nil || claims.UserID == 0 {
-		return helpers.Response(c, 401, []string{"unauthorized"})
-	}
-
-	// 🔥 KIRIM USERID + JADWAL ID
-	err = m.usecases.SetJadwalSelesai(
-		int32(claims.UserID),
-		uint(jadwalID),
-	)
-
-	if err != nil {
-		return helpers.Response(c, 500, []string{err.Error()})
-	}
-
-	return helpers.StandardResponse(
-		c,
-		200,
-		[]string{"jadwal berhasil diselesaikan"},
-		nil,
-		nil,
-	)
-}
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c

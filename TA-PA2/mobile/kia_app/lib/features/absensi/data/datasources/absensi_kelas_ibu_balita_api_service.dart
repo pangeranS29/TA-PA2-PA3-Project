@@ -79,6 +79,57 @@ class AbsensiKelasIbuBalitaApiService {
     );
   }
 
+  Future<List<AbsensiKelasIbuBalitaModel>> getAllKader() async {
+    final uri = Uri.parse(
+      '${ApiConstants.baseUrl}/kader/absensi-kelas-ibu-balita',
+    );
+
+    final response = await _client.get(uri, headers: _headers);
+    final body = jsonDecode(response.body) as Map<String, dynamic>;
+
+    if (response.statusCode == 404) {
+      return [];
+    }
+
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw Exception(body['message'] ?? 'Gagal mengambil absensi');
+    }
+
+    final data = body['data'];
+
+    if (data is List) {
+      return data
+          .map(
+            (item) => AbsensiKelasIbuBalitaModel.fromJson(
+              Map<String, dynamic>.from(item),
+            ),
+          )
+          .toList();
+    }
+
+    return [];
+  }
+
+  Future<void> verifyKader(int id, String namaKader, String tanggalParaf) async {
+    final uri = Uri.parse(
+      '${ApiConstants.baseUrl}/kader/absensi-kelas-ibu-balita/$id/verifikasi',
+    );
+
+    final response = await _client.put(
+      uri,
+      headers: _headers,
+      body: jsonEncode({
+        'nama_kader': namaKader,
+        'tanggal_paraf': tanggalParaf,
+      }),
+    );
+
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      final body = jsonDecode(response.body) as Map<String, dynamic>;
+      throw Exception(body['message'] ?? 'Gagal memverifikasi absensi');
+    }
+  }
+
   void dispose() {
     _client.close();
   }

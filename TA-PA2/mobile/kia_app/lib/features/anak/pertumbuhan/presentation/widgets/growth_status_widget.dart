@@ -189,8 +189,8 @@ class GrowthStatusCard extends StatelessWidget {
         final indicatorSize = 16.0;
         final maxLeft =
             (constraints.maxWidth - indicatorSize).clamp(0.0, double.infinity);
-        final clampedPos = (position.clamp(0.0, 1.0) as double);
-        final left = (clampedPos * maxLeft).toDouble();
+        final clampedPos = position.clamp(0.0, 1.0);
+        final left = clampedPos * maxLeft;
 
         return Stack(
           clipBehavior: Clip.none,
@@ -276,6 +276,8 @@ class GrowthSummaryWidget extends StatelessWidget {
   final String? statusBBU;
   final String? statusTBU;
   final String? statusBBTB;
+  final String? statusIMTU;
+  final String? statusLKU;
   final String childName;
   final String childAge;
 
@@ -284,6 +286,8 @@ class GrowthSummaryWidget extends StatelessWidget {
     required this.statusBBU,
     required this.statusTBU,
     required this.statusBBTB,
+    this.statusIMTU,
+    this.statusLKU,
     required this.childName,
     required this.childAge,
   }) : super(key: key);
@@ -372,6 +376,14 @@ class GrowthSummaryWidget extends StatelessWidget {
               _buildStatusRow('Tinggi/Usia (TB/U)', statusTBU),
               const SizedBox(height: 8),
               _buildStatusRow('Berat/Tinggi (BB/TB)', statusBBTB),
+              if (statusIMTU != null && statusIMTU!.isNotEmpty && statusIMTU != '-') ...[
+                const SizedBox(height: 8),
+                _buildStatusRow('IMT/Usia (IMT/U)', statusIMTU),
+              ],
+              if (statusLKU != null && statusLKU!.isNotEmpty && statusLKU != '-') ...[
+                const SizedBox(height: 8),
+                _buildStatusRow('Lingkar Kepala (LK/U)', statusLKU),
+              ],
             ],
           ),
         ],
@@ -380,6 +392,20 @@ class GrowthSummaryWidget extends StatelessWidget {
   }
 
   Widget _buildStatusRow(String label, String? status) {
+    // Tentukan warna badge berdasarkan status
+    Color badgeColor = Colors.white.withOpacity(0.2);
+    if (status != null) {
+      final lower = status.toLowerCase();
+      if (lower.contains('baik') || lower.contains('normal')) {
+        badgeColor = const Color(0xFF10B981).withOpacity(0.7);
+      } else if (lower.contains('buruk') || lower.contains('sangat') ||
+          lower.contains('stunting') || lower.contains('obesitas')) {
+        badgeColor = const Color(0xFFEF4444).withOpacity(0.7);
+      } else if (lower.contains('kurang') || lower.contains('lebih') ||
+          lower.contains('risiko') || lower.contains('pendek')) {
+        badgeColor = const Color(0xFFF59E0B).withOpacity(0.7);
+      }
+    }
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -394,7 +420,7 @@ class GrowthSummaryWidget extends StatelessWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.2),
+            color: badgeColor,
             borderRadius: BorderRadius.circular(12),
           ),
           child: Text(

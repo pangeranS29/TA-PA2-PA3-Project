@@ -225,9 +225,6 @@ class _CatatanKesehataanGigiScreenState
                                 'statusPlak': item.statusPlak,
                                 'kondisi': kondisi,
                                 'resikoGigiBerlubang': item.resikoGigiBerlubang,
-                                'tindakan': '-',
-                                'catatan': '-',
-                                'rekomendasi': '-',
                                 'status': status
                               };
 

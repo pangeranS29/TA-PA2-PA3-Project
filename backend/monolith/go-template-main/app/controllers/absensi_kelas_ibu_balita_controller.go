@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"net/http"
+	"strconv"
 
 	"monitoring-service/app/models"
 	"monitoring-service/app/usecases"
@@ -103,4 +104,73 @@ func (c *AbsensiKelasIbuBalitaController) SaveMine(ctx echo.Context) error {
 	})
 }
 
+func (c *AbsensiKelasIbuBalitaController) GetAll(ctx echo.Context) error {
+	data, err := c.usecase.GetAll()
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, models.Response{
+			StatusCode: http.StatusInternalServerError,
+			Message:    err.Error(),
+		})
+	}
 
+	return ctx.JSON(http.StatusOK, models.Response{
+		StatusCode: http.StatusOK,
+		Data:       data,
+	})
+}
+
+type verifyAbsensiKelasIbuBalitaRequest struct {
+	NamaKader    string `json:"nama_kader"`
+	TanggalParaf string `json:"tanggal_paraf"`
+}
+
+func (c *AbsensiKelasIbuBalitaController) Verify(ctx echo.Context) error {
+	idParam := ctx.Param("id")
+	
+	// Convert id param to int32, assume parse as int first then cast
+	// Wait, we can use strconv.Atoi
+	var req verifyAbsensiKelasIbuBalitaRequest
+	if err := ctx.Bind(&req); err != nil {
+		return ctx.JSON(http.StatusBadRequest, models.Response{
+			StatusCode: http.StatusBadRequest,
+			Message:    "format request tidak valid",
+		})
+	}
+
+	tanggalParaf, err := parseOptionalDate(req.TanggalParaf)
+	if err != nil {
+		return ctx.JSON(http.StatusBadRequest, models.Response{
+			StatusCode: http.StatusBadRequest,
+			Message:    "format tanggal_paraf harus YYYY-MM-DD",
+		})
+	}
+	
+	if req.NamaKader == "" {
+	    return ctx.JSON(http.StatusBadRequest, models.Response{
+			StatusCode: http.StatusBadRequest,
+			Message:    "nama_kader tidak boleh kosong",
+		})
+	}
+
+	// We need to parse idParam
+	id, err := strconv.Atoi(idParam)
+	if err != nil || id <= 0 {
+		return ctx.JSON(http.StatusBadRequest, models.Response{
+			StatusCode: http.StatusBadRequest,
+			Message:    "id tidak valid",
+		})
+	}
+
+	err = c.usecase.Verify(int32(id), req.NamaKader, tanggalParaf)
+	if err != nil {
+		return ctx.JSON(http.StatusBadRequest, models.Response{
+			StatusCode: http.StatusBadRequest,
+			Message:    err.Error(),
+		})
+	}
+
+	return ctx.JSON(http.StatusOK, models.Response{
+		StatusCode: http.StatusOK,
+		Message:    "Berhasil verifikasi absensi",
+	})
+}

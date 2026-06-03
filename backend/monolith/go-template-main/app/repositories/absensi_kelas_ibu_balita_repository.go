@@ -50,3 +50,29 @@ func (r *AbsensiKelasIbuBalitaRepository) FindByIbuID(ibuID int32) ([]models.Abs
 func (r *AbsensiKelasIbuBalitaRepository) Create(data *models.AbsensiKelasIbuBalita) error {
 	return r.db.Create(data).Error
 }
+
+// FindAllWithIbu mengambil semua data absensi beserta data ibu (dan penduduk).
+func (r *AbsensiKelasIbuBalitaRepository) FindAllWithIbu() ([]models.AbsensiKelasIbuBalita, error) {
+	var list []models.AbsensiKelasIbuBalita
+	err := r.db.
+		Preload("Ibu").
+		Preload("Ibu.Kependudukan").
+		Order("created_at DESC").
+		Find(&list).Error
+	return list, err
+}
+
+// FindByID mengambil data absensi berdasarkan ID.
+func (r *AbsensiKelasIbuBalitaRepository) FindByID(id int32) (*models.AbsensiKelasIbuBalita, error) {
+	var data models.AbsensiKelasIbuBalita
+	err := r.db.First(&data, id).Error
+	if err != nil {
+		return nil, err
+	}
+	return &data, nil
+}
+
+// Update menyimpan perubahan pada entri absensi.
+func (r *AbsensiKelasIbuBalitaRepository) Update(data *models.AbsensiKelasIbuBalita) error {
+	return r.db.Save(data).Error
+}

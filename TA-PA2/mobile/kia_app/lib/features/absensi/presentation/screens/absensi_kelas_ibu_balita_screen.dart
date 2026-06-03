@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ta_pa2_pa3_project/features/absensi/data/datasources/absensi_kelas_ibu_balita_api_service.dart';
 import 'package:ta_pa2_pa3_project/features/absensi/data/models/absensi_kelas_ibu_balita_model.dart';
+import 'package:ta_pa2_pa3_project/core/widgets/verification_popup.dart';
 
 class AbsensiKelasIbuBalitaScreen extends StatefulWidget {
   const AbsensiKelasIbuBalitaScreen({super.key});
@@ -47,6 +48,20 @@ class _AbsensiKelasIbuBalitaScreenState
   int get _totalHadir => _absensiList.length;
   int get _tervalidasi =>
       _absensiList.where((a) => a.namaKader.isNotEmpty).length;
+
+  void _showExitPopup() {
+    showVerificationPopup(
+      context: context,
+      type: VerificationPopupType.exit,
+      title: 'Yakin ingin keluar?',
+      content: 'Apakah Anda yakin ingin keluar tanpa menyimpan? Data yang belum disimpan akan hilang dan tidak dapat dikembalikan.',
+      onConfirm: () {
+        Navigator.pop(context);
+        Navigator.pop(context);
+      },
+      onCancel: () => Navigator.pop(context),
+    );
+  }
 
   void _showTambahAbsensi() {
     DateTime? selectedDate;
@@ -189,37 +204,47 @@ class _AbsensiKelasIbuBalitaScreenState
                     child: ElevatedButton.icon(
                       onPressed: isSaving || selectedDate == null
                           ? null
-                          : () async {
-                              setModalState(() => isSaving = true);
-                              try {
-                                final newItem = await _apiService.save(
-                                  AbsensiKelasIbuBalitaModel(
-                                    pertemuanKe: _absensiList.length + 1,
-                                    tanggal:
-                                        '${selectedDate!.year}-${selectedDate!.month.toString().padLeft(2, '0')}-${selectedDate!.day.toString().padLeft(2, '0')}',
-                                    namaKader: '',
-                                    tanggalParaf: '',
-                                  ),
-                                );
-                                if (!mounted) return;
-                                Navigator.pop(ctx);
-                                setState(() => _absensiList.add(newItem));
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('Absensi berhasil dikirim'),
-                                    behavior: SnackBarBehavior.floating,
-                                  ),
-                                );
-                              } catch (e) {
-                                setModalState(() => isSaving = false);
-                                if (!mounted) return;
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(e.toString()),
-                                    behavior: SnackBarBehavior.floating,
-                                  ),
-                                );
-                              }
+                          : () {
+                              showVerificationPopup(
+                                context: context,
+                                type: VerificationPopupType.save,
+                                title: 'Konfirmasi Simpan',
+                                content: 'Apakah Anda yakin data absensi sudah benar? Data yang sudah disimpan tidak dapat diubah kembali.',
+                                onConfirm: () async {
+                                  Navigator.pop(context); // close popup
+                                  setModalState(() => isSaving = true);
+                                  try {
+                                    final newItem = await _apiService.save(
+                                      AbsensiKelasIbuBalitaModel(
+                                        pertemuanKe: _absensiList.length + 1,
+                                        tanggal:
+                                            '${selectedDate!.year}-${selectedDate!.month.toString().padLeft(2, '0')}-${selectedDate!.day.toString().padLeft(2, '0')}',
+                                        namaKader: '',
+                                        tanggalParaf: '',
+                                      ),
+                                    );
+                                    if (!mounted) return;
+                                    Navigator.pop(ctx);
+                                    setState(() => _absensiList.add(newItem));
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text('Absensi berhasil dikirim'),
+                                        behavior: SnackBarBehavior.floating,
+                                      ),
+                                    );
+                                  } catch (e) {
+                                    setModalState(() => isSaving = false);
+                                    if (!mounted) return;
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(e.toString()),
+                                        behavior: SnackBarBehavior.floating,
+                                      ),
+                                    );
+                                  }
+                                },
+                                onCancel: () => Navigator.pop(context),
+                              );
                             },
                       icon: isSaving
                           ? const SizedBox(
@@ -284,16 +309,22 @@ class _AbsensiKelasIbuBalitaScreenState
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Color(0xFF1E293B)),
-          onPressed: () => Navigator.pop(context),
+          onPressed: _showExitPopup,
         ),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),
           child: Container(color: const Color(0xFFE5E7EB), height: 1),
         ),
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : RefreshIndicator(
+      body: PopScope(
+        canPop: false,
+        onPopInvoked: (didPop) {
+          if (didPop) return;
+          _showExitPopup();
+        },
+        child: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : RefreshIndicator(
               onRefresh: _loadAbsensi,
               child: ListView(
                 padding: const EdgeInsets.all(16),
@@ -519,6 +550,7 @@ class _AbsensiKelasIbuBalitaScreenState
                 ],
               ),
             ),
+      ),
     );
   }
 }

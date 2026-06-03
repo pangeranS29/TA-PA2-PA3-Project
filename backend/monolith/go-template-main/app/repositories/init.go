@@ -57,6 +57,7 @@ type Main struct {
 	RencanaPersalinan             *RencanaPersalinanRepository
 	RingkasanPelayananPersalinan  *RingkasanPelayananPersalinanRepository
 	KeteranganLahir               *KeteranganLahirRepository // <-- TAMBAHKAN INI
+	Bbl                           BblRepository
 	LembarPemantauan              LembarPemantauanRepository
 	RiwayatProsesMelahirkan       *RiwayatProsesMelahirkanRepository
 	PelayananIbuNifas             *PelayananIbuNifasRepository
@@ -158,6 +159,7 @@ func Init(opts Options) *Main {
 	m.RencanaPersalinan = NewRencanaPersalinanRepository(opts.Postgres)
 	m.RingkasanPelayananPersalinan = NewRingkasanPelayananPersalinanRepository(opts.Postgres)
 	m.KeteranganLahir = NewKeteranganLahirRepository(opts.Postgres) // <-- TAMBAHKAN INI
+	m.Bbl = NewBblRepository(opts.Postgres)
 	m.LembarPemantauan = NewLembarPemantauanRepository(opts.Postgres)
 	m.RiwayatProsesMelahirkan = NewRiwayatProsesMelahirkanRepository(opts.Postgres)
 	m.PelayananIbuNifas = NewPelayananIbuNifasRepository(opts.Postgres)

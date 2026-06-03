@@ -75,15 +75,9 @@ func (u *AnakUseCase) CreateAnak(req models.CreateAnakRequest) (*models.AnakResp
 		TinggiLahirCm:   req.TinggiLahirCm,
 		AnakKe:          req.AnakKe,
 		LingkarKepalaCm: req.LingkarKepalaCm,
-<<<<<<< HEAD
 		NamaIbu:         req.NamaIbu,
 		NamaAyah:        req.NamaAyah,
 		IbuID:           req.IbuID,
-=======
-		// NamaIbu:         req.NamaIbu,
-		// NamaAyah:        req.NamaAyah,
-		// IbuID:           req.IbuID,
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
 	}
 
 	if err := u.anakRepo.Create(anak); err != nil {
@@ -147,15 +141,9 @@ func (u *AnakUseCase) CreateAnakDenganPenduduk(req models.CreateAnakDenganPendud
 		TinggiLahirCm:   req.TinggiLahirCm,
 		AnakKe:          req.AnakKe,
 		LingkarKepalaCm: req.LingkarKepalaCm,
-<<<<<<< HEAD
 		NamaIbu:         req.NamaIbu,
 		NamaAyah:        req.NamaAyah,
 		IbuID:           req.IbuID,
-=======
-		// NamaIbu:         req.NamaIbu,
-		// NamaAyah:        req.NamaAyah,
-		// IbuID:           req.IbuID,
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
 	}
 
 	if err := u.anakRepo.Create(anak); err != nil {
@@ -195,7 +183,6 @@ func (u *AnakUseCase) UpdateAnak(id int32, req models.UpdateAnakRequest) (*model
 		anak.LingkarKepalaCm = req.LingkarKepalaCm
 	}
 
-<<<<<<< HEAD
 	if req.NamaIbu != nil {
 		anak.NamaIbu = *req.NamaIbu
 	}
@@ -203,15 +190,6 @@ func (u *AnakUseCase) UpdateAnak(id int32, req models.UpdateAnakRequest) (*model
 	if req.NamaAyah != nil {
 		anak.NamaAyah = *req.NamaAyah
 	}
-=======
-	// if req.NamaIbu != nil {
-	// 	anak.NamaIbu = *req.NamaIbu
-	// }
-
-	// if req.NamaAyah != nil {
-	// 	anak.NamaAyah = *req.NamaAyah
-	// }
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
 
 	if err := u.anakRepo.Update(anak); err != nil {
 		return nil, err
@@ -313,22 +291,42 @@ func HitungUsiaBulan(tanggalLahir time.Time) int {
 	return total
 }
 
-func FormatUsiaTeks(bulan int) string {
-	if bulan == 0 {
-		return "0 bulan"
-	}
-	if bulan < 12 {
-		return fmt.Sprintf("%d bulan", bulan)
+func FormatUsiaTeks(tanggalLahir time.Time) string {
+	now := time.Now()
+
+	if tanggalLahir.IsZero() || tanggalLahir.Year() < 1900 || tanggalLahir.After(now) {
+		return "0 Hari"
 	}
 
-	tahun := bulan / 12
-	sisa := bulan % 12
+	days := int(now.Sub(tanggalLahir).Hours() / 24)
+	if days <= 28 {
+		return fmt.Sprintf("%d Hari", days)
+	}
+
+	years := now.Year() - tanggalLahir.Year()
+	months := int(now.Month()) - int(tanggalLahir.Month())
+	total := years*12 + months
+
+	if now.Day() < tanggalLahir.Day() {
+		total--
+	}
+
+	if total < 0 {
+		total = 0
+	}
+
+	if total < 12 {
+		return fmt.Sprintf("%d Bulan", total)
+	}
+
+	tahun := total / 12
+	sisa := total % 12
 
 	if sisa == 0 {
-		return fmt.Sprintf("%d tahun", tahun)
+		return fmt.Sprintf("%d Tahun", tahun)
 	}
 
-	return fmt.Sprintf("%d tahun %d bulan", tahun, sisa)
+	return fmt.Sprintf("%d Tahun %d Bulan", tahun, sisa)
 }
 
 func FormatLabelUsia(bulan int) string {
@@ -359,15 +357,9 @@ func (u *AnakUseCase) toAnakResponse(anak *models.Anak) models.AnakResponse {
 		TinggiLahirCm:   anak.TinggiLahirCm,
 		AnakKe:          anak.AnakKe,
 		LingkarKepalaCm: anak.LingkarKepalaCm,
-<<<<<<< HEAD
 		NamaIbu:         anak.NamaIbu,
 		NamaAyah:        anak.NamaAyah,
 		IbuID:           anak.IbuID,
-=======
-		// NamaIbu:         anak.NamaIbu,
-		// NamaAyah:        anak.NamaAyah,
-		// IbuID:           anak.IbuID,
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
 	}
 
 	// Ambil data dari Penduduk (Kependudukan)
@@ -378,7 +370,7 @@ func (u *AnakUseCase) toAnakResponse(anak *models.Anak) models.AnakResponse {
 			// Hitung usia dari tanggal lahir penduduk
 			usiaBulan := HitungUsiaBulan(anak.Penduduk.TanggalLahir)
 			resp.UsiaBulan = usiaBulan
-			resp.UsiaTeks = FormatUsiaTeks(usiaBulan)
+			resp.UsiaTeks = FormatUsiaTeks(anak.Penduduk.TanggalLahir)
 		} else {
 			resp.TanggalLahir = ""
 			resp.UsiaBulan = 0

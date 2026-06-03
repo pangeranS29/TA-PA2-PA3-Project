@@ -20,15 +20,9 @@ class ImunisasiScreen extends StatefulWidget {
 
 class _ImunisasiScreenState extends State<ImunisasiScreen> {
   final ImunisasiService _service = ImunisasiService();
-<<<<<<< HEAD
 
   Future<List<ImunisasiModel>>? _futureJadwal;
 
-=======
-  Future<List<ImunisasiModel>>? _futureJadwal;
-
-  bool _isUpdating = false;
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
   @override
   void initState() {
     super.initState();
@@ -52,33 +46,6 @@ class _ImunisasiScreenState extends State<ImunisasiScreen> {
     ).format(date);
   }
 
-<<<<<<< HEAD
-=======
-  Future<void> _setSelesai(int jadwalId) async {
-    try {
-      setState(() {
-        _isUpdating = true;
-      });
-
-      await _service.setJadwalSelesai(jadwalId);
-
-      _loadData();
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString())),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isUpdating = false;
-        });
-      }
-    }
-  }
-
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
   Color getStatusColor(String status) {
     switch (status.toLowerCase()) {
       case 'mendekati':
@@ -285,7 +252,6 @@ class _ImunisasiScreenState extends State<ImunisasiScreen> {
             const SizedBox(height: 12),
 
             /// BUTTONS (TETAP)
-<<<<<<< HEAD
             Row(
               children: [
                 /// UBAH JADWAL (SECONDARY - WHITE)
@@ -357,130 +323,6 @@ class _ImunisasiScreenState extends State<ImunisasiScreen> {
                     ),
                   ),
                 ),
-=======
-            Column(
-              children: [
-                /// ROW 1: ACTION UTAMA + SEKUNDER
-                Row(
-                  children: [
-                    /// UBAH JADWAL
-                    Expanded(
-                      child: OutlinedButton.icon(
-                        onPressed: item.statusId == 6
-                            ? null
-                            : () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => UbahJadwalScreen(
-                                      jadwalId: item.jadwalId,
-                                    ),
-                                  ),
-                                );
-                              },
-                        icon: Icon(
-                          Icons.event_repeat_rounded,
-                          size: 18,
-                          color:
-                              item.statusId == 6 ? Colors.grey : Colors.black,
-                        ),
-                        label: Text(
-                          'Ubah Jadwal',
-                          style: TextStyle(
-                            color:
-                                item.statusId == 6 ? Colors.grey : Colors.black,
-                          ),
-                        ),
-                        style: OutlinedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          side: BorderSide(color: Colors.grey.shade300),
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(width: 10),
-
-                    /// LIHAT RINCIAN
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: () {
-                          showImunisasiDetailModal(context, item);
-                        },
-                        icon: const Icon(
-                          Icons.article_outlined,
-                          size: 18,
-                          color: Colors.white,
-                        ),
-                        label: const Text(
-                          'Rincian Imunisasi',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF2563EB),
-                          elevation: 0,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-
-                /// ROW 2: SELESAI (FULL WIDTH)
-                if (item.statusId != 6) ...[
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed:
-                          _isUpdating ? null : () => _setSelesai(item.jadwalId),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
-                        disabledBackgroundColor: Colors.grey,
-                        elevation: 0,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                      ),
-                      child: _isUpdating
-                          ? const SizedBox(
-                              width: 18,
-                              height: 18,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.white,
-                              ),
-                            )
-                          : Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: const [
-                                Icon(
-                                  Icons.task_alt,
-                                  color: Colors.white,
-                                  size: 18,
-                                ),
-                                SizedBox(width: 8),
-                                Text(
-                                  'Selesai',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                    ),
-                  ),
-                ],
-
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
               ],
             )
           ],

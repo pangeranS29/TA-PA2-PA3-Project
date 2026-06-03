@@ -10,19 +10,10 @@ import {
 import { getAnakById } from "../../services/Anak";
 import {
   ChevronLeft, Plus, Trash2, Calendar, Scale, Ruler,
-<<<<<<< HEAD
-  Info, Pencil, TrendingUp,
-} from "lucide-react";
-import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
-  ResponsiveContainer,
-} from "recharts";
-=======
   Info, Pencil, TrendingUp, Target, Heart,
 } from "lucide-react";
 import { GrowthStatusCard, GrowthSummary } from "./components/GrowthStatusCard";
 import { GrowthChart } from "./components/GrowthChart";
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
 
 export default function PertumbuhanIndex() {
   const { id } = useParams();
@@ -183,11 +174,7 @@ export default function PertumbuhanIndex() {
 
             {/* Grafik */}
             <div className="xl:col-span-2 bg-white rounded-3xl border border-gray-100 shadow-sm p-6 space-y-4">
-<<<<<<< HEAD
-              <div className="flex items-center justify-between flex-wrap gap-3">
-=======
               <div className="flex items-center justify-between flex-wrap gap-3 mb-4">
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
                 <h3 className="text-base font-extrabold text-gray-900 flex items-center gap-2">
                   <TrendingUp size={18} className="text-indigo-500" /> Grafik Pertumbuhan
                 </h3>
@@ -207,73 +194,6 @@ export default function PertumbuhanIndex() {
                 </div>
               </div>
 
-<<<<<<< HEAD
-              {chartData.length > 0 ? (
-                <ResponsiveContainer width="100%" height={280}>
-                  <LineChart data={chartData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                    <XAxis dataKey="bulan" tick={{ fontSize: 10, fontWeight: 700, fill: "#9ca3af" }} />
-                    <YAxis tick={{ fontSize: 10, fontWeight: 700, fill: "#9ca3af" }} />
-                    <Tooltip
-                      contentStyle={{ borderRadius: 16, border: "none", boxShadow: "0 4px 24px rgba(0,0,0,0.08)", fontSize: 12 }}
-                      formatter={(v) => [`${v} ${chartConfig[activeChart].unit}`, chartConfig[activeChart].label]}
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey={activeChart}
-                      stroke={chartConfig[activeChart].color}
-                      strokeWidth={3}
-                      dot={{ r: 5, fill: chartConfig[activeChart].color, strokeWidth: 2, stroke: "#fff" }}
-                      activeDot={{ r: 7 }}
-                      connectNulls
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              ) : (
-                <div className="h-[280px] flex items-center justify-center text-gray-300 font-medium italic">
-                  Belum ada data untuk ditampilkan
-                </div>
-              )}
-
-              <div className="flex flex-wrap gap-3 pt-2 border-t border-gray-50">
-                {Object.entries(chartConfig).map(([key, cfg]) => (
-                  <div key={key} className="flex items-center gap-1.5">
-                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: cfg.color }} />
-                    <span className="text-[10px] font-bold text-gray-500">{cfg.label}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Panel kanan */}
-            <div className="space-y-4">
-              <div className="bg-gradient-to-br from-indigo-600 to-indigo-700 p-5 rounded-3xl text-white shadow-xl shadow-indigo-100 relative overflow-hidden">
-                <div className="absolute -bottom-4 -right-4 bg-white/10 w-24 h-24 rounded-full blur-2xl" />
-                <p className="text-[10px] font-bold uppercase tracking-widest opacity-70 mb-3">Pengukuran Terakhir</p>
-                <div className="grid grid-cols-2 gap-3">
-                  <MiniStat label="BB"   value={lastData?.berat_badan    ?? "-"} unit="kg" />
-                  <MiniStat label="TB"   value={lastData?.tinggi_badan   ?? "-"} unit="cm" />
-                  <MiniStat label="LILA" value={lastData?.hasil_lila     || "-"} unit="cm" />
-                  <MiniStat label="LK"   value={lastData?.lingkar_kepala || "-"} unit="cm" />
-                </div>
-              </div>
-
-              <div className="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm">
-                <h4 className="text-xs font-black text-gray-700 uppercase tracking-widest mb-3 flex items-center gap-2">
-                  <Info size={14} className="text-indigo-500" /> Status Gizi Terakhir
-                </h4>
-                <div className="space-y-2">
-                  {[
-                    { label: "BB/U",  val: lastStatus.statusBBU  },
-                    { label: "TB/U",  val: lastStatus.statusTBU  },
-                    { label: "BB/TB", val: lastStatus.statusBBTB },
-                  ].map(({ label, val }) => (
-                    <div key={label} className="flex items-center justify-between">
-                      <span className="text-[10px] font-black text-gray-400 uppercase">{label}</span>
-                      <StatusBadge status={val} />
-                    </div>
-                  ))}
-=======
               <GrowthChart 
                 data={chartData}
                 activeChart={activeChart}
@@ -301,14 +221,11 @@ export default function PertumbuhanIndex() {
                   <MiniStat label="TB"   value={lastData?.tinggi_badan   ?? "-"} unit="cm" color="purple" />
                   <MiniStat label="LILA" value={lastData?.hasil_lila     || "-"} unit="cm" color="amber" />
                   <MiniStat label="LK"   value={lastData?.lingkar_kepala || "-"} unit="cm" color="emerald" />
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
                 </div>
               </div>
             </div>
           </div>
 
-<<<<<<< HEAD
-=======
           {/* ── DETAIL STATUS GIZI LENGKAP ── */}
           {lastData && (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -333,7 +250,6 @@ export default function PertumbuhanIndex() {
             </div>
           )}
 
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
           {/* ── TABEL RIWAYAT ── */}
           <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
             <div className="px-6 py-4 border-b border-gray-50">
@@ -624,12 +540,6 @@ function StatusBadge({ status }) {
   return <span className={`px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-tight ${cls}`}>{status}</span>;
 }
 
-<<<<<<< HEAD
-function MiniStat({ label, value, unit }) {
-  return (
-    <div className="bg-white/10 rounded-2xl p-3">
-      <p className="text-[9px] font-black uppercase tracking-widest opacity-60">{label}</p>
-=======
 function MiniStat({ label, value, unit, color = 'indigo' }) {
   const colorMap = {
     indigo: 'bg-indigo-50 text-indigo-700',
@@ -641,7 +551,6 @@ function MiniStat({ label, value, unit, color = 'indigo' }) {
   return (
     <div className={`${colorMap[color]} rounded-xl p-3 text-center`}>
       <p className="text-[9px] font-black uppercase tracking-widest opacity-70">{label}</p>
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
       <p className="text-lg font-black">
         {value} <span className="text-[10px] opacity-60">{unit}</span>
       </p>

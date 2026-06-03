@@ -68,7 +68,8 @@ type Main struct {
 	// Edukasi Digital
 	// EdukasiTandaBahayaTrimester *EdukasiTandaBahayaTrimesterController
 	LembarPemantauan *LembarPemantauanController
-	KeteranganLahir  *KeteranganLahirController // <-- TAMBAHKAN INI
+	KeteranganLahir  *KeteranganLahirController
+	Bbl              BblController
 	Kependudukan     *KependudukanController
 	JenisPelayanan   *JenisPelayananController
 
@@ -89,19 +90,23 @@ type Main struct {
 	EdukasiNifas                *EdukasiNifasController
 	EdukasiTrimester            *EdukasiTrimesterController
 	EdukasiTandaMelahirkan      *EdukasiTandaMelahirkanController
-	EdukasiImd                  *EdukasiIMDController
-	EdukasiSetelahMelahirkan    *EdukasiSetelahMelahirkanController
-	EdukasiMenyusuiAsi          *EdukasiMenyusuiASIController
-	EdukasiPolaAsuh             *EdukasiPolaAsuhController
-	EdukasiKesehatanMental      *EdukasiKesehatanMentalController
-	EdukasiPerawatanAnak        *EdukasiPerawatanAnakController
-	EdukasiMPASI                *EdukasiMPASIController
-	EdukasiAturanPorsiMPASI     *AturanPorsiMPASIController
-	EdukasiJadwalHarianMPASI    *JadwalHarianMPASIController
-	EdukasiResepMPASI           *ResepMPASIController
-	JadwalLayanan               *JadwalLayananController
-	// EdukasiTandaBahayaTrimester *EdukasiTandaBahayaTrimesterController
-	LaporanIbu *LaporanIbuController
+
+	// Penambahan
+	EdukasiImd               *EdukasiIMDController
+	EdukasiSetelahMelahirkan *EdukasiSetelahMelahirkanController
+	EdukasiPolaAsuh          *EdukasiPolaAsuhController
+	EdukasiKesehatanMental   *EdukasiKesehatanMentalController
+	EdukasiPerawatanAnak     *EdukasiPerawatanAnakController
+	EdukasiMPASI             *EdukasiMPASIController
+	EdukasiAturanPorsiMPASI  *AturanPorsiMPASIController
+	EdukasiJadwalHarianMPASI *JadwalHarianMPASIController
+	EdukasiResepMPASI        *ResepMPASIController
+	LaporanIbu               *LaporanIbuController
+	JadwalLayanan            *JadwalLayananController
+	ProfilIbu                *ProfilIbuController
+
+	// EdukasiTrimester            *EdukasiTrimesterController
+	// GrafikEvaluasiKehamilan     *GrafikEvaluasiKehamilanController
 }
 
 type Options struct {
@@ -191,13 +196,14 @@ func Init(opts Options) *Main {
 	m.EdukasiTandaMelahirkan = NewEdukasiTandaMelahirkanController(opts.UseCases.EdukasiTandaMelahirkan)
 	m.EdukasiImd = NewEdukasiIMDController(opts.UseCases.EdukasiImd)
 	m.EdukasiSetelahMelahirkan = NewEdukasiSetelahMelahirkanController(opts.UseCases.EdukasiSetelahMelahirkan)
-	m.EdukasiMenyusuiAsi = NewEdukasiMenyusuiASIController(opts.UseCases.EdukasiMenyusuiAsi)
+	m.EdukasiMenyusuiASI = NewEdukasiMenyusuiASIController(opts.UseCases.EdukasiMenyusuiASI)
 	m.EdukasiPolaAsuh = NewEdukasiPolaAsuhController(opts.UseCases.EdukasiPolaAsuh)
-	m.EdukasiKesehatanMental = NewEdukasiKesehatanMentalController(opts.UseCases.EdukasiKesehatanMental)
+	// m.EdukasiKesehatanMental = NewEdukasiKesehatanMentalController(opts.UseCases.EdukasiKesehatanMental)
 	m.EdukasiPerawatanAnak = NewEdukasiPerawatanAnakController(opts.UseCases.EdukasiPerawatanAnak)
 	// m.EdukasiMPASI = NewEdukasiMPASIController(opts.UseCases.EdukasiMPASI)
 	m.LembarPemantauan = NewLembarPemantauanController(opts.UseCases.LembarPemantauan)
-	m.KeteranganLahir = NewKeteranganLahirController(opts.UseCases.KeteranganLahir) // <-- TAMBAHKAN INI
+	m.KeteranganLahir = NewKeteranganLahirController(opts.UseCases.KeteranganLahir)
+	m.Bbl = NewBblController(opts.UseCases.Bbl)
 	m.Kependudukan = NewKependudukanController(opts.UseCases.Kependudukan)
 	m.JenisPelayanan = NewJenisPelayananController(opts.UseCases.JenisPelayanan)
 	m.KeluhanAnak = NewKeluhanAnakController(opts.UseCases.KeluhanAnak)
@@ -222,10 +228,13 @@ func Init(opts Options) *Main {
 
 	m.EdukasiIMD = NewEdukasiIMDController(opts.UseCases.EdukasiIMD)
 	m.EdukasiKesehatanMental = NewEdukasiKesehatanMentalController(opts.UseCases.EdukasiKesehatanMental)
+	// m.EdukasiMenyusuiASI = NewEdukasiMenyusuiASIController(opts.UseCases.EdukasiMenyusuiASI)
 	m.EdukasiMenyusuiASI = NewEdukasiMenyusuiASIController(opts.UseCases.EdukasiMenyusuiASI)
 	m.EdukasiNifas = NewEdukasiNifasController(opts.UseCases.EdukasiNifas)
 	m.EdukasiTandaMelahirkan = NewEdukasiTandaMelahirkanController(opts.UseCases.EdukasiTandaMelahirkan)
 	m.EdukasiTrimester = NewEdukasiTrimesterController(opts.UseCases.EdukasiTrimester)
+	// Profile Ibu
+	m.ProfilIbu = NewProfilIbuController(opts.UseCases.ProfilIbu)
 	m.GrafikEvaluasiKehamilan = NewGrafikEvaluasiKehamilanController(opts.UseCases.GrafikEvaluasiKehamilan)
 	return m
 }

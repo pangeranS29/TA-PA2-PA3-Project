@@ -251,8 +251,6 @@ class _CatatanLilaScreenState extends State<CatatanLilaScreen> {
           'bulanke': item.bulan,
           'hasilLila': '${item.hasilLila} cm',
           'kondisi': item.kategoriRisiko,
-          'catatan': '-',
-          'rekomendasi': '-',
           'status': item.kategoriRisiko.toLowerCase() == 'normal' ? 'normal' : 'attention',
         };
 

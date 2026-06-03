@@ -5,15 +5,10 @@ import 'package:ta_pa2_pa3_project/features/anak/pertumbuhan/data/models/master_
 import 'package:ta_pa2_pa3_project/features/anak/pertumbuhan/data/models/pertumbuhan_model.dart';
 import 'package:ta_pa2_pa3_project/features/anak/pertumbuhan/data/repositories/pertumbuhan_repository.dart';
 import 'package:ta_pa2_pa3_project/features/anak/anak/presentation/widgets/index.dart';
-<<<<<<< HEAD
-import 'input_catatan_pertumbuhan_screen.dart';
-import 'package:ta_pa2_pa3_project/features/anak/pemantauan/presentation/screens/perawatan/perawatan_screen_integrated.dart';
-=======
 import 'package:ta_pa2_pa3_project/features/anak/pemantauan/presentation/screens/perawatan/perawatan_screen_integrated.dart';
 import 'package:ta_pa2_pa3_project/features/auth/presentation/screens/login_screen.dart';
 import 'package:ta_pa2_pa3_project/core/services/auth_session.dart';
 import 'package:ta_pa2_pa3_project/features/anak/pertumbuhan/presentation/widgets/growth_status_widget.dart';
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
 
 class DetailPertumbuhanScreen extends StatefulWidget {
   final AnakSearchModel anak;
@@ -33,14 +28,24 @@ class _DetailPertumbuhanScreenState extends State<DetailPertumbuhanScreen> {
     try {
       final birthDate = DateTime.parse(tanggalLahir);
       final now = DateTime.now();
-
       int bulan =
           (now.year - birthDate.year) * 12 + (now.month - birthDate.month);
-
       return "$bulan bulan";
     } catch (e) {
       return "-";
     }
+  }
+
+  /// Format angka desimal: hilangkan trailing zero tidak perlu, tapi tetap
+  /// tampilkan 1 desimal. Contoh: 0.6 → "0.6", 16.0 → "16.0", 6.05 → "6.1"
+  /// Khusus IMT: pastikan nilai > 5 (sanity check), karena DB kadang simpan
+  /// desimal terbalik (0.160 seharusnya 16.0).
+  String _fmt(double value, {bool isImt = false}) {
+    if (isImt && value > 0 && value < 5) {
+      // Kemungkinan nilai terbalik: 0.160 harusnya 16.0
+      value = value * 100;
+    }
+    return value.toStringAsFixed(1);
   }
 
   late PertumbuhanRepository _repository;
@@ -71,31 +76,33 @@ class _DetailPertumbuhanScreenState extends State<DetailPertumbuhanScreen> {
     });
 
     try {
-      final riwayat =
-          await _repository.getRiwayatPertumbuhanByAnakId(widget.anak.id);
+      // Parallelkan semua API calls agar tidak loading lama secara sequential
+      final results = await Future.wait([
+        _repository.getRiwayatPertumbuhanByAnakId(widget.anak.id),
+        _repository.getMasterStandar(
+            parameter: 'bb_u', jenisKelamin: widget.anak.jenisKelamin),
+        _repository.getMasterStandar(
+            parameter: 'tb_u', jenisKelamin: widget.anak.jenisKelamin),
+        _repository.getMasterStandar(
+            parameter: 'bb_tb', jenisKelamin: widget.anak.jenisKelamin),
+        _repository.getMasterStandar(
+            parameter: 'imt_u', jenisKelamin: widget.anak.jenisKelamin),
+        _repository.getMasterStandar(
+            parameter: 'lk_u', jenisKelamin: widget.anak.jenisKelamin),
+      ]);
 
-      // Mengurutkan riwayat berdasarkan tanggal ukur agar grafik selalu linear maju
+      final riwayat = results[0] as List<PertumbuhanModel>;
+      // Urutkan riwayat berdasarkan tanggal ukur agar grafik linear maju
       riwayat.sort((a, b) => a.tglUkur.compareTo(b.tglUkur));
-
-      final masterBBU = await _repository.getMasterStandar(
-          parameter: 'bb_u', jenisKelamin: widget.anak.jenisKelamin);
-      final masterTBU = await _repository.getMasterStandar(
-          parameter: 'tb_u', jenisKelamin: widget.anak.jenisKelamin);
-      final masterBBTB = await _repository.getMasterStandar(
-          parameter: 'bb_tb', jenisKelamin: widget.anak.jenisKelamin);
-      final masterIMTU = await _repository.getMasterStandar(
-          parameter: 'imt_u', jenisKelamin: widget.anak.jenisKelamin);
-      final masterLKU = await _repository.getMasterStandar(
-          parameter: 'lk_u', jenisKelamin: widget.anak.jenisKelamin);
 
       if (mounted) {
         setState(() {
           _riwayatPertumbuhan = riwayat;
-          _masterStandarBBU = masterBBU;
-          _masterStandarTBU = masterTBU;
-          _masterStandarBBTB = masterBBTB;
-          _masterStandarIMTU = masterIMTU;
-          _masterStandarLKU = masterLKU;
+          _masterStandarBBU = results[1] as List<MasterStandarModel>;
+          _masterStandarTBU = results[2] as List<MasterStandarModel>;
+          _masterStandarBBTB = results[3] as List<MasterStandarModel>;
+          _masterStandarIMTU = results[4] as List<MasterStandarModel>;
+          _masterStandarLKU = results[5] as List<MasterStandarModel>;
           _isLoading = false;
         });
       }
@@ -177,11 +184,6 @@ class _DetailPertumbuhanScreenState extends State<DetailPertumbuhanScreen> {
     }
   }
 
-<<<<<<< HEAD
-  @override
-  Widget build(BuildContext context) {
-    // Pengganti WillPopScope menjadi PopScope
-=======
   /// Helper untuk mendapatkan deskripsi status gizi
   String _getStatusDescription(String status) {
     final lower = status.toLowerCase();
@@ -207,7 +209,6 @@ class _DetailPertumbuhanScreenState extends State<DetailPertumbuhanScreen> {
 
   @override
   Widget build(BuildContext context) {
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
     return PopScope(
       canPop: false,
       onPopInvoked: (didPop) {
@@ -249,13 +250,9 @@ class _DetailPertumbuhanScreenState extends State<DetailPertumbuhanScreen> {
         body: _isLoading
             ? const Center(
                 child: CircularProgressIndicator(
-<<<<<<< HEAD
-                    color: Color(0xFF2563EB), strokeWidth: 3),
-=======
                   color: Color(0xFF2563EB),
                   strokeWidth: 3,
                 ),
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
               )
             : _errorMessage != null
                 ? _buildErrorState()
@@ -287,20 +284,6 @@ class _DetailPertumbuhanScreenState extends State<DetailPertumbuhanScreen> {
               style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
             ),
             const SizedBox(height: 24),
-<<<<<<< HEAD
-            ElevatedButton(
-              onPressed: _loadData,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF2563EB),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8)),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              ),
-              child: const Text('Coba Lagi',
-                  style: TextStyle(color: Colors.white)),
-            ),
-=======
             if (_errorMessage != null &&
                 _errorMessage!.toLowerCase().contains('unauthorized')) ...[
               ElevatedButton(
@@ -336,7 +319,6 @@ class _DetailPertumbuhanScreenState extends State<DetailPertumbuhanScreen> {
                     style: TextStyle(color: Colors.white)),
               ),
             ],
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
           ],
         ),
       ),
@@ -354,25 +336,60 @@ class _DetailPertumbuhanScreenState extends State<DetailPertumbuhanScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-<<<<<<< HEAD
-            ChildInfoBanner(anak: widget.anak),
-            const SizedBox(height: 24),
-=======
-            // Top visual banner similar to design
+            // 1. Banner atas
             _buildTopStatusBanner(),
             const SizedBox(height: 16),
+
+            // 2. Tombol Lihat Grafik (navigasi ke fullscreen chart)
             _buildViewChartCard(),
             const SizedBox(height: 18),
-            // Child basic info (kept compact)
+
+            // 3. Info Anak
             ChildInfoBanner(anak: widget.anak),
-            const SizedBox(height: 12),
+            const SizedBox(height: 18),
+
+            // 4. Ringkasan Status Gizi (jika ada data)
+            if (latest != null) ...[
+              GrowthSummaryWidget(
+                statusBBU: latest.statusBBU,
+                statusTBU: latest.statusTBU,
+                statusBBTB: latest.statusBBTB,
+                statusIMTU: latest.statusIMTU,
+                statusLKU: latest.statusLKU,
+                childName: widget.anak.namaAnak,
+                childAge: _hitungUmur(widget.anak.tanggalLahir),
+              ),
+              const SizedBox(height: 18),
+            ],
+
+            // 5. Indikator Pertumbuhan
             _buildIndicators(),
             const SizedBox(height: 18),
+
+            // 6. Interpretasi KMS
             _buildInterpretationPanel(),
             const SizedBox(height: 18),
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
 
-            // Tab Bar horizontal
+            // 7. Tabel Standar WHO (dinamis dari masterStandar)
+            _buildWhoStandardTable(),
+            const SizedBox(height: 18),
+
+            // 8. Jadwal ke Posyandu
+            _buildPosyanduScheduleCard(),
+            const SizedBox(height: 18),
+
+            // 9. Tab selector kategori
+            Row(
+              children: [
+                Container(width: 6, height: 24, color: const Color(0xFF2563EB)),
+                const SizedBox(width: 8),
+                const Text(
+                  'Grafik & Status Gizi',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Row(
@@ -381,28 +398,15 @@ class _DetailPertumbuhanScreenState extends State<DetailPertumbuhanScreen> {
                     .toList(),
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
 
+            // 10. Konten per tab (grafik + status gizi)
             if (latest != null && master.isNotEmpty) ...[
-<<<<<<< HEAD
-              /// 🔹 INFO TERAKHIR
-=======
-              /// 🔹 RINGKASAN STATUS GIZI (BARU)
-              GrowthSummaryWidget(
-                statusBBU: latest.statusBBU,
-                statusTBU: latest.statusTBU,
-                statusBBTB: latest.statusBBTB,
-                childName: widget.anak.namaAnak,
-                childAge: _hitungUmur(widget.anak.tanggalLahir),
-              ),
-              const SizedBox(height: 20),
-
-              /// 🔹 INFO TERAKHIR (UPDATED)
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
+              /// Pengukuran terakhir
               _buildMeasurementInfoCard(latest),
               const SizedBox(height: 16),
 
-              /// 🔹 GRAFIK (dengan animasi saat ganti tab)
+              /// Grafik (animasi saat ganti tab)
               AnimatedSwitcher(
                 duration: const Duration(milliseconds: 300),
                 child: GrowthChartWidget(
@@ -414,23 +418,14 @@ class _DetailPertumbuhanScreenState extends State<DetailPertumbuhanScreen> {
                   xAxisLabel: _getXAxisLabel(),
                 ),
               ),
+              const SizedBox(height: 16),
 
-              const SizedBox(height: 20),
-
-<<<<<<< HEAD
-              /// 🔹 STATUS GIZI
-              ZScoreCardWidget(
-                zScore: _getZScoreForTab(latest),
-                statusText: _getStatusForTab(latest),
-                categoryLabel: _selectedTab,
-=======
-              /// 🔹 STATUS GIZI DETAIL (IMPROVED)
+              /// Status Gizi Detail
               GrowthStatusCard(
                 status: _getStatusForTab(latest),
                 label: 'Status ${_selectedTab}',
                 zScore: _getZScoreForTab(latest),
                 description: _getStatusDescription(_getStatusForTab(latest)),
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
               ),
             ] else ...[
               _buildEmptyStateData(),
@@ -438,56 +433,11 @@ class _DetailPertumbuhanScreenState extends State<DetailPertumbuhanScreen> {
 
             const SizedBox(height: 20),
 
-            /// 🔹 RIWAYAT (TIDAK DIUBAH)
+            // 11. Riwayat pengukuran
             _buildRiwayatPengukuranCard(),
             const SizedBox(height: 24),
 
-<<<<<<< HEAD
-            /// 🔹 BUTTON TAMBAH (TIDAK DIUBAH)
-            SizedBox(
-              width: double.infinity,
-              height: 56,
-              child: FilledButton.icon(
-                onPressed: () async {
-                  final updated = await Navigator.push<bool?>(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => InputCatatanPertumbuhanScreen(
-                        anak: widget.anak,
-                        repository: _repository,
-                      ),
-                    ),
-                  );
-                  if (updated ?? false) await _loadData();
-                },
-                style: FilledButton.styleFrom(
-                  backgroundColor: const Color(0xFF2563EB),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16)),
-                ),
-                icon: Container(
-                  width: 24,
-                  height: 24,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 2),
-                  ),
-                  child: const Icon(Icons.add, color: Colors.white, size: 14),
-                ),
-                label: const Text(
-                  'Tambah data pertumbuhan',
-                  style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            
-=======
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
-            /// 🔹 BUTTON PERAWATAN
+            // 12. Tombol Perawatan
             SizedBox(
               width: double.infinity,
               height: 56,
@@ -515,12 +465,8 @@ class _DetailPertumbuhanScreenState extends State<DetailPertumbuhanScreen> {
                     shape: BoxShape.circle,
                     border: Border.all(color: Colors.white, width: 2),
                   ),
-<<<<<<< HEAD
-                  child: const Icon(Icons.check_circle, color: Colors.white, size: 14),
-=======
                   child: const Icon(Icons.check_circle,
                       color: Colors.white, size: 14),
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
                 ),
                 label: const Text(
                   'Lihat perawatan & milestone',
@@ -563,36 +509,7 @@ class _DetailPertumbuhanScreenState extends State<DetailPertumbuhanScreen> {
   }
 
   Widget _buildMeasurementInfoCard(PertumbuhanModel data) {
-<<<<<<< HEAD
-    String lastValue = '';
-    String lastValueUnit = '';
-
-    switch (_selectedTab) {
-      case 'TB/U':
-        lastValue = data.tinggiBadan.toStringAsFixed(1);
-        lastValueUnit = 'cm';
-        break;
-      case 'IMT/U':
-        lastValue = data.imt.toStringAsFixed(1);
-        lastValueUnit = 'kg/m²';
-        break;
-      case 'LK/U':
-        lastValue = data.lingkarKepala.toStringAsFixed(1);
-        lastValueUnit = 'cm';
-        break;
-      case 'BB/U':
-      case 'BB/TB':
-      default:
-        lastValue = data.beratBadan.toStringAsFixed(1);
-        lastValueUnit = 'kg';
-        break;
-    }
-
     return Container(
-      padding: const EdgeInsets.all(16),
-=======
-    return Container(
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -600,59 +517,11 @@ class _DetailPertumbuhanScreenState extends State<DetailPertumbuhanScreen> {
           BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10)
         ],
       ),
-<<<<<<< HEAD
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Pengukuran Terakhir',
-                  style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.grey.shade600)),
-              const SizedBox(height: 8),
-              RichText(
-                text: TextSpan(
-                  children: [
-                    TextSpan(
-                        text: lastValue,
-                        style: const TextStyle(
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF2563EB))),
-                    TextSpan(
-                        text: ' $lastValueUnit',
-                        style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.grey.shade600)),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text('Tanggal Ukur',
-                  style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.grey.shade600)),
-              const SizedBox(height: 8),
-              Text(data.tglUkur,
-                  style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87)),
-=======
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          const Text(
             '⚖️ Pengukuran Terakhir',
             style: TextStyle(
               fontSize: 14,
@@ -667,28 +536,29 @@ class _DetailPertumbuhanScreenState extends State<DetailPertumbuhanScreen> {
             physics: const NeverScrollableScrollPhysics(),
             mainAxisSpacing: 12,
             crossAxisSpacing: 12,
+            childAspectRatio: 1.6,
             children: [
               MiniStatCard(
                 label: 'Berat Badan',
-                value: data.beratBadan.toStringAsFixed(1),
+                value: _fmt(data.beratBadan),
                 unit: 'kg',
                 color: const Color(0xFF2563EB),
               ),
               MiniStatCard(
                 label: 'Tinggi Badan',
-                value: data.tinggiBadan.toStringAsFixed(1),
+                value: _fmt(data.tinggiBadan),
                 unit: 'cm',
                 color: const Color(0xFF8b5cf6),
               ),
               MiniStatCard(
                 label: 'Lingkar Kepala',
-                value: data.lingkarKepala.toStringAsFixed(1),
+                value: _fmt(data.lingkarKepala),
                 unit: 'cm',
                 color: const Color(0xFF10b981),
               ),
               MiniStatCard(
                 label: 'IMT',
-                value: data.imt.toStringAsFixed(1),
+                value: _fmt(data.imt, isImt: true),
                 unit: 'kg/m²',
                 color: const Color(0xFFf59e0b),
               ),
@@ -707,7 +577,6 @@ class _DetailPertumbuhanScreenState extends State<DetailPertumbuhanScreen> {
                   fontWeight: FontWeight.w500,
                 ),
               ),
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
             ],
           ),
         ],
@@ -785,9 +654,9 @@ class _DetailPertumbuhanScreenState extends State<DetailPertumbuhanScreen> {
   }
 
   Widget _buildRiwayatItem(PertumbuhanModel data, bool isLatest) {
-    final dotColor = isLatest ? const Color(0xFF2563EB) : Colors.grey.shade400;
     final statusText = _getStatusForTab(data);
     final statusColors = _getStatusColor(statusText);
+    final dotColor = statusColors['text'] ?? (isLatest ? const Color(0xFF2563EB) : Colors.grey.shade400);
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
@@ -807,14 +676,14 @@ class _DetailPertumbuhanScreenState extends State<DetailPertumbuhanScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('${data.tglUkur} · ${data.usiaUkurBulan} bulan',
+                Text('${data.tglUkur} · ${data.usiaUkurBulan} bln',
                     style: const TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
                         color: Colors.black87)),
                 const SizedBox(height: 4),
                 Text(
-                  'BB ${data.beratBadan.toStringAsFixed(1)} kg · TB ${data.tinggiBadan.toStringAsFixed(1)} cm\nLK ${data.lingkarKepala.toStringAsFixed(1)} cm · IMT ${data.imt.toStringAsFixed(1)}',
+                  'BB ${_fmt(data.beratBadan)} kg · TB ${_fmt(data.tinggiBadan)} cm · LK ${_fmt(data.lingkarKepala)} cm · IMT ${_fmt(data.imt, isImt: true)}',
                   style: TextStyle(
                       fontSize: 12, color: Colors.grey.shade600, height: 1.4),
                 ),
@@ -837,8 +706,6 @@ class _DetailPertumbuhanScreenState extends State<DetailPertumbuhanScreen> {
     );
   }
 
-<<<<<<< HEAD
-=======
   Widget _buildTopStatusBanner() {
     return Container(
       width: double.infinity,
@@ -1043,6 +910,160 @@ class _DetailPertumbuhanScreenState extends State<DetailPertumbuhanScreen> {
     );
   }
 
+  /// Tabel Standar BB & TB Median (WHO) — dinamis dari masterStandar
+  Widget _buildWhoStandardTable() {
+    final masterBBU = _masterStandarBBU;
+    final masterTBU = _masterStandarTBU;
+    final masterLKU = _masterStandarLKU;
+
+    const usiaList = [0, 3, 6, 9, 12, 18, 24, 36, 48, 60];
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10)
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+            child: Row(
+              children: [
+                Container(
+                    width: 4, height: 20, color: const Color(0xFF2563EB)),
+                const SizedBox(width: 8),
+                const Expanded(
+                  child: Text(
+                    'Standar BB & TB Median (WHO)',
+                    style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (masterBBU.isEmpty)
+            const Padding(
+              padding: EdgeInsets.all(16),
+              child: Text('Data standar belum tersedia.',
+                  style: TextStyle(color: Colors.grey)),
+            )
+          else
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: DataTable(
+                headingRowColor:
+                    MaterialStateProperty.all(const Color(0xFF1E3A5F)),
+                headingTextStyle: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600),
+                dataTextStyle:
+                    const TextStyle(fontSize: 12, color: Colors.black87),
+                columnSpacing: 18,
+                columns: const [
+                  DataColumn(label: Text('Usia')),
+                  DataColumn(label: Text('BB'), numeric: true),
+                  DataColumn(label: Text('TB'), numeric: true),
+                  DataColumn(label: Text('LK'), numeric: true),
+                ],
+                rows: List.generate(usiaList.length, (i) {
+                  final usia = usiaList[i];
+                  final bbM =
+                      masterBBU.where((m) => m.nilaiSumbuX.round() == usia);
+                  final tbM =
+                      masterTBU.where((m) => m.nilaiSumbuX.round() == usia);
+                  final lkM =
+                      masterLKU.where((m) => m.nilaiSumbuX.round() == usia);
+                  final bbVal =
+                      bbM.isNotEmpty ? bbM.first.median : 0.0;
+                  final tbVal =
+                      tbM.isNotEmpty ? tbM.first.median : 0.0;
+                  final lkVal =
+                      lkM.isNotEmpty ? lkM.first.median : 0.0;
+                  return DataRow(
+                    color: MaterialStateProperty.resolveWith<Color?>(
+                        (states) => i.isEven
+                            ? Colors.grey.shade50
+                            : Colors.white),
+                    cells: [
+                      DataCell(Text('$usia bln',
+                          style: const TextStyle(
+                              fontWeight: FontWeight.w600))),
+                      DataCell(Text(
+                          bbVal > 0 ? bbVal.toStringAsFixed(1) : '-')),
+                      DataCell(Text(
+                          tbVal > 0 ? tbVal.toStringAsFixed(1) : '-')),
+                      DataCell(Text(
+                          lkVal > 0 ? lkVal.toStringAsFixed(1) : '-')),
+                    ],
+                  );
+                }),
+              ),
+            ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+            child: Text(
+              'BB dalam kg, TB & LK dalam cm. Sumber: WHO Child Growth Standards.',
+              style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPosyanduScheduleCard() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1E3A5F),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.15),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: const Icon(Icons.event_available,
+                color: Colors.white, size: 22),
+          ),
+          const SizedBox(width: 12),
+          const Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Jadwal ke Posyandu',
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14),
+                ),
+                SizedBox(height: 6),
+                Text(
+                  'Datang tiap bulan untuk timbang BB & ukur TB.\nVitamin A diberikan setiap Februari & Agustus untuk anak 6–59 bulan.',
+                  style: TextStyle(
+                      color: Colors.white70, fontSize: 12, height: 1.5),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildInterpretationPanel() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1113,7 +1134,6 @@ class _DetailPertumbuhanScreenState extends State<DetailPertumbuhanScreen> {
     );
   }
 
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
   Map<String, Color> _getStatusColor(String status) {
     switch (status.toLowerCase()) {
       case 'normal':

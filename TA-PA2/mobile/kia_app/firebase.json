@@ -1,5 +1,1 @@
-<<<<<<< HEAD
 {"flutter":{"platforms":{"android":{"default":{"projectId":"push-notifications-ec273","appId":"1:901600470237:android:e53cedd121c23277e72734","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"push-notifications-ec273","configurations":{"android":"1:901600470237:android:e53cedd121c23277e72734","ios":"1:901600470237:ios:9a4321f9e6a456e3e72734","web":"1:901600470237:web:c5060f31b451de23e72734"}}}}}}
-=======
-{"flutter":{"platforms":{"android":{"default":{"projectId":"imunisasi-app","appId":"1:40106977325:android:6d68456bbd978275f230a4","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"imunisasi-app","configurations":{"android":"1:40106977325:android:6d68456bbd978275f230a4","ios":"1:40106977325:ios:ebfc224d7db5e906f230a4","web":"1:40106977325:web:bffc5176c83c69b9f230a4"}}}}}}
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c

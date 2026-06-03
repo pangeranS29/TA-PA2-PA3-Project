@@ -49,27 +49,11 @@ func (m *Main) startCronJob() {
 	c := cron.New(cron.WithLocation(time.Local))
 	// Jadwalkan setiap hari jam 01:00
 	_, err := c.AddFunc("0 1 * * *", func() {
-<<<<<<< HEAD
 		log.Println("[CRON] Memulai update otomatis usia kehamilan...")
 		if err := kehamilanUC.UpdateAllActiveGestationalAge(); err != nil {
 			log.Printf("[CRON] Gagal update: %v", err)
 		} else {
 			log.Println("[CRON] Update usia kehamilan selesai.")
-=======
-
-		log.Println("[CRON] Start daily jobs...")
-
-		// 1. update kehamilan
-		if err := kehamilanUC.UpdateAllActiveGestationalAge(); err != nil {
-			log.Printf("[CRON] kehamilan error: %v", err)
-		}
-
-		// 2. reminder imunisasi
-		if err := m.usecase.ProcessReminder(); err != nil {
-			log.Printf("[CRON] reminder error: %v", err)
-		} else {
-			log.Println("[CRON] reminder selesai")
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
 		}
 	})
 	if err != nil {

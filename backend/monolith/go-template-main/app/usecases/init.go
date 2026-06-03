@@ -1,20 +1,8 @@
 package usecases
 
-<<<<<<< HEAD
 
 //AbsensiKelasIbuBalita//
 import (
-=======
-//AbsensiKelasIbuBalita//
-import (
-	"context"
-	"log"
-
-	firebase "firebase.google.com/go/v4"
-	"firebase.google.com/go/v4/messaging"
-	"google.golang.org/api/option"
-
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
 	"monitoring-service/app/repositories"
 	"monitoring-service/pkg/config"
 )
@@ -23,11 +11,6 @@ type Main struct {
 	repository *repositories.Main
 	config     *config.Config
 
-<<<<<<< HEAD
-=======
-	fcmClient *messaging.Client
-
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
 	// Usecase yang sudah ada
 	Anak                   *AnakUseCase
 	PelayananKesehatanAnak PelayananKesehatanAnakUseCase
@@ -73,6 +56,7 @@ type Main struct {
 	AdminAkunKeluarga    *AdminAkunKeluargaUsecase
 	AdminTenagaKesehatan *AdminTenagaKesehatanUsecase
 	KeteranganLahir      KeteranganLahirUsecase
+	Bbl                  BblUsecase
 	JenisPelayanan       JenisPelayananUsecase
 	KategoriUmur         KategoriUmurUsecase
 
@@ -128,6 +112,8 @@ type Main struct {
 	// EdukasiTandaBahayaTrimester EdukasiTandaBahayaTrimesterUsecase
 	LaporanIbu   LaporanIbuUsecase
 	EdukasiMPASI EdukasiMPASIUsecase
+	// Profile Ibu
+	ProfilIbu ProfilIbuUsecase
 }
 
 type Options struct {
@@ -141,47 +127,6 @@ func Init(opts Options) *Main {
 		config:     opts.Config,
 	}
 
-<<<<<<< HEAD
-=======
-	opt := option.WithCredentialsFile("firebase-service-account.json")
-
-	app, err := firebase.NewApp(
-		context.Background(),
-		nil,
-		opt,
-	)
-
-	if err != nil {
-
-		log.Printf(
-			"[FCM INIT] Firebase NewApp gagal: %v",
-			err,
-		)
-
-	} else {
-
-		client, err := app.Messaging(
-			context.Background(),
-		)
-
-		if err != nil {
-
-			log.Printf(
-				"[FCM INIT] Messaging client gagal: %v",
-				err,
-			)
-
-		} else {
-
-			log.Printf(
-				"[FCM INIT] Firebase berhasil diinisialisasi",
-			)
-
-			m.fcmClient = client
-		}
-	}
-
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
 	//  BUAT PREDIKSI USECASE (panggil service Python)
 	mlURL := "http://localhost:8001"
 	if opts.Config != nil && opts.Config.MLServiceURL != "" {
@@ -242,6 +187,7 @@ func Init(opts Options) *Main {
 	m.Kependudukan = NewKependudukanUsecase(opts.Repository.Kependudukan)
 	m.Kader = NewKaderUsecase(opts.Repository.Kader, opts.Repository.Kependudukan)
 	m.KeteranganLahir = NewKeteranganLahirUsecase(opts.Repository.KeteranganLahir)
+	m.Bbl = NewBblUsecase(opts.Repository.Bbl)
 	m.Perawatan = NewPerawatanUsecase(opts.Repository)
 	// m.RegisterOrangTua = NewRegisterOrangTuaUsecase(
 	// 	opts.Repository.User,
@@ -332,5 +278,14 @@ func Init(opts Options) *Main {
 	m.EdukasiNifas = NewEdukasiNifasUsecase(opts.Repository.EdukasiNifas)
 	m.EdukasiTandaMelahirkan = NewEdukasiTandaMelahirkanUsecase(opts.Repository.EdukasiTandaMelahirkan)
 	// m.EdukasiTrimester = NewEdukasiTrimesterUseCase(opts.Repository.EdukasiTrimester)
+	// m.EdukasiTrimester = NewEdukasiTrimesterUseCase(opts.Repository.EdukasiTrimester)
+	// Profile Ibu
+	m.ProfilIbu = NewProfilIbuUsecase(
+		opts.Repository.User,
+		opts.Repository.Ibu,
+		opts.Repository.Kehamilan,
+		opts.Repository.EvaluasiKesehatanIbu,
+		opts.Repository.RiwayatKehamilanLalu,
+	)
 	return m
 }

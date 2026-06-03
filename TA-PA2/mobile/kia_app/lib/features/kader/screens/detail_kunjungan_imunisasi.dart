@@ -2,10 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:ta_pa2_pa3_project/features/kader/kunjungan/models/kunjungan_model.dart';
 import 'package:ta_pa2_pa3_project/features/kader/kunjungan/services/kunjungan_service.dart';
-<<<<<<< HEAD
-=======
-import 'package:url_launcher/url_launcher.dart';
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
 
 class AnakImunisasiDetailScreen extends StatefulWidget {
   final int kunjunganId;
@@ -251,40 +247,12 @@ class _AnakImunisasiDetailScreenState extends State<AnakImunisasiDetailScreen> {
                   item.namaIbu,
                 ),
                 _infoRow(
-<<<<<<< HEAD
                   "No HP",
                   item.nomorTeleponIbu,
                   onTap: () {
                     // nanti launcher telpon
                   },
                 ),
-=======
-                  "Nama Ayah",
-                  item.namaAyah,
-                ),
-                _infoRow(
-                  "No HP Ibu",
-                  item.nomorTeleponIbu,
-                  onTap: () {
-                    if (item.nomorTeleponIbu.isNotEmpty) {
-                      openDialer(item.nomorTeleponIbu);
-                    }
-                  },
-                ),
-                _infoRow(
-                  "No HP Ayah",
-                  item.nomorTeleponAyah,
-                  onTap: () {
-                    if (item.nomorTeleponAyah.isNotEmpty) {
-                      openDialer(item.nomorTeleponAyah);
-                    }
-                  },
-                ),
-                _infoRow(
-                  "Dusun",
-                  item.dusun,
-                ),
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
               ]),
               if (!_isFinalStatus(item.statusKunjungan)) ...[
                 const SizedBox(
@@ -996,18 +964,6 @@ class _AnakImunisasiDetailScreenState extends State<AnakImunisasiDetailScreen> {
     return normalized == 'selesai' || normalized == 'dibatalkan';
   }
 
-<<<<<<< HEAD
-=======
-  Future<void> openDialer(String phoneNumber) async {
-    final Uri phoneUri = Uri.parse('tel:$phoneNumber');
-
-    await launchUrl(
-      phoneUri,
-      mode: LaunchMode.externalApplication,
-    );
-  }
-
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
   @override
   void dispose() {
     _service.dispose();

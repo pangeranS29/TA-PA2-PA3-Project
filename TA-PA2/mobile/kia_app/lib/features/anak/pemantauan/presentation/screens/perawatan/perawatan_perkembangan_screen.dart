@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import '../../../../pemantauan/data/models/perawatan_model.dart';
 import '../../../../pemantauan/data/services/perawatan_api_service.dart';
+import '../../../../../../core/widgets/verification_popup.dart';
 
 /// PerawatanPerkembanganScreen
 /// Menampilkan materi perawatan + kuesioner perkembangan anak per rentang usia
@@ -35,6 +36,20 @@ class _PerawatanPerkembanganScreenState
     '4-5 tahun',
     '5-6 tahun',
   ];
+  
+  final Map<String, String> _ageRangeDisplay = {
+    '29 hari-3 bulan': '19h-3b',
+    '3-6 bulan': '3-6b',
+    '6-9 bulan': '6-9b',
+    '9-12 bulan': '9-12b',
+    '12-18 bulan': '12-18b',
+    '18-24 bulan': '18-24b',
+    '2-3 tahun': '2-3th',
+    '3-4 tahun': '3-4th',
+    '4-5 tahun': '4-5th',
+    '5-6 tahun': '5-6th',
+  };
+  
   int _selectedAgeIndex = 0;
 
   // State per rentang usia
@@ -126,6 +141,34 @@ class _PerawatanPerkembanganScreenState
   }
 
 
+
+  void _showExitPopup() {
+    showVerificationPopup(
+      context: context,
+      type: VerificationPopupType.exit,
+      title: 'Yakin ingin keluar?',
+      content: 'Apakah Anda yakin ingin keluar tanpa menyimpan? Data yang belum disimpan akan hilang dan tidak dapat dikembalikan.',
+      onConfirm: () {
+        Navigator.pop(context);
+        Navigator.pop(context);
+      },
+      onCancel: () => Navigator.pop(context),
+    );
+  }
+
+  void _showSavePopup(String range) {
+    showVerificationPopup(
+      context: context,
+      type: VerificationPopupType.save,
+      title: 'Konfirmasi Simpan',
+      content: 'Apakah Anda yakin data perawatan/perkembangan sudah benar? Data yang sudah disimpan tidak dapat diubah kembali.',
+      onConfirm: () {
+        Navigator.pop(context);
+        _submit(range);
+      },
+      onCancel: () => Navigator.pop(context),
+    );
+  }
 
   Future<void> _submit(String range) async {
     final checklist = _checklistByRange[range] ?? {};
@@ -463,20 +506,22 @@ class _PerawatanPerkembanganScreenState
             ),
           ],
         ),
-        backgroundColor: Colors.transparent,
+        backgroundColor: const Color(0xFF1D4ED8),
         elevation: 0,
         foregroundColor: Colors.white,
-        flexibleSpace: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Color(0xFF059669), Color(0xFF34D399)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-          ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: _showExitPopup,
         ),
       ),
-      body: _buildKuesionerTab(),
+      body: PopScope(
+        canPop: false,
+        onPopInvoked: (didPop) {
+          if (didPop) return;
+          _showExitPopup();
+        },
+        child: _buildKuesionerTab(),
+      ),
       bottomNavigationBar: _buildSubmitBar(activeRange),
     );
   }
@@ -484,170 +529,215 @@ class _PerawatanPerkembanganScreenState
   // ─────────────────────────────────────────────────────────
   // TAB 1: KUESIONER
   // ─────────────────────────────────────────────────────────
-  Widget _buildIntroCard() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: const Color(0xFFEFFDF7),
-        border: Border.all(color: const Color(0xFFBBF7D0)),
-      ),
-      child: const Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Perawatan Perkembangan',
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w700,
-              color: Color(0xFF047857),
-            ),
-          ),
-          SizedBox(height: 6),
-          Text(
-            'Langkah singkat: 1. Pilih rentang usia. 2. Jawab semua pertanyaan. 3. Simpan data.',
-            style: TextStyle(
-              fontSize: 12.5,
-              color: Color(0xFF065F46),
-              height: 1.4,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildKuesionerTab() {
-    return Column(
-      children: [
-        _buildIntroCard(),
-        const SizedBox(height: 8),
-
-        // Anak info + tanggal bar
-        Container(
-          color: Colors.white,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-          child: Row(
-            children: [
-              const CircleAvatar(
-                radius: 18,
-                backgroundColor: Color(0xFFD1FAE5),
-                child:
-                    Icon(Icons.child_care, color: Color(0xFF059669), size: 20),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(_anakNama,
-                        style: const TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 14)),
-                    Text(_anakUsia,
-                        style: const TextStyle(
-                            fontSize: 11, color: Color(0xFF64748B))),
-                  ],
+    return RefreshIndicator(
+      color: const Color(0xFF1D4ED8),
+      onRefresh: () => _loadRangeData(_ageRanges[_selectedAgeIndex]),
+      child: ListView(
+        padding: const EdgeInsets.only(bottom: 140),
+        children: [
+          const SizedBox(height: 16),
+          // Profile Card
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.04),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
                 ),
-              ),
-              GestureDetector(
-                onTap: _pickTanggal,
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: const Color(0xFF059669)),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.calendar_today,
-                          size: 14, color: Color(0xFF059669)),
-                      const SizedBox(width: 4),
-                      Text(
-                        _formatDate(_tanggalPeriksa),
-                        style: const TextStyle(
-                            fontSize: 12,
-                            color: Color(0xFF059669),
-                            fontWeight: FontWeight.w600),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-
-        // Age range selector (horizontal scroll tabs)
-        Container(
-          color: Colors.white,
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              ],
+            ),
             child: Row(
-              children: List.generate(_ageRanges.length, (i) {
-                final isSelected = i == _selectedAgeIndex;
-                final range = _ageRanges[i];
-                final isDone = _submittedByRange[range] == true;
-                return Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: GestureDetector(
-                    onTap: () => setState(() => _selectedAgeIndex = i),
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 14, vertical: 7),
-                      decoration: BoxDecoration(
-                        color:
-                            isSelected ? const Color(0xFF059669) : Colors.white,
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: isSelected
-                              ? const Color(0xFF059669)
-                              : const Color(0xFFE2E8F0),
-                        ),
+              children: [
+                const CircleAvatar(
+                  radius: 28,
+                  backgroundColor: Color(0xFFDBEAFE),
+                  child: Icon(Icons.sentiment_satisfied_alt,
+                      color: Color(0xFF1E3A8A), size: 32),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        _anakNama,
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                            color: Color(0xFF1E293B)),
                       ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
+                      const SizedBox(height: 4),
+                      Row(
                         children: [
-                          if (isDone)
-                            Padding(
-                              padding: const EdgeInsets.only(right: 4),
-                              child: Icon(
-                                Icons.check_circle,
-                                size: 13,
-                                color: isSelected
-                                    ? Colors.white
-                                    : const Color(0xFF059669),
-                              ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFDBEAFE),
+                              borderRadius: BorderRadius.circular(12),
                             ),
-                          Text(
-                            range,
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              color: isSelected
-                                  ? Colors.white
-                                  : const Color(0xFF64748B),
+                            child: Text(
+                              'Usia: $_anakUsia',
+                              style: const TextStyle(
+                                  fontSize: 12,
+                                  color: Color(0xFF1D4ED8),
+                                  fontWeight: FontWeight.w600),
                             ),
                           ),
                         ],
                       ),
-                    ),
+                    ],
                   ),
-                );
-              }),
+                ),
+              ],
+            ),
+          ),
+        ),
+        
+        const SizedBox(height: 16),
+
+        // Tanggal Pemeriksaan
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: GestureDetector(
+            onTap: _pickTanggal,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(
+                color: const Color(0xFFEFF6FF),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: const Color(0xFFBFDBFE)),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: const [
+                      Icon(Icons.calendar_month, color: Color(0xFF3B82F6), size: 20),
+                      SizedBox(width: 8),
+                      Text(
+                        'Tanggal Pemeriksaan',
+                        style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF1E40AF)),
+                      ),
+                    ],
+                  ),
+                  Text(
+                    _formatDate(_tanggalPeriksa),
+                    style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF1E40AF)),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
 
-        const Divider(height: 1),
+        const SizedBox(height: 24),
 
-        Expanded(
-          child: _buildRangeContent(_ageRanges[_selectedAgeIndex]),
+        // Tahapan Perkembangan Title
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: const [
+              Text(
+                'TAHAPAN PERKEMBANGAN',
+                style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF64748B)),
+              ),
+              Text(
+                'Pilih kuisioner berdasarkan usia anak',
+                style: TextStyle(
+                    fontSize: 10,
+                    fontStyle: FontStyle.italic,
+                    color: Color(0xFF94A3B8)),
+              ),
+            ],
+          ),
         ),
+        
+        const SizedBox(height: 12),
+
+        // Age category grid (cards)
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: _ageRanges.length,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 5,
+              mainAxisSpacing: 8,
+              crossAxisSpacing: 8,
+              childAspectRatio: 1.1,
+            ),
+            itemBuilder: (context, i) {
+              final isSelected = i == _selectedAgeIndex;
+              final range = _ageRanges[i];
+              final isDone = _submittedByRange[range] == true;
+              final displayStr = _ageRangeDisplay[range] ?? range;
+
+              return GestureDetector(
+                onTap: () => setState(() => _selectedAgeIndex = i),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: isSelected ? const Color(0xFF1D4ED8) : Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: isSelected
+                          ? const Color(0xFF1D4ED8)
+                          : const Color(0xFFCBD5E1),
+                    ),
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        displayStr,
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: isSelected
+                              ? Colors.white
+                              : const Color(0xFF64748B),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Icon(
+                        isDone ? Icons.check_circle : Icons.circle_outlined,
+                        size: 14,
+                        color: isSelected
+                            ? Colors.white
+                            : (isDone ? const Color(0xFF1D4ED8) : const Color(0xFFCBD5E1)),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+
+        const SizedBox(height: 16),
+
+        _buildRangeContent(_ageRanges[_selectedAgeIndex]),
       ],
+      ),
     );
   }
 
@@ -655,26 +745,28 @@ class _PerawatanPerkembanganScreenState
     final isLoading = _loadingByRange[range] ?? true;
     final error = _errorByRange[range] ?? '';
     final kategori = _kategoriByRange[range] ?? [];
-    final isSubmitting = _submittingByRange[range] ?? false;
     final checklist = _checklistByRange[range] ?? {};
 
     if (isLoading) {
-      return const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CircularProgressIndicator(color: Color(0xFF059669)),
-            SizedBox(height: 12),
-            Text('Memuat data...', style: TextStyle(color: Color(0xFF64748B))),
-          ],
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 40),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CircularProgressIndicator(color: Color(0xFF1D4ED8)),
+              SizedBox(height: 12),
+              Text('Memuat data...', style: TextStyle(color: Color(0xFF64748B))),
+            ],
+          ),
         ),
       );
     }
 
     if (error.isNotEmpty) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
+      return Padding(
+        padding: const EdgeInsets.all(24),
+        child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -690,7 +782,7 @@ class _PerawatanPerkembanganScreenState
               FilledButton(
                 onPressed: () => _loadRangeData(range),
                 style: FilledButton.styleFrom(
-                    backgroundColor: const Color(0xFF059669)),
+                    backgroundColor: const Color(0xFF1D4ED8)),
                 child: const Text('Coba Lagi'),
               ),
             ],
@@ -702,15 +794,14 @@ class _PerawatanPerkembanganScreenState
     final answeredCount = checklist.values.where((v) => v != null).length;
     final totalCount = kategori.length;
 
-    return RefreshIndicator(
-      color: const Color(0xFF059669),
-      onRefresh: () => _loadRangeData(range),
-      child: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 140),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // ── Materi Perawatan ──
           _buildMateriSection(range),
-          const SizedBox(height: 16),
+          if (_materiByRange[range]?.isNotEmpty ?? false) const SizedBox(height: 16),
 
           // ── Header Kuesioner ──
           _buildKuesionerHeader(range, answeredCount, totalCount),
@@ -746,7 +837,7 @@ class _PerawatanPerkembanganScreenState
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: const BoxDecoration(
               gradient: LinearGradient(
-                colors: [Color(0xFF059669), Color(0xFF34D399)],
+                colors: [Color(0xFF1D4ED8), Color(0xFF3B82F6)],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -844,70 +935,36 @@ class _PerawatanPerkembanganScreenState
     );
   }
 
-  // ── Header Kuesioner ──
   Widget _buildKuesionerHeader(String range, int answered, int total) {
-    final alreadySubmitted = _submittedByRange[range] ?? false;
-    final lastDate = _tanggalPeriksaByRange[range];
-
+    if (total == 0) return const SizedBox.shrink();
+    
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: const Color(0xFFFEF9C3),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFFDE047)),
+        color: const Color(0xFFFEF9C3), // light yellow background
+        borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              const Icon(Icons.info_outline,
-                  size: 16, color: Color(0xFF713F12)),
-              const SizedBox(width: 6),
-              const Expanded(
-                child: Text(
-                  'Beri tanda ✓ (centang) pada kolom Ya/Tidak. Jika anak belum bisa melakukan salah satu dari hal berikut ini, segera bawa ke Puskesmas.',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF713F12),
-                    height: 1.4,
-                  ),
-                ),
-              ),
-            ],
+          ClipRRect(
+            borderRadius: BorderRadius.circular(4),
+            child: LinearProgressIndicator(
+              value: total > 0 ? answered / total : 0,
+              minHeight: 4,
+              backgroundColor: const Color(0xFFFDE047).withOpacity(0.4), // pale yellow
+              color: const Color(0xFFFACC15), // distinct yellow
+            ),
           ),
-          if (total > 0) ...[
-            const SizedBox(height: 10),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(6),
-              child: LinearProgressIndicator(
-                value: total > 0 ? answered / total : 0,
-                minHeight: 6,
-                backgroundColor: const Color(0xFFE5E7EB),
-                color: const Color(0xFF059669),
-              ),
+          const SizedBox(height: 10),
+          Text(
+            '$answered dari $total pertanyaan dijawab',
+            style: const TextStyle(
+              fontSize: 11,
+              color: Color(0xFF92400E),
+              fontWeight: FontWeight.w500,
             ),
-            const SizedBox(height: 4),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  '$answered dari $total pertanyaan dijawab',
-                  style: const TextStyle(fontSize: 11, color: Color(0xFF6B7280)),
-                ),
-                if (alreadySubmitted && lastDate != null)
-                  Text(
-                    'Diisi: ${_formatDate(lastDate)}',
-                    style: const TextStyle(
-                      fontSize: 11,
-                      color: Color(0xFF059669),
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-              ],
-            ),
-          ],
+          ),
         ],
       ),
     );
@@ -959,65 +1016,64 @@ class _PerawatanPerkembanganScreenState
         children: [
           // Table header
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-            decoration: BoxDecoration(
-              color: const Color(0xFF059669).withOpacity(0.08),
-              borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(14)),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(14)),
             ),
             child: const Row(
               children: [
                 SizedBox(
                   width: 30,
-                  child: Text('No.',
+                  child: Text('NO.',
                       style: TextStyle(
-                          fontSize: 12,
+                          fontSize: 11,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF374151))),
+                          color: Color(0xFF64748B))),
                 ),
                 Expanded(
                   child: Text(
-                    'Penanda Perkembangan Anak',
+                    'PENANDA PERKEMBANGAN ANAK',
                     style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 11,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF374151)),
+                        color: Color(0xFF64748B)),
                   ),
                 ),
                 SizedBox(
                   width: 44,
                   child: Center(
-                    child: Text('Ya',
+                    child: Text('YA',
                         style: TextStyle(
-                            fontSize: 12,
+                            fontSize: 11,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF059669))),
+                            color: Color(0xFF1D4ED8))),
                   ),
                 ),
                 SizedBox(
                   width: 52,
                   child: Center(
-                    child: Text('Tidak',
+                    child: Text('TIDAK',
                         style: TextStyle(
-                            fontSize: 12,
+                            fontSize: 11,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFFDC2626))),
+                            color: Color(0xFFEA580C))),
                   ),
                 ),
               ],
             ),
           ),
+          Divider(height: 1, color: Colors.grey.shade200),
 
           // Rows
           ...List.generate(kategori.length, (i) {
             final item = kategori[i];
             final jawaban = checklist[item.id];
-            final isEven = i % 2 == 0;
 
             return Column(
               children: [
                 Container(
-                  color: isEven ? Colors.white : const Color(0xFFF8FAFC),
+                  color: Colors.white,
                   child: Padding(
                     padding:
                         const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -1045,7 +1101,7 @@ class _PerawatanPerkembanganScreenState
                           width: 44,
                           child: Checkbox(
                             value: jawaban == true,
-                            activeColor: const Color(0xFF059669),
+                            activeColor: const Color(0xFF1D4ED8),
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(4)),
                             onChanged: isLocked ? null : (v) {
@@ -1063,7 +1119,7 @@ class _PerawatanPerkembanganScreenState
                           width: 52,
                           child: Checkbox(
                             value: jawaban == false,
-                            activeColor: const Color(0xFFDC2626),
+                            activeColor: const Color(0xFFEA580C),
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(4)),
                             onChanged: isLocked ? null : (v) {
@@ -1095,88 +1151,35 @@ class _PerawatanPerkembanganScreenState
       String range, bool isSubmitting, int answered, int total) {
     final allAnswered = answered == total && total > 0;
     final alreadySubmitted = _submittedByRange[range] ?? false;
-    final isDisabled = isSubmitting || alreadySubmitted;
+    final isDisabled = isSubmitting || alreadySubmitted || !allAnswered;
 
-    return Column(
-      children: [
-        SizedBox(
-          height: 50,
-          child: ElevatedButton.icon(
-            onPressed: isDisabled ? null : () => _submit(range),
-            icon: isSubmitting
-                ? const SizedBox(
-                    width: 18,
-                    height: 18,
-                    child: CircularProgressIndicator(
-                        strokeWidth: 2, color: Colors.white),
-                  )
-                : alreadySubmitted
-                    ? const Icon(Icons.check_circle_outlined)
-                    : const Icon(Icons.save_outlined),
-            label: Text(
-              isSubmitting
-                  ? 'Menyimpan...'
-                  : alreadySubmitted
-                      ? 'Sudah Tersimpan ✓'
-                      : allAnswered
-                          ? 'Simpan Kuesioner'
-                          : 'Simpan ($answered/$total)',
-            ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: alreadySubmitted
-                  ? const Color(0xFF6B7280)
-                  : allAnswered
-                      ? const Color(0xFF059669)
-                      : const Color(0xFFD1D5DB),
-              foregroundColor: Colors.white,
-              shape:
-                  RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-              elevation: 0,
-            ),
-          ),
+    return SizedBox(
+      width: double.infinity,
+      height: 48,
+      child: ElevatedButton.icon(
+        onPressed: isDisabled ? null : () => _showSavePopup(range),
+        icon: isSubmitting
+            ? const SizedBox(
+                width: 18,
+                height: 18,
+                child: CircularProgressIndicator(
+                    strokeWidth: 2, color: Colors.white),
+              )
+            : const Icon(Icons.save_outlined),
+        label: Text(
+          isSubmitting ? 'Menyimpan...' : 'Simpan Kuisioner',
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
         ),
-        if (alreadySubmitted) ...[
-          const SizedBox(height: 12),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-            decoration: BoxDecoration(
-              color: const Color(0xFF059669).withOpacity(0.1),
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: const Color(0xFF059669).withOpacity(0.3)),
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.info_outline,
-                    size: 16, color: Color(0xFF059669)),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Kuesioner untuk rentang usia ini sudah diisi',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF059669),
-                        ),
-                      ),
-                      if (_tanggalPeriksaByRange[range] != null)
-                        Text(
-                          'Tanggal pengisian: ${_formatDate(_tanggalPeriksaByRange[range]!)}',
-                          style: const TextStyle(
-                            fontSize: 11,
-                            color: Color(0xFF059669),
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ]
-      ],
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFF1D4ED8),
+          disabledBackgroundColor: const Color(0xFF9CA3AF),
+          disabledForegroundColor: Colors.white,
+          foregroundColor: Colors.white,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          elevation: 0,
+        ),
+      ),
     );
   }
 
@@ -1193,33 +1196,9 @@ class _PerawatanPerkembanganScreenState
 
     return SafeArea(
       child: Container(
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.06),
-              blurRadius: 10,
-              offset: const Offset(0, -2),
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Setelah selesai mengisi, tap Simpan agar data tersimpan.',
-              style: TextStyle(
-                fontSize: 12.5,
-                color: Color(0xFF475569),
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: 8),
-            _buildSubmitButton(range, isSubmitting, answered, total),
-          ],
-        ),
+        padding: const EdgeInsets.all(16),
+        color: Colors.transparent,
+        child: _buildSubmitButton(range, isSubmitting, answered, total),
       ),
     );
   }

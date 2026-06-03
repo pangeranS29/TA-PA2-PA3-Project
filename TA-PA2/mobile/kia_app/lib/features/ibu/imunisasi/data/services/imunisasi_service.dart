@@ -134,38 +134,20 @@ class ImunisasiService {
     }
   }
 
-<<<<<<< HEAD
   Future<void> updateTanggalEstimasi(
     int id,
     String tanggal,
   ) async {
     final uri = Uri.parse(
       '${ApiConstants.baseUrl}/ibu/jadwal-imunisasi/$id/tanggal-estimasi',
-=======
-  Future<void> requestPerubahanJadwal(
-    int jadwalId,
-    String tanggalBaru,
-    String alasan,
-  ) async {
-    final uri = Uri.parse(
-      '${ApiConstants.baseUrl}/ibu/jadwal-imunisasi/$jadwalId/request-perubahan',
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
     );
 
     try {
       final body = jsonEncode({
-<<<<<<< HEAD
         "tanggal_estimasi": tanggal, // format: YYYY-MM-DD
       });
 
       final response = await _client.put(
-=======
-        "tanggal_baru": tanggalBaru,
-        "alasan": alasan,
-      });
-
-      final response = await _client.post(
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
         uri,
         headers: _headers,
         body: body,
@@ -176,47 +158,12 @@ class ImunisasiService {
       if (response.statusCode < 200 || response.statusCode >= 300) {
         final msg = decoded['message'];
         final errorText =
-<<<<<<< HEAD
             (msg is List) ? msg.join(', ') : (msg ?? 'Gagal update jadwal');
-=======
-            (msg is List) ? msg.join(', ') : (msg ?? 'Gagal mengirim request');
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
 
         throw Exception(errorText);
       }
     } catch (e) {
-<<<<<<< HEAD
       debugPrint("Error updateTanggalEstimasi: $e");
-=======
-      debugPrint("Error requestPerubahanJadwal: $e");
-      rethrow;
-    }
-  }
-
-  Future<void> setJadwalSelesai(int jadwalId) async {
-    final uri = Uri.parse(
-      '${ApiConstants.baseUrl}/ibu/jadwal-imunisasi/$jadwalId/selesai',
-    );
-
-    try {
-      final response = await _client.put(
-        uri,
-        headers: _headers,
-      );
-
-      final body = jsonDecode(response.body);
-
-      if (response.statusCode < 200 || response.statusCode >= 300) {
-        final msg = body['message'];
-        final errorText = (msg is List)
-            ? msg.join(', ')
-            : (msg ?? 'Gagal menyelesaikan jadwal');
-
-        throw Exception(errorText);
-      }
-    } catch (e) {
-      debugPrint("Error setJadwalSelesai: $e");
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
       rethrow;
     }
   }

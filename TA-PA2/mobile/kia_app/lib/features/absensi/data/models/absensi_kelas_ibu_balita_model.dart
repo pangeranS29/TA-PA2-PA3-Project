@@ -4,6 +4,7 @@ class AbsensiKelasIbuBalitaModel {
   final String tanggal;
   final String namaKader;
   final String tanggalParaf;
+  final String namaIbu;
 
   const AbsensiKelasIbuBalitaModel({
     this.id,
@@ -11,15 +12,22 @@ class AbsensiKelasIbuBalitaModel {
     required this.tanggal,
     required this.namaKader,
     required this.tanggalParaf,
+    this.namaIbu = '',
   });
 
   factory AbsensiKelasIbuBalitaModel.fromJson(Map<String, dynamic> json) {
+    String namaIbu = '';
+    if (json['ibu'] != null && json['ibu']['kependudukan'] != null) {
+      namaIbu = json['ibu']['kependudukan']['nama']?.toString() ?? '';
+    }
+
     return AbsensiKelasIbuBalitaModel(
       id: json['id'],
       pertemuanKe: json['pertemuan_ke'] ?? 0,
       tanggal: _readDate(json['tanggal']),
       namaKader: json['nama_kader']?.toString() ?? '',
       tanggalParaf: _readDate(json['tanggal_paraf']),
+      namaIbu: namaIbu,
     );
   }
 

@@ -1,37 +1,21 @@
 {
   "project_info": {
-<<<<<<< HEAD
     "project_number": "901600470237",
     "project_id": "push-notifications-ec273",
     "storage_bucket": "push-notifications-ec273.firebasestorage.app"
-=======
-    "project_number": "40106977325",
-    "project_id": "imunisasi-app",
-    "storage_bucket": "imunisasi-app.firebasestorage.app"
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
   },
   "client": [
     {
       "client_info": {
-<<<<<<< HEAD
         "mobilesdk_app_id": "1:901600470237:android:f91c321737eab970e72734",
         "android_client_info": {
           "package_name": "com.example.fcm"
-=======
-        "mobilesdk_app_id": "1:40106977325:android:016e5a9f8ee0debef230a4",
-        "android_client_info": {
-          "package_name": "com.example.imunisasi_app"
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-<<<<<<< HEAD
           "current_key": "AIzaSyBgxtbjrTI7zlR2m-E2YpdiE4hIWpc9sMc"
-=======
-          "current_key": "AIzaSyC8j4HBQLRDjFn9afFGHPpLp44YhBZfbvI"
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
         }
       ],
       "services": {
@@ -42,11 +26,7 @@
     },
     {
       "client_info": {
-<<<<<<< HEAD
         "mobilesdk_app_id": "1:901600470237:android:e53cedd121c23277e72734",
-=======
-        "mobilesdk_app_id": "1:40106977325:android:6d68456bbd978275f230a4",
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
         "android_client_info": {
           "package_name": "com.example.ta_pa2_pa3_project"
         }
@@ -54,7 +34,6 @@
       "oauth_client": [],
       "api_key": [
         {
-<<<<<<< HEAD
           "current_key": "AIzaSyBgxtbjrTI7zlR2m-E2YpdiE4hIWpc9sMc"
         }
       ],
@@ -75,9 +54,6 @@
       "api_key": [
         {
           "current_key": "AIzaSyBgxtbjrTI7zlR2m-E2YpdiE4hIWpc9sMc"
-=======
-          "current_key": "AIzaSyC8j4HBQLRDjFn9afFGHPpLp44YhBZfbvI"
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
         }
       ],
       "services": {

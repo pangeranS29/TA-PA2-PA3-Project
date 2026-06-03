@@ -205,10 +205,6 @@ function App() {
           
 {/* Data Anak */}
           <Route path="/daftar-anak" element={<AnakListNakes />} />
-<<<<<<< HEAD
-          <Route path="/data-anak/create" element={<CreateAnak />} />
-          <Route path="/data-anak/edit/:id" element={<EditAnak />} />
-=======
           <Route
             path="/data-anak/create"
             element={
@@ -225,7 +221,6 @@ function App() {
               </ProtectedRoute>
             }
           />
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
           <Route path="/data-anak/:id" element={<DetailAnak />} />
 
           {/* Monitoring & Laporan */}
@@ -246,11 +241,6 @@ function App() {
         <Route path="/data-anak/pertumbuhan/:id" element={<PertumbuhanIndex />} />
         <Route path="/data-anak/neonatus/:id" element={<NeonatusIndex />} />
         <Route path="/data-anak/pelayanan-gizi/:id" element={<PelayananGiziIndex />} />
-<<<<<<< HEAD
-        <Route path="/data-anak/pelayanan-gizi/:id/create" element={<PelayananGiziCreate />} />
-        <Route path="/data-anak/pelayanan-vitamin/:id" element={<PelayananVitaminIndex />} />
-        <Route path="/data-anak/pelayanan-vitamin/:id/create" element={<PelayananVitaminCreate />} />
-=======
         <Route
           path="/data-anak/pelayanan-gizi/:id/create"
           element={
@@ -268,16 +258,11 @@ function App() {
             </ProtectedRoute>
           }
         />
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
         <Route path="/data-anak/pelayanan-Imunisasi/:id" element={<PelayananImunisasiIndex />} />
         <Route path="/data-anak/pelayanan-Gigi/:id" element={<PelayananGigiIndex />} />
         <Route path="/data-anak/Tumbuh-kembang-Anak/:id" element={<TumbuhKembangAnak />} />
         <Route path="/data-anak/lila" element={<PelayananLilaGlobalList />} />
         <Route path="/data-anak/lila/:id" element={<PelayananLilaIndex />} />
-<<<<<<< HEAD
-        <Route path="/data-anak/lila/:id/create" element={<PelayananLilaCreate />} />
-        <Route path="/data-anak/lila/:id/edit/:lilaId" element={<PelayananLilaEdit />} />
-=======
         <Route
           path="/data-anak/lila/:id/create"
           element={
@@ -294,7 +279,6 @@ function App() {
             </ProtectedRoute>
           }
         />
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
         <Route path="/data-anak/keluhan/:id" element={<KeluhanAnak />} />
         <Route path="/data-anak/pemantauan/:id" element={<PemantauanAnakPage />} />
         <Route path="/data-anak/perawatan/:id" element={<LembarPerawatanAnak />} />

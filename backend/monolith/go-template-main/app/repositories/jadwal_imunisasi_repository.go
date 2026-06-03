@@ -2,7 +2,6 @@ package repositories
 
 import (
 	"time"
-<<<<<<< HEAD
 	// "monitoring-service/app/models"
 )
 
@@ -24,29 +23,6 @@ func (m *Main) GetJadwalImunisasiByUserID(
 ) ([]JadwalImunisasiJoin, error) {
 
 	var result []JadwalImunisasiJoin
-=======
-	"monitoring-service/app/models"
-)
-
-// type JadwalImunisasiJoin struct {
-// 	AnakID          int32
-// 	NamaAnak        string
-// 	TanggalLahir    *time.Time
-// 	JadwalID        uint
-// 	NamaDosis       string
-// 	TanggalEstimasi *time.Time
-// 	Deskripsi       string
-// 	EfekSamping     string
-// 	StatusID        uint
-// 	Status          string
-// }
-
-func (m *Main) GetJadwalImunisasiByUserID(
-	userID int32,
-) ([]models.JadwalImunisasiJoin, error) {
-
-	var result []models.JadwalImunisasiJoin
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
 
 	err := m.postgres.
 		Table("pengguna p").
@@ -116,15 +92,9 @@ func (m *Main) GetJadwalImunisasiByUserID(
 func (m *Main) GetJadwalImunisasiByAnakID(
 	userID int32,
 	anakID int32,
-<<<<<<< HEAD
 ) ([]JadwalImunisasiJoin, error) {
 
 	var result []JadwalImunisasiJoin
-=======
-) ([]models.JadwalImunisasiJoin, error) {
-
-	var result []models.JadwalImunisasiJoin
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
 
 	err := m.postgres.
 		Table("pengguna p").
@@ -191,7 +161,6 @@ func (m *Main) GetJadwalImunisasiByAnakID(
 	return result, nil
 }
 
-<<<<<<< HEAD
 func (m *Main) UpdateTanggalEstimasi(
 	jadwalID uint,
 	newDate time.Time,
@@ -201,29 +170,14 @@ func (m *Main) UpdateTanggalEstimasi(
 		Table("jadwal_imunisasi_anak").
 		Where("id = ?", jadwalID).
 		Update("tanggal_estimasi", newDate).Error
-=======
-func (m *Main) CreateRequestPerubahanJadwal(
-	request *models.RequestPerubahanImunisasi,
-) error {
-
-	return m.postgres.
-		Table("request_perubahan_imunisasi").
-		Create(request).Error
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
 }
 
 func (m *Main) GetJadwalImunisasiByJadwalID(
 	userID int32,
 	jadwalID uint,
-<<<<<<< HEAD
 ) (*JadwalImunisasiJoin, error) {
 
 	var result JadwalImunisasiJoin
-=======
-) (*models.JadwalImunisasiJoin, error) {
-
-	var result models.JadwalImunisasiJoin
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
 
 	err := m.postgres.
 		Table("pengguna p").
@@ -288,20 +242,3 @@ func (m *Main) GetJadwalImunisasiByJadwalID(
 
 	return &result, nil
 }
-<<<<<<< HEAD
-=======
-
-func (m *Main) UpdateStatusJadwalImunisasi(
-    jadwalID uint,
-    statusID uint,
-) error {
-
-    return m.postgres.
-        Table("jadwal_imunisasi_anak").
-        Where("id = ?", jadwalID).
-        Updates(map[string]interface{}{
-            "id_status_jadwal": statusID,
-            "updated_at": time.Now(),
-        }).Error
-}
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c

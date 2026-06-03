@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ta_pa2_pa3_project/features/anak/pemantauan/data/services/lembar_pemantauan_api_service.dart';
 import 'package:ta_pa2_pa3_project/features/anak/pemantauan/data/models/lembar_pemantauan_dynamic_model.dart';
 import 'package:ta_pa2_pa3_project/features/anak/pemantauan/presentation/screens/skrining/riwayat_skrining_tanda_bahaya_screen.dart';
+import 'package:ta_pa2_pa3_project/core/widgets/verification_popup.dart';
 
 class LembarPemantauanScreen extends StatefulWidget {
   final Map<String, dynamic>? anak;
@@ -241,6 +242,33 @@ class _LembarPemantauanScreenState extends State<LembarPemantauanScreen>
     });
   }
 
+  void _showExitPopup() {
+    showVerificationPopup(
+      context: context,
+      type: VerificationPopupType.exit,
+      title: 'Yakin ingin keluar?',
+      content: 'Apakah Anda yakin ingin keluar tanpa menyimpan? Data yang belum disimpan akan hilang dan tidak dapat dikembalikan.',
+      onConfirm: () {
+        Navigator.pop(context);
+        Navigator.pop(context);
+      },
+      onCancel: () => Navigator.pop(context),
+    );
+  }
+
+  void _showSavePopup() {
+    showVerificationPopup(
+      context: context,
+      type: VerificationPopupType.save,
+      title: 'Konfirmasi Simpan',
+      content: 'Apakah Anda yakin data skrining/pemantauan sudah benar? Data yang sudah disimpan tidak dapat diubah kembali.',
+      onConfirm: () {
+        Navigator.pop(context);
+        _submit();
+      },
+      onCancel: () => Navigator.pop(context),
+    );
+  }
 
   Future<void> _submit() async {
     final anakRaw = widget.anak?['id'];
@@ -363,8 +391,19 @@ class _LembarPemantauanScreenState extends State<LembarPemantauanScreen>
         iconTheme: const IconThemeData(
           color: Colors.black,
         ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: _showExitPopup,
+        ),
       ),
-      body: _buildFormTab(),
+      body: PopScope(
+        canPop: false,
+        onPopInvoked: (didPop) {
+          if (didPop) return;
+          _showExitPopup();
+        },
+        child: _buildFormTab(),
+      ),
       bottomNavigationBar: _loadingRentang ? null : _buildSubmitBar(),
     );
   }
@@ -418,7 +457,7 @@ class _LembarPemantauanScreenState extends State<LembarPemantauanScreen>
               width: double.infinity,
               height: 52,
               child: FilledButton(
-                onPressed: _submitting ? null : _submit,
+                onPressed: _submitting ? null : _showSavePopup,
                 child: _submitting
                     ? const SizedBox(
                         width: 20,

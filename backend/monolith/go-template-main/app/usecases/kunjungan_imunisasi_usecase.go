@@ -32,16 +32,8 @@ func (m *Main) GetKunjunganImunisasiByID(
 			NamaAnak:     row.NamaAnak,
 			TanggalLahir: row.TanggalLahir,
 
-<<<<<<< HEAD
 			NamaIbu:         row.NamaIbu,
 			NomorTeleponIbu: row.NomorTeleponIbu,
-=======
-			NamaIbu:          row.NamaIbu,
-			NomorTeleponIbu:  row.NomorTeleponIbu,
-			NamaAyah:         row.NamaAyah,
-			NomorTeleponAyah: row.NomorTeleponAyah,
-			Dusun:            row.Dusun,
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
 
 			NamaVaksin:      row.NamaVaksin,
 			NamaDosis:       row.NamaDosis,
@@ -147,10 +139,7 @@ func (m *Main) UpdateTanggalKunjungan(
 		)
 }
 
-<<<<<<< HEAD
 
-=======
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
 func (m *Main) GetKunjunganImunisasiByStatus(
 	statusID uint,
 ) (
@@ -186,8 +175,4 @@ func (m *Main) GetKunjunganImunisasiByStatus(
 	}
 
 	return response, nil
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c

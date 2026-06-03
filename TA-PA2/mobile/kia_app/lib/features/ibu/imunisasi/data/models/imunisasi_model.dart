@@ -1,8 +1,5 @@
-<<<<<<< HEAD
 import 'package:flutter/material.dart';
 
-=======
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
 class ImunisasiModel {
   final int anakId;
   final String namaAnak;
@@ -142,45 +139,16 @@ class ImunisasiDetailModel {
   }
 }
 
-<<<<<<< HEAD
 class UpdateTanggalEstimasiRequest {
   final String tanggalEstimasi;
 
   UpdateTanggalEstimasiRequest({
     required this.tanggalEstimasi,
-=======
-class RequestPerubahanJadwalRequest {
-  final String tanggalBaru;
-  final String alasan;
-
-  RequestPerubahanJadwalRequest({
-    required this.tanggalBaru,
-    required this.alasan,
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
   });
 
   Map<String, dynamic> toJson() {
     return {
-<<<<<<< HEAD
       "tanggal_estimasi": tanggalEstimasi,
-=======
-      "tanggal_estimasi": tanggalBaru,
-      "alasan": alasan,
-    };
-  }
-}
-
-class SetJadwalSelesaiRequest {
-  final int jadwalId;
-
-  SetJadwalSelesaiRequest({
-    required this.jadwalId,
-  });
-
-  Map<String, dynamic> toJson() {
-    return {
-      "id": jadwalId,
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
     };
   }
 }

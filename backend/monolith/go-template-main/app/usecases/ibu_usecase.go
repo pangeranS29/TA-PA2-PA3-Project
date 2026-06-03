@@ -2,7 +2,7 @@ package usecases
 
 import (
 	"errors"
-	"fmt"
+	// "fmt"
 	"strings"
 
 	"monitoring-service/app/models"
@@ -114,7 +114,7 @@ func mapAnakToResponse(data models.Anak) models.AnakResponse {
 			ageMonths = 0
 		}
 		res.UsiaBulan = ageMonths
-		res.UsiaTeks = fmt.Sprintf("%d Tahun %d Bulan", ageMonths/12, ageMonths%12)
+		res.UsiaTeks = FormatUsiaTeks(data.Penduduk.TanggalLahir)
 	}
 
 	if data.Kehamilan != nil {

@@ -5,10 +5,6 @@ const BASE = "/tenaga-kesehatan/ibu";
 const BASE1 = "/tenaga-kesehatan/ibuk";
 
 export const getIbuList = async () => {
-<<<<<<< HEAD
-  const res = await api.get(BASE);
-  return res.data.data;
-=======
   // Return always an array. Try main list endpoint, fallback to dashboard endpoint
   const normalizeIbu = (item) => {
     // If item already has kependudukan object, keep it
@@ -38,7 +34,6 @@ export const getIbuList = async () => {
   }
 
   return [];
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
 };
 
 export const getIbuByPendudukId = async (pendudukId) => {
@@ -46,10 +41,6 @@ export const getIbuByPendudukId = async (pendudukId) => {
   return response.data.data; // bisa null
 }
 export const getIbuDashboard = async () => {
-<<<<<<< HEAD
-  const res = await api.get(BASE1);
-  return res.data.data;
-=======
   const tryNormalize = (res) => {
     if (!res) return [];
     // Prioritize res.data.data -> res.data -> res
@@ -71,7 +62,6 @@ export const getIbuDashboard = async () => {
       return [];
     }
   }
->>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
 };
 export const getIbuById = async (id) => {
   const res = await api.get(`${BASE}/${id}`);
