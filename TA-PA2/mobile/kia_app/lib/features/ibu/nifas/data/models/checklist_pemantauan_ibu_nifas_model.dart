@@ -21,6 +21,8 @@ class ChecklistPemantauanIbuNifasModel {
   final bool pendarahanBerat;
   final bool keputihan;
 
+  final String keluhan;
+
   ChecklistPemantauanIbuNifasModel({
     required this.kehamilanId,
     required this.hariNifas,
@@ -41,6 +43,8 @@ class ChecklistPemantauanIbuNifasModel {
     required this.darahNifasBerbau,
     required this.pendarahanBerat,
     required this.keputihan,
+
+    required this.keluhan,
   });
 
   Map<String, dynamic> toJson() {
@@ -64,6 +68,8 @@ class ChecklistPemantauanIbuNifasModel {
       'darah_nifas_berbau': darahNifasBerbau,
       'pendarahan_berat': pendarahanBerat,
       'keputihan': keputihan,
+
+      'keluhan': keluhan,
     };
   }
 }

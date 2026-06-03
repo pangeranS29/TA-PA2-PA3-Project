@@ -300,11 +300,11 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	tenaga.PUT("/edukasi-setelah-melahirkan/:id", controller.EdukasiSetelahMelahirkan.Update)
 	tenaga.DELETE("/edukasi-setelah-melahirkan/:id", controller.EdukasiSetelahMelahirkan.Delete)
 
-	tenaga.GET("/edukasi-menyusui-asi", controller.EdukasiMenyusuiAsi.GetAll)
-	tenaga.POST("/edukasi-menyusui-asi", controller.EdukasiMenyusuiAsi.Create)
-	tenaga.GET("/edukasi-menyusui-asi/:id", controller.EdukasiMenyusuiAsi.GetByID)
-	tenaga.PUT("/edukasi-menyusui-asi/:id", controller.EdukasiMenyusuiAsi.Update)
-	tenaga.DELETE("/edukasi-menyusui-asi/:id", controller.EdukasiMenyusuiAsi.Delete)
+	tenaga.GET("/edukasi-menyusui-asi", controller.EdukasiMenyusuiASI.GetAll)
+	tenaga.POST("/edukasi-menyusui-asi", controller.EdukasiMenyusuiASI.Create)
+	tenaga.GET("/edukasi-menyusui-asi/:id", controller.EdukasiMenyusuiASI.GetByID)
+	tenaga.PUT("/edukasi-menyusui-asi/:id", controller.EdukasiMenyusuiASI.Update)
+	tenaga.DELETE("/edukasi-menyusui-asi/:id", controller.EdukasiMenyusuiASI.Delete)
 
 	tenaga.GET("/edukasi-pola-asuh", controller.EdukasiPolaAsuh.GetAll)
 	tenaga.POST("/edukasi-pola-asuh", controller.EdukasiPolaAsuh.Create)
@@ -723,6 +723,8 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	// Pelayanan Ibu Nifas
 	ibuk.GET("/pelayanan-ibu-nifas/me", controller.PelayananIbuNifas.GetMine)
 	ibuk.GET("/catatan-pelayanan-nifas/me", controller.CatatanPelayananNifas.GetMine)
+	// Profile
+	ibuk.GET("/profil", controller.ProfilIbu.GetProfilSaya)
 
 	// ibu := e.Group("/ibu")
 	ibu.Use(middlewares.JWTAuth(controller.JWTSecret()))

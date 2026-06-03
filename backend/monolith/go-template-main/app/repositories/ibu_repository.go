@@ -65,20 +65,36 @@ func (r *IbuRepository) Delete(id int32) error {
 	}
 	return nil
 }
+// func (r *IbuRepository) FindByPendudukID(pendudukID int32) (*models.Ibu, error) {
+// 	var ibu models.Ibu
+
+// 	err := r.db.
+// 		Where("penduduk_id = ?", pendudukID). // ✅ FIX
+// 		First(&ibu).Error
+
+// 	if errors.Is(err, gorm.ErrRecordNotFound) {
+// 		return nil, nil
+// 	}
+
+// 	return &ibu, err
+// }
+
 func (r *IbuRepository) FindByPendudukID(pendudukID int32) (*models.Ibu, error) {
-	var ibu models.Ibu
+    var ibu models.Ibu
+    err := r.db.
+        Where("penduduk_id = ?", pendudukID).
+        First(&ibu).Error
+    if err != nil {
+        return nil, err
+    }
 
-	err := r.db.
-		Preload("Kependudukan").
-		Preload("Suami").
-		Where("penduduk_id = ?", pendudukID). // ✅ FIX
-		First(&ibu).Error
+    // Load Kependudukan manual karena Preload tidak jalan
+    var kependudukan models.Kependudukan
+    if err := r.db.Where("id = ?", pendudukID).First(&kependudukan).Error; err == nil {
+        ibu.Kependudukan = &kependudukan
+    }
 
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, nil
-	}
-
-	return &ibu, err
+    return &ibu, nil
 }
 	// func (r *IbuRepository) GetDashboard() ([]models.IbuDashboardDTO, error) {
 	// 	var result []models.IbuDashboardDTO
