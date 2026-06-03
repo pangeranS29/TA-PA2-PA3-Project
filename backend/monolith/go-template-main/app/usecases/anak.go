@@ -374,6 +374,7 @@ func (u *AnakUseCase) toAnakResponse(anak *models.Anak) models.AnakResponse {
 		NamaIbu:         anak.NamaIbu,
 		NamaAyah:        anak.NamaAyah,
 		IbuID:           anak.IbuID,
+		StatusPrediksi:  anak.StatusPrediksi,
 	}
 
 	// Ambil data dari Penduduk (Kependudukan)

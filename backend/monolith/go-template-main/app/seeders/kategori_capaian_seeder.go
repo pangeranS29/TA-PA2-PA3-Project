@@ -167,10 +167,46 @@ func (s *KategoriCapaianSeeder) seedKategoriCapaian() error {
 		{"60-72", "Apakah anak bisa berpakaian sendiri tanpa dibantu?", "sosial"},
 	}
 
+	mapRentang := map[string]string{
+		"0-3":   "29 Hari - 3 Bulan",
+		"3-6":   "3 - 6 Bulan",
+		"6-9":   "6 - 12 Bulan",
+		"9-12":  "6 - 12 Bulan",
+		"12-18": "12 - 24 Bulan",
+		"18-24": "12 - 24 Bulan",
+		"24-36": "2 - 6 Tahun",
+		"36-48": "2 - 6 Tahun",
+		"48-60": "2 - 6 Tahun",
+		"60-72": "2 - 6 Tahun",
+	}
+
 	for _, row := range rows {
+		rentangName := mapRentang[row.RentangUsia]
+		if rentangName == "" {
+			rentangName = "2 - 6 Tahun" // default fallback
+		}
+
+		var rentang models.RentangUsia
+		err := s.db.Where("nama_rentang = ?", rentangName).First(&rentang).Error
+		if err != nil {
+			// Jika belum ada rentang usia tersebut, buat di DB
+			rentang = models.RentangUsia{
+				NamaRentang: rentangName,
+				SatuanWaktu: "Bulan",
+				MaxPeriode:  72,
+			}
+			if rentangName == "29 Hari - 3 Bulan" {
+				rentang.SatuanWaktu = "Minggu"
+				rentang.MaxPeriode = 12
+			} else if rentangName == "2 - 6 Tahun" {
+				rentang.SatuanWaktu = "Tahun"
+				rentang.MaxPeriode = 6
+			}
+			s.db.Create(&rentang)
+		}
+
 		item := models.KategoriCapaian{
-			RentangUsia: row.RentangUsia,
-			// TipeLembarCapaian:  row.TipeLembarCapaian,
+			RentangUsiaID:      rentang.ID,
 			PertanyaaanCeklist: row.PertanyaaanCeklist,
 			Aspek:              row.Aspek,
 			CreatedAt:          now,

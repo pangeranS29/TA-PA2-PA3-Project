@@ -2,7 +2,8 @@ package controllers
 
 import (
 	"monitoring-service/app/usecases"
-        "monitoring-service/app/middlewares"
+    "monitoring-service/app/middlewares"
+	"monitoring-service/app/utils"
 	"net/http"
 	"strconv"
 	"time"
@@ -106,6 +107,9 @@ func (ctrl *PencatatanController) CreatePemeriksaanAnak(c echo.Context) error {
     if err := c.Bind(&req); err != nil {
         return c.JSON(http.StatusBadRequest, map[string]string{"error": "format request tidak valid"})
     }
+    if err := utils.ValidateTimeNotFuture(req.TanggalPemeriksaan); err != nil {
+        return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
+    }
     if req.PendudukID == 0 {
         return c.JSON(http.StatusBadRequest, map[string]string{"error": "penduduk_id wajib diisi"})
     }
@@ -140,6 +144,9 @@ func (ctrl *PencatatanController) CreatePemeriksaanRemaja(c echo.Context) error 
     if err := c.Bind(&req); err != nil {
         return c.JSON(http.StatusBadRequest, map[string]string{"error": "format request tidak valid"})
     }
+    if err := utils.ValidateTimeNotFuture(req.TanggalPemeriksaan); err != nil {
+        return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
+    }
     if req.PendudukID == 0 {
         return c.JSON(http.StatusBadRequest, map[string]string{"error": "penduduk_id wajib diisi"})
     }
@@ -173,6 +180,9 @@ func (ctrl *PencatatanController) CreatePemeriksaanDewasa(c echo.Context) error 
     var req createDewasaReq
     if err := c.Bind(&req); err != nil {
         return c.JSON(http.StatusBadRequest, map[string]string{"error": "format request tidak valid"})
+    }
+    if err := utils.ValidateTimeNotFuture(req.TanggalPemeriksaan); err != nil {
+        return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
     }
     if req.PendudukID == 0 {
         return c.JSON(http.StatusBadRequest, map[string]string{"error": "penduduk_id wajib diisi"})
@@ -210,6 +220,9 @@ func (ctrl *PencatatanController) CreatePemeriksaanLansia(c echo.Context) error 
     var req createLansiaReq
     if err := c.Bind(&req); err != nil {
         return c.JSON(http.StatusBadRequest, map[string]string{"error": "format request tidak valid"})
+    }
+    if err := utils.ValidateTimeNotFuture(req.TanggalPemeriksaan); err != nil {
+        return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
     }
     if req.PendudukID == 0 {
         return c.JSON(http.StatusBadRequest, map[string]string{"error": "penduduk_id wajib diisi"})

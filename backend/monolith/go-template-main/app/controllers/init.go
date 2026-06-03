@@ -93,7 +93,7 @@ type Main struct {
 	PendudukRisk	  *PendudukRiskController
 	RiwayatCard *RiwayatCardController
 	Pencatatan 	  *PencatatanController
-	
+	PrediksiStunting *PrediksiStuntingController
 }
 
 type Options struct {
@@ -212,6 +212,7 @@ func Init(opts Options) *Main {
 	m.PendudukRisk = NewPendudukRiskController(opts.UseCases.PendudukRisk)
 	m.RiwayatCard = NewRiwayatCardController(opts.UseCases.RiwayatCard)
 	m.Pencatatan = NewPencatatanController(opts.UseCases.Pencatatan)
+	m.PrediksiStunting = NewPrediksiStuntingController(opts.UseCases.PrediksiStunting)
 	return m
 }
 

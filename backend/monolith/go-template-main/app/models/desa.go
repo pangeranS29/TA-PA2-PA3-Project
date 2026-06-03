@@ -4,9 +4,9 @@ import "time"
 
 type Desa struct {
 	ID         int32      `gorm:"column:id;primaryKey;autoIncrement" json:"id"`
-	Kecamatan  string     `gorm:"column:kecamatan;type:varchar(120);not null" json:"kecamatan"`
-	Kabupaten  string     `gorm:"column:kabupaten;type:varchar(120);not null" json:"kabupaten"`
-	Provinsi   string     `gorm:"column:provinsi;type:varchar(120);not null" json:"provinsi"`
+	Kecamatan  string     `gorm:"column:kecamatan;type:varchar(120)" json:"kecamatan"`
+	Kabupaten  string     `gorm:"column:kabupaten;type:varchar(120)" json:"kabupaten"`
+	Provinsi   string     `gorm:"column:provinsi;type:varchar(120)" json:"provinsi"`
 	NamaDesa   string     `gorm:"column:nama_desa;type:varchar(120);not null" json:"nama_desa"`
 	KodeDesa   string     `gorm:"column:kode_desa;type:varchar(50);not null;uniqueIndex" json:"kode_desa"`
 	IsActive   bool       `gorm:"column:is_active;not null;default:true" json:"is_active"`

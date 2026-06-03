@@ -20,12 +20,14 @@ func (m *Main) AddCatatanPertumbuhan(c echo.Context) error {
 		return helpers.Response(c, http.StatusBadRequest, []string{"format request tidak valid"})
 	}
 
-	if err := m.usecases.AddCatatanPertumbuhan(&req); err != nil {
+	prediksi, err := m.usecases.AddCatatanPertumbuhan(&req)
+	if err != nil {
 		return helpers.Response(c, customerror.GetStatusCode(err), []string{err.Error()})
 	}
 
-	return helpers.StandardResponse(c, http.StatusCreated, []string{constants.SUCCESS_RESPONSE_MESSAGE}, map[string]string{
+	return helpers.StandardResponse(c, http.StatusCreated, []string{constants.SUCCESS_RESPONSE_MESSAGE}, map[string]interface{}{
 		"message": "catatan pertumbuhan berhasil ditambahkan",
+		"prediksi": prediksi,
 	}, nil)
 }
 

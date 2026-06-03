@@ -52,6 +52,8 @@ type AnakResponse struct {
 	UsiaBulan int    `json:"usia_bulan,omitempty"`
 	UsiaTeks  string `json:"usia_teks,omitempty"`
 
+	StatusPrediksi string `json:"status_prediksi,omitempty"`
+
 	// TAMBAHKAN INI
 	Kehamilan *KehamilanSimple `json:"kehamilan,omitempty"`
 }

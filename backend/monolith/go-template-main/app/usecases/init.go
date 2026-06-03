@@ -87,6 +87,7 @@ type Main struct {
 	// EdukasiTandaBahayaTrimester EdukasiTandaBahayaTrimesterUsecase
 	LaporanIbu        LaporanIbuUsecase
 	LaporanAnak       LaporanAnakUsecase
+	PrediksiStunting  PrediksiStuntingUsecase
 	PemeriksaanAnak   PemeriksaanAnakUsecase
 	PemeriksaanRemaja PemeriksaanRemajaUsecase
 	PemeriksaanDewasa PemeriksaanDewasaUsecase
@@ -216,6 +217,12 @@ func Init(opts Options) *Main {
 	m.EdukasiResepMPASI = NewResepMPASIUsecase(opts.Repository.EdukasiResepMPASI)
 	m.LaporanIbu = NewLaporanIbuUsecase(opts.Repository.LaporanIbu)
 	m.LaporanAnak = NewLaporanAnakUsecase(opts.Repository.LaporanAnak)
+
+	stuntingMLURL := "http://localhost:8000"
+	if opts.Config != nil && opts.Config.MLServiceURL != "" {
+		stuntingMLURL = opts.Config.MLServiceURL
+	}
+	m.PrediksiStunting = NewPrediksiStuntingUsecase(opts.Repository.PrediksiStunting, stuntingMLURL)
 
 	// Jadwal Layanan (imunisasi) usecase
 	m.JadwalLayanan = NewJadwalLayananUsecase(opts.Repository.JadwalLayanan)

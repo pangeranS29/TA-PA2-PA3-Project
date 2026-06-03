@@ -9,6 +9,11 @@ import (
 // MeasurementDataForPrediction - struktur data pengukuran untuk prediksi
 type MeasurementDataForPrediction struct {
 	AnakID            int32     `json:"anak_id" gorm:"column:anak_id"`
+	Nama              string    `json:"nama" gorm:"column:nama"`
+	JenisKelamin      string    `json:"jenis_kelamin" gorm:"column:jenis_kelamin"`
+	TanggalLahir      time.Time `json:"tanggal_lahir" gorm:"column:tanggal_lahir"`
+	BeratLahirKg      float64   `json:"berat_lahir_kg" gorm:"column:berat_lahir_kg"`
+	TinggiLahirCm     float64   `json:"tinggi_lahir_cm" gorm:"column:tinggi_lahir_cm"`
 	BeratBadan        float64   `json:"berat_badan" gorm:"column:berat_badan"`          // kg
 	TinggiBadan       float64   `json:"tinggi_badan" gorm:"column:tinggi_badan"`        // cm
 	LingkarKepala     float64   `json:"lingkar_kepala" gorm:"column:lingkar_kepala"`    // cm
@@ -36,6 +41,7 @@ type PrediksiStunting struct {
 	RiskPercentage    float64   `gorm:"type:decimal(5,2);not null" json:"risk_percentage"`   // 0-100%
 	Classification    string    `gorm:"type:varchar(20);not null" json:"classification"`     // STUNTING, AT_RISK, NORMAL
 	Confidence        float64   `gorm:"type:decimal(5,2)" json:"confidence"`                 // 0-100%
+	StatusPrediksi    string    `gorm:"column:status_prediksi;type:varchar(30)" json:"status_prediksi"`
 	
 	// Data tambahan dari WHO standards
 	ZScoreTBU         float64   `gorm:"type:decimal(5,2)" json:"z_score_tb_u"`
@@ -63,6 +69,8 @@ type PrediksiStuntingRequest struct {
 	HasilLila     float64 `json:"hasil_lila" validate:"required,min=0"`
 	UsiaUkurBulan int     `json:"usia_ukur_bulan" validate:"required,min=0,max=60"`
 	JenisKelamin  string  `json:"jenis_kelamin" validate:"required,oneof=Laki-laki Perempuan"`
+	BeratLahirKg  float64 `json:"berat_lahir_kg"`
+	TinggiLahirCm float64 `json:"tinggi_lahir_cm"`
 }
 
 // PrediksiResponse - response dari Python service

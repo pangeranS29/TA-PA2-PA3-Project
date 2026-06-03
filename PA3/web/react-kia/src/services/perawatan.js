@@ -14,6 +14,24 @@ export const getKategoriCapaianList = async (rentangUsia = "") => {
   return [];
 };
 
+// Buat kategori capaian baru
+export const createKategoriCapaian = async (data) => {
+  const response = await api.post(KATEGORI_BASE, data);
+  return response.data?.data ?? response.data;
+};
+
+// Update kategori capaian
+export const updateKategoriCapaian = async (id, data) => {
+  const response = await api.put(`${KATEGORI_BASE}/${id}`, data);
+  return response.data?.data ?? response.data;
+};
+
+// Hapus kategori capaian
+export const deleteKategoriCapaian = async (id) => {
+  const response = await api.delete(`${KATEGORI_BASE}/${id}`);
+  return response.data;
+};
+
 // ─── PERAWATAN ──────────────────────────────────────────
 
 // Ambil semua perawatan milik satu anak
