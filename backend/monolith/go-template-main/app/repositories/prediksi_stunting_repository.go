@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"time"
 	"monitoring-service/app/models"
 
 	"gorm.io/gorm"
@@ -12,6 +13,7 @@ type PrediksiStuntingRepository interface {
 	SavePrediction(prediction *models.PrediksiStunting) error
 	GetPredictionByAnakID(anakID int32) ([]models.PrediksiStunting, error)
 	GetLatestPredictionByAnakID(anakID int32) (*models.PrediksiStunting, error)
+	UpdateAnakStatusPrediksi(anakID int32, status string) error
 }
 
 type prediksiStuntingRepository struct {
@@ -22,26 +24,31 @@ func NewPrediksiStuntingRepository(db *gorm.DB) PrediksiStuntingRepository {
 	return &prediksiStuntingRepository{db: db}
 }
 
-// GetMeasurementDataByAnakID - ambil semua data pengukuran anak (latest)
+// GetLatestMeasurementByAnakID - ambil semua data pengukuran anak (latest) dengan join penduduk
 func (r *prediksiStuntingRepository) GetLatestMeasurementByAnakID(anakID int32) (*models.MeasurementDataForPrediction, error) {
 	var measurement models.MeasurementDataForPrediction
 
-	// Join catatan_pertumbuhan dengan pengukuran_lila
 	err := r.db.
-		Table("catatan_pertumbuhan cp").
+		Table("anak a").
 		Select(`
-			cp.anak_id,
-			cp.berat_badan,
-			cp.tinggi_badan,
-			cp.lingkar_kepala,
-			cp.usia_ukur_bulan,
+			a.id as anak_id,
+			p.nama_lengkap as nama,
+			p.jenis_kelamin,
+			p.tanggal_lahir,
+			COALESCE(a.berat_lahir_kg, 3.0) as berat_lahir_kg,
+			COALESCE(a.tinggi_lahir_cm, 49.0) as tinggi_lahir_cm,
+			COALESCE(cp.berat_badan, 0) as berat_badan,
+			COALESCE(cp.tinggi_badan, 0) as tinggi_badan,
+			COALESCE(cp.lingkar_kepala, 0) as lingkar_kepala,
+			COALESCE(cp.hasil_lila, 0) as hasil_lila,
+			COALESCE(cp.usia_ukur_bulan, 0) as usia_ukur_bulan,
 			cp.tgl_ukur,
-			COALESCE(pl.hasil_lila, 0) as hasil_lila,
-			cp.status_tb_u,
-			cp.z_score_tb_u
+			COALESCE(cp.status_tb_u, '') as status_tb_u,
+			COALESCE(cp.z_score_tb_u, 0) as z_score_tb_u
 		`).
-		Joins("LEFT JOIN pengukuran_lila pl ON cp.anak_id = pl.anak_id AND DATE(cp.tgl_ukur) = DATE(pl.tanggal)").
-		Where("cp.anak_id = ? AND cp.deleted_at IS NULL", anakID).
+		Joins("JOIN penduduk p ON a.penduduk_id = p.id").
+		Joins("LEFT JOIN catatan_pertumbuhan cp ON a.id = cp.anak_id AND cp.deleted_at IS NULL").
+		Where("a.id = ? AND a.deleted_at IS NULL", anakID).
 		Order("cp.tgl_ukur DESC").
 		Limit(1).
 		Scan(&measurement).Error
@@ -51,6 +58,18 @@ func (r *prediksiStuntingRepository) GetLatestMeasurementByAnakID(anakID int32) 
 			return nil, nil
 		}
 		return nil, err
+	}
+
+	// Hitung umur anak dalam bulan dari tanggal lahir jika belum pernah diukur atau usia_ukur_bulan masih 0
+	if measurement.UsiaUkurBulan == 0 && !measurement.TanggalLahir.IsZero() {
+		now := time.Now()
+		years := now.Year() - measurement.TanggalLahir.Year()
+		months := int(now.Month() - measurement.TanggalLahir.Month())
+		if months < 0 {
+			years--
+			months += 12
+		}
+		measurement.UsiaUkurBulan = years*12 + months
 	}
 
 	return &measurement, nil
@@ -96,4 +115,9 @@ func (r *prediksiStuntingRepository) GetLatestPredictionByAnakID(anakID int32) (
 	}
 
 	return &prediction, nil
+}
+
+// UpdateAnakStatusPrediksi - perbarui status prediksi stunting terbaru di tabel anak
+func (r *prediksiStuntingRepository) UpdateAnakStatusPrediksi(anakID int32, status string) error {
+	return r.db.Model(&models.Anak{}).Where("id = ?", anakID).Update("status_prediksi", status).Error
 }

@@ -90,13 +90,21 @@ export default function PertumbuhanIndex() {
         lingkar_kepala: parseFloat(formData.lingkar_kepala) || 0,
         hasil_lila: parseFloat(formData.hasil_lila) || 0,
       };
+      let res;
       if (isEdit) {
-        await updateCatatanPertumbuhan(currentId, payload);
+        res = await updateCatatanPertumbuhan(currentId, payload);
       } else {
-        await addCatatanPertumbuhan(payload);
+        res = await addCatatanPertumbuhan(payload);
       }
       setIsModalOpen(false);
       await fetchData();
+
+      // Check if prediction is returned
+      if (res?.data?.prediksi?.status_prediksi) {
+        alert(`Data berhasil disimpan!\nStatus Prediksi Anak: ${res.data.prediksi.status_prediksi}`);
+      } else {
+        alert("Data berhasil disimpan!");
+      }
     } catch (err) {
       console.error("Save Error:", err);
       const msg = err.response?.data?.message || err.message || "Gagal menyimpan data";
@@ -378,6 +386,7 @@ export default function PertumbuhanIndex() {
                   <input type="date" required
                     className="w-full bg-gray-50 border-none rounded-2xl py-3.5 pl-11 pr-4 font-bold text-gray-800 focus:ring-2 focus:ring-indigo-500 outline-none"
                     value={formData.tgl_ukur}
+                    max={new Date().toISOString().split("T")[0]}
                     onChange={(e) => setFormData({ ...formData, tgl_ukur: e.target.value })}
                   />
                 </div>
@@ -412,16 +421,16 @@ export default function PertumbuhanIndex() {
               {/* LILA & LK */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">LILA (cm)</label>
-                  <input type="number" step="0.1" placeholder="Opsional"
+                  <label className="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">LILA (cm) *</label>
+                  <input type="number" step="0.1" placeholder="0.0" required
                     className="w-full bg-gray-50 border-none rounded-2xl py-3.5 px-4 font-bold text-gray-800 focus:ring-2 focus:ring-amber-400 outline-none"
                     value={formData.hasil_lila}
                     onChange={(e) => setFormData({ ...formData, hasil_lila: e.target.value })}
                   />
                 </div>
                 <div>
-                  <label className="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Lingkar Kepala (cm)</label>
-                  <input type="number" step="0.1" placeholder="Opsional"
+                  <label className="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Lingkar Kepala (cm) *</label>
+                  <input type="number" step="0.1" placeholder="0.0" required
                     className="w-full bg-gray-50 border-none rounded-2xl py-3.5 px-4 font-bold text-gray-800 focus:ring-2 focus:ring-emerald-400 outline-none"
                     value={formData.lingkar_kepala}
                     onChange={(e) => setFormData({ ...formData, lingkar_kepala: e.target.value })}

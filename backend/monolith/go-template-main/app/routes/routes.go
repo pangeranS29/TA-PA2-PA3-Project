@@ -644,4 +644,7 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	tenaga.POST("/pencatatan/dewasa", controller.Pencatatan.CreatePemeriksaanDewasa)
 	tenaga.POST("/pencatatan/lansia", controller.Pencatatan.CreatePemeriksaanLansia)
 	tenaga.GET("/pemeriksaan-riwayat", controller.Pencatatan.GetRiwayatPemeriksaan)
+
+	// Prediksi Stunting
+	SetupPrediksiStuntingRoutes(e, controller.PrediksiStunting)
 }

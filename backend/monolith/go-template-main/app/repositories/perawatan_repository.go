@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"monitoring-service/app/models"
+	"strconv"
 
 	"gorm.io/gorm"
 )
@@ -29,22 +30,50 @@ func NewKategoriCapaianRepository(db *gorm.DB) KategoriCapaianRepository {
 
 func (r *kategoriCapaianRepository) FindAll() ([]models.KategoriCapaian, error) {
 	var data []models.KategoriCapaian
-	err := r.db.Order("rentang_usia, id").Find(&data).Error
+	err := r.db.Preload("RentangUsia").Order("rentang_usia_id, id").Find(&data).Error
+	if err == nil {
+		for i := range data {
+			if data[i].RentangUsia != nil {
+				data[i].RentangUsiaStr = data[i].RentangUsia.NamaRentang
+			}
+		}
+	}
 	return data, err
 }
 
 func (r *kategoriCapaianRepository) FindByID(id uint) (*models.KategoriCapaian, error) {
 	var data models.KategoriCapaian
-	err := r.db.First(&data, id).Error
+	err := r.db.Preload("RentangUsia").First(&data, id).Error
 	if err != nil {
 		return nil, err
+	}
+	if data.RentangUsia != nil {
+		data.RentangUsiaStr = data.RentangUsia.NamaRentang
 	}
 	return &data, nil
 }
 
 func (r *kategoriCapaianRepository) FindByRentangUsia(rentang string) ([]models.KategoriCapaian, error) {
 	var data []models.KategoriCapaian
-	err := r.db.Where("rentang_usia = ?", rentang).Order("id").Find(&data).Error
+	query := r.db.
+		Joins("JOIN rentang_usia ON rentang_usia.id = kategori_capaian.rentang_usia_id").
+		Preload("RentangUsia").
+		Order("kategori_capaian.id")
+
+	if id, err := strconv.Atoi(rentang); err == nil {
+		query = query.Where("rentang_usia.id = ? OR rentang_usia.nama_rentang = ? OR CAST(kategori_capaian.rentang_usia_id AS VARCHAR) = ?", id, rentang, rentang)
+	} else {
+		query = query.Where("rentang_usia.nama_rentang = ? OR CAST(kategori_capaian.rentang_usia_id AS VARCHAR) = ?", rentang, rentang)
+	}
+
+	err := query.Find(&data).Error
+	if err == nil {
+		for i := range data {
+			if data[i].RentangUsia != nil {
+				data[i].RentangUsiaStr = data[i].RentangUsia.NamaRentang
+			}
+		}
+	}
 	return data, err
 }
 

@@ -64,11 +64,25 @@ func (c *PrediksiStuntingController) PredictStunting(ctx echo.Context) error {
 		})
 	}
 
-	// Validate input
+	// Validate GORM / Struct validation
 	if err := ctx.Validate(req); err != nil {
 		return ctx.JSON(http.StatusBadRequest, map[string]string{
 			"error": err.Error(),
 		})
+	}
+
+	// Custom validation: check growth bounds > 0
+	if req.BeratBadan <= 0 {
+		return ctx.JSON(http.StatusBadRequest, map[string]string{"error": "Berat Badan harus lebih besar dari 0"})
+	}
+	if req.TinggiBadan <= 0 {
+		return ctx.JSON(http.StatusBadRequest, map[string]string{"error": "Tinggi Badan harus lebih besar dari 0"})
+	}
+	if req.HasilLila <= 0 {
+		return ctx.JSON(http.StatusBadRequest, map[string]string{"error": "LILA harus lebih besar dari 0"})
+	}
+	if req.LingkarKepala <= 0 {
+		return ctx.JSON(http.StatusBadRequest, map[string]string{"error": "Lingkar Kepala harus lebih besar dari 0"})
 	}
 
 	// Call usecase

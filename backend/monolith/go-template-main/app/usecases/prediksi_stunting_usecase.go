@@ -45,10 +45,41 @@ func (u *prediksiStuntingUsecase) GetMeasurementDataByAnakID(ctx context.Context
 
 // PredictStunting - prediksi stunting dengan memanggil Python service
 func (u *prediksiStuntingUsecase) PredictStunting(ctx context.Context, req *models.PrediksiStuntingRequest) (*models.PrediksiStunting, error) {
+	// Ambil data lahir anak dari database jika belum di-set
+	if req.BeratLahirKg == 0 || req.TinggiLahirCm == 0 {
+		measurementData, errMeas := u.repo.GetLatestMeasurementByAnakID(req.AnakID)
+		if errMeas == nil && measurementData != nil {
+			if req.BeratLahirKg == 0 {
+				req.BeratLahirKg = measurementData.BeratLahirKg
+			}
+			if req.TinggiLahirCm == 0 {
+				req.TinggiLahirCm = measurementData.TinggiLahirCm
+			}
+		}
+		// Fallbacks jika masih 0
+		if req.BeratLahirKg == 0 {
+			req.BeratLahirKg = 3.0
+		}
+		if req.TinggiLahirCm == 0 {
+			req.TinggiLahirCm = 49.0
+		}
+	}
+
 	// Panggil Python service untuk prediksi
 	prediksi, err := u.callPythonPredictionService(ctx, req)
 	if err != nil {
 		return nil, err
+	}
+
+	// Map classification to status_prediksi
+	var statusPrediksi string
+	switch prediksi.Classification {
+	case "STUNTING":
+		statusPrediksi = "Stunting"
+	case "AT_RISK":
+		statusPrediksi = "Risiko Stunting"
+	default:
+		statusPrediksi = "Normal"
 	}
 
 	// Simpan hasil prediksi ke database
@@ -65,10 +96,16 @@ func (u *prediksiStuntingUsecase) PredictStunting(ctx context.Context, req *mode
 		ZScoreTBU:       prediksi.ZScoreTBU,
 		StatusTBU:       prediksi.StatusTBU,
 		Rekomendasi:     prediksi.Rekomendasi,
+		StatusPrediksi:  statusPrediksi,
 	}
 
 	if err := u.repo.SavePrediction(result); err != nil {
 		return nil, customerror.NewInternalServiceError("gagal menyimpan hasil prediksi")
+	}
+
+	// Update status_prediksi di tabel anak
+	if err := u.repo.UpdateAnakStatusPrediksi(req.AnakID, statusPrediksi); err != nil {
+		return nil, customerror.NewInternalServiceError("gagal memperbarui status prediksi anak di database")
 	}
 
 	return result, nil
@@ -78,10 +115,11 @@ func (u *prediksiStuntingUsecase) PredictStunting(ctx context.Context, req *mode
 func (u *prediksiStuntingUsecase) callPythonPredictionService(ctx context.Context, req *models.PrediksiStuntingRequest) (*models.PrediksiResponse, error) {
 	// Siapkan payload
 	payload := map[string]interface{}{
+		"bb_lahir":      req.BeratLahirKg,
+		"tb_lahir":      req.TinggiLahirCm,
 		"bb":            req.BeratBadan,
 		"tb":            req.TinggiBadan,
 		"lila":          req.HasilLila,
-		"lingkar_kepala": req.LingkarKepala,
 		"umur":          req.UsiaUkurBulan,
 		"jenis_kelamin": req.JenisKelamin,
 	}
@@ -91,6 +129,8 @@ func (u *prediksiStuntingUsecase) callPythonPredictionService(ctx context.Contex
 	if err != nil {
 		return nil, customerror.NewInternalServiceError("gagal serialize payload")
 	}
+
+	fmt.Printf("[DEBUG] Payload to ML Model: %s\n", string(payloadBytes))
 
 	// Request ke Python service
 	httpReq, err := http.NewRequestWithContext(ctx, "POST", 

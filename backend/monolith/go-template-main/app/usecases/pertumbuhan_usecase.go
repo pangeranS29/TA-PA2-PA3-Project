@@ -1,6 +1,7 @@
 package usecases
 
 import (
+	"context"
 	"fmt"
 	"math"
 	"strconv"
@@ -281,8 +282,12 @@ func validateCreatePertumbuhanRequest(req *models.CreatePertumbuhanRequest) erro
 		return customerror.NewBadRequestError("tinggi_badan wajib diisi dan harus lebih dari 0")
 	}
 
-	if req.LingkarKepala < 0 {
-		return customerror.NewBadRequestError("lingkar_kepala tidak boleh bernilai negatif")
+	if req.LingkarKepala <= 0 {
+		return customerror.NewBadRequestError("lingkar_kepala wajib diisi dan harus lebih dari 0")
+	}
+
+	if req.HasilLila <= 0 {
+		return customerror.NewBadRequestError("hasil_lila wajib diisi dan harus lebih dari 0")
 	}
 
 	return nil
@@ -312,19 +317,24 @@ func (m *Main) recalculateAntropometri(catatan *models.CatatanPertumbuhan, gende
 	}
 }
 
-func (m *Main) AddCatatanPertumbuhan(req *models.CreatePertumbuhanRequest) error {
+func (m *Main) AddCatatanPertumbuhan(req *models.CreatePertumbuhanRequest) (*models.PrediksiStunting, error) {
 	if err := validateCreatePertumbuhanRequest(req); err != nil {
-		return err
+		return nil, err
 	}
 
 	dataAnak, err := m.repository.GetAnakByID(req.AnakID)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	tglUkur, err := time.Parse("2006-01-02", req.TglUkur)
 	if err != nil {
-		return customerror.NewBadRequestError("format tanggal ukur tidak valid, gunakan YYYY-MM-DD")
+		return nil, customerror.NewBadRequestError("format tanggal ukur tidak valid, gunakan YYYY-MM-DD")
+	}
+
+	// Validasi masa depan
+	if tglUkur.After(time.Now()) {
+		return nil, customerror.NewBadRequestError("Data tidak dapat diinput untuk tanggal yang melebihi tanggal hari ini.")
 	}
 
 	catatan := &models.CatatanPertumbuhan{
@@ -340,37 +350,87 @@ func (m *Main) AddCatatanPertumbuhan(req *models.CreatePertumbuhanRequest) error
 	// Hitung IMT (tidak perlu data anak)
 	catatan.IMT = catatan.HitungIMT()
 
-	// Hitung usia dan Z-score HANYA jika data Penduduk lengkap
+	// Hitung usia dan Z-score
 	rawTanggalLahir, rawGender, extractErr := extractAnakTanggalLahirDanGender(dataAnak)
-	if extractErr == nil && rawTanggalLahir != "" && rawGender != "" {
-		tanggalLahir, parseErr := parseTanggalLahir(rawTanggalLahir)
-		if parseErr == nil {
-			gender := sanitizeGender(rawGender)
+	if extractErr != nil || rawTanggalLahir == "" || rawGender == "" {
+		return nil, customerror.NewBadRequestError("Data tanggal lahir atau jenis kelamin anak tidak lengkap, tidak dapat melakukan prediksi.")
+	}
+	
+	tanggalLahir, parseErr := parseTanggalLahir(rawTanggalLahir)
+	if parseErr != nil {
+		return nil, customerror.NewBadRequestError("Format tanggal lahir anak tidak valid.")
+	}
+	
+	gender := sanitizeGender(rawGender)
 
-			catatan.UsiaUkurBulan = catatan.HitungUsiaBulan(tanggalLahir)
-			m.recalculateAntropometri(catatan, gender)
+	catatan.UsiaUkurBulan = catatan.HitungUsiaBulan(tanggalLahir)
+	m.recalculateAntropometri(catatan, gender)
 
-			stdIMTU, _ := m.repository.GetStandarAntropometri(ParamIMTU, gender, float64(catatan.UsiaUkurBulan))
-			if stdIMTU != nil {
-				catatan.ZScoreIMTU = hitungZScore(catatan.IMT, stdIMTU)
-				catatan.StatusIMTU = interpretasiStatusIMTU(catatan.ZScoreIMTU)
-			}
+	stdIMTU, _ := m.repository.GetStandarAntropometri(ParamIMTU, gender, float64(catatan.UsiaUkurBulan))
+	if stdIMTU != nil {
+		catatan.ZScoreIMTU = hitungZScore(catatan.IMT, stdIMTU)
+		catatan.StatusIMTU = interpretasiStatusIMTU(catatan.ZScoreIMTU)
+	}
 
-			if catatan.LingkarKepala > 0 {
-				stdLKU, _ := m.repository.GetStandarAntropometri(ParamLKU, gender, float64(catatan.UsiaUkurBulan))
-				if stdLKU != nil {
-					catatan.ZScoreLKU = hitungZScore(catatan.LingkarKepala, stdLKU)
-					catatan.StatusLKU = interpretasiStatusLKU(catatan.ZScoreLKU)
-				}
-			}
-		}
+	stdLKU, _ := m.repository.GetStandarAntropometri(ParamLKU, gender, float64(catatan.UsiaUkurBulan))
+	if stdLKU != nil {
+		catatan.ZScoreLKU = hitungZScore(catatan.LingkarKepala, stdLKU)
+		catatan.StatusLKU = interpretasiStatusLKU(catatan.ZScoreLKU)
 	}
 
 	if err := m.repository.CreateCatatanPertumbuhan(catatan); err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	// Otomatis jalankan Prediksi Stunting
+	prediksiReq := &models.PrediksiStuntingRequest{
+		AnakID:        int32(req.AnakID),
+		BeratBadan:    catatan.BeratBadan,
+		TinggiBadan:   catatan.TinggiBadan,
+		LingkarKepala: catatan.LingkarKepala,
+		HasilLila:     catatan.HasilLila,
+		UsiaUkurBulan: catatan.UsiaUkurBulan,
+		JenisKelamin:  gender,
+	}
+
+	prediksi, errPred := m.PrediksiStunting.PredictStunting(context.Background(), prediksiReq)
+	if errPred != nil {
+		fmt.Println("Warning: Gagal melakukan prediksi otomatis (ML service offline/error):", errPred)
+		
+		// Fallback: Tentukan status stunting berdasarkan Z-score TB/U (Standar Antropometri WHO)
+		// Jika Z-Score TB/U < -2.0, dikategorikan Stunting. Jika >= -2.0, dikategorikan Normal.
+		fallbackStatus := "Normal"
+		if catatan.ZScoreTBU < -2.0 {
+			fallbackStatus = "Stunting"
+		}
+
+		// Update status_prediksi di tabel anak
+		if errUpdate := m.repository.PrediksiStunting.UpdateAnakStatusPrediksi(int32(req.AnakID), fallbackStatus); errUpdate != nil {
+			fmt.Println("Warning: Gagal memperbarui status prediksi anak:", errUpdate)
+		}
+
+		// Buat objek mock prediksi stunting agar frontend tetap mendapatkan feedback
+		mockPrediksi := &models.PrediksiStunting{
+			AnakID:         int32(req.AnakID),
+			BeratBadan:     catatan.BeratBadan,
+			TinggiBadan:    catatan.TinggiBadan,
+			LingkarKepala:  catatan.LingkarKepala,
+			HasilLila:      catatan.HasilLila,
+			UsiaUkurBulan:  catatan.UsiaUkurBulan,
+			StatusPrediksi: fallbackStatus,
+			Classification: fallbackStatus,
+			ZScoreTBU:      catatan.ZScoreTBU,
+			StatusTBU:      catatan.StatusTBU,
+			Rekomendasi:    "Prediksi otomatis dialihkan menggunakan perhitungan Z-Score TB/U (Standar Antropometri WHO) karena ML Service offline.",
+		}
+		
+		// Simpan riwayat prediksi fallback ke database agar sinkron
+		_ = m.repository.PrediksiStunting.SavePrediction(mockPrediksi)
+
+		return mockPrediksi, nil
+	}
+
+	return prediksi, nil
 }
 
 

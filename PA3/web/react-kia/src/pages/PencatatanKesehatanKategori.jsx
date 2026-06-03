@@ -619,7 +619,7 @@ export default function PencatatanKesehatanKategori() {
                 <form onSubmit={handleSaveCheckup} className="p-5 space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Tanggal Pemeriksaan *</label>
-                    <input type="date" value={checkupForm.tanggal_pemeriksaan || ''} onChange={e => setCheckupForm({...checkupForm, tanggal_pemeriksaan: e.target.value})} className="w-full p-2 border border-gray-300 rounded-lg" required />
+                    <input type="date" value={checkupForm.tanggal_pemeriksaan || ''} max={new Date().toISOString().split('T')[0]} onChange={e => setCheckupForm({...checkupForm, tanggal_pemeriksaan: e.target.value})} className="w-full p-2 border border-gray-300 rounded-lg" required />
                   </div>
                   {renderCheckupForm()}
                   <div className="flex gap-3 pt-3">

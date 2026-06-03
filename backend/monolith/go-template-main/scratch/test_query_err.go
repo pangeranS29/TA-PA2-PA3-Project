@@ -23,17 +23,18 @@ func main() {
 		log.Fatalf("failed connect db: %v", err)
 	}
 
-	var rentangs []models.RentangUsia
-	if err := db.Find(&rentangs).Error; err != nil {
-		log.Fatalf("query failed: %v", err)
-	}
+	var data []models.KategoriCapaian
+	rentang := "0-3 BULAN"
+	err = db.
+		Joins("JOIN rentang_usia ON rentang_usia.id = kategori_capaian.rentang_usia_id").
+		Where("rentang_usia.nama_rentang = ? OR rentang_usia.id = ? OR CAST(kategori_capaian.rentang_usia_id AS VARCHAR) = ?", rentang, rentang, rentang).
+		Preload("RentangUsia").
+		Order("kategori_capaian.id").
+		Find(&data).Error
 
-	fmt.Printf("Total Rentang Usia: %d\n", len(rentangs))
-	for _, r := range rentangs {
-		fmt.Printf("- ID: %d, Nama: %s, Max: %d %s\n", r.ID, r.NamaRentang, r.MaxPeriode, r.SatuanWaktu)
+	if err != nil {
+		fmt.Printf("QUERY ERROR: %v\n", err)
+	} else {
+		fmt.Printf("QUERY SUCCESS: fetched %d rows\n", len(data))
 	}
-
-	var count int64
-	db.Model(&models.KategoriCapaian{}).Count(&count)
-	fmt.Printf("Total Kategori Capaian: %d\n", count)
 }

@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"log"
 	"monitoring-service/app/controllers"
+	"strings"
 
 	"time"
 
+	"monitoring-service/app/models"
 	"monitoring-service/app/repositories"
 	"monitoring-service/app/routes"
 
@@ -86,11 +88,11 @@ func (m *Main) Init() (err error) {
 	}
 	fmt.Println("✅ BERHASIL KONEK KE DATABASE")
 
-	// // Migrate Tabel
-	// err = models.AutoMigrate(m.database.Postgres)
-	// if err != nil {
-	// 	return
-	// }
+	// Migrate only the specific tables needed to ensure rentang_usia_id exists
+	_ = m.database.Postgres.AutoMigrate(&models.RentangUsia{}, &models.KategoriCapaian{})
+
+	// Sync sequences and map rentang_usia text to rentang_usia_id
+	fixKategoriCapaianData(m.database.Postgres)
 
 	// // Seeder
 	// err = seed.RunAllSeed(m.database.Postgres)
@@ -174,4 +176,78 @@ func (m *Main) close() {
 			db.Close()
 		}
 	}
+}
+
+func fixKategoriCapaianData(db *gorm.DB) {
+	log.Println("[MIGRATION] Memulai sinkronisasi data rentang_usia_id di kategori_capaian...")
+	
+	// 1. Sinkronkan sequence kategori_capaian_id_seq agar tidak terjadi duplicate key error
+	if err := db.Exec("SELECT setval('kategori_capaian_id_seq', COALESCE((SELECT MAX(id) FROM kategori_capaian), 1))").Error; err != nil {
+		log.Println("[MIGRATION] Gagal sinkronisasi sequence ID:", err)
+	} else {
+		log.Println("[MIGRATION] Sukses sinkronisasi sequence kategori_capaian_id_seq.")
+	}
+
+	// 2. Hubungkan data string rentang_usia di kategori_capaian ke rentang_usia_id
+	type KategoriCapaianTmp struct {
+		ID            uint
+		RentangUsia   string // kolom string rentang_usia bawaan DB
+		RentangUsiaID uint   // kolom integer rentang_usia_id
+	}
+
+	var list []KategoriCapaianTmp
+	if err := db.Table("kategori_capaian").Find(&list).Error; err != nil {
+		log.Println("[MIGRATION] Gagal membaca data kategori_capaian:", err)
+		return
+	}
+
+	var rentangs []models.RentangUsia
+	if err := db.Find(&rentangs).Error; err != nil {
+		log.Println("[MIGRATION] Gagal mengambil data rentang_usia:", err)
+		return
+	}
+
+	importHelper := func(capaianUsia, rentangNama string) bool {
+		c := strings.ToLower(strings.TrimSpace(capaianUsia))
+		r := strings.ToLower(strings.TrimSpace(rentangNama))
+		if strings.Contains(r, c) {
+			return true
+		}
+		// Konversi khusus bulan ke tahun
+		if c == "24-36" && (strings.Contains(r, "2-3") || strings.Contains(r, "2 - 3")) {
+			return true
+		}
+		if c == "36-48" && (strings.Contains(r, "3-4") || strings.Contains(r, "3 - 4")) {
+			return true
+		}
+		if c == "48-60" && (strings.Contains(r, "4-5") || strings.Contains(r, "4 - 5")) {
+			return true
+		}
+		if c == "60-72" && (strings.Contains(r, "5-6") || strings.Contains(r, "5 - 6")) {
+			return true
+		}
+		return false
+	}
+
+	updated := 0
+	for _, item := range list {
+		// Cari matching rentang_usia
+		var matchedID uint = 0
+		for _, r := range rentangs {
+			if importHelper(item.RentangUsia, r.NamaRentang) {
+				matchedID = r.ID
+				break
+			}
+		}
+
+		if matchedID > 0 {
+			err := db.Table("kategori_capaian").Where("id = ?", item.ID).Update("rentang_usia_id", matchedID).Error
+			if err != nil {
+				log.Printf("[MIGRATION] Gagal update rentang_usia_id untuk ID %d: %v\n", item.ID, err)
+			} else {
+				updated++
+			}
+		}
+	}
+	log.Printf("[MIGRATION] Berhasil mengupdate %d/%d data rentang_usia_id di kategori_capaian.\n", updated, len(list))
 }

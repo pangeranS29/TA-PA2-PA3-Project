@@ -27,54 +27,46 @@ export const deleteCatatanPertumbuhan = async (id) => {
   return res.data;
 };
 
-// ── Prediksi Stunting (langsung ke ML service) ────────────────────────────
-const ML_URL = import.meta.env.VITE_ML_URL || "http://localhost:8000";
+// ── Prediksi Stunting melalui backend Go ─────────────────────────────────
 
-export const prediksiStunting = async (payload) => {
-  // Kirim langsung ke FastAPI ML service
-  // bb_lahir dan tb_lahir wajib — gunakan nilai dari data anak atau fallback rata-rata normal
-  const bbLahir = payload.berat_lahir_kg || payload.bb_lahir;
-  const tbLahir = payload.tinggi_lahir_cm || payload.tb_lahir;
-
-  // Validasi: semua field wajib harus ada
-  if (!payload.berat_badan || !payload.tinggi_badan || !payload.hasil_lila) {
-    throw new Error("Data BB, TB, dan LILA wajib diisi untuk prediksi stunting");
+/**
+ * Ambil data pengukuran terbaru anak (BB, TB, LILA, Lingkar Kepala)
+ * dari backend Go. Digunakan untuk prefill form prediksi.
+ */
+export const getMeasurementData = async (anakId) => {
+  try {
+    const res = await api.get(`/api/v1/anak/${anakId}/measurement-data`);
+    return res.data;
+  } catch {
+    return null;
   }
-
-  const mlPayload = {
-    bb_lahir:      bbLahir  ? parseFloat(bbLahir)  : 3.0,   // fallback rata-rata normal
-    tb_lahir:      tbLahir  ? parseFloat(tbLahir)  : 49.0,  // fallback rata-rata normal
-    bb:            parseFloat(payload.berat_badan),
-    tb:            parseFloat(payload.tinggi_badan),
-    lila:          parseFloat(payload.hasil_lila),
-    umur:          parseInt(payload.usia_ukur_bulan) || 0,
-    jenis_kelamin: payload.jenis_kelamin || "Laki-laki",
-  };
-
-  const res = await fetch(`${ML_URL}/predict`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(mlPayload),
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.detail || `ML service error: ${res.status}`);
-  }
-  return res.json();
 };
 
-// Riwayat prediksi (dari backend Go jika route sudah aktif)
+/**
+ * Kirim request prediksi stunting ke backend Go.
+ * Backend Go yang akan meneruskan ke FastAPI ML service.
+ */
+export const prediksiStunting = async (payload) => {
+  const res = await api.post("/api/v1/prediksi-stunting", payload);
+  return res.data;
+};
+
+/**
+ * Ambil riwayat prediksi stunting dari backend Go.
+ */
 export const getRiwayatPrediksi = async (anakId) => {
   const res = await api.get(`/api/v1/anak/${anakId}/prediksi-stunting`);
   return res.data;
 };
 
-// Ambil prediksi terbaru — coba backend dulu, fallback ke null
+/**
+ * Ambil prediksi stunting terbaru untuk satu anak.
+ */
 export const getLatestPrediksi = async (anakId) => {
   try {
     const res = await api.get(`/api/v1/anak/${anakId}/prediksi-stunting/latest`);
     return res.data;
   } catch {
-    return null; // route belum aktif, kembalikan null
+    return null;
   }
 };
