@@ -17,9 +17,11 @@ type Kependudukan struct {
 	Pekerjaan          string     `gorm:"column:pekerjaan;type:text" json:"pekerjaan"`
 	BacaHuruf          string     `gorm:"column:baca_huruf;type:text" json:"baca_huruf"`
 	KedudukanKeluarga  string     `gorm:"column:kedudukan_keluarga;type:text" json:"kedudukan_keluarga"`
-	Dusun              string     `gorm:"column:dusun;type:text" json:"dusun"`
-	Kecamatan          string     `gorm:"column:kecamatan;type:text" json:"kecamatan"`
-	Desa               string     `gorm:"column:desa;type:text" json:"desa"`
+	// Dusun              string     `gorm:"column:dusun;type:text" json:"dusun"`
+	// Kecamatan          string     `gorm:"column:kecamatan;type:text" json:"kecamatan"`
+	// Desa               string     `gorm:"column:desa;type:text" json:"desa"`
+	DusunID				int32      `gorm:"column:dusun_id;not null" json:"dusun_id"`
+	Dusun				Dusun		`gorm:"foreignKey:DusunID;references:ID" json:"dusun,omitempty"`
 	TanggalPenambahan  *time.Time `gorm:"column:tanggal_penambahan" json:"tanggal_penambahan,omitempty"`
 	AsalPenduduk       string     `gorm:"column:asal_penduduk;type:text" json:"asal_penduduk"`
 	TanggalPengurangan *time.Time `gorm:"column:tanggal_pengurangan" json:"tanggal_pengurangan,omitempty"`

@@ -22,9 +22,9 @@ func NewKependudukanController(u usecases.KependudukanUsecase) *KependudukanCont
 type createKependudukanRequest struct {
 	KartuKeluargaID    *int64 `json:"kartu_keluarga_id"`
 	NIK                string `json:"nik"`
-	Dusun              string `json:"dusun"`
-	Kecamatan          string `json:"kecamatan"`
-	Desa               string `json:"desa"`
+	// Dusun              string `json:"dusun"`
+	// Kecamatan          string `json:"kecamatan"`
+	// Desa               string `json:"desa"`
 	NamaLengkap        string `json:"nama_lengkap"`
 	GolonganDarah      string `json:"golongan_darah"`
 	JenisKelamin       string `json:"jenis_kelamin"`
@@ -72,9 +72,10 @@ func (c *KependudukanController) Create(ctx echo.Context) error {
 	k := &models.Kependudukan{
 		KartuKeluargaID:    req.KartuKeluargaID,
 		NIK:                nikPtr,
-		Dusun:              req.Dusun,
-		Kecamatan:          req.Kecamatan,
-		Desa:               req.Desa,
+		// Dusun:              req.Dusun,
+		// Kecamatan:          req.Kecamatan,
+		// Desa:               req.Desa,
+		// Dusun:				req.Dusun,
 		NamaLengkap:        req.NamaLengkap,
 		GolonganDarah:      req.GolonganDarah,
 		JenisKelamin:       req.JenisKelamin,
@@ -142,15 +143,15 @@ func (c *KependudukanController) Update(ctx echo.Context) error {
 		// Jika NIK kosong dalam request, set ke nil
 		existing.NIK = nil
 	}
-	if req.Dusun != "" {
-		existing.Dusun = req.Dusun
-	}
-	if req.Kecamatan != "" {
-		existing.Kecamatan = req.Kecamatan
-	}
-	if req.Desa != "" {
-		existing.Desa = req.Desa
-	}
+	// if req.Dusun != "" {
+	// 	existing.Dusun = req.Dusun
+	// }
+	// if req.Kecamatan != "" {
+	// 	existing.Kecamatan = req.Kecamatan
+	// }
+	// if req.Desa != "" {
+	// 	existing.Desa = req.Desa
+	// }
 	if req.NamaLengkap != "" {
 		existing.NamaLengkap = req.NamaLengkap
 	}
