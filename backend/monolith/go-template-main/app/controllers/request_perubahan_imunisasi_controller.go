@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"math"
 	"monitoring-service/app/constants"
 	"monitoring-service/app/helpers"
 	"monitoring-service/app/models"
@@ -119,6 +120,17 @@ func (m *Main) ApproveRequestPerubahanJadwal(
 		)
 	}
 
+	if requestID > math.MaxInt32 || requestID < math.MinInt32 {
+
+		return helpers.Response(
+			c,
+			http.StatusBadRequest,
+			[]string{
+				"id request tidak valid",
+			},
+		)
+	}
+
 	err =
 		m.usecases.
 			ApproveRequestPerubahanJadwal(
@@ -157,6 +169,17 @@ func (m *Main) RejectRequestPerubahanJadwal(
 		)
 
 	if err != nil {
+
+		return helpers.Response(
+			c,
+			http.StatusBadRequest,
+			[]string{
+				"id request tidak valid",
+			},
+		)
+	}
+
+	if requestID > math.MaxInt32 || requestID < math.MinInt32 {
 
 		return helpers.Response(
 			c,
