@@ -138,6 +138,7 @@ import PosyanduList from "./pages/ManajemenBidanKader/PosyanduList";
 import BidanList from "./pages/ManajemenBidanKader/BidanList";
 import KaderList from "./pages/ManajemenBidanKader/KaderList";
 import SuperAdminDashboard from "./pages/SuperAdmin/Dashboard";
+import AuditTrail from "./pages/SuperAdmin/AuditTrail";
 import KelolaDesa from "./pages/SuperAdmin/KelolaDesa";
 import KelolaUser from "./pages/SuperAdmin/Kelola Bidan&Kader&Admin desa";
 import KelolaUserPerDesa from "./pages/SuperAdmin/Kelola Akun User Per Desa";
@@ -235,6 +236,7 @@ function App() {
         </Route>
 
         <Route path="/superadmin/dashboard" element={<ProtectedRoute allowedRoles={["superadmin"]}><SuperAdminDashboard /></ProtectedRoute>} />
+        <Route path="/superadmin/audit-trail" element={<ProtectedRoute allowedRoles={["superadmin"]}><AuditTrail /></ProtectedRoute>} />
         <Route path="/superadmin/kelola-user" element={<ProtectedRoute allowedRoles={["superadmin"]}><KelolaUser /></ProtectedRoute>} />
         <Route path="/superadmin/kelola-user-per-desa" element={<ProtectedRoute allowedRoles={["superadmin"]}><KelolaUserPerDesa /></ProtectedRoute>} />
         <Route path="/superadmin/kelola-desa" element={<ProtectedRoute allowedRoles={["superadmin"]}><KelolaDesa /></ProtectedRoute>} />

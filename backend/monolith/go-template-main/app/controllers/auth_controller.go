@@ -1,8 +1,11 @@
 package controllers
 
 import (
+	"encoding/json"
+	"log"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"monitoring-service/app/constants"
 	"monitoring-service/app/helpers"
@@ -46,16 +49,65 @@ func (m *Main) Register(c echo.Context) error {
 func (m *Main) Login(c echo.Context) error {
 	var req models.LoginRequest
 	if err := c.Bind(&req); err != nil {
+		m.recordAuthAudit(c, "LOGIN_FAILED", false, "", "", nil, http.StatusBadRequest, "format request tidak valid")
 		return helpers.Response(c, http.StatusBadRequest, []string{"format request tidak valid"})
+	}
+	identifier := strings.TrimSpace(req.Identifier)
+	if identifier == "" {
+		identifier = strings.TrimSpace(req.Email)
 	}
 
 	data, err := m.usecases.Login(&req)
 	if err != nil {
 		statusCode := customerror.GetStatusCode(err)
+		m.recordAuthAudit(c, "LOGIN_FAILED", false, identifier, "", nil, statusCode, err.Error())
 		return helpers.Response(c, statusCode, []string{err.Error()})
 	}
 
+	userID := data.UserID
+	actorIdentifier := data.Email
+	if actorIdentifier == "" {
+		actorIdentifier = data.PhoneNumber
+	}
+	m.recordAuthAudit(c, "LOGIN", true, actorIdentifier, data.Role, &userID, http.StatusOK, "login berhasil")
+
 	return helpers.StandardResponse(c, http.StatusOK, []string{constants.SUCCESS_RESPONSE_MESSAGE}, data, nil)
+}
+
+func (m *Main) Logout(c echo.Context) error {
+	return helpers.StandardResponse(c, http.StatusOK, []string{constants.SUCCESS_RESPONSE_MESSAGE}, map[string]string{"message": "logout berhasil"}, nil)
+}
+
+func (m *Main) recordAuthAudit(c echo.Context, action string, success bool, identifier string, role string, userID *int32, statusCode int, message string) {
+	if m.usecases == nil || m.usecases.AuditTrail == nil {
+		return
+	}
+
+	details := map[string]string{
+		"message":    message,
+		"ip":         c.RealIP(),
+		"user_agent": c.Request().UserAgent(),
+	}
+	if payload, err := json.Marshal(details); err == nil {
+		entry := &models.AuditTrail{
+			ActorUserID:     userID,
+			ActorIdentifier: strings.TrimSpace(identifier),
+			ActorRole:       strings.TrimSpace(role),
+			Action:          action,
+			Resource:        "auth",
+			Method:          c.Request().Method,
+			Path:            c.Path(),
+			StatusCode:      statusCode,
+			Success:         success,
+			IPAddress:       c.RealIP(),
+			UserAgent:       c.Request().UserAgent(),
+			RequestID:       c.Request().Header.Get("X-Request-ID"),
+			Details:         string(payload),
+		}
+		if err := m.usecases.AuditTrail.Record(entry); err != nil {
+			log.Printf("[AUDIT] gagal mencatat event auth: %v", err)
+		}
+	}
 }
 
 func (m *Main) AdminCreateKartuKeluarga(c echo.Context) error {

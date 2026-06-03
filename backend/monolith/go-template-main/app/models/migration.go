@@ -13,6 +13,7 @@ func AutoMigrate(db *gorm.DB) error {
 		&Kependudukan{},
 		&Role{},
 		&User{},
+		&AuditTrail{},
 		&Ibu{},
 		&Kehamilan{},
 		&Anak{},

@@ -55,6 +55,7 @@ type Main struct {
 	JenisPelayanan                *JenisPelayananController
 	KategoriUmur                  *KategoriUmurController
 	Kader                         *KaderController
+	AuditTrail                    *AuditTrailController
 
 	// Controller tambahan
 	KeluhanAnak         *KeluhanAnakController
@@ -90,10 +91,9 @@ type Main struct {
 	PemeriksaanDewasa *PemeriksaanDewasaController
 	PemeriksaanLansia *PemeriksaanLansiaController
 	Dashboard         *DashboardController
-	PendudukRisk	  *PendudukRiskController
-	RiwayatCard *RiwayatCardController
-	Pencatatan 	  *PencatatanController
-	
+	PendudukRisk      *PendudukRiskController
+	RiwayatCard       *RiwayatCardController
+	Pencatatan        *PencatatanController
 }
 
 type Options struct {
@@ -155,6 +155,7 @@ func Init(opts Options) *Main {
 	m.JenisPelayanan = NewJenisPelayananController(opts.UseCases.JenisPelayanan)
 	m.KategoriUmur = NewKategoriUmurController(opts.UseCases.KategoriUmur)
 	m.Kader = NewKaderController(opts.UseCases.Kader)
+	m.AuditTrail = NewAuditTrailController(opts.UseCases.AuditTrail)
 	m.PemeriksaanDokterCombined = NewPemeriksaanDokterCombinedController(
 		opts.UseCases.PemeriksaanDokterTrimester1,
 		opts.UseCases.PemeriksaanDokterTrimester3,

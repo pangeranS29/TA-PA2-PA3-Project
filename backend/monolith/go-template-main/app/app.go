@@ -7,7 +7,6 @@ import (
 
 	"time"
 
-	// "monitoring-service/app/models"
 	"monitoring-service/app/repositories"
 	"monitoring-service/app/routes"
 

@@ -23,6 +23,7 @@ type Main struct {
 	KategoriTandaBahaya    KategoriTandaBahayaUsecase
 	Kependudukan           KependudukanUsecase
 	Kader                  KaderUsecase
+	AuditTrail             *AuditTrailUsecase
 
 	// Usecase baru (terkait kehamilan)
 	// KartuKeluarga                 KartuKeluargaUsecase
@@ -91,9 +92,9 @@ type Main struct {
 	PemeriksaanRemaja PemeriksaanRemajaUsecase
 	PemeriksaanDewasa PemeriksaanDewasaUsecase
 	PemeriksaanLansia PemeriksaanLansiaUsecase
-	PendudukRisk	  PendudukRiskUsecase
-	RiwayatCard RiwayatCardUsecase
-	Pencatatan 	  PencatatanUsecase
+	PendudukRisk      PendudukRiskUsecase
+	RiwayatCard       RiwayatCardUsecase
+	Pencatatan        PencatatanUsecase
 }
 
 type Options struct {
@@ -193,6 +194,7 @@ func Init(opts Options) *Main {
 	// m.KesehatanLingkunganDanCatatanKader = NewKesehatanLingkunganDanCatatanKaderUsecase(opts.Repository.KesehatanLingkunganDanCatatanKader)
 	m.PemantauanAnak = NewPemantauanAnakUseCase(opts.Repository.PemantauanAnak)
 	m.PemantauanIndikator = NewPemantauanIndikatorUsecase(opts.Repository.PemantauanIndikator)
+	m.AuditTrail = NewAuditTrailUsecase(opts.Repository.AuditTrail)
 
 	// Perawatan Anak (Lembar Capaian)
 	m.KategoriCapaian = NewKategoriCapaianUsecase(opts.Repository.KategoriCapaian)
@@ -225,18 +227,18 @@ func Init(opts Options) *Main {
 	m.PemeriksaanLansia = NewPemeriksaanLansiaUsecase(opts.Repository.PemeriksaanLansia)
 	m.PendudukRisk = NewPendudukRiskUsecase(opts.Repository.PemeriksaanAnak, opts.Repository.PemeriksaanRemaja, opts.Repository.PemeriksaanDewasa, opts.Repository.PemeriksaanLansia)
 	m.RiwayatCard = NewRiwayatCardUsecase(
-        opts.Repository.Kependudukan,
-        opts.Repository.PemeriksaanAnak,
-        opts.Repository.PemeriksaanRemaja,
-        opts.Repository.PemeriksaanDewasa,
-        opts.Repository.PemeriksaanLansia,
-    )
+		opts.Repository.Kependudukan,
+		opts.Repository.PemeriksaanAnak,
+		opts.Repository.PemeriksaanRemaja,
+		opts.Repository.PemeriksaanDewasa,
+		opts.Repository.PemeriksaanLansia,
+	)
 	m.Pencatatan = NewPencatatanUsecase(
-    opts.Repository.Kependudukan,        
-    opts.Repository.PemeriksaanAnak,      //
-    opts.Repository.PemeriksaanRemaja,    // 
-    opts.Repository.PemeriksaanDewasa,    // 
-    opts.Repository.PemeriksaanLansia,    // 
-)
+		opts.Repository.Kependudukan,
+		opts.Repository.PemeriksaanAnak,   //
+		opts.Repository.PemeriksaanRemaja, //
+		opts.Repository.PemeriksaanDewasa, //
+		opts.Repository.PemeriksaanLansia, //
+	)
 	return m
 }

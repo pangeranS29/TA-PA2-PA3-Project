@@ -19,12 +19,15 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	// auth.POST("/register/ortu", controller.RegisterOrangTua) // registrasi khusus orang tua
 	secured := auth.Group("")
 	secured.Use(middlewares.JWTAuth(controller.JWTSecret()))
+	secured.Use(middlewares.AuditTrail(controller.AuditTrail))
 	secured.GET("/me", controller.Me)
+	secured.POST("/logout", controller.Logout)
 
 	// ==================== MODUL ADMIN  ====================
 
 	admin := e.Group("/admin")
 	admin.Use(middlewares.JWTAuth(controller.JWTSecret()))
+	admin.Use(middlewares.AuditTrail(controller.AuditTrail))
 	admin.Use(middlewares.AdminOnly())
 	// NOTE: Admin hanya bisa membuat Kartu Keluarga + Anggota (Penduduk)
 	// Tidak bisa membuat akun user lagi
@@ -40,7 +43,10 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	// ==================== MODUL SUPERADMIN ====================
 	superadmin := e.Group("/superadmin")
 	superadmin.Use(middlewares.JWTAuth(controller.JWTSecret()))
+	superadmin.Use(middlewares.AuditTrail(controller.AuditTrail))
 	superadmin.Use(middlewares.SuperAdminOnly())
+	superadmin.GET("/audit-trail", controller.AuditTrail.List)
+	superadmin.GET("/audit-trail/summary", controller.AuditTrail.Summary)
 	superadmin.GET("/desa", controller.Desa.GetAll)
 	superadmin.GET("/desa/:id", controller.Desa.GetByID)
 	superadmin.POST("/desa", controller.Desa.Create)
@@ -62,6 +68,7 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 
 	bidan := e.Group("/bidan")
 	bidan.Use(middlewares.JWTAuth(controller.JWTSecret()))
+	bidan.Use(middlewares.AuditTrail(controller.AuditTrail))
 	bidan.Use(middlewares.BidanOnly())
 
 	// Posyandu Management (Bidan manage posyandu mereka)
@@ -89,10 +96,12 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	// ==================== MODUL Anak ====================
 	anak := e.Group("/anak")
 	anak.Use(middlewares.JWTAuth(controller.JWTSecret()))
+	anak.Use(middlewares.AuditTrail(controller.AuditTrail))
 	_ = anak
 
 	masterStandar := e.Group("/master-standar")
 	masterStandar.Use(middlewares.JWTAuth(controller.JWTSecret()))
+	masterStandar.Use(middlewares.AuditTrail(controller.AuditTrail))
 	_ = masterStandar
 
 	// Kategori Capaian Routes
@@ -122,6 +131,7 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	// Group untuk tenaga kesehatan (termasuk bidan, dokter, tenaga-kesehatan)
 	tenaga := e.Group("/tenaga-kesehatan")
 	tenaga.Use(middlewares.JWTAuth(controller.JWTSecret()))
+	tenaga.Use(middlewares.AuditTrail(controller.AuditTrail))
 	tenaga.Use(middlewares.TenagaKesehatan())
 
 	// ==================== PERTUMBUHAN ANAK ====================
@@ -243,6 +253,7 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	// ==================== LINGKUNGAN (kategori & history) ====================
 	lingkungan := e.Group("/lingkungan")
 	lingkungan.Use(middlewares.JWTAuth(controller.JWTSecret()))
+	lingkungan.Use(middlewares.AuditTrail(controller.AuditTrail))
 	lingkungan.GET("/kategori", controller.KesehatanLingkungan.GetAllKategori)
 	lingkungan.GET("/history", controller.KesehatanLingkungan.GetHistory)
 	lingkungan.GET("/detail/:id", controller.KesehatanLingkungan.GetDetail)
@@ -576,6 +587,7 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	//==== IBU ====
 	ibu := e.Group("/ibu")
 	ibu.Use(middlewares.JWTAuth(controller.JWTSecret()))
+	ibu.Use(middlewares.AuditTrail(controller.AuditTrail))
 	ibu.Use(middlewares.IbuOnly())
 
 	//untuk pencatatan kesehatan ANC
@@ -627,9 +639,9 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	tenaga.GET("/penduduk/:id/riwayat-card", controller.RiwayatCard.GetRiwayatCard)
 	//untuk pencatatan kesehatan umum (anak, remaja, dewasa, lansia) dan get daftar penduduk berdasarkan kategori usia
 	tenaga.GET("/pencatatan/:kategori", controller.Pencatatan.GetDaftarPenduduk)
-    tenaga.POST("/pencatatan/anak", controller.Pencatatan.CreatePemeriksaanAnak)
-    tenaga.POST("/pencatatan/remaja", controller.Pencatatan.CreatePemeriksaanRemaja)
-    tenaga.POST("/pencatatan/dewasa", controller.Pencatatan.CreatePemeriksaanDewasa)
-    tenaga.POST("/pencatatan/lansia", controller.Pencatatan.CreatePemeriksaanLansia)
-	tenaga.GET("/pemeriksaan-riwayat", controller.Pencatatan.GetRiwayatPemeriksaan) 
+	tenaga.POST("/pencatatan/anak", controller.Pencatatan.CreatePemeriksaanAnak)
+	tenaga.POST("/pencatatan/remaja", controller.Pencatatan.CreatePemeriksaanRemaja)
+	tenaga.POST("/pencatatan/dewasa", controller.Pencatatan.CreatePemeriksaanDewasa)
+	tenaga.POST("/pencatatan/lansia", controller.Pencatatan.CreatePemeriksaanLansia)
+	tenaga.GET("/pemeriksaan-riwayat", controller.Pencatatan.GetRiwayatPemeriksaan)
 }

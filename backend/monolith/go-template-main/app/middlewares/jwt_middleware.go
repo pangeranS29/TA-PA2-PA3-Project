@@ -48,8 +48,9 @@ func JWTAuth(jwtSecret string) echo.MiddlewareFunc {
 			}
 
 			c.Set("auth_claims", claims)
+			c.Set("user_id", int64(claims.UserID))
 			c.Set("role", claims.Role)
-			c.Set("desa_id", claims.DesaID) 
+			c.Set("desa_id", claims.DesaID)
 			return next(c)
 		}
 	}

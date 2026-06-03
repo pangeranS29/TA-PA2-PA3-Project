@@ -27,6 +27,7 @@ import {
   ShieldPlus,
   CalendarClock,
   BookOpenCheck,
+  History,
 } from "lucide-react";
 import logo from "./LOGO.png";
 
@@ -163,6 +164,7 @@ const Sidebar = () => {
       { path: "/superadmin/kelola-user", name: "Kelola Bidan&Kader&Admin desa", icon: ShieldPlus },
       { path: "/superadmin/kelola-user-per-desa", name: "Kelola Akun User Per Desa", icon: Users },
       { path: "/superadmin/kelola-desa", name: "Kelola Desa", icon: TableProperties },
+      { path: "/superadmin/audit-trail", name: "Audit Trail", icon: History },
     ],
     []
   );
