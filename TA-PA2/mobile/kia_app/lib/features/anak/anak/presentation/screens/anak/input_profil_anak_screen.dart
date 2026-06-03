@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+<<<<<<< HEAD
+=======
+import 'package:ta_pa2_pa3_project/core/services/auth_session.dart';
+>>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
 
 class InputProfilAnakScreen extends StatefulWidget {
   const InputProfilAnakScreen({super.key});
@@ -11,12 +15,27 @@ class _InputProfilAnakScreenState extends State<InputProfilAnakScreen> {
   final TextEditingController namaController = TextEditingController();
   final TextEditingController tanggalLahirController = TextEditingController();
 
+<<<<<<< HEAD
+=======
+  bool _forbiddenForIbu = false;
+
+>>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
   String jenisKelamin = 'Laki-laki';
   String kondisi = 'Normal';
 
   double berat = 3.0;
   double panjang = 50.0;
 
+<<<<<<< HEAD
+=======
+  @override
+  void initState() {
+    super.initState();
+    final role = AuthSession.role?.trim().toLowerCase();
+    _forbiddenForIbu = role == 'ibu';
+  }
+
+>>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
   Future<void> _selectDate(BuildContext context) async {
     DateTime? pickedDate = await showDatePicker(
       context: context,
@@ -42,6 +61,41 @@ class _InputProfilAnakScreenState extends State<InputProfilAnakScreen> {
 
   @override
   Widget build(BuildContext context) {
+<<<<<<< HEAD
+=======
+    if (_forbiddenForIbu) {
+      return Scaffold(
+        backgroundColor: const Color(0xFFF5F7FA),
+        appBar: AppBar(
+          title: const Text("Tambah Profil Anak"),
+          backgroundColor: Colors.white,
+          foregroundColor: Colors.black,
+          elevation: 0,
+          centerTitle: true,
+        ),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.orange.shade50,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.orange.shade200),
+              ),
+              child: const Text(
+                'Akses ditolak. Penambahan profil anak hanya dapat dilakukan oleh bidan.',
+                style: TextStyle(fontSize: 14, color: Colors.black87),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+>>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FA),
       appBar: AppBar(
@@ -308,4 +362,8 @@ class _InputProfilAnakScreenState extends State<InputProfilAnakScreen> {
       ],
     );
   }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c

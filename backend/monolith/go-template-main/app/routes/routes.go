@@ -89,6 +89,15 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	bidan.PUT("/kader/:id", controller.BidanUpdateKader)
 	bidan.PATCH("/kader/:id/status", controller.BidanUpdateKaderStatus)
 
+<<<<<<< HEAD
+=======
+	// Request Perubahan Jadwal Imunisasi
+	bidan.GET("/request-perubahan-jadwal-imunisasi", controller.GetAllRequestPerubahanJadwal)
+	bidan.PUT("/request-perubahan-jadwal-imunisasi/:id/approve", controller.ApproveRequestPerubahanJadwal)
+	bidan.PUT("/request-perubahan-jadwal-imunisasi/:id/reject", controller.RejectRequestPerubahanJadwal)
+	// bidan.GET("/request-perubahan-jadwal-imunisasi/:id", controller.GetRequestPerubahanByID)
+
+>>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
 	// ==================== MODUL Anak ====================
 	anak := e.Group("/anak")
 	anak.Use(middlewares.JWTAuth(controller.JWTSecret()))
@@ -96,7 +105,12 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 
 	masterStandar := e.Group("/master-standar")
 	masterStandar.Use(middlewares.JWTAuth(controller.JWTSecret()))
+<<<<<<< HEAD
 	_ = masterStandar
+=======
+	masterStandar.GET("", controller.GetMasterStandar)
+	masterStandar.POST("", controller.CreateMasterStandar)
+>>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
 
 	// Kategori Capaian Routes
 	// kategoriCapaian := e.Group("/kategori-capaian")
@@ -139,11 +153,19 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	// ==================== MODUL ANAK & PELAYANAN ANAK (yang sudah ada) ====================
 
 	tenaga.GET("/anak", controller.Anak.AdminList)
+<<<<<<< HEAD
 	tenaga.POST("/anak", controller.Anak.Create)
 	// tenaga.POST("/anak/dengan-penduduk", controller.Anak.CreateDenganPenduduk)
 	tenaga.GET("/anak/:id", controller.Anak.Detail)
 	tenaga.PUT("/anak/:id", controller.Anak.Update)
 	tenaga.DELETE("/anak/:id", controller.Anak.Delete)
+=======
+	tenaga.POST("/anak", controller.Anak.Create, middlewares.BidanOnly())
+	// tenaga.POST("/anak/dengan-penduduk", controller.Anak.CreateDenganPenduduk)
+	tenaga.GET("/anak/:id", controller.Anak.Detail)
+	tenaga.PUT("/anak/:id", controller.Anak.Update, middlewares.BidanOnly())
+	tenaga.DELETE("/anak/:id", controller.Anak.Delete, middlewares.BidanOnly())
+>>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
 
 	tenaga.GET("/pelayanan-kesehatan-anak", controller.PelayananKesehatanAnak.GetByAnakID)
 	tenaga.GET("/pelayanan-kesehatan-anak/:id", controller.PelayananKesehatanAnak.GetByID)
@@ -732,6 +754,13 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	ibu.GET("/warna-tinja", controller.WarnaTinja.GetByAnakIDForIbu)
 	ibu.POST("/warna-tinja", controller.WarnaTinja.SaveForIbu)
 
+<<<<<<< HEAD
+=======
+	// ==================== PERTUMBUHAN ANAK (IBU) ====================
+	ibu.GET("/pertumbuhan/anak/:anak_id", controller.GetRiwayatPertumbuhan)
+	ibu.GET("/pertumbuhan/chart/:anak_id", controller.GetPertumbuhanChart)
+
+>>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
 	ibu.GET("/pemeriksaan-gigi", controller.PemeriksaanGigi.GetByAnakIDForIbu)
 	ibu.GET("/pengukuran-lila", controller.PengukuranLilA.GetByAnakIDForIbu)
 	ibu.GET("/pengukuran-lila/:anak_id", controller.PengukuranLilA.GetByAnakIDForIbu)
@@ -752,6 +781,15 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	ibu.GET("/jadwal-imunisasi/anak/:anak_id", controller.GetJadwalImunisasiByAnakID)
 	ibu.PUT("/jadwal-imunisasi/:id/tanggal-estimasi", controller.UpdateTanggalEstimasi)
 	ibu.GET("/jadwal-imunisasi/:id", controller.GetJadwalByID)
+<<<<<<< HEAD
+=======
+	ibu.PUT("/jadwal-imunisasi/:id/selesai", controller.SetJadwalSelesai)
+
+	// Request Perubahan Jadwal Imunisasi Ibu
+	ibu.POST("/jadwal-imunisasi/:id/request-perubahan", controller.RequestPerubahanJadwal)
+	ibu.POST("/test-fcm", controller.TestFCM)
+	ibu.POST("/test-reminder", controller.TestReminder)
+>>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
 
 	kader := e.Group("/kader")
 	kader.Use(middlewares.JWTAuth(controller.JWTSecret()))

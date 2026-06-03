@@ -3,6 +3,10 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+<<<<<<< HEAD
+=======
+  connectivity_plus
+>>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
   firebase_core
   flutter_timezone
   url_launcher_windows

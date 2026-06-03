@@ -389,7 +389,11 @@ export default function PemeriksaanDokterT3Complete() {
     const errors = {};
     if (!form.tanggal_periksa?.trim()) errors.tanggal_periksa = "Tanggal periksa harus diisi";
     if (!form.konsep_anamnesa_pemeriksaan?.trim()) errors.konsep_anamnesa_pemeriksaan = "Anamnesa harus diisi";
+<<<<<<< HEAD
     ["fisik_konjungtiva","fisik_sklera","fisik_kulit","fisik_leher","fisik_gigi_mulut","fisik_tht","fisik_dada_jantung","fisik_dada_paru","fisik_perut","fisik_tungkai"]
+=======
+    ["fisik_konjungtiva", "fisik_sklera", "fisik_kulit", "fisik_leher", "fisik_gigi_mulut", "fisik_tht", "fisik_dada_jantung", "fisik_dada_paru", "fisik_perut", "fisik_tungkai"]
+>>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
       .forEach(f => { if (!form[f]?.trim()) errors[f] = "Harus diisi"; });
     return errors;
   };
@@ -575,7 +579,11 @@ export default function PemeriksaanDokterT3Complete() {
         biometri_efwtbj_minggu: form.biometri_efwtbj_minggu ? parseInt(form.biometri_efwtbj_minggu) : null,
         usg_kecurigaan_temuan_abnormal: form.usg_kecurigaan_temuan_abnormal,
         usg_keterangan_temuan_abnormal: form.usg_keterangan_temuan_abnormal,
+<<<<<<< HEAD
         gambar_usg: imageBase64,
+=======
+        // gambar_usg: imageBase64,
+>>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
         // Skrining jiwa di tabel dokter T3
         tanggal_skrining_jiwa: form.tanggal_skrining_jiwa,
         skrining_jiwa_hasil: form.skrining_jiwa_hasil,
@@ -692,9 +700,15 @@ export default function PemeriksaanDokterT3Complete() {
 
   /* ── Data tampilan ──────────────────────────────────────────────────── */
   const fisikFields = [
+<<<<<<< HEAD
     "fisik_konjungtiva","fisik_sklera","fisik_kulit","fisik_leher",
     "fisik_gigi_mulut","fisik_tht","fisik_dada_jantung","fisik_dada_paru",
     "fisik_perut","fisik_tungkai"
+=======
+    "fisik_konjungtiva", "fisik_sklera", "fisik_kulit", "fisik_leher",
+    "fisik_gigi_mulut", "fisik_tht", "fisik_dada_jantung", "fisik_dada_paru",
+    "fisik_perut", "fisik_tungkai"
+>>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
   ];
 
   const labReaktifFields = [
@@ -717,8 +731,13 @@ export default function PemeriksaanDokterT3Complete() {
     "AKDR", "Pil", "Suntik", "Steril / MOW / MOP", "MAL", "Implan", "Belum Memilih"
   ].map((label, idx) => ({
     name: [
+<<<<<<< HEAD
       "rencana_kontrasepsi_akdr","rencana_kontrasepsi_pil","rencana_kontrasepsi_suntik",
       "rencana_kontrasepsi_steril","rencana_kontrasepsi_mal","rencana_kontrasepsi_implan",
+=======
+      "rencana_kontrasepsi_akdr", "rencana_kontrasepsi_pil", "rencana_kontrasepsi_suntik",
+      "rencana_kontrasepsi_steril", "rencana_kontrasepsi_mal", "rencana_kontrasepsi_implan",
+>>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
       "rencana_kontrasepsi_belum_memilih"
     ][idx],
     label,
@@ -753,7 +772,11 @@ export default function PemeriksaanDokterT3Complete() {
         {/* Step Indicator */}
         <div className="mb-8">
           <div className="flex items-center justify-between">
+<<<<<<< HEAD
             {[1,2,3,4].map(step => {
+=======
+            {[1, 2, 3, 4].map(step => {
+>>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
               const isActive = step === currentStep;
               const isCompleted = step < currentStep;
               const Icon = stepIcons[step - 1];
@@ -808,9 +831,14 @@ export default function PemeriksaanDokterT3Complete() {
                         {field.replace("fisik_", "").replace(/_/g, " ")}
                       </label>
                       <select name={field} value={form[field]} onChange={handleChange}
+<<<<<<< HEAD
                         className={`${selectCls} ${
                           validationErrors[field] ? "border-red-500" : form[field]==="Abnormal" ? "border-red-300 bg-red-50 text-red-700" : ""
                         }`}>
+=======
+                        className={`${selectCls} ${validationErrors[field] ? "border-red-500" : form[field] === "Abnormal" ? "border-red-300 bg-red-50 text-red-700" : ""
+                          }`}>
+>>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
                         <option value="Normal">Normal</option>
                         <option value="Abnormal">Abnormal</option>
                       </select>
@@ -831,7 +859,11 @@ export default function PemeriksaanDokterT3Complete() {
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   <Field label="USG Dilakukan?">
                     <select name="usg_trimester3_dilakukan" value={form.usg_trimester3_dilakukan} onChange={handleChange}
+<<<<<<< HEAD
                       className={`${selectCls} ${form.usg_trimester3_dilakukan==="Tidak" ? "border-amber-300 bg-amber-50 text-amber-700" : ""}`}>
+=======
+                      className={`${selectCls} ${form.usg_trimester3_dilakukan === "Tidak" ? "border-amber-300 bg-amber-50 text-amber-700" : ""}`}>
+>>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
                       <option value="Ya">Ya</option>
                       <option value="Tidak">Tidak</option>
                     </select>
@@ -851,7 +883,11 @@ export default function PemeriksaanDokterT3Complete() {
                       </Field>
                       <Field label="Selisih ≥3 Minggu?">
                         <select name="selisih_uk3_minggu_atau_lebih" value={form.selisih_uk3_minggu_atau_lebih} onChange={handleChange}
+<<<<<<< HEAD
                           className={`${selectCls} ${form.selisih_uk3_minggu_atau_lebih==="Ya" ? "border-red-300 bg-red-50 text-red-700" : ""}`}>
+=======
+                          className={`${selectCls} ${form.selisih_uk3_minggu_atau_lebih === "Ya" ? "border-red-300 bg-red-50 text-red-700" : ""}`}>
+>>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
                           <option value="Tidak">Tidak</option>
                           <option value="Ya">Ya</option>
                         </select>
@@ -879,7 +915,11 @@ export default function PemeriksaanDokterT3Complete() {
                         className={`${inputCls} ${validationErrors.usgdj_nilai ? "border-red-500" : ""}`} /><ErrorMessage message={validationErrors.usgdj_nilai} /></Field>
                       <Field label="Status DJJ">
                         <select name="usgdjj_status" value={form.usgdjj_status} onChange={handleChange}
+<<<<<<< HEAD
                           className={`${selectCls} ${form.usgdjj_status==="Abnormal" ? "border-red-300 bg-red-50 text-red-700" : ""}`}>
+=======
+                          className={`${selectCls} ${form.usgdjj_status === "Abnormal" ? "border-red-300 bg-red-50 text-red-700" : ""}`}>
+>>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
                           <option value="Normal">Normal</option>
                           <option value="Abnormal">Abnormal</option>
                         </select>
@@ -896,7 +936,11 @@ export default function PemeriksaanDokterT3Complete() {
                         className={`${inputCls} ${validationErrors.usg_cairan_ketuban_sdp_cm ? "border-red-500" : ""}`} /><ErrorMessage message={validationErrors.usg_cairan_ketuban_sdp_cm} /></Field>
                       <Field label="Status Ketuban">
                         <select name="usg_cairan_ketuban_status" value={form.usg_cairan_ketuban_status} onChange={handleChange}
+<<<<<<< HEAD
                           className={`${selectCls} ${form.usg_cairan_ketuban_status!=="Normal" ? "border-red-300 bg-red-50 text-red-700" : ""}`}>
+=======
+                          className={`${selectCls} ${form.usg_cairan_ketuban_status !== "Normal" ? "border-red-300 bg-red-50 text-red-700" : ""}`}>
+>>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
                           <option value="Normal">Normal</option>
                           <option value="Oligohidramnion">Oligohidramnion</option>
                           <option value="Polihidramnion">Polihidramnion</option>
@@ -952,7 +996,11 @@ export default function PemeriksaanDokterT3Complete() {
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                       <Field label="Kecurigaan Abnormal">
                         <select name="usg_kecurigaan_temuan_abnormal" value={form.usg_kecurigaan_temuan_abnormal} onChange={handleChange}
+<<<<<<< HEAD
                           className={`${selectCls} ${validationErrors.usg_kecurigaan_temuan_abnormal ? "border-red-500" : form.usg_kecurigaan_temuan_abnormal==="Ya" ? "border-red-300 bg-red-50 text-red-700" : ""}`}>
+=======
+                          className={`${selectCls} ${validationErrors.usg_kecurigaan_temuan_abnormal ? "border-red-500" : form.usg_kecurigaan_temuan_abnormal === "Ya" ? "border-red-300 bg-red-50 text-red-700" : ""}`}>
+>>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
                           <option value="Tidak">Tidak</option>
                           <option value="Ya">Ya</option>
                         </select>
@@ -1151,9 +1199,14 @@ export default function PemeriksaanDokterT3Complete() {
                           <td className="px-4 py-3 font-medium text-gray-700">{lf.label}</td>
                           <td className="px-4 py-3">
                             <select name={lf.name} value={form[lf.name]} onChange={handleChange}
+<<<<<<< HEAD
                               className={`${selectCls} ${
                                 validationErrors[lf.name] ? "border-red-500" : form[lf.name]==="Reaktif" ? "border-red-300 bg-red-50 text-red-700" : "border-emerald-200 bg-emerald-50 text-emerald-700"
                               }`}>
+=======
+                              className={`${selectCls} ${validationErrors[lf.name] ? "border-red-500" : form[lf.name] === "Reaktif" ? "border-red-300 bg-red-50 text-red-700" : "border-emerald-200 bg-emerald-50 text-emerald-700"
+                                }`}>
+>>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
                               <option value="NonReaktif">Non Reaktif</option>
                               <option value="Reaktif">Reaktif</option>
                             </select>
@@ -1202,7 +1255,11 @@ export default function PemeriksaanDokterT3Complete() {
                   </Field>
                   <Field label="Perlu Rujukan?">
                     <select name="skrining_jiwa_perlu_rujukan" value={form.skrining_jiwa_perlu_rujukan} onChange={handleChange}
+<<<<<<< HEAD
                       className={`${selectCls} ${form.skrining_jiwa_perlu_rujukan==="Ya" ? "border-red-300 bg-red-50 text-red-700" : "border-emerald-200 bg-emerald-50 text-emerald-700"}`}>
+=======
+                      className={`${selectCls} ${form.skrining_jiwa_perlu_rujukan === "Ya" ? "border-red-300 bg-red-50 text-red-700" : "border-emerald-200 bg-emerald-50 text-emerald-700"}`}>
+>>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
                       <option value="Tidak">Tidak</option>
                       <option value="Ya">Ya</option>
                     </select>
@@ -1236,7 +1293,11 @@ export default function PemeriksaanDokterT3Complete() {
                   </Field>
                   <Field label="Perlu Rujukan TR?">
                     <select name="skrining_jiwa_perlu_rujukan_tr" value={form.skrining_jiwa_perlu_rujukan_tr} onChange={handleChange}
+<<<<<<< HEAD
                       className={`${selectCls} ${form.skrining_jiwa_perlu_rujukan_tr==="Ya" ? "border-red-300 bg-red-50 text-red-700" : "border-emerald-200 bg-emerald-50 text-emerald-700"}`}>
+=======
+                      className={`${selectCls} ${form.skrining_jiwa_perlu_rujukan_tr === "Ya" ? "border-red-300 bg-red-50 text-red-700" : "border-emerald-200 bg-emerald-50 text-emerald-700"}`}>
+>>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
                       <option value="Tidak">Tidak</option>
                       <option value="Ya">Ya</option>
                     </select>
@@ -1262,9 +1323,14 @@ export default function PemeriksaanDokterT3Complete() {
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 mb-3">
                   {konsultasiFields.map(item => (
                     <label key={item.name}
+<<<<<<< HEAD
                       className={`flex items-center gap-2 text-sm px-3 py-2 rounded-lg border cursor-pointer transition ${
                         form[item.name] ? "bg-indigo-50 border-indigo-300 text-indigo-700 font-medium" : "border-gray-200 text-gray-600 hover:bg-gray-50"
                       }`}>
+=======
+                      className={`flex items-center gap-2 text-sm px-3 py-2 rounded-lg border cursor-pointer transition ${form[item.name] ? "bg-indigo-50 border-indigo-300 text-indigo-700 font-medium" : "border-gray-200 text-gray-600 hover:bg-gray-50"
+                        }`}>
+>>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
                       <input type="checkbox" name={item.name} checked={form[item.name]} onChange={handleChange} className="rounded" />
                       {item.label}
                     </label>
@@ -1282,6 +1348,7 @@ export default function PemeriksaanDokterT3Complete() {
                   {["Normal", "Pervaginam berbantu", "Sectio caesaria"].map(opt => (
                     <button key={opt} type="button"
                       onClick={() => setForm(prev => ({ ...prev, rencana_proses_melahirkan: opt }))}
+<<<<<<< HEAD
                       className={`py-2 px-3 rounded-lg text-sm font-medium border transition ${
                         form.rencana_proses_melahirkan === opt
                           ? opt === "Normal" ? "bg-emerald-500 text-white border-emerald-500"
@@ -1289,6 +1356,14 @@ export default function PemeriksaanDokterT3Complete() {
                             : "bg-amber-500 text-white border-amber-500"
                           : "border-gray-200 text-gray-600 hover:bg-gray-50"
                       }`}>
+=======
+                      className={`py-2 px-3 rounded-lg text-sm font-medium border transition ${form.rencana_proses_melahirkan === opt
+                        ? opt === "Normal" ? "bg-emerald-500 text-white border-emerald-500"
+                          : opt === "Sectio caesaria" ? "bg-red-500 text-white border-red-500"
+                            : "bg-amber-500 text-white border-amber-500"
+                        : "border-gray-200 text-gray-600 hover:bg-gray-50"
+                        }`}>
+>>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
                       {opt}
                     </button>
                   ))}
@@ -1302,9 +1377,14 @@ export default function PemeriksaanDokterT3Complete() {
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
                   {kontrasepsiFields.map(item => (
                     <label key={item.name}
+<<<<<<< HEAD
                       className={`flex items-center gap-2 text-sm px-3 py-2 rounded-lg border cursor-pointer transition ${
                         form[item.name] ? "bg-teal-50 border-teal-300 text-teal-700 font-medium" : "border-gray-200 text-gray-600 hover:bg-gray-50"
                       }`}>
+=======
+                      className={`flex items-center gap-2 text-sm px-3 py-2 rounded-lg border cursor-pointer transition ${form[item.name] ? "bg-teal-50 border-teal-300 text-teal-700 font-medium" : "border-gray-200 text-gray-600 hover:bg-gray-50"
+                        }`}>
+>>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
                       <input type="checkbox" name={item.name} checked={form[item.name]} onChange={handleChange} className="rounded" />
                       {item.label}
                     </label>
@@ -1316,7 +1396,11 @@ export default function PemeriksaanDokterT3Complete() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Field label="Kebutuhan Konseling">
                   <select name="kebutuhan_konseling" value={form.kebutuhan_konseling} onChange={handleChange}
+<<<<<<< HEAD
                     className={`${selectCls} ${form.kebutuhan_konseling==="Ya" ? "border-amber-300 bg-amber-50 text-amber-700" : ""}`}>
+=======
+                    className={`${selectCls} ${form.kebutuhan_konseling === "Ya" ? "border-amber-300 bg-amber-50 text-amber-700" : ""}`}>
+>>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
                     <option value="Tidak">Tidak</option>
                     <option value="Ya">Ya</option>
                   </select>
@@ -1362,6 +1446,10 @@ export default function PemeriksaanDokterT3Complete() {
           </div>
         </form>
       </div>
+<<<<<<< HEAD
     </MainLayout> 
+=======
+    </MainLayout>
+>>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
   );
 }

@@ -10,12 +10,19 @@ import {
 import { getAnakById } from "../../services/Anak";
 import {
   ChevronLeft, Plus, Trash2, Calendar, Scale, Ruler,
+<<<<<<< HEAD
   Info, Pencil, TrendingUp,
 } from "lucide-react";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer,
 } from "recharts";
+=======
+  Info, Pencil, TrendingUp, Target, Heart,
+} from "lucide-react";
+import { GrowthStatusCard, GrowthSummary } from "./components/GrowthStatusCard";
+import { GrowthChart } from "./components/GrowthChart";
+>>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
 
 export default function PertumbuhanIndex() {
   const { id } = useParams();
@@ -176,7 +183,11 @@ export default function PertumbuhanIndex() {
 
             {/* Grafik */}
             <div className="xl:col-span-2 bg-white rounded-3xl border border-gray-100 shadow-sm p-6 space-y-4">
+<<<<<<< HEAD
               <div className="flex items-center justify-between flex-wrap gap-3">
+=======
+              <div className="flex items-center justify-between flex-wrap gap-3 mb-4">
+>>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
                 <h3 className="text-base font-extrabold text-gray-900 flex items-center gap-2">
                   <TrendingUp size={18} className="text-indigo-500" /> Grafik Pertumbuhan
                 </h3>
@@ -196,6 +207,7 @@ export default function PertumbuhanIndex() {
                 </div>
               </div>
 
+<<<<<<< HEAD
               {chartData.length > 0 ? (
                 <ResponsiveContainer width="100%" height={280}>
                   <LineChart data={chartData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
@@ -261,11 +273,67 @@ export default function PertumbuhanIndex() {
                       <StatusBadge status={val} />
                     </div>
                   ))}
+=======
+              <GrowthChart 
+                data={chartData}
+                activeChart={activeChart}
+                chartConfig={chartConfig}
+                onChartChange={setActiveChart}
+              />
+            </div>
+
+            {/* Panel kanan - Ringkasan & Status */}
+            <div className="space-y-4">
+              {/* Ringkasan Status */}
+              <GrowthSummary 
+                lastStatus={lastStatus}
+                lastData={lastData}
+                anak={anak}
+              />
+
+              {/* Pengukuran Terakhir */}
+              <div className="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm">
+                <p className="text-xs font-black text-gray-600 uppercase tracking-widest mb-4 flex items-center gap-2">
+                  <Scale size={14} className="text-indigo-500" /> Pengukuran Terakhir
+                </p>
+                <div className="grid grid-cols-2 gap-3">
+                  <MiniStat label="BB"   value={lastData?.berat_badan    ?? "-"} unit="kg" color="indigo" />
+                  <MiniStat label="TB"   value={lastData?.tinggi_badan   ?? "-"} unit="cm" color="purple" />
+                  <MiniStat label="LILA" value={lastData?.hasil_lila     || "-"} unit="cm" color="amber" />
+                  <MiniStat label="LK"   value={lastData?.lingkar_kepala || "-"} unit="cm" color="emerald" />
+>>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
                 </div>
               </div>
             </div>
           </div>
 
+<<<<<<< HEAD
+=======
+          {/* ── DETAIL STATUS GIZI LENGKAP ── */}
+          {lastData && (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <GrowthStatusCard 
+                status={lastStatus.statusBBU}
+                label="Berat Badan / Usia (BB/U)"
+                zScore={lastData.z_score_bb_u || lastData.zScoreBBU}
+                description="Menunjukkan status berat badan anak dibandingkan dengan standar usia"
+              />
+              <GrowthStatusCard 
+                status={lastStatus.statusTBU}
+                label="Tinggi Badan / Usia (TB/U)"
+                zScore={lastData.z_score_tb_u || lastData.zScoreTBU}
+                description="Menunjukkan pertumbuhan tinggi badan anak sesuai usia"
+              />
+              <GrowthStatusCard 
+                status={lastStatus.statusBBTB}
+                label="Berat Badan / Tinggi Badan (BB/TB)"
+                zScore={lastData.z_score_bb_tb || lastData.zScoreBBTB}
+                description="Menunjukkan proporsi berat badan terhadap tinggi badan"
+              />
+            </div>
+          )}
+
+>>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
           {/* ── TABEL RIWAYAT ── */}
           <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
             <div className="px-6 py-4 border-b border-gray-50">
@@ -556,10 +624,24 @@ function StatusBadge({ status }) {
   return <span className={`px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-tight ${cls}`}>{status}</span>;
 }
 
+<<<<<<< HEAD
 function MiniStat({ label, value, unit }) {
   return (
     <div className="bg-white/10 rounded-2xl p-3">
       <p className="text-[9px] font-black uppercase tracking-widest opacity-60">{label}</p>
+=======
+function MiniStat({ label, value, unit, color = 'indigo' }) {
+  const colorMap = {
+    indigo: 'bg-indigo-50 text-indigo-700',
+    purple: 'bg-purple-50 text-purple-700',
+    amber: 'bg-amber-50 text-amber-700',
+    emerald: 'bg-emerald-50 text-emerald-700',
+  };
+
+  return (
+    <div className={`${colorMap[color]} rounded-xl p-3 text-center`}>
+      <p className="text-[9px] font-black uppercase tracking-widest opacity-70">{label}</p>
+>>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
       <p className="text-lg font-black">
         {value} <span className="text-[10px] opacity-60">{unit}</span>
       </p>

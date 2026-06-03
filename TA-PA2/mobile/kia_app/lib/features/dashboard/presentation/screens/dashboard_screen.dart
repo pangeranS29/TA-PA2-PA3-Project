@@ -811,7 +811,10 @@
 //   }
 // }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
 // import 'package:flutter/material.dart';
 // import 'package:ta_pa2_pa3_project/core/themes/app_theme.dart';
 // import 'package:ta_pa2_pa3_project/features/anak/mpasi/presentation/screens/mpasi_menu_screen.dart';
@@ -1700,8 +1703,11 @@
 //   }
 // }
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
 import 'package:flutter/material.dart';
 import 'package:ta_pa2_pa3_project/core/services/auth_session.dart';
 import 'package:ta_pa2_pa3_project/core/themes/app_theme.dart';
@@ -1729,7 +1735,10 @@ import 'package:ta_pa2_pa3_project/features/ibu/nifas/presentation/screens/nifas
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/persalinan_screen.dart';
 // MODUL ANAK
 import 'package:ta_pa2_pa3_project/features/anak/anak/presentation/screens/anak/pilih_anak_screen.dart';
+<<<<<<< HEAD
 import 'package:ta_pa2_pa3_project/features/anak/anak/presentation/screens/anak/input_profil_anak_screen.dart';
+=======
+>>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
 // import 'package:ta_pa2_pa3_project/features/anak/anak/presentation/screens/anak/cari_anak_screen.dart';
 import 'package:ta_pa2_pa3_project/features/anak/edukasi/presentation/screens/edukasi/edukasi_screen.dart';
 import 'package:ta_pa2_pa3_project/features/anak/anak/data/models/ibu_anak_model.dart';
@@ -1778,7 +1787,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
   bool _loadingImunisasi = false;
   String? _imunisasiError;
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
   List<dynamic> _rujukanList = [];
 
   @override
@@ -1885,6 +1897,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   //     if (mounted) setState(() => _loadingKehamilan = false);
   //   }
   // }
+<<<<<<< HEAD
       Future<void> _loadRujukan() async {
     try {
 
@@ -1897,13 +1910,25 @@ class _DashboardScreenState extends State<DashboardScreen> {
               .getRujukanByKehamilanId(
                 kehamilan.id,
               );
+=======
+  Future<void> _loadRujukan() async {
+    try {
+      final kehamilan = await _kehamilanService.getKehamilanAktif();
+
+      final data = await _kehamilanService.getRujukanByKehamilanId(
+        kehamilan.id,
+      );
+>>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
 
       if (!mounted) return;
 
       setState(() {
         _rujukanList = data;
       });
+<<<<<<< HEAD
 
+=======
+>>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
     } catch (_) {}
   }
 
@@ -2061,6 +2086,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
+<<<<<<< HEAD
 Widget _buildNifasShortcut() {
   return Column(
     children: [
@@ -2132,6 +2158,71 @@ Widget _buildNifasShortcut() {
     ],
   );
 }
+=======
+  Widget _buildNifasShortcut() {
+    return Column(
+      children: [
+        DashboardMenuCard(
+          title: 'Ringkasan Pelayanan Proses Melahirkan',
+          subtitle: 'Lihat hasil pelayanan proses melahirkan',
+          icon: Icons.child_friendly_rounded,
+          iconColor: AppColors.primary,
+          onTap: () {
+            final token = AuthSession.token ?? '';
+
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => RingkasanPersalinanScreen(
+                  token: token,
+                ),
+              ),
+            );
+          },
+        ),
+        const SizedBox(height: 16),
+        DashboardMenuCard(
+          title: 'Pemantauan Ibu Nifas',
+          subtitle: 'Pantau masa nifas pasca persalinan',
+          icon: Icons.person_outline,
+          iconColor: AppColors.primary,
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const NifasScreen(),
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+        DashboardMenuCard(
+          title: 'Pelayanan Ibu Nifas',
+          subtitle: 'Lihat catatan pelayanan ibu nifas',
+          icon: Icons.medical_services_outlined,
+          iconColor: AppColors.primary,
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const PelayananIbuNifasScreen(),
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+        DashboardMenuCard(
+          title: 'Catatan Pelayanan Nifas',
+          subtitle: 'Lihat catatan pemeriksaan dan saran nifas',
+          icon: Icons.note_alt_outlined,
+          iconColor: AppColors.primary,
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const CatatanPelayananNifasScreen(),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+>>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
 
   Widget _buildMenyusuiShortcut() {
     return DashboardMenuCard(
@@ -2157,7 +2248,11 @@ Widget _buildNifasShortcut() {
           margin: const EdgeInsets.only(bottom: 16),
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
           decoration: BoxDecoration(
+<<<<<<< HEAD
             color: const Color(0xFFEBF5FF), 
+=======
+            color: const Color(0xFFEBF5FF),
+>>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
             borderRadius: BorderRadius.circular(14),
             border: Border.all(color: const Color(0xFFBFDBFE)),
           ),
@@ -2440,6 +2535,7 @@ Widget _buildNifasShortcut() {
             ),
           )
         else
+<<<<<<< HEAD
           // Tampilkan tombol request tambah jika belum ada data anak
           GestureDetector(
             onTap: () => Navigator.push(
@@ -2478,6 +2574,37 @@ Widget _buildNifasShortcut() {
                   ),
                 ],
               ),
+=======
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.orange.shade200),
+              borderRadius: BorderRadius.circular(16),
+              color: Colors.orange.shade50,
+            ),
+            child: const Row(
+              children: [
+                Icon(Icons.info_outline, color: Colors.orange, size: 24),
+                SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Data anak ditambahkan oleh bidan',
+                        style: TextStyle(
+                            fontWeight: FontWeight.w600, fontSize: 14),
+                      ),
+                      SizedBox(height: 4),
+                      Text(
+                        'Silakan hubungi bidan untuk menambahkan atau memperbarui profil anak.',
+                        style: TextStyle(fontSize: 12, color: Colors.black54),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+>>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
             ),
           ),
         const SizedBox(height: 24),
@@ -2514,8 +2641,12 @@ Widget _buildNifasShortcut() {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
+<<<<<<< HEAD
                             builder: (_) =>
                                 const MpasiMenuScreen()));
+=======
+                            builder: (_) => const MpasiMenuScreen()));
+>>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
                     break;
                   case 'edukasi':
                     // [MODUL: ANAK] Langsung ke EdukasiScreen (tidak butuh pilih anak)
@@ -2713,9 +2844,13 @@ Widget _buildNifasShortcut() {
                     style: TextStyle(
                       fontSize: 11,
                       height: 1.4,
+<<<<<<< HEAD
                       color: hasRujukan
                           ? Colors.blue.shade700
                           : Colors.black54,
+=======
+                      color: hasRujukan ? Colors.blue.shade700 : Colors.black54,
+>>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
                     ),
                   ),
                 ],

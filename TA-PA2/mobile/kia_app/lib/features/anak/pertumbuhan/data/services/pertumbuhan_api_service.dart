@@ -12,7 +12,11 @@ class PertumbuhanApiService {
   final http.Client _client;
 
   PertumbuhanApiService({http.Client? client})
+<<<<<<< HEAD
     : _client = client ?? http.Client();
+=======
+      : _client = client ?? http.Client();
+>>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
 
   Map<String, String> _headers() {
     final token = AuthSession.token;
@@ -34,9 +38,13 @@ class PertumbuhanApiService {
           return message;
         }
       }
+<<<<<<< HEAD
     } catch (_) {
       // Fall back to generic text when response body is not JSON.
     }
+=======
+    } catch (_) {}
+>>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
     return 'Request gagal ($statusCode)';
   }
 
@@ -57,6 +65,7 @@ class PertumbuhanApiService {
       );
     }
 
+<<<<<<< HEAD
     final uri = Uri.parse('${ApiConstants.baseUrl}${ApiConstants.anakSearch}')
         .replace(
           queryParameters: {
@@ -69,6 +78,39 @@ class PertumbuhanApiService {
     final response = await _client.get(uri, headers: _headers());
 
     if (response.statusCode < 200 || response.statusCode >= 300) {
+=======
+    final uri =
+        Uri.parse('${ApiConstants.baseUrl}${ApiConstants.anakSearch}').replace(
+      queryParameters: {
+        if (trimmedNamaAnak.isNotEmpty) 'nama': trimmedNamaAnak,
+        if (trimmedNamaIbu.isNotEmpty) 'nama_ibu': trimmedNamaIbu,
+        if (trimmedNoKk.isNotEmpty) 'no_kk': trimmedNoKk,
+      },
+    );
+
+    final response = await _client.get(uri, headers: _headers());
+
+    // Debug log untuk membantu penelusuran ketika backend menolak akses
+    // (akan tampil di console saat menjalankan `flutter run`)
+    // Jangan hapus logging ini saat debugging.
+    // Contoh: 403 -> "Anda tidak memiliki akses ke anak ini"
+    // atau 401 -> token expired
+    // NOTE: logging ini hanya untuk pengembangan.
+    // ignore: avoid_print
+    print('GET $uri -> ${response.statusCode}');
+    // ignore: avoid_print
+    print('RESPONSE BODY: ${response.body}');
+
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      // Berikan pesan khusus untuk status 401/403 agar UI bisa menampilkan instruksi
+      if (response.statusCode == 401) {
+        throw Exception('Unauthorized (401): Silakan login ulang.');
+      }
+      if (response.statusCode == 403) {
+        throw Exception(
+            'Forbidden (403): Anda tidak memiliki akses ke data ini.');
+      }
+>>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
       throw Exception(_extractErrorMessage(response.body, response.statusCode));
     }
 
@@ -93,7 +135,24 @@ class PertumbuhanApiService {
     );
     final response = await _client.get(uri, headers: _headers());
 
+<<<<<<< HEAD
     if (response.statusCode < 200 || response.statusCode >= 300) {
+=======
+    // Debug logging
+    // ignore: avoid_print
+    print('GET $uri -> ${response.statusCode}');
+    // ignore: avoid_print
+    print('RESPONSE BODY: ${response.body}');
+
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      if (response.statusCode == 401) {
+        throw Exception('Unauthorized (401): Silakan login ulang.');
+      }
+      if (response.statusCode == 403) {
+        throw Exception(
+            'Forbidden (403): Anda tidak memiliki akses ke data ini.');
+      }
+>>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
       throw Exception(_extractErrorMessage(response.body, response.statusCode));
     }
 
@@ -125,6 +184,7 @@ class PertumbuhanApiService {
     required String parameter,
     required String jenisKelamin,
   }) async {
+<<<<<<< HEAD
     final uri =
         Uri.parse(
           '${ApiConstants.baseUrl}${ApiConstants.masterStandar}',
@@ -134,6 +194,16 @@ class PertumbuhanApiService {
             'jenis_kelamin': jenisKelamin,
           },
         );
+=======
+    final uri = Uri.parse(
+      '${ApiConstants.baseUrl}${ApiConstants.masterStandar}',
+    ).replace(
+      queryParameters: {
+        'parameter': parameter,
+        'jenis_kelamin': jenisKelamin,
+      },
+    );
+>>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
 
     final response = await _client.get(uri, headers: _headers());
 

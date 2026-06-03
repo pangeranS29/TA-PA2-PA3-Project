@@ -25,7 +25,11 @@ class _UbahJadwalScreenState extends State<UbahJadwalScreen> {
 
   DateTime? selectedDate;
   final TextEditingController tanggalController = TextEditingController();
+<<<<<<< HEAD
 
+=======
+  final TextEditingController alasanController = TextEditingController();
+>>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
   @override
   void initState() {
     super.initState();
@@ -35,6 +39,10 @@ class _UbahJadwalScreenState extends State<UbahJadwalScreen> {
   @override
   void dispose() {
     tanggalController.dispose();
+<<<<<<< HEAD
+=======
+    alasanController.dispose();
+>>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
     super.dispose();
   }
 
@@ -72,13 +80,25 @@ class _UbahJadwalScreenState extends State<UbahJadwalScreen> {
     if (picked != null) {
       setState(() {
         selectedDate = picked;
+<<<<<<< HEAD
+=======
+
+        final formatted = DateFormat('yyyy-MM-dd').format(picked);
+
+>>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
         tanggalController.text = DateFormat('dd MMM yyyy').format(picked);
       });
     }
   }
 
+<<<<<<< HEAD
   Future<void> submitUpdate() async {
     if (selectedDate == null) {
+=======
+  Future<void> submitRequestPerubahan() async {
+    if (selectedDate == null) {
+      debugPrint("❌ selectedDate NULL");
+>>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text("Tanggal tidak boleh kosong"),
@@ -88,6 +108,7 @@ class _UbahJadwalScreenState extends State<UbahJadwalScreen> {
       return;
     }
 
+<<<<<<< HEAD
     setState(() => isSubmitting = true);
 
     try {
@@ -95,22 +116,55 @@ class _UbahJadwalScreenState extends State<UbahJadwalScreen> {
       await service.updateTanggalEstimasi(
         widget.jadwalId,
         selectedDate!.toIso8601String().split("T")[0], // YYYY-MM-DD
+=======
+    if (alasanController.text.isEmpty) {
+      debugPrint("❌ alasan kosong");
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Alasan tidak boleh kosong"),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    final tanggalBaru = DateFormat('yyyy-MM-dd').format(selectedDate!);
+    setState(() => isSubmitting = true);
+
+    try {
+      await service.requestPerubahanJadwal(
+        widget.jadwalId,
+        tanggalBaru,
+        alasanController.text,
+>>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
       );
 
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
+<<<<<<< HEAD
           content: Text("Jadwal berhasil diperbarui"),
+=======
+          content: Text("Request berhasil dikirim"),
+>>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
           backgroundColor: Colors.green,
         ),
       );
 
       Navigator.pop(context, true);
     } catch (e) {
+<<<<<<< HEAD
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text("Gagal memperbarui jadwal"),
+=======
+      debugPrint("❌ ERROR REQUEST: $e");
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Gagal mengirim request"),
+>>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
           backgroundColor: Colors.red,
         ),
       );
@@ -248,12 +302,48 @@ class _UbahJadwalScreenState extends State<UbahJadwalScreen> {
                         ],
                       ),
 
+<<<<<<< HEAD
+=======
+                      const SizedBox(height: 12),
+
+                      Container(
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF8FAFC),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: const Color(0xFFE2E8F0)),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 4),
+                        child: TextField(
+                          controller: alasanController,
+                          maxLines: 4,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: Color(0xFF0F172A),
+                          ),
+                          decoration: const InputDecoration(
+                            border: InputBorder.none,
+                            hintText: "Tulis alasan perubahan jadwal...",
+                            hintStyle: TextStyle(
+                              color: Color(0xFF94A3B8),
+                              fontSize: 13,
+                            ),
+                            prefixIcon: Icon(
+                              Icons.edit_note,
+                              color: Color(0xFF64748B),
+                            ),
+                          ),
+                        ),
+                      ),
+
+>>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
                       const SizedBox(height: 20),
 
                       // ================= BUTTON =================
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
+<<<<<<< HEAD
                           onPressed: isSubmitting ? null : submitUpdate,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF2563EB),
@@ -278,6 +368,56 @@ class _UbahJadwalScreenState extends State<UbahJadwalScreen> {
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
+=======
+                          onPressed:
+                              isSubmitting ? null : submitRequestPerubahan,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF2563EB),
+                            disabledBackgroundColor:
+                                const Color(0xFF2563EB).withOpacity(0.6),
+                            elevation: 0,
+                            shadowColor: Colors.transparent,
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                          ),
+                          child: AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 200),
+                            child: isSubmitting
+                                ? Row(
+                                    key: const ValueKey("loading"),
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: const [
+                                      SizedBox(
+                                        height: 18,
+                                        width: 18,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      SizedBox(width: 10),
+                                      Text(
+                                        "Memproses...",
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ],
+                                  )
+                                : const Text(
+                                    "Ajukan Perubahan",
+                                    key: ValueKey("text"),
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                          ),
+>>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
                         ),
                       ),
 
@@ -285,7 +425,11 @@ class _UbahJadwalScreenState extends State<UbahJadwalScreen> {
 
                       // ================= INFO TEXT =================
                       const Text(
+<<<<<<< HEAD
                         "Setelah tap tombol simpan, jadwal susulan akan tersimpan dan dikirim ke bidan.",
+=======
+                        "Setelah tap tombol ajukan, jadwal susulan akan dikirim ke bidan untuk diproses.",
+>>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 12,

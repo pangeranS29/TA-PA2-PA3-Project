@@ -3,6 +3,11 @@ package seed
 import (
 	"log"
 
+<<<<<<< HEAD
+=======
+	"monitoring-service/app/seeders"
+
+>>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
 	"gorm.io/gorm"
 )
 
@@ -57,6 +62,35 @@ func RunAllSeed(db *gorm.DB) error {
 			return err
 		}
 
+<<<<<<< HEAD
+=======
+		if err := seeders.NewMasterStandarBBUSeeder(tx).Seed(); err != nil {
+			log.Println("❌ MasterStandarBBUSeeder failed:", err)
+			return err
+		}
+		if err := seeders.NewMasterStandarTBUSeeder(tx).Seed(); err != nil {
+			log.Println("❌ MasterStandarTBUSeeder failed:", err)
+			return err
+		}
+		if err := seeders.NewMasterStandarIMTUSeeder(tx).Seed(); err != nil {
+			log.Println("❌ MasterStandarIMTUSeeder failed:", err)
+			return err
+		}
+		if err := seeders.NewMasterStandarBBTBSeeder(tx).Seed(); err != nil {
+			log.Println("❌ MasterStandarBBTBSeeder failed:", err)
+			return err
+		}
+		if err := seeders.NewMasterStandarLKUSeeder(tx).Seed(); err != nil {
+			log.Println("❌ MasterStandarLKUSeeder failed:", err)
+			return err
+		}
+
+		if err := seeders.NewDummyKIADataSeeder(tx).Seed(); err != nil {
+			log.Println("❌ DummyKIADataSeeder failed:", err)
+			return err
+		}
+
+>>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
 		// // 7. Kategori Tanda Bahaya
 		// if err := seeders.SeedKategoriTandaBahaya(tx); err != nil {
 		// 	log.Println("❌ SeedKategoriTandaBahaya failed:", err)

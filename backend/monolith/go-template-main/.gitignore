@@ -1,5 +1,6 @@
 # Local environment files (do not commit)
 .env
+firebase-service-account.json
 
 
 # Build binaries and temporary files

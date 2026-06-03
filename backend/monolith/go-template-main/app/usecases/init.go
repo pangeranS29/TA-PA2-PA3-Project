@@ -1,8 +1,20 @@
 package usecases
 
+<<<<<<< HEAD
 
 //AbsensiKelasIbuBalita//
 import (
+=======
+//AbsensiKelasIbuBalita//
+import (
+	"context"
+	"log"
+
+	firebase "firebase.google.com/go/v4"
+	"firebase.google.com/go/v4/messaging"
+	"google.golang.org/api/option"
+
+>>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
 	"monitoring-service/app/repositories"
 	"monitoring-service/pkg/config"
 )
@@ -11,6 +23,11 @@ type Main struct {
 	repository *repositories.Main
 	config     *config.Config
 
+<<<<<<< HEAD
+=======
+	fcmClient *messaging.Client
+
+>>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
 	// Usecase yang sudah ada
 	Anak                   *AnakUseCase
 	PelayananKesehatanAnak PelayananKesehatanAnakUseCase
@@ -124,6 +141,47 @@ func Init(opts Options) *Main {
 		config:     opts.Config,
 	}
 
+<<<<<<< HEAD
+=======
+	opt := option.WithCredentialsFile("firebase-service-account.json")
+
+	app, err := firebase.NewApp(
+		context.Background(),
+		nil,
+		opt,
+	)
+
+	if err != nil {
+
+		log.Printf(
+			"[FCM INIT] Firebase NewApp gagal: %v",
+			err,
+		)
+
+	} else {
+
+		client, err := app.Messaging(
+			context.Background(),
+		)
+
+		if err != nil {
+
+			log.Printf(
+				"[FCM INIT] Messaging client gagal: %v",
+				err,
+			)
+
+		} else {
+
+			log.Printf(
+				"[FCM INIT] Firebase berhasil diinisialisasi",
+			)
+
+			m.fcmClient = client
+		}
+	}
+
+>>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
 	//  BUAT PREDIKSI USECASE (panggil service Python)
 	mlURL := "http://localhost:8001"
 	if opts.Config != nil && opts.Config.MLServiceURL != "" {

@@ -49,6 +49,13 @@ class DetailKunjunganImunisasiModel {
   final String namaIbu;
   final String nomorTeleponIbu;
 
+<<<<<<< HEAD
+=======
+  final String namaAyah;
+  final String nomorTeleponAyah;
+  final String dusun;
+
+>>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
   final String namaVaksin;
   final String namaDosis;
 
@@ -62,6 +69,12 @@ class DetailKunjunganImunisasiModel {
     required this.tanggalLahir,
     required this.namaIbu,
     required this.nomorTeleponIbu,
+<<<<<<< HEAD
+=======
+    required this.namaAyah,
+    required this.nomorTeleponAyah,
+    required this.dusun,
+>>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
     required this.namaVaksin,
     required this.namaDosis,
     required this.jadwalImunisasi,
@@ -82,6 +95,12 @@ class DetailKunjunganImunisasiModel {
       ),
       namaIbu: json['nama_ibu'] ?? '',
       nomorTeleponIbu: json['nomor_telepon_ibu'] ?? '',
+<<<<<<< HEAD
+=======
+      namaAyah: json['nama_ayah'] ?? '',
+      nomorTeleponAyah: json['nomor_telepon_ayah'] ?? '',
+      dusun: json['dusun'] ?? '',
+>>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
       namaVaksin: json['nama_vaksin'] ?? '',
       namaDosis: json['nama_dosis'] ?? '',
       jadwalImunisasi: _parseDate(
@@ -147,18 +166,24 @@ class StatusKunjunganCountModel {
   ) {
     return StatusKunjunganCountModel(
       statusId: (json['status_id'] as num?)?.toInt() ?? 0,
+<<<<<<< HEAD
       statusKunjungan:
           json['status_kunjungan'] ?? '',
       jumlahKunjungan:
           (json['jumlah_kunjungan'] as num?)
                   ?.toInt() ??
               0,
+=======
+      statusKunjungan: json['status_kunjungan'] ?? '',
+      jumlahKunjungan: (json['jumlah_kunjungan'] as num?)?.toInt() ?? 0,
+>>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'status_id': statusId,
+<<<<<<< HEAD
       'status_kunjungan':
           statusKunjungan,
       'jumlah_kunjungan':
@@ -167,3 +192,10 @@ class StatusKunjunganCountModel {
   }
 }
 
+=======
+      'status_kunjungan': statusKunjungan,
+      'jumlah_kunjungan': jumlahKunjungan,
+    };
+  }
+}
+>>>>>>> 20e7bfab6fe8b17a1beeeb616d37b604ca56545c
