@@ -1,4 +1,4 @@
-package routes
+﻿package routes
 
 import (
 	"monitoring-service/app/controllers"
@@ -565,10 +565,6 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	// untuk laporan ibu
 	tenaga.GET("/laporan/ibu/preview", controller.LaporanIbu.Preview)
 	tenaga.GET("/laporan/ibu/export/excel", controller.LaporanIbu.ExportExcel)
-
-	// untuk laporan anak
-	tenaga.GET("/laporan/anak/preview", controller.LaporanAnak.Preview)
-	tenaga.GET("/laporan/anak/export/excel", controller.LaporanAnak.ExportExcel)
 	//==== IBU ====
 	ibu := e.Group("/ibu")
 	ibu.Use(middlewares.JWTAuth(controller.JWTSecret()))
@@ -623,12 +619,34 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	tenaga.GET("/penduduk/:id/riwayat-card", controller.RiwayatCard.GetRiwayatCard)
 	//untuk pencatatan kesehatan umum (anak, remaja, dewasa, lansia) dan get daftar penduduk berdasarkan kategori usia
 	tenaga.GET("/pencatatan/:kategori", controller.Pencatatan.GetDaftarPenduduk)
-    tenaga.POST("/pencatatan/anak", controller.Pencatatan.CreatePemeriksaanAnak)
-    tenaga.POST("/pencatatan/remaja", controller.Pencatatan.CreatePemeriksaanRemaja)
-    tenaga.POST("/pencatatan/dewasa", controller.Pencatatan.CreatePemeriksaanDewasa)
-    tenaga.POST("/pencatatan/lansia", controller.Pencatatan.CreatePemeriksaanLansia)
-	tenaga.GET("/pemeriksaan-riwayat", controller.Pencatatan.GetRiwayatPemeriksaan) 
 
 	// Prediksi Stunting
 	SetupPrediksiStuntingRoutes(e, controller.PrediksiStunting)
+   
+
+	superadmin.POST("/form-versi", controller.FormController.CreateFormVersion)
+        superadmin.POST("/form-versi/:id/activate", controller.FormController.ActivateFormVersion)
+        superadmin.POST("/form-versi/:id/deactivate", controller.FormController.DeactivateFormVersion)
+        superadmin.POST("/form-versi/:id/duplicate", controller.FormController.DuplicateFormVersion)
+        superadmin.GET("/form-versi", controller.FormController.GetFormVersions)
+        superadmin.GET("/form-versi/:id", controller.FormController.GetVersionDetail)
+
+        superadmin.POST("/form-versi/:versiId/questions", controller.FormController.AddQuestion)
+        superadmin.PUT("/questions/:id", controller.FormController.UpdateQuestion)
+        superadmin.DELETE("/questions/:id", controller.FormController.DeleteQuestion)
+
+        superadmin.POST("/form-versi/:versiId/risk-rules", controller.FormController.AddRiskRule)
+        superadmin.PUT("/risk-rules/:id", controller.FormController.UpdateRiskRule)
+        superadmin.DELETE("/risk-rules/:id", controller.FormController.DeleteRiskRule)
+
+		// Endpoint untuk mendapatkan form aktif beserta pertanyaan (dinamis)
+tenaga.GET("/forms/active", controller.Pemeriksaan.GetActiveForm)
+// Endpoint untuk menyimpan pemeriksaan (dinamis)
+tenaga.POST("/pemeriksaan", controller.Pemeriksaan.SavePemeriksaan)
+
+// Endpoint untuk riwayat pemeriksaan per penduduk
+tenaga.GET("/penduduk/:id/riwayat", controller.Pemeriksaan.GetRiwayatPenduduk)
+
+// Endpoint untuk detail pemeriksaan (opsional)
+tenaga.GET("/pemeriksaan/:id", controller.Pemeriksaan.GetDetailPemeriksaan)
 }

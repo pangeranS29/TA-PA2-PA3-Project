@@ -146,7 +146,7 @@ import KelolaUserPerDesa from "./pages/SuperAdmin/Kelola Akun User Per Desa";
 import DetailPenduduk from "./pages/DetailPenduduk";
 import PencatatanKesehatan from "./pages/PencatatanKesehatan";
 import PencatatanKesehatanKategori from "./pages/PencatatanKesehatanKategori";
-
+import AdminFormVersions  from "./pages/SuperAdmin/AdminFormVersions";
 const HomeRedirect = () => {
   if (!isAuthenticated()) {
     return <Navigate to="/login" replace />;
@@ -334,6 +334,7 @@ function App() {
         <Route path="/data-penduduk/:id" element={<DetailPenduduk />} />
         <Route path="/pencatatan-kesehatan" element={<PencatatanKesehatan />} />
         <Route path="/pencatatan-kesehatan/:kategori" element={<PencatatanKesehatanKategori />} />
+        <Route path="/superadmin/form-versi" element={<AdminFormVersions />} />
       </Routes>
     </BrowserRouter>
   );

@@ -92,6 +92,8 @@ type Main struct {
 	PemeriksaanRemaja        PemeriksaanRemajaRepository
 	PemeriksaanDewasa        PemeriksaanDewasaRepository
 	PemeriksaanLansia        PemeriksaanLansiaRepository
+	Form							FormRepository // Repository untuk Form (misalnya untuk pertanyaan pemeriksaan)
+	Pemeriksaan   PemeriksaanRepository 
 }
 
 type Options struct {
@@ -188,7 +190,8 @@ func Init(opts Options) *Main {
 	m.PemeriksaanRemaja = NewPemeriksaanRemajaRepository(opts.Postgres)
 	m.PemeriksaanDewasa = NewPemeriksaanDewasaRepository(opts.Postgres)
 	m.PemeriksaanLansia = NewPemeriksaanLansiaRepository(opts.Postgres)
-
+	m.Form = NewFormRepository(opts.Postgres) // Inisialisasi FormRepository dengan database yang sesuai
+	 m.Pemeriksaan = NewPemeriksaanRepository(opts.Postgres)
 	return m
 }
 

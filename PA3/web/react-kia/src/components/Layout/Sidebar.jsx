@@ -161,6 +161,7 @@ const Sidebar = () => {
       { path: "/superadmin/kelola-user", name: "Kelola Bidan&Kader&Admin desa", icon: ShieldPlus },
       { path: "/superadmin/kelola-user-per-desa", name: "Kelola Akun User Per Desa", icon: Users },
       { path: "/superadmin/kelola-desa", name: "Kelola Desa", icon: TableProperties },
+      { path: "/superadmin/form-versi", name: "Kelola Form Versi", icon: BriefcaseMedical },
     ],
     []
   );
