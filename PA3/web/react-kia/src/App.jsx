@@ -377,11 +377,8 @@ function App() {
         <Route path="/data-penduduk/:id" element={<DetailPenduduk />} />
         <Route path="/pencatatan-kesehatan" element={<PencatatanKesehatan />} />
         <Route path="/pencatatan-kesehatan/:kategori" element={<PencatatanKesehatanKategori />} />
-<<<<<<< HEAD
         <Route path="/perubahan-jadwal-imunisasi" element={<RequestPerubahanImunisasiPage />} />
-=======
         <Route path="/superadmin/form-versi" element={<AdminFormVersions />} />
->>>>>>> 83bd3724 (perbaikan ui)
       </Routes>
     </BrowserRouter>
   );

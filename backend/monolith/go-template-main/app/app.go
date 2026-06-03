@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"monitoring-service/app/controllers"
-
 	// "strings"
 
 	"time"
@@ -15,7 +14,6 @@ import (
 
 	// "monitoring-service/app/seed"
 	// "monitoring-service/app/seeders"
-
 	"monitoring-service/app/usecases"
 	"monitoring-service/pkg/config"
 	"monitoring-service/pkg/database"
@@ -96,58 +94,16 @@ func (m *Main) Init() (err error) {
 	// // Sync sequences and map rentang_usia text to rentang_usia_id
 	// fixKategoriCapaianData(m.database.Postgres)
 
-	// Migrate Tabel
+
+		// // Migrate Tabel
 	// err = models.AutoMigrate(m.database.Postgres)
 	// if err != nil {
 	// 	return
 	// }
 	// // Seeder
-	// Jalankan migrasi schema agar tabel baru selalu tersedia saat aplikasi start.
-	// err = models.AutoMigrate(m.database.Postgres)
-	// if err != nil {
-	// 	return
-	// }
-
-	// Seeder
 	// err = seed.RunAllSeed(m.database.Postgres)
 	// if err != nil {
 	// 	return
-	// }
-	// SEEDER setelah migrate
-	// seeder kependudukan + anak
-	// kependudukanSeeder := seeders.NewKependudukanSeeder(m.database.Postgres)
-	// if err := kependudukanSeeder.Seed(); err != nil {
-	// 	return err
-	// }
-	// kategoriTandaSakitSeeder := seeders.NewKategoriTandaSakitSeeder(m.database.Postgres)
-	// if err := kategoriTandaSakitSeeder.Seed(); err != nil {
-	// 	return err
-	// }
-
-	// // seeder master standar TBU
-	// masterTBUSeeder := seeders.NewMasterStandarTBUSeeder(m.database.Postgres)
-	// if err := masterTBUSeeder.Seed(); err != nil {
-	// 	return err
-	// }
-	// masterBBTBSeeder := seeders.NewMasterStandarBBTBSeeder(m.database.Postgres)
-	// if err := masterBBTBSeeder.Seed(); err != nil {
-	// 	return err
-	// }
-	// masterBBUSeeder := seeders.NewMasterStandarBBUSeeder(m.database.Postgres)
-	// if err := masterBBUSeeder.Seed(); err != nil {
-	// 	return err
-	// }
-	// masterIMTUSeeder := seeders.NewMasterStandarIMTUSeeder(m.database.Postgres)
-	// if err := masterIMTUSeeder.Seed(); err != nil {
-	// 	return err
-	// }
-	// masterLKUSeeder := seeders.NewMasterStandarLKUSeeder(m.database.Postgres)
-	// if err := masterLKUSeeder.Seed(); err != nil {
-	// 	return err
-	// }
-	// kategoriCapaianSeeder := seeders.NewKategoriCapaianSeeder(m.database.Postgres)
-	// if err := kategoriCapaianSeeder.Seed(); err != nil {
-	// 	return err
 	// }
 
 	// SEEDER setelah migrate
@@ -230,7 +186,7 @@ func (m *Main) close() {
 
 // func fixKategoriCapaianData(db *gorm.DB) {
 // 	log.Println("[MIGRATION] Memulai sinkronisasi data rentang_usia_id di kategori_capaian...")
-
+	
 // 	// 1. Sinkronkan sequence kategori_capaian_id_seq agar tidak terjadi duplicate key error
 // 	if err := db.Exec("SELECT setval('kategori_capaian_id_seq', COALESCE((SELECT MAX(id) FROM kategori_capaian), 1))").Error; err != nil {
 // 		log.Println("[MIGRATION] Gagal sinkronisasi sequence ID:", err)

@@ -164,11 +164,8 @@ const Sidebar = () => {
       { path: "/superadmin/kelola-user", name: "Kelola Bidan&Kader&Admin desa", icon: ShieldPlus },
       { path: "/superadmin/kelola-user-per-desa", name: "Kelola Akun User Per Desa", icon: Users },
       { path: "/superadmin/kelola-desa", name: "Kelola Desa", icon: TableProperties },
-<<<<<<< HEAD
       { path: "/superadmin/audit-trail", name: "Audit Trail", icon: History },
-=======
       { path: "/superadmin/form-versi", name: "Kelola Form Versi", icon: BriefcaseMedical },
->>>>>>> 83bd3724 (perbaikan ui)
     ],
     []
   );
