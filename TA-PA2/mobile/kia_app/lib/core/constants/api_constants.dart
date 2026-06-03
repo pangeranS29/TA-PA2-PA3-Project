@@ -10,7 +10,7 @@ class ApiConstants {
 
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
-        return 'http://10.55.82.64:8080';
+        return 'http://192.168.43.220:8080';
       default:
         return 'http://127.0.0.1:8080';
     }

@@ -107,10 +107,24 @@ class _GrafikPertumbuhanScreenState
     try {
       final birth = DateTime.parse(widget.anak.tanggalLahir);
       final now = DateTime.now();
-      final bulan = (now.year - birth.year) * 12 + (now.month - birth.month);
-      final thn = bulan ~/ 12;
-      final bln = bulan % 12;
-      if (thn == 0) return '$bulan Bulan';
+      
+      final days = now.difference(birth).inDays;
+      if (days <= 28) {
+        return '$days Hari';
+      }
+
+      int totalMonths = (now.year - birth.year) * 12 + (now.month - birth.month);
+      if (now.day < birth.day) {
+        totalMonths--;
+      }
+      if (totalMonths < 0) totalMonths = 0;
+
+      if (totalMonths < 12) {
+        return '$totalMonths Bulan';
+      }
+
+      final thn = totalMonths ~/ 12;
+      final bln = totalMonths % 12;
       if (bln == 0) return '$thn Tahun';
       return '$thn Tahun $bln Bulan';
     } catch (_) { return '-'; }
