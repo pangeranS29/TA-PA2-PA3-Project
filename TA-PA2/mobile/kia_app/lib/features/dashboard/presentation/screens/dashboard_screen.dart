@@ -57,6 +57,10 @@ import 'package:ta_pa2_pa3_project/features/ibu/profil/presentation/screens/prof
 import 'package:ta_pa2_pa3_project/features/edukasi/presentation/ibu/edukasi_asi_screen.dart';
 import 'package:ta_pa2_pa3_project/features/edukasi/presentation/ibu/edukasi_imd_screen.dart';
 
+
+import 'package:ta_pa2_pa3_project/features/anak/catatan/presentation/screens/pilih_catatan_screen.dart';
+
+
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
 
@@ -989,8 +993,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const PilihAnakScreen(
-                          tujuan: 'catatan', // Arahkan tujuannya ke catatan
+                        builder: (context) => const PilihCatatanScreen(
+                           // Arahkan tujuannya ke catatan
                         ),
                       ),
                     );
