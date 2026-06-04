@@ -26,11 +26,13 @@ class _BblCheckItem {
   final String label;
   bool value;
   bool locked;
+  DateTime? tanggalSubmit;
 
   _BblCheckItem({
     required this.label,
     required this.value,
     required this.locked,
+    this.tanggalSubmit,
   });
 }
 
@@ -59,18 +61,20 @@ class _InputBblScreenState extends State<InputBblScreen> {
   bool _lockedHari3_7 = false;
   bool _lockedHari8_28 = false;
 
-  // Imunisasi & skrining
+  // Skrining
   bool _imunisasiHB0 = false;
   bool _skriningHipotiroid = false;
   bool _skriningPJB = false;
 
+
+
   @override
   void initState() {
     _checkItems = [
-      _BblCheckItem(label: '0–6 jam', value: false, locked: false),
-      _BblCheckItem(label: '6–48 jam', value: false, locked: false),
-      _BblCheckItem(label: 'Hari 3–7', value: false, locked: false),
-      _BblCheckItem(label: 'Hari 8–28', value: false, locked: false),
+      _BblCheckItem(label: '0–6 jam', value: false, locked: false, tanggalSubmit: null),
+      _BblCheckItem(label: '6–48 jam', value: false, locked: false, tanggalSubmit: null),
+      _BblCheckItem(label: 'Hari 3–7', value: false, locked: false, tanggalSubmit: null),
+      _BblCheckItem(label: 'Hari 8–28', value: false, locked: false, tanggalSubmit: null),
     ];
     super.initState();
     _apiService = BblApiService();
@@ -87,19 +91,21 @@ class _InputBblScreenState extends State<InputBblScreen> {
       final bbl = await _apiService.getByAnakId(anakId);
       if (bbl != null) {
         setState(() {
-          setState(() {
-            _checkItems[0].value = bbl.jam06;
-            _checkItems[0].locked = bbl.jam06;
+          _checkItems[0].value = bbl.jam06;
+          _checkItems[0].locked = bbl.jam06;
+          _checkItems[0].tanggalSubmit = bbl.tanggalSubmitJam06;
 
-            _checkItems[1].value = bbl.jam648;
-            _checkItems[1].locked = bbl.jam648;
+          _checkItems[1].value = bbl.jam648;
+          _checkItems[1].locked = bbl.jam648;
+          _checkItems[1].tanggalSubmit = bbl.tanggalSubmitJam648;
 
-            _checkItems[2].value = bbl.hari37;
-            _checkItems[2].locked = bbl.hari37;
+          _checkItems[2].value = bbl.hari37;
+          _checkItems[2].locked = bbl.hari37;
+          _checkItems[2].tanggalSubmit = bbl.tanggalSubmitHari37;
 
-            _checkItems[3].value = bbl.hari828;
-            _checkItems[3].locked = bbl.hari828;
-          });
+          _checkItems[3].value = bbl.hari828;
+          _checkItems[3].locked = bbl.hari828;
+          _checkItems[3].tanggalSubmit = bbl.tanggalSubmitHari828;
         });
       }
     } catch (e) {
@@ -164,9 +170,13 @@ class _InputBblScreenState extends State<InputBblScreen> {
           id: 0,
           anakId: anakId,
           jam06: _checkItems[0].value,
+          tanggalSubmitJam06: _checkItems[0].tanggalSubmit,
           jam648: _checkItems[1].value,
+          tanggalSubmitJam648: _checkItems[1].tanggalSubmit,
           hari37: _checkItems[2].value,
+          tanggalSubmitHari37: _checkItems[2].tanggalSubmit,
           hari828: _checkItems[3].value,
+          tanggalSubmitHari828: _checkItems[3].tanggalSubmit,
         );
         
         await _apiService.upsert(anakId, model);
@@ -459,7 +469,11 @@ class _InputBblScreenState extends State<InputBblScreen> {
                                   Expanded(
                                     flex: 4,
                                     child: Text(
-                                      item.value ? (_tanggalLahirController.text.isEmpty ? '-' : _tanggalLahirController.text) : '-',
+                                      item.value 
+                                          ? (item.tanggalSubmit != null 
+                                              ? '${item.tanggalSubmit!.day.toString().padLeft(2, '0')}/${item.tanggalSubmit!.month.toString().padLeft(2, '0')}/${item.tanggalSubmit!.year}' 
+                                              : '-') 
+                                          : '-',
                                       style: const TextStyle(fontSize: 13),
                                     ),
                                   ),
@@ -476,7 +490,9 @@ class _InputBblScreenState extends State<InputBblScreen> {
                                                 setState(() {
                                                   item.value = val ?? false;
                                                   if (val == true) {
-                                                    _tanggalLahirController.text = DateTime.now().toString().substring(0, 10);
+                                                    item.tanggalSubmit ??= DateTime.now();
+                                                  } else {
+                                                    item.tanggalSubmit = null;
                                                   }
                                                 });
                                               },
