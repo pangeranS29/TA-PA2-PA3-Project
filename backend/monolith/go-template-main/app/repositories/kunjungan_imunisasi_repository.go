@@ -73,7 +73,7 @@ func (m *Main) GetKunjunganImunisasiByID(
 	`).
 		Joins(`
 		LEFT JOIN dusun d
-		ON d.id = p_anak.dusun
+		ON d.id = p_anak.dusun_id
 	`).
 		Joins(`
 		INNER JOIN kehamilan kh
