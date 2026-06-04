@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"monitoring-service/app/controllers"
+
 	// "strings"
 
 	"time"
@@ -50,11 +51,19 @@ func (m *Main) startCronJob() {
 	c := cron.New(cron.WithLocation(time.Local))
 	// Jadwalkan setiap hari jam 01:00
 	_, err := c.AddFunc("0 1 * * *", func() {
-		log.Println("[CRON] Memulai update otomatis usia kehamilan...")
+
+		log.Println("[CRON] Start daily jobs...")
+
+		// 1. update kehamilan
 		if err := kehamilanUC.UpdateAllActiveGestationalAge(); err != nil {
-			log.Printf("[CRON] Gagal update: %v", err)
+			log.Printf("[CRON] kehamilan error: %v", err)
+		}
+
+		// 2. reminder imunisasi
+		if err := m.usecase.ProcessReminder(); err != nil {
+			log.Printf("[CRON] reminder error: %v", err)
 		} else {
-			log.Println("[CRON] Update usia kehamilan selesai.")
+			log.Println("[CRON] reminder selesai")
 		}
 	})
 	if err != nil {
@@ -94,8 +103,7 @@ func (m *Main) Init() (err error) {
 	// // Sync sequences and map rentang_usia text to rentang_usia_id
 	// fixKategoriCapaianData(m.database.Postgres)
 
-
-		// // Migrate Tabel
+	// // Migrate Tabel
 	// err = models.AutoMigrate(m.database.Postgres)
 	// if err != nil {
 	// 	return
@@ -186,7 +194,7 @@ func (m *Main) close() {
 
 // func fixKategoriCapaianData(db *gorm.DB) {
 // 	log.Println("[MIGRATION] Memulai sinkronisasi data rentang_usia_id di kategori_capaian...")
-	
+
 // 	// 1. Sinkronkan sequence kategori_capaian_id_seq agar tidak terjadi duplicate key error
 // 	if err := db.Exec("SELECT setval('kategori_capaian_id_seq', COALESCE((SELECT MAX(id) FROM kategori_capaian), 1))").Error; err != nil {
 // 		log.Println("[MIGRATION] Gagal sinkronisasi sequence ID:", err)

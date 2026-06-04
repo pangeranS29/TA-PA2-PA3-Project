@@ -2,7 +2,7 @@ package repositories
 
 import (
 	"time"
-	// "monitoring-service/app/models"
+	"monitoring-service/app/models"
 )
 
 type JadwalImunisasiJoin struct {
@@ -29,7 +29,7 @@ func (m *Main) GetJadwalImunisasiByUserID(
 		Select(`
 		a.id as anak_id,
 		pd_anak.nama_lengkap as nama_anak,
-		a.tanggal_lahir,
+		pd_anak.tanggal_lahir,
 
 		j.id as jadwal_id,
 		j.id_dosis_vaksin as dosis_vaksin_id,
@@ -101,7 +101,7 @@ func (m *Main) GetJadwalImunisasiByAnakID(
 		Select(`
 			a.id as anak_id,
 			pd_anak.nama_lengkap as nama_anak,
-			a.tanggal_lahir,
+			pd_anak.tanggal_lahir,
 
 			j.id as jadwal_id,
 			dv.nama_dosis,
@@ -175,16 +175,16 @@ func (m *Main) UpdateTanggalEstimasi(
 func (m *Main) GetJadwalImunisasiByJadwalID(
 	userID int32,
 	jadwalID uint,
-) (*JadwalImunisasiJoin, error) {
+) (*models.JadwalImunisasiJoin, error) {
 
-	var result JadwalImunisasiJoin
+	var result models.JadwalImunisasiJoin
 
 	err := m.postgres.
 		Table("pengguna p").
 		Select(`
 			a.id as anak_id,
 			pd_anak.nama_lengkap as nama_anak,
-			a.tanggal_lahir,
+			pd_anak.tanggal_lahir,
 
 			j.id as jadwal_id,
 			dv.nama_dosis,
@@ -241,4 +241,18 @@ func (m *Main) GetJadwalImunisasiByJadwalID(
 	}
 
 	return &result, nil
+}
+
+func (m *Main) UpdateStatusJadwalImunisasi(
+    jadwalID uint,
+    statusID uint,
+) error {
+
+    return m.postgres.
+        Table("jadwal_imunisasi_anak").
+        Where("id = ?", jadwalID).
+        Updates(map[string]interface{}{
+            "id_status_jadwal": statusID,
+            "updated_at": time.Now(),
+        }).Error
 }
