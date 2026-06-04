@@ -313,6 +313,11 @@ type CatatanPertumbuhanResponse struct {
 	StatusIMTU    string        `json:"status_imt_u"`
 	StatusBBTB    string        `json:"status_bb_tb"`
 	StatusLKU     string        `json:"status_lk_u"`
+	ZScoreBBU     float64       `json:"z_score_bb_u"`
+	ZScoreTBU     float64       `json:"z_score_tb_u"`
+	ZScoreIMTU    float64       `json:"z_score_imt_u"`
+	ZScoreBBTB    float64       `json:"z_score_bb_tb"`
+	ZScoreLKU     float64       `json:"z_score_lk_u"`
 	StatusKMSNaik string        `json:"status_kms_naik,omitempty"`  // Naik (N), Tidak Naik (T), Data Awal
 	StatusKMSBGM  string        `json:"status_kms_bgm,omitempty"`   // Di bawah garis merah / Tidak
 	KBMMinGram    int           `json:"kbm_min_gram,omitempty"`     // Kenaikan BB minimum (gram)

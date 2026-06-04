@@ -12,14 +12,20 @@ import (
 )
 
 type AnakUseCase struct {
-	anakRepo        *repositories.AnakRepository
-	kependudukanRepo *repositories.KependudukanRepository
+	anakRepo             *repositories.AnakRepository
+	kependudukanRepo     *repositories.KependudukanRepository
+	prediksiStuntingRepo  repositories.PrediksiStuntingRepository
 }
 
-func NewAnakUseCase(anakRepo *repositories.AnakRepository, kependudukanRepo *repositories.KependudukanRepository) *AnakUseCase {
+func NewAnakUseCase(
+	anakRepo *repositories.AnakRepository,
+	kependudukanRepo *repositories.KependudukanRepository,
+	prediksiStuntingRepo repositories.PrediksiStuntingRepository,
+) *AnakUseCase {
 	return &AnakUseCase{
-		anakRepo:        anakRepo,
-		kependudukanRepo: kependudukanRepo,
+		anakRepo:             anakRepo,
+		kependudukanRepo:     kependudukanRepo,
+		prediksiStuntingRepo:  prediksiStuntingRepo,
 	}
 }
 
@@ -34,6 +40,11 @@ func (u *AnakUseCase) GetAnak(id int32) (*models.AnakResponse, error) {
 	}
 
 	resp := u.toAnakResponse(anak)
+	pred, predErr := u.prediksiStuntingRepo.GetLatestPredictionByAnakID(id)
+	if predErr == nil && pred != nil {
+		resp.StatusPrediksi = pred.StatusPrediksi
+	}
+
 	return &resp, nil
 }
 
@@ -91,6 +102,10 @@ func (u *AnakUseCase) CreateAnak(req models.CreateAnakRequest) (*models.AnakResp
 	}
 
 	resp := u.toAnakResponse(createdAnak)
+	pred, predErr := u.prediksiStuntingRepo.GetLatestPredictionByAnakID(anak.ID)
+	if predErr == nil && pred != nil {
+		resp.StatusPrediksi = pred.StatusPrediksi
+	}
 	return &resp, nil
 }
 
@@ -121,10 +136,10 @@ func (u *AnakUseCase) CreateAnakDenganPenduduk(req models.CreateAnakDenganPendud
 
 	// Buat kependudukan baru untuk anak
 	newPenduduk := &models.Kependudukan{
-		NamaLengkap:  req.Nama,
-		JenisKelamin: req.JenisKelamin,
-		TanggalLahir: tanggalLahir,
-		TempatLahir:  req.TempatLahir,
+		NamaLengkap:   req.Nama,
+		JenisKelamin:  req.JenisKelamin,
+		TanggalLahir:  tanggalLahir,
+		TempatLahir:   req.TempatLahir,
 		GolonganDarah: req.GolonganDarah,
 		// NIK tidak diisi untuk newborn, akan disimpan sebagai NULL
 	}
@@ -157,6 +172,10 @@ func (u *AnakUseCase) CreateAnakDenganPenduduk(req models.CreateAnakDenganPendud
 	}
 
 	resp := u.toAnakResponse(createdAnak)
+	pred, predErr := u.prediksiStuntingRepo.GetLatestPredictionByAnakID(anak.ID)
+	if predErr == nil && pred != nil {
+		resp.StatusPrediksi = pred.StatusPrediksi
+	}
 	return &resp, nil
 }
 
@@ -228,12 +247,19 @@ func (u *AnakUseCase) UpdateAnak(id int32, req models.UpdateAnakRequest) (*model
 	updatedAnak, err := u.anakRepo.FindByID(id)
 	if err != nil {
 		resp := u.toAnakResponse(anak)
+		pred, predErr := u.prediksiStuntingRepo.GetLatestPredictionByAnakID(id)
+		if predErr == nil && pred != nil {
+			resp.StatusPrediksi = pred.StatusPrediksi
+		}
 		return &resp, nil
 	}
 	resp := u.toAnakResponse(updatedAnak)
+	pred, predErr := u.prediksiStuntingRepo.GetLatestPredictionByAnakID(id)
+	if predErr == nil && pred != nil {
+		resp.StatusPrediksi = pred.StatusPrediksi
+	}
 	return &resp, nil
 }
-
 
 // ====================== DELETE ======================
 func (u *AnakUseCase) DeleteAnak(id int32) error {
@@ -241,7 +267,6 @@ func (u *AnakUseCase) DeleteAnak(id int32) error {
 }
 
 // ====================== LIST ======================
-// AdminListAnak: untuk admin/superadmin, tampilkan semua. Mendukung filter opsional kehamilan_id.
 func (u *AnakUseCase) AdminListAnak(kehamilanID int32) ([]models.AnakResponse, error) {
 	var (
 		list []models.Anak
@@ -260,9 +285,24 @@ func (u *AnakUseCase) AdminListAnak(kehamilanID int32) ([]models.AnakResponse, e
 	}
 
 	result := make([]models.AnakResponse, 0, len(list))
+	if len(list) == 0 {
+		return result, nil
+	}
+
+	// Fetch stunting predictions in bulk
+	var ids []int32
+	for _, k := range list {
+		ids = append(ids, k.ID)
+	}
+	predMap, _ := u.prediksiStuntingRepo.GetLatestPredictionsByAnakIDs(ids)
 
 	for _, k := range list {
 		resp := u.toAnakResponse(&k)
+		if predMap != nil {
+			if status, ok := predMap[k.ID]; ok {
+				resp.StatusPrediksi = status
+			}
+		}
 		result = append(result, resp)
 	}
 
@@ -294,8 +334,24 @@ func (u *AnakUseCase) ListAnakByDesa(desaID *int32, kehamilanID int32) ([]models
 	}
 
 	result := make([]models.AnakResponse, 0, len(list))
+	if len(list) == 0 {
+		return result, nil
+	}
+
+	// Fetch stunting predictions in bulk
+	var ids []int32
+	for _, k := range list {
+		ids = append(ids, k.ID)
+	}
+	predMap, _ := u.prediksiStuntingRepo.GetLatestPredictionsByAnakIDs(ids)
+
 	for _, k := range list {
 		resp := u.toAnakResponse(&k)
+		if predMap != nil {
+			if status, ok := predMap[k.ID]; ok {
+				resp.StatusPrediksi = status
+			}
+		}
 		result = append(result, resp)
 	}
 
@@ -394,7 +450,6 @@ func (u *AnakUseCase) toAnakResponse(anak *models.Anak) models.AnakResponse {
 		NamaIbu:         anak.NamaIbu,
 		NamaAyah:        anak.NamaAyah,
 		IbuID:           anak.IbuID,
-		StatusPrediksi:  anak.StatusPrediksi,
 	}
 
 	// Ambil data dari Penduduk (Kependudukan)

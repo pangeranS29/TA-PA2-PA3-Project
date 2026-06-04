@@ -12,15 +12,27 @@ type RiwayatImunisasiResult struct {
 	TanggalDiberikan time.Time
 }
 
-func (m *Main) GetAnakByUserID(userID int32) ([]models.Anak, error) {
-	var anaks []models.Anak
+func (m *Main) GetAnakByUserID(userID int32) ([]models.ImunisasiAnak, error) {
+	var anaks []models.ImunisasiAnak
 
 	err := m.postgres.
 		Table("anak a").
-		Select("a.*").
-		Joins("JOIN kehamilan k ON k.id = a.kehamilan_id").
-		Joins("JOIN ibu i ON i.id = k.ibu_id").
-		Joins("JOIN pengguna p ON p.penduduk_id = i.penduduk_id").
+		Select(`
+		a.*,
+		p_anak.tanggal_lahir
+	`).
+		Joins(`
+		JOIN kehamilan k ON k.id = a.kehamilan_id
+	`).
+		Joins(`
+		JOIN ibu i ON i.id = k.ibu_id
+	`).
+		Joins(`
+		JOIN pengguna p ON p.penduduk_id = i.penduduk_id
+	`).
+		Joins(`
+		JOIN penduduk p_anak ON p_anak.id = a.penduduk_id
+	`).
 		Where("p.id = ?", userID).
 		Find(&anaks).Error
 
@@ -122,7 +134,7 @@ func (m *Main) UpdateJadwalStatus() error {
 		case diff >= -3:
 			statusID = 3 // terlewat
 		case diff >= -13:
-			statusID  = 4 // terlambat
+			statusID = 4 // terlambat
 		default:
 			statusID = 5 // krisis
 		}
@@ -136,7 +148,6 @@ func (m *Main) UpdateJadwalStatus() error {
 	return nil
 }
 
-
 // func (m *Main) CountAnakImunisasiTerlambat() (int64, error) {
 // 	var count int64
 
@@ -144,7 +155,7 @@ func (m *Main) UpdateJadwalStatus() error {
 // 		Table("jadwal_imunisasi_anak jia").
 // 		Where("jia.tanggal_estimasi IS NOT NULL").
 // 		Where("jia.tanggal_estimasi < ?", time.Now()).
-// 		Where("jia.id_status_jadwal != ?", 3). 
+// 		Where("jia.id_status_jadwal != ?", 3).
 // 		Distinct("jia.id_anak").
 // 		Count(&count).Error
 

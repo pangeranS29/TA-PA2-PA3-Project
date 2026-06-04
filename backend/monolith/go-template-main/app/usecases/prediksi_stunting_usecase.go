@@ -103,11 +103,6 @@ func (u *prediksiStuntingUsecase) PredictStunting(ctx context.Context, req *mode
 		return nil, customerror.NewInternalServiceError("gagal menyimpan hasil prediksi")
 	}
 
-	// Update status_prediksi di tabel anak
-	if err := u.repo.UpdateAnakStatusPrediksi(req.AnakID, statusPrediksi); err != nil {
-		return nil, customerror.NewInternalServiceError("gagal memperbarui status prediksi anak di database")
-	}
-
 	return result, nil
 }
 

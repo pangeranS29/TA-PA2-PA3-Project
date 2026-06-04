@@ -49,6 +49,10 @@ class DetailKunjunganImunisasiModel {
   final String namaIbu;
   final String nomorTeleponIbu;
 
+  final String namaAyah;
+  final String nomorTeleponAyah;
+  final String dusun;
+
   final String namaVaksin;
   final String namaDosis;
 
@@ -62,6 +66,9 @@ class DetailKunjunganImunisasiModel {
     required this.tanggalLahir,
     required this.namaIbu,
     required this.nomorTeleponIbu,
+    required this.namaAyah,
+    required this.nomorTeleponAyah,
+    required this.dusun,
     required this.namaVaksin,
     required this.namaDosis,
     required this.jadwalImunisasi,
@@ -82,6 +89,9 @@ class DetailKunjunganImunisasiModel {
       ),
       namaIbu: json['nama_ibu'] ?? '',
       nomorTeleponIbu: json['nomor_telepon_ibu'] ?? '',
+      namaAyah: json['nama_ayah'] ?? '',
+      nomorTeleponAyah: json['nomor_telepon_ayah'] ?? '',
+      dusun: json['dusun'] ?? '',
       namaVaksin: json['nama_vaksin'] ?? '',
       namaDosis: json['nama_dosis'] ?? '',
       jadwalImunisasi: _parseDate(
@@ -147,23 +157,16 @@ class StatusKunjunganCountModel {
   ) {
     return StatusKunjunganCountModel(
       statusId: (json['status_id'] as num?)?.toInt() ?? 0,
-      statusKunjungan:
-          json['status_kunjungan'] ?? '',
-      jumlahKunjungan:
-          (json['jumlah_kunjungan'] as num?)
-                  ?.toInt() ??
-              0,
+      statusKunjungan: json['status_kunjungan'] ?? '',
+      jumlahKunjungan: (json['jumlah_kunjungan'] as num?)?.toInt() ?? 0,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'status_id': statusId,
-      'status_kunjungan':
-          statusKunjungan,
-      'jumlah_kunjungan':
-          jumlahKunjungan,
+      'status_kunjungan': statusKunjungan,
+      'jumlah_kunjungan': jumlahKunjungan,
     };
   }
 }
-

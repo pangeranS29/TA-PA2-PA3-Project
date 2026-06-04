@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:ta_pa2_pa3_project/features/kader/kunjungan/models/kunjungan_model.dart';
 import 'package:ta_pa2_pa3_project/features/kader/kunjungan/services/kunjungan_service.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class AnakImunisasiDetailScreen extends StatefulWidget {
   final int kunjunganId;
@@ -247,11 +248,30 @@ class _AnakImunisasiDetailScreenState extends State<AnakImunisasiDetailScreen> {
                   item.namaIbu,
                 ),
                 _infoRow(
-                  "No HP",
+                  "Nama Ayah",
+                  item.namaAyah,
+                ),
+                _infoRow(
+                  "No HP Ibu",
                   item.nomorTeleponIbu,
                   onTap: () {
-                    // nanti launcher telpon
+                    if (item.nomorTeleponIbu.isNotEmpty) {
+                      openDialer(item.nomorTeleponIbu);
+                    }
                   },
+                ),
+                _infoRow(
+                  "No HP Ayah",
+                  item.nomorTeleponAyah,
+                  onTap: () {
+                    if (item.nomorTeleponAyah.isNotEmpty) {
+                      openDialer(item.nomorTeleponAyah);
+                    }
+                  },
+                ),
+                _infoRow(
+                  "Dusun",
+                  item.dusun,
                 ),
               ]),
               if (!_isFinalStatus(item.statusKunjungan)) ...[
@@ -962,6 +982,15 @@ class _AnakImunisasiDetailScreenState extends State<AnakImunisasiDetailScreen> {
     final normalized = status.toLowerCase().trim();
 
     return normalized == 'selesai' || normalized == 'dibatalkan';
+  }
+
+  Future<void> openDialer(String phoneNumber) async {
+    final Uri phoneUri = Uri.parse('tel:$phoneNumber');
+
+    await launchUrl(
+      phoneUri,
+      mode: LaunchMode.externalApplication,
+    );
   }
 
   @override
