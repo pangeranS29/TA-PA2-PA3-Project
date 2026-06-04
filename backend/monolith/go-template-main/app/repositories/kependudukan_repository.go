@@ -2,37 +2,37 @@ package repositories
 
 import (
 	"errors"
+	"monitoring-service/app/middlewares"
 	"monitoring-service/app/models"
 	"strings"
 	"time"
-	"monitoring-service/app/middlewares"
 
 	"gorm.io/gorm"
 )
 
 // Interface KependudukanRepository
 type kependudukanRepository interface {
-    Create(k *models.Kependudukan) error
-    FindByID(id int32) (*models.Kependudukan, error)
-    FindByNIK(nik *string) (*models.Kependudukan, error)
-    FindByKartuKeluargaID(kkID int32) ([]models.Kependudukan, error)
-    GetAll() ([]models.Kependudukan, error)
-    Update(k *models.Kependudukan) error
-    Delete(id int32) error
-    ListByKartuKeluargaID(kartuKeluargaID int64) ([]models.Kependudukan, error)
-    FindByIDAndKartuKeluargaID(id int32, kartuKeluargaID int64) (*models.Kependudukan, error)
-    FindByNIKExceptID(nik string, exceptID int32) (*models.Kependudukan, error)
-    ListEligibleForRole(role, search, kecamatan, desa string) ([]EligiblePendudukItem, error)
-    CreatePosyandu(posyandu *models.Posyandu) error
-    ListPosyandu(search string) ([]PosyanduItem, error)
-    FindPosyanduByID(id int32) (*models.Posyandu, error)
-    UpdatePosyandu(posyandu *models.Posyandu) error
-    SoftDeleteByID(id int32) error
-    SoftDeleteByKartuKeluargaID(kartuKeluargaID int64) error
-    GetRekapPerDusun(kecamatan, desa string) ([]RekapDusun, error)
-    GetAllActive() ([]models.Kependudukan, error)
+	Create(k *models.Kependudukan) error
+	FindByID(id int32) (*models.Kependudukan, error)
+	FindByNIK(nik *string) (*models.Kependudukan, error)
+	FindByKartuKeluargaID(kkID int32) ([]models.Kependudukan, error)
+	GetAll() ([]models.Kependudukan, error)
+	Update(k *models.Kependudukan) error
+	Delete(id int32) error
+	ListByKartuKeluargaID(kartuKeluargaID int64) ([]models.Kependudukan, error)
+	FindByIDAndKartuKeluargaID(id int32, kartuKeluargaID int64) (*models.Kependudukan, error)
+	FindByNIKExceptID(nik string, exceptID int32) (*models.Kependudukan, error)
+	ListEligibleForRole(role, search, kecamatan, desa string) ([]EligiblePendudukItem, error)
+	CreatePosyandu(posyandu *models.Posyandu) error
+	ListPosyandu(search string) ([]PosyanduItem, error)
+	FindPosyanduByID(id int32) (*models.Posyandu, error)
+	UpdatePosyandu(posyandu *models.Posyandu) error
+	SoftDeleteByID(id int32) error
+	SoftDeleteByKartuKeluargaID(kartuKeluargaID int64) error
+	GetRekapPerDusun(kecamatan, desa string) ([]RekapDusun, error)
+	GetAllActive() ([]models.Kependudukan, error)
 	FindByAgeRange(minAge, maxAge int) ([]models.Kependudukan, error)
-	 GetAllActiveByDesaID(desaID int32) ([]models.Kependudukan, error)
+	GetAllActiveByDesaID(desaID int32) ([]models.Kependudukan, error)
 }
 
 // Implementasi privat
@@ -41,13 +41,14 @@ type KependudukanRepository struct {
 }
 
 type EligiblePendudukItem struct {
-	ID              int32  `json:"id"`
-	KartuKeluargaID *int64 `json:"kartu_keluarga_id,omitempty"`
-	NIK             string `json:"nik"`
-	NamaLengkap     string `json:"nama_lengkap"`
-	JenisKelamin    string `json:"jenis_kelamin"`
-	Kecamatan       string `json:"kecamatan"`
-	Desa            string `json:"desa"`
+	ID                int32  `json:"id"`
+	KartuKeluargaID   *int64 `json:"kartu_keluarga_id,omitempty"`
+	NIK               string `json:"nik"`
+	NamaLengkap       string `json:"nama_lengkap"`
+	JenisKelamin      string `json:"jenis_kelamin"`
+	Kecamatan         string `json:"kecamatan"`
+	Desa              string `json:"desa"`
+	KedudukanKeluarga string `json:"kedudukan_keluarga"`
 }
 
 type PosyanduItem struct {
@@ -152,7 +153,7 @@ func (r *KependudukanRepository) ListEligibleForRole(role, search, kecamatan, de
 
 	var list []EligiblePendudukItem
 	q := r.db.Table("penduduk p").
-		Select("p.id, p.kartu_keluarga_id, p.nik, p.nama_lengkap, p.jenis_kelamin, p.kecamatan").
+		Select("p.id, p.kartu_keluarga_id, p.nik, p.nama_lengkap, p.jenis_kelamin, p.kecamatan, p.kedudukan_keluarga").
 		Where("p.deleted_at IS NULL")
 
 	if search != "" {
@@ -166,9 +167,9 @@ func (r *KependudukanRepository) ListEligibleForRole(role, search, kecamatan, de
 	switch role {
 	case "bidan":
 		q = q.Where("NOT EXISTS (SELECT 1 FROM bidan b WHERE b.penduduk_id = p.id AND b.deleted_at IS NULL)")
-		q = q.Where("NOT EXISTS (SELECT 1 FROM kader k WHERE k.penduduk_id = p.id AND k.deleted_at IS NULL)")
+		q = q.Where("NOT EXISTS (SELECT 1 FROM kader k WHERE k.id_penduduk = p.id AND k.deleted_at IS NULL)")
 	case "kader":
-		q = q.Where("NOT EXISTS (SELECT 1 FROM kader k WHERE k.penduduk_id = p.id AND k.deleted_at IS NULL)")
+		q = q.Where("NOT EXISTS (SELECT 1 FROM kader k WHERE k.id_penduduk = p.id AND k.deleted_at IS NULL)")
 		q = q.Where("NOT EXISTS (SELECT 1 FROM bidan b WHERE b.penduduk_id = p.id AND b.deleted_at IS NULL)")
 	}
 
@@ -181,10 +182,10 @@ func (r *KependudukanRepository) ListAvailableForSuperadmin(search string) ([]El
 
 	var list []EligiblePendudukItem
 	q := r.db.Table("penduduk p").
-		Select("p.id, p.kartu_keluarga_id, p.nik, p.nama_lengkap, p.jenis_kelamin, p.kecamatan").
+		Select("p.id, p.kartu_keluarga_id, p.nik, p.nama_lengkap, p.jenis_kelamin, p.kecamatan, p.kedudukan_keluarga").
 		Where("p.deleted_at IS NULL").
 		Where("NOT EXISTS (SELECT 1 FROM bidan b WHERE b.penduduk_id = p.id AND b.deleted_at IS NULL)").
-		Where("NOT EXISTS (SELECT 1 FROM kader k WHERE k.penduduk_id = p.id AND k.deleted_at IS NULL)").
+		Where("NOT EXISTS (SELECT 1 FROM kader k WHERE k.id_penduduk = p.id AND k.deleted_at IS NULL)").
 		Where("NOT EXISTS (SELECT 1 FROM pengguna u WHERE u.penduduk_id = p.id)").
 		Order("p.nama_lengkap ASC")
 
@@ -327,29 +328,29 @@ func (r *KependudukanRepository) GetRekapPerDusun(kecamatan, desa string) ([]Rek
 
 // GetAllActive mengambil semua penduduk yang tidak dihapus (deleted_at IS NULL)
 func (r *KependudukanRepository) GetAllActive() ([]models.Kependudukan, error) {
-    var penduduks []models.Kependudukan
-    err := r.db.Where("deleted_at IS NULL").Find(&penduduks).Error
-    return penduduks, err
+	var penduduks []models.Kependudukan
+	err := r.db.Where("deleted_at IS NULL").Find(&penduduks).Error
+	return penduduks, err
 }
 
 func (r *KependudukanRepository) FindByAgeRange(minAge, maxAge int, desaID *int32, role string) ([]models.Kependudukan, error) {
-    var list []models.Kependudukan
-    query := r.db.Where("deleted_at IS NULL").
-        Where("tanggal_pengurangan IS NULL OR tanggal_pengurangan > NOW()").
-        Where("EXTRACT(YEAR FROM AGE(NOW(), tanggal_lahir)) BETWEEN ? AND ?", minAge, maxAge)
+	var list []models.Kependudukan
+	query := r.db.Where("deleted_at IS NULL").
+		Where("tanggal_pengurangan IS NULL OR tanggal_pengurangan > NOW()").
+		Where("EXTRACT(YEAR FROM AGE(NOW(), tanggal_lahir)) BETWEEN ? AND ?", minAge, maxAge)
 
-    // Filter desa hanya jika role tidak memiliki akses penuh
-    if !middlewares.HasFullAccess(role) && desaID != nil {
-        query = query.Where("desa_id = ?", *desaID)
-    }
+	// Filter desa hanya jika role tidak memiliki akses penuh
+	if !middlewares.HasFullAccess(role) && desaID != nil {
+		query = query.Where("desa_id = ?", *desaID)
+	}
 
-    err := query.Find(&list).Error
-    return list, err
+	err := query.Find(&list).Error
+	return list, err
 }
 
 // GetAllActiveByDesaID mengambil semua penduduk aktif (deleted_at IS NULL) berdasarkan desa_id
 func (r *KependudukanRepository) GetAllActiveByDesaID(desaID int32) ([]models.Kependudukan, error) {
-    var list []models.Kependudukan
-    err := r.db.Where("desa_id = ? AND deleted_at IS NULL", desaID).Find(&list).Error
-    return list, err
+	var list []models.Kependudukan
+	err := r.db.Where("desa_id = ? AND deleted_at IS NULL", desaID).Find(&list).Error
+	return list, err
 }

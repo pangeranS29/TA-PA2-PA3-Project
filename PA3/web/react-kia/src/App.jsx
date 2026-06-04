@@ -247,8 +247,6 @@ function App() {
         {/* ADMIN ROUTES */}
         <Route element={<AdminRoute />}>
           <Route path="/dashboard/admin" element={<Dashboard />} />
-          <Route path="/dashboard/admin/akun-keluarga" element={<AdminAkunKeluargaCreate />} />
-          <Route path="/dashboard/admin/manajemen-keluarga" element={<AkunKeluargaManagement />} />
         </Route>
 
         <Route path="/superadmin/dashboard" element={<ProtectedRoute allowedRoles={["superadmin"]}><SuperAdminDashboard /></ProtectedRoute>} />
@@ -256,6 +254,8 @@ function App() {
         <Route path="/superadmin/kelola-user" element={<ProtectedRoute allowedRoles={["superadmin"]}><KelolaUser /></ProtectedRoute>} />
         <Route path="/superadmin/kelola-user-per-desa" element={<ProtectedRoute allowedRoles={["superadmin"]}><KelolaUserPerDesa /></ProtectedRoute>} />
         <Route path="/superadmin/kelola-desa" element={<ProtectedRoute allowedRoles={["superadmin"]}><KelolaDesa /></ProtectedRoute>} />
+        <Route path="/superadmin/akun-keluarga" element={<ProtectedRoute allowedRoles={["superadmin"]}><AdminAkunKeluargaCreate /></ProtectedRoute>} />
+        <Route path="/superadmin/manajemen-keluarga" element={<ProtectedRoute allowedRoles={["superadmin"]}><AkunKeluargaManagement /></ProtectedRoute>} />
         <Route path="/superadmin/users" element={<Navigate to="/superadmin/kelola-user" replace />} />
         <Route path="/superadmin/user-desa" element={<Navigate to="/superadmin/kelola-user-per-desa" replace />} />
         <Route path="/superadmin/desa" element={<Navigate to="/superadmin/kelola-desa" replace />} />

@@ -30,6 +30,11 @@ type AdminAnggotaKeluargaRequest struct {
 	TujuanPindah       string `json:"tujuan_pindah"`
 	TempatMeninggal    string `json:"tempat_meninggal"`
 	Keterangan         string `json:"keterangan"`
+	Kecamatan          string `json:"kecamatan"`
+	DesaID             *int32 `json:"desa_id"`
+	IsNonKTP           bool   `json:"is_non_ktp"`
+	TanggalPenambahan  string `json:"tanggal_penambahan"`
+	TanggalPengurangan string `json:"tanggal_pengurangan"`
 }
 
 // AdminCreateKartuKeluargaRequest - Hanya membuat Kartu Keluarga + Anggota (Penduduk)
@@ -81,6 +86,11 @@ type AdminDetailKartuKeluargaAnggota struct {
 	TujuanPindah       string `json:"tujuan_pindah"`
 	TempatMeninggal    string `json:"tempat_meninggal"`
 	Keterangan         string `json:"keterangan"`
+	Kecamatan          string `json:"kecamatan"`
+	DesaID             *int32 `json:"desa_id"`
+	IsNonKTP           bool   `json:"is_non_ktp"`
+	TanggalPenambahan  string `json:"tanggal_penambahan"`
+	TanggalPengurangan string `json:"tanggal_pengurangan"`
 }
 
 type AdminDetailKartuKeluargaResponse struct {
@@ -191,6 +201,22 @@ func (u *AdminAkunKeluargaUsecase) CreateKartuKeluarga(req *AdminCreateKartuKelu
 		if err != nil {
 			return nil, customerror.NewBadRequestError("format tanggal_lahir harus YYYY-MM-DD")
 		}
+		
+		var tglPenambahan *time.Time
+		if strings.TrimSpace(anggota.TanggalPenambahan) != "" {
+			parsed, err := time.Parse("2006-01-02", anggota.TanggalPenambahan)
+			if err == nil {
+				tglPenambahan = &parsed
+			}
+		}
+
+		var tglPengurangan *time.Time
+		if strings.TrimSpace(anggota.TanggalPengurangan) != "" {
+			parsed, err := time.Parse("2006-01-02", anggota.TanggalPengurangan)
+			if err == nil {
+				tglPengurangan = &parsed
+			}
+		}
 
 		nikPtr := &anggota.NIK
 		penduduk := &models.Kependudukan{
@@ -212,6 +238,11 @@ func (u *AdminAkunKeluargaUsecase) CreateKartuKeluarga(req *AdminCreateKartuKelu
 			TujuanPindah:       anggota.TujuanPindah,
 			TempatMeninggal:    anggota.TempatMeninggal,
 			Keterangan:         anggota.Keterangan,
+			Kecamatan:          anggota.Kecamatan,
+			DesaID:             anggota.DesaID,
+			IsNonKTP:           anggota.IsNonKTP,
+			TanggalPenambahan:  tglPenambahan,
+			TanggalPengurangan: tglPengurangan,
 			CreatedAt:          time.Now(),
 			UpdatedAt:          time.Now(),
 		}
@@ -473,6 +504,28 @@ func (u *AdminAkunKeluargaUsecase) UpdateAnggotaKeluarga(kartuKeluargaID int64, 
 	anggota.TujuanPindah = req.TujuanPindah
 	anggota.TempatMeninggal = req.TempatMeninggal
 	anggota.Keterangan = req.Keterangan
+	anggota.Kecamatan = req.Kecamatan
+	anggota.DesaID = req.DesaID
+	anggota.IsNonKTP = req.IsNonKTP
+
+	if strings.TrimSpace(req.TanggalPenambahan) != "" {
+		parsed, err := time.Parse("2006-01-02", req.TanggalPenambahan)
+		if err == nil {
+			anggota.TanggalPenambahan = &parsed
+		}
+	} else {
+		anggota.TanggalPenambahan = nil
+	}
+
+	if strings.TrimSpace(req.TanggalPengurangan) != "" {
+		parsed, err := time.Parse("2006-01-02", req.TanggalPengurangan)
+		if err == nil {
+			anggota.TanggalPengurangan = &parsed
+		}
+	} else {
+		anggota.TanggalPengurangan = nil
+	}
+
 	anggota.UpdatedAt = time.Now()
 
 	if err := u.kependudukanRepo.Update(anggota); err != nil {
@@ -514,6 +567,22 @@ func (u *AdminAkunKeluargaUsecase) AddAnggotaKeluarga(kartuKeluargaID int64, req
 		return nil, customerror.NewBadRequestError("format tanggal_lahir harus YYYY-MM-DD")
 	}
 
+	var tglPenambahan *time.Time
+	if strings.TrimSpace(req.TanggalPenambahan) != "" {
+		parsed, err := time.Parse("2006-01-02", req.TanggalPenambahan)
+		if err == nil {
+			tglPenambahan = &parsed
+		}
+	}
+
+	var tglPengurangan *time.Time
+	if strings.TrimSpace(req.TanggalPengurangan) != "" {
+		parsed, err := time.Parse("2006-01-02", req.TanggalPengurangan)
+		if err == nil {
+			tglPengurangan = &parsed
+		}
+	}
+
 	anggota := &models.Kependudukan{
 		KartuKeluargaID:    &kartuKeluargaID,
 		NIK:                reqNIKPtr,
@@ -533,6 +602,11 @@ func (u *AdminAkunKeluargaUsecase) AddAnggotaKeluarga(kartuKeluargaID int64, req
 		TujuanPindah:       strings.TrimSpace(req.TujuanPindah),
 		TempatMeninggal:    strings.TrimSpace(req.TempatMeninggal),
 		Keterangan:         strings.TrimSpace(req.Keterangan),
+		Kecamatan:          strings.TrimSpace(req.Kecamatan),
+		DesaID:             req.DesaID,
+		IsNonKTP:           req.IsNonKTP,
+		TanggalPenambahan:  tglPenambahan,
+		TanggalPengurangan: tglPengurangan,
 		CreatedAt:          time.Now(),
 		UpdatedAt:          time.Now(),
 	}
@@ -585,12 +659,25 @@ func mapPendudukToAnggota(a models.Kependudukan) AdminDetailKartuKeluargaAnggota
 	if a.NIK != nil {
 		nik = *a.NIK
 	}
+	tglLahir := ""
+	if !a.TanggalLahir.IsZero() {
+		tglLahir = a.TanggalLahir.Format("2006-01-02")
+	}
+	tglPenambahan := ""
+	if a.TanggalPenambahan != nil {
+		tglPenambahan = a.TanggalPenambahan.Format("2006-01-02")
+	}
+	tglPengurangan := ""
+	if a.TanggalPengurangan != nil {
+		tglPengurangan = a.TanggalPengurangan.Format("2006-01-02")
+	}
+
 	return AdminDetailKartuKeluargaAnggota{
 		PendudukID:         a.IDKependudukan,
 		NIK:                nik,
 		NamaLengkap:        a.NamaLengkap,
 		JenisKelamin:       a.JenisKelamin,
-		TanggalLahir:       a.TanggalLahir.Format("2006-01-02"),
+		TanggalLahir:       tglLahir,
 		TempatLahir:        a.TempatLahir,
 		GolonganDarah:      a.GolonganDarah,
 		Agama:              a.Agama,
@@ -604,5 +691,10 @@ func mapPendudukToAnggota(a models.Kependudukan) AdminDetailKartuKeluargaAnggota
 		TujuanPindah:       a.TujuanPindah,
 		TempatMeninggal:    a.TempatMeninggal,
 		Keterangan:         a.Keterangan,
+		Kecamatan:          a.Kecamatan,
+		DesaID:             a.DesaID,
+		IsNonKTP:           a.IsNonKTP,
+		TanggalPenambahan:  tglPenambahan,
+		TanggalPengurangan: tglPengurangan,
 	}
 }

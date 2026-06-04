@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Plus, Trash2, Send } from "lucide-react";
 import MainLayout from "../../components/Layout/MainLayout";
 import { createAkunKeluargaAdmin } from "../../services/adminAkunKeluarga";
+import { listDesa } from "../../services/desa";
 
 const getTodayDate = () => {
   const now = new Date();
@@ -29,6 +30,11 @@ const createEmptyMember = () => ({
   tujuan_pindah: "",
   tempat_meninggal: "",
   keterangan: "",
+  kecamatan: "",
+  desa_id: "",
+  is_non_ktp: "false",
+  tanggal_penambahan: "",
+  tanggal_pengurangan: "",
 });
 
 const cardClass = "bg-white rounded-2xl shadow-sm border border-slate-100";
@@ -42,6 +48,19 @@ const AdminAkunKeluargaCreate = () => {
   const [submitting, setSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [desasList, setDesasList] = useState([]);
+
+  React.useEffect(() => {
+    const fetchDesas = async () => {
+      try {
+        const data = await listDesa();
+        setDesasList(data);
+      } catch (err) {
+        console.error("Gagal memuat daftar desa", err);
+      }
+    };
+    fetchDesas();
+  }, []);
 
   const setTopField = (name, value) => {
     setForm((prev) => ({ ...prev, [name]: value }));
@@ -120,6 +139,11 @@ const AdminAkunKeluargaCreate = () => {
         tujuan_pindah: member.tujuan_pindah.trim(),
         tempat_meninggal: member.tempat_meninggal.trim(),
         keterangan: member.keterangan.trim(),
+        kecamatan: member.kecamatan.trim(),
+        desa_id: member.desa_id ? parseInt(member.desa_id, 10) : null,
+        is_non_ktp: member.is_non_ktp === "true",
+        tanggal_penambahan: member.tanggal_penambahan,
+        tanggal_pengurangan: member.tanggal_pengurangan,
       })),
     };
   };
@@ -227,7 +251,7 @@ const AdminAkunKeluargaCreate = () => {
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
+                    <div>
                       <label className="text-sm text-slate-600">NIK</label>
                       <input type="text" value={member.nik} onChange={(e) => setMemberField(index, "nik", e.target.value)} className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2" required />
                     </div>
@@ -283,6 +307,35 @@ const AdminAkunKeluargaCreate = () => {
                     <div>
                       <label className="text-sm text-slate-600">Kedudukan Keluarga</label>
                       <input type="text" value={member.kedudukan_keluarga} onChange={(e) => setMemberField(index, "kedudukan_keluarga", e.target.value)} className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2" placeholder="Kepala Keluarga / Istri / Anak" required />
+                    </div>
+                    <div>
+                      <label className="text-sm text-slate-600">Desa</label>
+                      <select value={member.desa_id} onChange={(e) => setMemberField(index, "desa_id", e.target.value)} className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2" required>
+                        <option value="">-- Pilih Desa --</option>
+                        {desasList.map(d => (
+                          <option key={d.id} value={d.id}>{d.nama_desa}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-sm text-slate-600">Kecamatan</label>
+                      <input type="text" value={member.kecamatan} onChange={(e) => setMemberField(index, "kecamatan", e.target.value)} className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2" />
+                    </div>
+                    <div>
+                      <label className="text-sm text-slate-600">KTP Warga Setempat?</label>
+                      <select value={member.is_non_ktp} onChange={(e) => setMemberField(index, "is_non_ktp", e.target.value)} className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2">
+                        <option value="false">Ya</option>
+                        <option value="true">Tidak</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="text-sm text-slate-600">Tanggal Penambahan (opsional)</label>
+                      <input type="date" value={member.tanggal_penambahan} onChange={(e) => setMemberField(index, "tanggal_penambahan", e.target.value)} className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2" />
+                    </div>
+                    <div>
+                      <label className="text-sm text-slate-600">Tanggal Pengurangan (opsional)</label>
+                      <input type="date" value={member.tanggal_pengurangan} onChange={(e) => setMemberField(index, "tanggal_pengurangan", e.target.value)} className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2" />
                     </div>
 
                     <div>

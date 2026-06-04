@@ -123,7 +123,10 @@ export default function UserPerDesaManagement() {
     loadPenduduk();
   }, []);
 
-  const pendudukLabel = (penduduk) => `${penduduk.nama_lengkap} (${penduduk.nik})`;
+  const pendudukLabel = (penduduk) => {
+    const roleText = penduduk.kedudukan_keluarga ? ` - ${penduduk.kedudukan_keluarga}` : "";
+    return `${penduduk.nama_lengkap} (${penduduk.nik}${roleText})`;
+  };
 
   const desaMap = useMemo(() => {
     return desaOptions.reduce((acc, desa) => {
@@ -490,6 +493,26 @@ export default function UserPerDesaManagement() {
 
             <form onSubmit={submitCreateUser} className="space-y-4 px-6 py-6">
               <div className="grid gap-4 md:grid-cols-2">
+                <div className="md:col-span-2">
+                  <SearchablePendudukSelect
+                    label="Penduduk"
+                    value={createForm.penduduk_id}
+                    onChange={(value) => {
+                      const selected = pendudukOptions.find((p) => String(p.id) === String(value));
+                      setCreateForm((prev) => ({
+                        ...prev,
+                        penduduk_id: value,
+                        name: selected ? selected.nama_lengkap : prev.name,
+                        desa_id: (selected && selected.desa_id) ? String(selected.desa_id) : prev.desa_id,
+                      }));
+                    }}
+                    options={pendudukOptions}
+                    loading={loadingPenduduk}
+                    optionLabel={pendudukLabel}
+                    placeholder={loadingPenduduk ? "Memuat penduduk..." : "Ketik nama atau NIK penduduk"}
+                    emptyText="Penduduk tidak ditemukan"
+                  />
+                </div>
                 <div>
                   <label className="text-sm text-slate-600">Nama</label>
                   <input type="text" value={createForm.name} onChange={(e) => setCreateForm((prev) => ({ ...prev, name: e.target.value }))} className="mt-1 w-full rounded-2xl border border-slate-200 px-4 py-3" placeholder="Nama user" />
@@ -527,18 +550,6 @@ export default function UserPerDesaManagement() {
                       </option>
                     ))}
                   </select>
-                </div>
-                <div>
-                  <SearchablePendudukSelect
-                    label="Penduduk"
-                    value={createForm.penduduk_id}
-                    onChange={(value) => setCreateForm((prev) => ({ ...prev, penduduk_id: value }))}
-                    options={pendudukOptions}
-                    loading={loadingPenduduk}
-                    optionLabel={pendudukLabel}
-                    placeholder={loadingPenduduk ? "Memuat penduduk..." : "Ketik nama atau NIK penduduk"}
-                    emptyText="Penduduk tidak ditemukan"
-                  />
                 </div>
               </div>
 

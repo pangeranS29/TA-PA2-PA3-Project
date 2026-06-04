@@ -55,14 +55,7 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	admin.Use(middlewares.AdminOnly())
 	// NOTE: Admin hanya bisa membuat Kartu Keluarga + Anggota (Penduduk)
 	// Tidak bisa membuat akun user lagi
-	admin.POST("/kartu-keluarga", controller.AdminCreateKartuKeluarga)
-	admin.GET("/kartu-keluarga", controller.AdminListKartuKeluarga)
-	admin.GET("/kartu-keluarga/:kartu_keluarga_id", controller.AdminDetailKartuKeluarga)
-	admin.PUT("/kartu-keluarga/:kartu_keluarga_id", controller.AdminUpdateKartuKeluarga)
-	admin.PUT("/kartu-keluarga/:kartu_keluarga_id/anggota/:penduduk_id", controller.AdminUpdateAnggotaKeluarga)
-	admin.POST("/kartu-keluarga/:kartu_keluarga_id/anggota", controller.AdminAddAnggotaKeluarga)
-	admin.DELETE("/kartu-keluarga/:kartu_keluarga_id/anggota/:penduduk_id", controller.AdminDeleteAnggotaKeluarga)
-	admin.DELETE("/kartu-keluarga/:kartu_keluarga_id", controller.AdminDeleteKartuKeluarga)
+	// Admin endpoints removed or moved
 
 	// ==================== MODUL SUPERADMIN ====================
 	superadmin := e.Group("/superadmin")
@@ -71,6 +64,16 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	superadmin.Use(middlewares.SuperAdminOnly())
 	superadmin.GET("/audit-trail", controller.AuditTrail.List)
 	superadmin.GET("/audit-trail/summary", controller.AuditTrail.Summary)
+
+	// Manajemen Kartu Keluarga
+	superadmin.POST("/kartu-keluarga", controller.AdminCreateKartuKeluarga)
+	superadmin.GET("/kartu-keluarga", controller.AdminListKartuKeluarga)
+	superadmin.GET("/kartu-keluarga/:kartu_keluarga_id", controller.AdminDetailKartuKeluarga)
+	superadmin.PUT("/kartu-keluarga/:kartu_keluarga_id", controller.AdminUpdateKartuKeluarga)
+	superadmin.PUT("/kartu-keluarga/:kartu_keluarga_id/anggota/:penduduk_id", controller.AdminUpdateAnggotaKeluarga)
+	superadmin.POST("/kartu-keluarga/:kartu_keluarga_id/anggota", controller.AdminAddAnggotaKeluarga)
+	superadmin.DELETE("/kartu-keluarga/:kartu_keluarga_id/anggota/:penduduk_id", controller.AdminDeleteAnggotaKeluarga)
+	superadmin.DELETE("/kartu-keluarga/:kartu_keluarga_id", controller.AdminDeleteKartuKeluarga)
 	superadmin.GET("/desa", controller.Desa.GetAll)
 	superadmin.GET("/desa/:id", controller.Desa.GetByID)
 	superadmin.POST("/desa", controller.Desa.Create)
