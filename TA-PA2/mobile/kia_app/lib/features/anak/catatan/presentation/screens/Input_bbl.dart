@@ -198,7 +198,7 @@ class _InputBblScreenState extends State<InputBblScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
-          'Berat Badan Lahir (BBL)',
+          'Bayi Baru Lahir (BBL)',
           style: TextStyle(
             color: Color(0xFF172033),
             fontSize: 18,

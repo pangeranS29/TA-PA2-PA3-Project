@@ -91,9 +91,9 @@ class PilihCatatanScreen extends StatelessWidget {
                   _buildMenuCard(
                     context: context,
                     icon: Icons.description_outlined,
-                    title: 'Berat Badan Lahir (BBL)',
+                    title: 'Bayi Baru Lahir (BBL)',
                     subtitle:
-                        'Masukkan data berat badan lahir sebagai data awal pertumbuhan anak.',
+                        'Masukkan data Bayi Baru Lahir sebagai awal pemantauan kesehatan.',
                     onTap: () => Navigator.push(
                       context,
                       MaterialPageRoute(

@@ -189,7 +189,7 @@ class _DashboardKaderScreenState extends State<DashboardKaderScreen> {
                 const SizedBox(height: 12),
 
                 _buildFeatureActionCard(
-                  title: 'Verifikasi Berat Badan Lahir (BBL).',
+                  title: 'Verifikasi Bayi Baru Lahir (BBL).',
                   subtitle:
                       'Tinjau dan verifikasi data BBL yang diajukan oleh ibu.',
                   icon: Icons.baby_changing_station_rounded,

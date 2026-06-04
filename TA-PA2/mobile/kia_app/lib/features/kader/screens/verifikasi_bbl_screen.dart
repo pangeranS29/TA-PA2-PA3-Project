@@ -90,7 +90,7 @@ class _VerifikasiBblScreenState extends State<VerifikasiBblScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF1F5F9),
       appBar: AppBar(
-        title: const Text('Verifikasi Berat Badan Lahir', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        title: const Text('Verifikasi Bayi Baru Lahir', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         backgroundColor: Colors.white,
         foregroundColor: Colors.black87,
         elevation: 1,

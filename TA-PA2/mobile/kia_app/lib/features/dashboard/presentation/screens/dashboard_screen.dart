@@ -935,10 +935,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey)),
         const SizedBox(height: 16),
 
-        // [MODUL: ANAK] Card Berat Badan Lahir (BBL)
+        // [MODUL: ANAK] Card Bayi Baru Lahir (BBL)
         DashboardMenuCard(
-          title: 'Berat Badan Lahir (BBL)',
-          subtitle: 'Catat Berat badan lahir anak sebagai data awal pertumbuhan.',
+          title: 'Bayi Baru Lahir (BBL)',
+          subtitle: 'Catat data Bayi Baru Lahir anak untuk awal pemantauan.',
           icon: Icons.scale_outlined,
           iconColor: const Color(0xFF3B82F6),
           onTap: () {
