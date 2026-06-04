@@ -17,7 +17,7 @@ class GrafikPertumbuhanScreen extends StatefulWidget {
 
 class _GrafikPertumbuhanScreenState
     extends State<GrafikPertumbuhanScreen> {
-  late PertumbuhanRepository _repo;
+    late PertumbuhanRepository _repo;
 
   List<PertumbuhanModel> _riwayat = [];
   Map<String, List<MasterStandarModel>> _master = {};
@@ -276,11 +276,10 @@ class _GrafikPertumbuhanScreenState
                 CircleAvatar(
                   radius: 26,
                   backgroundColor: const Color(0xFFEFF6FF),
-                  child: Text(
-                    widget.anak.namaAnak.isNotEmpty
-                        ? widget.anak.namaAnak[0].toUpperCase()
-                        : '?',
-                    style: const TextStyle(fontSize: 22, color: Color(0xFF2563EB), fontWeight: FontWeight.bold),
+                  child: const Icon(
+                    Icons.person_outline,
+                    size: 30,
+                    color: Color(0xFF185FA5),
                   ),
                 ),
                 const SizedBox(width: 12),
