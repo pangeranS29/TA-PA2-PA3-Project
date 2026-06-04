@@ -108,7 +108,7 @@ type PemeriksaanKehamilanUsecase interface {
 	GetByKehamilanID(kehamilanID int32) ([]models.PemeriksaanKehamilan, error)
 	Update(p *models.PemeriksaanKehamilan) error
 	Delete(id int32) error
-	GetGrafikANC(kehamilanID int32) (interface{}, error) // STUB BARU
+	GetGrafikANC(kehamilanID int32) (*GrafikANCResponse, error)
 }
 
 type pemeriksaanKehamilanUsecase struct {
@@ -118,9 +118,9 @@ type pemeriksaanKehamilanUsecase struct {
 }
 
 // DIUBAH: Sesuaikan dengan init.go
-// func NewPemeriksaanKehamilanUsecase(repo *repositories.PemeriksaanKehamilanRepository, kehamilanrepo *repositories.KehamilanRepository, prediksiUc PrediksiRisikoUsecase) PemeriksaanKehamilanUsecase {
-// 	return &pemeriksaanKehamilanUsecase{repo: repo, kehamilanrepo: kehamilanrepo, prediksiUc: prediksiUc}
-// }
+func NewPemeriksaanKehamilanUsecase(repo *repositories.PemeriksaanKehamilanRepository, kehamilanrepo *repositories.KehamilanRepository, prediksiUc PrediksiRisikoUsecase) PemeriksaanKehamilanUsecase {
+	return &pemeriksaanKehamilanUsecase{repo: repo, kehamilanrepo: kehamilanrepo, prediksiUc: prediksiUc}
+}
 
 func (u *pemeriksaanKehamilanUsecase) Create(p *models.PemeriksaanKehamilan) error {
 	if err := u.validate(p); err != nil {
@@ -164,6 +164,21 @@ func (u *pemeriksaanKehamilanUsecase) Update(p *models.PemeriksaanKehamilan) err
 
 func (u *pemeriksaanKehamilanUsecase) Delete(id int32) error {
 	return u.repo.Delete(id)
+}
+
+// ================= ACCESS CONTROL =================
+
+func (u *pemeriksaanKehamilanUsecase) GetByIDForOrangtua(id int32, userID int32) (*models.PemeriksaanKehamilan, error) {
+	allowed, err := u.repo.IsOwnedByUser(id, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	if !allowed {
+		return nil, errors.New("Anda tidak dapat mengakses data ini")
+	}
+
+	return u.repo.FindByID(id)
 }
 
 // ================= VALIDASI =================
