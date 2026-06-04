@@ -35,15 +35,15 @@ func (m *Main) GetKunjunganImunisasiByID(
 	var result KunjunganImunisasiDetailJoin
 
 	err := m.postgres.
-		Table("kunjungan_imunisasi ki").
-		Select(`
+Table("kunjungan_imunisasi ki").
+	Select(`
 		ki.id AS kunjungan_id,
 		ki.tanggal_kunjungan,
 		sk.status_kunjungan,
 
 		p_anak.nama_lengkap AS nama_anak,
 		p_anak.tanggal_lahir,
-		d.nama_dusun AS dusun,
+		p_anak.dusun AS dusun,
 
 		p_ibu.nama_lengkap AS nama_ibu,
 		p_ibu.telepon AS nomor_telepon_ibu,
@@ -55,51 +55,47 @@ func (m *Main) GetKunjunganImunisasiByID(
 		dv.nama_dosis,
 		jia.tanggal_estimasi AS jadwal_imunisasi
 	`).
-		Joins(`
+	Joins(`
 		INNER JOIN status_kunjungan sk
 		ON sk.id = ki.id_status_kunjungan
 	`).
-		Joins(`
+	Joins(`
 		INNER JOIN jadwal_imunisasi_anak jia
 		ON jia.id = ki.id_jadwal_imunisasi
 	`).
-		Joins(`
+	Joins(`
 		INNER JOIN anak a
 		ON a.id = jia.id_anak
 	`).
-		Joins(`
+	Joins(`
 		INNER JOIN penduduk p_anak
 		ON p_anak.id = a.penduduk_id
 	`).
-		Joins(`
-		LEFT JOIN dusun d
-		ON d.id = p_anak.dusun_id
-	`).
-		Joins(`
+	Joins(`
 		INNER JOIN kehamilan kh
 		ON kh.id = a.kehamilan_id
 	`).
-		Joins(`
+	Joins(`
 		INNER JOIN ibu i
 		ON i.id = kh.ibu_id
 	`).
-		Joins(`
+	Joins(`
 		INNER JOIN penduduk p_ibu
 		ON p_ibu.id = i.penduduk_id
 	`).
-		Joins(`
+	Joins(`
 		LEFT JOIN penduduk p_ayah
 		ON p_ayah.id = i.suami_id
 	`).
-		Joins(`
+	Joins(`
 		LEFT JOIN dosis_vaksin dv
 		ON dv.id = jia.id_dosis_vaksin
 	`).
-		Joins(`
+	Joins(`
 		LEFT JOIN vaksin v
 		ON v.id = dv.id_vaksin
 	`).
-		Where("ki.id = ?", kunjunganID).
+	Where("ki.id = ?", kunjunganID).
 		Scan(&result).Error
 
 	if err != nil {
