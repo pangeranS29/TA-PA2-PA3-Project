@@ -149,9 +149,14 @@ class _PilihAnakScreenState extends State<PilihAnakScreen> {
           ),
           child: Row(
             children: [
-              CircleAvatar(
-                backgroundColor: const Color(0xFFD7ECFF),
-                child: const Icon(Icons.person, color: Color(0xFF185FA5)),
+              const CircleAvatar(
+                radius: 24,
+                backgroundColor: Color(0xFFD7ECFF),
+                child: Icon(
+                  Icons.person_outline,
+                  size: 26,
+                  color: Color(0xFF185FA5),
+                ),
               ),
               const SizedBox(width: 12),
               Expanded(

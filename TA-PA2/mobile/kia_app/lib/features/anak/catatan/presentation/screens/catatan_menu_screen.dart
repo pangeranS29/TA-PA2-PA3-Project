@@ -156,13 +156,19 @@ class _CatatanMenuScreenState extends State<CatatanMenuScreen> {
               child: Row(
                 children: [
                   Container(
-                    width: 52, height: 52,
+                    width: 52,
+                    height: 52,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFE3F2FD),
-                      borderRadius: BorderRadius.circular(26),
-                      border: Border.all(color: _kBlue.withValues(alpha: 0.3), width: 2),
+                      shape: BoxShape.circle,
                     ),
-                    child: const Icon(Icons.sentiment_satisfied_alt, color: _kBlue, size: 30),
+                    child: const CircleAvatar(
+                      backgroundColor: Color(0xFFD7ECFF),
+                      child: Icon(
+                        Icons.person_outline,
+                        size: 30,
+                        color: Color(0xFF185FA5),
+                      ),
+                    ),
                   ),
                   const SizedBox(width: 14),
                   Column(
