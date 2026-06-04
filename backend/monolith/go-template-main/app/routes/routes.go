@@ -1,4 +1,4 @@
-package routes
+﻿package routes
 
 import (
 	"monitoring-service/app/controllers"
@@ -773,6 +773,8 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	ibu.POST("/bbl/anak/:anak_id", controller.Bbl.Upsert)
 	tenaga.GET("/bbl/anak/:anak_id", controller.Bbl.GetByAnakID)
 	tenaga.POST("/bbl/anak/:anak_id", controller.Bbl.Upsert)
+	tenaga.PUT("/bbl/anak/:anak_id/verifikasi", controller.Bbl.Verify)
+	tenaga.GET("/bbl", controller.Bbl.GetAll)
 
 	// ==================== PERTUMBUHAN ANAK (IBU) ====================
 	ibu.GET("/pertumbuhan/anak/:anak_id", controller.GetRiwayatPertumbuhan)
@@ -800,11 +802,10 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	ibu.GET("/jadwal-imunisasi/:id", controller.GetJadwalByID)
 	ibu.PUT("/jadwal-imunisasi/:id/selesai", controller.SetJadwalSelesai)
 
-		// Request Perubahan Jadwal Imunisasi Ibu
+	// Request Perubahan Jadwal Imunisasi Ibu
 	ibu.POST("/jadwal-imunisasi/:id/request-perubahan", controller.RequestPerubahanJadwal)
 	ibu.POST("/test-fcm", controller.TestFCM)
 	ibu.POST("/test-reminder", controller.TestReminder)
-
 
 	kader := e.Group("/kader")
 	kader.Use(middlewares.JWTAuth(controller.JWTSecret()))
@@ -819,6 +820,10 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	// Absensi Kelas Ibu Balita (Kader)
 	kader.GET("/absensi-kelas-ibu-balita", controller.AbsensiKelasIbuBalita.GetAll)
 	kader.PUT("/absensi-kelas-ibu-balita/:id/verifikasi", controller.AbsensiKelasIbuBalita.Verify)
+
+	kader.GET("/bbl/anak/:anak_id", controller.Bbl.GetByAnakID)
+	kader.PUT("/bbl/anak/:anak_id/verifikasi", controller.Bbl.Verify)
+	kader.GET("/bbl", controller.Bbl.GetAll)
 
 	// ==================== KELUHAN ANAK ====================
 	ibu.GET("/keluhan-anak", controller.KeluhanAnak.GetByAnakIDForIbu)

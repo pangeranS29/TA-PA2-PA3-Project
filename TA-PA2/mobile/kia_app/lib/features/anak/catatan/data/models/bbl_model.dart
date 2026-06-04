@@ -1,61 +1,118 @@
-class BblModel {
+class BblCheckModel {
   final int id;
-  final int anakId;
-  final bool jam06;
-  final DateTime? tanggalSubmitJam06;
-  final bool jam648;
-  final DateTime? tanggalSubmitJam648;
-  final bool hari37;
-  final DateTime? tanggalSubmitHari37;
-  final bool hari828;
-  final DateTime? tanggalSubmitHari828;
+  final int bblId;
+  final String periodeWaktu;
+  final bool statusPemeriksaan;
+  final DateTime? tanggalSubmit;
 
-  BblModel({
+  BblCheckModel({
     required this.id,
-    required this.anakId,
-    required this.jam06,
-    this.tanggalSubmitJam06,
-    required this.jam648,
-    this.tanggalSubmitJam648,
-    required this.hari37,
-    this.tanggalSubmitHari37,
-    required this.hari828,
-    this.tanggalSubmitHari828,
+    required this.bblId,
+    required this.periodeWaktu,
+    required this.statusPemeriksaan,
+    this.tanggalSubmit,
   });
 
-  factory BblModel.fromJson(Map<String, dynamic> json) {
-    return BblModel(
+  factory BblCheckModel.fromJson(Map<String, dynamic> json) {
+    return BblCheckModel(
       id: (json['id'] ?? 0) as int,
-      anakId: (json['anak_id'] ?? 0) as int,
-      jam06: json['jam_0_6'] == true,
-      tanggalSubmitJam06: json['tanggal_submit_jam_0_6'] != null
-          ? DateTime.parse(json['tanggal_submit_jam_0_6'] as String)
-          : null,
-      jam648: json['jam_6_48'] == true,
-      tanggalSubmitJam648: json['tanggal_submit_jam_6_48'] != null
-          ? DateTime.parse(json['tanggal_submit_jam_6_48'] as String)
-          : null,
-      hari37: json['hari_3_7'] == true,
-      tanggalSubmitHari37: json['tanggal_submit_hari_3_7'] != null
-          ? DateTime.parse(json['tanggal_submit_hari_3_7'] as String)
-          : null,
-      hari828: json['hari_8_28'] == true,
-      tanggalSubmitHari828: json['tanggal_submit_hari_8_28'] != null
-          ? DateTime.parse(json['tanggal_submit_hari_8_28'] as String)
+      bblId: (json['bbl_id'] ?? 0) as int,
+      periodeWaktu: (json['periode_waktu'] ?? '') as String,
+      statusPemeriksaan: json['status_pemeriksaan'] == true,
+      tanggalSubmit: json['tanggal_submit'] != null
+          ? DateTime.parse(json['tanggal_submit'] as String)
           : null,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'jam_0_6': jam06,
-      'tanggal_submit_jam_0_6': tanggalSubmitJam06?.toIso8601String(),
-      'jam_6_48': jam648,
-      'tanggal_submit_jam_6_48': tanggalSubmitJam648?.toIso8601String(),
-      'hari_3_7': hari37,
-      'tanggal_submit_hari_3_7': tanggalSubmitHari37?.toIso8601String(),
-      'hari_8_28': hari828,
-      'tanggal_submit_hari_8_28': tanggalSubmitHari828?.toIso8601String(),
+      if (id > 0) 'id': id,
+      'periode_waktu': periodeWaktu,
+      'status_pemeriksaan': statusPemeriksaan,
+      'tanggal_submit': tanggalSubmit?.toUtc().toIso8601String(),
     };
+  }
+}
+
+class BblModel {
+  final int id;
+  final int anakId;
+  final List<BblCheckModel> checklist;
+  final bool isVerified;
+  final DateTime? verifiedAt;
+  final int? verifiedByKaderId;
+  final String? namaKaderVerifikasi;
+  final String? namaAnak;
+
+  BblModel({
+    required this.id,
+    required this.anakId,
+    required this.checklist,
+    this.isVerified = false,
+    this.verifiedAt,
+    this.verifiedByKaderId,
+    this.namaKaderVerifikasi,
+    this.namaAnak,
+  });
+
+  factory BblModel.fromJson(Map<String, dynamic> json) {
+    // Parse checklist
+    List<BblCheckModel> checklistData = [];
+    if (json['checklist'] != null && json['checklist'] is List) {
+      checklistData = (json['checklist'] as List)
+          .map((e) => BblCheckModel.fromJson(e as Map<String, dynamic>))
+          .toList();
+    }
+
+    // Extract nama kader dari nested relation
+    String? namaKader;
+    if (json['verified_by_kader'] != null) {
+      final kader = json['verified_by_kader'] as Map<String, dynamic>;
+      if (kader['penduduk'] != null) {
+        final penduduk = kader['penduduk'] as Map<String, dynamic>;
+        namaKader = penduduk['nama_lengkap'] as String?;
+      }
+    }
+
+    String? namaAnakStr;
+    if (json['anak'] != null) {
+      final anak = json['anak'] as Map<String, dynamic>;
+      if (anak['penduduk'] != null) {
+        final pendudukAnak = anak['penduduk'] as Map<String, dynamic>;
+        namaAnakStr = pendudukAnak['nama_lengkap'] as String?;
+      }
+      if (namaAnakStr == null || namaAnakStr.isEmpty) {
+        namaAnakStr = anak['nama_lengkap'] as String? ?? anak['nama'] as String?;
+      }
+    }
+
+    return BblModel(
+      id: (json['id'] ?? 0) as int,
+      anakId: (json['anak_id'] ?? 0) as int,
+      checklist: checklistData,
+      isVerified: json['is_verified'] == true,
+      verifiedAt: json['verified_at'] != null
+          ? DateTime.parse(json['verified_at'] as String)
+          : null,
+      verifiedByKaderId: json['verified_by_kader_id'] as int?,
+      namaKaderVerifikasi: namaKader,
+      namaAnak: namaAnakStr,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'checklist': checklist.map((e) => e.toJson()).toList(),
+    };
+  }
+
+  /// Helper: get BblCheck by periode_waktu
+  BblCheckModel? getCheckByPeriode(String periode) {
+    try {
+      return checklist.firstWhere((c) => c.periodeWaktu == periode);
+    } catch (_) {
+      return null;
+    }
   }
 }

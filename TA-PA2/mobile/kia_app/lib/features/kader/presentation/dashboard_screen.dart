@@ -6,6 +6,7 @@ import 'package:ta_pa2_pa3_project/features/kader/widgets/dashboard_bottom_nav.d
 import 'package:ta_pa2_pa3_project/features/kader/widgets/dashboard_header.dart';
 import 'package:ta_pa2_pa3_project/features/anak/pemantauan/presentation/screens/skrining/riwayat_skrining_tanda_bahaya_screen.dart';
 import 'package:ta_pa2_pa3_project/features/kader/screens/verifikasi_absensi_kelas_ibu_balita_screen.dart';
+import 'package:ta_pa2_pa3_project/features/kader/screens/verifikasi_bbl_screen.dart';
 
 class DashboardKaderScreen extends StatefulWidget {
   const DashboardKaderScreen({super.key});
@@ -180,6 +181,24 @@ class _DashboardKaderScreenState extends State<DashboardKaderScreen> {
                       context,
                       MaterialPageRoute(
                         builder: (_) => const VerifikasiAbsensiKelasIbuBalitaScreen(),
+                      ),
+                    );
+                  },
+                ),
+
+                const SizedBox(height: 12),
+
+                _buildFeatureActionCard(
+                  title: 'Verifikasi Berat Badan Lahir (BBL).',
+                  subtitle:
+                      'Tinjau dan verifikasi data BBL yang diajukan oleh ibu.',
+                  icon: Icons.baby_changing_station_rounded,
+                  accentColor: Colors.deepPurple,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const VerifikasiBblScreen(),
                       ),
                     );
                   },
