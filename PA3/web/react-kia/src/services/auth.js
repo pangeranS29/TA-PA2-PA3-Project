@@ -53,8 +53,10 @@ export const isAuthenticated = () => {
   return !!token;
 };
 
-export const getPostLoginRoute = () => {
-  const user = getCurrentUser();
+export const getPostLoginRoute = (user) => {
+  if (!user) {
+    user = getCurrentUser();
+  }
   return getUserRedirectRoute(user);
 };
 
