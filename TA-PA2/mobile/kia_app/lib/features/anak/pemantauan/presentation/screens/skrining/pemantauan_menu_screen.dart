@@ -138,17 +138,13 @@ class _PemantauanMenuScreenState extends State<PemantauanMenuScreen> {
       ),
       child: Row(
         children: [
-          Container(
-            width: 60,
-            height: 60,
-            decoration: BoxDecoration(
-              color: const Color(0xFF1D4ED8).withOpacity(0.12),
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              Icons.child_care,
-              color: Color(0xFF1D4ED8),
-              size: 32,
+          const CircleAvatar(
+            radius: 26,
+            backgroundColor: Color(0xFFD7ECFF),
+            child: Icon(
+              Icons.person_outline,
+              size: 30,
+              color: Color(0xFF185FA5),
             ),
           ),
           const SizedBox(width: 16),

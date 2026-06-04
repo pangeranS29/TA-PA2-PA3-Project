@@ -10,8 +10,11 @@ type KunjunganImunisasiDetailJoin struct {
 	NamaAnak     string
 	TanggalLahir *time.Time
 
-	NamaIbu string
+	NamaIbu         string
 	NomorTeleponIbu string
+	NamaAyah        string
+	NomorTeleponAyah string
+	Dusun			string
 
 	NamaVaksin      string
 	NamaDosis       string
@@ -39,10 +42,14 @@ func (m *Main) GetKunjunganImunisasiByID(
 		sk.status_kunjungan,
 
 		p_anak.nama_lengkap AS nama_anak,
-		a.tanggal_lahir,
+		p_anak.tanggal_lahir,
+		d.nama_dusun AS dusun,
 
 		p_ibu.nama_lengkap AS nama_ibu,
 		p_ibu.telepon AS nomor_telepon_ibu,
+
+		p_ayah.nama_lengkap AS nama_ayah,
+		p_ayah.telepon AS nomor_telepon_ayah,
 
 		v.nama AS nama_vaksin,
 		dv.nama_dosis,
@@ -65,6 +72,10 @@ func (m *Main) GetKunjunganImunisasiByID(
 		ON p_anak.id = a.penduduk_id
 	`).
 		Joins(`
+		LEFT JOIN dusun d
+		ON d.id = p_anak.dusun_id
+	`).
+		Joins(`
 		INNER JOIN kehamilan kh
 		ON kh.id = a.kehamilan_id
 	`).
@@ -75,6 +86,10 @@ func (m *Main) GetKunjunganImunisasiByID(
 		Joins(`
 		INNER JOIN penduduk p_ibu
 		ON p_ibu.id = i.penduduk_id
+	`).
+		Joins(`
+		LEFT JOIN penduduk p_ayah
+		ON p_ayah.id = i.suami_id
 	`).
 		Joins(`
 		LEFT JOIN dosis_vaksin dv

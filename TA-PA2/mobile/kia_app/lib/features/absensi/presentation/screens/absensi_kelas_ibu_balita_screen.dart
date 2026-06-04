@@ -173,21 +173,21 @@ class _AbsensiKelasIbuBalitaScreenState
                   Container(
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFEFF6FF),
+                      color: const Color(0xFFFEF3C7),
                       borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: const Color(0xFFBFDBFE)),
+                      border: Border.all(color: const Color(0xFFFBBF24)),
                     ),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: const [
-                        Icon(Icons.info_outline, size: 18, color: Color(0xFF3B82F6)),
+                        Icon(Icons.info_outline, size: 18, color: Color(0xFFD97706)),
                         SizedBox(width: 10),
                         Expanded(
                           child: Text(
                             'Data kehadiran yang Anda kirimkan akan diverifikasi secara berkala oleh petugas kesehatan puskesmas setempat untuk validasi riwayat kesehatan.',
                             style: TextStyle(
                               fontSize: 12,
-                              color: Color(0xFF1D4ED8),
+                              color: Color(0xFF92400E),
                               height: 1.4,
                             ),
                           ),
@@ -333,21 +333,21 @@ class _AbsensiKelasIbuBalitaScreenState
                   Container(
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFEFF6FF),
+                      color: const Color(0xFFFEF3C7),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: const Color(0xFFBFDBFE)),
+                      border: Border.all(color: const Color(0xFFFBBF24)),
                     ),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: const [
-                        Icon(Icons.info_outline, size: 18, color: Color(0xFF3B82F6)),
+                        Icon(Icons.info_outline, size: 18, color: Color(0xFFD97706)),
                         SizedBox(width: 10),
                         Expanded(
                           child: Text(
                             'Diisi oleh ibu pada setiap pertemuan. Kader memverifikasi kehadiran dengan paraf pada kolom yang tersedia.',
                             style: TextStyle(
                               fontSize: 12,
-                              color: Color(0xFF1D4ED8),
+                              color: Color(0xFF92400E),
                               height: 1.4,
                             ),
                           ),

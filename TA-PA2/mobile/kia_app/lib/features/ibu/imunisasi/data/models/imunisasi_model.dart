@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 class ImunisasiModel {
   final int anakId;
   final String namaAnak;
@@ -139,16 +137,33 @@ class ImunisasiDetailModel {
   }
 }
 
-class UpdateTanggalEstimasiRequest {
-  final String tanggalEstimasi;
+class RequestPerubahanJadwalRequest {
+  final String tanggalBaru;
+  final String alasan;
 
-  UpdateTanggalEstimasiRequest({
-    required this.tanggalEstimasi,
+  RequestPerubahanJadwalRequest({
+    required this.tanggalBaru,
+    required this.alasan,
   });
 
   Map<String, dynamic> toJson() {
     return {
-      "tanggal_estimasi": tanggalEstimasi,
+      "tanggal_estimasi": tanggalBaru,
+      "alasan": alasan,
+    };
+  }
+}
+
+class SetJadwalSelesaiRequest {
+  final int jadwalId;
+
+  SetJadwalSelesaiRequest({
+    required this.jadwalId,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      "id": jadwalId,
     };
   }
 }

@@ -32,8 +32,11 @@ func (m *Main) GetKunjunganImunisasiByID(
 			NamaAnak:     row.NamaAnak,
 			TanggalLahir: row.TanggalLahir,
 
-			NamaIbu:         row.NamaIbu,
-			NomorTeleponIbu: row.NomorTeleponIbu,
+			NamaIbu:          row.NamaIbu,
+			NomorTeleponIbu:  row.NomorTeleponIbu,
+			NamaAyah:         row.NamaAyah,
+			NomorTeleponAyah: row.NomorTeleponAyah,
+			Dusun:            row.Dusun,
 
 			NamaVaksin:      row.NamaVaksin,
 			NamaDosis:       row.NamaDosis,
@@ -138,7 +141,6 @@ func (m *Main) UpdateTanggalKunjungan(
 			tanggalKunjungan,
 		)
 }
-
 
 func (m *Main) GetKunjunganImunisasiByStatus(
 	statusID uint,

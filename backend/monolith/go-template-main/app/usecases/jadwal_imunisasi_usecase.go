@@ -180,7 +180,7 @@ func (m *Main) GetJadwalImunisasiByJadwalID(
 	}
 
 	result := &models.JadwalImunisasiResponse{
-		AnakID:         row.AnakID,
+		AnakID:         int32(row.AnakID),
 		NamaAnak:       row.NamaAnak,
 		TanggalLahir:   row.TanggalLahir,
 		JumlahTerlewat: 0,
@@ -204,4 +204,19 @@ func (m *Main) GetJadwalImunisasiByJadwalID(
 	}
 
 	return result, nil
+}
+
+func (m *Main) SetJadwalSelesai(userID int32, jadwalID uint) error {
+	// optional: cek apakah data ada
+	data, err := m.repository.GetJadwalImunisasiByJadwalID(userID, jadwalID)
+	if err != nil {
+		return err
+	}
+
+	if data == nil || data.JadwalID == 0 {
+		return fmt.Errorf("jadwal tidak ditemukan")
+	}
+
+	// update status jadi 6 (SELESAI)
+	return m.repository.UpdateStatusJadwalImunisasi(jadwalID, 6)
 }
