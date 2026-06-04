@@ -119,6 +119,11 @@ type Main struct {
 	Pemeriksaan              PemeriksaanRepository
 }
 
+// DB returns the underlying *gorm.DB instance for direct queries and transactions.
+func (m *Main) DB() *gorm.DB {
+	return m.postgres
+}
+
 type Options struct {
 	Postgres *gorm.DB
 	Config   *config.Config
