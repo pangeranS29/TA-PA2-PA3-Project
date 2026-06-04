@@ -17,9 +17,7 @@ type Kependudukan struct {
 	Pekerjaan          string     `gorm:"column:pekerjaan;type:text" json:"pekerjaan"`
 	BacaHuruf          string     `gorm:"column:baca_huruf;type:text" json:"baca_huruf"`
 	KedudukanKeluarga  string     `gorm:"column:kedudukan_keluarga;type:text" json:"kedudukan_keluarga"`
-	Telepon            string     `gorm:"column:telepon;type:varchar(20)" json:"telepon"`
-	DusunID            *int32     `gorm:"column:dusun_id" json:"dusun_id,omitempty"`
-	Dusun              *Dusun     `gorm:"foreignKey:DusunID;references:ID" json:"dusun,omitempty"`
+	Dusun              string     `gorm:"column:dusun;type:text" json:"dusun"`
 	Kecamatan          string     `gorm:"column:kecamatan;type:text" json:"kecamatan"`
 	DesaID             *int32     `gorm:"column:desa_id" json:"desa_id,omitempty"`
 	Desa               *Desa      `gorm:"foreignKey:DesaID;references:ID" json:"desa,omitempty"`
