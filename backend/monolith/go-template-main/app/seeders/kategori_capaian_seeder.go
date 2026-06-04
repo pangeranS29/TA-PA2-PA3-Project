@@ -206,16 +206,30 @@ func (s *KategoriCapaianSeeder) seedKategoriCapaian() error {
 		}
 
 		item := models.KategoriCapaian{
-			RentangUsiaID:      rentang.ID,
+			RentangUsia:        rentangName,
 			PertanyaaanCeklist: row.PertanyaaanCeklist,
 			Aspek:              row.Aspek,
 			CreatedAt:          now,
 			UpdatedAt:          now,
 		}
 
-		if err := s.db.Where("pertanyaan_ceklist = ?", item.PertanyaaanCeklist).FirstOrCreate(&item).Error; err != nil {
-			log.Printf("Error seeding KategoriCapaian (Pertanyaan: %s): %v\n", item.PertanyaaanCeklist, err)
-			return err
+		var existing models.KategoriCapaian
+		err = s.db.Where("pertanyaan_ceklist = ?", item.PertanyaaanCeklist).First(&existing).Error
+		if err != nil {
+			if err == gorm.ErrRecordNotFound {
+				if err := s.db.Create(&item).Error; err != nil {
+					log.Printf("Error seeding KategoriCapaian (Pertanyaan: %s): %v\n", item.PertanyaaanCeklist, err)
+					return err
+				}
+			} else {
+				log.Printf("Error checking KategoriCapaian (Pertanyaan: %s): %v\n", item.PertanyaaanCeklist, err)
+				return err
+			}
+		} else {
+			if existing.RentangUsia != rentangName {
+				existing.RentangUsia = rentangName
+				s.db.Save(&existing)
+			}
 		}
 	}
 

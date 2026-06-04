@@ -71,8 +71,8 @@ type Main struct {
 	KategoriUmur         KategoriUmurUsecase
 
 	// Usecase tambahan
-	KeluhanAnak         KeluhanAnakUseCase
-	KesehatanLingkungan KesehatanLingkunganUsecase
+	KeluhanAnak KeluhanAnakUseCase
+	// KesehatanLingkungan KesehatanLingkunganUsecase
 	// KesehatanLingkunganDanCatatanKader KesehatanLingkunganDanCatatanKaderUsecase
 	PemantauanAnak      PemantauanAnakUseCase
 	PemantauanIndikator PemantauanIndikatorUsecase
@@ -192,7 +192,7 @@ func Init(opts Options) *Main {
 	}
 	prediksiUc := NewPrediksiRisikoUsecase(mlURL)
 	// Inisialisasi usecase yang sudah ada
-	m.Anak = NewAnakUseCase(opts.Repository.Anak, opts.Repository.Kependudukan)
+	m.Anak = NewAnakUseCase(opts.Repository.Anak, opts.Repository.Kependudukan, opts.Repository.PrediksiStunting)
 	m.PelayananKesehatanAnak = NewPelayananKesehatanAnakUseCase(opts.Repository.PelayananKesehatanAnak)
 	m.Neonatus = NewPelayananNeonatusUseCase(opts.Repository.Neonatus)
 	m.KunjunganGizi = NewKunjunganGiziUseCase(opts.Repository.KunjunganGizi)
@@ -274,7 +274,7 @@ func Init(opts Options) *Main {
 
 	// Usecase tambahan
 	m.KeluhanAnak = NewKeluhanAnakUseCase(opts.Repository.KeluhanAnak)
-	m.KesehatanLingkungan = NewKesehatanLingkunganUsecase(opts.Repository.KesehatanLingkungan)
+	// m.KesehatanLingkungan = NewKesehatanLingkunganUsecase(opts.Repository.KesehatanLingkungan)
 	// m.KesehatanLingkunganDanCatatanKader = NewKesehatanLingkunganDanCatatanKaderUsecase(opts.Repository.KesehatanLingkunganDanCatatanKader)
 	m.PemantauanAnak = NewPemantauanAnakUseCase(opts.Repository.PemantauanAnak)
 	m.PemantauanIndikator = NewPemantauanIndikatorUsecase(opts.Repository.PemantauanIndikator)

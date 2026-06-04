@@ -73,16 +73,16 @@ const Sidebar = () => {
     { path: "/daftar-anak", name: "Data Anak Balita", icon: Baby },
     // { path: "/kependudukan", name: "Manajemen KK", icon: UserCheck },
     // { path: "/monitoring", name: "Monitoring", icon: Activity },
-    {
-      name: "Kesehatan Lingkungan",
-      icon: ClipboardList,
-      isDropdown: true,
-      dropdownKey: "kesehatanLingkungan",
-      children: [
-        { path: "/pencatatan/kesehatan-lingkungan", name: "Data Pencatatan", icon: TableProperties },
-        { path: "/pencatatan/kesehatan-lingkungan/kelola", name: "Kelola Pertanyaan", icon: ClipboardEdit },
-      ],
-    },
+    // {
+    //   name: "Kesehatan Lingkungan",
+    //   icon: ClipboardList,
+    //   isDropdown: true,
+    //   dropdownKey: "kesehatanLingkungan",
+    //   children: [
+    //     { path: "/pencatatan/kesehatan-lingkungan", name: "Data Pencatatan", icon: TableProperties },
+    //     { path: "/pencatatan/kesehatan-lingkungan/kelola", name: "Kelola Pertanyaan", icon: ClipboardEdit },
+    //   ],
+    // },
     {
       name: "Monitoring",
       icon: Activity,

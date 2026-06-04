@@ -62,12 +62,6 @@ func AutoMigrate(db *gorm.DB) error {
 		&Perawatan{},
 		&PemantauanIndikator{},
 
-		// ==================== KESEHATAN LINGKUNGAN ====================
-		&KategoriLingkungan{},
-		&IndikatorLingkungan{},
-		&LembarLingkungan{},
-		&DetailLingkungan{},
-
 		// ==================== EDUKASI DIGITAL ====================
 		&InformasiUmum{},
 		&EdukasiInformasiUmum{},

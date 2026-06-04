@@ -2,8 +2,10 @@ package controllers
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 
@@ -261,3 +263,85 @@ func (m *Main) AdminDeleteKartuKeluarga(c echo.Context) error {
 
 	return helpers.StandardResponse(c, http.StatusOK, []string{constants.SUCCESS_RESPONSE_MESSAGE}, map[string]bool{"deleted": true}, nil)
 }
+
+func (m *Main) DebugAntropometri(c echo.Context) error {
+	var results []string
+
+	// 1. Check master_standar_antropometri count
+	var count int64
+	err := m.db.Table("master_standar_antropometri").Count(&count).Error
+	if err != nil {
+		results = append(results, fmt.Sprintf("master_standar_antropometri error: %v", err))
+	} else {
+		results = append(results, fmt.Sprintf("master_standar_antropometri count: %d", count))
+	}
+
+	// 2. Check Bidan user (id = 2) and their penduduk (id = 1) desa_id
+	var bidanPend struct {
+		ID     int32
+		DesaID *int32
+	}
+	err = m.db.Table("penduduk").Select("id, desa_id").Where("id = 1").Scan(&bidanPend).Error
+	if err != nil {
+		results = append(results, fmt.Sprintf("bidan penduduk query error: %v", err))
+	} else {
+		desaIDStr := "nil"
+		if bidanPend.DesaID != nil {
+			desaIDStr = fmt.Sprintf("%d", *bidanPend.DesaID)
+		}
+		results = append(results, fmt.Sprintf("bidan penduduk ID=1, desa_id=%s", desaIDStr))
+	}
+
+	// 3. Check children in anak table and their associated penduduk records' desa_id
+	type ChildInfo struct {
+		AnakID int32
+		PendID int32
+		DesaID *int32
+		Name   string
+	}
+	var children []ChildInfo
+	err = m.db.Raw(`
+		select a.id as anak_id, a.penduduk_id as pend_id, p.desa_id, p.nama_lengkap as name
+		from anak a
+		left join penduduk p on p.id = a.penduduk_id
+	`).Scan(&children).Error
+	if err != nil {
+		results = append(results, fmt.Sprintf("children query error: %v", err))
+	} else {
+		results = append(results, fmt.Sprintf("children count in DB: %d", len(children)))
+		for _, child := range children {
+			desaIDStr := "nil"
+			if child.DesaID != nil {
+				desaIDStr = fmt.Sprintf("%d", *child.DesaID)
+			}
+			results = append(results, fmt.Sprintf("  Anak: ID=%d, Name=%s, PendID=%d, DesaID=%s", child.AnakID, child.Name, child.PendID, desaIDStr))
+		}
+	}
+
+	// 4. Check kategori_capaian table count
+	var katCount int64
+	err = m.db.Table("kategori_capaian").Count(&katCount).Error
+	if err != nil {
+		results = append(results, fmt.Sprintf("kategori_capaian query error: %v", err))
+	} else {
+		results = append(results, fmt.Sprintf("kategori_capaian count in DB: %d", katCount))
+	}
+
+	// 5. Check master_standar_antropometri samples if count > 0
+	if count > 0 {
+		var samples []models.MasterStandarAntropometri
+		m.db.Table("master_standar_antropometri").Limit(3).Find(&samples)
+		for _, s := range samples {
+			results = append(results, fmt.Sprintf("  Sample Standard: ID=%d, Param=%s, Gender=%s, X=%.2f, Median=%.2f", s.ID, s.Parameter, s.JenisKelamin, s.NilaiSumbuX, s.Median))
+		}
+	}
+
+	outStr := strings.Join(results, "\n")
+	_ = os.WriteFile("scratch/error_log.txt", []byte(outStr), 0644)
+
+	return c.JSON(200, map[string]interface{}{
+		"status":  "logged",
+		"details": results,
+	})
+}
+

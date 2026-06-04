@@ -404,11 +404,6 @@ func (m *Main) AddCatatanPertumbuhan(req *models.CreatePertumbuhanRequest) (*mod
 			fallbackStatus = "Stunting"
 		}
 
-		// Update status_prediksi di tabel anak
-		if errUpdate := m.repository.PrediksiStunting.UpdateAnakStatusPrediksi(int32(req.AnakID), fallbackStatus); errUpdate != nil {
-			fmt.Println("Warning: Gagal memperbarui status prediksi anak:", errUpdate)
-		}
-
 		// Buat objek mock prediksi stunting agar frontend tetap mendapatkan feedback
 		mockPrediksi := &models.PrediksiStunting{
 			AnakID:         int32(req.AnakID),
@@ -535,6 +530,11 @@ func (m *Main) GetRiwayatPertumbuhan(anakID uint) ([]models.CatatanPertumbuhanRe
 			StatusIMTU:    val.StatusIMTU,
 			StatusBBTB:    val.StatusBBTB,
 			StatusLKU:     val.StatusLKU,
+			ZScoreBBU:     val.ZScoreBBU,
+			ZScoreTBU:     val.ZScoreTBU,
+			ZScoreIMTU:    val.ZScoreIMTU,
+			ZScoreBBTB:    val.ZScoreBBTB,
+			ZScoreLKU:     val.ZScoreLKU,
 			StatusKMSNaik: statusNaik,
 			StatusKMSBGM:  statusBGM,
 			KBMMinGram:    kbmMinGram,
@@ -599,6 +599,11 @@ func (m *Main) GetDetailCatatanPertumbuhan(id uint) (*models.CatatanPertumbuhanR
 		StatusIMTU:    data.StatusIMTU,
 		StatusBBTB:    data.StatusBBTB,
 		StatusLKU:     data.StatusLKU,
+		ZScoreBBU:     data.ZScoreBBU,
+		ZScoreTBU:     data.ZScoreTBU,
+		ZScoreIMTU:    data.ZScoreIMTU,
+		ZScoreBBTB:    data.ZScoreBBTB,
+		ZScoreLKU:     data.ZScoreLKU,
 		StatusKMSNaik: statusNaik,
 		StatusKMSBGM:  statusBGM,
 		KBMMinGram:    kbmMinGram,
