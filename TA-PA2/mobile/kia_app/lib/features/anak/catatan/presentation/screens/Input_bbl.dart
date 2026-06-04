@@ -22,7 +22,22 @@ class InputBblScreen extends StatefulWidget {
   State<InputBblScreen> createState() => _InputBblScreenState();
 }
 
+class _BblCheckItem {
+  final String label;
+  bool value;
+  bool locked;
+  DateTime? tanggalSubmit;
+
+  _BblCheckItem({
+    required this.label,
+    required this.value,
+    required this.locked,
+    this.tanggalSubmit,
+  });
+}
+
 class _InputBblScreenState extends State<InputBblScreen> {
+  late List<_BblCheckItem> _checkItems;
   final _formKey = GlobalKey<FormState>();
   final _beratController = TextEditingController();
   final _panjangController = TextEditingController();
@@ -46,13 +61,21 @@ class _InputBblScreenState extends State<InputBblScreen> {
   bool _lockedHari3_7 = false;
   bool _lockedHari8_28 = false;
 
-  // Imunisasi & skrining
+  // Skrining
   bool _imunisasiHB0 = false;
   bool _skriningHipotiroid = false;
   bool _skriningPJB = false;
 
+
+
   @override
   void initState() {
+    _checkItems = [
+      _BblCheckItem(label: '0–6 jam', value: false, locked: false, tanggalSubmit: null),
+      _BblCheckItem(label: '6–48 jam', value: false, locked: false, tanggalSubmit: null),
+      _BblCheckItem(label: 'Hari 3–7', value: false, locked: false, tanggalSubmit: null),
+      _BblCheckItem(label: 'Hari 8–28', value: false, locked: false, tanggalSubmit: null),
+    ];
     super.initState();
     _apiService = BblApiService();
     _loadData();
@@ -68,17 +91,21 @@ class _InputBblScreenState extends State<InputBblScreen> {
       final bbl = await _apiService.getByAnakId(anakId);
       if (bbl != null) {
         setState(() {
-          _check0_6jam = bbl.jam06;
-          _locked0_6jam = bbl.jam06;
+          _checkItems[0].value = bbl.jam06;
+          _checkItems[0].locked = bbl.jam06;
+          _checkItems[0].tanggalSubmit = bbl.tanggalSubmitJam06;
 
-          _check6_48jam = bbl.jam648;
-          _locked6_48jam = bbl.jam648;
+          _checkItems[1].value = bbl.jam648;
+          _checkItems[1].locked = bbl.jam648;
+          _checkItems[1].tanggalSubmit = bbl.tanggalSubmitJam648;
 
-          _checkHari3_7 = bbl.hari37;
-          _lockedHari3_7 = bbl.hari37;
+          _checkItems[2].value = bbl.hari37;
+          _checkItems[2].locked = bbl.hari37;
+          _checkItems[2].tanggalSubmit = bbl.tanggalSubmitHari37;
 
-          _checkHari8_28 = bbl.hari828;
-          _lockedHari8_28 = bbl.hari828;
+          _checkItems[3].value = bbl.hari828;
+          _checkItems[3].locked = bbl.hari828;
+          _checkItems[3].tanggalSubmit = bbl.tanggalSubmitHari828;
         });
       }
     } catch (e) {
@@ -142,10 +169,14 @@ class _InputBblScreenState extends State<InputBblScreen> {
         final model = BblModel(
           id: 0,
           anakId: anakId,
-          jam06: _check0_6jam,
-          jam648: _check6_48jam,
-          hari37: _checkHari3_7,
-          hari828: _checkHari8_28,
+          jam06: _checkItems[0].value,
+          tanggalSubmitJam06: _checkItems[0].tanggalSubmit,
+          jam648: _checkItems[1].value,
+          tanggalSubmitJam648: _checkItems[1].tanggalSubmit,
+          hari37: _checkItems[2].value,
+          tanggalSubmitHari37: _checkItems[2].tanggalSubmit,
+          hari828: _checkItems[3].value,
+          tanggalSubmitHari828: _checkItems[3].tanggalSubmit,
         );
         
         await _apiService.upsert(anakId, model);
@@ -381,37 +412,112 @@ class _InputBblScreenState extends State<InputBblScreen> {
               const SizedBox(height: 12),
               _buildCard(
                 children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _buildCheckBox(
-                          value: _check0_6jam,
-                          label: '0–6 jam\nsetelah lahir',
-                          onChanged: _locked0_6jam ? null : (v) => setState(() => _check0_6jam = v!),
+                  Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(color: const Color(0xFFE5E7EB)),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Column(
+                      children: [
+                        
+                        // HEADER TABLE (ABSENSI STYLE)
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                          decoration: const BoxDecoration(
+                            color: Color(0xFFF8FAFC),
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(12),
+                              topRight: Radius.circular(12),
+                            ),
+                          ),
+                          child: const Row(
+                            children: [
+                              SizedBox(width: 40, child: Text('No')),
+                              Expanded(flex: 3, child: Text('Rentang Usia')),
+                              Expanded(flex: 4, child: Text('Tanggal Submit')),
+                              SizedBox(width: 90, child: Center(child: Text('Checklist Ibu'))),
+                              SizedBox(width: 110, child: Center(child: Text('Verifikasi Kader'))),
+                            ],
+                          ),
                         ),
-                      ),
-                      Expanded(
-                        child: _buildCheckBox(
-                          value: _check6_48jam,
-                          label: '6–48 jam\nsetelah lahir',
-                          onChanged: _locked6_48jam ? null : (v) => setState(() => _check6_48jam = v!),
+
+                        const Divider(height: 1),
+
+                        // BODY TABLE (1 ROW DATA)
+                        Column(
+                          children: List.generate(_checkItems.length, (index) {
+                            final item = _checkItems[index];
+
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                              child: Row(
+                                children: [
+
+                                  // NO
+                                  SizedBox(
+                                    width: 40,
+                                    child: Text('${index + 1}', style: const TextStyle(fontSize: 13)),
+                                  ),
+
+                                  // RENTANG USIA
+                                  Expanded(
+                                    flex: 3,
+                                    child: Text(item.label, style: const TextStyle(fontSize: 13)),
+                                  ),
+
+                                  // TANGGAL SUBMIT (AUTO)
+                                  Expanded(
+                                    flex: 4,
+                                    child: Text(
+                                      item.value 
+                                          ? (item.tanggalSubmit != null 
+                                              ? '${item.tanggalSubmit!.day.toString().padLeft(2, '0')}/${item.tanggalSubmit!.month.toString().padLeft(2, '0')}/${item.tanggalSubmit!.year}' 
+                                              : '-') 
+                                          : '-',
+                                      style: const TextStyle(fontSize: 13),
+                                    ),
+                                  ),
+
+                                  // CHECKLIST IBU (checkbox dinamis)
+                                  SizedBox(
+                                    width: 90,
+                                    child: Center(
+                                      child: Checkbox(
+                                        value: item.value,
+                                        onChanged: item.locked
+                                            ? null
+                                            : (val) {
+                                                setState(() {
+                                                  item.value = val ?? false;
+                                                  if (val == true) {
+                                                    item.tanggalSubmit ??= DateTime.now();
+                                                  } else {
+                                                    item.tanggalSubmit = null;
+                                                  }
+                                                });
+                                              },
+                                      ),
+                                    ),
+                                  ),
+
+                                  // VERIFIKASI KADER (placeholder dulu)
+                                  SizedBox(
+                                    width: 110,
+                                    child: Center(
+                                      child: Icon(
+                                        Icons.hourglass_empty,
+                                        size: 18,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }),
                         ),
-                      ),
-                      Expanded(
-                        child: _buildCheckBox(
-                          value: _checkHari3_7,
-                          label: 'Hari 3–7\nsetelah lahir',
-                          onChanged: _lockedHari3_7 ? null : (v) => setState(() => _checkHari3_7 = v!),
-                        ),
-                      ),
-                      Expanded(
-                        child: _buildCheckBox(
-                          value: _checkHari8_28,
-                          label: 'Hari 8–28\nsetelah lahir',
-                          onChanged: _lockedHari8_28 ? null : (v) => setState(() => _checkHari8_28 = v!),
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ],
               ),
