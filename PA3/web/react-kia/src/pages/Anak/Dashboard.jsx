@@ -16,7 +16,7 @@ import {
 
 import {
   ChevronLeft, Baby, Ruler, Activity, Calendar, User,
-  Plus, X, Apple, Syringe, TrendingUp, Smile, Stethoscope, Brain
+  Plus, X, Apple, Syringe, TrendingUp, Smile, ChartLine, Stethoscope, ClipboardList
 } from "lucide-react";
 
 export default function AnakDashboard() {
@@ -91,7 +91,6 @@ export default function AnakDashboard() {
     { title: "Pencatatan LILA", icon: <Ruler size={32} />, link: `/data-anak/lila/${id}` },
     { title: "Pertumbuhan", icon: <Activity size={32} />, link: `/data-anak/pertumbuhan/${id}` },
     { title: "Keluhan Anak", icon: <Stethoscope size={32} />, link: `/data-anak/keluhan/${id}` },
-    { title: "Perawatan Anak", icon: <Brain size={32} />, link: `/data-anak/perawatan/${id}` },
   ];
 
   return (
@@ -140,7 +139,7 @@ export default function AnakDashboard() {
             ></div>
 
             {/* Container Modal */}
-            <div className="relative bg-[#F3F4F6] w-full max-w-2xl rounded-[40px] p-8 shadow-2xl animate-in fade-in zoom-in duration-200">
+            <div className="relative bg-[#F3F4F6] w-full max-w-lg rounded-[40px] p-8 shadow-2xl animate-in fade-in zoom-in duration-200">
 
               {/* Tombol Close (Opsional, di gambar tidak ada tapi bagus untuk UX) */}
               <button
@@ -151,7 +150,7 @@ export default function AnakDashboard() {
               </button>
 
               {/* Grid Menu */}
-              <div className="grid grid-cols-3 gap-5">
+              <div className="grid grid-cols-2 gap-5">
                 {menuInput.map((item, idx) => (
                   <Link
                     key={idx}
@@ -216,7 +215,7 @@ function ChartCard({ title, dataKey, data = [], color = "#3b82f6" }) {
     .filter(d => d.value !== null && !isNaN(d.value));
 
   const hasData = chartData.length > 0;
-  
+
   if (!hasData && dataKey !== "berat_badan" && dataKey !== "tinggi_badan") {
     console.log(`📉 No data for ${dataKey}:`, {
       totalRecords: data.length,

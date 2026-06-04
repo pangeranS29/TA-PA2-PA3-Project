@@ -556,10 +556,13 @@ class _PerawatanPerkembanganScreenState
             child: Row(
               children: [
                 const CircleAvatar(
-                  radius: 28,
-                  backgroundColor: Color(0xFFDBEAFE),
-                  child: Icon(Icons.sentiment_satisfied_alt,
-                      color: Color(0xFF1E3A8A), size: 32),
+                  radius: 26,
+                  backgroundColor: Color(0xFFD7ECFF),
+                  child: Icon(
+                    Icons.person_outline,
+                    size: 30,
+                    color: Color(0xFF185FA5),
+                  ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(

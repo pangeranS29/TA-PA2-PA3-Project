@@ -2,6 +2,13 @@ package usecases
 
 //AbsensiKelasIbuBalita//
 import (
+	"context"
+	"log"
+
+	firebase "firebase.google.com/go/v4"
+	"firebase.google.com/go/v4/messaging"
+	"google.golang.org/api/option"
+
 	"monitoring-service/app/repositories"
 	"monitoring-service/pkg/config"
 )
@@ -10,6 +17,7 @@ type Main struct {
 	repository *repositories.Main
 	config     *config.Config
 
+	fcmClient *messaging.Client
 	// Usecase yang sudah ada
 	Anak                   *AnakUseCase
 	PelayananKesehatanAnak PelayananKesehatanAnakUseCase
@@ -63,8 +71,8 @@ type Main struct {
 	KategoriUmur         KategoriUmurUsecase
 
 	// Usecase tambahan
-	KeluhanAnak         KeluhanAnakUseCase
-	KesehatanLingkungan KesehatanLingkunganUsecase
+	KeluhanAnak KeluhanAnakUseCase
+	// KesehatanLingkungan KesehatanLingkunganUsecase
 	// KesehatanLingkunganDanCatatanKader KesehatanLingkunganDanCatatanKaderUsecase
 	PemantauanAnak      PemantauanAnakUseCase
 	PemantauanIndikator PemantauanIndikatorUsecase
@@ -139,6 +147,44 @@ func Init(opts Options) *Main {
 		config:     opts.Config,
 	}
 
+	opt := option.WithCredentialsFile("firebase-service-account.json")
+
+	app, err := firebase.NewApp(
+		context.Background(),
+		nil,
+		opt,
+	)
+
+	if err != nil {
+
+		log.Printf(
+			"[FCM INIT] Firebase NewApp gagal: %v",
+			err,
+		)
+
+	} else {
+
+		client, err := app.Messaging(
+			context.Background(),
+		)
+
+		if err != nil {
+
+			log.Printf(
+				"[FCM INIT] Messaging client gagal: %v",
+				err,
+			)
+
+		} else {
+
+			log.Printf(
+				"[FCM INIT] Firebase berhasil diinisialisasi",
+			)
+
+			m.fcmClient = client
+		}
+	}
+
 	//  BUAT PREDIKSI USECASE (panggil service Python)
 	mlURL := "http://localhost:8001"
 	if opts.Config != nil && opts.Config.MLServiceURL != "" {
@@ -146,7 +192,7 @@ func Init(opts Options) *Main {
 	}
 	prediksiUc := NewPrediksiRisikoUsecase(mlURL)
 	// Inisialisasi usecase yang sudah ada
-	m.Anak = NewAnakUseCase(opts.Repository.Anak, opts.Repository.Kependudukan)
+	m.Anak = NewAnakUseCase(opts.Repository.Anak, opts.Repository.Kependudukan, opts.Repository.PrediksiStunting)
 	m.PelayananKesehatanAnak = NewPelayananKesehatanAnakUseCase(opts.Repository.PelayananKesehatanAnak)
 	m.Neonatus = NewPelayananNeonatusUseCase(opts.Repository.Neonatus)
 	m.KunjunganGizi = NewKunjunganGiziUseCase(opts.Repository.KunjunganGizi)
@@ -228,7 +274,7 @@ func Init(opts Options) *Main {
 
 	// Usecase tambahan
 	m.KeluhanAnak = NewKeluhanAnakUseCase(opts.Repository.KeluhanAnak)
-	m.KesehatanLingkungan = NewKesehatanLingkunganUsecase(opts.Repository.KesehatanLingkungan)
+	// m.KesehatanLingkungan = NewKesehatanLingkunganUsecase(opts.Repository.KesehatanLingkungan)
 	// m.KesehatanLingkunganDanCatatanKader = NewKesehatanLingkunganDanCatatanKaderUsecase(opts.Repository.KesehatanLingkunganDanCatatanKader)
 	m.PemantauanAnak = NewPemantauanAnakUseCase(opts.Repository.PemantauanAnak)
 	m.PemantauanIndikator = NewPemantauanIndikatorUsecase(opts.Repository.PemantauanIndikator)

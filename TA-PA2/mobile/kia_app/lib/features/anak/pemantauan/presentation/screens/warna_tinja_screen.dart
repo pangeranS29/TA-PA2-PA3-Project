@@ -187,6 +187,84 @@ class _WarnaTinjaScreenState extends State<WarnaTinjaScreen> {
     );
   }
 
+  Widget _buildAnakCard() {
+  final nama =
+      widget.anak['nama'] ??
+      widget.anak['nama_anak'] ??
+      'Anak';
+
+  final usia =
+      widget.anak['usia_teks'] ??
+      '-';
+
+  return Container(
+    padding: const EdgeInsets.all(16),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(16),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withValues(alpha: 0.05),
+          blurRadius: 10,
+          offset: const Offset(0, 4),
+        ),
+      ],
+    ),
+    child: Row(
+      children: [
+        const CircleAvatar(
+          radius: 26,
+          backgroundColor: Color(0xFFD7ECFF),
+          child: Icon(
+            Icons.person_outline,
+            size: 30,
+            color: Color(0xFF185FA5),
+          ),
+        ),
+
+        const SizedBox(width: 16),
+
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                nama,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                  color: Color(0xFF1E293B),
+                ),
+              ),
+
+              const SizedBox(height: 4),
+
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFDBEAFE),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  'Usia: $usia',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Color(0xFF185FA5),
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -213,18 +291,38 @@ class _WarnaTinjaScreenState extends State<WarnaTinjaScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  
+
+                  _buildAnakCard(),
+
+                  const SizedBox(height: 16),
+
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF596182),
+                      color: const Color(0xFFFEF3C7),
                       borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: const Color(0xFFFBBF24)),
                     ),
-                    child: const Text(
-                      'Periksa warna tinja bayi setiap hari.',
-                      style: TextStyle(
-                          color: Colors.white, fontWeight: FontWeight.w600),
+                    
+                    child: const Row(
+                      children: [
+                        Icon(
+                          Icons.info_outline,
+                          size: 18,
+                          color: Color(0xFFD97706),
+                        ),
+                        SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'Periksa warna tinja bayi setiap hari.',
+                            style: TextStyle(
+                              color: Color(0xFFD97706),
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -326,7 +424,7 @@ class _WarnaTinjaScreenState extends State<WarnaTinjaScreen> {
                     child: ElevatedButton(
                       onPressed: _saving ? null : _showSavePopup,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFEA580C),
+                        backgroundColor: const Color(0xFF185FA5),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10)),
                       ),

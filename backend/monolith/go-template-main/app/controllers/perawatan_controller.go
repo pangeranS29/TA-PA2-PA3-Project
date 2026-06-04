@@ -91,7 +91,12 @@ func (m *Main) GetPerawatanByID(c echo.Context) error {
 // @Param anak_id path int true "Child ID"
 // @Router /perawatan/anak/:anak_id [get]
 func (m *Main) GetPerawatanByAnakID(c echo.Context) error {
-	anakID, err := strconv.Atoi(c.Param("anak_id"))
+	// Support both path param (:anak_id) and query param (?anak_id=...)
+	anakIDStr := c.Param("anak_id")
+	if anakIDStr == "" {
+		anakIDStr = c.QueryParam("anak_id")
+	}
+	anakID, err := strconv.Atoi(anakIDStr)
 	if err != nil || anakID <= 0 {
 		return helpers.Response(c, http.StatusBadRequest, []string{"anak_id tidak valid"})
 	}
@@ -262,7 +267,17 @@ func (m *Main) DeletePerawatan(c echo.Context) error {
 // @Produce json
 // @Router /kategori-capaian [get]
 func (m *Main) GetAllKategoriCapaian(c echo.Context) error {
-	data, usecaseErr := m.usecases.Perawatan.GetAllKategoriCapaian()
+	// Support filtering by rentang_usia query param
+	rentangUsia := c.QueryParam("rentang_usia")
+	var data []models.KategoriCapaian
+	var usecaseErr error
+
+	if rentangUsia != "" {
+		data, usecaseErr = m.usecases.Perawatan.GetKategoriCapaianByRentangUsia(rentangUsia)
+	} else {
+		data, usecaseErr = m.usecases.Perawatan.GetAllKategoriCapaian()
+	}
+
 	if usecaseErr != nil {
 		return helpers.Response(c, customerror.GetStatusCode(usecaseErr), []string{usecaseErr.Error()})
 	}
@@ -301,4 +316,53 @@ func (m *Main) GetKategoriCapaianByRentangUsia(c echo.Context) error {
 		data,
 		nil,
 	)
+}
+
+// CreateKategoriCapaian handles POST /kategori-capaian
+func (m *Main) CreateKategoriCapaian(c echo.Context) error {
+	var req models.CreateKategoriCapaianRequest
+	if err := c.Bind(&req); err != nil {
+		return helpers.Response(c, http.StatusBadRequest, []string{"format request tidak valid"})
+	}
+
+	data, usecaseErr := m.usecases.Perawatan.CreateKategoriCapaian(req)
+	if usecaseErr != nil {
+		return helpers.Response(c, customerror.GetStatusCode(usecaseErr), []string{usecaseErr.Error()})
+	}
+
+	return helpers.StandardResponse(c, http.StatusCreated, []string{constants.SUCCESS_RESPONSE_MESSAGE}, data, nil)
+}
+
+// UpdateKategoriCapaian handles PUT /kategori-capaian/:id
+func (m *Main) UpdateKategoriCapaian(c echo.Context) error {
+	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil || id == 0 {
+		return helpers.Response(c, http.StatusBadRequest, []string{"id tidak valid"})
+	}
+
+	var req models.UpdateKategoriCapaianRequest
+	if err := c.Bind(&req); err != nil {
+		return helpers.Response(c, http.StatusBadRequest, []string{"format request tidak valid"})
+	}
+
+	data, usecaseErr := m.usecases.Perawatan.UpdateKategoriCapaian(uint(id), req)
+	if usecaseErr != nil {
+		return helpers.Response(c, customerror.GetStatusCode(usecaseErr), []string{usecaseErr.Error()})
+	}
+
+	return helpers.StandardResponse(c, http.StatusOK, []string{constants.SUCCESS_RESPONSE_MESSAGE}, data, nil)
+}
+
+// DeleteKategoriCapaian handles DELETE /kategori-capaian/:id
+func (m *Main) DeleteKategoriCapaian(c echo.Context) error {
+	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil || id == 0 {
+		return helpers.Response(c, http.StatusBadRequest, []string{"id tidak valid"})
+	}
+
+	if usecaseErr := m.usecases.Perawatan.DeleteKategoriCapaian(uint(id)); usecaseErr != nil {
+		return helpers.Response(c, customerror.GetStatusCode(usecaseErr), []string{usecaseErr.Error()})
+	}
+
+	return helpers.StandardResponse(c, http.StatusOK, []string{"indikator berhasil dihapus"}, nil, nil)
 }

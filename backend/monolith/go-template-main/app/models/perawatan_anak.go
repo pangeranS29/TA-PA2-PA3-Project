@@ -8,15 +8,12 @@ import (
 
 type KategoriCapaian struct {
 	ID                 uint           `gorm:"primaryKey;column:id" db:"id" json:"id"`
-	RentangUsiaID      uint           `gorm:"column:rentang_usia_id;index" db:"rentang_usia_id" json:"rentang_usia_id"`
+	RentangUsia        string         `gorm:"column:rentang_usia;type:varchar(50);not null;index" db:"rentang_usia" json:"rentang_usia"`
 	PertanyaaanCeklist string         `gorm:"column:pertanyaan_ceklist" db:"pertanyaan_ceklist" json:"pertanyaan_ceklist,omitempty"`
 	Aspek              string         `gorm:"column:aspek" db:"aspek" json:"aspek,omitempty"`
 	CreatedAt          time.Time      `gorm:"column:created_at" db:"created_at" json:"created_at"`
 	UpdatedAt          time.Time      `gorm:"column:updated_at" db:"updated_at" json:"updated_at"`
 	DeletedAt          gorm.DeletedAt `gorm:"column:deleted_at;index" json:"-"`
-
-	RentangUsia        *RentangUsia   `gorm:"foreignKey:RentangUsiaID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT" json:"rentang_usia_obj,omitempty"`
-	RentangUsiaStr     string         `gorm:"-" json:"rentang_usia"`
 }
 
 func (KategoriCapaian) TableName() string {
@@ -58,4 +55,22 @@ type CreatePerawatanRequest struct {
 type UpdatePerawatanRequest struct {
 	Jawaban        *bool  `json:"jawaban,omitempty"`
 	TanggalPeriksa string `json:"tanggal_periksa,omitempty"`
+}
+
+// ─────────────────────────────────────────────────────────
+// KATEGORI CAPAIAN REQUEST
+// ─────────────────────────────────────────────────────────
+
+// CreateKategoriCapaianRequest is body for POST /kategori-capaian
+type CreateKategoriCapaianRequest struct {
+	RentangUsia       string `json:"rentang_usia" validate:"required"`
+	PertanyaanCeklist string `json:"pertanyaan_ceklist" validate:"required"`
+	Aspek             string `json:"aspek"`
+}
+
+// UpdateKategoriCapaianRequest is body for PUT /kategori-capaian/:id
+type UpdateKategoriCapaianRequest struct {
+	RentangUsia       string `json:"rentang_usia,omitempty"`
+	PertanyaanCeklist string `json:"pertanyaan_ceklist,omitempty"`
+	Aspek             string `json:"aspek,omitempty"`
 }

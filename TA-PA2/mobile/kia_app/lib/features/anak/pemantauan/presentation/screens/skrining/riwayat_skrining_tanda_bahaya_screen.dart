@@ -364,11 +364,12 @@ class _RiwayatSkriningTandaBahayaScreenState
             height: 52,
             decoration: const BoxDecoration(
               shape: BoxShape.circle,
-              color: Color(0xFFFEE2E2),
+              color: Color(0xFFD7ECFF),
             ),
             child: const Icon(
-              Icons.history_rounded,
-              color: Color(0xFFDC2626),
+              Icons.person_outline,
+              size: 30,
+              color: Color(0xFF185FA5),
             ),
           ),
           const SizedBox(width: 14),

@@ -146,7 +146,7 @@ export default function KelolaPerkembangan() {
 
     try {
       const payload = {
-        rentang_usia_id: matchedKategori.id,
+        rentang_usia: formKategoriUsia.trim(),
         pertanyaan_ceklist: deskripsi,
         aspek: formAspek,
       };

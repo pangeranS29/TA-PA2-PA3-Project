@@ -11,6 +11,7 @@ import (
 type Main struct {
 	usecases *usecases.Main
 	config   *config.Config
+	db       *gorm.DB
 
 	// Controller yang sudah ada (untuk modul lain)
 	KategoriTandaBahaya       *KategoriTandaBahayaController
@@ -63,14 +64,13 @@ type Main struct {
 	// Controller tambahan (sebelumnya hilang dari routes)
 
 	// Controller tambahan
-	KesehatanLingkungan *KesehatanLingkunganController
+	// KesehatanLingkungan *KesehatanLingkunganController
 	// KesehatanLingkunganDanCatatanKader *KesehatanLingkunganDanCatatanKaderController
 	PemantauanAnak      *PemantauanAnakController
 	PemantauanIndikator *PemantauanIndikatorController
 
 	// Perawatan Anak (Lembar Capaian)
 
-	
 	// Edukasi Digital
 
 	// EdukasiTandaBahayaTrimester *EdukasiTandaBahayaTrimesterController
@@ -137,6 +137,7 @@ func Init(opts Options) *Main {
 	m := &Main{
 		usecases: opts.UseCases,
 		config:   opts.Config,
+		db:       opts.DB,
 	}
 
 	// Controller yang sudah ada (tidak diubah)
@@ -196,7 +197,7 @@ func Init(opts Options) *Main {
 
 	// Controller tambahan
 	m.KeluhanAnak = NewKeluhanAnakController(opts.UseCases.KeluhanAnak)
-	m.KesehatanLingkungan = NewKesehatanLingkunganController(opts.UseCases.KesehatanLingkungan)
+	// m.KesehatanLingkungan = NewKesehatanLingkunganController(opts.UseCases.KesehatanLingkungan)
 	// m.KesehatanLingkunganDanCatatanKader = NewKesehatanLingkunganDanCatatanKaderController(
 	// 	opts.UseCases.KesehatanLingkunganDanCatatanKader,
 	// 	opts.UseCases.Ibu,

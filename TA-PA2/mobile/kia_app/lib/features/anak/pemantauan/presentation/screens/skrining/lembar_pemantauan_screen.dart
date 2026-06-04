@@ -495,16 +495,16 @@ class _LembarPemantauanScreenState extends State<LembarPemantauanScreen>
       children: [
         // Avatar
         Container(
-          width: 50,
-          height: 50,
-          decoration: const BoxDecoration(
+          width: 60,
+          height: 60,
+          decoration: BoxDecoration(
+            color: const Color(0xFF1D4ED8).withOpacity(0.12),
             shape: BoxShape.circle,
-            color: Color(0xFFE0F2FE),
           ),
           child: const Icon(
-            Icons.sentiment_satisfied_alt,
-            color: Color(0xFF0284C7),
-            size: 28,
+            Icons.person_outline,
+            color: Color(0xFF1D4ED8),
+            size: 32,
           ),
         ),
         const SizedBox(width: 12),

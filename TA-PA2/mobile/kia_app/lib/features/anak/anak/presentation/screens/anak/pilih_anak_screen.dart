@@ -8,6 +8,7 @@ import 'package:ta_pa2_pa3_project/features/anak/pemantauan/presentation/screens
 import 'package:ta_pa2_pa3_project/features/anak/pertumbuhan/presentation/screens/pertumbuhan_info_screen.dart';
 import 'package:ta_pa2_pa3_project/features/anak/pemantauan/presentation/screens/skrining/pemantauan_menu_screen.dart';
 import 'package:ta_pa2_pa3_project/features/anak/catatan/presentation/screens/catatan_menu_screen.dart';
+import 'package:ta_pa2_pa3_project/features/anak/catatan/presentation/screens/pilih_catatan_screen.dart';
 
 // ← Tambahkan import InputBblScreen
 import 'package:ta_pa2_pa3_project/features/anak/catatan/presentation/screens/Input_bbl.dart';
@@ -142,15 +143,20 @@ class _PilihAnakScreenState extends State<PilihAnakScreen> {
           margin: const EdgeInsets.only(bottom: 16),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: const Color(0xFFE8F1FF),
+            color: const Color(0xFFEBF5FF),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.blue.shade200),
+            border: Border.all(color: const Color(0xFFD7ECFF)),
           ),
           child: Row(
             children: [
-              CircleAvatar(
-                backgroundColor: Colors.blue.shade100,
-                child: const Icon(Icons.person, color: Colors.blue),
+              const CircleAvatar(
+                radius: 24,
+                backgroundColor: Color(0xFFD7ECFF),
+                child: Icon(
+                  Icons.person_outline,
+                  size: 26,
+                  color: Color(0xFF185FA5),
+                ),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -161,7 +167,7 @@ class _PilihAnakScreenState extends State<PilihAnakScreen> {
                       anak.nama,
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
-                        color: Colors.blue,
+                        color: Color(0xFF185FA5),
                       ),
                     ),
                     Text(
@@ -175,7 +181,7 @@ class _PilihAnakScreenState extends State<PilihAnakScreen> {
               ),
               const CircleAvatar(
                 radius: 14,
-                backgroundColor: Colors.blue,
+                backgroundColor: Color(0xFF185FA5),
                 child: Icon(Icons.arrow_forward, size: 14, color: Colors.white),
               ),
             ],
@@ -217,19 +223,6 @@ class _PilihAnakScreenState extends State<PilihAnakScreen> {
       );
       return;
     }
-    if (widget.tujuan == 'catatan') {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => CatatanMenuScreen(
-            anakId: int.tryParse(anak.id.toString()) ?? 0,
-            anakName: anak.nama,
-            usiaTeks: anak.usiaTeks,
-          ),
-        ),
-      );
-      return;
-    }
 
     // ← Tambahkan kondisi ini
     if (widget.tujuan == 'input_bbl') {
@@ -238,7 +231,22 @@ class _PilihAnakScreenState extends State<PilihAnakScreen> {
         MaterialPageRoute(
           builder: (_) => InputBblScreen(
             namaAnak: anak.nama,
+            usiaTeks: anak.usiaTeks,
             anakId: anak.id.toString(),
+          ),
+        ),
+      );
+      return;
+    }
+
+    if (widget.tujuan == 'catatan') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => PilihCatatanScreen(
+            anakId: int.tryParse(anak.id.toString()) ?? 0,
+            anakName: anak.nama,
+            usiaTeks: anak.usiaTeks,
           ),
         ),
       );

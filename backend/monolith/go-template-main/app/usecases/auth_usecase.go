@@ -315,19 +315,19 @@ func (m *Main) Login(req *models.LoginRequest) (*models.LoginResponse, error) {
 	user.Role.Name = canonicalRoleName
 
 	// ========== AMBIL DESA ==========
-    var desaID *int32
-    var desaNama string
-    if user.PendudukID != nil {
-        penduduk, err := m.repository.Kependudukan.FindByID(int32(*user.PendudukID))
-        if err == nil && penduduk != nil && penduduk.DesaID != nil {
-            desaID = penduduk.DesaID
-            desa, err := m.repository.Desa.FindByID(*penduduk.DesaID)
-            if err == nil && desa != nil {
-                desaNama = desa.NamaDesa
-            }
-        }
-    }
-    // ========== END ==========
+	var desaID *int32
+	var desaNama string
+	if user.PendudukID != nil {
+		penduduk, err := m.repository.Kependudukan.FindByID(int32(*user.PendudukID))
+		if err == nil && penduduk != nil && penduduk.DesaID != nil {
+			desaID = penduduk.DesaID
+			desa, err := m.repository.Desa.FindByID(*penduduk.DesaID)
+			if err == nil && desa != nil {
+				desaNama = desa.NamaDesa
+			}
+		}
+	}
+	// ========== END ==========
 
 	accessToken, expiresIn, err := m.buildAccessToken(user, destination, desaID)
 	if err != nil {
@@ -346,7 +346,7 @@ func (m *Main) Login(req *models.LoginRequest) (*models.LoginResponse, error) {
 		TargetApp:     destination.TargetApp,
 		RedirectRoute: destination.RedirectRoute,
 		DesaID:        desaID,
-        DesaNama:      desaNama,
+		DesaNama:      desaNama,
 	}
 	// if canonicalRoleName == "Ibu" {
 

@@ -23,12 +23,22 @@ import {
   ChevronDown,
   ChevronUp,
   CheckCircle,
-  XCircle,
   ChevronRight,
   ChevronLeft,
   Upload,
   Image as ImageIcon,
 } from "lucide-react";
+
+/* ────────────────────────────────────────────────────────────────────────
+   Helper: Konversi "YYYY-MM-DD" → "YYYY-MM-DDT00:00:00Z"
+   Backend Go mem-parse time.Time dengan layout RFC3339 penuh.
+   ──────────────────────────────────────────────────────────────────────── */
+const toDateTimeISO = (dateStr) => {
+  if (!dateStr || typeof dateStr !== "string" || !dateStr.trim()) return null;
+  // Jika sudah berformat lengkap, kembalikan apa adanya
+  if (dateStr.includes("T")) return dateStr;
+  return `${dateStr}T00:00:00Z`;
+};
 
 /* ────────────────────────────────────────────────────────────────────────
    Helper Components
@@ -114,9 +124,8 @@ export default function PemeriksaanDokterT1Complete() {
   const [usgImageFile, setUsgImageFile] = useState(null);
   const [usgImagePreview, setUsgImagePreview] = useState("");
 
-  /* ── Form state (field sesuai DB schema) ───────────────────────────── */
+  /* ── Form state ─────────────────────────────────────────────────────── */
   const [form, setForm] = useState({
-    // === pemeriksaan_dokter_trimester_1 ===
     kehamilan_id: "",
     nama_dokter: "",
     tanggal_periksa: "",
@@ -149,24 +158,20 @@ export default function PemeriksaanDokterT1Complete() {
     usg_pulsasi_jantung: "",
     usg_kecurigaan_temuan_abnormal: "Tidak",
     usg_keterangan_temuan_abnormal: "",
-
-    // Tambahan: gambar USG (akan dikirim sebagai base64)
     gambar_usg: "",
-
-    // === pemeriksaan_laboratorium_jiwa (trimester=1) ===
     tanggal_lab: "",
     lab_hemoglobin_hasil: "",
     lab_hemoglobin_rencana_tindak_lanjut: "",
     lab_golongan_darah_rhesus_hasil: "",
-    lab_golongan_darah_rhesus_rencana: "",
+    lab_golongan_darah_rhesus_rencana_tindak_lanjut: "",
     lab_gula_darah_sewaktu_hasil: "",
-    lab_gula_darah_sewaktu_rencana: "",
+    lab_gula_darah_sewaktu_rencana_tindak_lanjut: "",
     lab_hiv_hasil: "NonReaktif",
-    lab_hiv_rencana: "",
+    lab_hiv_rencana_tindak_lanjut: "",
     lab_sifilis_hasil: "NonReaktif",
-    lab_sifilis_rencana: "",
+    lab_sifilis_rencana_tindak_lanjut: "",
     lab_hepatitis_b_hasil: "NonReaktif",
-    lab_hepatitis_b_rencana: "",
+    lab_hepatitis_b_rencana_tindak_lanjut: "",
     tanggal_skrining_jiwa: "",
     skrining_jiwa_hasil: "",
     skrining_jiwa_tindak_lanjut: "",
@@ -197,7 +202,6 @@ export default function PemeriksaanDokterT1Complete() {
           const d = res.dokter;
           const lab = res.lab_jiwa;
           setForm({
-            ...form, // mempertahankan default
             kehamilan_id: d.kehamilan_id,
             nama_dokter: d.nama_dokter || dokterName || "",
             tanggal_periksa: d.tanggal_periksa ? d.tanggal_periksa.split("T")[0] : "",
@@ -230,20 +234,20 @@ export default function PemeriksaanDokterT1Complete() {
             usg_pulsasi_jantung: d.usg_pulsasi_jantung || "",
             usg_kecurigaan_temuan_abnormal: d.usg_kecurigaan_temuan_abnormal || "Tidak",
             usg_keterangan_temuan_abnormal: d.usg_keterangan_temuan_abnormal || "",
-            gambar_usg: d.gambar_usg || "",
+            gambar_usg: d.gambar_usg || d.GambarUSG || "",
             tanggal_lab: lab?.tanggal_lab ? lab.tanggal_lab.split("T")[0] : "",
             lab_hemoglobin_hasil: lab?.lab_hemoglobin_hasil?.toString() || "",
             lab_hemoglobin_rencana_tindak_lanjut: lab?.lab_hemoglobin_rencana_tindak_lanjut || "",
             lab_golongan_darah_rhesus_hasil: lab?.lab_golongan_darah_rhesus_hasil || "",
-            lab_golongan_darah_rhesus_rencana: lab?.lab_golongan_darah_rhesus_rencana || "",
+            lab_golongan_darah_rhesus_rencana_tindak_lanjut: lab?.lab_golongan_darah_rhesus_rencana_tindak_lanjut || "",
             lab_gula_darah_sewaktu_hasil: lab?.lab_gula_darah_sewaktu_hasil?.toString() || "",
-            lab_gula_darah_sewaktu_rencana: lab?.lab_gula_darah_sewaktu_rencana || "",
+            lab_gula_darah_sewaktu_rencana_tindak_lanjut: lab?.lab_gula_darah_sewaktu_rencana_tindak_lanjut || "",
             lab_hiv_hasil: lab?.lab_hiv_hasil || "NonReaktif",
-            lab_hiv_rencana: lab?.lab_hiv_rencana || "",
+            lab_hiv_rencana_tindak_lanjut: lab?.lab_hiv_rencana_tindak_lanjut || "",
             lab_sifilis_hasil: lab?.lab_sifilis_hasil || "NonReaktif",
-            lab_sifilis_rencana: lab?.lab_sifilis_rencana || "",
+            lab_sifilis_rencana_tindak_lanjut: lab?.lab_sifilis_rencana_tindak_lanjut || "",
             lab_hepatitis_b_hasil: lab?.lab_hepatitis_b_hasil || "NonReaktif",
-            lab_hepatitis_b_rencana: lab?.lab_hepatitis_b_rencana || "",
+            lab_hepatitis_b_rencana_tindak_lanjut: lab?.lab_hepatitis_b_rencana_tindak_lanjut || "",
             tanggal_skrining_jiwa: lab?.tanggal_skrining_jiwa ? lab.tanggal_skrining_jiwa.split("T")[0] : "",
             skrining_jiwa_hasil: lab?.skrining_jiwa_hasil || "",
             skrining_jiwa_tindak_lanjut: lab?.skrining_jiwa_tindak_lanjut || "",
@@ -251,9 +255,9 @@ export default function PemeriksaanDokterT1Complete() {
             kesimpulan: lab?.kesimpulan || "",
             rekomendasi: lab?.rekomendasi || "",
           });
-          // Jika ada gambar tersimpan, set preview (jika berupa data URL)
-          if (d.gambar_usg && d.gambar_usg.startsWith("data:image")) {
-            setUsgImagePreview(d.gambar_usg);
+          const img = d.gambar_usg || d.GambarUSG;
+          if (img && img.startsWith("data:image")) {
+            setUsgImagePreview(img);
           }
         } else {
           setForm((prev) => ({
@@ -272,7 +276,7 @@ export default function PemeriksaanDokterT1Complete() {
     fetchData();
   }, [id]);
 
-  /* ── Handler perubahan field teks/number ───────────────────────────── */
+  /* ── Handler ────────────────────────────────────────────────────────── */
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
@@ -285,12 +289,10 @@ export default function PemeriksaanDokterT1Complete() {
     }
   };
 
-  /* ── Handler untuk upload gambar USG ────────────────────────────────── */
   const handleImageChange = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
     setUsgImageFile(file);
-    // Buat preview lokal
     const reader = new FileReader();
     reader.onloadend = () => {
       setUsgImagePreview(reader.result);
@@ -298,7 +300,6 @@ export default function PemeriksaanDokterT1Complete() {
     reader.readAsDataURL(file);
   };
 
-  /* ── Handler hapus gambar ───────────────────────────────────────────── */
   const handleRemoveImage = () => {
     setUsgImageFile(null);
     setUsgImagePreview("");
@@ -309,7 +310,8 @@ export default function PemeriksaanDokterT1Complete() {
   /* ── Validasi per step ──────────────────────────────────────────────── */
   const validateStep1 = () => {
     const errors = {};
-    if (!form.tanggal_periksa?.trim()) errors.tanggal_periksa = "Tanggal periksa harus diisi";
+    // tanggal_periksa dihilangkan dari validasi wajib jika backend otomatis set, 
+    // namun jika form tetap ada, biarkan user mengisinya.
     if (!form.konsep_anamnesa_pemeriksaan?.trim()) errors.konsep_anamnesa_pemeriksaan = "Anamnesa pemeriksaan harus diisi";
     const fisikFields = [
       "fisik_konjungtiva","fisik_sklera","fisik_kulit","fisik_leher",
@@ -327,9 +329,7 @@ export default function PemeriksaanDokterT1Complete() {
     if (!form.hpht?.trim()) errors.hpht = "HPHT harus diisi";
     if (!form.keteraturan_haid?.trim()) errors.keteraturan_haid = "Keteraturan haid harus diisi";
     if (!form.umur_hamil_hpht_minggu?.toString().trim()) errors.umur_hamil_hpht_minggu = "UK HPHT harus diisi";
-    if (!form.hpl_berdasarkan_hpht?.trim()) errors.hpl_berdasarkan_hpht = "HPL HPHT harus diisi";
     if (!form.umur_hamil_usg_minggu?.toString().trim()) errors.umur_hamil_usg_minggu = "UK USG harus diisi";
-    if (!form.hpl_berdasarkan_usg?.trim()) errors.hpl_berdasarkan_usg = "HPL USG harus diisi";
     if (!form.usg_jumlah_gs?.toString().trim()) errors.usg_jumlah_gs = "Jumlah GS harus diisi";
     if (!form.usg_diameter_gs_cm?.toString().trim()) errors.usg_diameter_gs_cm = "Diameter GS (cm) harus diisi";
     if (!form.usg_diameter_gs_minggu?.toString().trim()) errors.usg_diameter_gs_minggu = "Diameter GS (minggu) harus diisi";
@@ -349,25 +349,23 @@ export default function PemeriksaanDokterT1Complete() {
 
   const validateStep3 = () => {
     const errors = {};
-    if (!form.tanggal_lab?.trim()) errors.tanggal_lab = "Tanggal lab harus diisi";
     if (!form.lab_hemoglobin_hasil?.toString().trim()) errors.lab_hemoglobin_hasil = "Hasil hemoglobin harus diisi";
     if (!form.lab_hemoglobin_rencana_tindak_lanjut?.trim()) errors.lab_hemoglobin_rencana_tindak_lanjut = "Rencana hemoglobin harus diisi";
     if (!form.lab_gula_darah_sewaktu_hasil?.toString().trim()) errors.lab_gula_darah_sewaktu_hasil = "Hasil gula darah harus diisi";
-    if (!form.lab_gula_darah_sewaktu_rencana?.trim()) errors.lab_gula_darah_sewaktu_rencana = "Rencana gula darah harus diisi";
+    if (!form.lab_gula_darah_sewaktu_rencana_tindak_lanjut?.trim()) errors.lab_gula_darah_sewaktu_rencana_tindak_lanjut = "Rencana gula darah harus diisi";
     if (!form.lab_golongan_darah_rhesus_hasil?.trim()) errors.lab_golongan_darah_rhesus_hasil = "Golongan darah & rhesus harus diisi";
-    if (!form.lab_golongan_darah_rhesus_rencana?.trim()) errors.lab_golongan_darah_rhesus_rencana = "Rencana golongan darah harus diisi";
+    if (!form.lab_golongan_darah_rhesus_rencana_tindak_lanjut?.trim()) errors.lab_golongan_darah_rhesus_rencana_tindak_lanjut = "Rencana golongan darah harus diisi";
     if (!form.lab_hiv_hasil?.trim()) errors.lab_hiv_hasil = "Hasil HIV harus diisi";
-    if (!form.lab_hiv_rencana?.trim()) errors.lab_hiv_rencana = "Rencana HIV harus diisi";
+    if (!form.lab_hiv_rencana_tindak_lanjut?.trim()) errors.lab_hiv_rencana_tindak_lanjut = "Rencana HIV harus diisi";
     if (!form.lab_sifilis_hasil?.trim()) errors.lab_sifilis_hasil = "Hasil sifilis harus diisi";
-    if (!form.lab_sifilis_rencana?.trim()) errors.lab_sifilis_rencana = "Rencana sifilis harus diisi";
+    if (!form.lab_sifilis_rencana_tindak_lanjut?.trim()) errors.lab_sifilis_rencana_tindak_lanjut = "Rencana sifilis harus diisi";
     if (!form.lab_hepatitis_b_hasil?.trim()) errors.lab_hepatitis_b_hasil = "Hasil hepatitis B harus diisi";
-    if (!form.lab_hepatitis_b_rencana?.trim()) errors.lab_hepatitis_b_rencana = "Rencana hepatitis B harus diisi";
+    if (!form.lab_hepatitis_b_rencana_tindak_lanjut?.trim()) errors.lab_hepatitis_b_rencana_tindak_lanjut = "Rencana hepatitis B harus diisi";
     return errors;
   };
 
   const validateStep4 = () => {
     const errors = {};
-    if (!form.tanggal_skrining_jiwa?.trim()) errors.tanggal_skrining_jiwa = "Tanggal skrining jiwa harus diisi";
     if (!form.skrining_jiwa_hasil?.trim()) errors.skrining_jiwa_hasil = "Hasil skrining jiwa harus diisi";
     if (!form.skrining_jiwa_tindak_lanjut?.trim()) errors.skrining_jiwa_tindak_lanjut = "Tindak lanjut jiwa harus diisi";
     if (!form.skrining_jiwa_perlu_rujukan?.trim()) errors.skrining_jiwa_perlu_rujukan = "Perlu rujukan harus diisi";
@@ -385,10 +383,10 @@ export default function PemeriksaanDokterT1Complete() {
     if (Object.keys(errors).length > 0) {
       setValidationErrors(errors);
       Swal.fire({
-        icon: 'warning',
-        title: 'Data Belum Lengkap',
-        text: 'Mohon lengkapi semua data yang wajib diisi sebelum melanjutkan.',
-        confirmButtonColor: '#4f46e5'
+        icon: "warning",
+        title: "Data Belum Lengkap",
+        text: "Mohon lengkapi semua data yang wajib diisi sebelum melanjutkan.",
+        confirmButtonColor: "#4f46e5",
       });
       return;
     }
@@ -406,28 +404,35 @@ export default function PemeriksaanDokterT1Complete() {
   };
 
   /* ── Submit ─────────────────────────────────────────────────────────── */
+  
   const handleSubmit = async (e) => {
+    
     e.preventDefault();
+  console.log("=== handleSubmit DIPANGGIL ===");
+  console.log("currentStep:", currentStep);
+  console.log("kehamilan:", kehamilan);
+  console.log("form:", form);
     const errors = validateStep4();
     if (Object.keys(errors).length > 0) {
       setValidationErrors(errors);
       Swal.fire({
-        icon: 'warning',
-        title: 'Data Belum Lengkap',
-        text: 'Mohon lengkapi semua data yang wajib diisi sebelum menyimpan.',
-        confirmButtonColor: '#4f46e5'
+        icon: "warning",
+        title: "Data Belum Lengkap",
+        text: "Mohon lengkapi semua data yang wajib diisi sebelum menyimpan.",
+        confirmButtonColor: "#4f46e5",
       });
       return;
     }
     if (!kehamilan) {
       alert("Data kehamilan tidak ditemukan.");
+      setSaving(false);
       return;
     }
     setSaving(true);
 
     try {
-      // Jika ada file gambar baru, baca dulu sebagai base64
-      let imageBase64 = form.gambar_usg; // tetap gunakan yang sudah ada
+      // Baca gambar baru sebagai base64 jika ada
+      let imageBase64 = form.gambar_usg;
       if (usgImageFile) {
         imageBase64 = await new Promise((resolve, reject) => {
           const reader = new FileReader();
@@ -437,21 +442,26 @@ export default function PemeriksaanDokterT1Complete() {
         });
       }
 
-      // Destructure form untuk menghapus field redundan sesuai README_PERBAIKAN_TRIMESTER.md
-      // Backend sekarang otomatis mengisi tanggal-tanggal ini
-      const { 
-        tanggal_periksa, 
-        hpl_berdasarkan_hpht, 
-        hpl_berdasarkan_usg, 
-        tanggal_lab, 
-        tanggal_skrining_jiwa,
-        ...formClean 
-      } = form;
-
+      // Filter field yang tidak perlu dikirim karena auto-set/calculated di backend
       const payload = {
-        ...formClean,
         kehamilan_id: kehamilan.id,
-        gambar_usg: imageBase64,
+        nama_dokter: form.nama_dokter,
+        tanggal_periksa: toDateTimeISO(form.tanggal_periksa),
+        konsep_anamnesa_pemeriksaan: form.konsep_anamnesa_pemeriksaan,
+        hpht: toDateTimeISO(form.hpht),
+        hpl_berdasarkan_hpht: toDateTimeISO(form.hpl_berdasarkan_hpht),
+        hpl_berdasarkan_usg: toDateTimeISO(form.hpl_berdasarkan_usg),
+        fisik_konjungtiva: form.fisik_konjungtiva,
+        fisik_sklera: form.fisik_sklera,
+        fisik_kulit: form.fisik_kulit,
+        fisik_leher: form.fisik_leher,
+        fisik_gigi_mulut: form.fisik_gigi_mulut,
+        fisik_tht: form.fisik_tht,
+        fisik_dada_jantung: form.fisik_dada_jantung,
+        fisik_dada_paru: form.fisik_dada_paru,
+        fisik_perut: form.fisik_perut,
+        fisik_tungkai: form.fisik_tungkai,
+        keteraturan_haid: form.keteraturan_haid,
         umur_hamil_hpht_minggu: form.umur_hamil_hpht_minggu ? parseInt(form.umur_hamil_hpht_minggu) : null,
         umur_hamil_usg_minggu: form.umur_hamil_usg_minggu ? parseInt(form.umur_hamil_usg_minggu) : null,
         usg_diameter_gs_cm: form.usg_diameter_gs_cm ? parseFloat(form.usg_diameter_gs_cm) : null,
@@ -462,25 +472,52 @@ export default function PemeriksaanDokterT1Complete() {
         usg_crl_hari: form.usg_crl_hari ? parseInt(form.usg_crl_hari) : null,
         lab_hemoglobin_hasil: form.lab_hemoglobin_hasil ? parseFloat(form.lab_hemoglobin_hasil) : null,
         lab_gula_darah_sewaktu_hasil: form.lab_gula_darah_sewaktu_hasil ? parseInt(form.lab_gula_darah_sewaktu_hasil) : null,
+        usg_jumlah_gs: form.usg_jumlah_gs,
+        usg_jumlah_bayi: form.usg_jumlah_bayi,
+        usg_letak_produk_kehamilan: form.usg_letak_produk_kehamilan,
+        usg_pulsasi_jantung: form.usg_pulsasi_jantung,
+        usg_kecurigaan_temuan_abnormal: form.usg_kecurigaan_temuan_abnormal,
+        usg_keterangan_temuan_abnormal: form.usg_keterangan_temuan_abnormal,
+        gambar_usg: imageBase64,
+        tanggal_lab: toDateTimeISO(form.tanggal_lab),
+        lab_hemoglobin_rencana_tindak_lanjut: form.lab_hemoglobin_rencana_tindak_lanjut,
+        lab_golongan_darah_rhesus_hasil: form.lab_golongan_darah_rhesus_hasil,
+        lab_golongan_darah_rhesus_rencana_tindak_lanjut: form.lab_golongan_darah_rhesus_rencana_tindak_lanjut,
+        lab_gula_darah_sewaktu_rencana_tindak_lanjut: form.lab_gula_darah_sewaktu_rencana_tindak_lanjut,
+        lab_hiv_hasil: form.lab_hiv_hasil,
+        lab_hiv_rencana_tindak_lanjut: form.lab_hiv_rencana_tindak_lanjut,
+        lab_sifilis_hasil: form.lab_sifilis_hasil,
+        lab_sifilis_rencana_tindak_lanjut: form.lab_sifilis_rencana_tindak_lanjut,
+        lab_hepatitis_b_hasil: form.lab_hepatitis_b_hasil,
+        lab_hepatitis_b_rencana_tindak_lanjut: form.lab_hepatitis_b_rencana_tindak_lanjut,
+        tanggal_skrining_jiwa: toDateTimeISO(form.tanggal_skrining_jiwa),
+        skrining_jiwa_hasil: form.skrining_jiwa_hasil,
+        skrining_jiwa_tindak_lanjut: form.skrining_jiwa_tindak_lanjut,
+        skrining_jiwa_perlu_rujukan: form.skrining_jiwa_perlu_rujukan,
+        kesimpulan: form.kesimpulan,
+        rekomendasi: form.rekomendasi,
       };
-
+console.log("existingData:", existingData);
+console.log("idToUpdate:", existingData?.id || existingData?.id_trimester_1 || existingData?.ID);
+console.log("payload yang akan dikirim:", payload);
       if (existingData) {
-        await updateDokterT1Complete(existingData.id, payload);
+        const idToUpdate = existingData.id || existingData.id_trimester_1 || existingData.ID;
+        await updateDokterT1Complete(idToUpdate, payload);
         await Swal.fire({
-          icon: 'success',
-          title: 'Berhasil',
-          text: 'Data pemeriksaan berhasil diperbarui!',
+          icon: "success",
+          title: "Berhasil",
+          text: "Data pemeriksaan berhasil diperbarui!",
           timer: 2000,
-          showConfirmButton: false
+          showConfirmButton: false,
         });
       } else {
         await createDokterT1Complete(payload);
         await Swal.fire({
-          icon: 'success',
-          title: 'Berhasil',
-          text: 'Data pemeriksaan berhasil disimpan!',
+          icon: "success",
+          title: "Berhasil",
+          text: "Data pemeriksaan berhasil disimpan!",
           timer: 2000,
-          showConfirmButton: false
+          showConfirmButton: false,
         });
       }
       navigate(`/data-ibu/${id}/pemeriksaan-dokter-t1-complete/detail`);
@@ -488,9 +525,9 @@ export default function PemeriksaanDokterT1Complete() {
       console.error("Error saving:", err);
       const errorMsg = err.response?.data?.message || err.message || "Terjadi kesalahan";
       Swal.fire({
-        icon: 'error',
-        title: 'Gagal Menyimpan',
-        text: "Terjadi kesalahan saat menyimpan: " + errorMsg
+        icon: "error",
+        title: "Gagal Menyimpan",
+        text: "Terjadi kesalahan saat menyimpan: " + errorMsg,
       });
     } finally {
       setSaving(false);
@@ -522,10 +559,16 @@ export default function PemeriksaanDokterT1Complete() {
             <h2 className="text-xl font-bold text-red-700 mb-2">Data Kehamilan Tidak Ditemukan</h2>
             <p className="text-gray-600 mb-6 text-sm">{error}</p>
             <div className="flex gap-3 justify-center">
-              <Link to={`/data-ibu/${id}/edit`} className="bg-indigo-600 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition">
+              <Link
+                to={`/data-ibu/${id}/edit`}
+                className="bg-indigo-600 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition"
+              >
                 Tambah Data Kehamilan
               </Link>
-              <button onClick={() => navigate(-1)} className="bg-gray-100 text-gray-700 px-5 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition">
+              <button
+                onClick={() => navigate(-1)}
+                className="bg-gray-100 text-gray-700 px-5 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition"
+              >
                 Kembali
               </button>
             </div>
@@ -550,9 +593,9 @@ export default function PemeriksaanDokterT1Complete() {
   ];
 
   const labReaktifFields = [
-    { name: "lab_hiv_hasil", label: "HIV (H)", rencana: "lab_hiv_rencana" },
-    { name: "lab_sifilis_hasil", label: "Sifilis (S)", rencana: "lab_sifilis_rencana" },
-    { name: "lab_hepatitis_b_hasil", label: "Hepatitis B", rencana: "lab_hepatitis_b_rencana" },
+    { name: "lab_hiv_hasil", label: "HIV (H)", rencana: "lab_hiv_rencana_tindak_lanjut" },
+    { name: "lab_sifilis_hasil", label: "Sifilis (S)", rencana: "lab_sifilis_rencana_tindak_lanjut" },
+    { name: "lab_hepatitis_b_hasil", label: "Hepatitis B", rencana: "lab_hepatitis_b_rencana_tindak_lanjut" },
   ];
 
   const stepTitles = [
@@ -570,7 +613,10 @@ export default function PemeriksaanDokterT1Complete() {
       <div className="p-4 md:p-6 max-w-5xl mx-auto">
         {/* Header */}
         <div className="flex items-center gap-3 mb-6">
-          <button onClick={() => navigate(-1)} className="p-2 rounded-full hover:bg-gray-100 transition">
+          <button
+            onClick={() => navigate(-1)}
+            className="p-2 rounded-full hover:bg-gray-100 transition"
+          >
             <ArrowLeft size={20} className="text-gray-600" />
           </button>
           <div>
@@ -591,15 +637,29 @@ export default function PemeriksaanDokterT1Complete() {
               const color = stepColors[step - 1];
               const bgColor = isActive
                 ? `bg-${color}-500 text-white shadow-lg scale-110`
-                : isCompleted ? "bg-emerald-500 text-white" : "bg-gray-200 text-gray-500";
-              const titleColor = isActive ? `text-${color}-600` : isCompleted ? "text-emerald-600" : "text-gray-500";
+                : isCompleted
+                ? "bg-emerald-500 text-white"
+                : "bg-gray-200 text-gray-500";
+              const titleColor = isActive
+                ? `text-${color}-600`
+                : isCompleted
+                ? "text-emerald-600"
+                : "text-gray-500";
               return (
                 <div key={step} className="flex flex-col items-center flex-1">
-                  <div className={`w-12 h-12 rounded-full flex items-center justify-center transition ${bgColor} mb-2`}>
+                  <div
+                    className={`w-12 h-12 rounded-full flex items-center justify-center transition ${bgColor} mb-2`}
+                  >
                     {isCompleted ? <CheckCircle size={20} /> : <Icon size={18} />}
                   </div>
                   <p className={`text-xs font-semibold text-center ${titleColor} transition`}>
-                    {step === 1 ? "Dokter & Fisik" : step === 2 ? "USG" : step === 3 ? "Lab" : "Skrining"}
+                    {step === 1
+                      ? "Dokter & Fisik"
+                      : step === 2
+                      ? "USG"
+                      : step === 3
+                      ? "Lab"
+                      : "Skrining"}
                   </p>
                 </div>
               );
@@ -616,18 +676,39 @@ export default function PemeriksaanDokterT1Complete() {
               <Section icon={User} title="Data Dokter & Anamnesis" color="indigo">
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                   <Field label="Nama Dokter">
-                    <input name="nama_dokter" value={form.nama_dokter} readOnly className={inputCls} />
+                    <input
+                      name="nama_dokter"
+                      value={form.nama_dokter}
+                      readOnly
+                      className={inputCls}
+                    />
                     <p className="text-xs text-gray-400 mt-1">Diambil dari data login</p>
                   </Field>
                   <Field label="Tanggal Periksa">
-                    <input type="date" name="tanggal_periksa" value={form.tanggal_periksa} onChange={handleChange}
-                      className={`${inputCls} ${validationErrors.tanggal_periksa ? "border-red-500 bg-red-50" : ""}`} />
+                    <input
+                      type="date"
+                      name="tanggal_periksa"
+                      value={form.tanggal_periksa}
+                      onChange={handleChange}
+                      className={`${inputCls} ${
+                        validationErrors.tanggal_periksa ? "border-red-500 bg-red-50" : ""
+                      }`}
+                    />
                     <ErrorMessage message={validationErrors.tanggal_periksa} />
                   </Field>
                   <Field label="Konsep Anamnesa" colSpan="sm:col-span-2 md:col-span-1">
-                    <textarea name="konsep_anamnesa_pemeriksaan" value={form.konsep_anamnesa_pemeriksaan}
-                      onChange={handleChange} placeholder="Tulis anamnesa pemeriksaan..."
-                      className={`${inputCls} ${validationErrors.konsep_anamnesa_pemeriksaan ? "border-red-500 bg-red-50" : ""}`} rows={3} />
+                    <textarea
+                      name="konsep_anamnesa_pemeriksaan"
+                      value={form.konsep_anamnesa_pemeriksaan}
+                      onChange={handleChange}
+                      placeholder="Tulis anamnesa pemeriksaan..."
+                      className={`${inputCls} ${
+                        validationErrors.konsep_anamnesa_pemeriksaan
+                          ? "border-red-500 bg-red-50"
+                          : ""
+                      }`}
+                      rows={3}
+                    />
                     <ErrorMessage message={validationErrors.konsep_anamnesa_pemeriksaan} />
                   </Field>
                 </div>
@@ -655,12 +736,18 @@ export default function PemeriksaanDokterT1Complete() {
                       <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
                         {field.label}
                       </label>
-                      <select name={field.name} value={form[field.name]} onChange={handleChange}
+                      <select
+                        name={field.name}
+                        value={form[field.name]}
+                        onChange={handleChange}
                         className={`${selectCls} ${
-                          validationErrors[field.name] ? "border-red-500 bg-red-50"
-                          : form[field.name] === "Abnormal" ? "border-red-300 bg-red-50 text-red-700"
-                          : "border-gray-200"
-                        }`}>
+                          validationErrors[field.name]
+                            ? "border-red-500 bg-red-50"
+                            : form[field.name] === "Abnormal"
+                            ? "border-red-300 bg-red-50 text-red-700"
+                            : "border-gray-200"
+                        }`}
+                      >
                         <option value="Normal">Normal</option>
                         <option value="Abnormal">Abnormal</option>
                       </select>
@@ -677,31 +764,59 @@ export default function PemeriksaanDokterT1Complete() {
             <Section icon={Eye} title="USG Trimester 1" color="violet" defaultOpen={true}>
               {/* Berdasarkan HPHT */}
               <div className="mb-5">
-                <h3 className="text-xs font-bold text-violet-600 uppercase tracking-widest mb-3">Berdasarkan HPHT</h3>
+                <h3 className="text-xs font-bold text-violet-600 uppercase tracking-widest mb-3">
+                  Berdasarkan HPHT
+                </h3>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   <Field label="HPHT">
-                    <input type="date" name="hpht" value={form.hpht} onChange={handleChange}
-                      className={`${inputCls} ${validationErrors.hpht ? "border-red-500 bg-red-50" : ""}`} />
+                    <input
+                      type="date"
+                      name="hpht"
+                      value={form.hpht}
+                      onChange={handleChange}
+                      className={`${inputCls} ${
+                        validationErrors.hpht ? "border-red-500 bg-red-50" : ""
+                      }`}
+                    />
                     <ErrorMessage message={validationErrors.hpht} />
                   </Field>
                   <Field label="Keteraturan Haid">
-                    <select name="keteraturan_haid" value={form.keteraturan_haid} onChange={handleChange}
-                      className={`${selectCls} ${validationErrors.keteraturan_haid ? "border-red-500 bg-red-50" : ""}`}>
+                    <select
+                      name="keteraturan_haid"
+                      value={form.keteraturan_haid}
+                      onChange={handleChange}
+                      className={`${selectCls} ${
+                        validationErrors.keteraturan_haid ? "border-red-500 bg-red-50" : ""
+                      }`}
+                    >
                       <option value="Teratur">Teratur</option>
                       <option value="Tidak Teratur">Tidak Teratur</option>
                     </select>
                     <ErrorMessage message={validationErrors.keteraturan_haid} />
                   </Field>
                   <Field label="UK HPHT (minggu)">
-                    <input type="number" name="umur_hamil_hpht_minggu" value={form.umur_hamil_hpht_minggu}
-                      onChange={handleChange} placeholder="0"
-                      className={`${inputCls} ${validationErrors.umur_hamil_hpht_minggu ? "border-red-500 bg-red-50" : ""}`} />
+                    <input
+                      type="number"
+                      name="umur_hamil_hpht_minggu"
+                      value={form.umur_hamil_hpht_minggu}
+                      onChange={handleChange}
+                      placeholder="0"
+                      className={`${inputCls} ${
+                        validationErrors.umur_hamil_hpht_minggu ? "border-red-500 bg-red-50" : ""
+                      }`}
+                    />
                     <ErrorMessage message={validationErrors.umur_hamil_hpht_minggu} />
                   </Field>
                   <Field label="HPL (HPHT)">
-                    <input type="date" name="hpl_berdasarkan_hpht" value={form.hpl_berdasarkan_hpht}
+                    <input
+                      type="date"
+                      name="hpl_berdasarkan_hpht"
+                      value={form.hpl_berdasarkan_hpht}
                       onChange={handleChange}
-                      className={`${inputCls} ${validationErrors.hpl_berdasarkan_hpht ? "border-red-500 bg-red-50" : ""}`} />
+                      className={`${inputCls} ${
+                        validationErrors.hpl_berdasarkan_hpht ? "border-red-500 bg-red-50" : ""
+                      }`}
+                    />
                     <ErrorMessage message={validationErrors.hpl_berdasarkan_hpht} />
                   </Field>
                 </div>
@@ -709,18 +824,33 @@ export default function PemeriksaanDokterT1Complete() {
 
               {/* Berdasarkan USG */}
               <div className="mb-5">
-                <h3 className="text-xs font-bold text-violet-600 uppercase tracking-widest mb-3">Berdasarkan USG</h3>
+                <h3 className="text-xs font-bold text-violet-600 uppercase tracking-widest mb-3">
+                  Berdasarkan USG
+                </h3>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   <Field label="UK USG (minggu)">
-                    <input type="number" name="umur_hamil_usg_minggu" value={form.umur_hamil_usg_minggu}
-                      onChange={handleChange} placeholder="0"
-                      className={`${inputCls} ${validationErrors.umur_hamil_usg_minggu ? "border-red-500 bg-red-50" : ""}`} />
+                    <input
+                      type="number"
+                      name="umur_hamil_usg_minggu"
+                      value={form.umur_hamil_usg_minggu}
+                      onChange={handleChange}
+                      placeholder="0"
+                      className={`${inputCls} ${
+                        validationErrors.umur_hamil_usg_minggu ? "border-red-500 bg-red-50" : ""
+                      }`}
+                    />
                     <ErrorMessage message={validationErrors.umur_hamil_usg_minggu} />
                   </Field>
                   <Field label="HPL (USG)">
-                    <input type="date" name="hpl_berdasarkan_usg" value={form.hpl_berdasarkan_usg}
+                    <input
+                      type="date"
+                      name="hpl_berdasarkan_usg"
+                      value={form.hpl_berdasarkan_usg}
                       onChange={handleChange}
-                      className={`${inputCls} ${validationErrors.hpl_berdasarkan_usg ? "border-red-500 bg-red-50" : ""}`} />
+                      className={`${inputCls} ${
+                        validationErrors.hpl_berdasarkan_usg ? "border-red-500 bg-red-50" : ""
+                      }`}
+                    />
                     <ErrorMessage message={validationErrors.hpl_berdasarkan_usg} />
                   </Field>
                 </div>
@@ -728,30 +858,60 @@ export default function PemeriksaanDokterT1Complete() {
 
               {/* Gestational Sac */}
               <div className="mb-5">
-                <h3 className="text-xs font-bold text-violet-600 uppercase tracking-widest mb-3">Gestational Sac (GS)</h3>
+                <h3 className="text-xs font-bold text-violet-600 uppercase tracking-widest mb-3">
+                  Gestational Sac (GS)
+                </h3>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   <Field label="Jumlah GS">
-                    <input name="usg_jumlah_gs" value={form.usg_jumlah_gs} onChange={handleChange}
+                    <input
+                      name="usg_jumlah_gs"
+                      value={form.usg_jumlah_gs}
+                      onChange={handleChange}
                       placeholder="Tunggal/Kembar"
-                      className={`${inputCls} ${validationErrors.usg_jumlah_gs ? "border-red-500 bg-red-50" : ""}`} />
+                      className={`${inputCls} ${
+                        validationErrors.usg_jumlah_gs ? "border-red-500 bg-red-50" : ""
+                      }`}
+                    />
                     <ErrorMessage message={validationErrors.usg_jumlah_gs} />
                   </Field>
                   <Field label="Diameter GS (cm)">
-                    <input type="number" step="0.1" name="usg_diameter_gs_cm" value={form.usg_diameter_gs_cm}
-                      onChange={handleChange} placeholder="0.0"
-                      className={`${inputCls} ${validationErrors.usg_diameter_gs_cm ? "border-red-500 bg-red-50" : ""}`} />
+                    <input
+                      type="number"
+                      step="0.1"
+                      name="usg_diameter_gs_cm"
+                      value={form.usg_diameter_gs_cm}
+                      onChange={handleChange}
+                      placeholder="0.0"
+                      className={`${inputCls} ${
+                        validationErrors.usg_diameter_gs_cm ? "border-red-500 bg-red-50" : ""
+                      }`}
+                    />
                     <ErrorMessage message={validationErrors.usg_diameter_gs_cm} />
                   </Field>
                   <Field label="Diameter GS (minggu)">
-                    <input type="number" name="usg_diameter_gs_minggu" value={form.usg_diameter_gs_minggu}
-                      onChange={handleChange} placeholder="0"
-                      className={`${inputCls} ${validationErrors.usg_diameter_gs_minggu ? "border-red-500 bg-red-50" : ""}`} />
+                    <input
+                      type="number"
+                      name="usg_diameter_gs_minggu"
+                      value={form.usg_diameter_gs_minggu}
+                      onChange={handleChange}
+                      placeholder="0"
+                      className={`${inputCls} ${
+                        validationErrors.usg_diameter_gs_minggu ? "border-red-500 bg-red-50" : ""
+                      }`}
+                    />
                     <ErrorMessage message={validationErrors.usg_diameter_gs_minggu} />
                   </Field>
                   <Field label="Diameter GS (hari)">
-                    <input type="number" name="usg_diameter_gs_hari" value={form.usg_diameter_gs_hari}
-                      onChange={handleChange} placeholder="0"
-                      className={`${inputCls} ${validationErrors.usg_diameter_gs_hari ? "border-red-500 bg-red-50" : ""}`} />
+                    <input
+                      type="number"
+                      name="usg_diameter_gs_hari"
+                      value={form.usg_diameter_gs_hari}
+                      onChange={handleChange}
+                      placeholder="0"
+                      className={`${inputCls} ${
+                        validationErrors.usg_diameter_gs_hari ? "border-red-500 bg-red-50" : ""
+                      }`}
+                    />
                     <ErrorMessage message={validationErrors.usg_diameter_gs_hari} />
                   </Field>
                 </div>
@@ -759,30 +919,60 @@ export default function PemeriksaanDokterT1Complete() {
 
               {/* CRL */}
               <div className="mb-5">
-                <h3 className="text-xs font-bold text-violet-600 uppercase tracking-widest mb-3">Crown-Rump Length (CRL)</h3>
+                <h3 className="text-xs font-bold text-violet-600 uppercase tracking-widest mb-3">
+                  Crown-Rump Length (CRL)
+                </h3>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   <Field label="Jumlah Bayi">
-                    <input name="usg_jumlah_bayi" value={form.usg_jumlah_bayi} onChange={handleChange}
+                    <input
+                      name="usg_jumlah_bayi"
+                      value={form.usg_jumlah_bayi}
+                      onChange={handleChange}
                       placeholder="Tunggal/Kembar"
-                      className={`${inputCls} ${validationErrors.usg_jumlah_bayi ? "border-red-500 bg-red-50" : ""}`} />
+                      className={`${inputCls} ${
+                        validationErrors.usg_jumlah_bayi ? "border-red-500 bg-red-50" : ""
+                      }`}
+                    />
                     <ErrorMessage message={validationErrors.usg_jumlah_bayi} />
                   </Field>
                   <Field label="CRL (cm)">
-                    <input type="number" step="0.1" name="usg_crl_cm" value={form.usg_crl_cm}
-                      onChange={handleChange} placeholder="0.0"
-                      className={`${inputCls} ${validationErrors.usg_crl_cm ? "border-red-500 bg-red-50" : ""}`} />
+                    <input
+                      type="number"
+                      step="0.1"
+                      name="usg_crl_cm"
+                      value={form.usg_crl_cm}
+                      onChange={handleChange}
+                      placeholder="0.0"
+                      className={`${inputCls} ${
+                        validationErrors.usg_crl_cm ? "border-red-500 bg-red-50" : ""
+                      }`}
+                    />
                     <ErrorMessage message={validationErrors.usg_crl_cm} />
                   </Field>
                   <Field label="CRL (minggu)">
-                    <input type="number" name="usg_crl_minggu" value={form.usg_crl_minggu}
-                      onChange={handleChange} placeholder="0"
-                      className={`${inputCls} ${validationErrors.usg_crl_minggu ? "border-red-500 bg-red-50" : ""}`} />
+                    <input
+                      type="number"
+                      name="usg_crl_minggu"
+                      value={form.usg_crl_minggu}
+                      onChange={handleChange}
+                      placeholder="0"
+                      className={`${inputCls} ${
+                        validationErrors.usg_crl_minggu ? "border-red-500 bg-red-50" : ""
+                      }`}
+                    />
                     <ErrorMessage message={validationErrors.usg_crl_minggu} />
                   </Field>
                   <Field label="CRL (hari)">
-                    <input type="number" name="usg_crl_hari" value={form.usg_crl_hari}
-                      onChange={handleChange} placeholder="0"
-                      className={`${inputCls} ${validationErrors.usg_crl_hari ? "border-red-500 bg-red-50" : ""}`} />
+                    <input
+                      type="number"
+                      name="usg_crl_hari"
+                      value={form.usg_crl_hari}
+                      onChange={handleChange}
+                      placeholder="0"
+                      className={`${inputCls} ${
+                        validationErrors.usg_crl_hari ? "border-red-500 bg-red-50" : ""
+                      }`}
+                    />
                     <ErrorMessage message={validationErrors.usg_crl_hari} />
                   </Field>
                 </div>
@@ -790,28 +980,49 @@ export default function PemeriksaanDokterT1Complete() {
 
               {/* Temuan Lainnya */}
               <div className="mb-5">
-                <h3 className="text-xs font-bold text-violet-600 uppercase tracking-widest mb-3">Temuan Lainnya</h3>
+                <h3 className="text-xs font-bold text-violet-600 uppercase tracking-widest mb-3">
+                  Temuan Lainnya
+                </h3>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   <Field label="Letak Produk Kehamilan">
-                    <input name="usg_letak_produk_kehamilan" value={form.usg_letak_produk_kehamilan}
-                      onChange={handleChange} placeholder="Intrauterin/Ekstrauterin"
-                      className={`${inputCls} ${validationErrors.usg_letak_produk_kehamilan ? "border-red-500 bg-red-50" : ""}`} />
+                    <input
+                      name="usg_letak_produk_kehamilan"
+                      value={form.usg_letak_produk_kehamilan}
+                      onChange={handleChange}
+                      placeholder="Intrauterin/Ekstrauterin"
+                      className={`${inputCls} ${
+                        validationErrors.usg_letak_produk_kehamilan
+                          ? "border-red-500 bg-red-50"
+                          : ""
+                      }`}
+                    />
                     <ErrorMessage message={validationErrors.usg_letak_produk_kehamilan} />
                   </Field>
                   <Field label="Pulsasi Jantung">
-                    <input name="usg_pulsasi_jantung" value={form.usg_pulsasi_jantung}
-                      onChange={handleChange} placeholder="Tampak/Tidak tampak"
-                      className={`${inputCls} ${validationErrors.usg_pulsasi_jantung ? "border-red-500 bg-red-50" : ""}`} />
+                    <input
+                      name="usg_pulsasi_jantung"
+                      value={form.usg_pulsasi_jantung}
+                      onChange={handleChange}
+                      placeholder="Tampak/Tidak tampak"
+                      className={`${inputCls} ${
+                        validationErrors.usg_pulsasi_jantung ? "border-red-500 bg-red-50" : ""
+                      }`}
+                    />
                     <ErrorMessage message={validationErrors.usg_pulsasi_jantung} />
                   </Field>
                   <Field label="Kecurigaan Abnormal">
-                    <select name="usg_kecurigaan_temuan_abnormal" value={form.usg_kecurigaan_temuan_abnormal}
+                    <select
+                      name="usg_kecurigaan_temuan_abnormal"
+                      value={form.usg_kecurigaan_temuan_abnormal}
                       onChange={handleChange}
                       className={`${selectCls} ${
-                        validationErrors.usg_kecurigaan_temuan_abnormal ? "border-red-500 bg-red-50"
-                        : form.usg_kecurigaan_temuan_abnormal === "Ya" ? "border-red-300 bg-red-50 text-red-700"
-                        : ""
-                      }`}>
+                        validationErrors.usg_kecurigaan_temuan_abnormal
+                          ? "border-red-500 bg-red-50"
+                          : form.usg_kecurigaan_temuan_abnormal === "Ya"
+                          ? "border-red-300 bg-red-50 text-red-700"
+                          : ""
+                      }`}
+                    >
                       <option value="Tidak">Tidak</option>
                       <option value="Ya">Ya</option>
                     </select>
@@ -819,16 +1030,24 @@ export default function PemeriksaanDokterT1Complete() {
                   </Field>
                   {form.usg_kecurigaan_temuan_abnormal === "Ya" && (
                     <Field label="Keterangan Abnormal">
-                      <input name="usg_keterangan_temuan_abnormal" value={form.usg_keterangan_temuan_abnormal}
-                        onChange={handleChange} placeholder="Jelaskan temuan..."
-                        className={`${inputCls} border-red-200 ${validationErrors.usg_keterangan_temuan_abnormal ? "border-red-500 bg-red-50" : ""}`} />
+                      <input
+                        name="usg_keterangan_temuan_abnormal"
+                        value={form.usg_keterangan_temuan_abnormal}
+                        onChange={handleChange}
+                        placeholder="Jelaskan temuan..."
+                        className={`${inputCls} border-red-200 ${
+                          validationErrors.usg_keterangan_temuan_abnormal
+                            ? "border-red-500 bg-red-50"
+                            : ""
+                        }`}
+                      />
                       <ErrorMessage message={validationErrors.usg_keterangan_temuan_abnormal} />
                     </Field>
                   )}
                 </div>
               </div>
 
-              {/* ── Upload Gambar USG ── */}
+              {/* Upload Gambar USG */}
               <div className="mb-5">
                 <h3 className="text-xs font-bold text-violet-600 uppercase tracking-widest mb-3">
                   <ImageIcon className="inline mr-1" size={16} /> Hasil USG (Gambar)
@@ -853,7 +1072,11 @@ export default function PemeriksaanDokterT1Complete() {
                   </div>
                   {usgImagePreview && (
                     <div className="relative border rounded-lg overflow-hidden max-w-xs">
-                      <img src={usgImagePreview} alt="Preview USG" className="max-h-48 object-contain" />
+                      <img
+                        src={usgImagePreview}
+                        alt="Preview USG"
+                        className="max-h-48 object-contain"
+                      />
                       <button
                         type="button"
                         onClick={handleRemoveImage}
@@ -864,18 +1087,32 @@ export default function PemeriksaanDokterT1Complete() {
                     </div>
                   )}
                 </div>
-                <p className="text-xs text-gray-400 mt-1">Unggah hasil USG (format JPG/PNG, akan dikonversi ke data digital).</p>
+                <p className="text-xs text-gray-400 mt-1">
+                  Unggah hasil USG (format JPG/PNG, akan dikonversi ke data digital).
+                </p>
               </div>
             </Section>
           )}
 
           {/* ══ STEP 3: Laboratorium ══ */}
           {currentStep === 3 && (
-            <Section icon={FlaskConical} title="Pemeriksaan Laboratorium" color="amber" defaultOpen={true}>
+            <Section
+              icon={FlaskConical}
+              title="Pemeriksaan Laboratorium"
+              color="amber"
+              defaultOpen={true}
+            >
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                 <Field label="Tanggal Lab">
-                  <input type="date" name="tanggal_lab" value={form.tanggal_lab} onChange={handleChange}
-                    className={`${inputCls} ${validationErrors.tanggal_lab ? "border-red-500 bg-red-50" : ""}`} />
+                  <input
+                    type="date"
+                    name="tanggal_lab"
+                    value={form.tanggal_lab}
+                    onChange={handleChange}
+                    className={`${inputCls} ${
+                      validationErrors.tanggal_lab ? "border-red-500 bg-red-50" : ""
+                    }`}
+                  />
                   <ErrorMessage message={validationErrors.tanggal_lab} />
                 </Field>
               </div>
@@ -885,9 +1122,15 @@ export default function PemeriksaanDokterT1Complete() {
                 <table className="w-full text-sm">
                   <thead className="bg-amber-50">
                     <tr>
-                      <th className="text-left px-4 py-2 text-xs font-bold text-amber-700 uppercase tracking-wide w-1/3">Pemeriksaan</th>
-                      <th className="text-left px-4 py-2 text-xs font-bold text-amber-700 uppercase tracking-wide w-1/3">Hasil</th>
-                      <th className="text-left px-4 py-2 text-xs font-bold text-amber-700 uppercase tracking-wide w-1/3">Rencana Tindak Lanjut</th>
+                      <th className="text-left px-4 py-2 text-xs font-bold text-amber-700 uppercase tracking-wide w-1/3">
+                        Pemeriksaan
+                      </th>
+                      <th className="text-left px-4 py-2 text-xs font-bold text-amber-700 uppercase tracking-wide w-1/3">
+                        Hasil
+                      </th>
+                      <th className="text-left px-4 py-2 text-xs font-bold text-amber-700 uppercase tracking-wide w-1/3">
+                        Rencana Tindak Lanjut
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-amber-50">
@@ -895,50 +1138,107 @@ export default function PemeriksaanDokterT1Complete() {
                       <td className="px-4 py-3 font-medium text-gray-700">Hemoglobin</td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-1">
-                          <input type="number" step="0.1" name="lab_hemoglobin_hasil"
-                            value={form.lab_hemoglobin_hasil} onChange={handleChange} placeholder="0.0"
-                            className={`${inputCls} ${validationErrors.lab_hemoglobin_hasil ? "border-red-500 bg-red-50" : ""}`} />
+                          <input
+                            type="number"
+                            step="0.1"
+                            name="lab_hemoglobin_hasil"
+                            value={form.lab_hemoglobin_hasil}
+                            onChange={handleChange}
+                            placeholder="0.0"
+                            className={`${inputCls} ${
+                              validationErrors.lab_hemoglobin_hasil
+                                ? "border-red-500 bg-red-50"
+                                : ""
+                            }`}
+                          />
                           <span className="text-xs text-gray-400">g/dL</span>
                         </div>
                         <ErrorMessage message={validationErrors.lab_hemoglobin_hasil} />
                       </td>
                       <td className="px-4 py-3">
-                        <input name="lab_hemoglobin_rencana_tindak_lanjut"
-                          value={form.lab_hemoglobin_rencana_tindak_lanjut} onChange={handleChange} placeholder="Rencana..."
-                          className={`${inputCls} ${validationErrors.lab_hemoglobin_rencana_tindak_lanjut ? "border-red-500 bg-red-50" : ""}`} />
-                        <ErrorMessage message={validationErrors.lab_hemoglobin_rencana_tindak_lanjut} />
+                        <input
+                          name="lab_hemoglobin_rencana_tindak_lanjut"
+                          value={form.lab_hemoglobin_rencana_tindak_lanjut}
+                          onChange={handleChange}
+                          placeholder="Rencana..."
+                          className={`${inputCls} ${
+                            validationErrors.lab_hemoglobin_rencana_tindak_lanjut
+                              ? "border-red-500 bg-red-50"
+                              : ""
+                          }`}
+                        />
+                        <ErrorMessage
+                          message={validationErrors.lab_hemoglobin_rencana_tindak_lanjut}
+                        />
                       </td>
                     </tr>
                     <tr className="bg-gray-50/50">
-                      <td className="px-4 py-3 font-medium text-gray-700">Golongan Darah & Rhesus</td>
+                      <td className="px-4 py-3 font-medium text-gray-700">
+                        Golongan Darah & Rhesus
+                      </td>
                       <td className="px-4 py-3">
-                        <input name="lab_golongan_darah_rhesus_hasil"
-                          value={form.lab_golongan_darah_rhesus_hasil} onChange={handleChange} placeholder="A+ / B- / dll"
-                          className={`${inputCls} ${validationErrors.lab_golongan_darah_rhesus_hasil ? "border-red-500 bg-red-50" : ""}`} />
+                        <input
+                          name="lab_golongan_darah_rhesus_hasil"
+                          value={form.lab_golongan_darah_rhesus_hasil}
+                          onChange={handleChange}
+                          placeholder="A+ / B- / dll"
+                          className={`${inputCls} ${
+                            validationErrors.lab_golongan_darah_rhesus_hasil
+                              ? "border-red-500 bg-red-50"
+                              : ""
+                          }`}
+                        />
                         <ErrorMessage message={validationErrors.lab_golongan_darah_rhesus_hasil} />
                       </td>
                       <td className="px-4 py-3">
-                        <input name="lab_golongan_darah_rhesus_rencana"
-                          value={form.lab_golongan_darah_rhesus_rencana} onChange={handleChange} placeholder="Rencana..."
-                          className={`${inputCls} ${validationErrors.lab_golongan_darah_rhesus_rencana ? "border-red-500 bg-red-50" : ""}`} />
-                        <ErrorMessage message={validationErrors.lab_golongan_darah_rhesus_rencana} />
+                        <input
+                          name="lab_golongan_darah_rhesus_rencana_tindak_lanjut"
+                          value={form.lab_golongan_darah_rhesus_rencana_tindak_lanjut}
+                          onChange={handleChange}
+                          placeholder="Rencana..."
+                          className={`${inputCls} ${
+                            validationErrors.lab_golongan_darah_rhesus_rencana_tindak_lanjut
+                              ? "border-red-500 bg-red-50"
+                              : ""
+                          }`}
+                        />
+                        <ErrorMessage
+                          message={validationErrors.lab_golongan_darah_rhesus_rencana}
+                        />
                       </td>
                     </tr>
                     <tr>
                       <td className="px-4 py-3 font-medium text-gray-700">Gula Darah Sewaktu</td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-1">
-                          <input type="number" name="lab_gula_darah_sewaktu_hasil"
-                            value={form.lab_gula_darah_sewaktu_hasil} onChange={handleChange} placeholder="0"
-                            className={`${inputCls} ${validationErrors.lab_gula_darah_sewaktu_hasil ? "border-red-500 bg-red-50" : ""}`} />
+                          <input
+                            type="number"
+                            name="lab_gula_darah_sewaktu_hasil"
+                            value={form.lab_gula_darah_sewaktu_hasil}
+                            onChange={handleChange}
+                            placeholder="0"
+                            className={`${inputCls} ${
+                              validationErrors.lab_gula_darah_sewaktu_hasil
+                                ? "border-red-500 bg-red-50"
+                                : ""
+                            }`}
+                          />
                           <span className="text-xs text-gray-400">Mg/dL</span>
                         </div>
                         <ErrorMessage message={validationErrors.lab_gula_darah_sewaktu_hasil} />
                       </td>
                       <td className="px-4 py-3">
-                        <input name="lab_gula_darah_sewaktu_rencana"
-                          value={form.lab_gula_darah_sewaktu_rencana} onChange={handleChange} placeholder="Rencana..."
-                          className={`${inputCls} ${validationErrors.lab_gula_darah_sewaktu_rencana ? "border-red-500 bg-red-50" : ""}`} />
+                        <input
+                          name="lab_gula_darah_sewaktu_rencana_tindak_lanjut"
+                          value={form.lab_gula_darah_sewaktu_rencana_tindak_lanjut}
+                          onChange={handleChange}
+                          placeholder="Rencana..."
+                          className={`${inputCls} ${
+                            validationErrors.lab_gula_darah_sewaktu_rencana_tindak_lanjut
+                              ? "border-red-500 bg-red-50"
+                              : ""
+                          }`}
+                        />
                         <ErrorMessage message={validationErrors.lab_gula_darah_sewaktu_rencana} />
                       </td>
                     </tr>
@@ -951,9 +1251,15 @@ export default function PemeriksaanDokterT1Complete() {
                 <table className="w-full text-sm">
                   <thead className="bg-amber-50">
                     <tr>
-                      <th className="text-left px-4 py-2 text-xs font-bold text-amber-700 uppercase tracking-wide w-1/3">Pemeriksaan</th>
-                      <th className="text-left px-4 py-2 text-xs font-bold text-amber-700 uppercase tracking-wide w-1/3">Hasil</th>
-                      <th className="text-left px-4 py-2 text-xs font-bold text-amber-700 uppercase tracking-wide w-1/3">Rencana Tindak Lanjut</th>
+                      <th className="text-left px-4 py-2 text-xs font-bold text-amber-700 uppercase tracking-wide w-1/3">
+                        Pemeriksaan
+                      </th>
+                      <th className="text-left px-4 py-2 text-xs font-bold text-amber-700 uppercase tracking-wide w-1/3">
+                        Hasil
+                      </th>
+                      <th className="text-left px-4 py-2 text-xs font-bold text-amber-700 uppercase tracking-wide w-1/3">
+                        Rencana Tindak Lanjut
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-amber-50">
@@ -961,21 +1267,33 @@ export default function PemeriksaanDokterT1Complete() {
                       <tr key={lf.name} className={idx % 2 === 1 ? "bg-gray-50/50" : ""}>
                         <td className="px-4 py-3 font-medium text-gray-700">{lf.label}</td>
                         <td className="px-4 py-3">
-                          <select name={lf.name} value={form[lf.name]} onChange={handleChange}
+                          <select
+                            name={lf.name}
+                            value={form[lf.name]}
+                            onChange={handleChange}
                             className={`${selectCls} ${
-                              validationErrors[lf.name] ? "border-red-500 bg-red-50"
-                              : form[lf.name] === "Reaktif" ? "border-red-300 bg-red-50 text-red-700"
-                              : "border-emerald-200 bg-emerald-50 text-emerald-700"
-                            }`}>
+                              validationErrors[lf.name]
+                                ? "border-red-500 bg-red-50"
+                                : form[lf.name] === "Reaktif"
+                                ? "border-red-300 bg-red-50 text-red-700"
+                                : "border-emerald-200 bg-emerald-50 text-emerald-700"
+                            }`}
+                          >
                             <option value="NonReaktif">Non Reaktif</option>
                             <option value="Reaktif">Reaktif</option>
                           </select>
                           <ErrorMessage message={validationErrors[lf.name]} />
                         </td>
                         <td className="px-4 py-3">
-                          <input name={lf.rencana} value={form[lf.rencana]} onChange={handleChange}
+                          <input
+                            name={lf.rencana}
+                            value={form[lf.rencana]}
+                            onChange={handleChange}
                             placeholder="Rencana..."
-                            className={`${inputCls} ${validationErrors[lf.rencana] ? "border-red-500 bg-red-50" : ""}`} />
+                            className={`${inputCls} ${
+                              validationErrors[lf.rencana] ? "border-red-500 bg-red-50" : ""
+                            }`}
+                          />
                           <ErrorMessage message={validationErrors[lf.rencana]} />
                         </td>
                       </tr>
@@ -988,17 +1306,34 @@ export default function PemeriksaanDokterT1Complete() {
 
           {/* ══ STEP 4: Skrining Jiwa & Kesimpulan ══ */}
           {currentStep === 4 && (
-            <Section icon={Brain} title="Skrining Kesehatan Jiwa & Kesimpulan" color="rose" defaultOpen={true}>
+            <Section
+              icon={Brain}
+              title="Skrining Kesehatan Jiwa & Kesimpulan"
+              color="rose"
+              defaultOpen={true}
+            >
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                 <Field label="Tanggal Skrining Jiwa">
-                  <input type="date" name="tanggal_skrining_jiwa" value={form.tanggal_skrining_jiwa}
+                  <input
+                    type="date"
+                    name="tanggal_skrining_jiwa"
+                    value={form.tanggal_skrining_jiwa}
                     onChange={handleChange}
-                    className={`${inputCls} ${validationErrors.tanggal_skrining_jiwa ? "border-red-500 bg-red-50" : ""}`} />
+                    className={`${inputCls} ${
+                      validationErrors.tanggal_skrining_jiwa ? "border-red-500 bg-red-50" : ""
+                    }`}
+                  />
                   <ErrorMessage message={validationErrors.tanggal_skrining_jiwa} />
                 </Field>
                 <Field label="Skrining Kesehatan Jiwa">
-                  <select name="skrining_jiwa_hasil" value={form.skrining_jiwa_hasil} onChange={handleChange}
-                    className={`${selectCls} ${validationErrors.skrining_jiwa_hasil ? "border-red-500 bg-red-50" : ""}`}>
+                  <select
+                    name="skrining_jiwa_hasil"
+                    value={form.skrining_jiwa_hasil}
+                    onChange={handleChange}
+                    className={`${selectCls} ${
+                      validationErrors.skrining_jiwa_hasil ? "border-red-500 bg-red-50" : ""
+                    }`}
+                  >
                     <option value="">-- Pilih --</option>
                     <option value="Ya">Ya</option>
                     <option value="Tidak">Tidak</option>
@@ -1006,9 +1341,16 @@ export default function PemeriksaanDokterT1Complete() {
                   <ErrorMessage message={validationErrors.skrining_jiwa_hasil} />
                 </Field>
                 <Field label="Tindak Lanjut Skrining Jiwa">
-                  <select name="skrining_jiwa_tindak_lanjut" value={form.skrining_jiwa_tindak_lanjut}
+                  <select
+                    name="skrining_jiwa_tindak_lanjut"
+                    value={form.skrining_jiwa_tindak_lanjut}
                     onChange={handleChange}
-                    className={`${selectCls} ${validationErrors.skrining_jiwa_tindak_lanjut ? "border-red-500 bg-red-50" : ""}`}>
+                    className={`${selectCls} ${
+                      validationErrors.skrining_jiwa_tindak_lanjut
+                        ? "border-red-500 bg-red-50"
+                        : ""
+                    }`}
+                  >
                     <option value="">-- Pilih --</option>
                     <option value="Edukasi">Edukasi</option>
                     <option value="Konseling">Konseling</option>
@@ -1016,13 +1358,18 @@ export default function PemeriksaanDokterT1Complete() {
                   <ErrorMessage message={validationErrors.skrining_jiwa_tindak_lanjut} />
                 </Field>
                 <Field label="Perlu Rujukan">
-                  <select name="skrining_jiwa_perlu_rujukan" value={form.skrining_jiwa_perlu_rujukan}
+                  <select
+                    name="skrining_jiwa_perlu_rujukan"
+                    value={form.skrining_jiwa_perlu_rujukan}
                     onChange={handleChange}
                     className={`${selectCls} ${
-                      validationErrors.skrining_jiwa_perlu_rujukan ? "border-red-500 bg-red-50"
-                      : form.skrining_jiwa_perlu_rujukan === "Ya" ? "border-red-300 bg-red-50 text-red-700"
-                      : "border-emerald-200 bg-emerald-50 text-emerald-700"
-                    }`}>
+                      validationErrors.skrining_jiwa_perlu_rujukan
+                        ? "border-red-500 bg-red-50"
+                        : form.skrining_jiwa_perlu_rujukan === "Ya"
+                        ? "border-red-300 bg-red-50 text-red-700"
+                        : "border-emerald-200 bg-emerald-50 text-emerald-700"
+                    }`}
+                  >
                     <option value="Tidak">Tidak</option>
                     <option value="Ya">Ya</option>
                   </select>
@@ -1031,15 +1378,29 @@ export default function PemeriksaanDokterT1Complete() {
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Field label="Kesimpulan">
-                  <textarea name="kesimpulan" value={form.kesimpulan} onChange={handleChange}
+                  <textarea
+                    name="kesimpulan"
+                    value={form.kesimpulan}
+                    onChange={handleChange}
                     placeholder="Kesimpulan pemeriksaan..."
-                    className={`${inputCls} ${validationErrors.kesimpulan ? "border-red-500 bg-red-50" : ""}`} rows={3} />
+                    className={`${inputCls} ${
+                      validationErrors.kesimpulan ? "border-red-500 bg-red-50" : ""
+                    }`}
+                    rows={3}
+                  />
                   <ErrorMessage message={validationErrors.kesimpulan} />
                 </Field>
                 <Field label="Rekomendasi">
-                  <textarea name="rekomendasi" value={form.rekomendasi} onChange={handleChange}
+                  <textarea
+                    name="rekomendasi"
+                    value={form.rekomendasi}
+                    onChange={handleChange}
                     placeholder="Rekomendasi tindak lanjut..."
-                    className={`${inputCls} ${validationErrors.rekomendasi ? "border-red-500 bg-red-50" : ""}`} rows={3} />
+                    className={`${inputCls} ${
+                      validationErrors.rekomendasi ? "border-red-500 bg-red-50" : ""
+                    }`}
+                    rows={3}
+                  />
                   <ErrorMessage message={validationErrors.rekomendasi} />
                 </Field>
               </div>
@@ -1048,26 +1409,42 @@ export default function PemeriksaanDokterT1Complete() {
 
           {/* Navigation Buttons */}
           <div className="flex items-center justify-between pt-6 pb-6 border-t border-gray-200">
-            <button type="button" onClick={() => navigate(-1)}
-              className="px-6 py-2.5 rounded-xl border border-gray-200 text-gray-600 text-sm font-medium hover:bg-gray-50 transition">
+            <button
+              type="button"
+              onClick={() => navigate(-1)}
+              className="px-6 py-2.5 rounded-xl border border-gray-200 text-gray-600 text-sm font-medium hover:bg-gray-50 transition"
+            >
               Batalkan
             </button>
             <div className="flex gap-3">
               {currentStep > 1 && (
-                <button type="button" onClick={handlePrevStep}
-                  className="flex items-center gap-2 px-6 py-2.5 rounded-xl border border-gray-300 text-gray-700 text-sm font-medium hover:bg-gray-100 transition">
+                <button
+                  type="button"
+                  onClick={handlePrevStep}
+                  className="flex items-center gap-2 px-6 py-2.5 rounded-xl border border-gray-300 text-gray-700 text-sm font-medium hover:bg-gray-100 transition"
+                >
                   <ChevronLeft size={16} /> Sebelumnya
                 </button>
               )}
               {currentStep < 4 ? (
-                <button type="button" onClick={handleNextStep}
-                  className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-2.5 rounded-xl text-sm font-semibold transition shadow-sm">
+                <button
+                  type="button"
+                  onClick={handleNextStep}
+                  className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-2.5 rounded-xl text-sm font-semibold transition shadow-sm"
+                >
                   Selanjutnya <ChevronRight size={16} />
                 </button>
               ) : (
-                <button type="submit" disabled={saving}
-                  className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 text-white px-8 py-2.5 rounded-xl text-sm font-semibold transition shadow-sm">
-                  {saving ? <Loader2 className="animate-spin" size={16} /> : <Save size={16} />}
+                <button
+                  type="submit"
+                  disabled={saving}
+                  className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 text-white px-8 py-2.5 rounded-xl text-sm font-semibold transition shadow-sm"
+                >
+                  {saving ? (
+                    <Loader2 className="animate-spin" size={16} />
+                  ) : (
+                    <Save size={16} />
+                  )}
                   {saving ? "Menyimpan..." : "Simpan Semua Data"}
                 </button>
               )}
