@@ -1,0 +1,38 @@
+// src/services/ibu.js
+import api from "./api";
+
+const BASE = "/tenaga-kesehatan/ibu";
+const BASE1 = "/tenaga-kesehatan/ibuk";
+
+export const getIbuList = async () => {
+  const res = await api.get(BASE);
+  return res.data.data;
+};
+
+export const getIbuByPendudukId = async (pendudukId) => {
+  const response = await api.get(`/tenaga-kesehatan/ibu/by-penduduk/${pendudukId}`);
+  return response.data.data; // bisa null
+}
+export const getIbuDashboard = async () => {
+  const res = await api.get(BASE1);
+  return res.data.data;
+};
+export const getIbuById = async (id) => {
+  const res = await api.get(`${BASE}/${id}`);
+  return res.data.data;
+};
+
+export const createIbu = async (data) => {
+  const response = await api.post('/tenaga-kesehatan/ibu', data);
+  return response.data.data;
+};
+
+export const updateIbu = async (id, data) => {
+  const res = await api.put(`${BASE}/${id}`, data);
+  return res.data.data;
+};
+
+export const deleteIbu = async (id) => {
+  const res = await api.delete(`${BASE}/${id}`);
+  return res.data;
+};

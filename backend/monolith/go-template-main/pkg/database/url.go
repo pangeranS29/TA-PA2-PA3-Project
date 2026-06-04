@@ -44,8 +44,8 @@ func GetURL(arg *Args) (res *url.URL) {
 			arg.Values.Add("search_path", arg.Schema)
 		}
 
-		timeout := uint64(arg.Timeout.Seconds())
-		arg.Values.Add("connect_timeout", strconv.FormatUint(timeout, 10))
+		timeout := int32(arg.Timeout.Seconds())
+		arg.Values.Add("connect_timeout", strconv.FormatInt(int64(timeout), 10))
 	case mysqlSchema:
 		if isUrlValNil {
 			arg.Values.Add("autocommit", "true")
@@ -62,6 +62,10 @@ func GetURL(arg *Args) (res *url.URL) {
 }
 
 func GetURLString(arg *Args) (res string) {
+	if arg != nil && arg.DSN != "" {
+		return arg.DSN
+	}
+
 	url := GetURL(arg)
 	if url == nil {
 		return
