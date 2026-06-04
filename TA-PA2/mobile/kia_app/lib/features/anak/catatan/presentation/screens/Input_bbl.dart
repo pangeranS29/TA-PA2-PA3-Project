@@ -2,13 +2,19 @@ import 'package:flutter/material.dart';
 import '../../data/models/bbl_model.dart';
 import '../../data/services/bbl_api_service.dart';
 
+// ── Palette sesuai tema aplikasi ──
+const _kPrimary    = Color(0xFF185FA5);
+const _kPrimaryBg  = Color(0xFFE8F1FB);
+
 class InputBblScreen extends StatefulWidget {
   final String namaAnak;
+  final String usiaTeks;
   final String? anakId;
 
   const InputBblScreen({
     Key? key,
     required this.namaAnak,
+    required this.usiaTeks,
     this.anakId,
   }) : super(key: key);
 
@@ -107,7 +113,7 @@ class _InputBblScreenState extends State<InputBblScreen> {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.light(
-              primary: Color(0xFF7C3AED),
+              primary: _kPrimary,
               onPrimary: Colors.white,
               surface: Colors.white,
             ),
@@ -148,7 +154,7 @@ class _InputBblScreenState extends State<InputBblScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Data BBL berhasil disimpan!'),
-              backgroundColor: Color(0xFF7C3AED),
+              backgroundColor: _kPrimary,
             ),
           );
           Navigator.pop(context);
@@ -168,20 +174,27 @@ class _InputBblScreenState extends State<InputBblScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F3FF),
+      backgroundColor: const Color(0xFFF1F5F9),
       appBar: AppBar(
-        title: Text(
-          'Input BBL – ${widget.namaAnak}',
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(
+            Icons.arrow_back_ios_new,
+            color: Color(0xFF172033),
+            size: 20,
+          ),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: const Text(
+          'Berat Badan Lahir (BBL)',
+          style: TextStyle(
+            color: Color(0xFF172033),
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
           ),
         ),
-        backgroundColor: const Color(0xFF7C3AED),
-        foregroundColor: Colors.white,
-        elevation: 0,
-        centerTitle: true,
+        centerTitle: false,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -277,13 +290,90 @@ class _InputBblScreenState extends State<InputBblScreen> {
               //   ],
               // ),
 
+
+              // ─── Card Profil Anak ─────────────────────────────
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 64,
+                      height: 64,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFD7ECFF),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.person_outline,
+                        color: Color(0xFF185FA5),
+                        size: 34,
+                      ),
+                    ),
+
+                    const SizedBox(width: 16),
+
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            widget.namaAnak,
+                            style: const TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFF1E293B),
+                            ),
+                          ),
+
+                          const SizedBox(height: 8),
+
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 8,
+                            ),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFD7ECFF),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              'Usia: ${widget.usiaTeks}',
+                              style: const TextStyle(
+                                color: Color(0xFF185FA5),
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 20),
+
+              const SizedBox(height: 20),
+
               const SizedBox(height: 20),
 
               // ─── Seksi: Pemeriksaan Kesehatan ─────────────────────────────
               _SectionTitle(
-                  title: 'Pemeriksaan Kesehatan di Puskesmas',
-                  color: const Color(0xFF059669)),
-              const SizedBox(height: 4),
+              title: 'Pemeriksaan Kesehatan di Puskesmas',
+              color: _kPrimary,
+            ),
+            const SizedBox(height: 4),
               const Text(
                 'Beri tanda ✓ jika si kecil sudah mendapat pemeriksaan oleh tenaga kesehatan:',
                 style: TextStyle(fontSize: 12, color: Colors.black54),
@@ -362,7 +452,7 @@ class _InputBblScreenState extends State<InputBblScreen> {
                 child: ElevatedButton.icon(
                   onPressed: _isLoading ? null : _simpan,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF7C3AED),
+                    backgroundColor: _kPrimary,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
@@ -430,19 +520,19 @@ class _InputBblScreenState extends State<InputBblScreen> {
         labelText: label,
         hintText: hint,
         filled: true,
-        fillColor: const Color(0xFFF9F7FF),
+        fillColor: _kPrimaryBg,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: Color(0xFFDDD6FE)),
+          borderSide: const BorderSide(color: Color(0xFFBFDBFE)),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: Color(0xFFDDD6FE)),
+          borderSide: const BorderSide(color: Color(0xFFBFDBFE)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
           borderSide:
-              const BorderSide(color: Color(0xFF7C3AED), width: 1.5),
+              const BorderSide(color: _kPrimary, width: 1.5),
         ),
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -468,19 +558,19 @@ class _InputBblScreenState extends State<InputBblScreen> {
         filled: true,
         fillColor: const Color(0xFFF9F7FF),
         suffixIcon:
-            const Icon(Icons.calendar_today, size: 18, color: Color(0xFF7C3AED)),
+            const Icon(Icons.calendar_today, size: 18, color: _kPrimary),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: Color(0xFFDDD6FE)),
+          borderSide: const BorderSide(color: Color(0xFFBFDBFE)),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: Color(0xFFDDD6FE)),
+          borderSide: const BorderSide(color: Color(0xFFBFDBFE)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
           borderSide:
-              const BorderSide(color: Color(0xFF7C3AED), width: 1.5),
+              const BorderSide(color: _kPrimary, width: 1.5),
         ),
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -520,7 +610,7 @@ class _InputBblScreenState extends State<InputBblScreen> {
         Checkbox(
           value: value,
           onChanged: onChanged,
-          activeColor: const Color(0xFF059669),
+          activeColor: _kPrimary,
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
         ),
@@ -569,7 +659,7 @@ class _BannerBBL extends StatelessWidget {
                 Text(
                   '(0 – 28 hari)',
                   style: TextStyle(
-                    color: Color(0xFFEDE9FE),
+                    color: Color(0xFFDBEAFE),
                     fontSize: 13,
                   ),
                 ),
@@ -577,7 +667,7 @@ class _BannerBBL extends StatelessWidget {
                 Text(
                   'Catat data kesehatan si kecil\nsejak pertama lahir.',
                   style: TextStyle(
-                    color: Color(0xFFEDE9FE),
+                    color: Color(0xFFDBEAFE),
                     fontSize: 11,
                     height: 1.5,
                   ),
@@ -585,7 +675,7 @@ class _BannerBBL extends StatelessWidget {
               ],
             ),
           ),
-          const Icon(Icons.child_care, size: 60, color: Color(0xFFEDE9FE)),
+          const Icon(Icons.child_care, size: 60, color: Color(0xFFDBEAFE)),
         ],
       ),
     );

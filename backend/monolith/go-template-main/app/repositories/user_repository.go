@@ -112,9 +112,10 @@ func (r *UserRepository) List(search, role, desa string) ([]UserListItem, error)
 	var rows []UserListItem
 
 	q := r.db.Table("pengguna u").
-		Select("u.id, u.nama, u.email, u.nomor_telepon, u.desa_id, COALESCE(d.nama_desa, '') AS desa_name, r.name AS role, u.is_active, u.penduduk_id, u.created_at, u.updated_at").
+		Select("u.id, u.nama, u.email, u.nomor_telepon, p.desa_id AS desa_id, COALESCE(d.nama_desa, '') AS desa_name, r.name AS role, u.is_active, u.penduduk_id, u.created_at, u.updated_at").
 		Joins("JOIN roles r ON r.id = u.role_id").
-		Joins("LEFT JOIN desa d ON d.id = u.desa_id AND d.deleted_at IS NULL").
+		Joins("LEFT JOIN penduduk p ON p.id = u.penduduk_id AND p.deleted_at IS NULL").
+		Joins("LEFT JOIN desa d ON d.id = p.desa_id AND d.deleted_at IS NULL").
 		Order("u.id DESC")
 
 	search = strings.TrimSpace(search)
@@ -129,7 +130,7 @@ func (r *UserRepository) List(search, role, desa string) ([]UserListItem, error)
 		q = q.Where("LOWER(r.name) = LOWER(?)", role)
 	}
 	if desa != "" {
-		q = q.Where("CAST(u.desa_id AS TEXT) = ? OR LOWER(COALESCE(d.nama_desa, '')) = LOWER(?)", desa, desa)
+		q = q.Where("CAST(p.desa_id AS TEXT) = ? OR LOWER(COALESCE(d.nama_desa, '')) = LOWER(?)", desa, desa)
 	}
 
 	if err := q.Scan(&rows).Error; err != nil {

@@ -3,6 +3,8 @@ import LembarPerawatanAnak from "./pages/penanda-perkembangan-anak/LembarPerawat
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import Dashboard from "./pages/Dashboard";
+import Login from "./pages/Login";
+import RootRoute from "./routes/RootRoute";
 import PrivateRoute from "./routes/Private-routes";
 import RencanaPersalinanForm from './pages/Ibu/RencanaPersalinanForm';
 import RencanaPersalinanDetail from './pages/Ibu/RencanaPersalinanDetail';
@@ -148,6 +150,7 @@ import DetailPenduduk from "./pages/DetailPenduduk";
 import PencatatanKesehatan from "./pages/PencatatanKesehatan";
 import PencatatanKesehatanKategori from "./pages/PencatatanKesehatanKategori";
 import AdminFormVersions  from "./pages/SuperAdmin/AdminFormVersions";
+
 const HomeRedirect = () => {
   if (!isAuthenticated()) {
     return <Navigate to="/login" replace />;
@@ -160,7 +163,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         {/* PUBLIC */}
-        <Route path="/login" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/login" element={<Login />} />
 
         {/* PROTECTED */}
         <Route element={<PrivateRoute />}>
@@ -372,8 +375,9 @@ function App() {
         <Route path="/dashboard/dokter" element={<ProtectedRoute allowedRoles={["dokter"]}><DokterDashboard /></ProtectedRoute>} />
 
         {/* ── DEFAULT ── */}
-        <Route path="/" element={<HomeRedirect />} />
-        <Route path="*" element={<HomeRedirect />} />
+        <Route path="/dashboard" element={<RootRoute />} />
+        <Route path="/" element={<RootRoute />} />
+        <Route path="*" element={<RootRoute />} />
         <Route path="/data-penduduk/:id" element={<DetailPenduduk />} />
         <Route path="/pencatatan-kesehatan" element={<PencatatanKesehatan />} />
         <Route path="/pencatatan-kesehatan/:kategori" element={<PencatatanKesehatanKategori />} />

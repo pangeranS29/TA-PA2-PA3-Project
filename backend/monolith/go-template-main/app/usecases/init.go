@@ -63,12 +63,12 @@ type Main struct {
 	// RegisterOrangTua              *RegisterOrangTuaUsecase
 	AdminAkunKeluarga    *AdminAkunKeluargaUsecase
 	AdminTenagaKesehatan *AdminTenagaKesehatanUsecase
-	// SuperadminUser       *SuperadminUserUsecase
-	Desa            DesaUsecase
-	KeteranganLahir KeteranganLahirUsecase
-	Bbl             BblUsecase
-	JenisPelayanan  JenisPelayananUsecase
-	KategoriUmur    KategoriUmurUsecase
+	SuperadminUser       *SuperadminUserUsecase
+	Desa                 DesaUsecase
+	KeteranganLahir      KeteranganLahirUsecase
+	Bbl                  BblUsecase
+	JenisPelayanan       JenisPelayananUsecase
+	KategoriUmur         KategoriUmurUsecase
 
 	// Usecase tambahan
 	KeluhanAnak         KeluhanAnakUseCase
@@ -186,11 +186,11 @@ func Init(opts Options) *Main {
 	}
 
 	//  BUAT PREDIKSI USECASE (panggil service Python)
-	// mlURL := "http://localhost:8001"
-	// if opts.Config != nil && opts.Config.MLServiceURL != "" {
-	// 	mlURL = opts.Config.MLServiceURL
-	// }
-	// prediksiUc := NewPrediksiRisikoUsecase(mlURL)
+	mlURL := "http://localhost:8001"
+	if opts.Config != nil && opts.Config.MLServiceURL != "" {
+		mlURL = opts.Config.MLServiceURL
+	}
+	prediksiUc := NewPrediksiRisikoUsecase(mlURL)
 	// Inisialisasi usecase yang sudah ada
 	m.Anak = NewAnakUseCase(opts.Repository.Anak, opts.Repository.Kependudukan)
 	m.PelayananKesehatanAnak = NewPelayananKesehatanAnakUseCase(opts.Repository.PelayananKesehatanAnak)
@@ -209,7 +209,7 @@ func Init(opts Options) *Main {
 	// Inisialisasi usecase baru
 	// m.KartuKeluarga = NewKartuKeluargaUsecase(opts.Repository.KartuKeluarga)
 	m.Kehamilan = NewKehamilanUsecase(opts.Repository.Kehamilan)
-	// m.PemeriksaanKehamilan = NewPemeriksaanKehamilanUsecase(opts.Repository.PemeriksaanKehamilan, opts.Repository.Kehamilan, prediksiUc)
+	m.PemeriksaanKehamilan = NewPemeriksaanKehamilanUsecase(opts.Repository.PemeriksaanKehamilan, opts.Repository.Kehamilan, prediksiUc)
 	m.EvaluasiKesehatanIbu = NewEvaluasiKesehatanIbuUsecase(opts.Repository.EvaluasiKesehatanIbu)
 	// di dalam func Init(opts Options) *Main
 	// ...
@@ -265,7 +265,7 @@ func Init(opts Options) *Main {
 		opts.Repository.User,
 		opts.Repository.Role,
 	)
-	// m.SuperadminUser = NewSuperadminUserUsecase(opts.Repository)
+	m.SuperadminUser = NewSuperadminUserUsecase(opts.Repository)
 	m.Desa = NewDesaUsecase(opts.Repository.Desa)
 	m.KeteranganLahir = NewKeteranganLahirUsecase(opts.Repository.KeteranganLahir)
 	m.JenisPelayanan = NewJenisPelayananUsecase(opts.Repository.JenisPelayanan)

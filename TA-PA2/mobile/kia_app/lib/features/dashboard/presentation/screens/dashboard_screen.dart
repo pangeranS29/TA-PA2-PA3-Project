@@ -50,15 +50,13 @@ import 'package:ta_pa2_pa3_project/features/absensi/presentation/screens/absensi
 // MODUL IMUNISASI
 import 'package:ta_pa2_pa3_project/features/ibu/imunisasi/data/services/imunisasi_service.dart';
 
-// Profile Ibu
-import 'package:ta_pa2_pa3_project/features/ibu/profil/presentation/screens/profil_ibu_screen.dart';
-
 // edukasi 
 import 'package:ta_pa2_pa3_project/features/edukasi/presentation/ibu/edukasi_asi_screen.dart';
 import 'package:ta_pa2_pa3_project/features/edukasi/presentation/ibu/edukasi_imd_screen.dart';
 
 
 import 'package:ta_pa2_pa3_project/features/anak/catatan/presentation/screens/pilih_catatan_screen.dart';
+import 'package:ta_pa2_pa3_project/features/anak/catatan/presentation/screens/Input_bbl.dart';
 
 
 class DashboardScreen extends StatefulWidget {
@@ -340,8 +338,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     } else if (_selectedNavIndex == 3) {
       body = PilihAnakImunisasiScreen(tujuan: 'imunisasi');
     } else {
-      // body = const Center(child: Text('Profil'));
-      body = const ProfilIbuScreen();
+      body = const ProfilScreen();
     }
 
     return Scaffold(
@@ -938,6 +935,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey)),
         const SizedBox(height: 16),
 
+        // [MODUL: ANAK] Card Berat Badan Lahir (BBL)
+        DashboardMenuCard(
+          title: 'Berat Badan Lahir (BBL)',
+          subtitle: 'Catat Berat badan lahir anak sebagai data awal pertumbuhan.',
+          icon: Icons.scale_outlined,
+          iconColor: const Color(0xFF3B82F6),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const PilihAnakScreen(tujuan: 'input_bbl'),
+              ),
+            );
+          },
+        ),
+        const SizedBox(height: 24),
+
+        const Text('MENU TUMBUH',
+            style: TextStyle(
+                fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey)),
+        const SizedBox(height: 16),
+
         // [WIDGET: DashboardTumbuhQuickMenu] — 6 menu cepat modul anak
         DashboardTumbuhQuickMenu(
           items: DashboardMenuData.tumbuhQuickMenuItems.map((item) {
@@ -993,9 +1012,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const PilihCatatanScreen(
-                           // Arahkan tujuannya ke catatan
-                        ),
+                        builder: (_) => const PilihAnakScreen(tujuan: 'catatan'),
                       ),
                     );
                     break;
@@ -1007,7 +1024,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             };
           }).toList(),
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: 32),
 
         // [MODUL: ANAK] Banner tanda bahaya — klik langsung ke SkriningBahayaScreen
         GestureDetector(
