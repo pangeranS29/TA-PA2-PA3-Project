@@ -726,6 +726,12 @@ func (u *grafikEvaluasiKehamilanUsecase) GetGrafikOnTheFlyForOrangtua(userID int
 			gerakanBayiStr = &gbVal
 		}
 
+		// Menghitung tekanan darah
+		var tekananDarahStr string
+        if p.Sistole != nil && p.Diastole != nil {
+            tekananDarahStr = fmt.Sprintf("%d/%d", *p.Sistole, *p.Diastole)
+        }
+
 		point := GrafikTFUPointOnTheFly{
 			Usia:              minggu,
 			Normal:            float64(minggu),
@@ -733,7 +739,8 @@ func (u *grafikEvaluasiKehamilanUsecase) GetGrafikOnTheFlyForOrangtua(userID int
 			Lower:             float64(minggu) - 2,
 			TanggalPeriksa:    p.TanggalPeriksa.Format("2006-01-02"),
 			TFU:               p.TinggiRahim,
-			TekananDarah:      p.TekananDarah,
+			// TekananDarah:      p.TekananDarah,
+			TekananDarah:      tekananDarahStr,
 			Hemoglobin:        p.TesLabHb,
 			UrinProtein:       p.TesLabProteinUrine,
 			TabletTambahDarah: p.TabletTambahDarah,

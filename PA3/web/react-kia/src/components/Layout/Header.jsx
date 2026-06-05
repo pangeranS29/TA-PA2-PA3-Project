@@ -94,7 +94,7 @@ const headerByPath = (pathname) => {
     };
   }
 
-  if (pathname.startsWith("/dashboard/admin/manajemen-keluarga")) {
+  if (pathname.startsWith("/superadmin/manajemen-keluarga")) {
     return {
       title: "Manajemen Profil Keluarga",
       subtitle: "Kelola data kartu keluarga dan detail anggota keluarga.",
@@ -102,7 +102,7 @@ const headerByPath = (pathname) => {
     };
   }
 
-  if (pathname.startsWith("/dashboard/admin/akun-keluarga")) {
+  if (pathname.startsWith("/superadmin/akun-keluarga")) {
     return {
       title: "Pembuatan Akun Keluarga",
       subtitle: "Buat akun login keluarga secara langsung dari data kependudukan.",

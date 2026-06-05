@@ -44,6 +44,7 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	e.GET("/edukasi-perawatan-anak", controller.EdukasiPerawatanAnak.GetAll)
 	e.GET("/edukasi-perawatan-anak/:id", controller.EdukasiPerawatanAnak.GetByID)
 	// e.GET("/edukasi-nifas", controller.EdukasiNifas.GetAll)
+	e.GET("/edukasi-setelah-melahirkan", controller.EdukasiSetelahMelahirkan.GetAll) // Untuk edukasi ibu bagian Edukasi Nifas
 	e.GET("/edukasi-tanda-melahirkan", controller.EdukasiTandaMelahirkan.GetAll)
 	e.GET("/edukasi-trimester", controller.EdukasiTrimester.GetAll)
 	// e.GET("/edukasi-trimester/:trimester", controller.EdukasiTrimester.GetByTrimester)
@@ -56,14 +57,7 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	admin.Use(middlewares.AdminOnly())
 	// NOTE: Admin hanya bisa membuat Kartu Keluarga + Anggota (Penduduk)
 	// Tidak bisa membuat akun user lagi
-	admin.POST("/kartu-keluarga", controller.AdminCreateKartuKeluarga)
-	admin.GET("/kartu-keluarga", controller.AdminListKartuKeluarga)
-	admin.GET("/kartu-keluarga/:kartu_keluarga_id", controller.AdminDetailKartuKeluarga)
-	admin.PUT("/kartu-keluarga/:kartu_keluarga_id", controller.AdminUpdateKartuKeluarga)
-	admin.PUT("/kartu-keluarga/:kartu_keluarga_id/anggota/:penduduk_id", controller.AdminUpdateAnggotaKeluarga)
-	admin.POST("/kartu-keluarga/:kartu_keluarga_id/anggota", controller.AdminAddAnggotaKeluarga)
-	admin.DELETE("/kartu-keluarga/:kartu_keluarga_id/anggota/:penduduk_id", controller.AdminDeleteAnggotaKeluarga)
-	admin.DELETE("/kartu-keluarga/:kartu_keluarga_id", controller.AdminDeleteKartuKeluarga)
+	// Admin endpoints removed or moved
 
 	// ==================== MODUL SUPERADMIN ====================
 	superadmin := e.Group("/superadmin")
@@ -72,6 +66,16 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	superadmin.Use(middlewares.SuperAdminOnly())
 	superadmin.GET("/audit-trail", controller.AuditTrail.List)
 	superadmin.GET("/audit-trail/summary", controller.AuditTrail.Summary)
+
+	// Manajemen Kartu Keluarga
+	superadmin.POST("/kartu-keluarga", controller.AdminCreateKartuKeluarga)
+	superadmin.GET("/kartu-keluarga", controller.AdminListKartuKeluarga)
+	superadmin.GET("/kartu-keluarga/:kartu_keluarga_id", controller.AdminDetailKartuKeluarga)
+	superadmin.PUT("/kartu-keluarga/:kartu_keluarga_id", controller.AdminUpdateKartuKeluarga)
+	superadmin.PUT("/kartu-keluarga/:kartu_keluarga_id/anggota/:penduduk_id", controller.AdminUpdateAnggotaKeluarga)
+	superadmin.POST("/kartu-keluarga/:kartu_keluarga_id/anggota", controller.AdminAddAnggotaKeluarga)
+	superadmin.DELETE("/kartu-keluarga/:kartu_keluarga_id/anggota/:penduduk_id", controller.AdminDeleteAnggotaKeluarga)
+	superadmin.DELETE("/kartu-keluarga/:kartu_keluarga_id", controller.AdminDeleteKartuKeluarga)
 	superadmin.GET("/desa", controller.Desa.GetAll)
 	superadmin.GET("/desa/:id", controller.Desa.GetByID)
 	superadmin.POST("/desa", controller.Desa.Create)
@@ -88,6 +92,7 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	superadmin.PATCH("/users/:id/role", controller.UpdateUserRole)
 	superadmin.PATCH("/users/:id/nonaktif", controller.DeactivateUser)
 	superadmin.PATCH("/users/:id/aktif", controller.ActivateUser)
+	superadmin.GET("/posyandu", controller.SuperadminListPosyandu)
 
 	// ==================== MODUL BIDAN ====================
 
@@ -163,7 +168,7 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 
 	tenaga.GET("/anak", controller.Anak.AdminList)
 	tenaga.POST("/anak", controller.Anak.Create, middlewares.BidanOnly())
-	// tenaga.POST("/anak/dengan-penduduk", controller.Anak.CreateDenganPenduduk)
+	tenaga.POST("/anak/dengan-penduduk", controller.Anak.CreateDenganPenduduk)
 	tenaga.GET("/anak/:id", controller.Anak.Detail)
 	tenaga.PUT("/anak/:id", controller.Anak.Update, middlewares.BidanOnly())
 	tenaga.DELETE("/anak/:id", controller.Anak.Delete, middlewares.BidanOnly())
@@ -400,10 +405,10 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	tenaga.POST("/ibu", controller.Ibu.Create)
 	tenaga.GET("/ibu", controller.Ibu.GetAll)
 	tenaga.GET("/ibuk", controller.Ibu.GetDashboard)
+	tenaga.GET("/ibu/by-penduduk/:pendudukId", controller.Ibu.GetByPendudukID)
 	tenaga.GET("/ibu/:id", controller.Ibu.GetByID)
 	tenaga.PUT("/ibu/:id", controller.Ibu.Update)
 	tenaga.DELETE("/ibu/:id", controller.Ibu.Delete)
-	tenaga.GET("/ibu/by-penduduk/:pendudukId", controller.Ibu.GetByPendudukID)
 
 	tenaga.POST("/kehamilan", controller.Kehamilan.Create)
 	tenaga.GET("/kehamilan/all", controller.Kehamilan.GetAll)

@@ -132,10 +132,17 @@ func (m *Main) buildAccessToken(user *models.User, destination roleDestination, 
 	now := time.Now()
 	expiry := now.Add(time.Duration(m.config.JWTAccessTokenMins) * time.Minute)
 
+	phoneNumber := ""
+	if user.PendudukID != nil {
+		if penduduk, err := m.repository.Kependudukan.FindByID(int32(*user.PendudukID)); err == nil && penduduk != nil {
+			phoneNumber = penduduk.Telepon
+		}
+	}
+
 	claims := models.AuthClaims{
 		UserID:        user.ID,
 		Email:         user.Email,
-		PhoneNumber:   user.PhoneNumber,
+		PhoneNumber:   phoneNumber,
 		Role:          user.Role.Name,
 		TargetApp:     destination.TargetApp,
 		RedirectRoute: destination.RedirectRoute,
@@ -205,7 +212,13 @@ func (m *Main) Register(req *models.RegisterRequest) error {
 			return customerror.NewBadRequestError("penduduk tidak ditemukan")
 		}
 
-		// penting: pastikan yang disimpan adalah ID benar
+		if req.PhoneNumber != "" {
+			penduduk.Telepon = req.PhoneNumber
+			if err := m.repository.Kependudukan.Update(penduduk); err != nil {
+				return customerror.NewInternalServiceError("gagal memperbarui nomor telepon penduduk")
+			}
+		}
+
 		id := int64(penduduk.IDKependudukan)
 		pendudukID = &id
 	}
@@ -218,7 +231,6 @@ func (m *Main) Register(req *models.RegisterRequest) error {
 	user := &models.User{
 		Name:        req.Name,
 		Email:       req.Email,
-		PhoneNumber: req.PhoneNumber,
 		IsActive:    true,
 		Password:    string(hashedPassword),
 		RoleID:      role.ID,
@@ -314,6 +326,22 @@ func (m *Main) Login(req *models.LoginRequest) (*models.LoginResponse, error) {
 	}
 	user.Role.Name = canonicalRoleName
 
+<<<<<<< HEAD
+	// ========== AMBIL DESA & HP ==========
+	var desaID *int32
+	var desaNama string
+	var userPhone string
+	if user.PendudukID != nil {
+		penduduk, err := m.repository.Kependudukan.FindByID(int32(*user.PendudukID))
+		if err == nil && penduduk != nil {
+			userPhone = penduduk.Telepon
+			if penduduk.DesaID != nil {
+				desaID = penduduk.DesaID
+				desa, err := m.repository.Desa.FindByID(*penduduk.DesaID)
+				if err == nil && desa != nil {
+					desaNama = desa.NamaDesa
+				}
+=======
 	// ========== AMBIL DESA ==========
 	var desaID *int32
 	var desaNama string
@@ -324,6 +352,7 @@ func (m *Main) Login(req *models.LoginRequest) (*models.LoginResponse, error) {
 			desa, err := m.repository.Desa.FindByID(*penduduk.DesaID)
 			if err == nil && desa != nil {
 				desaNama = desa.NamaDesa
+>>>>>>> c2b8adca0c12833ee482d208a3a3743f48fce34d
 			}
 		}
 	}
@@ -341,7 +370,7 @@ func (m *Main) Login(req *models.LoginRequest) (*models.LoginResponse, error) {
 		UserID:        user.ID,
 		Name:          user.Name,
 		Email:         user.Email,
-		PhoneNumber:   user.PhoneNumber,
+		PhoneNumber:   userPhone,
 		Role:          user.Role.Name,
 		TargetApp:     destination.TargetApp,
 		RedirectRoute: destination.RedirectRoute,

@@ -154,7 +154,8 @@ func (r *GrafikEvaluasiKehamilanRepository) FindMineByUserID(userID int32) ([]mo
 		Joins("JOIN kehamilan k ON k.id = grafik_evaluasi_kehamilan.kehamilan_id").
 		Joins("JOIN ibu i ON i.id = k.ibu_id").
 		Joins("JOIN penduduk pd ON pd.id = i.penduduk_id").
-		Joins("JOIN pengguna u ON u.id = pd.id").
+		// Joins("JOIN pengguna u ON u.id = pd.id").
+		Joins("JOIN pengguna u ON u.penduduk_id = pd.id").
 		Where("u.id = ?", userID).
 		Order("grafik_evaluasi_kehamilan.usia_gestasi_minggu ASC, grafik_evaluasi_kehamilan.tanggal_bulan_tahun ASC").
 		Find(&list).Error
@@ -171,7 +172,8 @@ func (r *GrafikEvaluasiKehamilanRepository) FindGrafikTFUByUserID(userID int32) 
 		Joins("JOIN kehamilan k ON k.id = grafik_evaluasi_kehamilan.kehamilan_id").
 		Joins("JOIN ibu i ON i.id = k.ibu_id").
 		Joins("JOIN penduduk pd ON pd.id = i.penduduk_id").
-		Joins("JOIN pengguna u ON u.id = pd.id").
+		// Joins("JOIN pengguna u ON u.id = pd.id").
+		Joins("JOIN pengguna u ON u.penduduk_id = pd.id").
 		Where("u.id = ?", userID).
 		Where("grafik_evaluasi_kehamilan.usia_gestasi_minggu IS NOT NULL").
 		Where("grafik_evaluasi_kehamilan.tinggi_fundus_uteri_cm IS NOT NULL").
@@ -190,7 +192,8 @@ func (r *GrafikEvaluasiKehamilanRepository) FindGrafikDJJByUserID(userID int32) 
 		Joins("JOIN kehamilan k ON k.id = grafik_evaluasi_kehamilan.kehamilan_id").
 		Joins("JOIN ibu i ON i.id = k.ibu_id").
 		Joins("JOIN penduduk pd ON pd.id = i.penduduk_id").
-		Joins("JOIN pengguna u ON u.id = pd.id").
+		// Joins("JOIN pengguna u ON u.id = pd.id").
+		Joins("JOIN pengguna u ON u.penduduk_id = pd.id").
 		Where("u.id = ?", userID).
 		Where("grafik_evaluasi_kehamilan.usia_gestasi_minggu IS NOT NULL").
 		Where("grafik_evaluasi_kehamilan.denyut_jantung_bayi_x_menit IS NOT NULL").
@@ -209,7 +212,9 @@ type PemeriksaanGrafikRaw struct {
 	KehamilanID        int32      `gorm:"column:kehamilan_id"`
 	TanggalPeriksa     *time.Time `gorm:"column:tanggal_periksa"`
 	TinggiRahim        *float64   `gorm:"column:tinggi_rahim"`
-	TekananDarah       string     `gorm:"column:tekanan_darah"`
+	// TekananDarah       string     `gorm:"column:tekanan_darah"`
+	Sistole            *int       `gorm:"column:sistole"`
+    Diastole           *int       `gorm:"column:diastole"`
 	TesLabProteinUrine string     `gorm:"column:tes_lab_protein_urine"`
 	TesLabHb           *float64   `gorm:"column:tes_lab_hb"`
 	TabletTambahDarah  *int       `gorm:"column:tablet_tambah_darah"`
@@ -218,7 +223,8 @@ type PemeriksaanGrafikRaw struct {
 type DJJGrafikRaw struct {
 	KehamilanID    int32      `gorm:"column:kehamilan_id"`
 	TanggalPeriksa *time.Time `gorm:"column:tanggal_periksa"`
-	USGDJNilai     *int       `gorm:"column:usg_djj_nilai"`
+	// USGDJNilai     *int       `gorm:"column:usg_djj_nilai"`
+	USGDJNilai     *int       `gorm:"column:usgdj_nilai"`
 }
 
 type GerakanBayiGrafikRaw struct {
@@ -283,7 +289,8 @@ func (r *GrafikEvaluasiKehamilanRepository) FindPemeriksaanForGrafik(kehamilanID
 
 	err := r.db.
 		Table("pemeriksaan_kehamilan").
-		Select("kehamilan_id, tanggal_periksa, tinggi_rahim, tekanan_darah, tes_lab_protein_urine, tes_lab_hb, tablet_tambah_darah").
+		// Select("kehamilan_id, tanggal_periksa, tinggi_rahim, tekanan_darah, tes_lab_protein_urine, tes_lab_hb, tablet_tambah_darah").
+		Select("kehamilan_id, tanggal_periksa, tinggi_rahim, sistole, diastole, tes_lab_protein_urine, tes_lab_hb, tablet_tambah_darah").
 		Where("kehamilan_id = ?", kehamilanID).
 		Where("tanggal_periksa IS NOT NULL").
 		Order("tanggal_periksa ASC").
@@ -297,10 +304,12 @@ func (r *GrafikEvaluasiKehamilanRepository) FindDJJForGrafik(kehamilanID int32) 
 
 	err := r.db.
 		Table("pemeriksaan_dokter_trimester_3").
-		Select("kehamilan_id, tanggal_periksa, usg_djj_nilai").
+		// Select("kehamilan_id, tanggal_periksa, usg_djj_nilai").
+		Select("kehamilan_id, tanggal_periksa, usgdj_nilai").
 		Where("kehamilan_id = ?", kehamilanID).
 		Where("tanggal_periksa IS NOT NULL").
-		Where("usg_djj_nilai IS NOT NULL").
+		// Where("usg_djj_nilai IS NOT NULL").
+		Where("usgdj_nilai IS NOT NULL").
 		Order("tanggal_periksa ASC").
 		Find(&result).Error
 

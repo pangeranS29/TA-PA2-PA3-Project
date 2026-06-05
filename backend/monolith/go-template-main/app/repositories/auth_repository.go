@@ -32,7 +32,10 @@ func (m *Main) GetUserByEmail(email string) (*models.User, error) {
 
 func (m *Main) GetUserByPhoneNumber(phoneNumber string) (*models.User, error) {
 	var user models.User
-	if err := m.postgres.Preload("Role").Where("nomor_telepon = ?", phoneNumber).First(&user).Error; err != nil {
+	if err := m.postgres.Preload("Role").
+		Joins("JOIN penduduk p ON p.id = pengguna.penduduk_id").
+		Where("p.telepon = ? AND p.deleted_at IS NULL", phoneNumber).
+		First(&user).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, customerror.NewNotFoundError("nomor hp belum terdaftar")
 		}

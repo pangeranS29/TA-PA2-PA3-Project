@@ -11,6 +11,7 @@ import {
   updateAnggotaKeluargaAdmin,
   updateKartuKeluargaAdmin,
 } from "../../services/adminAkunKeluarga";
+import { listDesa } from "../../services/desa";
 
 const emptyMember = {
   nik: "",
@@ -30,6 +31,12 @@ const emptyMember = {
   tujuan_pindah: "",
   tempat_meninggal: "",
   keterangan: "",
+  kecamatan: "",
+  desa_id: "",
+  is_non_ktp: "false",
+  telepon: "",
+  tanggal_penambahan: "",
+  tanggal_pengurangan: "",
 };
 
 const cardClass = "bg-white rounded-2xl shadow-sm border border-slate-100";
@@ -55,6 +62,19 @@ const AkunKeluargaManagement = () => {
   const [saving, setSaving] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [desasList, setDesasList] = useState([]);
+
+  useEffect(() => {
+    const fetchDesas = async () => {
+      try {
+        const data = await listDesa();
+        setDesasList(data);
+      } catch (err) {
+        console.error("Gagal memuat daftar desa", err);
+      }
+    };
+    fetchDesas();
+  }, []);
 
   const resetNotice = () => {
     setErrorMessage("");
@@ -158,6 +178,12 @@ const AkunKeluargaManagement = () => {
       tujuan_pindah: member.tujuan_pindah || "",
       tempat_meninggal: member.tempat_meninggal || "",
       keterangan: member.keterangan || "",
+      kecamatan: member.kecamatan || "",
+      desa_id: member.desa_id || "",
+      is_non_ktp: member.is_non_ktp ? "true" : "false",
+      telepon: member.telepon || "",
+      tanggal_penambahan: member.tanggal_penambahan || "",
+      tanggal_pengurangan: member.tanggal_pengurangan || "",
     });
   };
 
@@ -171,7 +197,12 @@ const AkunKeluargaManagement = () => {
     resetNotice();
     setSaving(true);
     try {
-      await updateAnggotaKeluargaAdmin(selectedKKId, editingPendudukId, editMemberForm);
+      const payload = {
+        ...editMemberForm,
+        desa_id: editMemberForm.desa_id ? parseInt(editMemberForm.desa_id, 10) : null,
+        is_non_ktp: editMemberForm.is_non_ktp === "true",
+      };
+      await updateAnggotaKeluargaAdmin(selectedKKId, editingPendudukId, payload);
       setEditingPendudukId(null);
       await Promise.all([loadDetail(selectedKKId), loadList()]);
       setSuccessMessage("Data anggota keluarga berhasil diperbarui");
@@ -192,7 +223,12 @@ const AkunKeluargaManagement = () => {
     resetNotice();
     setSaving(true);
     try {
-      await addAnggotaKeluargaAdmin(selectedKKId, addForm);
+      const payload = {
+        ...addForm,
+        desa_id: addForm.desa_id ? parseInt(addForm.desa_id, 10) : null,
+        is_non_ktp: addForm.is_non_ktp === "true",
+      };
+      await addAnggotaKeluargaAdmin(selectedKKId, payload);
       setAddForm(emptyMember);
       await Promise.all([loadDetail(selectedKKId), loadList()]);
       setSuccessMessage("Anggota keluarga berhasil ditambahkan");
@@ -298,11 +334,10 @@ const AkunKeluargaManagement = () => {
                     key={item.kartu_keluarga_id}
                     type="button"
                     onClick={() => handleSelectKK(item.kartu_keluarga_id)}
-                    className={`w-full text-left rounded-xl border px-3 py-3 transition ${
-                      selectedKKId === item.kartu_keluarga_id
+                    className={`w-full text-left rounded-xl border px-3 py-3 transition ${selectedKKId === item.kartu_keluarga_id
                         ? "border-blue-300 bg-blue-50"
                         : "border-slate-200 hover:bg-slate-50"
-                    }`}
+                      }`}
                   >
                     <p className="font-semibold text-slate-800">{item.no_kk}</p>
                     <p className="text-sm text-slate-500">Anggota: {item.jumlah_anggota || 0}</p>
@@ -441,6 +476,50 @@ const AkunKeluargaManagement = () => {
                                 className="rounded-xl border border-slate-200 px-3 py-2"
                                 placeholder="Jenis kelamin"
                               />
+                              <select
+                                value={editMemberForm.desa_id}
+                                onChange={(e) => setEditMemberForm((prev) => ({ ...prev, desa_id: e.target.value }))}
+                                className="rounded-xl border border-slate-200 px-3 py-2"
+                              >
+                                <option value="">-- Pilih Desa --</option>
+                                {desasList.map(d => (
+                                  <option key={d.id} value={d.id}>{d.nama_desa}</option>
+                                ))}
+                              </select>
+                              <input
+                                value={editMemberForm.kecamatan}
+                                onChange={(e) => setEditMemberForm((prev) => ({ ...prev, kecamatan: e.target.value }))}
+                                className="rounded-xl border border-slate-200 px-3 py-2"
+                                placeholder="Kecamatan"
+                              />
+                              <select
+                                value={editMemberForm.is_non_ktp}
+                                onChange={(e) => setEditMemberForm((prev) => ({ ...prev, is_non_ktp: e.target.value }))}
+                                className="rounded-xl border border-slate-200 px-3 py-2"
+                              >
+                                <option value="false">KTP Warga Setempat: Ya</option>
+                                <option value="true">KTP Warga Setempat: Tidak</option>
+                              </select>
+                              <input
+                                value={editMemberForm.telepon}
+                                onChange={(e) => setEditMemberForm((prev) => ({ ...prev, telepon: e.target.value }))}
+                                className="rounded-xl border border-slate-200 px-3 py-2"
+                                placeholder="No. Telepon"
+                              />
+                              <input
+                                type="date"
+                                value={editMemberForm.tanggal_penambahan}
+                                onChange={(e) => setEditMemberForm((prev) => ({ ...prev, tanggal_penambahan: e.target.value }))}
+                                className="rounded-xl border border-slate-200 px-3 py-2"
+                                placeholder="Tanggal Penambahan"
+                              />
+                              <input
+                                type="date"
+                                value={editMemberForm.tanggal_pengurangan}
+                                onChange={(e) => setEditMemberForm((prev) => ({ ...prev, tanggal_pengurangan: e.target.value }))}
+                                className="rounded-xl border border-slate-200 px-3 py-2"
+                                placeholder="Tanggal Pengurangan"
+                              />
                             </div>
                             <div className="flex gap-2">
                               <button
@@ -464,7 +543,7 @@ const AkunKeluargaManagement = () => {
                           <div className="flex items-center justify-between gap-3">
                             <div>
                               <p className="font-semibold text-slate-800">{member.nama_lengkap}</p>
-                              <p className="text-sm text-slate-600">{member.nik} • {member.kedudukan_keluarga || "-"}</p>
+                              <p className="text-sm text-slate-600">{member.nik} • {member.kedudukan_keluarga || "-"}{member.telepon && ` • ${member.telepon}`}</p>
                             </div>
                             <div className="flex gap-2">
                               <button
@@ -526,6 +605,50 @@ const AkunKeluargaManagement = () => {
                       <option>Laki-laki</option>
                       <option>Perempuan</option>
                     </select>
+                    <select
+                      value={addForm.desa_id}
+                      onChange={(e) => setAddForm((prev) => ({ ...prev, desa_id: e.target.value }))}
+                      className="rounded-xl border border-slate-200 px-3 py-2"
+                    >
+                      <option value="">-- Pilih Desa --</option>
+                      {desasList.map(d => (
+                        <option key={d.id} value={d.id}>{d.nama_desa}</option>
+                      ))}
+                    </select>
+                    <input
+                      value={addForm.kecamatan}
+                      onChange={(e) => setAddForm((prev) => ({ ...prev, kecamatan: e.target.value }))}
+                      className="rounded-xl border border-slate-200 px-3 py-2"
+                      placeholder="Kecamatan"
+                    />
+                    <select
+                      value={addForm.is_non_ktp}
+                      onChange={(e) => setAddForm((prev) => ({ ...prev, is_non_ktp: e.target.value }))}
+                      className="rounded-xl border border-slate-200 px-3 py-2"
+                    >
+                      <option value="false">KTP Warga Setempat: Ya</option>
+                      <option value="true">KTP Warga Setempat: Tidak</option>
+                    </select>
+                    <input
+                      value={addForm.telepon}
+                      onChange={(e) => setAddForm((prev) => ({ ...prev, telepon: e.target.value }))}
+                      className="rounded-xl border border-slate-200 px-3 py-2"
+                      placeholder="No. Telepon"
+                    />
+                    <input
+                      type="date"
+                      value={addForm.tanggal_penambahan}
+                      onChange={(e) => setAddForm((prev) => ({ ...prev, tanggal_penambahan: e.target.value }))}
+                      className="rounded-xl border border-slate-200 px-3 py-2"
+                      placeholder="Tanggal Penambahan"
+                    />
+                    <input
+                      type="date"
+                      value={addForm.tanggal_pengurangan}
+                      onChange={(e) => setAddForm((prev) => ({ ...prev, tanggal_pengurangan: e.target.value }))}
+                      className="rounded-xl border border-slate-200 px-3 py-2"
+                      placeholder="Tanggal Pengurangan"
+                    />
                   </div>
                   <button
                     type="button"

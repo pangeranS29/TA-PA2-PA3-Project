@@ -111,7 +111,8 @@ func (r *EvaluasiKesehatanIbuRepository) FindMineByUserID(userID int32) (*models
 		Joins("JOIN kehamilan k ON k.id = e.kehamilan_id").
 		Joins("JOIN ibu i ON i.id = k.ibu_id").
 		Joins("JOIN penduduk p ON p.id = i.penduduk_id").
-		Joins("JOIN pengguna u ON u.id = p.id").
+		// Joins("JOIN pengguna u ON u.id = p.id").
+		Joins("JOIN pengguna u ON u.penduduk_id = p.id").
 		Where("u.id = ?", userID).
 		Order("e.created_at DESC").
 		First(&e).Error

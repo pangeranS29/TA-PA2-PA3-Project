@@ -116,16 +116,20 @@ func (u *SuperadminUserUsecase) validateBaseUserFields(name, email, phoneNumber,
 	phoneNumber = strings.TrimSpace(phoneNumber)
 	password = strings.TrimSpace(password)
 
-	if name == "" || email == "" || phoneNumber == "" || password == "" {
-		return "", "", customerror.NewBadRequestError("name, email, phone_number, dan password wajib diisi")
+	if name == "" || email == "" || password == "" {
+		return "", "", customerror.NewBadRequestError("name, email, dan password wajib diisi")
 	}
 	if len(password) < 8 {
 		return "", "", customerror.NewBadRequestError("password minimal 8 karakter")
 	}
 
-	normalizedPhone, err := normalizePhoneNumber(phoneNumber)
-	if err != nil {
-		return "", "", err
+	var normalizedPhone string
+	var err error
+	if phoneNumber != "" {
+		normalizedPhone, err = normalizePhoneNumber(phoneNumber)
+		if err != nil {
+			return "", "", err
+		}
 	}
 
 	return email, normalizedPhone, nil
@@ -186,9 +190,25 @@ func (u *SuperadminUserUsecase) CreateBidanUser(req *SuperadminCreateBidanUserRe
 	if err != nil {
 		return nil, err
 	}
-	pendudukDesaID, err := u.getPendudukDesaID(req.PendudukID)
+	penduduk, err := u.repo.Kependudukan.FindByID(req.PendudukID)
 	if err != nil {
-		return nil, err
+		return nil, customerror.NewNotFoundError("penduduk tidak ditemukan")
+	}
+	if normalizedPhone == "" && penduduk.Telepon != "" {
+		normalizedPhone, err = normalizePhoneNumber(penduduk.Telepon)
+		if err != nil {
+			return nil, err
+		}
+	}
+	if normalizedPhone == "" {
+		return nil, customerror.NewBadRequestError("penduduk belum memiliki nomor telepon. Silakan lengkapi data kependudukan terlebih dahulu.")
+	}
+	pendudukDesaID := penduduk.DesaID
+	if pendudukDesaID == nil || *pendudukDesaID == 0 {
+		return nil, customerror.NewBadRequestError("penduduk belum memiliki desa_id")
+	}
+	if _, err := u.repo.Desa.GetByID(*pendudukDesaID); err != nil {
+		return nil, customerror.NewNotFoundError("desa pada data penduduk tidak ditemukan")
 	}
 	if err := u.validateDesaConsistency(req.DesaID, pendudukDesaID); err != nil {
 		return nil, err
@@ -234,20 +254,21 @@ func (u *SuperadminUserUsecase) CreateBidanUser(req *SuperadminCreateBidanUserRe
 	pendudukID64 := int64(req.PendudukID)
 	err = u.repo.DB().Transaction(func(tx *gorm.DB) error {
 		createdUser = models.User{
-			Name:        strings.TrimSpace(req.Name),
-			Email:       email,
-			PhoneNumber: normalizedPhone,
-			IsActive:    true,
-			Password:    hashedPassword,
-			RoleID:      role.ID,
-			PendudukID:  &pendudukID64,
+			Name:       strings.TrimSpace(req.Name),
+			Email:      email,
+			IsActive:   true,
+			Password:   hashedPassword,
+			RoleID:     role.ID,
+			PendudukID: &pendudukID64,
 		}
 		if err := tx.Create(&createdUser).Error; err != nil {
 			return err
 		}
+		if err := tx.Model(&models.Kependudukan{}).Where("id = ?", req.PendudukID).Update("telepon", normalizedPhone).Error; err != nil {
+			return err
+		}
 		createdBidan = models.Bidan{
 			PendudukID: req.PendudukID,
-			DesaID:     pendudukDesaID,
 			NoSTR:      strings.TrimSpace(req.NoSTR),
 			NoSIPB:     strings.TrimSpace(req.NoSIPB),
 			Status:     "aktif",
@@ -278,9 +299,25 @@ func (u *SuperadminUserUsecase) CreateAdminDesaUser(req *SuperadminCreateAdminDe
 	if err != nil {
 		return nil, err
 	}
-	pendudukDesaID, err := u.getPendudukDesaID(*req.PendudukID)
+	penduduk, err := u.repo.Kependudukan.FindByID(*req.PendudukID)
 	if err != nil {
-		return nil, err
+		return nil, customerror.NewNotFoundError("penduduk tidak ditemukan")
+	}
+	if normalizedPhone == "" && penduduk.Telepon != "" {
+		normalizedPhone, err = normalizePhoneNumber(penduduk.Telepon)
+		if err != nil {
+			return nil, err
+		}
+	}
+	if normalizedPhone == "" {
+		return nil, customerror.NewBadRequestError("penduduk belum memiliki nomor telepon. Silakan lengkapi data kependudukan terlebih dahulu.")
+	}
+	pendudukDesaID := penduduk.DesaID
+	if pendudukDesaID == nil || *pendudukDesaID == 0 {
+		return nil, customerror.NewBadRequestError("penduduk belum memiliki desa_id")
+	}
+	if _, err := u.repo.Desa.GetByID(*pendudukDesaID); err != nil {
+		return nil, customerror.NewNotFoundError("desa pada data penduduk tidak ditemukan")
 	}
 	if err := u.validateDesaConsistency(req.DesaID, pendudukDesaID); err != nil {
 		return nil, err
@@ -316,16 +353,27 @@ func (u *SuperadminUserUsecase) CreateAdminDesaUser(req *SuperadminCreateAdminDe
 		return nil, err
 	}
 
-	user := &models.User{
-		Name:        strings.TrimSpace(req.Name),
-		Email:       email,
-		PhoneNumber: normalizedPhone,
-		IsActive:    true,
-		Password:    hashedPassword,
-		RoleID:      role.ID,
-		PendudukID:  pendudukID,
-	}
-	if err := u.repo.DB().Create(user).Error; err != nil {
+	var user *models.User
+	err = u.repo.DB().Transaction(func(tx *gorm.DB) error {
+		user = &models.User{
+			Name:       strings.TrimSpace(req.Name),
+			Email:      email,
+			IsActive:   true,
+			Password:   hashedPassword,
+			RoleID:     role.ID,
+			PendudukID: pendudukID,
+		}
+		if err := tx.Create(user).Error; err != nil {
+			return err
+		}
+		if pendudukID != nil {
+			if err := tx.Model(&models.Kependudukan{}).Where("id = ?", *pendudukID).Update("telepon", normalizedPhone).Error; err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+	if err != nil {
 		if strings.Contains(strings.ToLower(err.Error()), "unique") || strings.Contains(strings.ToLower(err.Error()), "duplicate") {
 			return nil, customerror.NewConflictError("data user sudah terdaftar")
 		}
@@ -346,9 +394,25 @@ func (u *SuperadminUserUsecase) CreateKaderUser(req *SuperadminCreateKaderUserRe
 	if err != nil {
 		return nil, err
 	}
-	pendudukDesaID, err := u.getPendudukDesaID(req.PendudukID)
+	penduduk, err := u.repo.Kependudukan.FindByID(req.PendudukID)
 	if err != nil {
-		return nil, err
+		return nil, customerror.NewNotFoundError("penduduk tidak ditemukan")
+	}
+	if normalizedPhone == "" && penduduk.Telepon != "" {
+		normalizedPhone, err = normalizePhoneNumber(penduduk.Telepon)
+		if err != nil {
+			return nil, err
+		}
+	}
+	if normalizedPhone == "" {
+		return nil, customerror.NewBadRequestError("penduduk belum memiliki nomor telepon. Silakan lengkapi data kependudukan terlebih dahulu.")
+	}
+	pendudukDesaID := penduduk.DesaID
+	if pendudukDesaID == nil || *pendudukDesaID == 0 {
+		return nil, customerror.NewBadRequestError("penduduk belum memiliki desa_id")
+	}
+	if _, err := u.repo.Desa.GetByID(*pendudukDesaID); err != nil {
+		return nil, customerror.NewNotFoundError("desa pada data penduduk tidak ditemukan")
 	}
 	if err := u.validateDesaConsistency(req.DesaID, pendudukDesaID); err != nil {
 		return nil, err
@@ -394,15 +458,17 @@ func (u *SuperadminUserUsecase) CreateKaderUser(req *SuperadminCreateKaderUserRe
 	var createdKader models.Kader
 	err = u.repo.DB().Transaction(func(tx *gorm.DB) error {
 		createdUser = models.User{
-			Name:        strings.TrimSpace(req.Name),
-			Email:       email,
-			PhoneNumber: normalizedPhone,
-			IsActive:    true,
-			Password:    hashedPassword,
-			RoleID:      role.ID,
-			PendudukID:  &pendudukID64,
+			Name:       strings.TrimSpace(req.Name),
+			Email:      email,
+			IsActive:   true,
+			Password:   hashedPassword,
+			RoleID:     role.ID,
+			PendudukID: &pendudukID64,
 		}
 		if err := tx.Create(&createdUser).Error; err != nil {
+			return err
+		}
+		if err := tx.Model(&models.Kependudukan{}).Where("id = ?", req.PendudukID).Update("telepon", normalizedPhone).Error; err != nil {
 			return err
 		}
 		createdKader = models.Kader{
@@ -444,9 +510,25 @@ func (u *SuperadminUserUsecase) CreateUser(req *SuperadminCreateUserRequest) (*m
 	var pendudukID *int64
 	var pendudukDesaID *int32
 	if req.PendudukID != nil && *req.PendudukID > 0 {
-		pendudukDesaID, err = u.getPendudukDesaID(int32(*req.PendudukID))
+		penduduk, err := u.repo.Kependudukan.FindByID(int32(*req.PendudukID))
 		if err != nil {
-			return nil, err
+			return nil, customerror.NewNotFoundError("penduduk tidak ditemukan")
+		}
+		if normalizedPhone == "" && penduduk.Telepon != "" {
+			normalizedPhone, err = normalizePhoneNumber(penduduk.Telepon)
+			if err != nil {
+				return nil, err
+			}
+		}
+		if normalizedPhone == "" {
+			return nil, customerror.NewBadRequestError("penduduk belum memiliki nomor telepon. Silakan lengkapi data kependudukan terlebih dahulu.")
+		}
+		pendudukDesaID = penduduk.DesaID
+		if pendudukDesaID == nil || *pendudukDesaID == 0 {
+			return nil, customerror.NewBadRequestError("penduduk belum memiliki desa_id")
+		}
+		if _, err := u.repo.Desa.GetByID(*pendudukDesaID); err != nil {
+			return nil, customerror.NewNotFoundError("desa pada data penduduk tidak ditemukan")
 		}
 		pendudukID = req.PendudukID
 	}
@@ -491,16 +573,27 @@ func (u *SuperadminUserUsecase) CreateUser(req *SuperadminCreateUserRequest) (*m
 		return nil, err
 	}
 
-	user := &models.User{
-		Name:        strings.TrimSpace(req.Name),
-		Email:       email,
-		PhoneNumber: normalizedPhone,
-		IsActive:    true,
-		Password:    hashedPassword,
-		RoleID:      role.ID,
-		PendudukID:  pendudukID,
-	}
-	if err := u.repo.DB().Create(user).Error; err != nil {
+	var user *models.User
+	err = u.repo.DB().Transaction(func(tx *gorm.DB) error {
+		user = &models.User{
+			Name:       strings.TrimSpace(req.Name),
+			Email:      email,
+			IsActive:   true,
+			Password:   hashedPassword,
+			RoleID:     role.ID,
+			PendudukID: pendudukID,
+		}
+		if err := tx.Create(user).Error; err != nil {
+			return err
+		}
+		if pendudukID != nil {
+			if err := tx.Model(&models.Kependudukan{}).Where("id = ?", *pendudukID).Update("telepon", normalizedPhone).Error; err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+	if err != nil {
 		if strings.Contains(strings.ToLower(err.Error()), "unique") || strings.Contains(strings.ToLower(err.Error()), "duplicate") {
 			return nil, customerror.NewConflictError("data user sudah terdaftar")
 		}
@@ -598,7 +691,7 @@ func (u *SuperadminUserUsecase) DeactivateUser(id int32) (*models.User, error) {
 			}
 		case "Kader":
 			if user.PendudukID != nil {
-				if err := tx.Model(&models.Kader{}).Where("penduduk_id = ? AND deleted_at IS NULL", *user.PendudukID).Updates(map[string]interface{}{
+				if err := tx.Model(&models.Kader{}).Where("id_penduduk = ? AND deleted_at IS NULL", *user.PendudukID).Updates(map[string]interface{}{
 					"status":     "nonaktif",
 					"updated_at": gorm.Expr("NOW()"),
 				}).Error; err != nil {
@@ -644,7 +737,7 @@ func (u *SuperadminUserUsecase) ActivateUser(id int32) (*models.User, error) {
 			}
 		case "Kader":
 			if user.PendudukID != nil {
-				if err := tx.Model(&models.Kader{}).Where("penduduk_id = ? AND deleted_at IS NULL", *user.PendudukID).Updates(map[string]interface{}{
+				if err := tx.Model(&models.Kader{}).Where("id_penduduk = ? AND deleted_at IS NULL", *user.PendudukID).Updates(map[string]interface{}{
 					"status":     "aktif",
 					"updated_at": gorm.Expr("NOW()"),
 				}).Error; err != nil {

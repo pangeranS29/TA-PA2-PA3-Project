@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import MainLayout from "../../components/Layout/MainLayout";
 import SearchablePendudukSelect from "../../components/Form/SearchablePendudukSelect";
-import { listDesa } from "../../services/desa";
 import { listPendudukForDropdown } from "../../services/superadminPenduduk";
 import {
   activateSuperadminUser,
@@ -22,7 +21,6 @@ import {
   Plus,
   Power,
   Search,
-  ShieldCheck,
   UserCircle2,
   X,
 } from "lucide-react";
@@ -39,7 +37,6 @@ const cardClass = "rounded-3xl border border-slate-200 bg-white shadow-sm";
 
 const emptyRoleForm = {
   role_name: "",
-  desa_id: "",
 };
 
 const normalizeRole = (role) => (role || "").toLowerCase().replace(/[\s_-]/g, "");
@@ -51,22 +48,17 @@ const emptyResetForm = {
 const emptyCreateForm = {
   name: "",
   email: "",
-  phone_number: "",
   password: "",
   role_name: "",
-  desa_id: "",
   penduduk_id: "",
 };
 
 export default function UserPerDesaManagement() {
   const [users, setUsers] = useState([]);
-  const [desaOptions, setDesaOptions] = useState([]);
   const [loadingUsers, setLoadingUsers] = useState(true);
-  const [loadingDesa, setLoadingDesa] = useState(true);
   const [loadingPenduduk, setLoadingPenduduk] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [search, setSearch] = useState("");
-  const [desaFilter, setDesaFilter] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -93,18 +85,6 @@ export default function UserPerDesaManagement() {
     }
   };
 
-  const loadDesa = async () => {
-    try {
-      setLoadingDesa(true);
-      const data = await listDesa();
-      setDesaOptions(Array.isArray(data) ? data : []);
-    } catch (error) {
-      setErrorMessage(superadminUserErrorMessage(error, "Gagal memuat data desa"));
-    } finally {
-      setLoadingDesa(false);
-    }
-  };
-
   const loadPenduduk = async () => {
     try {
       setLoadingPenduduk(true);
@@ -119,18 +99,13 @@ export default function UserPerDesaManagement() {
 
   useEffect(() => {
     loadUsers();
-    loadDesa();
     loadPenduduk();
   }, []);
 
-  const pendudukLabel = (penduduk) => `${penduduk.nama_lengkap} (${penduduk.nik})`;
-
-  const desaMap = useMemo(() => {
-    return desaOptions.reduce((acc, desa) => {
-      acc[String(desa.id)] = desa;
-      return acc;
-    }, {});
-  }, [desaOptions]);
+  const pendudukLabel = (penduduk) => {
+    const roleText = penduduk.kedudukan_keluarga ? ` - ${penduduk.kedudukan_keluarga}` : "";
+    return `${penduduk.nama_lengkap} (${penduduk.nik}${roleText})`;
+  };
 
   const visibleUsers = useMemo(() => {
     const keyword = search.trim().toLowerCase();
@@ -141,19 +116,15 @@ export default function UserPerDesaManagement() {
         return false;
       }
 
-      if (desaFilter && String(user.desa_id || "") !== desaFilter) {
-        return false;
-      }
-
       if (!keyword) {
         return true;
       }
 
-      return [user.name, user.email, user.phone_number, user.role, user.desa_name, String(user.desa_id || "")]
+      return [user.name, user.email, user.phone_number, user.role]
         .filter(Boolean)
         .some((value) => value.toLowerCase().includes(keyword));
     });
-  }, [users, search, desaFilter]);
+  }, [users, search]);
 
   const stats = useMemo(() => {
     const activeUsers = visibleUsers.filter((user) => user.is_active).length;
@@ -163,9 +134,8 @@ export default function UserPerDesaManagement() {
       { label: "Total User", value: visibleUsers.length, icon: UserCircle2, tone: "bg-cyan-50 text-cyan-700" },
       { label: "Aktif", value: activeUsers, icon: CheckCircle2, tone: "bg-emerald-50 text-emerald-700" },
       { label: "Nonaktif", value: inactiveUsers, icon: Power, tone: "bg-rose-50 text-rose-700" },
-      { label: "Desa Terpilih", value: desaFilter ? 1 : desaOptions.length, icon: ShieldCheck, tone: "bg-amber-50 text-amber-700" },
     ];
-  }, [visibleUsers, desaFilter, desaOptions.length]);
+  }, [visibleUsers]);
 
   const clearMessages = () => {
     setErrorMessage("");
@@ -186,10 +156,7 @@ export default function UserPerDesaManagement() {
   }, [notificationMessage]);
 
   const openCreateModal = () => {
-    setCreateForm((prev) => ({
-      ...emptyCreateForm,
-      desa_id: desaFilter || prev.desa_id || "",
-    }));
+    setCreateForm({ ...emptyCreateForm });
     setShowCreateModal(true);
   };
 
@@ -201,8 +168,8 @@ export default function UserPerDesaManagement() {
   const submitCreateUser = async (event) => {
     event.preventDefault();
 
-    if (!createForm.name.trim() || !createForm.email.trim() || !createForm.phone_number.trim() || !createForm.password.trim() || !createForm.role_name.trim() || !createForm.desa_id) {
-      setErrorMessage("Nama, email, nomor HP, password, role, dan desa wajib diisi");
+    if (!createForm.name.trim() || !createForm.email.trim() || !createForm.password.trim() || !createForm.role_name.trim()) {
+      setErrorMessage("Nama, email, password, dan role wajib diisi");
       return;
     }
 
@@ -212,10 +179,8 @@ export default function UserPerDesaManagement() {
       await createSuperadminUser({
         name: createForm.name.trim(),
         email: createForm.email.trim(),
-        phone_number: createForm.phone_number.trim(),
         password: createForm.password.trim(),
         role_name: createForm.role_name.trim(),
-        desa_id: Number(createForm.desa_id),
         penduduk_id: createForm.penduduk_id ? Number(createForm.penduduk_id) : undefined,
       });
       closeCreateModal();
@@ -232,7 +197,6 @@ export default function UserPerDesaManagement() {
     setSelectedUser(user);
     setRoleForm({
       role_name: user.role || "",
-      desa_id: user.desa_id ? String(user.desa_id) : "",
     });
     setShowRoleModal(true);
   };
@@ -289,7 +253,6 @@ export default function UserPerDesaManagement() {
       setSubmitting(true);
       await updateSuperadminUserRole(selectedUser.id, {
         role_name: roleForm.role_name.trim(),
-        desa_id: roleForm.desa_id ? Number(roleForm.desa_id) : undefined,
       });
       setShowRoleModal(false);
       setSelectedUser(null);
@@ -330,7 +293,7 @@ export default function UserPerDesaManagement() {
   return (
     <MainLayout>
       <div className="p-8 space-y-8">
-        <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {stats.map((stat) => {
             const Icon = stat.icon;
             return (
@@ -352,9 +315,9 @@ export default function UserPerDesaManagement() {
         <div className={`${cardClass} p-6 space-y-5`}>
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-400">Kelola user desa</p>
+              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-400">Kelola user</p>
               <h2 className="mt-1 text-2xl font-bold text-slate-900">User selain bidan, kader, dan admin</h2>
-              <p className="mt-1 text-sm text-slate-500">Gunakan halaman ini untuk mengubah role, reset password, dan menonaktifkan user biasa per desa.</p>
+              <p className="mt-1 text-sm text-slate-500">Gunakan halaman ini untuk mengubah role, reset password, dan menonaktifkan user biasa.</p>
             </div>
             <div className="flex flex-wrap items-center gap-3">
               <button onClick={openCreateModal} className="inline-flex items-center gap-2 rounded-2xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800">
@@ -369,8 +332,8 @@ export default function UserPerDesaManagement() {
             </div>
           </div>
 
-          <div className="grid gap-3 lg:grid-cols-3">
-            <div className="relative lg:col-span-2">
+          <div className="grid gap-3">
+            <div className="relative">
               <Search size={16} className="absolute left-3 top-3 text-slate-400" />
               <input
                 type="text"
@@ -380,21 +343,6 @@ export default function UserPerDesaManagement() {
                 className="w-full rounded-2xl border border-slate-200 py-2.5 pl-10 pr-4"
               />
             </div>
-            <div>
-              <select
-                value={desaFilter}
-                onChange={(e) => setDesaFilter(e.target.value)}
-                className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 shadow-sm outline-none transition focus:border-slate-900 focus:ring-4 focus:ring-slate-900/10 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400"
-                disabled={loadingDesa}
-              >
-                <option value="">Semua desa</option>
-                {desaOptions.map((desa) => (
-                  <option key={desa.id} value={desa.id}>
-                    {desa.nama_desa}
-                  </option>
-                ))}
-              </select>
-            </div>
           </div>
 
           <div className="overflow-x-auto rounded-2xl border border-slate-200">
@@ -403,7 +351,6 @@ export default function UserPerDesaManagement() {
                 <tr>
                   <th className="px-4 py-3 font-semibold">User</th>
                   <th className="px-4 py-3 font-semibold">Role</th>
-                  <th className="px-4 py-3 font-semibold">Desa</th>
                   <th className="px-4 py-3 font-semibold">Status</th>
                   <th className="px-4 py-3 font-semibold">Kontak</th>
                   <th className="px-4 py-3 text-center font-semibold">Aksi</th>
@@ -412,15 +359,14 @@ export default function UserPerDesaManagement() {
               <tbody>
                 {loadingUsers ? (
                   <tr>
-                    <td colSpan={6} className="px-4 py-10 text-center text-slate-500">Memuat data user...</td>
+                    <td colSpan={5} className="px-4 py-10 text-center text-slate-500">Memuat data user...</td>
                   </tr>
                 ) : visibleUsers.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="px-4 py-10 text-center text-slate-500">Belum ada user yang sesuai filter</td>
+                    <td colSpan={5} className="px-4 py-10 text-center text-slate-500">Belum ada user yang sesuai filter</td>
                   </tr>
                 ) : (
                   visibleUsers.map((user) => {
-                    const desaName = user.desa_name || (user.desa_id ? desaMap[String(user.desa_id)]?.nama_desa : "-") || "-";
                     return (
                       <tr key={user.id} className="border-t border-slate-100 align-top hover:bg-slate-50/70">
                         <td className="px-4 py-4">
@@ -429,10 +375,6 @@ export default function UserPerDesaManagement() {
                         </td>
                         <td className="px-4 py-4">
                           <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-700">{user.role}</span>
-                        </td>
-                        <td className="px-4 py-4 text-sm text-slate-600">
-                          <div>{desaName}</div>
-                          {user.desa_id ? <div className="text-xs text-slate-400">desa_id: {user.desa_id}</div> : null}
                         </td>
                         <td className="px-4 py-4">
                           <span className={`inline-flex rounded-full px-3 py-1 text-sm font-medium ${user.is_active ? "bg-emerald-50 text-emerald-700" : "bg-rose-50 text-rose-700"}`}>
@@ -480,7 +422,7 @@ export default function UserPerDesaManagement() {
             <div className="flex items-start justify-between gap-4 border-b border-slate-200 px-6 py-4">
               <div>
                 <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-400">Tambah User</p>
-                <h3 className="mt-1 text-2xl font-bold text-slate-900">Buat akun user per desa</h3>
+                <h3 className="mt-1 text-2xl font-bold text-slate-900">Buat akun user baru</h3>
                 <p className="mt-1 text-sm text-slate-500">Akun ini untuk role selain bidan, kader, admin, dan superadmin.</p>
               </div>
               <button type="button" onClick={closeCreateModal} className="rounded-full bg-slate-100 p-2 text-slate-500 hover:bg-slate-200">
@@ -490,6 +432,25 @@ export default function UserPerDesaManagement() {
 
             <form onSubmit={submitCreateUser} className="space-y-4 px-6 py-6">
               <div className="grid gap-4 md:grid-cols-2">
+                <div className="md:col-span-2">
+                  <SearchablePendudukSelect
+                    label="Penduduk"
+                    value={createForm.penduduk_id}
+                    onChange={(value) => {
+                      const selected = pendudukOptions.find((p) => String(p.id) === String(value));
+                      setCreateForm((prev) => ({
+                        ...prev,
+                        penduduk_id: value,
+                        name: selected ? selected.nama_lengkap : prev.name,
+                      }));
+                    }}
+                    options={pendudukOptions}
+                    loading={loadingPenduduk}
+                    optionLabel={pendudukLabel}
+                    placeholder={loadingPenduduk ? "Memuat penduduk..." : "Ketik nama atau NIK penduduk"}
+                    emptyText="Penduduk tidak ditemukan"
+                  />
+                </div>
                 <div>
                   <label className="text-sm text-slate-600">Nama</label>
                   <input type="text" value={createForm.name} onChange={(e) => setCreateForm((prev) => ({ ...prev, name: e.target.value }))} className="mt-1 w-full rounded-2xl border border-slate-200 px-4 py-3" placeholder="Nama user" />
@@ -510,36 +471,10 @@ export default function UserPerDesaManagement() {
                   <input type="email" value={createForm.email} onChange={(e) => setCreateForm((prev) => ({ ...prev, email: e.target.value }))} className="mt-1 w-full rounded-2xl border border-slate-200 px-4 py-3" placeholder="user@example.com" />
                 </div>
                 <div>
-                  <label className="text-sm text-slate-600">Nomor HP</label>
-                  <input type="text" value={createForm.phone_number} onChange={(e) => setCreateForm((prev) => ({ ...prev, phone_number: e.target.value }))} className="mt-1 w-full rounded-2xl border border-slate-200 px-4 py-3" placeholder="08xxxxxxxxxx" />
-                </div>
-                <div>
                   <label className="text-sm text-slate-600">Password Awal</label>
                   <input type="password" value={createForm.password} onChange={(e) => setCreateForm((prev) => ({ ...prev, password: e.target.value }))} className="mt-1 w-full rounded-2xl border border-slate-200 px-4 py-3" placeholder="Minimal 8 karakter" />
                 </div>
-                <div>
-                  <label className="text-sm text-slate-600">Desa</label>
-                  <select value={createForm.desa_id} onChange={(e) => setCreateForm((prev) => ({ ...prev, desa_id: e.target.value }))} className="mt-1 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 shadow-sm outline-none transition focus:border-slate-900 focus:ring-4 focus:ring-slate-900/10 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400" disabled={loadingDesa}>
-                    <option value="">{loadingDesa ? "Memuat desa..." : "Pilih desa"}</option>
-                    {desaOptions.map((desa) => (
-                      <option key={desa.id} value={desa.id}>
-                        {desa.nama_desa}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <SearchablePendudukSelect
-                    label="Penduduk"
-                    value={createForm.penduduk_id}
-                    onChange={(value) => setCreateForm((prev) => ({ ...prev, penduduk_id: value }))}
-                    options={pendudukOptions}
-                    loading={loadingPenduduk}
-                    optionLabel={pendudukLabel}
-                    placeholder={loadingPenduduk ? "Memuat penduduk..." : "Ketik nama atau NIK penduduk"}
-                    emptyText="Penduduk tidak ditemukan"
-                  />
-                </div>
+
               </div>
 
               <div className="flex items-center justify-end gap-3 pt-2">
@@ -563,7 +498,7 @@ export default function UserPerDesaManagement() {
               <div>
                 <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-400">Edit Role</p>
                 <h3 className="mt-1 text-2xl font-bold text-slate-900">{selectedUser.name}</h3>
-                <p className="mt-1 text-sm text-slate-500">Ubah role user dan, jika perlu, pindahkan ke desa lain.</p>
+                <p className="mt-1 text-sm text-slate-500">Ubah role user.</p>
               </div>
               <button type="button" onClick={() => setShowRoleModal(false)} className="rounded-full bg-slate-100 p-2 text-slate-500 hover:bg-slate-200">
                 <X size={18} />
@@ -578,18 +513,6 @@ export default function UserPerDesaManagement() {
                   {editableRoles.map((role) => (
                     <option key={role.value} value={role.value}>
                       {role.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="text-sm text-slate-600">Desa</label>
-                <select value={roleForm.desa_id} onChange={(e) => setRoleForm((prev) => ({ ...prev, desa_id: e.target.value }))} className="mt-1 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 shadow-sm outline-none transition focus:border-slate-900 focus:ring-4 focus:ring-slate-900/10 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400" disabled={loadingDesa}>
-                  <option value="">{loadingDesa ? "Memuat desa..." : "Kosongkan jika tidak perlu pindah desa"}</option>
-                  {desaOptions.map((desa) => (
-                    <option key={desa.id} value={desa.id}>
-                      {desa.nama_desa}
                     </option>
                   ))}
                 </select>

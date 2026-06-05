@@ -14,7 +14,8 @@ import (
 type AnakUseCase struct {
 	anakRepo             *repositories.AnakRepository
 	kependudukanRepo     *repositories.KependudukanRepository
-	prediksiStuntingRepo  repositories.PrediksiStuntingRepository
+	prediksiStuntingRepo repositories.PrediksiStuntingRepository
+	onAnakCreated        func(anakID int32) // ← callback untuk auto-generate jadwal
 }
 
 func NewAnakUseCase(
@@ -25,8 +26,13 @@ func NewAnakUseCase(
 	return &AnakUseCase{
 		anakRepo:             anakRepo,
 		kependudukanRepo:     kependudukanRepo,
-		prediksiStuntingRepo:  prediksiStuntingRepo,
+		prediksiStuntingRepo: prediksiStuntingRepo,
 	}
+}
+
+// SetOnAnakCreated mendaftarkan callback yang dipanggil setelah anak berhasil dibuat
+func (u *AnakUseCase) SetOnAnakCreated(fn func(anakID int32)) {
+	u.onAnakCreated = fn
 }
 
 // ====================== GET ======================
@@ -81,7 +87,7 @@ func (u *AnakUseCase) CreateAnak(req models.CreateAnakRequest) (*models.AnakResp
 
 	anak := &models.Anak{
 		KehamilanID:     req.KehamilanID,
-		PendudukID:      pendudukID, // Gunakan pendudukID (bisa dari auto-create atau req.PendudukID)
+		PendudukID:      pendudukID,
 		BeratLahirKg:    req.BeratLahirKg,
 		TinggiLahirCm:   req.TinggiLahirCm,
 		AnakKe:          req.AnakKe,
@@ -106,6 +112,13 @@ func (u *AnakUseCase) CreateAnak(req models.CreateAnakRequest) (*models.AnakResp
 	if predErr == nil && pred != nil {
 		resp.StatusPrediksi = pred.StatusPrediksi
 	}
+
+	// ✅ Auto-generate jadwal imunisasi (non-blocking, tidak memblokir response)
+	if u.onAnakCreated != nil {
+		anakID := anak.ID
+		go u.onAnakCreated(anakID)
+	}
+
 	return &resp, nil
 }
 
@@ -134,6 +147,13 @@ func (u *AnakUseCase) CreateAnakDenganPenduduk(req models.CreateAnakDenganPendud
 		return nil, errors.New("format tanggal_lahir harus YYYY-MM-DD")
 	}
 
+	// ✅ Ambil desa_id dari penduduk ibu
+	var desaID *int32
+	ibuPenduduk, errIbu := u.kependudukanRepo.FindByID(req.IbuID)
+	if errIbu == nil && ibuPenduduk != nil {
+		desaID = ibuPenduduk.DesaID
+	}
+
 	// Buat kependudukan baru untuk anak
 	newPenduduk := &models.Kependudukan{
 		NamaLengkap:   req.Nama,
@@ -141,7 +161,7 @@ func (u *AnakUseCase) CreateAnakDenganPenduduk(req models.CreateAnakDenganPendud
 		TanggalLahir:  tanggalLahir,
 		TempatLahir:   req.TempatLahir,
 		GolonganDarah: req.GolonganDarah,
-		// NIK tidak diisi untuk newborn, akan disimpan sebagai NULL
+		DesaID:        desaID, // ✅ otomatis dari ibu
 	}
 
 	if err := u.kependudukanRepo.Create(newPenduduk); err != nil {
@@ -176,6 +196,13 @@ func (u *AnakUseCase) CreateAnakDenganPenduduk(req models.CreateAnakDenganPendud
 	if predErr == nil && pred != nil {
 		resp.StatusPrediksi = pred.StatusPrediksi
 	}
+
+	// ✅ Auto-generate jadwal imunisasi (non-blocking, tidak memblokir response)
+	if u.onAnakCreated != nil {
+		anakID := anak.ID
+		go u.onAnakCreated(anakID)
+	}
+
 	return &resp, nil
 }
 
@@ -273,7 +300,6 @@ func (u *AnakUseCase) AdminListAnak(kehamilanID int32) ([]models.AnakResponse, e
 		err  error
 	)
 
-	// FIX: harus dibandingkan dengan 0
 	if kehamilanID != 0 {
 		list, err = u.anakRepo.FindByKehamilanID(kehamilanID)
 	} else {
@@ -289,7 +315,6 @@ func (u *AnakUseCase) AdminListAnak(kehamilanID int32) ([]models.AnakResponse, e
 		return result, nil
 	}
 
-	// Fetch stunting predictions in bulk
 	var ids []int32
 	for _, k := range list {
 		ids = append(ids, k.ID)
@@ -309,9 +334,6 @@ func (u *AnakUseCase) AdminListAnak(kehamilanID int32) ([]models.AnakResponse, e
 	return result, nil
 }
 
-// ListAnakByDesa: untuk bidan, hanya tampilkan anak di desa bidan.
-// Jika desaID nil (misalnya admin/dokter/superadmin), tampilkan semua.
-// Jika desaID ada, filter berdasarkan penduduk.desa_id.
 func (u *AnakUseCase) ListAnakByDesa(desaID *int32, kehamilanID int32) ([]models.AnakResponse, error) {
 	var (
 		list []models.Anak
@@ -319,13 +341,10 @@ func (u *AnakUseCase) ListAnakByDesa(desaID *int32, kehamilanID int32) ([]models
 	)
 
 	if kehamilanID != 0 {
-		// Jika ada filter kehamilan_id, gunakan FindByKehamilanID
 		list, err = u.anakRepo.FindByKehamilanID(kehamilanID)
 	} else if desaID != nil && *desaID > 0 {
-		// Bidan login → filter berdasarkan desa_id
 		list, err = u.anakRepo.FindAllByDesaID(*desaID)
 	} else {
-		// Admin/Dokter/Superadmin → tampilkan semua
 		list, err = u.anakRepo.FindAll()
 	}
 
@@ -338,7 +357,6 @@ func (u *AnakUseCase) ListAnakByDesa(desaID *int32, kehamilanID int32) ([]models
 		return result, nil
 	}
 
-	// Fetch stunting predictions in bulk
 	var ids []int32
 	for _, k := range list {
 		ids = append(ids, k.ID)
@@ -452,12 +470,10 @@ func (u *AnakUseCase) toAnakResponse(anak *models.Anak) models.AnakResponse {
 		IbuID:           anak.IbuID,
 	}
 
-	// Ambil data dari Penduduk (Kependudukan)
 	if anak.Penduduk != nil {
 		resp.Nama = anak.Penduduk.NamaLengkap
 		if !anak.Penduduk.TanggalLahir.IsZero() && anak.Penduduk.TanggalLahir.Year() >= 1900 {
 			resp.TanggalLahir = anak.Penduduk.TanggalLahir.Format("2006-01-02")
-			// Hitung usia dari tanggal lahir penduduk
 			usiaBulan := HitungUsiaBulan(anak.Penduduk.TanggalLahir)
 			resp.UsiaBulan = usiaBulan
 			resp.UsiaTeks = FormatUsiaTeks(anak.Penduduk.TanggalLahir)
@@ -470,7 +486,6 @@ func (u *AnakUseCase) toAnakResponse(anak *models.Anak) models.AnakResponse {
 		resp.GolonganDarah = anak.Penduduk.GolonganDarah
 	}
 
-	// Ambil data Kehamilan
 	if anak.Kehamilan != nil {
 		resp.Kehamilan = &models.KehamilanSimple{
 			ID: anak.Kehamilan.ID,
@@ -480,19 +495,6 @@ func (u *AnakUseCase) toAnakResponse(anak *models.Anak) models.AnakResponse {
 			resp.Kehamilan.Ibu.NamaIbu = anak.Kehamilan.Ibu.Kependudukan.NamaLengkap
 		}
 	}
-
-	// Map data Pertumbuhan
-	// if len(anak.Pertumbuhan) > 0 {
-	// 	resp.Pertumbuhan = make([]models.PertumbuhanSimple, 0, len(anak.Pertumbuhan))
-	// 	for _, p := range anak.Pertumbuhan {
-	// 		resp.Pertumbuhan = append(resp.Pertumbuhan, models.PertumbuhanSimple{
-	// 			Bulan:       p.UsiaUkurBulan,
-	// 			BeratBadan:  p.BeratBadan,
-	// 			TinggiBadan: p.TinggiBadan,
-	// 			HasilLila:   p.HasilLila,
-	// 		})
-	// 	}
-	// }
 
 	return resp
 }

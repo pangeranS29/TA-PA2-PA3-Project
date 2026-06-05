@@ -77,11 +77,18 @@ export default function IbuList() {
   }, [debouncedSearch, filterRisiko, filterTrimester, showHistory]);
 
   // Data aktif = TRIMESTER 1/2/3 atau NIFAS
-  const activeOnlyList = useMemo(() => {
-    return ibuList.filter(ibu => 
-      ibu.status_kehamilan?.startsWith("TRIMESTER") || ibu.status_kehamilan === "NIFAS"
+const activeOnlyList = useMemo(() => {
+  return ibuList.filter(ibu => {
+    const status = (ibu.status_kehamilan || "").toUpperCase();
+    return (
+      status.startsWith("TRIMESTER") || 
+      status === "NIFAS" || 
+      status === "" ||        // ← status kosong
+      status === "AKTIF" ||   // ← kemungkinan nilai lain dari backend
+      status === "HAMIL"      // ← kemungkinan nilai lain dari backend
     );
-  }, [ibuList]);
+  });
+}, [ibuList]);
 
   // Data riwayat = NON-AKTIF
   const historyList = useMemo(() => {

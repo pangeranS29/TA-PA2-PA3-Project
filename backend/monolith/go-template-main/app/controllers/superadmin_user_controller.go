@@ -158,6 +158,17 @@ func (m *Main) DeactivateUser(c echo.Context) error {
 	return helpers.StandardResponse(c, http.StatusOK, []string{constants.SUCCESS_RESPONSE_MESSAGE}, data, nil)
 }
 
+func (m *Main) SuperadminListPosyandu(c echo.Context) error {
+	search := c.QueryParam("search")
+
+	data, err := m.usecases.AdminTenagaKesehatan.ListPosyandu(search)
+	if err != nil {
+		return helpers.Response(c, customerror.GetStatusCode(err), []string{err.Error()})
+	}
+
+	return helpers.StandardResponse(c, http.StatusOK, []string{constants.SUCCESS_RESPONSE_MESSAGE}, data, nil)
+}
+
 func (m *Main) ActivateUser(c echo.Context) error {
 	idRaw, err := strconv.ParseInt(c.Param("id"), 10, 32)
 	if err != nil {

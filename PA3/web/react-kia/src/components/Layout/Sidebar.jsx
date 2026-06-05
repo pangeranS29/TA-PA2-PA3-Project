@@ -149,18 +149,17 @@ const Sidebar = () => {
     { path: "/daftar-rujukan", name: "Rujukan", icon: ClipboardList },
   ];
 
-  // Menu admin (kelola keluarga)
+  // Menu admin dihapus karena keluarga dipindahkan ke superadmin
   const adminFamilyMenuItems = useMemo(
-    () => [
-      { path: "/dashboard/admin/manajemen-keluarga", name: "Manajemen KK", icon: UserCheck },
-      { path: "/dashboard/admin/akun-keluarga", name: "Buat Akun", icon: UserPlus },
-    ],
+    () => [],
     []
   );
 
   const superadminMenuItems = useMemo(
     () => [
       { path: "/superadmin/dashboard", name: "Dashboard", icon: LayoutGrid },
+      { path: "/superadmin/manajemen-keluarga", name: "Manajemen KK", icon: UserCheck },
+      { path: "/superadmin/akun-keluarga", name: "Buat Kartu Keluarga", icon: UserPlus },
       { path: "/superadmin/kelola-user", name: "Kelola Bidan&Kader&Admin desa", icon: ShieldPlus },
       { path: "/superadmin/kelola-user-per-desa", name: "Kelola Akun User Per Desa", icon: Users },
       { path: "/superadmin/kelola-desa", name: "Kelola Desa", icon: TableProperties },
@@ -279,51 +278,7 @@ const Sidebar = () => {
           item.isDropdown ? renderDropdown(item) : renderNavLink(item)
         )}
 
-        {/* Menu khusus admin */}
-        {isAdmin && (
-          <div className="pt-1">
-
-            <button
-              type="button"
-              onClick={() => setIsFamilyMenuOpen((prev) => !prev)}
-              className="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg transition-all duration-200 text-slate-500 hover:bg-gray-50 hover:text-slate-700"
-            >
-              <UserCheck size={18} className="flex-shrink-0 text-slate-400" />
-              <span className="flex-1 text-left truncate text-sm">Mengelola Profile Keluarga</span>
-              <ChevronDown
-                size={14}
-                className={`flex-shrink-0 transition-transform duration-200 ${isFamilyMenuOpen ? "rotate-180" : "rotate-0"}`}
-              />
-            </button>
-
-            {isFamilyMenuOpen && (
-              <div className="mt-0.5 space-y-0.5 pl-3 border-l border-slate-200 ml-3">
-                {adminFamilyMenuItems.map((item) => (
-                  <NavLink
-                    key={item.path}
-                    to={item.path}
-                    className={({ isActive }) =>
-                      `flex items-center gap-2 px-2.5 py-2 rounded-md transition-all duration-200 group text-sm ${isActive
-                        ? "bg-blue-50 text-blue-600 font-semibold"
-                        : "text-slate-500 hover:bg-gray-50 hover:text-slate-700"
-                      }`
-                    }
-                  >
-                    {({ isActive }) => (
-                      <>
-                        <item.icon
-                          size={16}
-                          className={`flex-shrink-0 ${isActive ? "text-blue-600" : "text-slate-400 group-hover:text-slate-600"}`}
-                        />
-                        <span className="truncate text-xs">{item.name}</span>
-                      </>
-                    )}
-                  </NavLink>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
+        {/* Menu admin dihapus */}
 
         {/* Menu Pengaturan untuk semua role */}
         {/* {renderNavLink(settingsMenu)} */}
