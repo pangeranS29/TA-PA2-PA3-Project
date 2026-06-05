@@ -39,11 +39,12 @@ import {
 
 // ─── Helper Components ────────────────────────────────────────────────────────
 
-/** Baris info label: nilai */
 function InfoRow({ label, value, highlight = false }) {
   return (
     <div className="flex flex-col gap-0.5">
-      <span className="text-xs font-semibold text-gray-400 uppercase tracking-wide">{label}</span>
+      <span className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
+        {label}
+      </span>
       <span
         className={`text-sm font-medium ${
           highlight ? "text-indigo-700" : "text-gray-800"
@@ -55,7 +56,6 @@ function InfoRow({ label, value, highlight = false }) {
   );
 }
 
-/** Badge status Normal/Abnormal */
 function StatusBadge({ value }) {
   if (!value || value === "-") return <span className="text-gray-400 text-sm italic">-</span>;
   return value === "Normal" ? (
@@ -69,7 +69,6 @@ function StatusBadge({ value }) {
   );
 }
 
-/** Badge reaktif/non-reaktif */
 function ReaktifBadge({ value }) {
   if (!value || value === "-") return <span className="text-gray-400 text-sm italic">-</span>;
   return value === "NonReaktif" || value === "Non Reaktif" ? (
@@ -83,7 +82,6 @@ function ReaktifBadge({ value }) {
   );
 }
 
-/** Format tanggal Indonesia */
 function fmtDate(val) {
   if (!val) return "-";
   try {
@@ -97,8 +95,13 @@ function fmtDate(val) {
   }
 }
 
-/** Kartu seksi detail yang bisa di-collapse */
-function DetailSection({ icon: Icon, title, colorCls = "bg-indigo-50 text-indigo-700 border-indigo-100", children, defaultOpen = true }) {
+function DetailSection({
+  icon: Icon,
+  title,
+  colorCls = "bg-indigo-50 text-indigo-700 border-indigo-100",
+  children,
+  defaultOpen = true,
+}) {
   const [open, setOpen] = useState(defaultOpen);
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
@@ -152,7 +155,8 @@ function ModalCatatan({ kehamilanId, catatan, onClose, onSaved }) {
       const payload = {
         kehamilan_id: kehamilanId,
         tanggal_periksa_stamp_paraf: form.tanggal_periksa_stamp_paraf || null,
-        keluhan_pemeriksaan_tindakan_saran: form.keluhan_pemeriksaan_tindakan_saran.trim(),
+        keluhan_pemeriksaan_tindakan_saran:
+          form.keluhan_pemeriksaan_tindakan_saran.trim(),
         tanggal_kembali: form.tanggal_kembali || null,
       };
 
@@ -164,7 +168,8 @@ function ModalCatatan({ kehamilanId, catatan, onClose, onSaved }) {
       onSaved();
       onClose();
     } catch (err) {
-      const msg = err.response?.data?.message || err.message || "Terjadi kesalahan";
+      const msg =
+        err.response?.data?.message || err.message || "Terjadi kesalahan";
       setFieldError("Gagal menyimpan: " + msg);
     } finally {
       setSaving(false);
@@ -172,15 +177,12 @@ function ModalCatatan({ kehamilanId, catatan, onClose, onSaved }) {
   };
 
   return (
-    // Overlay
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div
         className="absolute inset-0 bg-black/40 backdrop-blur-sm"
         onClick={onClose}
       />
-      {/* Modal box */}
       <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg z-10 overflow-hidden">
-        {/* Header modal */}
         <div className="flex items-center justify-between px-6 py-4 bg-indigo-50 border-b border-indigo-100">
           <div className="flex items-center gap-2 text-indigo-700">
             <StickyNote size={18} />
@@ -196,10 +198,7 @@ function ModalCatatan({ kehamilanId, catatan, onClose, onSaved }) {
             <X size={16} />
           </button>
         </div>
-
-        {/* Body modal */}
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          {/* Tanggal periksa */}
           <div>
             <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
               Tanggal Periksa / Stempel / Paraf
@@ -212,8 +211,6 @@ function ModalCatatan({ kehamilanId, catatan, onClose, onSaved }) {
               className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 transition"
             />
           </div>
-
-          {/* Isi catatan */}
           <div>
             <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
               Keluhan / Pemeriksaan / Tindakan / Saran{" "}
@@ -228,8 +225,6 @@ function ModalCatatan({ kehamilanId, catatan, onClose, onSaved }) {
               className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 transition resize-none"
             />
           </div>
-
-          {/* Tanggal kembali */}
           <div>
             <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
               Tanggal Kembali (Kontrol Selanjutnya)
@@ -242,16 +237,12 @@ function ModalCatatan({ kehamilanId, catatan, onClose, onSaved }) {
               className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 transition"
             />
           </div>
-
-          {/* Error */}
           {fieldError && (
             <div className="flex items-center gap-2 bg-red-50 border border-red-200 rounded-xl px-3 py-2">
               <AlertCircle size={14} className="text-red-500 shrink-0" />
               <p className="text-xs text-red-600">{fieldError}</p>
             </div>
           )}
-
-          {/* Tombol */}
           <div className="flex gap-3 pt-1">
             <button
               type="button"
@@ -265,8 +256,16 @@ function ModalCatatan({ kehamilanId, catatan, onClose, onSaved }) {
               disabled={saving}
               className="flex-1 flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white py-2 rounded-xl text-sm font-semibold transition"
             >
-              {saving ? <Loader2 className="animate-spin" size={15} /> : <Save size={15} />}
-              {saving ? "Menyimpan..." : isEdit ? "Simpan Perubahan" : "Tambah Catatan"}
+              {saving ? (
+                <Loader2 className="animate-spin" size={15} />
+              ) : (
+                <Save size={15} />
+              )}
+              {saving
+                ? "Menyimpan..."
+                : isEdit
+                ? "Simpan Perubahan"
+                : "Tambah Catatan"}
             </button>
           </div>
         </form>
@@ -286,13 +285,12 @@ export default function PemeriksaanDokterT1CompleteDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // State catatan
   const [catatanList, setCatatanList] = useState([]);
   const [loadingCatatan, setLoadingCatatan] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
-  const [editCatatan, setEditCatatan] = useState(null); // null = tambah baru, object = edit
+  const [editCatatan, setEditCatatan] = useState(null);
 
-  // ── Fetch data pemeriksaan ───────────────────────────────────────────────
+  // ── Fetch data pemeriksaan ─────────────────────────────────────────────
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -307,7 +305,9 @@ export default function PemeriksaanDokterT1CompleteDetail() {
 
         const res = await getDokterT1CompleteByKehamilanId(aktif.id);
         if (!res || !res.dokter) {
-          setError("Belum ada data pemeriksaan. Silakan buat data terlebih dahulu.");
+          setError(
+            "Belum ada data pemeriksaan. Silakan buat data terlebih dahulu."
+          );
         } else {
           setData(res);
         }
@@ -321,13 +321,12 @@ export default function PemeriksaanDokterT1CompleteDetail() {
     fetchData();
   }, [id]);
 
-  // ── Fetch catatan (dipanggil ulang setelah save/delete) ──────────────────
+  // ── Fetch catatan ──────────────────────────────────────────────────────
   const fetchCatatan = useCallback(async () => {
     if (!kehamilan) return;
     setLoadingCatatan(true);
     try {
       const res = await getCatatanT1ByKehamilanId(kehamilan.id);
-      // Backend bisa return array langsung atau { data: [...] }
       if (Array.isArray(res)) {
         setCatatanList(res);
       } else if (res && Array.isArray(res.data)) {
@@ -347,8 +346,18 @@ export default function PemeriksaanDokterT1CompleteDetail() {
     fetchCatatan();
   }, [fetchCatatan]);
 
-  // ── Hapus pemeriksaan utama ──────────────────────────────────────────────
+  // ── Hapus pemeriksaan utama ────────────────────────────────────────────
   const handleDelete = async () => {
+    // Pastikan ID tersedia
+    if (!data?.dokter?.id) {
+      Swal.fire({
+        icon: "error",
+        title: "Gagal Menghapus",
+        text: "ID pemeriksaan tidak ditemukan. Silakan muat ulang halaman.",
+      });
+      return;
+    }
+
     const result = await Swal.fire({
       title: "Hapus Data Pemeriksaan T1?",
       html: "<p class='text-sm'>Apakah Anda yakin ingin menghapus semua data pemeriksaan Trimester 1 ini?</p><p class='text-xs text-red-600 mt-2'>⚠️ Seluruh Catatan Pelayanan pada Trimester ini juga akan ikut terhapus.</p>",
@@ -363,34 +372,40 @@ export default function PemeriksaanDokterT1CompleteDetail() {
     if (!result.isConfirmed) return;
 
     try {
-      // Hapus semua catatan pelayanan T1 terkait terlebih dahulu
+      // Hapus semua catatan terlebih dahulu
       if (catatanList.length > 0) {
-        const deleteNotesPromises = catatanList.map((c) => deleteCatatanT1(c.id_catatan));
-        await Promise.all(deleteNotesPromises);
+        const deletePromises = catatanList.map((c) =>
+          deleteCatatanT1(c.id_catatan)
+        );
+        await Promise.all(deletePromises);
       }
 
-      // Hapus data pemeriksaan utama
+      // Hapus pemeriksaan utama
       await deleteDokterT1Complete(data.dokter.id);
+
       await Swal.fire({
+        icon: "success",
         title: "Berhasil!",
         text: "Data pemeriksaan dan catatan terkait berhasil dihapus.",
-        icon: "success",
-        confirmButtonColor: "#10b981",
+        timer: 2000,
+        showConfirmButton: false,
       });
       navigate(`/data-ibu/${id}`);
     } catch (err) {
       console.error("Delete error:", err);
-      await Swal.fire({
-        title: "Error!",
-        text: "Gagal menghapus data.",
+      const errorMsg =
+        err.response?.data?.message || err.message || "Terjadi kesalahan";
+      Swal.fire({
         icon: "error",
-        confirmButtonColor: "#ef4444",
+        title: "Gagal Menghapus",
+        text: errorMsg,
       });
     }
   };
 
-  // ── Hapus catatan ────────────────────────────────────────────────────────
+  // ── Hapus satu catatan ─────────────────────────────────────────────────
   const handleDeleteCatatan = async (idCatatan) => {
+    if (!idCatatan) return;
     const result = await Swal.fire({
       title: "Hapus Catatan?",
       text: "Apakah Anda yakin ingin menghapus catatan ini?",
@@ -407,41 +422,40 @@ export default function PemeriksaanDokterT1CompleteDetail() {
     try {
       await deleteCatatanT1(idCatatan);
       await Swal.fire({
+        icon: "success",
         title: "Berhasil!",
         text: "Catatan berhasil dihapus.",
-        icon: "success",
-        confirmButtonColor: "#10b981",
+        timer: 1500,
+        showConfirmButton: false,
       });
       fetchCatatan();
     } catch (err) {
-      await Swal.fire({
-        title: "Error!",
-        text: "Gagal menghapus catatan.",
+      const errorMsg =
+        err.response?.data?.message || err.message || "Terjadi kesalahan";
+      Swal.fire({
         icon: "error",
-        confirmButtonColor: "#ef4444",
+        title: "Gagal Menghapus",
+        text: errorMsg,
       });
     }
   };
 
-  // ── Buka modal tambah ────────────────────────────────────────────────────
   const handleTambahCatatan = () => {
     setEditCatatan(null);
     setModalOpen(true);
   };
 
-  // ── Buka modal edit ──────────────────────────────────────────────────────
   const handleEditCatatan = (catatan) => {
     setEditCatatan(catatan);
     setModalOpen(true);
   };
 
-  // ── Tutup modal ──────────────────────────────────────────────────────────
   const handleModalClose = () => {
     setModalOpen(false);
     setEditCatatan(null);
   };
 
-  // ── Loading state ────────────────────────────────────────────────────────
+  // ── Loading ────────────────────────────────────────────────────────────
   if (loading) {
     return (
       <MainLayout>
@@ -455,7 +469,7 @@ export default function PemeriksaanDokterT1CompleteDetail() {
     );
   }
 
-  // ── Error state ──────────────────────────────────────────────────────────
+  // ── Error / tidak ada data ─────────────────────────────────────────────
   if (error || !data) {
     return (
       <MainLayout>
@@ -464,8 +478,12 @@ export default function PemeriksaanDokterT1CompleteDetail() {
             <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <AlertCircle className="text-yellow-500" size={32} />
             </div>
-            <h2 className="text-xl font-bold text-yellow-700 mb-2">Data Tidak Ditemukan</h2>
-            <p className="text-gray-600 mb-6 text-sm">{error || "Belum ada data pemeriksaan."}</p>
+            <h2 className="text-xl font-bold text-yellow-700 mb-2">
+              Data Tidak Ditemukan
+            </h2>
+            <p className="text-gray-600 mb-6 text-sm">
+              {error || "Belum ada data pemeriksaan."}
+            </p>
             <div className="flex gap-3 justify-center">
               <Link
                 to={`/data-ibu/${id}/pemeriksaan-dokter-t1-complete/form`}
@@ -489,7 +507,6 @@ export default function PemeriksaanDokterT1CompleteDetail() {
   const d = data.dokter;
   const lab = data.lab_jiwa;
 
-  // ── Fisik fields untuk render ────────────────────────────────────────────
   const fisikItems = [
     { label: "Konjungtiva", value: d.fisik_konjungtiva },
     { label: "Sklera", value: d.fisik_sklera },
@@ -508,7 +525,7 @@ export default function PemeriksaanDokterT1CompleteDetail() {
   return (
     <MainLayout>
       <div className="p-4 md:p-6 max-w-5xl mx-auto">
-        {/* ── Header ── */}
+        {/* Header */}
         <div className="flex items-start justify-between mb-6 gap-3">
           <div className="flex items-center gap-3">
             <button
@@ -542,7 +559,7 @@ export default function PemeriksaanDokterT1CompleteDetail() {
           </div>
         </div>
 
-        {/* ── Summary cards ── */}
+        {/* Summary cards */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
           <div className="bg-indigo-50 rounded-2xl p-4 border border-indigo-100">
             <p className="text-xs text-indigo-500 font-semibold uppercase tracking-wide mb-1">
@@ -556,7 +573,9 @@ export default function PemeriksaanDokterT1CompleteDetail() {
             <p className="text-xs text-teal-500 font-semibold uppercase tracking-wide mb-1">
               Tanggal Periksa
             </p>
-            <p className="text-sm font-bold text-teal-800">{fmtDate(d.tanggal_periksa)}</p>
+            <p className="text-sm font-bold text-teal-800">
+              {fmtDate(d.tanggal_periksa)}
+            </p>
           </div>
           <div
             className={`rounded-2xl p-4 border ${
@@ -586,15 +605,15 @@ export default function PemeriksaanDokterT1CompleteDetail() {
               UK USG
             </p>
             <p className="text-sm font-bold text-violet-800">
-              {d.umur_hamil_usg_minggu ? `${d.umur_hamil_usg_minggu} minggu` : "-"}
+              {d.umur_hamil_usg_minggu
+                ? `${d.umur_hamil_usg_minggu} minggu`
+                : "-"}
             </p>
           </div>
         </div>
 
-        {/* ── Konten Detail ── */}
         <div className="space-y-4">
-
-          {/* SEKSI 1: Data Dokter */}
+          {/* Data Dokter */}
           <DetailSection
             icon={User}
             title="Data Dokter & Anamnesis"
@@ -602,7 +621,10 @@ export default function PemeriksaanDokterT1CompleteDetail() {
           >
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <InfoRow label="Nama Dokter" value={d.nama_dokter} highlight />
-              <InfoRow label="Tanggal Periksa" value={fmtDate(d.tanggal_periksa)} />
+              <InfoRow
+                label="Tanggal Periksa"
+                value={fmtDate(d.tanggal_periksa)}
+              />
               <div className="sm:col-span-3">
                 <InfoRow
                   label="Konsep Anamnesa Pemeriksaan"
@@ -612,7 +634,7 @@ export default function PemeriksaanDokterT1CompleteDetail() {
             </div>
           </DetailSection>
 
-          {/* SEKSI 2: Pemeriksaan Fisik */}
+          {/* Pemeriksaan Fisik */}
           <DetailSection
             icon={Activity}
             title="Pemeriksaan Fisik"
@@ -622,7 +644,8 @@ export default function PemeriksaanDokterT1CompleteDetail() {
               <div className="mb-4 flex items-center gap-2 bg-red-50 border border-red-200 rounded-xl px-4 py-2.5">
                 <AlertCircle size={15} className="text-red-500 shrink-0" />
                 <p className="text-xs text-red-600 font-medium">
-                  Terdapat {abnormalCount} temuan abnormal pada pemeriksaan fisik.
+                  Terdapat {abnormalCount} temuan abnormal pada pemeriksaan
+                  fisik.
                 </p>
               </div>
             )}
@@ -638,29 +661,38 @@ export default function PemeriksaanDokterT1CompleteDetail() {
             </div>
           </DetailSection>
 
-          {/* SEKSI 3: USG */}
+          {/* USG */}
           <DetailSection
             icon={Eye}
             title="USG Trimester 1"
             colorCls="bg-violet-50 text-violet-700 border-violet-100"
           >
-            {/* Sub: HPHT */}
+            {/* HPHT */}
             <div className="mb-4">
               <p className="text-xs font-bold text-violet-500 uppercase tracking-widest mb-3">
                 Berdasarkan HPHT
               </p>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <InfoRow label="HPHT" value={fmtDate(d.hpht)} />
-                <InfoRow label="Keteraturan Haid" value={d.keteraturan_haid} />
+                <InfoRow
+                  label="Keteraturan Haid"
+                  value={d.keteraturan_haid}
+                />
                 <InfoRow
                   label="UK HPHT"
-                  value={d.umur_hamil_hpht_minggu ? `${d.umur_hamil_hpht_minggu} minggu` : null}
+                  value={
+                    d.umur_hamil_hpht_minggu
+                      ? `${d.umur_hamil_hpht_minggu} minggu`
+                      : null
+                  }
                 />
-                <InfoRow label="HPL (HPHT)" value={fmtDate(d.hpl_berdasarkan_hpht)} />
+                <InfoRow
+                  label="HPL (HPHT)"
+                  value={fmtDate(d.hpl_berdasarkan_hpht)}
+                />
               </div>
             </div>
-
-            {/* Sub: USG */}
+            {/* USG */}
             <div className="mb-4">
               <p className="text-xs font-bold text-violet-500 uppercase tracking-widest mb-3">
                 Berdasarkan USG
@@ -668,14 +700,20 @@ export default function PemeriksaanDokterT1CompleteDetail() {
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <InfoRow
                   label="UK USG"
-                  value={d.umur_hamil_usg_minggu ? `${d.umur_hamil_usg_minggu} minggu` : null}
+                  value={
+                    d.umur_hamil_usg_minggu
+                      ? `${d.umur_hamil_usg_minggu} minggu`
+                      : null
+                  }
                   highlight
                 />
-                <InfoRow label="HPL (USG)" value={fmtDate(d.hpl_berdasarkan_usg)} />
+                <InfoRow
+                  label="HPL (USG)"
+                  value={fmtDate(d.hpl_berdasarkan_usg)}
+                />
               </div>
             </div>
-
-            {/* Sub: GS */}
+            {/* GS */}
             <div className="mb-4">
               <p className="text-xs font-bold text-violet-500 uppercase tracking-widest mb-3">
                 Gestational Sac (GS)
@@ -684,20 +722,31 @@ export default function PemeriksaanDokterT1CompleteDetail() {
                 <InfoRow label="Jumlah GS" value={d.usg_jumlah_gs} />
                 <InfoRow
                   label="Diameter GS"
-                  value={d.usg_diameter_gs_cm ? `${d.usg_diameter_gs_cm} cm` : null}
+                  value={
+                    d.usg_diameter_gs_cm
+                      ? `${d.usg_diameter_gs_cm} cm`
+                      : null
+                  }
                 />
                 <InfoRow
                   label="GS (minggu)"
-                  value={d.usg_diameter_gs_minggu ? `${d.usg_diameter_gs_minggu} mg` : null}
+                  value={
+                    d.usg_diameter_gs_minggu
+                      ? `${d.usg_diameter_gs_minggu} mg`
+                      : null
+                  }
                 />
                 <InfoRow
                   label="GS (hari)"
-                  value={d.usg_diameter_gs_hari ? `${d.usg_diameter_gs_hari} hr` : null}
+                  value={
+                    d.usg_diameter_gs_hari
+                      ? `${d.usg_diameter_gs_hari} hr`
+                      : null
+                  }
                 />
               </div>
             </div>
-
-            {/* Sub: CRL */}
+            {/* CRL */}
             <div className="mb-4">
               <p className="text-xs font-bold text-violet-500 uppercase tracking-widest mb-3">
                 Crown-Rump Length (CRL)
@@ -710,7 +759,9 @@ export default function PemeriksaanDokterT1CompleteDetail() {
                 />
                 <InfoRow
                   label="CRL (minggu)"
-                  value={d.usg_crl_minggu ? `${d.usg_crl_minggu} mg` : null}
+                  value={
+                    d.usg_crl_minggu ? `${d.usg_crl_minggu} mg` : null
+                  }
                 />
                 <InfoRow
                   label="CRL (hari)"
@@ -718,15 +769,20 @@ export default function PemeriksaanDokterT1CompleteDetail() {
                 />
               </div>
             </div>
-
-            {/* Sub: Temuan */}
+            {/* Temuan */}
             <div>
               <p className="text-xs font-bold text-violet-500 uppercase tracking-widest mb-3">
                 Temuan Lainnya
               </p>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <InfoRow label="Letak Produk" value={d.usg_letak_produk_kehamilan} />
-                <InfoRow label="Pulsasi Jantung" value={d.usg_pulsasi_jantung} />
+                <InfoRow
+                  label="Letak Produk"
+                  value={d.usg_letak_produk_kehamilan}
+                />
+                <InfoRow
+                  label="Pulsasi Jantung"
+                  value={d.usg_pulsasi_jantung}
+                />
                 <div className="flex flex-col gap-1">
                   <span className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
                     Kecurigaan Abnormal
@@ -749,8 +805,6 @@ export default function PemeriksaanDokterT1CompleteDetail() {
                 )}
               </div>
             </div>
-
-            {/* Display USG Image */}
             {d.gambar_usg && (
               <div className="mt-4 pt-4 border-t border-violet-200">
                 <p className="text-xs font-bold text-violet-600 uppercase tracking-widest mb-3">
@@ -759,10 +813,11 @@ export default function PemeriksaanDokterT1CompleteDetail() {
                 <div className="flex justify-center">
                   <img
                     src={d.gambar_usg}
-                    alt="USG Image"
+                    alt="USG"
                     className="max-w-full max-h-96 rounded-lg border border-violet-200 shadow-sm"
                     onError={(e) => {
-                      e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Crect fill='%23f3f4f6' width='200' height='200'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%239ca3af' font-size='14'%3EImage not available%3C/text%3E%3C/svg%3E";
+                      e.target.src =
+                        "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Crect fill='%23f3f4f6' width='200' height='200'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%239ca3af' font-size='14'%3EImage not available%3C/text%3E%3C/svg%3E";
                     }}
                   />
                 </div>
@@ -770,17 +825,18 @@ export default function PemeriksaanDokterT1CompleteDetail() {
             )}
           </DetailSection>
 
-          {/* SEKSI 4: Laboratorium */}
+          {/* Laboratorium */}
           <DetailSection
             icon={FlaskConical}
             title="Pemeriksaan Laboratorium"
             colorCls="bg-amber-50 text-amber-700 border-amber-100"
           >
             <div className="mb-4">
-              <InfoRow label="Tanggal Lab" value={fmtDate(lab?.tanggal_lab)} />
+              <InfoRow
+                label="Tanggal Lab"
+                value={fmtDate(lab?.tanggal_lab)}
+              />
             </div>
-
-            {/* Tabel lab kuantitatif */}
             <div className="rounded-xl border border-amber-100 overflow-hidden mb-4">
               <table className="w-full text-sm">
                 <thead className="bg-amber-50">
@@ -798,11 +854,15 @@ export default function PemeriksaanDokterT1CompleteDetail() {
                 </thead>
                 <tbody className="divide-y divide-amber-50">
                   <tr>
-                    <td className="px-4 py-3 font-medium text-gray-700">Hemoglobin</td>
+                    <td className="px-4 py-3 font-medium text-gray-700">
+                      Hemoglobin
+                    </td>
                     <td className="px-4 py-3 text-gray-800">
                       {lab?.lab_hemoglobin_hasil ? (
                         <span>
-                          <span className="font-semibold">{lab.lab_hemoglobin_hasil}</span>{" "}
+                          <span className="font-semibold">
+                            {lab.lab_hemoglobin_hasil}
+                          </span>{" "}
                           <span className="text-xs text-gray-400">g/dL</span>
                         </span>
                       ) : (
@@ -816,11 +876,15 @@ export default function PemeriksaanDokterT1CompleteDetail() {
                     </td>
                   </tr>
                   <tr className="bg-gray-50/60">
-                    <td className="px-4 py-3 font-medium text-gray-700">Gula Darah Sewaktu</td>
+                    <td className="px-4 py-3 font-medium text-gray-700">
+                      Gula Darah Sewaktu
+                    </td>
                     <td className="px-4 py-3 text-gray-800">
                       {lab?.lab_gula_darah_sewaktu_hasil ? (
                         <span>
-                          <span className="font-semibold">{lab.lab_gula_darah_sewaktu_hasil}</span>{" "}
+                          <span className="font-semibold">
+                            {lab.lab_gula_darah_sewaktu_hasil}
+                          </span>{" "}
                           <span className="text-xs text-gray-400">mg/dL</span>
                         </span>
                       ) : (
@@ -839,7 +903,9 @@ export default function PemeriksaanDokterT1CompleteDetail() {
                     </td>
                     <td className="px-4 py-3 text-gray-800 font-semibold">
                       {lab?.lab_golongan_darah_rhesus_hasil || (
-                        <span className="text-gray-400 italic font-normal text-xs">-</span>
+                        <span className="text-gray-400 italic font-normal text-xs">
+                          -
+                        </span>
                       )}
                     </td>
                     <td className="px-4 py-3 text-gray-600 text-xs">
@@ -851,8 +917,6 @@ export default function PemeriksaanDokterT1CompleteDetail() {
                 </tbody>
               </table>
             </div>
-
-            {/* Tabel lab reaktif */}
             <div className="rounded-xl border border-amber-100 overflow-hidden">
               <table className="w-full text-sm">
                 <thead className="bg-amber-50">
@@ -886,13 +950,20 @@ export default function PemeriksaanDokterT1CompleteDetail() {
                       rencana: lab?.lab_hepatitis_b_rencana_tindak_lanjut,
                     },
                   ].map((row, idx) => (
-                    <tr key={row.label} className={idx % 2 === 1 ? "bg-gray-50/60" : ""}>
-                      <td className="px-4 py-3 font-medium text-gray-700">{row.label}</td>
+                    <tr
+                      key={row.label}
+                      className={idx % 2 === 1 ? "bg-gray-50/60" : ""}
+                    >
+                      <td className="px-4 py-3 font-medium text-gray-700">
+                        {row.label}
+                      </td>
                       <td className="px-4 py-3">
                         <ReaktifBadge value={row.hasil} />
                       </td>
                       <td className="px-4 py-3 text-gray-600 text-xs">
-                        {row.rencana || <span className="italic text-gray-400">-</span>}
+                        {row.rencana || (
+                          <span className="italic text-gray-400">-</span>
+                        )}
                       </td>
                     </tr>
                   ))}
@@ -901,16 +972,25 @@ export default function PemeriksaanDokterT1CompleteDetail() {
             </div>
           </DetailSection>
 
-          {/* SEKSI 5: Skrining Jiwa */}
+          {/* Skrining Jiwa */}
           <DetailSection
             icon={Brain}
             title="Skrining Jiwa & Kesimpulan"
             colorCls="bg-rose-50 text-rose-700 border-rose-100"
           >
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-              <InfoRow label="Tanggal Skrining Jiwa" value={fmtDate(lab?.tanggal_skrining_jiwa)} />
-              <InfoRow label="Hasil Skrining Jiwa" value={lab?.skrining_jiwa_hasil} />
-              <InfoRow label="Tindak Lanjut" value={lab?.skrining_jiwa_tindak_lanjut} />
+              <InfoRow
+                label="Tanggal Skrining Jiwa"
+                value={fmtDate(lab?.tanggal_skrining_jiwa)}
+              />
+              <InfoRow
+                label="Hasil Skrining Jiwa"
+                value={lab?.skrining_jiwa_hasil}
+              />
+              <InfoRow
+                label="Tindak Lanjut"
+                value={lab?.skrining_jiwa_tindak_lanjut}
+              />
               <div className="flex flex-col gap-1">
                 <span className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
                   Perlu Rujukan
@@ -932,7 +1012,9 @@ export default function PemeriksaanDokterT1CompleteDetail() {
                   Kesimpulan
                 </p>
                 <p className="text-sm text-gray-700 leading-relaxed">
-                  {lab?.kesimpulan || <span className="italic text-gray-400">Belum diisi</span>}
+                  {lab?.kesimpulan || (
+                    <span className="italic text-gray-400">Belum diisi</span>
+                  )}
                 </p>
               </div>
               <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
@@ -940,21 +1022,22 @@ export default function PemeriksaanDokterT1CompleteDetail() {
                   Rekomendasi
                 </p>
                 <p className="text-sm text-gray-700 leading-relaxed">
-                  {lab?.rekomendasi || <span className="italic text-gray-400">Belum diisi</span>}
+                  {lab?.rekomendasi || (
+                    <span className="italic text-gray-400">Belum diisi</span>
+                  )}
                 </p>
               </div>
             </div>
           </DetailSection>
 
-          {/* ══════════════════════════════════════════════════════════════════
-              SEKSI CATATAN PELAYANAN
-          ══════════════════════════════════════════════════════════════════ */}
+          {/* Catatan Pelayanan */}
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-            {/* Header catatan */}
             <div className="flex items-center justify-between px-5 py-4 bg-indigo-50 border-b border-indigo-100">
               <div className="flex items-center gap-2 text-indigo-700">
                 <StickyNote size={17} />
-                <span className="font-semibold text-sm">Catatan Pelayanan Trimester 1</span>
+                <span className="font-semibold text-sm">
+                  Catatan Pelayanan Trimester 1
+                </span>
                 {catatanList.length > 0 && (
                   <span className="bg-indigo-200 text-indigo-800 text-xs font-bold px-2 py-0.5 rounded-full">
                     {catatanList.length}
@@ -969,7 +1052,6 @@ export default function PemeriksaanDokterT1CompleteDetail() {
                 <Plus size={14} /> Tambah Catatan
               </button>
             </div>
-
             <div className="p-5">
               {loadingCatatan ? (
                 <div className="flex items-center justify-center py-8 gap-2 text-gray-400">
@@ -977,7 +1059,6 @@ export default function PemeriksaanDokterT1CompleteDetail() {
                   <span className="text-sm">Memuat catatan...</span>
                 </div>
               ) : catatanList.length === 0 ? (
-                /* Empty state */
                 <div className="flex flex-col items-center justify-center py-10 text-center">
                   <div className="w-14 h-14 bg-indigo-50 rounded-full flex items-center justify-center mb-3">
                     <MessageSquarePlus size={24} className="text-indigo-300" />
@@ -986,9 +1067,10 @@ export default function PemeriksaanDokterT1CompleteDetail() {
                     Belum ada catatan pelayanan
                   </p>
                   <p className="text-xs text-gray-400 mb-4">
-                    Tambahkan catatan keluhan, tindakan, atau saran untuk kunjungan ini
+                    Tambahkan catatan keluhan, tindakan, atau saran untuk
+                    kunjungan ini
                   </p>
-                  <button 
+                  <button
                     type="button"
                     onClick={handleTambahCatatan}
                     className="flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition"
@@ -997,21 +1079,16 @@ export default function PemeriksaanDokterT1CompleteDetail() {
                   </button>
                 </div>
               ) : (
-                /* List catatan */
                 <div className="space-y-3">
                   {catatanList.map((catatan, idx) => (
                     <div
                       key={catatan.id_catatan}
                       className="group relative bg-gray-50 hover:bg-indigo-50/40 border border-gray-100 hover:border-indigo-200 rounded-2xl p-4 transition-all"
                     >
-                      {/* Nomor urut */}
                       <div className="absolute top-4 left-4 w-6 h-6 bg-indigo-100 text-indigo-700 rounded-full flex items-center justify-center text-xs font-bold">
                         {idx + 1}
                       </div>
-
-                      {/* Konten */}
                       <div className="ml-9">
-                        {/* Info tanggal */}
                         <div className="flex flex-wrap items-center gap-3 mb-3">
                           {catatan.tanggal_periksa_stamp_paraf && (
                             <div className="flex items-center gap-1.5 text-xs text-indigo-600 bg-indigo-100 px-2.5 py-1 rounded-full font-medium">
@@ -1026,16 +1103,14 @@ export default function PemeriksaanDokterT1CompleteDetail() {
                             </div>
                           )}
                         </div>
-
-                        {/* Isi catatan */}
                         <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
                           {catatan.keluhan_pemeriksaan_tindakan_saran || (
-                            <span className="italic text-gray-400">Tidak ada isi catatan</span>
+                            <span className="italic text-gray-400">
+                              Tidak ada isi catatan
+                            </span>
                           )}
                         </p>
                       </div>
-
-                      {/* Tombol aksi (muncul saat hover) */}
                       <div className="absolute top-3 right-3 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button
                           type="button"
@@ -1047,7 +1122,9 @@ export default function PemeriksaanDokterT1CompleteDetail() {
                         </button>
                         <button
                           type="button"
-                          onClick={() => handleDeleteCatatan(catatan.id_catatan)}
+                          onClick={() =>
+                            handleDeleteCatatan(catatan.id_catatan)
+                          }
                           className="p-1.5 rounded-lg bg-white border border-red-200 text-red-500 hover:bg-red-50 transition shadow-sm"
                           title="Hapus catatan"
                         >
@@ -1060,13 +1137,9 @@ export default function PemeriksaanDokterT1CompleteDetail() {
               )}
             </div>
           </div>
-          
-          {/* ══ End Catatan ══ */}
         </div>
-        {/* End space-y-4 */}
       </div>
 
-      {/* ── Modal Catatan ── */}
       {modalOpen && (
         <ModalCatatan
           kehamilanId={kehamilan?.id}

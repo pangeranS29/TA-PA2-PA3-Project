@@ -1,6 +1,6 @@
 // src/pages/Ibu/PemeriksaanDokterT1Complete.jsx
-import React, { useEffect, useState, useRef } from "react";
-import { useParams, useNavigate, Link, useLocation } from "react-router-dom";
+import React, { useEffect, useState, useRef, useCallback } from "react";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import Swal from "sweetalert2";
 import MainLayout from "../../components/Layout/MainLayout";
 import { getKehamilanByIbuId } from "../../services/kehamilan";
@@ -29,21 +29,20 @@ import {
   Image as ImageIcon,
 } from "lucide-react";
 
-/* ────────────────────────────────────────────────────────────────────────
-   Helper: Konversi "YYYY-MM-DD" → "YYYY-MM-DDT00:00:00Z"
-   Backend Go mem-parse time.Time dengan layout RFC3339 penuh.
-   ──────────────────────────────────────────────────────────────────────── */
+// ── Helper: "YYYY-MM-DD" → "YYYY-MM-DDT00:00:00Z" (null jika kosong) ─────
 const toDateTimeISO = (dateStr) => {
   if (!dateStr || typeof dateStr !== "string" || !dateStr.trim()) return null;
-  // Jika sudah berformat lengkap, kembalikan apa adanya
   if (dateStr.includes("T")) return dateStr;
   return `${dateStr}T00:00:00Z`;
 };
 
-/* ────────────────────────────────────────────────────────────────────────
-   Helper Components
-   ──────────────────────────────────────────────────────────────────────── */
+// ── Helper: ambil tanggal (YYYY-MM-DD) dari string ISO maupun plain date ──
+const toDateOnly = (val) => {
+  if (!val) return "";
+  return typeof val === "string" ? val.split("T")[0] : "";
+};
 
+// ── Helper Components ─────────────────────────────────────────────────────
 function Field({ label, children, colSpan = "" }) {
   return (
     <div className={colSpan}>
@@ -65,7 +64,13 @@ const inputCls =
 const selectCls =
   "w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent bg-white transition";
 
-function Section({ icon: Icon, title, color = "indigo", children, defaultOpen = true }) {
+function Section({
+  icon: Icon,
+  title,
+  color = "indigo",
+  children,
+  defaultOpen = true,
+}) {
   const [open, setOpen] = useState(defaultOpen);
   const colorMap = {
     indigo: "bg-indigo-50 text-indigo-700 border-indigo-200",
@@ -75,7 +80,6 @@ function Section({ icon: Icon, title, color = "indigo", children, defaultOpen = 
     amber: "bg-amber-50 text-amber-700 border-amber-200",
   };
   const headerColor = colorMap[color] || colorMap.indigo;
-
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
       <button
@@ -94,10 +98,63 @@ function Section({ icon: Icon, title, color = "indigo", children, defaultOpen = 
   );
 }
 
-/* ────────────────────────────────────────────────────────────────────────
-   Main Component
-   ──────────────────────────────────────────────────────────────────────── */
+// ── Nilai awal form ───────────────────────────────────────────────────────
+const INITIAL_FORM = {
+  kehamilan_id: "",
+  nama_dokter: "",
+  tanggal_periksa: "",
+  konsep_anamnesa_pemeriksaan: "",
+  fisik_konjungtiva: "Normal",
+  fisik_sklera: "Normal",
+  fisik_kulit: "Normal",
+  fisik_leher: "Normal",
+  fisik_gigi_mulut: "Normal",
+  fisik_tht: "Normal",
+  fisik_dada_jantung: "Normal",
+  fisik_dada_paru: "Normal",
+  fisik_perut: "Normal",
+  fisik_tungkai: "Normal",
+  hpht: "",
+  keteraturan_haid: "Teratur",
+  umur_hamil_hpht_minggu: "",
+  hpl_berdasarkan_hpht: "",
+  umur_hamil_usg_minggu: "",
+  hpl_berdasarkan_usg: "",
+  usg_jumlah_gs: "",
+  usg_diameter_gs_cm: "",
+  usg_diameter_gs_minggu: "",
+  usg_diameter_gs_hari: "",
+  usg_jumlah_bayi: "",
+  usg_crl_cm: "",
+  usg_crl_minggu: "",
+  usg_crl_hari: "",
+  usg_letak_produk_kehamilan: "",
+  usg_pulsasi_jantung: "",
+  usg_kecurigaan_temuan_abnormal: "Tidak",
+  usg_keterangan_temuan_abnormal: "",
+  gambar_usg: "",
+  tanggal_lab: "",
+  lab_hemoglobin_hasil: "",
+  lab_hemoglobin_rencana_tindak_lanjut: "",
+  lab_golongan_darah_rhesus_hasil: "",
+  lab_golongan_darah_rhesus_rencana_tindak_lanjut: "",
+  lab_gula_darah_sewaktu_hasil: "",
+  lab_gula_darah_sewaktu_rencana_tindak_lanjut: "",
+  lab_hiv_hasil: "NonReaktif",
+  lab_hiv_rencana_tindak_lanjut: "",
+  lab_sifilis_hasil: "NonReaktif",
+  lab_sifilis_rencana_tindak_lanjut: "",
+  lab_hepatitis_b_hasil: "NonReaktif",
+  lab_hepatitis_b_rencana_tindak_lanjut: "",
+  tanggal_skrining_jiwa: "",
+  skrining_jiwa_hasil: "",
+  skrining_jiwa_tindak_lanjut: "",
+  skrining_jiwa_perlu_rujukan: "Tidak",
+  kesimpulan: "",
+  rekomendasi: "",
+};
 
+// ── Main Component ────────────────────────────────────────────────────────
 export default function PemeriksaanDokterT1Complete() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -112,171 +169,222 @@ export default function PemeriksaanDokterT1Complete() {
   const [currentStep, setCurrentStep] = useState(1);
   const [validationErrors, setValidationErrors] = useState({});
 
-  useEffect(() => {
-    const stepParam = new URLSearchParams(location.search).get("step");
-    const step = parseInt(stepParam, 10);
-    if (!Number.isNaN(step) && step >= 1 && step <= 4) {
-      setCurrentStep(step);
-    }
-  }, [location.search]);
-
-  // State khusus gambar USG (file dan preview)
   const [usgImageFile, setUsgImageFile] = useState(null);
   const [usgImagePreview, setUsgImagePreview] = useState("");
 
-  /* ── Form state ─────────────────────────────────────────────────────── */
-  const [form, setForm] = useState({
-    kehamilan_id: "",
-    nama_dokter: "",
-    tanggal_periksa: "",
-    konsep_anamnesa_pemeriksaan: "",
-    fisik_konjungtiva: "Normal",
-    fisik_sklera: "Normal",
-    fisik_kulit: "Normal",
-    fisik_leher: "Normal",
-    fisik_gigi_mulut: "Normal",
-    fisik_tht: "Normal",
-    fisik_dada_jantung: "Normal",
-    fisik_dada_paru: "Normal",
-    fisik_perut: "Normal",
-    fisik_tungkai: "Normal",
-    hpht: "",
-    keteraturan_haid: "Teratur",
-    umur_hamil_hpht_minggu: "",
-    hpl_berdasarkan_hpht: "",
-    umur_hamil_usg_minggu: "",
-    hpl_berdasarkan_usg: "",
-    usg_jumlah_gs: "",
-    usg_diameter_gs_cm: "",
-    usg_diameter_gs_minggu: "",
-    usg_diameter_gs_hari: "",
-    usg_jumlah_bayi: "",
-    usg_crl_cm: "",
-    usg_crl_minggu: "",
-    usg_crl_hari: "",
-    usg_letak_produk_kehamilan: "",
-    usg_pulsasi_jantung: "",
-    usg_kecurigaan_temuan_abnormal: "Tidak",
-    usg_keterangan_temuan_abnormal: "",
-    gambar_usg: "",
-    tanggal_lab: "",
-    lab_hemoglobin_hasil: "",
-    lab_hemoglobin_rencana_tindak_lanjut: "",
-    lab_golongan_darah_rhesus_hasil: "",
-    lab_golongan_darah_rhesus_rencana_tindak_lanjut: "",
-    lab_gula_darah_sewaktu_hasil: "",
-    lab_gula_darah_sewaktu_rencana_tindak_lanjut: "",
-    lab_hiv_hasil: "NonReaktif",
-    lab_hiv_rencana_tindak_lanjut: "",
-    lab_sifilis_hasil: "NonReaktif",
-    lab_sifilis_rencana_tindak_lanjut: "",
-    lab_hepatitis_b_hasil: "NonReaktif",
-    lab_hepatitis_b_rencana_tindak_lanjut: "",
-    tanggal_skrining_jiwa: "",
-    skrining_jiwa_hasil: "",
-    skrining_jiwa_tindak_lanjut: "",
-    skrining_jiwa_perlu_rujukan: "Tidak",
-    kesimpulan: "",
-    rekomendasi: "",
-  });
+  const [form, setForm] = useState(INITIAL_FORM);
 
-  /* ── Fetch data ─────────────────────────────────────────────────────── */
+  // Baca query ?step=N
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const currentUser = getCurrentUser();
-        const dokterName = currentUser?.nama || currentUser?.name || "";
+    const stepParam = new URLSearchParams(location.search).get("step");
+    const step = parseInt(stepParam, 10);
+    if (!Number.isNaN(step) && step >= 1 && step <= 4) setCurrentStep(step);
+  }, [location.search]);
 
-        const kehamilanList = await getKehamilanByIbuId(id);
-        if (!kehamilanList || kehamilanList.length === 0) {
-          setError("Belum ada data kehamilan untuk ibu ini.");
-          setLoading(false);
-          return;
-        }
-        const aktif = kehamilanList[0];
-        setKehamilan(aktif);
+  // ── Fetch data ────────────────────────────────────────────────────────
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const currentUser = getCurrentUser();
+      const dokterName = currentUser?.nama || currentUser?.name || "";
 
-        const res = await getDokterT1CompleteByKehamilanId(aktif.id);
-        if (res && res.dokter) {
-          setExistingData(res.dokter);
-          const d = res.dokter;
-          const lab = res.lab_jiwa;
-          setForm({
-            kehamilan_id: d.kehamilan_id,
-            nama_dokter: d.nama_dokter || dokterName || "",
-            tanggal_periksa: d.tanggal_periksa ? d.tanggal_periksa.split("T")[0] : "",
-            konsep_anamnesa_pemeriksaan: d.konsep_anamnesa_pemeriksaan || "",
-            fisik_konjungtiva: d.fisik_konjungtiva || "Normal",
-            fisik_sklera: d.fisik_sklera || "Normal",
-            fisik_kulit: d.fisik_kulit || "Normal",
-            fisik_leher: d.fisik_leher || "Normal",
-            fisik_gigi_mulut: d.fisik_gigi_mulut || "Normal",
-            fisik_tht: d.fisik_tht || "Normal",
-            fisik_dada_jantung: d.fisik_dada_jantung || "Normal",
-            fisik_dada_paru: d.fisik_dada_paru || "Normal",
-            fisik_perut: d.fisik_perut || "Normal",
-            fisik_tungkai: d.fisik_tungkai || "Normal",
-            hpht: d.hpht ? d.hpht.split("T")[0] : "",
-            keteraturan_haid: d.keteraturan_haid || "Teratur",
-            umur_hamil_hpht_minggu: d.umur_hamil_hpht_minggu?.toString() || "",
-            hpl_berdasarkan_hpht: d.hpl_berdasarkan_hpht ? d.hpl_berdasarkan_hpht.split("T")[0] : "",
-            umur_hamil_usg_minggu: d.umur_hamil_usg_minggu?.toString() || "",
-            hpl_berdasarkan_usg: d.hpl_berdasarkan_usg ? d.hpl_berdasarkan_usg.split("T")[0] : "",
-            usg_jumlah_gs: d.usg_jumlah_gs || "",
-            usg_diameter_gs_cm: d.usg_diameter_gs_cm?.toString() || "",
-            usg_diameter_gs_minggu: d.usg_diameter_gs_minggu?.toString() || "",
-            usg_diameter_gs_hari: d.usg_diameter_gs_hari?.toString() || "",
-            usg_jumlah_bayi: d.usg_jumlah_bayi || "",
-            usg_crl_cm: d.usg_crl_cm?.toString() || "",
-            usg_crl_minggu: d.usg_crl_minggu?.toString() || "",
-            usg_crl_hari: d.usg_crl_hari?.toString() || "",
-            usg_letak_produk_kehamilan: d.usg_letak_produk_kehamilan || "",
-            usg_pulsasi_jantung: d.usg_pulsasi_jantung || "",
-            usg_kecurigaan_temuan_abnormal: d.usg_kecurigaan_temuan_abnormal || "Tidak",
-            usg_keterangan_temuan_abnormal: d.usg_keterangan_temuan_abnormal || "",
-            gambar_usg: d.gambar_usg || d.GambarUSG || "",
-            tanggal_lab: lab?.tanggal_lab ? lab.tanggal_lab.split("T")[0] : "",
-            lab_hemoglobin_hasil: lab?.lab_hemoglobin_hasil?.toString() || "",
-            lab_hemoglobin_rencana_tindak_lanjut: lab?.lab_hemoglobin_rencana_tindak_lanjut || "",
-            lab_golongan_darah_rhesus_hasil: lab?.lab_golongan_darah_rhesus_hasil || "",
-            lab_golongan_darah_rhesus_rencana_tindak_lanjut: lab?.lab_golongan_darah_rhesus_rencana_tindak_lanjut || "",
-            lab_gula_darah_sewaktu_hasil: lab?.lab_gula_darah_sewaktu_hasil?.toString() || "",
-            lab_gula_darah_sewaktu_rencana_tindak_lanjut: lab?.lab_gula_darah_sewaktu_rencana_tindak_lanjut || "",
-            lab_hiv_hasil: lab?.lab_hiv_hasil || "NonReaktif",
-            lab_hiv_rencana_tindak_lanjut: lab?.lab_hiv_rencana_tindak_lanjut || "",
-            lab_sifilis_hasil: lab?.lab_sifilis_hasil || "NonReaktif",
-            lab_sifilis_rencana_tindak_lanjut: lab?.lab_sifilis_rencana_tindak_lanjut || "",
-            lab_hepatitis_b_hasil: lab?.lab_hepatitis_b_hasil || "NonReaktif",
-            lab_hepatitis_b_rencana_tindak_lanjut: lab?.lab_hepatitis_b_rencana_tindak_lanjut || "",
-            tanggal_skrining_jiwa: lab?.tanggal_skrining_jiwa ? lab.tanggal_skrining_jiwa.split("T")[0] : "",
-            skrining_jiwa_hasil: lab?.skrining_jiwa_hasil || "",
-            skrining_jiwa_tindak_lanjut: lab?.skrining_jiwa_tindak_lanjut || "",
-            skrining_jiwa_perlu_rujukan: lab?.skrining_jiwa_perlu_rujukan || "Tidak",
-            kesimpulan: lab?.kesimpulan || "",
-            rekomendasi: lab?.rekomendasi || "",
-          });
-          const img = d.gambar_usg || d.GambarUSG;
-          if (img && img.startsWith("data:image")) {
-            setUsgImagePreview(img);
-          }
-        } else {
-          setForm((prev) => ({
-            ...prev,
-            kehamilan_id: aktif.id,
-            nama_dokter: dokterName || "",
-          }));
-        }
-      } catch (err) {
-        console.error("Error fetch data:", err);
-        setError("Terjadi kesalahan saat memuat data.");
-      } finally {
-        setLoading(false);
+      const kehamilanList = await getKehamilanByIbuId(id);
+      if (!kehamilanList || kehamilanList.length === 0) {
+        setError("Belum ada data kehamilan untuk ibu ini.");
+        return;
       }
-    };
-    fetchData();
+      const aktif = kehamilanList[0];
+      setKehamilan(aktif);
+
+      // Coba ambil data existing
+      let res = null;
+      try {
+        res = await getDokterT1CompleteByKehamilanId(aktif.id);
+      } catch {
+        res = null;
+      }
+
+      const normalized = normalizeResponse(res);
+      if (!normalized) {
+        // Tidak ada data → mode create
+        setExistingData(null);
+        setForm({
+          ...INITIAL_FORM,
+          kehamilan_id: aktif.id,
+          nama_dokter: dokterName,
+        });
+        return;
+      }
+
+      const { dokter, lab_jiwa } = normalized;
+      const lab = lab_jiwa || {};
+
+      setExistingData(normalized);
+      setForm({
+        kehamilan_id: dokter.kehamilan_id ?? aktif.id,
+        nama_dokter: dokter.nama_dokter || dokterName || "",
+        tanggal_periksa: toDateOnly(dokter.tanggal_periksa),
+        konsep_anamnesa_pemeriksaan:
+          dokter.konsep_anamnesa_pemeriksaan || "",
+        fisik_konjungtiva: dokter.fisik_konjungtiva || "Normal",
+        fisik_sklera: dokter.fisik_sklera || "Normal",
+        fisik_kulit: dokter.fisik_kulit || "Normal",
+        fisik_leher: dokter.fisik_leher || "Normal",
+        fisik_gigi_mulut: dokter.fisik_gigi_mulut || "Normal",
+        fisik_tht: dokter.fisik_tht || "Normal",
+        fisik_dada_jantung: dokter.fisik_dada_jantung || "Normal",
+        fisik_dada_paru: dokter.fisik_dada_paru || "Normal",
+        fisik_perut: dokter.fisik_perut || "Normal",
+        fisik_tungkai: dokter.fisik_tungkai || "Normal",
+        hpht: toDateOnly(dokter.hpht),
+        keteraturan_haid: dokter.keteraturan_haid || "Teratur",
+        umur_hamil_hpht_minggu:
+          dokter.umur_hamil_hpht_minggu?.toString() || "",
+        hpl_berdasarkan_hpht: toDateOnly(dokter.hpl_berdasarkan_hpht),
+        umur_hamil_usg_minggu:
+          dokter.umur_hamil_usg_minggu?.toString() || "",
+        hpl_berdasarkan_usg: toDateOnly(dokter.hpl_berdasarkan_usg),
+        usg_jumlah_gs: dokter.usg_jumlah_gs || "",
+        usg_diameter_gs_cm: dokter.usg_diameter_gs_cm?.toString() || "",
+        usg_diameter_gs_minggu:
+          dokter.usg_diameter_gs_minggu?.toString() || "",
+        usg_diameter_gs_hari:
+          dokter.usg_diameter_gs_hari?.toString() || "",
+        usg_jumlah_bayi: dokter.usg_jumlah_bayi || "",
+        // Handle variasi nama kolom CRL (dengan/tanpa underscore)
+        usg_crl_cm: (dokter.usg_crl_cm ?? dokter.usgcrl_cm)?.toString() || "",
+        usg_crl_minggu: (dokter.usg_crl_minggu ?? dokter.usgcrl_minggu)?.toString() || "",
+        usg_crl_hari: (dokter.usg_crl_hari ?? dokter.usgcrl_hari)?.toString() || "",
+        usg_letak_produk_kehamilan:
+          dokter.usg_letak_produk_kehamilan || "",
+        usg_pulsasi_jantung: dokter.usg_pulsasi_jantung || "",
+        usg_kecurigaan_temuan_abnormal:
+          dokter.usg_kecurigaan_temuan_abnormal || "Tidak",
+        usg_keterangan_temuan_abnormal:
+          dokter.usg_keterangan_temuan_abnormal || "",
+        gambar_usg: dokter.gambar_usg || dokter.GambarUSG || "",
+        // Lab data – ambil dari lab_jiwa atau dari dokter jika datar
+        tanggal_lab: toDateOnly(lab.tanggal_lab || dokter.tanggal_lab),
+        lab_hemoglobin_hasil:
+          lab.lab_hemoglobin_hasil?.toString() ||
+          dokter.lab_hemoglobin_hasil?.toString() ||
+          "",
+        lab_hemoglobin_rencana_tindak_lanjut:
+          lab.lab_hemoglobin_rencana_tindak_lanjut ||
+          dokter.lab_hemoglobin_rencana_tindak_lanjut ||
+          "",
+        lab_golongan_darah_rhesus_hasil:
+          lab.lab_golongan_darah_rhesus_hasil ||
+          dokter.lab_golongan_darah_rhesus_hasil ||
+          "",
+        lab_golongan_darah_rhesus_rencana_tindak_lanjut:
+          lab.lab_golongan_darah_rhesus_rencana_tindak_lanjut ||
+          dokter.lab_golongan_darah_rhesus_rencana_tindak_lanjut ||
+          "",
+        lab_gula_darah_sewaktu_hasil:
+          lab.lab_gula_darah_sewaktu_hasil?.toString() ||
+          dokter.lab_gula_darah_sewaktu_hasil?.toString() ||
+          "",
+        lab_gula_darah_sewaktu_rencana_tindak_lanjut:
+          lab.lab_gula_darah_sewaktu_rencana_tindak_lanjut ||
+          dokter.lab_gula_darah_sewaktu_rencana_tindak_lanjut ||
+          "",
+        lab_hiv_hasil: lab.lab_hiv_hasil || dokter.lab_hiv_hasil || "NonReaktif",
+        lab_hiv_rencana_tindak_lanjut:
+          lab.lab_hiv_rencana_tindak_lanjut ||
+          dokter.lab_hiv_rencana_tindak_lanjut ||
+          "",
+        lab_sifilis_hasil:
+          lab.lab_sifilis_hasil || dokter.lab_sifilis_hasil || "NonReaktif",
+        lab_sifilis_rencana_tindak_lanjut:
+          lab.lab_sifilis_rencana_tindak_lanjut ||
+          dokter.lab_sifilis_rencana_tindak_lanjut ||
+          "",
+        lab_hepatitis_b_hasil:
+          lab.lab_hepatitis_b_hasil ||
+          dokter.lab_hepatitis_b_hasil ||
+          "NonReaktif",
+        lab_hepatitis_b_rencana_tindak_lanjut:
+          lab.lab_hepatitis_b_rencana_tindak_lanjut ||
+          dokter.lab_hepatitis_b_rencana_tindak_lanjut ||
+          "",
+        tanggal_skrining_jiwa: toDateOnly(
+          lab.tanggal_skrining_jiwa || dokter.tanggal_skrining_jiwa
+        ),
+        skrining_jiwa_hasil:
+          lab.skrining_jiwa_hasil || dokter.skrining_jiwa_hasil || "",
+        skrining_jiwa_tindak_lanjut:
+          lab.skrining_jiwa_tindak_lanjut ||
+          dokter.skrining_jiwa_tindak_lanjut ||
+          "",
+        skrining_jiwa_perlu_rujukan:
+          lab.skrining_jiwa_perlu_rujukan ||
+          dokter.skrining_jiwa_perlu_rujukan ||
+          "Tidak",
+        kesimpulan: lab.kesimpulan || dokter.kesimpulan || "",
+        rekomendasi: lab.rekomendasi || dokter.rekomendasi || "",
+      });
+
+      const img = dokter.gambar_usg || dokter.GambarUSG;
+      if (img && img.startsWith("data:image")) setUsgImagePreview(img);
+    } catch (err) {
+      console.error("Error fetch data:", err);
+      setError("Terjadi kesalahan saat memuat data.");
+    } finally {
+      setLoading(false);
+    }
   }, [id]);
 
-  /* ── Handler ────────────────────────────────────────────────────────── */
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  // ── Normalize Response ─────────────────────────────────────────────────
+  function normalizeResponse(res) {
+    if (!res) return null;
+
+    // Unwrap .data jika ada
+    let body = res.data && (res.data.dokter || res.data.id_trimester1) ? res.data : res;
+
+    // Jika sudah memiliki dokter dan lab_jiwa
+    if (body.dokter && (body.dokter.id || body.dokter.id_trimester1)) {
+      return {
+        dokter: body.dokter,
+        lab_jiwa: body.lab_jiwa || null,
+      };
+    }
+
+    // Jika datar (field id_trimester1 di root)
+    if (body.id || body.id_trimester1) {
+      const dokterFields = {};
+      const labFields = {};
+      const labPrefixes = [
+        "tanggal_lab",
+        "lab_",
+        "tanggal_skrining_jiwa",
+        "skrining_jiwa_",
+        "kesimpulan",
+        "rekomendasi",
+      ];
+      for (const key of Object.keys(body)) {
+        if (labPrefixes.some((pf) => key.startsWith(pf))) {
+          labFields[key] = body[key];
+        } else {
+          dokterFields[key] = body[key];
+        }
+      }
+      dokterFields.id = dokterFields.id || dokterFields.id_trimester1;
+      return {
+        dokter: dokterFields,
+        lab_jiwa: labFields,
+      };
+    }
+
+    return null;
+  }
+
+  // ── Handlers ──────────────────────────────────────────────────────────
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
@@ -294,9 +402,7 @@ export default function PemeriksaanDokterT1Complete() {
     if (!file) return;
     setUsgImageFile(file);
     const reader = new FileReader();
-    reader.onloadend = () => {
-      setUsgImagePreview(reader.result);
-    };
+    reader.onloadend = () => setUsgImagePreview(reader.result);
     reader.readAsDataURL(file);
   };
 
@@ -307,18 +413,17 @@ export default function PemeriksaanDokterT1Complete() {
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  /* ── Validasi per step ──────────────────────────────────────────────── */
+  // ── Validasi ───────────────────────────────────────────────────────────
   const validateStep1 = () => {
     const errors = {};
-    // tanggal_periksa dihilangkan dari validasi wajib jika backend otomatis set, 
-    // namun jika form tetap ada, biarkan user mengisinya.
-    if (!form.konsep_anamnesa_pemeriksaan?.trim()) errors.konsep_anamnesa_pemeriksaan = "Anamnesa pemeriksaan harus diisi";
-    const fisikFields = [
+    if (!form.konsep_anamnesa_pemeriksaan?.trim())
+      errors.konsep_anamnesa_pemeriksaan = "Anamnesa harus diisi";
+    const fisikNames = [
       "fisik_konjungtiva","fisik_sklera","fisik_kulit","fisik_leher",
-      "fisik_gigi_mulut","fisik_tht","fisik_dada_jantung","fisik_dada_paru",
-      "fisik_perut","fisik_tungkai",
+      "fisik_gigi_mulut","fisik_tht","fisik_dada_jantung",
+      "fisik_dada_paru","fisik_perut","fisik_tungkai",
     ];
-    fisikFields.forEach((f) => {
+    fisikNames.forEach((f) => {
       if (!form[f]?.trim()) errors[f] = "Harus diisi";
     });
     return errors;
@@ -338,23 +443,22 @@ export default function PemeriksaanDokterT1Complete() {
     if (!form.usg_crl_cm?.toString().trim()) errors.usg_crl_cm = "CRL (cm) harus diisi";
     if (!form.usg_crl_minggu?.toString().trim()) errors.usg_crl_minggu = "CRL (minggu) harus diisi";
     if (!form.usg_crl_hari?.toString().trim()) errors.usg_crl_hari = "CRL (hari) harus diisi";
-    if (!form.usg_letak_produk_kehamilan?.trim()) errors.usg_letak_produk_kehamilan = "Letak produk kehamilan harus diisi";
+    if (!form.usg_letak_produk_kehamilan?.trim()) errors.usg_letak_produk_kehamilan = "Letak produk harus diisi";
     if (!form.usg_pulsasi_jantung?.trim()) errors.usg_pulsasi_jantung = "Pulsasi jantung harus diisi";
     if (!form.usg_kecurigaan_temuan_abnormal?.trim()) errors.usg_kecurigaan_temuan_abnormal = "Kecurigaan abnormal harus diisi";
-    if (form.usg_kecurigaan_temuan_abnormal === "Ya" && !form.usg_keterangan_temuan_abnormal?.trim()) {
+    if (form.usg_kecurigaan_temuan_abnormal === "Ya" && !form.usg_keterangan_temuan_abnormal?.trim())
       errors.usg_keterangan_temuan_abnormal = "Keterangan abnormal harus diisi";
-    }
     return errors;
   };
 
   const validateStep3 = () => {
     const errors = {};
     if (!form.lab_hemoglobin_hasil?.toString().trim()) errors.lab_hemoglobin_hasil = "Hasil hemoglobin harus diisi";
-    if (!form.lab_hemoglobin_rencana_tindak_lanjut?.trim()) errors.lab_hemoglobin_rencana_tindak_lanjut = "Rencana hemoglobin harus diisi";
-    if (!form.lab_gula_darah_sewaktu_hasil?.toString().trim()) errors.lab_gula_darah_sewaktu_hasil = "Hasil gula darah harus diisi";
+    if (!form.lab_hemoglobin_rencana_tindak_lanjut?.trim()) errors.lab_hemoglobin_rencana_tindak_lanjut = "Rencana Hb harus diisi";
+    if (!form.lab_golongan_darah_rhesus_hasil?.trim()) errors.lab_golongan_darah_rhesus_hasil = "Golongan darah harus diisi";
+    if (!form.lab_golongan_darah_rhesus_rencana_tindak_lanjut?.trim()) errors.lab_golongan_darah_rhesus_rencana_tindak_lanjut = "Rencana goldar harus diisi";
+    if (!form.lab_gula_darah_sewaktu_hasil?.toString().trim()) errors.lab_gula_darah_sewaktu_hasil = "Gula darah harus diisi";
     if (!form.lab_gula_darah_sewaktu_rencana_tindak_lanjut?.trim()) errors.lab_gula_darah_sewaktu_rencana_tindak_lanjut = "Rencana gula darah harus diisi";
-    if (!form.lab_golongan_darah_rhesus_hasil?.trim()) errors.lab_golongan_darah_rhesus_hasil = "Golongan darah & rhesus harus diisi";
-    if (!form.lab_golongan_darah_rhesus_rencana_tindak_lanjut?.trim()) errors.lab_golongan_darah_rhesus_rencana_tindak_lanjut = "Rencana golongan darah harus diisi";
     if (!form.lab_hiv_hasil?.trim()) errors.lab_hiv_hasil = "Hasil HIV harus diisi";
     if (!form.lab_hiv_rencana_tindak_lanjut?.trim()) errors.lab_hiv_rencana_tindak_lanjut = "Rencana HIV harus diisi";
     if (!form.lab_sifilis_hasil?.trim()) errors.lab_sifilis_hasil = "Hasil sifilis harus diisi";
@@ -367,12 +471,20 @@ export default function PemeriksaanDokterT1Complete() {
   const validateStep4 = () => {
     const errors = {};
     if (!form.skrining_jiwa_hasil?.trim()) errors.skrining_jiwa_hasil = "Hasil skrining jiwa harus diisi";
-    if (!form.skrining_jiwa_tindak_lanjut?.trim()) errors.skrining_jiwa_tindak_lanjut = "Tindak lanjut jiwa harus diisi";
+    if (!form.skrining_jiwa_tindak_lanjut?.trim()) errors.skrining_jiwa_tindak_lanjut = "Tindak lanjut harus diisi";
     if (!form.skrining_jiwa_perlu_rujukan?.trim()) errors.skrining_jiwa_perlu_rujukan = "Perlu rujukan harus diisi";
     if (!form.kesimpulan?.trim()) errors.kesimpulan = "Kesimpulan harus diisi";
     if (!form.rekomendasi?.trim()) errors.rekomendasi = "Rekomendasi harus diisi";
     return errors;
   };
+
+  const showValidationAlert = () =>
+    Swal.fire({
+      icon: "warning",
+      title: "Data Belum Lengkap",
+      text: "Mohon lengkapi semua data yang wajib diisi.",
+      confirmButtonColor: "#4f46e5",
+    });
 
   const handleNextStep = () => {
     let errors = {};
@@ -382,56 +494,100 @@ export default function PemeriksaanDokterT1Complete() {
 
     if (Object.keys(errors).length > 0) {
       setValidationErrors(errors);
-      Swal.fire({
-        icon: "warning",
-        title: "Data Belum Lengkap",
-        text: "Mohon lengkapi semua data yang wajib diisi sebelum melanjutkan.",
-        confirmButtonColor: "#4f46e5",
-      });
+      showValidationAlert();
       return;
     }
-    setCurrentStep(currentStep + 1);
+    setCurrentStep((s) => s + 1);
     setValidationErrors({});
     window.scrollTo(0, 0);
   };
 
   const handlePrevStep = () => {
     if (currentStep > 1) {
-      setCurrentStep(currentStep - 1);
+      setCurrentStep((s) => s - 1);
       setValidationErrors({});
       window.scrollTo(0, 0);
     }
   };
 
-  /* ── Submit ─────────────────────────────────────────────────────────── */
-  
-  const handleSubmit = async (e) => {
-    
-    e.preventDefault();
-  console.log("=== handleSubmit DIPANGGIL ===");
-  console.log("currentStep:", currentStep);
-  console.log("kehamilan:", kehamilan);
-  console.log("form:", form);
+  // ── Build payload ──────────────────────────────────────────────────────
+  const buildPayload = (imageBase64) => {
+    const numeric = (val, type = "int") => {
+      if (val === "" || val == null) return null;
+      return type === "float" ? parseFloat(val) : parseInt(val, 10);
+    };
+    return {
+      kehamilan_id: kehamilan.id,
+      nama_dokter: form.nama_dokter,
+      tanggal_periksa: toDateTimeISO(form.tanggal_periksa),
+      konsep_anamnesa_pemeriksaan: form.konsep_anamnesa_pemeriksaan,
+      fisik_konjungtiva: form.fisik_konjungtiva,
+      fisik_sklera: form.fisik_sklera,
+      fisik_kulit: form.fisik_kulit,
+      fisik_leher: form.fisik_leher,
+      fisik_gigi_mulut: form.fisik_gigi_mulut,
+      fisik_tht: form.fisik_tht,
+      fisik_dada_jantung: form.fisik_dada_jantung,
+      fisik_dada_paru: form.fisik_dada_paru,
+      fisik_perut: form.fisik_perut,
+      fisik_tungkai: form.fisik_tungkai,
+      hpht: toDateTimeISO(form.hpht),
+      hpl_berdasarkan_hpht: toDateTimeISO(form.hpl_berdasarkan_hpht),
+      hpl_berdasarkan_usg: toDateTimeISO(form.hpl_berdasarkan_usg),
+      keteraturan_haid: form.keteraturan_haid,
+      umur_hamil_hpht_minggu: numeric(form.umur_hamil_hpht_minggu),
+      umur_hamil_usg_minggu: numeric(form.umur_hamil_usg_minggu),
+      usg_jumlah_gs: form.usg_jumlah_gs,
+      usg_diameter_gs_cm: numeric(form.usg_diameter_gs_cm, "float"),
+      usg_diameter_gs_minggu: numeric(form.usg_diameter_gs_minggu),
+      usg_diameter_gs_hari: numeric(form.usg_diameter_gs_hari),
+      usg_jumlah_bayi: form.usg_jumlah_bayi,
+      usg_crl_cm: numeric(form.usg_crl_cm, "float"),
+      usg_crl_minggu: numeric(form.usg_crl_minggu),
+      usg_crl_hari: numeric(form.usg_crl_hari),
+      usg_letak_produk_kehamilan: form.usg_letak_produk_kehamilan,
+      usg_pulsasi_jantung: form.usg_pulsasi_jantung,
+      usg_kecurigaan_temuan_abnormal: form.usg_kecurigaan_temuan_abnormal,
+      usg_keterangan_temuan_abnormal: form.usg_keterangan_temuan_abnormal,
+      gambar_usg: imageBase64 ?? "",
+      tanggal_lab: toDateTimeISO(form.tanggal_lab),
+      lab_hemoglobin_hasil: numeric(form.lab_hemoglobin_hasil, "float"),
+      lab_hemoglobin_rencana_tindak_lanjut: form.lab_hemoglobin_rencana_tindak_lanjut,
+      lab_golongan_darah_rhesus_hasil: form.lab_golongan_darah_rhesus_hasil,
+      lab_golongan_darah_rhesus_rencana_tindak_lanjut: form.lab_golongan_darah_rhesus_rencana_tindak_lanjut,
+      lab_gula_darah_sewaktu_hasil: numeric(form.lab_gula_darah_sewaktu_hasil),
+      lab_gula_darah_sewaktu_rencana_tindak_lanjut: form.lab_gula_darah_sewaktu_rencana_tindak_lanjut,
+      lab_hiv_hasil: form.lab_hiv_hasil,
+      lab_hiv_rencana_tindak_lanjut: form.lab_hiv_rencana_tindak_lanjut,
+      lab_sifilis_hasil: form.lab_sifilis_hasil,
+      lab_sifilis_rencana_tindak_lanjut: form.lab_sifilis_rencana_tindak_lanjut,
+      lab_hepatitis_b_hasil: form.lab_hepatitis_b_hasil,
+      lab_hepatitis_b_rencana_tindak_lanjut: form.lab_hepatitis_b_rencana_tindak_lanjut,
+      tanggal_skrining_jiwa: toDateTimeISO(form.tanggal_skrining_jiwa),
+      skrining_jiwa_hasil: form.skrining_jiwa_hasil,
+      skrining_jiwa_tindak_lanjut: form.skrining_jiwa_tindak_lanjut,
+      skrining_jiwa_perlu_rujukan: form.skrining_jiwa_perlu_rujukan,
+      kesimpulan: form.kesimpulan,
+      rekomendasi: form.rekomendasi,
+    };
+  };
+
+  // ── Handle Save ───────────────────────────────────────────────────────
+  const handleSave = async () => {
     const errors = validateStep4();
     if (Object.keys(errors).length > 0) {
       setValidationErrors(errors);
-      Swal.fire({
-        icon: "warning",
-        title: "Data Belum Lengkap",
-        text: "Mohon lengkapi semua data yang wajib diisi sebelum menyimpan.",
-        confirmButtonColor: "#4f46e5",
-      });
+      showValidationAlert();
       return;
     }
     if (!kehamilan) {
-      alert("Data kehamilan tidak ditemukan.");
-      setSaving(false);
+      Swal.fire({ icon: "error", title: "Error", text: "Data kehamilan tidak ditemukan." });
       return;
     }
+    if (saving) return;
     setSaving(true);
 
     try {
-      // Baca gambar baru sebagai base64 jika ada
       let imageBase64 = form.gambar_usg;
       if (usgImageFile) {
         imageBase64 = await new Promise((resolve, reject) => {
@@ -442,99 +598,50 @@ export default function PemeriksaanDokterT1Complete() {
         });
       }
 
-      // Filter field yang tidak perlu dikirim karena auto-set/calculated di backend
-      const payload = {
-        kehamilan_id: kehamilan.id,
-        nama_dokter: form.nama_dokter,
-        tanggal_periksa: toDateTimeISO(form.tanggal_periksa),
-        konsep_anamnesa_pemeriksaan: form.konsep_anamnesa_pemeriksaan,
-        hpht: toDateTimeISO(form.hpht),
-        hpl_berdasarkan_hpht: toDateTimeISO(form.hpl_berdasarkan_hpht),
-        hpl_berdasarkan_usg: toDateTimeISO(form.hpl_berdasarkan_usg),
-        fisik_konjungtiva: form.fisik_konjungtiva,
-        fisik_sklera: form.fisik_sklera,
-        fisik_kulit: form.fisik_kulit,
-        fisik_leher: form.fisik_leher,
-        fisik_gigi_mulut: form.fisik_gigi_mulut,
-        fisik_tht: form.fisik_tht,
-        fisik_dada_jantung: form.fisik_dada_jantung,
-        fisik_dada_paru: form.fisik_dada_paru,
-        fisik_perut: form.fisik_perut,
-        fisik_tungkai: form.fisik_tungkai,
-        keteraturan_haid: form.keteraturan_haid,
-        umur_hamil_hpht_minggu: form.umur_hamil_hpht_minggu ? parseInt(form.umur_hamil_hpht_minggu) : null,
-        umur_hamil_usg_minggu: form.umur_hamil_usg_minggu ? parseInt(form.umur_hamil_usg_minggu) : null,
-        usg_diameter_gs_cm: form.usg_diameter_gs_cm ? parseFloat(form.usg_diameter_gs_cm) : null,
-        usg_diameter_gs_minggu: form.usg_diameter_gs_minggu ? parseInt(form.usg_diameter_gs_minggu) : null,
-        usg_diameter_gs_hari: form.usg_diameter_gs_hari ? parseInt(form.usg_diameter_gs_hari) : null,
-        usg_crl_cm: form.usg_crl_cm ? parseFloat(form.usg_crl_cm) : null,
-        usg_crl_minggu: form.usg_crl_minggu ? parseInt(form.usg_crl_minggu) : null,
-        usg_crl_hari: form.usg_crl_hari ? parseInt(form.usg_crl_hari) : null,
-        lab_hemoglobin_hasil: form.lab_hemoglobin_hasil ? parseFloat(form.lab_hemoglobin_hasil) : null,
-        lab_gula_darah_sewaktu_hasil: form.lab_gula_darah_sewaktu_hasil ? parseInt(form.lab_gula_darah_sewaktu_hasil) : null,
-        usg_jumlah_gs: form.usg_jumlah_gs,
-        usg_jumlah_bayi: form.usg_jumlah_bayi,
-        usg_letak_produk_kehamilan: form.usg_letak_produk_kehamilan,
-        usg_pulsasi_jantung: form.usg_pulsasi_jantung,
-        usg_kecurigaan_temuan_abnormal: form.usg_kecurigaan_temuan_abnormal,
-        usg_keterangan_temuan_abnormal: form.usg_keterangan_temuan_abnormal,
-        gambar_usg: imageBase64,
-        tanggal_lab: toDateTimeISO(form.tanggal_lab),
-        lab_hemoglobin_rencana_tindak_lanjut: form.lab_hemoglobin_rencana_tindak_lanjut,
-        lab_golongan_darah_rhesus_hasil: form.lab_golongan_darah_rhesus_hasil,
-        lab_golongan_darah_rhesus_rencana_tindak_lanjut: form.lab_golongan_darah_rhesus_rencana_tindak_lanjut,
-        lab_gula_darah_sewaktu_rencana_tindak_lanjut: form.lab_gula_darah_sewaktu_rencana_tindak_lanjut,
-        lab_hiv_hasil: form.lab_hiv_hasil,
-        lab_hiv_rencana_tindak_lanjut: form.lab_hiv_rencana_tindak_lanjut,
-        lab_sifilis_hasil: form.lab_sifilis_hasil,
-        lab_sifilis_rencana_tindak_lanjut: form.lab_sifilis_rencana_tindak_lanjut,
-        lab_hepatitis_b_hasil: form.lab_hepatitis_b_hasil,
-        lab_hepatitis_b_rencana_tindak_lanjut: form.lab_hepatitis_b_rencana_tindak_lanjut,
-        tanggal_skrining_jiwa: toDateTimeISO(form.tanggal_skrining_jiwa),
-        skrining_jiwa_hasil: form.skrining_jiwa_hasil,
-        skrining_jiwa_tindak_lanjut: form.skrining_jiwa_tindak_lanjut,
-        skrining_jiwa_perlu_rujukan: form.skrining_jiwa_perlu_rujukan,
-        kesimpulan: form.kesimpulan,
-        rekomendasi: form.rekomendasi,
-      };
-console.log("existingData:", existingData);
-console.log("idToUpdate:", existingData?.id || existingData?.id_trimester_1 || existingData?.ID);
-console.log("payload yang akan dikirim:", payload);
-      if (existingData) {
-        const idToUpdate = existingData.id || existingData.id_trimester_1 || existingData.ID;
-        await updateDokterT1Complete(idToUpdate, payload);
-        await Swal.fire({
-          icon: "success",
-          title: "Berhasil",
-          text: "Data pemeriksaan berhasil diperbarui!",
-          timer: 2000,
-          showConfirmButton: false,
-        });
+      const payload = buildPayload(imageBase64);
+
+      const dokterRecord = existingData?.dokter;
+      const idToUpdate =
+        dokterRecord?.id || dokterRecord?.id_trimester1 || dokterRecord?.ID;
+
+      console.log("[SAVE] mode:", idToUpdate ? "UPDATE" : "CREATE", "| id:", idToUpdate);
+
+      let response;
+      if (idToUpdate) {
+        response = await updateDokterT1Complete(idToUpdate, payload);
       } else {
-        await createDokterT1Complete(payload);
-        await Swal.fire({
-          icon: "success",
-          title: "Berhasil",
-          text: "Data pemeriksaan berhasil disimpan!",
-          timer: 2000,
-          showConfirmButton: false,
-        });
+        response = await createDokterT1Complete(payload);
+        // Jika response dari create mengandung data (misal ID baru),
+        // kita bisa set existingData agar form langsung mode edit saat kembali.
+        if (response?.data) {
+          const normalized = normalizeResponse(response.data);
+          if (normalized) setExistingData(normalized);
+        }
       }
+
+      await Swal.fire({
+        icon: "success",
+        title: "Berhasil",
+        text: `Data pemeriksaan berhasil ${idToUpdate ? "diperbarui" : "disimpan"}!`,
+        timer: 2000,
+        showConfirmButton: false,
+      });
       navigate(`/data-ibu/${id}/pemeriksaan-dokter-t1-complete/detail`);
     } catch (err) {
-      console.error("Error saving:", err);
-      const errorMsg = err.response?.data?.message || err.message || "Terjadi kesalahan";
+      console.error("[SAVE] Error:", err);
+      const errorMsg =
+        err?.response?.data?.message || err?.message || "Terjadi kesalahan";
       Swal.fire({
         icon: "error",
         title: "Gagal Menyimpan",
-        text: "Terjadi kesalahan saat menyimpan: " + errorMsg,
+        text: errorMsg,
       });
     } finally {
       setSaving(false);
     }
   };
 
-  /* ── Loading & Error ────────────────────────────────────────────────── */
+  // ── Loading / Error states ────────────────────────────────────────────
   if (loading) {
     return (
       <MainLayout>
@@ -556,7 +663,9 @@ console.log("payload yang akan dikirim:", payload);
             <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <AlertCircle className="text-red-500" size={32} />
             </div>
-            <h2 className="text-xl font-bold text-red-700 mb-2">Data Kehamilan Tidak Ditemukan</h2>
+            <h2 className="text-xl font-bold text-red-700 mb-2">
+              Data Kehamilan Tidak Ditemukan
+            </h2>
             <p className="text-gray-600 mb-6 text-sm">{error}</p>
             <div className="flex gap-3 justify-center">
               <Link
@@ -578,7 +687,7 @@ console.log("payload yang akan dikirim:", payload);
     );
   }
 
-  /* ── Data untuk render ──────────────────────────────────────────────── */
+  // ── Render ─────────────────────────────────────────────────────────────
   const fisikFields = [
     { name: "fisik_konjungtiva", label: "Konjungtiva" },
     { name: "fisik_sklera", label: "Sklera" },
@@ -593,9 +702,21 @@ console.log("payload yang akan dikirim:", payload);
   ];
 
   const labReaktifFields = [
-    { name: "lab_hiv_hasil", label: "HIV (H)", rencana: "lab_hiv_rencana_tindak_lanjut" },
-    { name: "lab_sifilis_hasil", label: "Sifilis (S)", rencana: "lab_sifilis_rencana_tindak_lanjut" },
-    { name: "lab_hepatitis_b_hasil", label: "Hepatitis B", rencana: "lab_hepatitis_b_rencana_tindak_lanjut" },
+    {
+      name: "lab_hiv_hasil",
+      label: "HIV (H)",
+      rencana: "lab_hiv_rencana_tindak_lanjut",
+    },
+    {
+      name: "lab_sifilis_hasil",
+      label: "Sifilis (S)",
+      rencana: "lab_sifilis_rencana_tindak_lanjut",
+    },
+    {
+      name: "lab_hepatitis_b_hasil",
+      label: "Hepatitis B",
+      rencana: "lab_hepatitis_b_rencana_tindak_lanjut",
+    },
   ];
 
   const stepTitles = [
@@ -607,7 +728,12 @@ console.log("payload yang akan dikirim:", payload);
   const stepIcons = [User, Eye, FlaskConical, Brain];
   const stepColors = ["indigo", "violet", "amber", "rose"];
 
-  /* ── Render ─────────────────────────────────────────────────────────── */
+  const isEditMode = !!(
+    existingData?.dokter?.id ||
+    existingData?.dokter?.id_trimester1 ||
+    existingData?.dokter?.ID
+  );
+
   return (
     <MainLayout>
       <div className="p-4 md:p-6 max-w-5xl mx-auto">
@@ -621,9 +747,11 @@ console.log("payload yang akan dikirim:", payload);
           </button>
           <div>
             <h1 className="text-xl md:text-2xl font-bold text-gray-800">
-              {existingData ? "Edit" : "Tambah"} Pemeriksaan Dokter Trimester 1
+              {isEditMode ? "Edit" : "Tambah"} Pemeriksaan Dokter Trimester 1
             </h1>
-            <p className="text-sm text-gray-500 mt-0.5">{stepTitles[currentStep - 1]}</p>
+            <p className="text-sm text-gray-500 mt-0.5">
+              {stepTitles[currentStep - 1]}
+            </p>
           </div>
         </div>
 
@@ -652,7 +780,9 @@ console.log("payload yang akan dikirim:", payload);
                   >
                     {isCompleted ? <CheckCircle size={20} /> : <Icon size={18} />}
                   </div>
-                  <p className={`text-xs font-semibold text-center ${titleColor} transition`}>
+                  <p
+                    className={`text-xs font-semibold text-center ${titleColor} transition`}
+                  >
                     {step === 1
                       ? "Dokter & Fisik"
                       : step === 2
@@ -667,10 +797,8 @@ console.log("payload yang akan dikirim:", payload);
           </div>
         </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
-
-          {/* ══ STEP 1: Data Dokter & Pemeriksaan Fisik ══ */}
+        <div className="space-y-4">
+          {/* ══ STEP 1 ══ */}
           {currentStep === 1 && (
             <>
               <Section icon={User} title="Data Dokter & Anamnesis" color="indigo">
@@ -682,7 +810,9 @@ console.log("payload yang akan dikirim:", payload);
                       readOnly
                       className={inputCls}
                     />
-                    <p className="text-xs text-gray-400 mt-1">Diambil dari data login</p>
+                    <p className="text-xs text-gray-400 mt-1">
+                      Diambil dari data login
+                    </p>
                   </Field>
                   <Field label="Tanggal Periksa">
                     <input
@@ -691,12 +821,17 @@ console.log("payload yang akan dikirim:", payload);
                       value={form.tanggal_periksa}
                       onChange={handleChange}
                       className={`${inputCls} ${
-                        validationErrors.tanggal_periksa ? "border-red-500 bg-red-50" : ""
+                        validationErrors.tanggal_periksa
+                          ? "border-red-500 bg-red-50"
+                          : ""
                       }`}
                     />
                     <ErrorMessage message={validationErrors.tanggal_periksa} />
                   </Field>
-                  <Field label="Konsep Anamnesa" colSpan="sm:col-span-2 md:col-span-1">
+                  <Field
+                    label="Konsep Anamnesa"
+                    colSpan="sm:col-span-2 md:col-span-1"
+                  >
                     <textarea
                       name="konsep_anamnesa_pemeriksaan"
                       value={form.konsep_anamnesa_pemeriksaan}
@@ -709,20 +844,26 @@ console.log("payload yang akan dikirim:", payload);
                       }`}
                       rows={3}
                     />
-                    <ErrorMessage message={validationErrors.konsep_anamnesa_pemeriksaan} />
+                    <ErrorMessage
+                      message={validationErrors.konsep_anamnesa_pemeriksaan}
+                    />
                   </Field>
                 </div>
               </Section>
 
               <Section icon={Activity} title="Pemeriksaan Fisik" color="teal">
                 <div className="mb-4 p-3 bg-gray-50 rounded-xl">
-                  <p className="text-xs text-gray-500 mb-2 font-medium">Ringkasan Status</p>
+                  <p className="text-xs text-gray-500 mb-2 font-medium">
+                    Ringkasan Status
+                  </p>
                   <div className="flex flex-wrap gap-2">
                     {fisikFields.map((f) => (
                       <span key={f.name} className="text-xs text-gray-600">
                         <span className="font-medium">{f.label}:</span>{" "}
                         {form[f.name] === "Normal" ? (
-                          <span className="text-emerald-600 font-semibold">✓</span>
+                          <span className="text-emerald-600 font-semibold">
+                            ✓
+                          </span>
                         ) : (
                           <span className="text-red-500 font-semibold">!</span>
                         )}
@@ -759,10 +900,10 @@ console.log("payload yang akan dikirim:", payload);
             </>
           )}
 
-          {/* ══ STEP 2: USG Trimester 1 ══ */}
+          {/* ══ STEP 2 ══ */}
           {currentStep === 2 && (
             <Section icon={Eye} title="USG Trimester 1" color="violet" defaultOpen={true}>
-              {/* Berdasarkan HPHT */}
+              {/* HPHT */}
               <div className="mb-5">
                 <h3 className="text-xs font-bold text-violet-600 uppercase tracking-widest mb-3">
                   Berdasarkan HPHT
@@ -786,7 +927,9 @@ console.log("payload yang akan dikirim:", payload);
                       value={form.keteraturan_haid}
                       onChange={handleChange}
                       className={`${selectCls} ${
-                        validationErrors.keteraturan_haid ? "border-red-500 bg-red-50" : ""
+                        validationErrors.keteraturan_haid
+                          ? "border-red-500 bg-red-50"
+                          : ""
                       }`}
                     >
                       <option value="Teratur">Teratur</option>
@@ -802,10 +945,14 @@ console.log("payload yang akan dikirim:", payload);
                       onChange={handleChange}
                       placeholder="0"
                       className={`${inputCls} ${
-                        validationErrors.umur_hamil_hpht_minggu ? "border-red-500 bg-red-50" : ""
+                        validationErrors.umur_hamil_hpht_minggu
+                          ? "border-red-500 bg-red-50"
+                          : ""
                       }`}
                     />
-                    <ErrorMessage message={validationErrors.umur_hamil_hpht_minggu} />
+                    <ErrorMessage
+                      message={validationErrors.umur_hamil_hpht_minggu}
+                    />
                   </Field>
                   <Field label="HPL (HPHT)">
                     <input
@@ -814,15 +961,18 @@ console.log("payload yang akan dikirim:", payload);
                       value={form.hpl_berdasarkan_hpht}
                       onChange={handleChange}
                       className={`${inputCls} ${
-                        validationErrors.hpl_berdasarkan_hpht ? "border-red-500 bg-red-50" : ""
+                        validationErrors.hpl_berdasarkan_hpht
+                          ? "border-red-500 bg-red-50"
+                          : ""
                       }`}
                     />
-                    <ErrorMessage message={validationErrors.hpl_berdasarkan_hpht} />
+                    <ErrorMessage
+                      message={validationErrors.hpl_berdasarkan_hpht}
+                    />
                   </Field>
                 </div>
               </div>
-
-              {/* Berdasarkan USG */}
+              {/* USG */}
               <div className="mb-5">
                 <h3 className="text-xs font-bold text-violet-600 uppercase tracking-widest mb-3">
                   Berdasarkan USG
@@ -836,10 +986,14 @@ console.log("payload yang akan dikirim:", payload);
                       onChange={handleChange}
                       placeholder="0"
                       className={`${inputCls} ${
-                        validationErrors.umur_hamil_usg_minggu ? "border-red-500 bg-red-50" : ""
+                        validationErrors.umur_hamil_usg_minggu
+                          ? "border-red-500 bg-red-50"
+                          : ""
                       }`}
                     />
-                    <ErrorMessage message={validationErrors.umur_hamil_usg_minggu} />
+                    <ErrorMessage
+                      message={validationErrors.umur_hamil_usg_minggu}
+                    />
                   </Field>
                   <Field label="HPL (USG)">
                     <input
@@ -848,15 +1002,18 @@ console.log("payload yang akan dikirim:", payload);
                       value={form.hpl_berdasarkan_usg}
                       onChange={handleChange}
                       className={`${inputCls} ${
-                        validationErrors.hpl_berdasarkan_usg ? "border-red-500 bg-red-50" : ""
+                        validationErrors.hpl_berdasarkan_usg
+                          ? "border-red-500 bg-red-50"
+                          : ""
                       }`}
                     />
-                    <ErrorMessage message={validationErrors.hpl_berdasarkan_usg} />
+                    <ErrorMessage
+                      message={validationErrors.hpl_berdasarkan_usg}
+                    />
                   </Field>
                 </div>
               </div>
-
-              {/* Gestational Sac */}
+              {/* GS */}
               <div className="mb-5">
                 <h3 className="text-xs font-bold text-violet-600 uppercase tracking-widest mb-3">
                   Gestational Sac (GS)
@@ -869,7 +1026,9 @@ console.log("payload yang akan dikirim:", payload);
                       onChange={handleChange}
                       placeholder="Tunggal/Kembar"
                       className={`${inputCls} ${
-                        validationErrors.usg_jumlah_gs ? "border-red-500 bg-red-50" : ""
+                        validationErrors.usg_jumlah_gs
+                          ? "border-red-500 bg-red-50"
+                          : ""
                       }`}
                     />
                     <ErrorMessage message={validationErrors.usg_jumlah_gs} />
@@ -883,10 +1042,14 @@ console.log("payload yang akan dikirim:", payload);
                       onChange={handleChange}
                       placeholder="0.0"
                       className={`${inputCls} ${
-                        validationErrors.usg_diameter_gs_cm ? "border-red-500 bg-red-50" : ""
+                        validationErrors.usg_diameter_gs_cm
+                          ? "border-red-500 bg-red-50"
+                          : ""
                       }`}
                     />
-                    <ErrorMessage message={validationErrors.usg_diameter_gs_cm} />
+                    <ErrorMessage
+                      message={validationErrors.usg_diameter_gs_cm}
+                    />
                   </Field>
                   <Field label="Diameter GS (minggu)">
                     <input
@@ -896,10 +1059,14 @@ console.log("payload yang akan dikirim:", payload);
                       onChange={handleChange}
                       placeholder="0"
                       className={`${inputCls} ${
-                        validationErrors.usg_diameter_gs_minggu ? "border-red-500 bg-red-50" : ""
+                        validationErrors.usg_diameter_gs_minggu
+                          ? "border-red-500 bg-red-50"
+                          : ""
                       }`}
                     />
-                    <ErrorMessage message={validationErrors.usg_diameter_gs_minggu} />
+                    <ErrorMessage
+                      message={validationErrors.usg_diameter_gs_minggu}
+                    />
                   </Field>
                   <Field label="Diameter GS (hari)">
                     <input
@@ -909,14 +1076,17 @@ console.log("payload yang akan dikirim:", payload);
                       onChange={handleChange}
                       placeholder="0"
                       className={`${inputCls} ${
-                        validationErrors.usg_diameter_gs_hari ? "border-red-500 bg-red-50" : ""
+                        validationErrors.usg_diameter_gs_hari
+                          ? "border-red-500 bg-red-50"
+                          : ""
                       }`}
                     />
-                    <ErrorMessage message={validationErrors.usg_diameter_gs_hari} />
+                    <ErrorMessage
+                      message={validationErrors.usg_diameter_gs_hari}
+                    />
                   </Field>
                 </div>
               </div>
-
               {/* CRL */}
               <div className="mb-5">
                 <h3 className="text-xs font-bold text-violet-600 uppercase tracking-widest mb-3">
@@ -930,7 +1100,9 @@ console.log("payload yang akan dikirim:", payload);
                       onChange={handleChange}
                       placeholder="Tunggal/Kembar"
                       className={`${inputCls} ${
-                        validationErrors.usg_jumlah_bayi ? "border-red-500 bg-red-50" : ""
+                        validationErrors.usg_jumlah_bayi
+                          ? "border-red-500 bg-red-50"
+                          : ""
                       }`}
                     />
                     <ErrorMessage message={validationErrors.usg_jumlah_bayi} />
@@ -944,7 +1116,9 @@ console.log("payload yang akan dikirim:", payload);
                       onChange={handleChange}
                       placeholder="0.0"
                       className={`${inputCls} ${
-                        validationErrors.usg_crl_cm ? "border-red-500 bg-red-50" : ""
+                        validationErrors.usg_crl_cm
+                          ? "border-red-500 bg-red-50"
+                          : ""
                       }`}
                     />
                     <ErrorMessage message={validationErrors.usg_crl_cm} />
@@ -957,7 +1131,9 @@ console.log("payload yang akan dikirim:", payload);
                       onChange={handleChange}
                       placeholder="0"
                       className={`${inputCls} ${
-                        validationErrors.usg_crl_minggu ? "border-red-500 bg-red-50" : ""
+                        validationErrors.usg_crl_minggu
+                          ? "border-red-500 bg-red-50"
+                          : ""
                       }`}
                     />
                     <ErrorMessage message={validationErrors.usg_crl_minggu} />
@@ -970,15 +1146,16 @@ console.log("payload yang akan dikirim:", payload);
                       onChange={handleChange}
                       placeholder="0"
                       className={`${inputCls} ${
-                        validationErrors.usg_crl_hari ? "border-red-500 bg-red-50" : ""
+                        validationErrors.usg_crl_hari
+                          ? "border-red-500 bg-red-50"
+                          : ""
                       }`}
                     />
                     <ErrorMessage message={validationErrors.usg_crl_hari} />
                   </Field>
                 </div>
               </div>
-
-              {/* Temuan Lainnya */}
+              {/* Temuan */}
               <div className="mb-5">
                 <h3 className="text-xs font-bold text-violet-600 uppercase tracking-widest mb-3">
                   Temuan Lainnya
@@ -996,7 +1173,9 @@ console.log("payload yang akan dikirim:", payload);
                           : ""
                       }`}
                     />
-                    <ErrorMessage message={validationErrors.usg_letak_produk_kehamilan} />
+                    <ErrorMessage
+                      message={validationErrors.usg_letak_produk_kehamilan}
+                    />
                   </Field>
                   <Field label="Pulsasi Jantung">
                     <input
@@ -1005,10 +1184,14 @@ console.log("payload yang akan dikirim:", payload);
                       onChange={handleChange}
                       placeholder="Tampak/Tidak tampak"
                       className={`${inputCls} ${
-                        validationErrors.usg_pulsasi_jantung ? "border-red-500 bg-red-50" : ""
+                        validationErrors.usg_pulsasi_jantung
+                          ? "border-red-500 bg-red-50"
+                          : ""
                       }`}
                     />
-                    <ErrorMessage message={validationErrors.usg_pulsasi_jantung} />
+                    <ErrorMessage
+                      message={validationErrors.usg_pulsasi_jantung}
+                    />
                   </Field>
                   <Field label="Kecurigaan Abnormal">
                     <select
@@ -1026,7 +1209,9 @@ console.log("payload yang akan dikirim:", payload);
                       <option value="Tidak">Tidak</option>
                       <option value="Ya">Ya</option>
                     </select>
-                    <ErrorMessage message={validationErrors.usg_kecurigaan_temuan_abnormal} />
+                    <ErrorMessage
+                      message={validationErrors.usg_kecurigaan_temuan_abnormal}
+                    />
                   </Field>
                   {form.usg_kecurigaan_temuan_abnormal === "Ya" && (
                     <Field label="Keterangan Abnormal">
@@ -1041,16 +1226,20 @@ console.log("payload yang akan dikirim:", payload);
                             : ""
                         }`}
                       />
-                      <ErrorMessage message={validationErrors.usg_keterangan_temuan_abnormal} />
+                      <ErrorMessage
+                        message={
+                          validationErrors.usg_keterangan_temuan_abnormal
+                        }
+                      />
                     </Field>
                   )}
                 </div>
               </div>
-
-              {/* Upload Gambar USG */}
+              {/* Gambar USG */}
               <div className="mb-5">
                 <h3 className="text-xs font-bold text-violet-600 uppercase tracking-widest mb-3">
-                  <ImageIcon className="inline mr-1" size={16} /> Hasil USG (Gambar)
+                  <ImageIcon className="inline mr-1" size={16} /> Hasil USG
+                  (Gambar)
                 </h3>
                 <div className="flex flex-col sm:flex-row gap-4 items-start">
                   <div className="flex-shrink-0">
@@ -1066,8 +1255,7 @@ console.log("payload yang akan dikirim:", payload);
                       htmlFor="usg-image-upload"
                       className="flex items-center gap-2 bg-white border border-gray-200 rounded-lg px-4 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50 cursor-pointer transition"
                     >
-                      <Upload size={16} />
-                      Pilih Gambar
+                      <Upload size={16} /> Pilih Gambar
                     </label>
                   </div>
                   {usgImagePreview && (
@@ -1088,13 +1276,14 @@ console.log("payload yang akan dikirim:", payload);
                   )}
                 </div>
                 <p className="text-xs text-gray-400 mt-1">
-                  Unggah hasil USG (format JPG/PNG, akan dikonversi ke data digital).
+                  Unggah hasil USG (format JPG/PNG, akan dikonversi ke data
+                  digital).
                 </p>
               </div>
             </Section>
           )}
 
-          {/* ══ STEP 3: Laboratorium ══ */}
+          {/* ══ STEP 3 ══ */}
           {currentStep === 3 && (
             <Section
               icon={FlaskConical}
@@ -1110,14 +1299,15 @@ console.log("payload yang akan dikirim:", payload);
                     value={form.tanggal_lab}
                     onChange={handleChange}
                     className={`${inputCls} ${
-                      validationErrors.tanggal_lab ? "border-red-500 bg-red-50" : ""
+                      validationErrors.tanggal_lab
+                        ? "border-red-500 bg-red-50"
+                        : ""
                     }`}
                   />
                   <ErrorMessage message={validationErrors.tanggal_lab} />
                 </Field>
               </div>
-
-              {/* Tabel: Hemoglobin, Goldar, Gula Darah */}
+              {/* Tabel Hemoglobin, Goldar, Gula Darah */}
               <div className="rounded-xl border border-amber-100 overflow-hidden mb-4">
                 <table className="w-full text-sm">
                   <thead className="bg-amber-50">
@@ -1135,7 +1325,9 @@ console.log("payload yang akan dikirim:", payload);
                   </thead>
                   <tbody className="divide-y divide-amber-50">
                     <tr>
-                      <td className="px-4 py-3 font-medium text-gray-700">Hemoglobin</td>
+                      <td className="px-4 py-3 font-medium text-gray-700">
+                        Hemoglobin
+                      </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-1">
                           <input
@@ -1153,7 +1345,9 @@ console.log("payload yang akan dikirim:", payload);
                           />
                           <span className="text-xs text-gray-400">g/dL</span>
                         </div>
-                        <ErrorMessage message={validationErrors.lab_hemoglobin_hasil} />
+                        <ErrorMessage
+                          message={validationErrors.lab_hemoglobin_hasil}
+                        />
                       </td>
                       <td className="px-4 py-3">
                         <input
@@ -1168,7 +1362,9 @@ console.log("payload yang akan dikirim:", payload);
                           }`}
                         />
                         <ErrorMessage
-                          message={validationErrors.lab_hemoglobin_rencana_tindak_lanjut}
+                          message={
+                            validationErrors.lab_hemoglobin_rencana_tindak_lanjut
+                          }
                         />
                       </td>
                     </tr>
@@ -1188,12 +1384,18 @@ console.log("payload yang akan dikirim:", payload);
                               : ""
                           }`}
                         />
-                        <ErrorMessage message={validationErrors.lab_golongan_darah_rhesus_hasil} />
+                        <ErrorMessage
+                          message={
+                            validationErrors.lab_golongan_darah_rhesus_hasil
+                          }
+                        />
                       </td>
                       <td className="px-4 py-3">
                         <input
                           name="lab_golongan_darah_rhesus_rencana_tindak_lanjut"
-                          value={form.lab_golongan_darah_rhesus_rencana_tindak_lanjut}
+                          value={
+                            form.lab_golongan_darah_rhesus_rencana_tindak_lanjut
+                          }
                           onChange={handleChange}
                           placeholder="Rencana..."
                           className={`${inputCls} ${
@@ -1203,12 +1405,16 @@ console.log("payload yang akan dikirim:", payload);
                           }`}
                         />
                         <ErrorMessage
-                          message={validationErrors.lab_golongan_darah_rhesus_rencana}
+                          message={
+                            validationErrors.lab_golongan_darah_rhesus_rencana_tindak_lanjut
+                          }
                         />
                       </td>
                     </tr>
                     <tr>
-                      <td className="px-4 py-3 font-medium text-gray-700">Gula Darah Sewaktu</td>
+                      <td className="px-4 py-3 font-medium text-gray-700">
+                        Gula Darah Sewaktu
+                      </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-1">
                           <input
@@ -1225,12 +1431,18 @@ console.log("payload yang akan dikirim:", payload);
                           />
                           <span className="text-xs text-gray-400">Mg/dL</span>
                         </div>
-                        <ErrorMessage message={validationErrors.lab_gula_darah_sewaktu_hasil} />
+                        <ErrorMessage
+                          message={
+                            validationErrors.lab_gula_darah_sewaktu_hasil
+                          }
+                        />
                       </td>
                       <td className="px-4 py-3">
                         <input
                           name="lab_gula_darah_sewaktu_rencana_tindak_lanjut"
-                          value={form.lab_gula_darah_sewaktu_rencana_tindak_lanjut}
+                          value={
+                            form.lab_gula_darah_sewaktu_rencana_tindak_lanjut
+                          }
                           onChange={handleChange}
                           placeholder="Rencana..."
                           className={`${inputCls} ${
@@ -1239,14 +1451,17 @@ console.log("payload yang akan dikirim:", payload);
                               : ""
                           }`}
                         />
-                        <ErrorMessage message={validationErrors.lab_gula_darah_sewaktu_rencana} />
+                        <ErrorMessage
+                          message={
+                            validationErrors.lab_gula_darah_sewaktu_rencana_tindak_lanjut
+                          }
+                        />
                       </td>
                     </tr>
                   </tbody>
                 </table>
               </div>
-
-              {/* Tabel Tripel Eliminasi */}
+              {/* Tripel Eliminasi */}
               <div className="rounded-xl border border-amber-100 overflow-hidden">
                 <table className="w-full text-sm">
                   <thead className="bg-amber-50">
@@ -1264,8 +1479,13 @@ console.log("payload yang akan dikirim:", payload);
                   </thead>
                   <tbody className="divide-y divide-amber-50">
                     {labReaktifFields.map((lf, idx) => (
-                      <tr key={lf.name} className={idx % 2 === 1 ? "bg-gray-50/50" : ""}>
-                        <td className="px-4 py-3 font-medium text-gray-700">{lf.label}</td>
+                      <tr
+                        key={lf.name}
+                        className={idx % 2 === 1 ? "bg-gray-50/50" : ""}
+                      >
+                        <td className="px-4 py-3 font-medium text-gray-700">
+                          {lf.label}
+                        </td>
                         <td className="px-4 py-3">
                           <select
                             name={lf.name}
@@ -1291,10 +1511,14 @@ console.log("payload yang akan dikirim:", payload);
                             onChange={handleChange}
                             placeholder="Rencana..."
                             className={`${inputCls} ${
-                              validationErrors[lf.rencana] ? "border-red-500 bg-red-50" : ""
+                              validationErrors[lf.rencana]
+                                ? "border-red-500 bg-red-50"
+                                : ""
                             }`}
                           />
-                          <ErrorMessage message={validationErrors[lf.rencana]} />
+                          <ErrorMessage
+                            message={validationErrors[lf.rencana]}
+                          />
                         </td>
                       </tr>
                     ))}
@@ -1304,7 +1528,7 @@ console.log("payload yang akan dikirim:", payload);
             </Section>
           )}
 
-          {/* ══ STEP 4: Skrining Jiwa & Kesimpulan ══ */}
+          {/* ══ STEP 4 ══ */}
           {currentStep === 4 && (
             <Section
               icon={Brain}
@@ -1320,10 +1544,14 @@ console.log("payload yang akan dikirim:", payload);
                     value={form.tanggal_skrining_jiwa}
                     onChange={handleChange}
                     className={`${inputCls} ${
-                      validationErrors.tanggal_skrining_jiwa ? "border-red-500 bg-red-50" : ""
+                      validationErrors.tanggal_skrining_jiwa
+                        ? "border-red-500 bg-red-50"
+                        : ""
                     }`}
                   />
-                  <ErrorMessage message={validationErrors.tanggal_skrining_jiwa} />
+                  <ErrorMessage
+                    message={validationErrors.tanggal_skrining_jiwa}
+                  />
                 </Field>
                 <Field label="Skrining Kesehatan Jiwa">
                   <select
@@ -1331,14 +1559,18 @@ console.log("payload yang akan dikirim:", payload);
                     value={form.skrining_jiwa_hasil}
                     onChange={handleChange}
                     className={`${selectCls} ${
-                      validationErrors.skrining_jiwa_hasil ? "border-red-500 bg-red-50" : ""
+                      validationErrors.skrining_jiwa_hasil
+                        ? "border-red-500 bg-red-50"
+                        : ""
                     }`}
                   >
                     <option value="">-- Pilih --</option>
                     <option value="Ya">Ya</option>
                     <option value="Tidak">Tidak</option>
                   </select>
-                  <ErrorMessage message={validationErrors.skrining_jiwa_hasil} />
+                  <ErrorMessage
+                    message={validationErrors.skrining_jiwa_hasil}
+                  />
                 </Field>
                 <Field label="Tindak Lanjut Skrining Jiwa">
                   <select
@@ -1355,7 +1587,9 @@ console.log("payload yang akan dikirim:", payload);
                     <option value="Edukasi">Edukasi</option>
                     <option value="Konseling">Konseling</option>
                   </select>
-                  <ErrorMessage message={validationErrors.skrining_jiwa_tindak_lanjut} />
+                  <ErrorMessage
+                    message={validationErrors.skrining_jiwa_tindak_lanjut}
+                  />
                 </Field>
                 <Field label="Perlu Rujukan">
                   <select
@@ -1373,7 +1607,9 @@ console.log("payload yang akan dikirim:", payload);
                     <option value="Tidak">Tidak</option>
                     <option value="Ya">Ya</option>
                   </select>
-                  <ErrorMessage message={validationErrors.skrining_jiwa_perlu_rujukan} />
+                  <ErrorMessage
+                    message={validationErrors.skrining_jiwa_perlu_rujukan}
+                  />
                 </Field>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -1384,7 +1620,9 @@ console.log("payload yang akan dikirim:", payload);
                     onChange={handleChange}
                     placeholder="Kesimpulan pemeriksaan..."
                     className={`${inputCls} ${
-                      validationErrors.kesimpulan ? "border-red-500 bg-red-50" : ""
+                      validationErrors.kesimpulan
+                        ? "border-red-500 bg-red-50"
+                        : ""
                     }`}
                     rows={3}
                   />
@@ -1397,7 +1635,9 @@ console.log("payload yang akan dikirim:", payload);
                     onChange={handleChange}
                     placeholder="Rekomendasi tindak lanjut..."
                     className={`${inputCls} ${
-                      validationErrors.rekomendasi ? "border-red-500 bg-red-50" : ""
+                      validationErrors.rekomendasi
+                        ? "border-red-500 bg-red-50"
+                        : ""
                     }`}
                     rows={3}
                   />
@@ -1436,7 +1676,8 @@ console.log("payload yang akan dikirim:", payload);
                 </button>
               ) : (
                 <button
-                  type="submit"
+                  type="button"
+                  onClick={handleSave}
                   disabled={saving}
                   className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 text-white px-8 py-2.5 rounded-xl text-sm font-semibold transition shadow-sm"
                 >
@@ -1450,7 +1691,7 @@ console.log("payload yang akan dikirim:", payload);
               )}
             </div>
           </div>
-        </form>
+        </div>
       </div>
     </MainLayout>
   );
