@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import MainLayout from "../../components/Layout/MainLayout";
 import SearchablePendudukSelect from "../../components/Form/SearchablePendudukSelect";
-import { listDesa } from "../../services/desa";
 import { listPendudukForDropdown } from "../../services/superadminPenduduk";
 import {
   activateSuperadminUser,
@@ -9,6 +8,7 @@ import {
   createBidanUser,
   createKaderUser,
   deactivateSuperadminUser,
+  listSuperadminPosyandu,
   listSuperadminUsers,
   resetSuperadminUserPassword,
   superadminUserErrorMessage,
@@ -34,9 +34,7 @@ const emptyBidanForm = {
   penduduk_id: "",
   name: "",
   email: "",
-  phone_number: "",
   password: "",
-  desa_id: "",
   no_str: "",
   no_sipb: "",
 };
@@ -45,18 +43,15 @@ const emptyAdminDesaForm = {
   penduduk_id: "",
   name: "",
   email: "",
-  phone_number: "",
   password: "",
-  desa_id: "",
 };
 
 const emptyKaderForm = {
   penduduk_id: "",
   name: "",
   email: "",
-  phone_number: "",
   password: "",
-  desa_id: "",
+  posyandu_id: "",
 };
 
 const emptyResetForm = {
@@ -77,14 +72,11 @@ const roleOptions = [
 
 const UserManagement = () => {
   const [users, setUsers] = useState([]);
-  const [desaOptions, setDesaOptions] = useState([]);
   const [loadingUsers, setLoadingUsers] = useState(true);
-  const [loadingDesa, setLoadingDesa] = useState(true);
   const [loadingPenduduk, setLoadingPenduduk] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("");
-  const [desaFilter, setDesaFilter] = useState("");
   const [activeTab, setActiveTab] = useState("");
   const [showCreateMenu, setShowCreateMenu] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -94,6 +86,8 @@ const UserManagement = () => {
   const [adminDesaForm, setAdminDesaForm] = useState(emptyAdminDesaForm);
   const [kaderForm, setKaderForm] = useState(emptyKaderForm);
   const [pendudukOptions, setPendudukOptions] = useState([]);
+  const [posyanduOptions, setPosyanduOptions] = useState([]);
+  const [loadingPosyandu, setLoadingPosyandu] = useState(true);
   const [resetUser, setResetUser] = useState(null);
   const [resetForm, setResetForm] = useState(emptyResetForm);
   const [showResetModal, setShowResetModal] = useState(false);
@@ -106,25 +100,12 @@ const UserManagement = () => {
       const data = await listSuperadminUsers({
         search: override.search ?? search,
         role: override.role ?? roleFilter,
-        desa: override.desa ?? desaFilter,
       });
       setUsers(Array.isArray(data) ? data : []);
     } catch (error) {
       setErrorMessage(superadminUserErrorMessage(error, "Gagal memuat data user"));
     } finally {
       setLoadingUsers(false);
-    }
-  };
-
-  const loadDesa = async () => {
-    try {
-      setLoadingDesa(true);
-      const data = await listDesa();
-      setDesaOptions(Array.isArray(data) ? data : []);
-    } catch (error) {
-      setErrorMessage(superadminUserErrorMessage(error, "Gagal memuat data desa"));
-    } finally {
-      setLoadingDesa(false);
     }
   };
 
@@ -140,21 +121,28 @@ const UserManagement = () => {
     }
   };
 
+  const loadPosyandu = async () => {
+    try {
+      setLoadingPosyandu(true);
+      const data = await listSuperadminPosyandu();
+      setPosyanduOptions(Array.isArray(data) ? data : []);
+    } catch (error) {
+      setErrorMessage(superadminUserErrorMessage(error, "Gagal memuat data posyandu"));
+    } finally {
+      setLoadingPosyandu(false);
+    }
+  };
+
   useEffect(() => {
     loadUsers();
-    loadDesa();
     loadPenduduk();
+    loadPosyandu();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const pendudukLabel = (penduduk) => `${penduduk.nama_lengkap} (${penduduk.nik})`;
 
-  const desaMap = useMemo(() => {
-    return desaOptions.reduce((acc, desa) => {
-      acc[String(desa.id)] = desa;
-      return acc;
-    }, {});
-  }, [desaOptions]);
+
 
   const managedUsers = useMemo(() => {
     return users.filter((user) => {
@@ -248,7 +236,7 @@ const UserManagement = () => {
     event.preventDefault();
     clearMessages();
 
-    if (!bidanForm.penduduk_id || !bidanForm.name.trim() || !bidanForm.email.trim() || !bidanForm.phone_number.trim() || !bidanForm.password.trim() || !bidanForm.desa_id || !bidanForm.no_str.trim() || !bidanForm.no_sipb.trim()) {
+    if (!bidanForm.penduduk_id || !bidanForm.name.trim() || !bidanForm.email.trim() || !bidanForm.password.trim() || !bidanForm.no_str.trim() || !bidanForm.no_sipb.trim()) {
       setErrorMessage("Semua field bidan wajib diisi");
       return;
     }
@@ -259,15 +247,13 @@ const UserManagement = () => {
         penduduk_id: Number(bidanForm.penduduk_id),
         name: bidanForm.name.trim(),
         email: bidanForm.email.trim(),
-        phone_number: bidanForm.phone_number.trim(),
         password: bidanForm.password.trim(),
-        desa_id: Number(bidanForm.desa_id),
         no_str: bidanForm.no_str.trim(),
         no_sipb: bidanForm.no_sipb.trim(),
       });
       resetCreateForms();
       await loadUsers();
-      setSuccessMessage("Akun bidan berhasil dibuat dan di-assign ke desa");
+      setSuccessMessage("Akun bidan berhasil dibuat");
     } catch (error) {
       setErrorMessage(superadminUserErrorMessage(error, "Gagal membuat akun bidan"));
     } finally {
@@ -279,8 +265,8 @@ const UserManagement = () => {
     event.preventDefault();
     clearMessages();
 
-    if (!adminDesaForm.name.trim() || !adminDesaForm.email.trim() || !adminDesaForm.phone_number.trim() || !adminDesaForm.password.trim() || !adminDesaForm.desa_id) {
-      setErrorMessage("Nama, email, nomor HP, password, dan desa wajib diisi");
+    if (!adminDesaForm.name.trim() || !adminDesaForm.email.trim() || !adminDesaForm.password.trim()) {
+      setErrorMessage("Nama, email, dan password wajib diisi");
       return;
     }
 
@@ -290,9 +276,7 @@ const UserManagement = () => {
         penduduk_id: adminDesaForm.penduduk_id ? Number(adminDesaForm.penduduk_id) : undefined,
         name: adminDesaForm.name.trim(),
         email: adminDesaForm.email.trim(),
-        phone_number: adminDesaForm.phone_number.trim(),
         password: adminDesaForm.password.trim(),
-        desa_id: Number(adminDesaForm.desa_id),
       });
       setAdminDesaForm(emptyAdminDesaForm);
       await loadUsers();
@@ -308,7 +292,7 @@ const UserManagement = () => {
     event.preventDefault();
     clearMessages();
 
-    if (!kaderForm.penduduk_id || !kaderForm.name.trim() || !kaderForm.email.trim() || !kaderForm.phone_number.trim() || !kaderForm.password.trim() || !kaderForm.desa_id) {
+    if (!kaderForm.penduduk_id || !kaderForm.name.trim() || !kaderForm.email.trim() || !kaderForm.password.trim()) {
       setErrorMessage("Semua field kader wajib diisi");
       return;
     }
@@ -319,13 +303,12 @@ const UserManagement = () => {
         penduduk_id: Number(kaderForm.penduduk_id),
         name: kaderForm.name.trim(),
         email: kaderForm.email.trim(),
-        phone_number: kaderForm.phone_number.trim(),
         password: kaderForm.password.trim(),
-        desa_id: Number(kaderForm.desa_id),
+        posyandu_id: kaderForm.posyandu_id ? Number(kaderForm.posyandu_id) : undefined,
       });
       setKaderForm(emptyKaderForm);
       await loadUsers();
-      setSuccessMessage("Akun kader berhasil dibuat dan di-assign ke desa");
+      setSuccessMessage("Akun kader berhasil dibuat");
     } catch (error) {
       setErrorMessage(superadminUserErrorMessage(error, "Gagal membuat akun kader"));
     } finally {
@@ -477,7 +460,7 @@ const UserManagement = () => {
               </div>
             </div>
 
-            <form onSubmit={applyFilters} className="grid gap-3 md:grid-cols-4">
+            <form onSubmit={applyFilters} className="grid gap-3 md:grid-cols-3">
               <div className="md:col-span-2 relative">
                 <Search size={16} className="absolute left-3 top-3 text-slate-400" />
                 <input
@@ -495,15 +478,7 @@ const UserManagement = () => {
                   ))}
                 </select>
               </div>
-              <div>
-                <select value={desaFilter} onChange={(e) => setDesaFilter(e.target.value)} className="w-full rounded-2xl border border-slate-200 px-3 py-2.5" disabled={loadingDesa}>
-                  <option value="">Semua desa</option>
-                  {desaOptions.map((desa) => (
-                    <option key={desa.id} value={desa.id}>{desa.nama_desa}</option>
-                  ))}
-                </select>
-              </div>
-              <div className="md:col-span-4 flex gap-3">
+              <div className="md:col-span-3 flex gap-3">
                 <button type="submit" className="inline-flex items-center gap-2 rounded-2xl bg-cyan-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-cyan-700">
                   <Search size={16} />
                   Terapkan Filter
@@ -517,7 +492,6 @@ const UserManagement = () => {
                   <tr>
                     <th className="px-4 py-3 font-semibold">User</th>
                     <th className="px-4 py-3 font-semibold">Role</th>
-                    <th className="px-4 py-3 font-semibold">Desa</th>
                     <th className="px-4 py-3 font-semibold">Status</th>
                     <th className="px-4 py-3 font-semibold">Kontak</th>
                     <th className="px-4 py-3 text-center font-semibold">Aksi</th>
@@ -526,16 +500,15 @@ const UserManagement = () => {
                 <tbody>
                   {loadingUsers ? (
                     <tr>
-                      <td colSpan={6} className="px-4 py-10 text-center text-slate-500">Memuat data user...</td>
+                      <td colSpan={5} className="px-4 py-10 text-center text-slate-500">Memuat data user...</td>
                     </tr>
                   ) : managedUsers.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className="px-4 py-10 text-center text-slate-500">Belum ada user yang sesuai filter</td>
+                      <td colSpan={5} className="px-4 py-10 text-center text-slate-500">Belum ada user yang sesuai filter</td>
                     </tr>
                   ) : (
                     managedUsers.map((user) => {
                       const isSuperadmin = (user.role || "").toLowerCase() === "superadmin";
-                      const desaName = user.desa_name || (user.desa_id ? desaMap[String(user.desa_id)]?.nama_desa : "-") || "-";
                       return (
                         <tr key={user.id} className="border-t border-slate-100 align-top hover:bg-slate-50/70">
                           <td className="px-4 py-4">
@@ -544,10 +517,6 @@ const UserManagement = () => {
                           </td>
                           <td className="px-4 py-4">
                             <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-700">{user.role}</span>
-                          </td>
-                          <td className="px-4 py-4 text-sm text-slate-600">
-                            <div>{desaName}</div>
-                            {user.desa_id ? <div className="text-xs text-slate-400">desa_id: {user.desa_id}</div> : null}
                           </td>
                           <td className="px-4 py-4">
                             <span className={`inline-flex rounded-full px-3 py-1 text-sm font-medium ${user.is_active ? "bg-emerald-50 text-emerald-700" : "bg-rose-50 text-rose-700"}`}>
@@ -615,10 +584,9 @@ const UserManagement = () => {
                       optionLabel={pendudukLabel}
                       placeholder={loadingPenduduk ? "Memuat penduduk..." : "Pilih penduduk"}
                     />
-                    <FieldSelect label="Desa" value={bidanForm.desa_id} onChange={(value) => setBidanForm((prev) => ({ ...prev, desa_id: value }))} options={desaOptions} loading={loadingDesa} />
+
                     <Field label="Nama" value={bidanForm.name} onChange={(value) => setBidanForm((prev) => ({ ...prev, name: value }))} />
                     <Field label="Email" type="email" value={bidanForm.email} onChange={(value) => setBidanForm((prev) => ({ ...prev, email: value }))} />
-                    <Field label="Nomor HP" value={bidanForm.phone_number} onChange={(value) => setBidanForm((prev) => ({ ...prev, phone_number: value }))} />
                     <Field label="Password Awal" type="password" value={bidanForm.password} onChange={(value) => setBidanForm((prev) => ({ ...prev, password: value }))} />
                     <Field label="No STR" value={bidanForm.no_str} onChange={(value) => setBidanForm((prev) => ({ ...prev, no_str: value }))} />
                     <Field label="No SIPB" value={bidanForm.no_sipb} onChange={(value) => setBidanForm((prev) => ({ ...prev, no_sipb: value }))} />
@@ -635,10 +603,9 @@ const UserManagement = () => {
                     optionLabel={pendudukLabel}
                     placeholder={loadingPenduduk ? "Memuat penduduk..." : "Pilih penduduk"}
                   />
-                  <FieldSelect label="Desa" value={adminDesaForm.desa_id} onChange={(value) => setAdminDesaForm((prev) => ({ ...prev, desa_id: value }))} options={desaOptions} loading={loadingDesa} />
+
                   <Field label="Nama" value={adminDesaForm.name} onChange={(value) => setAdminDesaForm((prev) => ({ ...prev, name: value }))} />
                   <Field label="Email" type="email" value={adminDesaForm.email} onChange={(value) => setAdminDesaForm((prev) => ({ ...prev, email: value }))} />
-                  <Field label="Nomor HP" value={adminDesaForm.phone_number} onChange={(value) => setAdminDesaForm((prev) => ({ ...prev, phone_number: value }))} />
                   <Field label="Password Awal" type="password" value={adminDesaForm.password} onChange={(value) => setAdminDesaForm((prev) => ({ ...prev, password: value }))} />
                 </div>
               ) : (
@@ -652,11 +619,26 @@ const UserManagement = () => {
                     optionLabel={pendudukLabel}
                     placeholder={loadingPenduduk ? "Memuat penduduk..." : "Pilih penduduk"}
                   />
-                  <FieldSelect label="Desa" value={kaderForm.desa_id} onChange={(value) => setKaderForm((prev) => ({ ...prev, desa_id: value }))} options={desaOptions} loading={loadingDesa} />
+
                   <Field label="Nama" value={kaderForm.name} onChange={(value) => setKaderForm((prev) => ({ ...prev, name: value }))} />
                   <Field label="Email" type="email" value={kaderForm.email} onChange={(value) => setKaderForm((prev) => ({ ...prev, email: value }))} />
-                  <Field label="Nomor HP" value={kaderForm.phone_number} onChange={(value) => setKaderForm((prev) => ({ ...prev, phone_number: value }))} />
                   <Field label="Password Awal" type="password" value={kaderForm.password} onChange={(value) => setKaderForm((prev) => ({ ...prev, password: value }))} />
+
+                  <div className="space-y-2 md:col-span-2">
+                    <label className="block text-sm font-medium text-slate-700">Posyandu</label>
+                    <select
+                      value={kaderForm.posyandu_id}
+                      onChange={(e) => setKaderForm((prev) => ({ ...prev, posyandu_id: e.target.value }))}
+                      className="w-full rounded-lg border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-slate-900"
+                    >
+                      <option value="">{loadingPosyandu ? "Memuat posyandu..." : "Pilih posyandu (opsional)"}</option>
+                      {posyanduOptions.map((p) => (
+                        <option key={p.id} value={p.id}>
+                          {p.nama}{p.alamat ? ` - ${p.alamat}` : ""}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
               )}
 
@@ -780,29 +762,6 @@ function Field({ label, value, onChange, type = "text", placeholder = "" }) {
         placeholder={placeholder}
         className="w-full rounded-lg border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-slate-900"
       />
-    </div>
-  );
-}
-
-function FieldSelect({ label, value, onChange, options, loading, optionLabel = (item) => item.nama_desa || String(item.id), placeholder = "Pilih", emptyOption = "" }) {
-  const selectClassName = "mt-1 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 shadow-sm outline-none transition focus:border-slate-900 focus:ring-4 focus:ring-slate-900/10 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400";
-
-  return (
-    <div className="space-y-2">
-      <label className="block text-sm font-semibold text-slate-700">{label}</label>
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className={selectClassName}
-        disabled={loading}
-      >
-        <option value="">{loading ? placeholder : emptyOption || placeholder}</option>
-        {options.map((desa) => (
-          <option key={desa.id} value={desa.id}>
-            {optionLabel(desa)}
-          </option>
-        ))}
-      </select>
     </div>
   );
 }

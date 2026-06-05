@@ -33,6 +33,7 @@ type AdminAnggotaKeluargaRequest struct {
 	Kecamatan          string `json:"kecamatan"`
 	DesaID             *int32 `json:"desa_id"`
 	IsNonKTP           bool   `json:"is_non_ktp"`
+	Telepon            string `json:"telepon"`
 	TanggalPenambahan  string `json:"tanggal_penambahan"`
 	TanggalPengurangan string `json:"tanggal_pengurangan"`
 }
@@ -89,6 +90,7 @@ type AdminDetailKartuKeluargaAnggota struct {
 	Kecamatan          string `json:"kecamatan"`
 	DesaID             *int32 `json:"desa_id"`
 	IsNonKTP           bool   `json:"is_non_ktp"`
+	Telepon            string `json:"telepon"`
 	TanggalPenambahan  string `json:"tanggal_penambahan"`
 	TanggalPengurangan string `json:"tanggal_pengurangan"`
 }
@@ -241,6 +243,7 @@ func (u *AdminAkunKeluargaUsecase) CreateKartuKeluarga(req *AdminCreateKartuKelu
 			Kecamatan:          anggota.Kecamatan,
 			DesaID:             anggota.DesaID,
 			IsNonKTP:           anggota.IsNonKTP,
+			Telepon:            anggota.Telepon,
 			TanggalPenambahan:  tglPenambahan,
 			TanggalPengurangan: tglPengurangan,
 			CreatedAt:          time.Now(),
@@ -507,6 +510,7 @@ func (u *AdminAkunKeluargaUsecase) UpdateAnggotaKeluarga(kartuKeluargaID int64, 
 	anggota.Kecamatan = req.Kecamatan
 	anggota.DesaID = req.DesaID
 	anggota.IsNonKTP = req.IsNonKTP
+	anggota.Telepon = req.Telepon
 
 	if strings.TrimSpace(req.TanggalPenambahan) != "" {
 		parsed, err := time.Parse("2006-01-02", req.TanggalPenambahan)
@@ -605,6 +609,7 @@ func (u *AdminAkunKeluargaUsecase) AddAnggotaKeluarga(kartuKeluargaID int64, req
 		Kecamatan:          strings.TrimSpace(req.Kecamatan),
 		DesaID:             req.DesaID,
 		IsNonKTP:           req.IsNonKTP,
+		Telepon:            req.Telepon,
 		TanggalPenambahan:  tglPenambahan,
 		TanggalPengurangan: tglPengurangan,
 		CreatedAt:          time.Now(),
@@ -694,6 +699,7 @@ func mapPendudukToAnggota(a models.Kependudukan) AdminDetailKartuKeluargaAnggota
 		Kecamatan:          a.Kecamatan,
 		DesaID:             a.DesaID,
 		IsNonKTP:           a.IsNonKTP,
+		Telepon:            a.Telepon,
 		TanggalPenambahan:  tglPenambahan,
 		TanggalPengurangan: tglPengurangan,
 	}

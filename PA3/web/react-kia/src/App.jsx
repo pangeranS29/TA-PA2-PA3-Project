@@ -19,7 +19,7 @@ import IbuList from "./pages/Ibu/IbuList";
 import IbuDetail from "./pages/Ibu/IbuDetail";
 import IbuEdit from "./pages/Ibu/IbuEdit";
 import SkriningPreeklampsia from "./pages/Ibu/SkriningPreeklampsia";
-import SkriningDMG from"./pages/Ibu/SkriningDMG";
+import SkriningDMG from "./pages/Ibu/SkriningDMG";
 import PemeriksaanFisik from "./pages/Ibu/PemeriksaanFisik";
 import GrafikEvaluasiKehamilan from "./pages/Ibu/GrafikEvaluasiKehamilan";
 import GrafikPeningkatanBB from "./pages/Ibu/GrafikPeningkatanBB";
@@ -135,9 +135,6 @@ import DetailLembarLingkungan from "./pages/KesehatanLingkungan/DetailLembarLing
 import PertumbuhanIndex from "./pages/Pertumbuhan/index";
 
 // Manajemen Bidan Kader
-import PosyanduList from "./pages/ManajemenBidanKader/PosyanduList";
-import BidanList from "./pages/ManajemenBidanKader/BidanList";
-import KaderList from "./pages/ManajemenBidanKader/KaderList";
 import SuperAdminDashboard from "./pages/SuperAdmin/Dashboard";
 import AuditTrail from "./pages/SuperAdmin/AuditTrail";
 import KelolaDesa from "./pages/SuperAdmin/KelolaDesa";
@@ -149,7 +146,7 @@ import RequestPerubahanImunisasiPage from "./pages/RequestPerubahanImunisasi";
 import DetailPenduduk from "./pages/DetailPenduduk";
 import PencatatanKesehatan from "./pages/PencatatanKesehatan";
 import PencatatanKesehatanKategori from "./pages/PencatatanKesehatanKategori";
-import AdminFormVersions  from "./pages/SuperAdmin/AdminFormVersions";
+import AdminFormVersions from "./pages/SuperAdmin/AdminFormVersions";
 
 const HomeRedirect = () => {
   if (!isAuthenticated()) {
@@ -168,16 +165,12 @@ function App() {
         {/* PROTECTED */}
         <Route element={<PrivateRoute />}>
           <Route path="/dashboard/bidan" element={<Dashboard />} />
-          
+
           {/* Kependudukan */}
           <Route path="/kependudukan" element={<KependudukanList />} />
           <Route path="/kependudukan/create" element={<KependudukanCreate />} />
           <Route path="/kependudukan/edit/:id" element={<KependudukanEdit />} />
 
-          {/* Manajemen Bidan Kader & Posyandu */}
-          <Route path="/manajemen-posyandu" element={<PosyanduList />} />
-          <Route path="/manajemen-bidan" element={<BidanList />} />
-          <Route path="/manajemen-kader" element={<KaderList />} />
 
           {/* Data Ibu */}
           <Route path="/data-ibu/create" element={<IbuCreate />} />
@@ -215,9 +208,9 @@ function App() {
           <Route path="/data-ibu/:id/pemeriksaan-rutin" element={<PemeriksaanKehamilanList />} />
           <Route path="/data-ibu/:id/pemeriksaan-rutin/:periksaId" element={<PemeriksaanKehamilanForm />} />
           <Route path="/daftar-rujukan" element={<RujukanDashboard />} />
-<Route path="/daftar-skrining" element={<SkriningDashboardList />} />
-          
-{/* Data Anak */}
+          <Route path="/daftar-skrining" element={<SkriningDashboardList />} />
+
+          {/* Data Anak */}
           <Route path="/daftar-anak" element={<AnakListNakes />} />
           <Route
             path="/data-anak/create"
@@ -240,8 +233,8 @@ function App() {
           {/* Monitoring & Laporan */}
           <Route path="/monitoring" element={<Monitoring />} />
           <Route path="/laporan" element={<Laporan />} />
-          <Route path="/laporan/ibu/preview" element={<LaporanIbuPreview />}/>
-          <Route path="/laporan/anak/preview" element={<LaporanAnakPreview />}/>
+          <Route path="/laporan/ibu/preview" element={<LaporanIbuPreview />} />
+          <Route path="/laporan/anak/preview" element={<LaporanAnakPreview />} />
         </Route>
 
         {/* ADMIN ROUTES */}
@@ -308,7 +301,7 @@ function App() {
         <Route path="/data-anak/perawatan/:id" element={<LembarPerawatanAnak />} />
 
 
-        <Route path="/dashboard/dokter" element={<ProtectedRoute allowedRoles={["dokter"]}> <Dashboard /></ProtectedRoute>}/>
+        <Route path="/dashboard/dokter" element={<ProtectedRoute allowedRoles={["dokter"]}> <Dashboard /></ProtectedRoute>} />
         {/* ── PEMANTAUAN & PERKEMBANGAN ── */}
         <Route path="/pemantauan/lihat" element={<LihatDataPemantauan />} />
         <Route path="/pemantauan/perkembangan" element={<LihatDataPerkembangan />} />
@@ -354,19 +347,19 @@ function App() {
         <Route path="/edukasi-digital/mpasi" element={<MpasiPage />} />
         <Route path="/edukasi-digital/mpasi/form" element={<MpasiFormPage />} />
         <Route path="/edukasi-digital/mpasi/form/:id" element={<MpasiFormPage />} />
-        
+
         {/* MPASI Sub-modules */}
         <Route path="/edukasi-digital/mpasi-aturan-porsi" element={<MpasiAturanPorsiPage />} />
         <Route path="/edukasi-digital/mpasi-aturan-porsi/form" element={<MpasiAturanPorsiFormPage />} />
         <Route path="/edukasi-digital/mpasi-aturan-porsi/form/:id" element={<MpasiAturanPorsiFormPage />} />
-        
+
         <Route path="/edukasi-digital/mpasi-jadwal-harian" element={<MpasiJadwalHarianPage />} />
         <Route path="/edukasi-digital/mpasi-jadwal-harian/form" element={<MpasiJadwalHarianFormPage />} />
         <Route path="/edukasi-digital/mpasi-jadwal-harian/form/:id" element={<MpasiJadwalHarianFormPage />} />
         <Route path="/jadwal-layanan" element={<JadwalLayananPage />} />
         <Route path="/jadwal-layanan/form" element={<JadwalLayananForm />} />
         <Route path="/jadwal-layanan/form/:id" element={<JadwalLayananForm />} />
-        
+
         <Route path="/edukasi-digital/mpasi-resep" element={<MpasiResepPage />} />
         <Route path="/edukasi-digital/mpasi-resep/form" element={<MpasiResepFormPage />} />
         <Route path="/edukasi-digital/mpasi-resep/form/:id" element={<MpasiResepFormPage />} />

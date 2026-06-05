@@ -60,4 +60,9 @@ export const activateSuperadminUser = async (userId) => {
   return unwrapData(response);
 };
 
+export const listSuperadminPosyandu = async (params = {}) => {
+  const response = await api.get("/superadmin/posyandu", { params });
+  return unwrapData(response);
+};
+
 export const superadminUserErrorMessage = extractApiError;

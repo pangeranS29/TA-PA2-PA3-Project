@@ -33,6 +33,7 @@ const createEmptyMember = () => ({
   kecamatan: "",
   desa_id: "",
   is_non_ktp: "false",
+  telepon: "",
   tanggal_penambahan: "",
   tanggal_pengurangan: "",
 });
@@ -327,6 +328,10 @@ const AdminAkunKeluargaCreate = () => {
                         <option value="false">Ya</option>
                         <option value="true">Tidak</option>
                       </select>
+                    </div>
+                    <div>
+                      <label className="text-sm text-slate-600">No. Telepon (opsional)</label>
+                      <input type="text" value={member.telepon} onChange={(e) => setMemberField(index, "telepon", e.target.value)} className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2" placeholder="Contoh: 081234567890" />
                     </div>
 
                     <div>

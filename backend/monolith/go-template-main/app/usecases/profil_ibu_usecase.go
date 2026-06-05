@@ -115,13 +115,14 @@ func (u *profilIbuUsecase) GetProfilSaya(userID int32) (*ProfilIbuResponse, erro
 	resp := &ProfilIbuResponse{
 		UserID:       user.ID,
 		Email:        user.Email,
-		NomorTelepon: user.PhoneNumber,
+		NomorTelepon: "",
 		IbuID:        ibu.IDIbu,
 	}
 
 	// 5. Isi dari Kependudukan
 	if ibu.Kependudukan != nil {
 		k := ibu.Kependudukan
+		resp.NomorTelepon = k.Telepon
 		if k.NIK != nil {
 			resp.NIK = *k.NIK
 		}

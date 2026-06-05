@@ -34,6 +34,7 @@ const emptyMember = {
   kecamatan: "",
   desa_id: "",
   is_non_ktp: "false",
+  telepon: "",
   tanggal_penambahan: "",
   tanggal_pengurangan: "",
 };
@@ -180,6 +181,7 @@ const AkunKeluargaManagement = () => {
       kecamatan: member.kecamatan || "",
       desa_id: member.desa_id || "",
       is_non_ktp: member.is_non_ktp ? "true" : "false",
+      telepon: member.telepon || "",
       tanggal_penambahan: member.tanggal_penambahan || "",
       tanggal_pengurangan: member.tanggal_pengurangan || "",
     });
@@ -499,6 +501,12 @@ const AkunKeluargaManagement = () => {
                                 <option value="true">KTP Warga Setempat: Tidak</option>
                               </select>
                               <input
+                                value={editMemberForm.telepon}
+                                onChange={(e) => setEditMemberForm((prev) => ({ ...prev, telepon: e.target.value }))}
+                                className="rounded-xl border border-slate-200 px-3 py-2"
+                                placeholder="No. Telepon"
+                              />
+                              <input
                                 type="date"
                                 value={editMemberForm.tanggal_penambahan}
                                 onChange={(e) => setEditMemberForm((prev) => ({ ...prev, tanggal_penambahan: e.target.value }))}
@@ -535,7 +543,7 @@ const AkunKeluargaManagement = () => {
                           <div className="flex items-center justify-between gap-3">
                             <div>
                               <p className="font-semibold text-slate-800">{member.nama_lengkap}</p>
-                              <p className="text-sm text-slate-600">{member.nik} • {member.kedudukan_keluarga || "-"}</p>
+                              <p className="text-sm text-slate-600">{member.nik} • {member.kedudukan_keluarga || "-"}{member.telepon && ` • ${member.telepon}`}</p>
                             </div>
                             <div className="flex gap-2">
                               <button
@@ -621,6 +629,12 @@ const AkunKeluargaManagement = () => {
                       <option value="false">KTP Warga Setempat: Ya</option>
                       <option value="true">KTP Warga Setempat: Tidak</option>
                     </select>
+                    <input
+                      value={addForm.telepon}
+                      onChange={(e) => setAddForm((prev) => ({ ...prev, telepon: e.target.value }))}
+                      className="rounded-xl border border-slate-200 px-3 py-2"
+                      placeholder="No. Telepon"
+                    />
                     <input
                       type="date"
                       value={addForm.tanggal_penambahan}

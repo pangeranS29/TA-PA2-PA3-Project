@@ -90,6 +90,7 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	superadmin.PATCH("/users/:id/role", controller.UpdateUserRole)
 	superadmin.PATCH("/users/:id/nonaktif", controller.DeactivateUser)
 	superadmin.PATCH("/users/:id/aktif", controller.ActivateUser)
+	superadmin.GET("/posyandu", controller.SuperadminListPosyandu)
 
 	// ==================== MODUL BIDAN ====================
 
