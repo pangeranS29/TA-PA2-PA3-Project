@@ -2,10 +2,12 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+
 import 'package:ta_pa2_pa3_project/core/services/auth_session.dart';
-import 'package:ta_pa2_pa3_project/features/ibu/hamil/data/services/kehamilan_api_service.dart';
 import 'package:ta_pa2_pa3_project/core/themes/app_colors.dart';
 import 'package:ta_pa2_pa3_project/core/constants/api_constants.dart';
+
+import 'package:ta_pa2_pa3_project/features/ibu/hamil/data/services/kehamilan_api_service.dart';
 
 class CatatanPelayananT2Screen extends StatefulWidget {
   const CatatanPelayananT2Screen({super.key});
@@ -15,10 +17,13 @@ class CatatanPelayananT2Screen extends StatefulWidget {
       _CatatanPelayananT2ScreenState();
 }
 
-class _CatatanPelayananT2ScreenState extends State<CatatanPelayananT2Screen> {
-  final _kehamilanService = KehamilanApiService();
+class _CatatanPelayananT2ScreenState
+    extends State<CatatanPelayananT2Screen> {
+  final _kehamilanService =
+      KehamilanApiService();
 
   bool isLoading = true;
+
   List<dynamic> catatan = [];
 
   @override
@@ -30,118 +35,351 @@ class _CatatanPelayananT2ScreenState extends State<CatatanPelayananT2Screen> {
   Future<void> _loadCatatan() async {
     try {
       final token = AuthSession.token;
+
       if (token == null || token.isEmpty) {
-        throw Exception("Token tidak ditemukan");
+        throw Exception(
+          "Token tidak ditemukan",
+        );
       }
 
-      final kehamilan = await _kehamilanService.getKehamilanAktif();
+      final kehamilan =
+          await _kehamilanService
+              .getKehamilanAktif();
 
       final response = await http.get(
         Uri.parse(
-          ApiConstants.catatanPelayananT1(
+          ApiConstants.catatanPelayananT2(
             kehamilan.id,
           ),
         ),
+
         headers: {
           "Authorization": "Bearer $token",
         },
       );
 
-      final body = jsonDecode(response.body);
+      final body =
+          jsonDecode(response.body);
 
-      if (response.statusCode >= 200 && response.statusCode < 300) {
+      if (response.statusCode >= 200 &&
+          response.statusCode < 300) {
         setState(() {
           catatan = body["data"] ?? [];
           isLoading = false;
         });
       } else {
-        throw Exception(body["message"]?.toString() ?? "Gagal mengambil data");
+        throw Exception(
+          body["message"]?.toString() ??
+              "Gagal mengambil data",
+        );
       }
     } catch (e) {
       if (!mounted) return;
 
-      setState(() => isLoading = false);
+      setState(() {
+        isLoading = false;
+      });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.toString()), backgroundColor: Colors.red),
+      ScaffoldMessenger.of(context)
+          .showSnackBar(
+        SnackBar(
+          content: Text(e.toString()),
+          backgroundColor: Colors.red,
+        ),
       );
     }
   }
 
   String _dateText(dynamic value) {
-    if (value == null || value.toString().isEmpty) return "-";
-    return value.toString().split("T").first;
+    if (value == null ||
+        value.toString().isEmpty) {
+      return "-";
+    }
+
+    return value
+        .toString()
+        .split("T")
+        .first;
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF1F5F9),
-      appBar: AppBar(
-        title: const Text("Catatan Pelayanan T2"),
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
-      ),
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : catatan.isEmpty
-              ? const Center(child: Text("Belum ada catatan pelayanan T2"))
-              : ListView.builder(
-                  padding: const EdgeInsets.all(18),
-                  itemCount: catatan.length,
-                  itemBuilder: (context, index) {
-                    final item = catatan[index];
+    if (isLoading) {
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    }
 
-                    return _card(item);
-                  },
+    if (catatan.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment:
+              MainAxisAlignment.center,
+
+          children: [
+            Container(
+              width: 90,
+              height: 90,
+
+              decoration: BoxDecoration(
+                color: const Color(
+                  0xFFEFF6FF,
                 ),
-    );
-  }
 
-  Widget _card(dynamic item) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 14),
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _label("Tanggal Periksa"),
-          const SizedBox(height: 4),
-          Text(
-            _dateText(item["tanggal_periksa_stamp_paraf"]),
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: AppColors.primary,
+                borderRadius:
+                    BorderRadius.circular(24),
+              ),
+
+              child: const Icon(
+                Icons.description_outlined,
+                color: AppColors.primary,
+                size: 42,
+              ),
             ),
-          ),
-          const SizedBox(height: 14),
-          _label("Keluhan / Pemeriksaan / Tindakan / Saran"),
-          const SizedBox(height: 6),
-          Text(
-            item["keluhan_pemeriksaan_tindakan_saran"] ?? "-",
-            style: const TextStyle(fontSize: 14),
-          ),
-          const SizedBox(height: 14),
-          Text(
-            "Tanggal kembali: ${_dateText(item["tanggal_kembali"])}",
-            style: const TextStyle(fontSize: 12, color: Colors.black54),
-          ),
-        ],
-      ),
-    );
-  }
 
-  Widget _label(String text) {
-    return Text(
-      text,
-      style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+            const SizedBox(height: 18),
+
+            const Text(
+              'Belum ada catatan pelayanan',
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+
+            const SizedBox(height: 6),
+
+            const Text(
+              'Data pemeriksaan trimester 2 akan muncul di sini',
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.black54,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.fromLTRB(
+        16,
+        8,
+        16,
+        24,
+      ),
+
+      itemCount: catatan.length,
+
+      itemBuilder: (context, index) {
+        final item = catatan[index];
+
+        return Container(
+          margin: const EdgeInsets.only(
+            bottom: 16,
+          ),
+
+          decoration: BoxDecoration(
+            color: Colors.white,
+
+            borderRadius:
+                BorderRadius.circular(24),
+
+            border: Border.all(
+              color: const Color(
+                0xFFE2E8F0,
+              ),
+            ),
+
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black
+                    .withOpacity(0.04),
+
+                blurRadius: 10,
+
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+
+          child: Column(
+            crossAxisAlignment:
+                CrossAxisAlignment.start,
+
+            children: [
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(
+                  horizontal: 18,
+                  vertical: 14,
+                ),
+
+                decoration:
+                    const BoxDecoration(
+                  color: Color(0xFFEFF6FF),
+
+                  borderRadius:
+                      BorderRadius.only(
+                    topLeft:
+                        Radius.circular(24),
+                    topRight:
+                        Radius.circular(24),
+                  ),
+                ),
+
+                child: Row(
+                  children: [
+                    Container(
+                      width: 42,
+                      height: 42,
+
+                      decoration: BoxDecoration(
+                        color: AppColors.primary
+                            .withOpacity(0.12),
+
+                        borderRadius:
+                            BorderRadius.circular(
+                          14,
+                        ),
+                      ),
+
+                      child: const Icon(
+                        Icons.description_outlined,
+                        color: AppColors.primary,
+                      ),
+                    ),
+
+                    const SizedBox(width: 12),
+
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment:
+                            CrossAxisAlignment
+                                .start,
+
+                        children: [
+                          const Text(
+                            'Tanggal Pemeriksaan',
+                            style: TextStyle(
+                              fontSize: 11,
+                              color:
+                                  Colors.black54,
+                            ),
+                          ),
+
+                          const SizedBox(
+                            height: 2,
+                          ),
+
+                          Text(
+                            _dateText(
+                              item[
+                                  "tanggal_periksa_stamp_paraf"],
+                            ),
+
+                            style:
+                                const TextStyle(
+                              fontSize: 15,
+                              fontWeight:
+                                  FontWeight.bold,
+                              color:
+                                  AppColors.primary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              Padding(
+                padding:
+                    const EdgeInsets.all(18),
+
+                child: Column(
+                  crossAxisAlignment:
+                      CrossAxisAlignment.start,
+
+                  children: [
+                    const Text(
+                      "Keluhan & Pemeriksaan",
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight:
+                            FontWeight.w700,
+                        color: Colors.black54,
+                      ),
+                    ),
+
+                    const SizedBox(height: 8),
+
+                    Text(
+                      item[
+                              "keluhan_pemeriksaan_tindakan_saran"] ??
+                          "-",
+
+                      style: const TextStyle(
+                        fontSize: 14,
+                        height: 1.6,
+                      ),
+                    ),
+
+                    const SizedBox(height: 18),
+
+                    Container(
+                      padding:
+                          const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 12,
+                      ),
+
+                      decoration: BoxDecoration(
+                        color: const Color(
+                          0xFFF8FAFC,
+                        ),
+
+                        borderRadius:
+                            BorderRadius.circular(
+                          14,
+                        ),
+                      ),
+
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.calendar_month,
+                            size: 18,
+                            color:
+                                AppColors.primary,
+                          ),
+
+                          const SizedBox(width: 8),
+
+                          Expanded(
+                            child: Text(
+                              "Kembali periksa: ${_dateText(item["tanggal_kembali"])}",
+
+                              style:
+                                  const TextStyle(
+                                fontSize: 13,
+                                fontWeight:
+                                    FontWeight
+                                        .w600,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

@@ -222,6 +222,8 @@ import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/check
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/proses_melahirkan_screens.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/riwayat_proses_melahirkan_screen.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/widgets/ibu_menu_card.dart';
+import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/ringkasan_persalinan_screen.dart';
+import 'package:ta_pa2_pa3_project/core/services/auth_session.dart';
 
 class PersalinanScreen extends StatelessWidget {
   const PersalinanScreen({super.key});
@@ -296,6 +298,24 @@ class PersalinanScreen extends StatelessWidget {
                     ),
                   ),
                 ),
+                const SizedBox(height: 12),
+                IbuMenuCard(
+                icon: Icons.summarize_outlined,
+                iconColor: AppColors.primary,
+                iconBgColor: const Color(0xFFEFF6FF),
+                title: 'Ringkasan Pelayanan Proses Melahirkan',
+                subtitle:
+                    'Lihat hasil ringkasan pelayanan dan proses persalinan ibu',
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) =>
+                        RingkasanPersalinanScreen(
+                      token: AuthSession.token ?? '',
+                    ),
+                  ),
+                ),
+              ),
 
                 const SizedBox(height: 8),
 

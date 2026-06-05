@@ -113,128 +113,360 @@ class _NifasScreenState extends State<NifasScreen> {
     );
   }
 
-  Widget _summaryCard(double progress) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: TrimesterTheme.t1Gradient,
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(22),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.primary.withOpacity(0.2),
-            blurRadius: 12,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Pemantauan Masa Nifas',
-            style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 6),
-          const Text(
-            'Checklist diisi sekali sehari selama 42 hari masa nifas.',
-            style: TextStyle(color: Colors.white70, fontSize: 12),
-          ),
-          const SizedBox(height: 16),
-          LinearProgressIndicator(
-            value: progress,
-            backgroundColor: Colors.white.withOpacity(0.25),
-            color: Colors.white,
-            minHeight: 8,
-            borderRadius: BorderRadius.circular(20),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            '${filledDays.length}/42 hari sudah diisi',
-            style: const TextStyle(color: Colors.white, fontSize: 12),
-          ),
-        ],
-      ),
-    );
-  }
+Widget _summaryCard(double progress) {
+  return Container(
+    width: double.infinity,
 
-  Widget _filledDaysView() {
-    if (isLoading) {
-      return const Center(
-        child: Padding(
-          padding: EdgeInsets.all(20),
-          child: CircularProgressIndicator(),
-        ),
-      );
-    }
-    if (filledDays.isEmpty) {
-      return Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(18),
-        ),
-        child: const Text(
-          'Belum ada checklist yang diisi.',
-          style: TextStyle(color: Colors.black54, fontSize: 13),
-        ),
-      );
-    }
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: filledDays.map((day) => Chip(
-        avatar: Icon(Icons.check_circle, color: AppColors.primary, size: 18),
-        label: Text('Hari ke-$day'),
-        backgroundColor: const Color(0xFFE3F2FD),
-        side: const BorderSide(color: Color(0xFFBBDEFB)),
-      )).toList(),
-    );
-  }
+    padding: const EdgeInsets.all(22),
 
-  Widget _menuCard({
-    required String title,
-    required String subtitle,
-    required IconData icon,
-    required VoidCallback onTap,
-  }) {
-    return Material(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(24),
-      elevation: 1,
-      shadowColor: Colors.black12,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(24),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Row(
-            children: [
-              CircleAvatar(
-                backgroundColor: AppColors.primary.withOpacity(0.1),
-                child: Icon(icon, color: AppColors.primary),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 4),
-                    Text(subtitle, style: const TextStyle(fontSize: 12, color: Colors.black54)),
-                  ],
+    decoration: BoxDecoration(
+      gradient: LinearGradient(
+        colors: [
+          AppColors.primary,
+          AppColors.primary.withOpacity(0.82),
+        ],
+
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      ),
+
+      borderRadius:
+          BorderRadius.circular(28),
+
+      boxShadow: [
+        BoxShadow(
+          color: AppColors.primary
+              .withOpacity(0.22),
+
+          blurRadius: 18,
+          offset: const Offset(0, 8),
+        ),
+      ],
+    ),
+
+    child: Column(
+      crossAxisAlignment:
+          CrossAxisAlignment.start,
+
+      children: [
+        Row(
+          children: [
+            Container(
+              width: 58,
+              height: 58,
+
+              decoration: BoxDecoration(
+                color: Colors.white
+                    .withOpacity(0.15),
+
+                borderRadius:
+                    BorderRadius.circular(
+                  18,
                 ),
               ),
-              const Icon(Icons.chevron_right, color: Colors.grey),
-            ],
+
+              child: const Icon(
+                Icons.health_and_safety,
+                color: Colors.white,
+                size: 30,
+              ),
+            ),
+
+            const SizedBox(width: 14),
+
+            Expanded(
+              child: Column(
+                crossAxisAlignment:
+                    CrossAxisAlignment.start,
+
+                children: [
+                  const Text(
+                    'Pemantauan Masa Nifas',
+
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight:
+                          FontWeight.bold,
+                    ),
+                  ),
+
+                  const SizedBox(height: 4),
+
+                  Text(
+                    '${filledDays.length}/42 hari telah diisi',
+
+                    style: const TextStyle(
+                      color: Colors.white70,
+                      fontSize: 13,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+
+        const SizedBox(height: 24),
+
+        ClipRRect(
+          borderRadius:
+              BorderRadius.circular(30),
+
+          child: LinearProgressIndicator(
+            value: progress,
+
+            minHeight: 10,
+
+            backgroundColor:
+                Colors.white.withOpacity(
+              0.18,
+            ),
+
+            valueColor:
+                const AlwaysStoppedAnimation(
+              Colors.white,
+            ),
           ),
+        ),
+
+        const SizedBox(height: 12),
+
+        Text(
+          '${(progress * 100).toInt()}% selesai',
+
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
+            fontSize: 13,
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+Widget _filledDaysView() {
+  if (isLoading) {
+    return const Center(
+      child: Padding(
+        padding: EdgeInsets.all(20),
+        child: CircularProgressIndicator(),
+      ),
+    );
+  }
+
+  if (filledDays.isEmpty) {
+    return Container(
+      width: double.infinity,
+
+      padding: const EdgeInsets.all(20),
+
+      decoration: BoxDecoration(
+        color: Colors.white,
+
+        borderRadius:
+            BorderRadius.circular(22),
+
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black
+                .withOpacity(0.03),
+
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+
+      child: const Text(
+        'Belum ada checklist yang diisi.',
+
+        style: TextStyle(
+          color: Colors.black54,
+          fontSize: 13,
         ),
       ),
     );
   }
+
+  return Wrap(
+    spacing: 10,
+    runSpacing: 10,
+
+    children: filledDays.map(
+      (day) {
+        return Container(
+          padding:
+              const EdgeInsets.symmetric(
+            horizontal: 14,
+            vertical: 10,
+          ),
+
+          decoration: BoxDecoration(
+            color: AppColors.primary
+                .withOpacity(0.08),
+
+            borderRadius:
+                BorderRadius.circular(16),
+
+            border: Border.all(
+              color: AppColors.primary
+                  .withOpacity(0.12),
+            ),
+          ),
+
+          child: Row(
+            mainAxisSize:
+                MainAxisSize.min,
+
+            children: [
+              const Icon(
+                Icons.check_circle,
+                color: AppColors.primary,
+                size: 18,
+              ),
+
+              const SizedBox(width: 8),
+
+              Text(
+                'Hari ke-$day',
+
+                style: const TextStyle(
+                  fontWeight:
+                      FontWeight.w600,
+                  color: AppColors.primary,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    ).toList(),
+  );
+}
+
+Widget _menuCard({
+  required String title,
+  required String subtitle,
+  required IconData icon,
+  required VoidCallback onTap,
+}) {
+  return Material(
+    color: const Color(0xFFF5F9FF),
+
+    borderRadius:
+        BorderRadius.circular(28),
+
+    child: InkWell(
+      borderRadius:
+          BorderRadius.circular(28),
+
+      onTap: onTap,
+
+      child: Container(
+        padding: const EdgeInsets.all(20),
+
+        decoration: BoxDecoration(
+          color: const Color(0xFFF5F9FF),
+          borderRadius:
+              BorderRadius.circular(28),
+
+          border: Border.all(
+            color: AppColors.primary
+                .withOpacity(0.08),
+          ),
+
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.primary
+                .withOpacity(0.10),
+
+              blurRadius: 18,
+              spreadRadius: 1,
+              offset: const Offset(0, 5),
+              
+            ),
+          ],
+        ),
+
+        child: Row(
+          children: [
+            Container(
+              width: 60,
+              height: 60,
+
+              decoration: BoxDecoration(
+                color: AppColors.primary
+                    .withOpacity(0.10),
+
+                borderRadius:
+                    BorderRadius.circular(
+                  18,
+                ),
+              ),
+
+              child: Icon(
+                icon,
+                color: AppColors.primary,
+                size: 30,
+              ),
+            ),
+
+            const SizedBox(width: 18),
+
+            Expanded(
+              child: Column(
+                crossAxisAlignment:
+                    CrossAxisAlignment.start,
+
+                children: [
+                  Text(
+                    title,
+
+                    style: const TextStyle(
+                      fontWeight:
+                          FontWeight.w700,
+                      fontSize: 15,
+                    ),
+                  ),
+
+                  const SizedBox(height: 6),
+
+                  Text(
+                    subtitle,
+
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Colors.black54,
+                      height: 1.4,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            Container(
+              width: 38,
+              height: 38,
+
+              decoration: BoxDecoration(
+                color: AppColors.primary
+                    .withOpacity(0.16),
+
+                shape: BoxShape.circle,
+              ),
+
+              child: const Icon(
+                Icons.arrow_forward_ios,
+                size: 16,
+                color: AppColors.primary,
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
 }

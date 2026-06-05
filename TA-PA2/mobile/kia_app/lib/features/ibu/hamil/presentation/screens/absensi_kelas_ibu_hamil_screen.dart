@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/data/services/absensi_kelas_ibu_hamil_api_service.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/data/models/absensi_kelas_ibu_hamil_model.dart';
+import 'package:ta_pa2_pa3_project/core/themes/app_colors.dart';
 
 class AbsensiKelasIbuHamilScreen extends StatefulWidget {
   const AbsensiKelasIbuHamilScreen({super.key});
@@ -154,13 +155,13 @@ class _AbsensiKelasIbuHamilScreenState
     return Scaffold(
       backgroundColor: const Color(0xFFF6F8FC),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.primary,
         elevation: 0,
         centerTitle: true,
         title: const Text(
           'Absensi Kelas Ibu Hamil',
           style: TextStyle(
-            color: Color(0xFF1E293B),
+            color: Color(0xFFF6F8FC),
             fontSize: 16,
             fontWeight: FontWeight.w700,
           ),
@@ -201,7 +202,7 @@ class _AbsensiKelasIbuHamilScreenState
                       style: const TextStyle(fontWeight: FontWeight.w800),
                     ),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF2F80ED),
+                      backgroundColor: AppColors.primary,
                       foregroundColor: Colors.white,
                       disabledBackgroundColor: Colors.grey,
                       shape: RoundedRectangleBorder(

@@ -7,7 +7,8 @@ import '../../data/models/checklist_pemantauan_ibu_nifas_model.dart';
 import '../../data/repositories/checklist_pemantauan_ibu_nifas_repository.dart';
 import '../../data/services/checklist_pemantauan_ibu_nifas_service.dart';
 
-class ChecklistPemantauanIbuNifasScreen extends StatefulWidget {
+class ChecklistPemantauanIbuNifasScreen
+    extends StatefulWidget {
   final List<int> filledDays;
 
   const ChecklistPemantauanIbuNifasScreen({
@@ -16,12 +17,14 @@ class ChecklistPemantauanIbuNifasScreen extends StatefulWidget {
   });
 
   @override
-  State<ChecklistPemantauanIbuNifasScreen> createState() =>
-      _ChecklistPemantauanIbuNifasScreenState();
+  State<ChecklistPemantauanIbuNifasScreen>
+      createState() =>
+          _ChecklistPemantauanIbuNifasScreenState();
 }
 
 class _ChecklistPemantauanIbuNifasScreenState
-    extends State<ChecklistPemantauanIbuNifasScreen> {
+    extends State<
+        ChecklistPemantauanIbuNifasScreen> {
   final _kehamilanService =
       KehamilanApiService();
 
@@ -36,7 +39,6 @@ class _ChecklistPemantauanIbuNifasScreenState
 
   bool isLoading = false;
 
-  // NIFAS A
   bool pemeriksaanNifas = false;
   bool konsumsiVitaminA = false;
   bool pemenuhanGizi = false;
@@ -46,7 +48,6 @@ class _ChecklistPemantauanIbuNifasScreenState
   bool nyeriUluHati = false;
   bool masalahKesehatanJiwa = false;
 
-  // NIFAS B
   bool jantungBerdebar = false;
   bool cairanJalanLahir = false;
   bool napasPendek = false;
@@ -87,7 +88,7 @@ class _ChecklistPemantauanIbuNifasScreenState
       selectedHariNifas,
     )) {
       _showError(
-        'Hari nifas ke-$selectedHariNifas sudah diisi.',
+        'Hari nifas ke-$selectedHariNifas sudah diisi',
       );
       return;
     }
@@ -115,56 +116,39 @@ class _ChecklistPemantauanIbuNifasScreenState
         hariNifas:
             selectedHariNifas!,
 
-        // NIFAS A
         pemeriksaanNifas:
             pemeriksaanNifas,
-
         konsumsiVitaminA:
             konsumsiVitaminA,
-
         pemenuhanGizi:
             pemenuhanGizi,
-
         demamLebih38:
             demamLebih38,
-
         sakitKepala:
             sakitKepala,
-
         pandanganKabur:
             pandanganKabur,
-
         nyeriUluHati:
             nyeriUluHati,
-
         masalahKesehatanJiwa:
             masalahKesehatanJiwa,
 
-        // NIFAS B
         jantungBerdebar:
             jantungBerdebar,
-
         cairanJalanLahir:
             cairanJalanLahir,
-
         napasPendek:
             napasPendek,
-
         payudaraBermasalah:
             payudaraBermasalah,
-
         gangguanBak:
             gangguanBak,
-
         kelaminBermasalah:
             kelaminBermasalah,
-
         darahNifasBerbau:
             darahNifasBerbau,
-
         pendarahanBerat:
             pendarahanBerat,
-
         keputihan:
             keputihan,
 
@@ -180,11 +164,16 @@ class _ChecklistPemantauanIbuNifasScreenState
 
       if (!mounted) return;
 
-      await _showSuccessDialog(
-        'Checklist berhasil disimpan',
+      ScaffoldMessenger.of(context)
+          .showSnackBar(
+        SnackBar(
+          content: const Text(
+            'Checklist berhasil disimpan',
+          ),
+          backgroundColor:
+              Colors.green.shade600,
+        ),
       );
-
-      if (!mounted) return;
 
       Navigator.pop(context, true);
     } catch (e) {
@@ -224,83 +213,13 @@ class _ChecklistPemantauanIbuNifasScreenState
   }
 
   void _showError(String message) {
-    if (!mounted) return;
-
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(
+    ScaffoldMessenger.of(context)
+        .showSnackBar(
       SnackBar(
         content: Text(message),
         backgroundColor:
             Colors.red.shade600,
-        behavior:
-            SnackBarBehavior.floating,
       ),
-    );
-  }
-
-  Future<void> _showSuccessDialog(
-    String message,
-  ) {
-    return showDialog<void>(
-      context: context,
-      barrierDismissible: false,
-      builder:
-          (_) => AlertDialog(
-            shape:
-                RoundedRectangleBorder(
-                  borderRadius:
-                      BorderRadius.circular(
-                        22,
-                      ),
-                ),
-            title: Row(
-              children: [
-                CircleAvatar(
-                  backgroundColor:
-                      AppColors.primary
-                          .withOpacity(
-                            0.1,
-                          ),
-                  child: Icon(
-                    Icons.check_rounded,
-                    color:
-                        AppColors.primary,
-                  ),
-                ),
-                const SizedBox(
-                  width: 12,
-                ),
-                const Expanded(
-                  child: Text(
-                    'Berhasil Disimpan',
-                    style: TextStyle(
-                      fontWeight:
-                          FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            content: Text(message),
-            actions: [
-              TextButton(
-                onPressed:
-                    () => Navigator.pop(
-                      context,
-                    ),
-                child: Text(
-                  'Kembali',
-                  style: TextStyle(
-                    color:
-                        AppColors.primary,
-                    fontWeight:
-                        FontWeight.bold,
-                  ),
-                ),
-              ),
-            ],
-          ),
     );
   }
 
@@ -324,22 +243,22 @@ class _ChecklistPemantauanIbuNifasScreenState
       body: SingleChildScrollView(
         padding:
             const EdgeInsets.all(18),
+
         child: Column(
           crossAxisAlignment:
               CrossAxisAlignment.start,
+
           children: [
             _headerCard(),
 
-            const SizedBox(
-              height: 18,
-            ),
+            const SizedBox(height: 18),
 
             _daySelector(),
 
-            if (selectedHariNifas ==
+            const SizedBox(height: 18),
+
+            if (selectedHariNifas !=
                 null)
-              _emptyChecklistHint()
-            else
               _checklistForm(),
           ],
         ),
@@ -350,6 +269,7 @@ class _ChecklistPemantauanIbuNifasScreenState
   Widget _headerCard() {
     return Container(
       width: double.infinity,
+
       padding:
           const EdgeInsets.all(22),
 
@@ -377,9 +297,7 @@ class _ChecklistPemantauanIbuNifasScreenState
             size: 38,
           ),
 
-          const SizedBox(
-            height: 14,
-          ),
+          const SizedBox(height: 14),
 
           const Text(
             'Checklist Harian Masa Nifas',
@@ -391,13 +309,11 @@ class _ChecklistPemantauanIbuNifasScreenState
             ),
           ),
 
-          const SizedBox(
-            height: 8,
-          ),
+          const SizedBox(height: 8),
 
           Text(
             selectedHariNifas == null
-                ? 'Pilih hari nifas terlebih dahulu'
+                ? 'Pilih hari nifas'
                 : 'Hari nifas ke-$selectedHariNifas',
 
             style: const TextStyle(
@@ -411,103 +327,120 @@ class _ChecklistPemantauanIbuNifasScreenState
 
   Widget _daySelector() {
     return _containerCard(
-      child:
-          DropdownButtonFormField<int>(
-            value:
-                selectedHariNifas,
+      child: Column(
+        crossAxisAlignment:
+            CrossAxisAlignment.start,
 
-            decoration:
-                InputDecoration(
-                  hintText:
-                      'Pilih hari nifas',
+        children: [
+          const Text(
+            'Pilih Hari Nifas',
+            style: TextStyle(
+              fontWeight:
+                  FontWeight.bold,
+              fontSize: 16,
+            ),
+          ),
 
-                  prefixIcon: Icon(
-                    Icons
-                        .calendar_month_outlined,
-                    color:
-                        AppColors.primary,
-                  ),
+          const SizedBox(height: 16),
 
-                  filled: true,
+          SingleChildScrollView(
+            scrollDirection:
+                Axis.horizontal,
 
-                  fillColor:
-                      AppColors.primary
-                          .withOpacity(
-                            0.05,
-                          ),
+            child: Row(
+              children: List.generate(
+                42,
+                (index) {
+                  final day =
+                      index + 1;
 
-                  border:
-                      OutlineInputBorder(
+                  final selected =
+                      selectedHariNifas ==
+                          day;
+
+                  final filled =
+                      widget.filledDays
+                          .contains(day);
+
+                  return GestureDetector(
+                    onTap:
+                        filled ||
+                                isLoading
+                            ? null
+                            : () {
+                                setState(() {
+                                  selectedHariNifas =
+                                      day;
+
+                                  _resetChecklist();
+                                });
+                              },
+
+                    child:
+                        AnimatedContainer(
+                      duration:
+                          const Duration(
+                        milliseconds: 200,
+                      ),
+
+                      margin:
+                          const EdgeInsets.only(
+                        right: 10,
+                      ),
+
+                      padding:
+                          const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
+
+                      decoration:
+                          BoxDecoration(
+                        color: filled
+                            ? Colors.green
+                                .shade50
+                            : selected
+                                ? AppColors
+                                    .primary
+                                : Colors.white,
+
                         borderRadius:
                             BorderRadius.circular(
-                              16,
-                            ),
-                        borderSide:
-                            BorderSide.none,
+                          16,
+                        ),
+
+                        border: Border.all(
+                          color: filled
+                              ? Colors.green
+                              : selected
+                                  ? AppColors
+                                      .primary
+                                  : Colors.grey
+                                      .shade300,
+                        ),
                       ),
-                ),
 
-            items: List.generate(
-              42,
-              (index) {
-                final day =
-                    index + 1;
+                      child: Text(
+                        'H-$day',
 
-                final isFilled =
-                    widget
-                        .filledDays
-                        .contains(day);
+                        style: TextStyle(
+                          fontWeight:
+                              FontWeight
+                                  .bold,
 
-                return DropdownMenuItem<
-                  int
-                >(
-                  value: day,
-                  enabled:
-                      !isFilled,
-
-                  child: Text(
-                    isFilled
-                        ? 'Hari ke-$day - Sudah diisi'
-                        : 'Hari ke-$day',
-                  ),
-                );
-              },
+                          color: filled
+                              ? Colors.green
+                              : selected
+                                  ? Colors.white
+                                  : Colors
+                                      .black87,
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
             ),
-
-            onChanged:
-                isLoading
-                    ? null
-                    : (value) {
-                      if (value ==
-                          null) {
-                        return;
-                      }
-
-                      setState(() {
-                        selectedHariNifas =
-                            value;
-
-                        _resetChecklist();
-                      });
-                    },
-          ),
-    );
-  }
-
-  Widget _emptyChecklistHint() {
-    return _containerCard(
-      child: const Column(
-        children: [
-          Icon(
-            Icons.touch_app,
-            size: 42,
-            color: Colors.blue,
-          ),
-
-          SizedBox(height: 12),
-
-          Text(
-            'Pilih hari nifas terlebih dahulu',
           ),
         ],
       ),
@@ -517,325 +450,183 @@ class _ChecklistPemantauanIbuNifasScreenState
   Widget _checklistForm() {
     return Column(
       children: [
-        const SizedBox(height: 18),
-
-        _sectionTitle(
-          'NIFAS A',
-          Icons.favorite_outline,
-        ),
-
-        _checkItem(
-          title:
+        _buildExpansionSection(
+          title: 'NIFAS A',
+          icon:
+              Icons.favorite_outline,
+          children: [
+            _checkItem(
               'Pemeriksaan nifas',
-          value:
               pemeriksaanNifas,
-          onChanged:
               (v) => setState(
                 () =>
                     pemeriksaanNifas =
-                        v ?? false,
+                        v,
               ),
-        ),
+            ),
 
-        _checkItem(
-          title:
+            _checkItem(
               'Konsumsi vitamin A',
-          value:
               konsumsiVitaminA,
-          onChanged:
               (v) => setState(
                 () =>
                     konsumsiVitaminA =
-                        v ?? false,
+                        v,
               ),
-        ),
+            ),
 
-        _checkItem(
-          title:
+            _checkItem(
               'Pemenuhan gizi',
-          value: pemenuhanGizi,
-          onChanged:
+              pemenuhanGizi,
               (v) => setState(
                 () =>
                     pemenuhanGizi =
-                        v ?? false,
+                        v,
               ),
-        ),
+            ),
 
-        _checkItem(
-          title: 'Demam > 38°C',
-          value: demamLebih38,
-          onChanged:
+            _checkItem(
+              'Demam > 38°C',
+              demamLebih38,
               (v) => setState(
                 () =>
                     demamLebih38 =
-                        v ?? false,
+                        v,
               ),
-        ),
+            ),
 
-        _checkItem(
-          title: 'Sakit kepala',
-          value: sakitKepala,
-          onChanged:
+            _checkItem(
+              'Sakit kepala',
+              sakitKepala,
               (v) => setState(
                 () =>
-                    sakitKepala =
-                        v ?? false,
+                    sakitKepala = v,
               ),
-        ),
+            ),
 
-        _checkItem(
-          title:
+            _checkItem(
               'Pandangan kabur',
-          value:
               pandanganKabur,
-          onChanged:
               (v) => setState(
                 () =>
                     pandanganKabur =
-                        v ?? false,
+                        v,
               ),
+            ),
+          ],
         ),
 
-        _checkItem(
-          title:
-              'Nyeri ulu hati',
-          value:
-              nyeriUluHati,
-          onChanged:
-              (v) => setState(
-                () =>
-                    nyeriUluHati =
-                        v ?? false,
-              ),
-        ),
+        const SizedBox(height: 14),
 
-        _checkItem(
-          title:
-              'Masalah kesehatan jiwa',
-          value:
-              masalahKesehatanJiwa,
-          onChanged:
-              (v) => setState(
-                () =>
-                    masalahKesehatanJiwa =
-                        v ?? false,
-              ),
-        ),
+        _buildExpansionSection(
+          title: 'NIFAS B',
+          icon: Icons.monitor_heart,
 
-        const SizedBox(
-          height: 20,
-        ),
-
-        _sectionTitle(
-          'NIFAS B',
-          Icons.monitor_heart_outlined,
-        ),
-
-        _checkItem(
-          title:
+          children: [
+            _checkItem(
               'Jantung berdebar',
-          value:
               jantungBerdebar,
-          onChanged:
               (v) => setState(
                 () =>
                     jantungBerdebar =
-                        v ?? false,
+                        v,
               ),
-        ),
+            ),
 
-        _checkItem(
-          title:
+            _checkItem(
               'Cairan jalan lahir',
-          value:
               cairanJalanLahir,
-          onChanged:
               (v) => setState(
                 () =>
                     cairanJalanLahir =
-                        v ?? false,
+                        v,
               ),
-        ),
+            ),
 
-        _checkItem(
-          title: 'Napas pendek',
-          value: napasPendek,
-          onChanged:
+            _checkItem(
+              'Napas pendek',
+              napasPendek,
               (v) => setState(
                 () =>
-                    napasPendek =
-                        v ?? false,
+                    napasPendek = v,
               ),
-        ),
+            ),
 
-        _checkItem(
-          title:
+            _checkItem(
               'Payudara bermasalah',
-          value:
               payudaraBermasalah,
-          onChanged:
               (v) => setState(
                 () =>
                     payudaraBermasalah =
-                        v ?? false,
+                        v,
               ),
-        ),
+            ),
 
-        _checkItem(
-          title:
+            _checkItem(
               'Gangguan BAK',
-          value: gangguanBak,
-          onChanged:
+              gangguanBak,
               (v) => setState(
                 () =>
-                    gangguanBak =
-                        v ?? false,
+                    gangguanBak = v,
               ),
+            ),
+          ],
         ),
 
-        _checkItem(
-          title:
-              'Kelamin bermasalah',
-          value:
-              kelaminBermasalah,
-          onChanged:
-              (v) => setState(
-                () =>
-                    kelaminBermasalah =
-                        v ?? false,
-              ),
-        ),
-
-        _checkItem(
-          title:
-              'Darah nifas berbau',
-          value:
-              darahNifasBerbau,
-          onChanged:
-              (v) => setState(
-                () =>
-                    darahNifasBerbau =
-                        v ?? false,
-              ),
-        ),
-
-        _checkItem(
-          title:
-              'Pendarahan berat',
-          value:
-              pendarahanBerat,
-          onChanged:
-              (v) => setState(
-                () =>
-                    pendarahanBerat =
-                        v ?? false,
-              ),
-        ),
-
-        _checkItem(
-          title: 'Keputihan',
-          value: keputihan,
-          onChanged:
-              (v) => setState(
-                () =>
-                    keputihan =
-                        v ?? false,
-              ),
-        ),
-
-        const SizedBox(
-          height: 18,
-        ),
+        const SizedBox(height: 16),
 
         _containerCard(
           child: Column(
             crossAxisAlignment:
-                CrossAxisAlignment
-                    .start,
+                CrossAxisAlignment.start,
 
             children: [
-              Row(
-                children: [
-                  Icon(
-                    Icons
-                        .edit_note_outlined,
-                    color:
-                        AppColors.primary,
-                  ),
-
-                  const SizedBox(
-                    width: 10,
-                  ),
-
-                  const Text(
-                    'Keluhan Tambahan',
-                    style: TextStyle(
-                      fontWeight:
-                          FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                  ),
-                ],
+              const Text(
+                'Keluhan Tambahan',
+                style: TextStyle(
+                  fontWeight:
+                      FontWeight.bold,
+                  fontSize: 16,
+                ),
               ),
 
-              const SizedBox(
-                height: 14,
-              ),
+              const SizedBox(height: 14),
 
               TextFormField(
                 controller:
                     keluhanController,
+
                 maxLines: 4,
 
                 decoration:
                     InputDecoration(
-                      hintText:
-                          'Tuliskan keluhan tambahan jika ada...',
+                  hintText:
+                      'Tuliskan keluhan tambahan...',
 
-                      filled: true,
+                  filled: true,
 
-                      fillColor:
-                          AppColors
-                              .primary
-                              .withOpacity(
-                                0.05,
-                              ),
+                  fillColor:
+                      AppColors.primary
+                          .withOpacity(
+                    0.05,
+                  ),
 
-                      border:
-                          OutlineInputBorder(
-                            borderRadius:
-                                BorderRadius.circular(
-                                  16,
-                                ),
-                            borderSide:
-                                BorderSide
-                                    .none,
-                          ),
-
-                      focusedBorder:
-                          OutlineInputBorder(
-                            borderRadius:
-                                BorderRadius.circular(
-                                  16,
-                                ),
-                            borderSide:
-                                BorderSide(
-                                  color:
-                                      AppColors.primary,
-                                  width:
-                                      1.5,
-                                ),
-                          ),
+                  border:
+                      OutlineInputBorder(
+                    borderRadius:
+                        BorderRadius.circular(
+                      16,
                     ),
+                    borderSide:
+                        BorderSide.none,
+                  ),
+                ),
               ),
             ],
           ),
         ),
 
-        const SizedBox(
-          height: 12,
-        ),
+        const SizedBox(height: 20),
 
         SizedBox(
           width: double.infinity,
@@ -843,91 +634,86 @@ class _ChecklistPemantauanIbuNifasScreenState
 
           child:
               ElevatedButton.icon(
-                onPressed:
-                    isLoading
-                        ? null
-                        : submitChecklist,
+            onPressed:
+                isLoading
+                    ? null
+                    : submitChecklist,
 
-                icon:
-                    isLoading
-                        ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child:
-                              CircularProgressIndicator(
-                                strokeWidth:
-                                    2,
-                                color:
-                                    Colors.white,
-                              ),
-                        )
-                        : const Icon(
-                          Icons
-                              .save_outlined,
-                        ),
-
-                label: Text(
-                  isLoading
-                      ? 'Menyimpan...'
-                      : 'Simpan Checklist',
-                ),
-
-                style:
-                    ElevatedButton.styleFrom(
-                      backgroundColor:
-                          AppColors
-                              .primary,
-
-                      foregroundColor:
+            icon: isLoading
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child:
+                        CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color:
                           Colors.white,
-
-                      shape:
-                          RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.circular(
-                                  18,
-                                ),
-                          ),
                     ),
+                  )
+                : const Icon(
+                    Icons.save_outlined,
+                  ),
+
+            label: Text(
+              isLoading
+                  ? 'Menyimpan...'
+                  : 'Simpan Checklist',
+            ),
+
+            style:
+                ElevatedButton.styleFrom(
+              backgroundColor:
+                  AppColors.primary,
+
+              foregroundColor:
+                  Colors.white,
+
+              shape:
+                  RoundedRectangleBorder(
+                borderRadius:
+                    BorderRadius.circular(
+                  18,
+                ),
               ),
+            ),
+          ),
         ),
       ],
     );
   }
 
-  Widget _sectionTitle(
-    String title,
-    IconData icon,
-  ) {
-    return Padding(
-      padding:
-          const EdgeInsets.only(
-            bottom: 12,
-          ),
+  Widget _buildExpansionSection({
+    required String title,
+    required IconData icon,
+    required List<Widget> children,
+  }) {
+    return _containerCard(
+      child: ExpansionTile(
+        initiallyExpanded: true,
 
-      child: Row(
-        children: [
-          Icon(
-            icon,
+        tilePadding:
+            EdgeInsets.zero,
+
+        childrenPadding:
+            EdgeInsets.zero,
+
+        leading: Icon(
+          icon,
+          color: AppColors.primary,
+        ),
+
+        title: Text(
+          title,
+          style: TextStyle(
+            fontWeight:
+                FontWeight.bold,
+            fontSize: 18,
             color:
                 AppColors.primary,
           ),
+        ),
 
-          const SizedBox(
-            width: 10,
-          ),
-
-          Text(
-            title,
-            style: TextStyle(
-              fontWeight:
-                  FontWeight.bold,
-              fontSize: 18,
-              color:
-                  AppColors.primary,
-            ),
-          ),
-        ],
+        children: children,
       ),
     );
   }
@@ -937,11 +723,6 @@ class _ChecklistPemantauanIbuNifasScreenState
   }) {
     return Container(
       width: double.infinity,
-
-      margin:
-          const EdgeInsets.only(
-            bottom: 14,
-          ),
 
       padding:
           const EdgeInsets.all(16),
@@ -967,73 +748,38 @@ class _ChecklistPemantauanIbuNifasScreenState
     );
   }
 
-  Widget _checkItem({
-    required String title,
-    required bool value,
-    required ValueChanged<bool?>
-        onChanged,
-  }) {
-    return Container(
-      margin:
-          const EdgeInsets.only(
-            bottom: 12,
-          ),
+  Widget _checkItem(
+    String title,
+    bool value,
+    ValueChanged<bool> onChanged,
+  ) {
+    return CheckboxListTile(
+      value: value,
 
-      decoration: BoxDecoration(
-        color: Colors.white,
-
-        borderRadius:
-            BorderRadius.circular(18),
-
-        border: Border.all(
-          color:
-              value
-                  ? AppColors.primary
-                  : Colors
-                      .grey.shade200,
-        ),
-
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black
-                .withOpacity(0.03),
-            blurRadius: 10,
-            offset:
-                const Offset(0, 4),
-          ),
-        ],
-      ),
-
-      child: CheckboxListTile(
-        value: value,
-
-        onChanged:
-            isLoading
-                ? null
-                : onChanged,
-
-        activeColor:
-            AppColors.primary,
-
-        checkboxShape:
-            RoundedRectangleBorder(
-              borderRadius:
-                  BorderRadius.circular(
-                    6,
+      onChanged:
+          isLoading
+              ? null
+              : (v) =>
+                  onChanged(
+                    v ?? false,
                   ),
-            ),
 
-        title: Text(
-          title,
-          style: const TextStyle(
-            fontWeight:
-                FontWeight.w500,
-          ),
+      activeColor:
+          AppColors.primary,
+
+      contentPadding:
+          EdgeInsets.zero,
+
+      controlAffinity:
+          ListTileControlAffinity
+              .leading,
+
+      title: Text(
+        title,
+        style: const TextStyle(
+          fontWeight:
+              FontWeight.w500,
         ),
-
-        controlAffinity:
-            ListTileControlAffinity
-                .leading,
       ),
     );
   }
