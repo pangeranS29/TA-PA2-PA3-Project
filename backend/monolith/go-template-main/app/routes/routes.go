@@ -44,6 +44,7 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	e.GET("/edukasi-perawatan-anak", controller.EdukasiPerawatanAnak.GetAll)
 	e.GET("/edukasi-perawatan-anak/:id", controller.EdukasiPerawatanAnak.GetByID)
 	// e.GET("/edukasi-nifas", controller.EdukasiNifas.GetAll)
+	e.GET("/edukasi-setelah-melahirkan", controller.EdukasiSetelahMelahirkan.GetAll) // Untuk edukasi ibu bagian Edukasi Nifas
 	e.GET("/edukasi-tanda-melahirkan", controller.EdukasiTandaMelahirkan.GetAll)
 	e.GET("/edukasi-trimester", controller.EdukasiTrimester.GetAll)
 	// e.GET("/edukasi-trimester/:trimester", controller.EdukasiTrimester.GetByTrimester)

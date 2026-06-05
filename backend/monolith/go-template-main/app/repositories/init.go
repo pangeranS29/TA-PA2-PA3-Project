@@ -229,6 +229,7 @@ func Init(opts Options) *Main {
 	m.PemeriksaanLansia = NewPemeriksaanLansiaRepository(opts.Postgres)
 	m.Form = NewFormRepository(opts.Postgres) // Inisialisasi FormRepository dengan database yang sesuai
 	m.Pemeriksaan = NewPemeriksaanRepository(opts.Postgres)
+	// return m
 
 	// MODUL IBU
 	m.LogTTDMMS = NewLogTTDMMSRepository(opts.Postgres)
