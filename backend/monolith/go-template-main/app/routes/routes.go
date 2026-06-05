@@ -163,7 +163,7 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 
 	tenaga.GET("/anak", controller.Anak.AdminList)
 	tenaga.POST("/anak", controller.Anak.Create, middlewares.BidanOnly())
-	// tenaga.POST("/anak/dengan-penduduk", controller.Anak.CreateDenganPenduduk)
+	tenaga.POST("/anak/dengan-penduduk", controller.Anak.CreateDenganPenduduk)
 	tenaga.GET("/anak/:id", controller.Anak.Detail)
 	tenaga.PUT("/anak/:id", controller.Anak.Update, middlewares.BidanOnly())
 	tenaga.DELETE("/anak/:id", controller.Anak.Delete, middlewares.BidanOnly())
@@ -400,10 +400,10 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	tenaga.POST("/ibu", controller.Ibu.Create)
 	tenaga.GET("/ibu", controller.Ibu.GetAll)
 	tenaga.GET("/ibuk", controller.Ibu.GetDashboard)
+	tenaga.GET("/ibu/by-penduduk/:pendudukId", controller.Ibu.GetByPendudukID)
 	tenaga.GET("/ibu/:id", controller.Ibu.GetByID)
 	tenaga.PUT("/ibu/:id", controller.Ibu.Update)
 	tenaga.DELETE("/ibu/:id", controller.Ibu.Delete)
-	tenaga.GET("/ibu/by-penduduk/:pendudukId", controller.Ibu.GetByPendudukID)
 
 	tenaga.POST("/kehamilan", controller.Kehamilan.Create)
 	tenaga.GET("/kehamilan/all", controller.Kehamilan.GetAll)

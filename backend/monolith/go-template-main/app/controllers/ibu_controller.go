@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"strconv"
 
+	"monitoring-service/app/middlewares"
 	"monitoring-service/app/models"
 	"monitoring-service/app/usecases"
-	"monitoring-service/app/middlewares" 
 
 	"github.com/labstack/echo/v4"
 )
@@ -242,26 +242,27 @@ func (c *IbuController) Delete(ctx echo.Context) error {
 	})
 }
 func (c *IbuController) GetDashboard(ctx echo.Context) error {
-    // Ambil desa_id dan role dari context (sudah diset middleware)
-    desaID := middlewares.GetDesaID(ctx)
-    role := middlewares.GetRole(ctx)
+	// Ambil desa_id dan role dari context (sudah diset middleware)
+	desaID := middlewares.GetDesaID(ctx)
+	role := middlewares.GetRole(ctx)
 
-    list, err := c.usecase.GetDashboard(desaID, role)
-    if err != nil {
-        return ctx.JSON(http.StatusInternalServerError, models.Response{
-            StatusCode: 500,
-            Message:    err.Error(),
-        })
-    }
+	list, err := c.usecase.GetDashboard(desaID, role)
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, models.Response{
+			StatusCode: 500,
+			Message:    err.Error(),
+		})
+	}
 
-    return ctx.JSON(http.StatusOK, models.Response{
-        StatusCode: 200,
-        Message:    "Dashboard ibu hamil",
-        Data:       list,
-    })
+	return ctx.JSON(http.StatusOK, models.Response{
+		StatusCode: 200,
+		Message:    "Dashboard ibu hamil",
+		Data:       list,
+	})
 }
 
 // GetByPendudukID - Cek apakah penduduk sudah terdaftar sebagai ibu
+// ibu_controller.go - GetByPendudukID
 func (c *IbuController) GetByPendudukID(ctx echo.Context) error {
 	pendudukID, err := strconv.ParseInt(ctx.Param("pendudukId"), 10, 32)
 	if err != nil {
@@ -273,9 +274,11 @@ func (c *IbuController) GetByPendudukID(ctx echo.Context) error {
 
 	ibu, err := c.usecase.GetByPendudukID(int32(pendudukID))
 	if err != nil {
-		return ctx.JSON(http.StatusInternalServerError, models.Response{
-			StatusCode: http.StatusInternalServerError,
-			Message:    "Terjadi kesalahan: " + err.Error(),
+		// ✅ Jika record not found, return 200 dengan data nil (bukan 500)
+		return ctx.JSON(http.StatusOK, models.Response{
+			StatusCode: http.StatusOK,
+			Message:    "Penduduk belum terdaftar sebagai ibu",
+			Data:       nil,
 		})
 	}
 

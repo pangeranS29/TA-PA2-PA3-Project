@@ -68,26 +68,6 @@ func (m *Main) GenerateJadwalImunisasi(
 
 		for _, rule := range aturanList {
 
-			// if umurHari < int(rule.MinUsiaHari) {
-
-			// 	fmt.Println(
-			// 		"SKIP: umur kurang",
-			// 		umurHari,
-			// 		"<",
-			// 		rule.MinUsiaHari,
-			// 	)
-
-			// 	continue
-			// }
-
-			// if rule.MaxUsiaHari > 0 &&
-			// 	umurHari > int(rule.MaxUsiaHari) {
-			// 	fmt.Println(
-			// 		"SKIP: umur melebihi batas",
-			// 	)
-			// 	continue
-			// }
-
 			alreadyExist, err :=
 				m.repository.IsJadwalExist(
 					anak.ID,
@@ -137,10 +117,6 @@ func (m *Main) GenerateJadwalImunisasi(
 					)
 			} else {
 
-				// if rule.MinUsiaHari == 0 {
-				// 	continue
-				// }
-
 				tanggalEstimasi =
 					anak.TanggalLahir.AddDate(
 						0,
@@ -188,6 +164,99 @@ func (m *Main) GenerateJadwalImunisasi(
 
 	_ = m.repository.UpdateJadwalStatus()
 
+	return nil
+}
+
+// ========== FUNGSI BARU: Generate jadwal untuk 1 anak saat anak baru ditambahkan ==========
+func (m *Main) GenerateJadwalImunisasiByAnakID(anakID int32) error {
+
+	fmt.Println("========== GENERATE BY ANAK ID ==========")
+	fmt.Println("ANAK ID:", anakID)
+
+	// ✅ Fix error 1: cast int32 → uint
+	anak, err := m.repository.GetAnakByID(uint(anakID))
+	if err != nil {
+		fmt.Println("ERROR GetAnakByID:", err)
+		return err
+	}
+
+	// ✅ Fix error 2: TanggalLahir ada di Penduduk, bukan di Anak
+	if anak.Penduduk == nil || anak.Penduduk.TanggalLahir.IsZero() {
+		fmt.Println("SKIP: TanggalLahir nil atau Penduduk tidak ditemukan")
+		return nil
+	}
+
+	tanggalLahir := anak.Penduduk.TanggalLahir // ← ambil dari sini
+
+	aturanList, err := m.repository.GetAturanVaksinAnak()
+	if err != nil {
+		return err
+	}
+
+	today := time.Now()
+
+	for _, rule := range aturanList {
+
+		alreadyExist, err := m.repository.IsJadwalExist(
+			anak.ID,
+			int64(rule.DosisVaksinID),
+		)
+		if err != nil {
+			return err
+		}
+		if alreadyExist {
+			fmt.Println("SKIP: jadwal sudah ada")
+			continue
+		}
+
+		var tanggalEstimasi time.Time
+
+		if rule.DosisSebelumnyaID != nil {
+			riwayat, err := m.repository.GetRiwayatImunisasi(
+				anak.ID,
+				int64(*rule.DosisSebelumnyaID),
+			)
+			if err != nil {
+				continue
+			}
+			if rule.MinIntervalHari == 0 {
+				continue
+			}
+			selisihHari := int(today.Sub(riwayat.TanggalDiberikan).Hours() / 24)
+			if selisihHari < int(rule.MinIntervalHari) {
+				continue
+			}
+			tanggalEstimasi = riwayat.TanggalDiberikan.AddDate(0, 0, int(rule.MinIntervalHari))
+		} else {
+			// ✅ gunakan tanggalLahir dari Penduduk
+			tanggalEstimasi = tanggalLahir.AddDate(0, 0, int(rule.MinUsiaHari))
+		}
+
+		statusID := calculateStatusID(tanggalEstimasi)
+
+		fmt.Println(
+			"CREATE JADWAL",
+			"Anak:", anak.ID,
+			"Dosis:", rule.DosisVaksinID,
+			"Tanggal:", tanggalEstimasi,
+			"Status:", statusID,
+		)
+
+		jadwal := &models.JadwalImunisasiAnak{
+			AnakID:          uint(anak.ID),
+			DosisVaksinID:   rule.DosisVaksinID,
+			TanggalEstimasi: &tanggalEstimasi,
+			StatusJadwalID:  uint(statusID),
+		}
+
+		if err := m.repository.CreateJadwalImunisasiAnak(jadwal); err != nil {
+			fmt.Println("ERROR INSERT:", err)
+			return err
+		}
+		fmt.Println("SUCCESS INSERT jadwal, dosis:", rule.DosisVaksinID)
+	}
+
+	_ = m.repository.UpdateJadwalStatus()
 	return nil
 }
 
