@@ -85,247 +85,208 @@
 // }
 
 import 'package:flutter/material.dart';
+import 'package:ta_pa2_pa3_project/core/themes/app_colors.dart';
+
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/catatan_pelayanan_t1_screen.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/catatan_pelayanan_t2_screen.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/catatan_pelayanan_t3_screen.dart';
 
-import 'package:ta_pa2_pa3_project/core/themes/app_colors.dart';
-class CatatanPelayananMenuScreen extends StatelessWidget {
+class CatatanPelayananMenuScreen extends StatefulWidget {
   const CatatanPelayananMenuScreen({super.key});
+
+  @override
+  State<CatatanPelayananMenuScreen> createState() =>
+      _CatatanPelayananMenuScreenState();
+}
+
+class _CatatanPelayananMenuScreenState
+    extends State<CatatanPelayananMenuScreen> {
+  int selectedIndex = 0;
+
+  final List<Widget> pages = const [
+    CatatanPelayananT1Screen(),
+    CatatanPelayananT2Screen(),
+    CatatanPelayananT3Screen(),
+  ];
+
+  final List<String> labels = const [
+    'Trimester 1',
+    'Trimester 2',
+    'Trimester 3',
+  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF4F8FF),
-      body: Column(
-        children: [
-          _buildHeader(context),
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 22),
+
+      body: SafeArea(
+        child: Column(
+          children: [
+            Container(
+              width: double.infinity,
+
+              padding: const EdgeInsets.fromLTRB(
+                20,
+                20,
+                20,
+                22,
+              ),
+
+              decoration: const BoxDecoration(
+                color: AppColors.primary,
+
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(28),
+                  bottomRight: Radius.circular(28),
+                ),
+              ),
+
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment:
+                    CrossAxisAlignment.start,
+
                 children: [
-                  const Text(
-                    "Pilih Trimester Pemeriksaan",
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  const SizedBox(height: 18),
+                  Row(
+                    children: [
+                      InkWell(
+                        onTap: () {
+                          Navigator.pop(context);
+                        },
 
-                  _card(
-                    context,
-                    title: "Catatan Pelayanan Trimester 1",
-                    subtitle: "Lihat catatan pemeriksaan awal kehamilan",
-                    icon: Icons.looks_one_outlined,
-                    color: AppColors.primary,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const CatatanPelayananT1Screen(),
-                        ),
-                      );
-                    },
-                  ),
+                        borderRadius:
+                            BorderRadius.circular(30),
 
-                  _card(
-                    context,
-                    title: "Catatan Pelayanan Trimester 2",
-                    subtitle: "Lihat catatan pemeriksaan pertengahan kehamilan",
-                    icon: Icons.looks_two_outlined,
-                    color: AppColors.primary,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const CatatanPelayananT2Screen(),
-                        ),
-                      );
-                    },
-                  ),
+                        child: Container(
+                          padding:
+                              const EdgeInsets.all(8),
 
-                  _card(
-                    context,
-                    title: "Catatan Pelayanan Trimester 3",
-                    subtitle: "Lihat catatan pemeriksaan menjelang persalinan",
-                    icon: Icons.looks_3_outlined,
-                    color: AppColors.primary,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const CatatanPelayananT3Screen(),
-                        ),
-                      );
-                    },
-                  ),
+                          decoration: BoxDecoration(
+                            color: Colors.white
+                                .withOpacity(0.15),
 
-                  const SizedBox(height: 28),
+                            shape: BoxShape.circle,
+                          ),
 
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.blue.shade50,
-                      borderRadius: BorderRadius.circular(18),
-                      border: Border.all(color: Colors.blue.shade100),
-                    ),
-                    child: const Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Icon(Icons.info_outline, color: AppColors.primary),
-                        SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            "Catatan pelayanan berisi hasil pemeriksaan yang dilakukan oleh bidan atau tenaga kesehatan selama masa kehamilan ibu.",
-                            style: TextStyle(
-                              fontSize: 12,
-                              height: 1.5,
-                              color: Colors.black87,
-                            ),
+                          child: const Icon(
+                            Icons.arrow_back_ios_new,
+                            color: Colors.white,
+                            size: 18,
                           ),
                         ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 30),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildHeader(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.only(top: 55, left: 20, right: 20, bottom: 28),
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [AppColors.primary, Color(0xFF3B82F6)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(28),
-          bottomRight: Radius.circular(28),
-        ),
-      ),
-      child: Row(
-        children: [
-          InkWell(
-            onTap: () => Navigator.pop(context),
-            borderRadius: BorderRadius.circular(30),
-            child: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.18),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 18),
-            ),
-          ),
-          const SizedBox(width: 14),
-          const Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Catatan Pelayanan",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                SizedBox(height: 4),
-                Text(
-                  "Riwayat pemeriksaan kehamilan per trimester",
-                  style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _card(
-    BuildContext context, {
-    required String title,
-    required String subtitle,
-    required IconData icon,
-    required Color color,
-    required VoidCallback onTap,
-  }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(22),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(22),
-          onTap: onTap,
-          child: Padding(
-            padding: const EdgeInsets.all(18),
-            child: Row(
-              children: [
-                Container(
-                  width: 52,
-                  height: 52,
-                  decoration: BoxDecoration(
-                    color: color.withOpacity(0.10),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Icon(icon, color: color, size: 28),
-                ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 15,
-                          color: Colors.black87,
-                        ),
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        subtitle,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey.shade600,
+
+                      const SizedBox(width: 14),
+
+                      const Expanded(
+                        child: Text(
+                          'Catatan Pelayanan',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight:
+                                FontWeight.bold,
+                          ),
                         ),
                       ),
                     ],
                   ),
-                ),
-                const Icon(Icons.chevron_right, color: Colors.grey),
-              ],
+
+                  const SizedBox(height: 20),
+
+                  Container(
+                    height: 54,
+
+                    padding: const EdgeInsets.all(5),
+
+                    decoration: BoxDecoration(
+                      color:
+                          Colors.white.withOpacity(0.14),
+
+                      borderRadius:
+                          BorderRadius.circular(18),
+                    ),
+
+                    child: Row(
+                      children: List.generate(
+                        labels.length,
+                        (index) {
+                          final selected =
+                              selectedIndex == index;
+
+                          return Expanded(
+                            child: GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  selectedIndex = index;
+                                });
+                              },
+
+                              child: AnimatedContainer(
+                                duration:
+                                    const Duration(
+                                  milliseconds: 220,
+                                ),
+
+                                margin:
+                                    const EdgeInsets.symmetric(
+                                  horizontal: 3,
+                                ),
+
+                                decoration: BoxDecoration(
+                                  color: selected
+                                      ? Colors.white
+                                      : Colors.transparent,
+
+                                  borderRadius:
+                                      BorderRadius.circular(
+                                    14,
+                                  ),
+                                ),
+
+                                child: Center(
+                                  child: Text(
+                                    labels[index],
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      fontWeight:
+                                          FontWeight.w700,
+
+                                      color: selected
+                                          ? AppColors
+                                              .primary
+                                          : Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
+
+            Expanded(
+              child: AnimatedSwitcher(
+                duration: const Duration(
+                  milliseconds: 250,
+                ),
+
+                child: Container(
+                  key: ValueKey(selectedIndex),
+
+                  margin:
+                      const EdgeInsets.only(top: 10),
+
+                  child: pages[selectedIndex],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

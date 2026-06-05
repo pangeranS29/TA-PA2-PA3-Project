@@ -14,6 +14,7 @@ import 'edukasi_imd_screen.dart';
 import 'edukasi_mental_screen.dart';
 import 'edukasi_nifas_screen.dart';
 import 'edukasi_trimester_detail_screen.dart';
+import 'edukasi_tanda_melahirkan_screen.dart';
 
 // --- IMPORT REPOSITORY DATABASE SUPABASE ASLI (100% UTUH & AMAN) ---
 import '../../data/models/edukasi_trimester_model.dart';
@@ -220,6 +221,12 @@ class _KontenEdukasiIbuScreenState extends State<KontenEdukasiIbuScreen> {
         'category': 'Nifas',
         'screen': const EdukasiNifasScreen(),
       },
+      {
+        'title': 'Edukasi Tanda Melahirkan',
+        'icon': Icons.pregnant_woman_rounded,
+        'category': 'Persalinan',
+        'screen': const EdukasiTandaMelahirkanScreen(),
+      },
     ];
 
     final filteredUmumData = edukasiUmum.where((item) {
@@ -263,7 +270,7 @@ class _KontenEdukasiIbuScreenState extends State<KontenEdukasiIbuScreen> {
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
             child: EdukasiSearchFilterLokal(
               selectedCategory: selectedCategory,
-              categories: const ['Semua', 'Trimester', 'Menyusui', 'Nifas', 'Kesehatan Mental'],
+              categories: const ['Semua', 'Trimester', 'Menyusui', 'Nifas', 'Persalinan', 'Kesehatan Mental'],
               onCategorySelected: (value) {
                 setState(() { selectedCategory = value; });
               },
