@@ -16,6 +16,10 @@ class ApiConstants {
     }
   }
 
+  // static String get  baseUrl {
+  //   return 'https://hosting-kia-production.up.railway.app';
+  // }
+
   static const String authLogin = '/auth/login';
   static const String authMe = '/auth/me';
 
@@ -159,7 +163,8 @@ class ApiConstants {
   static String get edukasiIMD => '$baseUrl/edukasi-imd';
   static String get edukasiKesehatanMental =>
       '$baseUrl/edukasi-kesehatan-mental';
-  static String get edukasiNifas => '$baseUrl/edukasi-nifas';
+  // static String get edukasiNifas => '$baseUrl/edukasi-nifas';
+  static String get edukasiNifas => '$baseUrl/edukasi-setelah-melahirkan';
   static String get edukasiTandaMelahirkan =>
       '$baseUrl/edukasi-tanda-melahirkan';
   static String edukasiTrimester(

@@ -73,16 +73,16 @@ const Sidebar = () => {
     { path: "/daftar-anak", name: "Data Anak Balita", icon: Baby },
     // { path: "/kependudukan", name: "Manajemen KK", icon: UserCheck },
     // { path: "/monitoring", name: "Monitoring", icon: Activity },
-    {
-      name: "Kesehatan Lingkungan",
-      icon: ClipboardList,
-      isDropdown: true,
-      dropdownKey: "kesehatanLingkungan",
-      children: [
-        { path: "/pencatatan/kesehatan-lingkungan", name: "Data Pencatatan", icon: TableProperties },
-        { path: "/pencatatan/kesehatan-lingkungan/kelola", name: "Kelola Pertanyaan", icon: ClipboardEdit },
-      ],
-    },
+    // {
+    //   name: "Kesehatan Lingkungan",
+    //   icon: ClipboardList,
+    //   isDropdown: true,
+    //   dropdownKey: "kesehatanLingkungan",
+    //   children: [
+    //     { path: "/pencatatan/kesehatan-lingkungan", name: "Data Pencatatan", icon: TableProperties },
+    //     { path: "/pencatatan/kesehatan-lingkungan/kelola", name: "Kelola Pertanyaan", icon: ClipboardEdit },
+    //   ],
+    // },
     {
       name: "Monitoring",
       icon: Activity,
@@ -132,8 +132,8 @@ const Sidebar = () => {
       isDropdown: true,
       dropdownKey: "pencatatanKesehatan",   // unique key untuk dropdown
       children: [
-        { path: "/pencatatan-kesehatan/anak", name: "Anak (0-12 tahun)", icon: Activity },
-        { path: "/pencatatan-kesehatan/remaja", name: "Remaja (13-18 tahun)", icon: Activity },
+        { path: "/pencatatan-kesehatan/anak", name: "Anak (5-9 tahun)", icon: Activity },
+        { path: "/pencatatan-kesehatan/remaja", name: "Remaja (10-18 tahun)", icon: Activity },
         { path: "/pencatatan-kesehatan/dewasa", name: "Dewasa (19-59 tahun)", icon: Activity },
         { path: "/pencatatan-kesehatan/lansia", name: "Lansia (≥60 tahun)", icon: Activity },
       ],

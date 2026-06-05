@@ -22,6 +22,9 @@ type PerawatanUsecase interface {
 	// KategoriCapaian operations
 	GetAllKategoriCapaian() ([]models.KategoriCapaian, error)
 	GetKategoriCapaianByRentangUsia(rentangUsia string) ([]models.KategoriCapaian, error)
+	CreateKategoriCapaian(req models.CreateKategoriCapaianRequest) (*models.KategoriCapaian, error)
+	UpdateKategoriCapaian(id uint, req models.UpdateKategoriCapaianRequest) (*models.KategoriCapaian, error)
+	DeleteKategoriCapaian(id uint) error
 
 	// Access control operations for ibu
 	CreatePerawatanForIbu(req models.CreatePerawatanRequest, userID int32) (*models.Perawatan, error)
@@ -224,6 +227,68 @@ func (u *perawatanUsecase) GetKategoriCapaianByRentangUsia(rentangUsia string) (
 		return nil, errors.New("rentang_usia tidak boleh kosong")
 	}
 	return u.repo.Perawatan.GetKategoriCapaianByRentangUsia(rentangUsia)
+}
+
+// CreateKategoriCapaian creates a new kategori capaian record
+func (u *perawatanUsecase) CreateKategoriCapaian(req models.CreateKategoriCapaianRequest) (*models.KategoriCapaian, error) {
+	if strings.TrimSpace(req.RentangUsia) == "" {
+		return nil, errors.New("rentang_usia tidak boleh kosong")
+	}
+	if strings.TrimSpace(req.PertanyaanCeklist) == "" {
+		return nil, errors.New("pertanyaan_ceklist tidak boleh kosong")
+	}
+
+	data := &models.KategoriCapaian{
+		RentangUsia:        strings.TrimSpace(req.RentangUsia),
+		PertanyaaanCeklist: strings.TrimSpace(req.PertanyaanCeklist),
+		Aspek:              strings.TrimSpace(req.Aspek),
+	}
+
+	if err := u.repo.Perawatan.CreateKategoriCapaian(data); err != nil {
+		return nil, err
+	}
+
+	return u.repo.Perawatan.GetKategoriCapaianByID(data.ID)
+}
+
+// UpdateKategoriCapaian updates an existing kategori capaian record
+func (u *perawatanUsecase) UpdateKategoriCapaian(id uint, req models.UpdateKategoriCapaianRequest) (*models.KategoriCapaian, error) {
+	if id == 0 {
+		return nil, errors.New("id tidak valid")
+	}
+
+	existing, err := u.repo.Perawatan.GetKategoriCapaianByID(id)
+	if err != nil {
+		return nil, err
+	}
+
+	if strings.TrimSpace(req.RentangUsia) != "" {
+		existing.RentangUsia = strings.TrimSpace(req.RentangUsia)
+	}
+	if strings.TrimSpace(req.PertanyaanCeklist) != "" {
+		existing.PertanyaaanCeklist = strings.TrimSpace(req.PertanyaanCeklist)
+	}
+	if strings.TrimSpace(req.Aspek) != "" {
+		existing.Aspek = strings.TrimSpace(req.Aspek)
+	}
+
+	if err := u.repo.Perawatan.UpdateKategoriCapaian(existing); err != nil {
+		return nil, err
+	}
+
+	return u.repo.Perawatan.GetKategoriCapaianByID(id)
+}
+
+// DeleteKategoriCapaian soft-deletes a kategori capaian record
+func (u *perawatanUsecase) DeleteKategoriCapaian(id uint) error {
+	if id == 0 {
+		return errors.New("id tidak valid")
+	}
+	_, err := u.repo.Perawatan.GetKategoriCapaianByID(id)
+	if err != nil {
+		return err
+	}
+	return u.repo.Perawatan.DeleteKategoriCapaian(id)
 }
 
 // ─────────────────────────────────────────────────────────

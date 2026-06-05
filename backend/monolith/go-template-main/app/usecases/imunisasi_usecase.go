@@ -1,243 +1,307 @@
 package usecases
 
-// import (
-// 	"fmt"
-// 	"monitoring-service/app/models"
-// 	"time"
-// )
+import (
+	"fmt"
+	"monitoring-service/app/models"
+	"time"
+)
 
-// func (m *Main) GenerateJadwalImunisasi(
-// 	userID int32,
-// ) error {
+func (m *Main) GenerateJadwalImunisasi(
+	userID int32,
+) error {
 
-// 	fmt.Println("========== START GENERATE ==========")
-// 	fmt.Println("USER ID:", userID)
+	fmt.Println("========== START GENERATE ==========")
+	fmt.Println("USER ID:", userID)
 
-// 	anaks, err := m.repository.GetAnakByUserID(userID)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	fmt.Println("TOTAL ANAK:", len(anaks))
+	anaks, err := m.repository.GetAnakByUserID(userID)
+	if err != nil {
+		return err
+	}
+	fmt.Println("TOTAL ANAK:", len(anaks))
 
-// 	for _, a := range anaks {
-// 		fmt.Println(
-// 			"ANAK:",
-// 			a.ID,
-// 			"TanggalLahir:",
-// 			a.TanggalLahir,
-// 		)
-// 	}
+	for _, a := range anaks {
+		fmt.Println(
+			"ANAK:",
+			a.ID,
+			"TanggalLahir:",
+			a.TanggalLahir,
+		)
+	}
 
-// 	aturanList, err := m.repository.GetAturanVaksinAnak()
-// 	if err != nil {
-// 		return err
-// 	}
-// 	fmt.Println(
-// 		"TOTAL RULE:",
-// 		len(aturanList),
-// 	)
+	aturanList, err := m.repository.GetAturanVaksinAnak()
+	if err != nil {
+		return err
+	}
+	fmt.Println(
+		"TOTAL RULE:",
+		len(aturanList),
+	)
 
-// 	for _, r := range aturanList {
-// 		fmt.Println(
-// 			"RULE:",
-// 			r.ID,
-// 			r.DosisVaksinID,
-// 			r.MinUsiaHari,
-// 			r.MaxUsiaHari,
-// 		)
-// 	}
+	for _, r := range aturanList {
+		fmt.Println(
+			"RULE:",
+			r.ID,
+			r.DosisVaksinID,
+			r.MinUsiaHari,
+			r.MaxUsiaHari,
+		)
+	}
 
-// 	today := time.Now()
+	today := time.Now()
 
-// 	for _, anak := range anaks {
+	for _, anak := range anaks {
 
-// 		if anak.TanggalLahir == nil {
-// 			continue
-// 		}
+		if anak.TanggalLahir == nil {
+			continue
+		}
 
-// 		umurHari := int(
-// 			today.Sub(*anak.TanggalLahir).Hours() / 24,
-// 		)
+		umurHari := int(
+			today.Sub(*anak.TanggalLahir).Hours() / 24,
+		)
 
-// 		fmt.Println(
-// 			"ANAK ID:",
-// 			anak.ID,
-// 			"UMUR:",
-// 			umurHari,
-// 		)
+		fmt.Println(
+			"ANAK ID:",
+			anak.ID,
+			"UMUR:",
+			umurHari,
+		)
 
-// 		for _, rule := range aturanList {
+		for _, rule := range aturanList {
 
-// 			// if umurHari < int(rule.MinUsiaHari) {
+			alreadyExist, err :=
+				m.repository.IsJadwalExist(
+					anak.ID,
+					int64(rule.DosisVaksinID),
+				)
 
-// 			// 	fmt.Println(
-// 			// 		"SKIP: umur kurang",
-// 			// 		umurHari,
-// 			// 		"<",
-// 			// 		rule.MinUsiaHari,
-// 			// 	)
+			if err != nil {
+				return err
+			}
 
-// 			// 	continue
-// 			// }
+			if alreadyExist {
+				fmt.Println(
+					"SKIP: jadwal sudah ada",
+				)
+				continue
+			}
 
-// 			// if rule.MaxUsiaHari > 0 &&
-// 			// 	umurHari > int(rule.MaxUsiaHari) {
-// 			// 	fmt.Println(
-// 			// 		"SKIP: umur melebihi batas",
-// 			// 	)
-// 			// 	continue
-// 			// }
+			var tanggalEstimasi time.Time
 
-// 			alreadyExist, err :=
-// 				m.repository.IsJadwalExist(
-// 					anak.ID,
-// 					int64(rule.DosisVaksinID),
-// 				)
+			if rule.DosisSebelumnyaID != nil {
+				riwayat, err :=
+					m.repository.GetRiwayatImunisasi(
+						anak.ID,
+						int64(*rule.DosisSebelumnyaID),
+					)
 
-// 			if err != nil {
-// 				return err
-// 			}
+				if err != nil {
+					continue
+				}
+				if rule.MinIntervalHari == 0 {
+					continue
+				}
 
-// 			if alreadyExist {
-// 				fmt.Println(
-// 					"SKIP: jadwal sudah ada",
-// 				)
-// 				continue
-// 			}
+				selisihHari := int(
+					today.Sub(
+						riwayat.TanggalDiberikan,
+					).Hours() / 24,
+				)
+				if selisihHari < int(rule.MinIntervalHari) {
+					continue
+				}
+				tanggalEstimasi =
+					riwayat.TanggalDiberikan.AddDate(
+						0,
+						0,
+						int(rule.MinIntervalHari),
+					)
+			} else {
 
-// 			var tanggalEstimasi time.Time
+				tanggalEstimasi =
+					anak.TanggalLahir.AddDate(
+						0,
+						0,
+						int(rule.MinUsiaHari),
+					)
+			}
+			statusID := calculateStatusID(
+				tanggalEstimasi,
+			)
 
-// 			if rule.DosisSebelumnyaID != nil {
-// 				riwayat, err :=
-// 					m.repository.GetRiwayatImunisasi(
-// 						anak.ID,
-// 						int64(*rule.DosisSebelumnyaID),
-// 					)
+			fmt.Println(
+				"CREATE JADWAL",
+				"Anak:", anak.ID,
+				"Dosis:", rule.DosisVaksinID,
+				"Tanggal:", tanggalEstimasi,
+				"Status:", statusID,
+			)
 
-// 				if err != nil {
-// 					continue
-// 				}
-// 				if rule.MinIntervalHari == 0 {
-// 					continue
-// 				}
+			jadwal := &models.JadwalImunisasiAnak{
+				AnakID:          uint(anak.ID),
+				DosisVaksinID:   rule.DosisVaksinID,
+				TanggalEstimasi: &tanggalEstimasi,
+				StatusJadwalID:  uint(statusID),
+			}
+			err =
+				m.repository.
+					CreateJadwalImunisasiAnak(
+						jadwal,
+					)
 
-// 				selisihHari := int(
-// 					today.Sub(
-// 						riwayat.TanggalDiberikan,
-// 					).Hours() / 24,
-// 				)
-// 				if selisihHari < int(rule.MinIntervalHari) {
-// 					continue
-// 				}
-// 				tanggalEstimasi =
-// 					riwayat.TanggalDiberikan.AddDate(
-// 						0,
-// 						0,
-// 						int(rule.MinIntervalHari),
-// 					)
-// 			} else {
+			if err != nil {
+				fmt.Println(
+					"ERROR INSERT:",
+					err,
+				)
 
-// 				// if rule.MinUsiaHari == 0 {
-// 				// 	continue
-// 				// }
+				return err
+			}
+			fmt.Println(
+				"SUCCESS INSERT",
+			)
+		}
+	}
 
-// 				tanggalEstimasi =
-// 					anak.TanggalLahir.AddDate(
-// 						0,
-// 						0,
-// 						int(rule.MinUsiaHari),
-// 					)
-// 			}
-// 			statusID := calculateStatusID(
-// 				tanggalEstimasi,
-// 			)
+	_ = m.repository.UpdateJadwalStatus()
 
-// 			fmt.Println(
-// 				"CREATE JADWAL",
-// 				"Anak:", anak.ID,
-// 				"Dosis:", rule.DosisVaksinID,
-// 				"Tanggal:", tanggalEstimasi,
-// 				"Status:", statusID,
-// 			)
+	return nil
+}
 
-// 			jadwal := &models.JadwalImunisasiAnak{
-// 				AnakID:          uint(anak.ID),
-// 				DosisVaksinID:   rule.DosisVaksinID,
-// 				TanggalEstimasi: &tanggalEstimasi,
-// 				StatusJadwalID:  uint(statusID),
-// 			}
-// 			err =
-// 				m.repository.
-// 					CreateJadwalImunisasiAnak(
-// 						jadwal,
-// 					)
+// ========== FUNGSI BARU: Generate jadwal untuk 1 anak saat anak baru ditambahkan ==========
+func (m *Main) GenerateJadwalImunisasiByAnakID(anakID int32) error {
 
-// 			if err != nil {
-// 				fmt.Println(
-// 					"ERROR INSERT:",
-// 					err,
-// 				)
+	fmt.Println("========== GENERATE BY ANAK ID ==========")
+	fmt.Println("ANAK ID:", anakID)
 
-// 				return err
-// 			}
-// 			fmt.Println(
-// 				"SUCCESS INSERT",
-// 			)
-// 		}
-// 	}
+	// ✅ Fix error 1: cast int32 → uint
+	anak, err := m.repository.GetAnakByID(uint(anakID))
+	if err != nil {
+		fmt.Println("ERROR GetAnakByID:", err)
+		return err
+	}
 
-// 	_ = m.repository.UpdateJadwalStatus()
+	// ✅ Fix error 2: TanggalLahir ada di Penduduk, bukan di Anak
+	if anak.Penduduk == nil || anak.Penduduk.TanggalLahir.IsZero() {
+		fmt.Println("SKIP: TanggalLahir nil atau Penduduk tidak ditemukan")
+		return nil
+	}
 
-// 	return nil
-// }
+	tanggalLahir := anak.Penduduk.TanggalLahir // ← ambil dari sini
 
-// func calculateStatusID(
-// 	tanggalEstimasi time.Time,
-// ) int32 {
+	aturanList, err := m.repository.GetAturanVaksinAnak()
+	if err != nil {
+		return err
+	}
 
-// 	today := time.Now()
+	today := time.Now()
 
-// 	today = time.Date(
-// 		today.Year(),
-// 		today.Month(),
-// 		today.Day(),
-// 		0, 0, 0, 0,
-// 		today.Location(),
-// 	)
+	for _, rule := range aturanList {
 
-// 	tanggalEstimasi = time.Date(
-// 		tanggalEstimasi.Year(),
-// 		tanggalEstimasi.Month(),
-// 		tanggalEstimasi.Day(),
-// 		0, 0, 0, 0,
-// 		tanggalEstimasi.Location(),
-// 	)
+		alreadyExist, err := m.repository.IsJadwalExist(
+			anak.ID,
+			int64(rule.DosisVaksinID),
+		)
+		if err != nil {
+			return err
+		}
+		if alreadyExist {
+			fmt.Println("SKIP: jadwal sudah ada")
+			continue
+		}
 
-// 	diff := int(
-// 		tanggalEstimasi.Sub(today).
-// 			Hours() / 24,
-// 	)
+		var tanggalEstimasi time.Time
 
-// 	switch {
+		if rule.DosisSebelumnyaID != nil {
+			riwayat, err := m.repository.GetRiwayatImunisasi(
+				anak.ID,
+				int64(*rule.DosisSebelumnyaID),
+			)
+			if err != nil {
+				continue
+			}
+			if rule.MinIntervalHari == 0 {
+				continue
+			}
+			selisihHari := int(today.Sub(riwayat.TanggalDiberikan).Hours() / 24)
+			if selisihHari < int(rule.MinIntervalHari) {
+				continue
+			}
+			tanggalEstimasi = riwayat.TanggalDiberikan.AddDate(0, 0, int(rule.MinIntervalHari))
+		} else {
+			// ✅ gunakan tanggalLahir dari Penduduk
+			tanggalEstimasi = tanggalLahir.AddDate(0, 0, int(rule.MinUsiaHari))
+		}
 
-// 	// H-7 sampai H-1
-// 	case diff >= 1 && diff <= 7:
-// 		return 1 // mendekati
+		statusID := calculateStatusID(tanggalEstimasi)
 
-// 	// Hari H
-// 	case diff == 0:
-// 		return 2 // jatuh tempo
+		fmt.Println(
+			"CREATE JADWAL",
+			"Anak:", anak.ID,
+			"Dosis:", rule.DosisVaksinID,
+			"Tanggal:", tanggalEstimasi,
+			"Status:", statusID,
+		)
 
-// 	// H+1 sampai H+3
-// 	case diff >= -3:
-// 		return 3 // terlewat
+		jadwal := &models.JadwalImunisasiAnak{
+			AnakID:          uint(anak.ID),
+			DosisVaksinID:   rule.DosisVaksinID,
+			TanggalEstimasi: &tanggalEstimasi,
+			StatusJadwalID:  uint(statusID),
+		}
 
-// 	// H+4 sampai H+7
-// 	case diff >= -7:
-// 		return 4 // terlambat
+		if err := m.repository.CreateJadwalImunisasiAnak(jadwal); err != nil {
+			fmt.Println("ERROR INSERT:", err)
+			return err
+		}
+		fmt.Println("SUCCESS INSERT jadwal, dosis:", rule.DosisVaksinID)
+	}
 
-// 	// > H+14
-// 	default:
-// 		return 5 // krisis
-// 	}
-// }
+	_ = m.repository.UpdateJadwalStatus()
+	return nil
+}
+
+func calculateStatusID(
+	tanggalEstimasi time.Time,
+) int32 {
+
+	today := time.Now()
+
+	today = time.Date(
+		today.Year(),
+		today.Month(),
+		today.Day(),
+		0, 0, 0, 0,
+		today.Location(),
+	)
+
+	tanggalEstimasi = time.Date(
+		tanggalEstimasi.Year(),
+		tanggalEstimasi.Month(),
+		tanggalEstimasi.Day(),
+		0, 0, 0, 0,
+		tanggalEstimasi.Location(),
+	)
+
+	diff := int(
+		tanggalEstimasi.Sub(today).
+			Hours() / 24,
+	)
+
+	switch {
+
+	case diff >= 1 && diff <= 7:
+		return 1
+
+	case diff == 0:
+		return 2
+
+	case diff >= -3:
+		return 3
+
+	case diff >= -7:
+		return 4
+
+	default:
+		return 5
+	}
+}

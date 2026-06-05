@@ -1,4 +1,4 @@
-package models
+	package models
 
 type PrediksiRisikoRequest struct {
 	UsiaIbu           float64 `json:"usia_ibu"`

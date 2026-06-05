@@ -1,25 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
+
 import 'package:ta_pa2_pa3_project/core/themes/app_colors.dart';
 
 import '../../data/models/catatan_pelayanan_nifas_model.dart';
 import '../../data/repositories/catatan_pelayanan_nifas_repository.dart';
 import '../../data/services/catatan_pelayanan_nifas_service.dart';
 
-class CatatanPelayananNifasScreen extends StatefulWidget {
+class CatatanPelayananNifasScreen
+    extends StatefulWidget {
   const CatatanPelayananNifasScreen({
     super.key,
   });
 
   @override
-  State<CatatanPelayananNifasScreen> createState() =>
-      _CatatanPelayananNifasScreenState();
+  State<CatatanPelayananNifasScreen>
+      createState() =>
+          _CatatanPelayananNifasScreenState();
 }
 
 class _CatatanPelayananNifasScreenState
-    extends State<CatatanPelayananNifasScreen> {
-
+    extends State<
+        CatatanPelayananNifasScreen> {
   final repository =
       CatatanPelayananNifasRepository(
     CatatanPelayananNifasService(),
@@ -42,22 +45,18 @@ class _CatatanPelayananNifasScreenState
   }
 
   Future<void> loadData() async {
-
     setState(() {
       isLoading = true;
     });
 
     try {
-
       final result =
           await repository.getMine();
 
       setState(() {
         data = result;
       });
-
     } catch (e) {
-
       ScaffoldMessenger.of(context)
           .showSnackBar(
         SnackBar(
@@ -66,9 +65,7 @@ class _CatatanPelayananNifasScreenState
           ),
         ),
       );
-
     } finally {
-
       setState(() {
         isLoading = false;
       });
@@ -78,7 +75,6 @@ class _CatatanPelayananNifasScreenState
   String formatDate(
     DateTime? value,
   ) {
-
     if (value == null) {
       return '-';
     }
@@ -93,37 +89,62 @@ class _CatatanPelayananNifasScreenState
     String title,
     String value,
   ) {
+    return Container(
+      width: double.infinity,
 
-    return Padding(
-      padding: const EdgeInsets.only(
+      margin: const EdgeInsets.only(
         bottom: 14,
       ),
+
+      padding: const EdgeInsets.all(
+        14,
+      ),
+
+      decoration: BoxDecoration(
+        color: const Color(
+          0xFFF8FBFF,
+        ),
+
+        borderRadius:
+            BorderRadius.circular(
+          18,
+        ),
+
+        border: Border.all(
+          color: AppColors.primary
+              .withOpacity(0.08),
+        ),
+      ),
+
       child: Column(
         crossAxisAlignment:
             CrossAxisAlignment.start,
-        children: [
 
+        children: [
           Text(
             title,
+
             style: const TextStyle(
               fontWeight:
                   FontWeight.bold,
-              fontSize: 13,
-              color: Colors.black87,
+
+              fontSize: 12,
+
+              color:
+                  AppColors.primary,
             ),
           ),
 
-          const SizedBox(
-            height: 6,
-          ),
+          const SizedBox(height: 8),
 
           Text(
             value.isEmpty
                 ? '-'
                 : value,
+
             style: const TextStyle(
               fontSize: 13,
-              color: Colors.black54,
+              color: Colors.black87,
               height: 1.5,
             ),
           ),
@@ -136,7 +157,6 @@ class _CatatanPelayananNifasScreenState
   Widget build(
     BuildContext context,
   ) {
-
     return Scaffold(
       backgroundColor:
           const Color(0xFFF4F7FB),
@@ -144,16 +164,22 @@ class _CatatanPelayananNifasScreenState
       appBar: AppBar(
         title: const Text(
           'Catatan Pelayanan Nifas',
+
           style: TextStyle(
             color: Colors.white,
             fontWeight:
                 FontWeight.bold,
           ),
         ),
+
+        centerTitle: true,
+
         backgroundColor:
             AppColors.primary,
+
         foregroundColor:
             Colors.white,
+
         elevation: 0,
       ),
 
@@ -161,17 +187,13 @@ class _CatatanPelayananNifasScreenState
         onRefresh: loadData,
 
         child: isLoading
-
             ? const Center(
                 child:
                     CircularProgressIndicator(),
               )
-
             : data.isEmpty
-
                 ? ListView(
                     children: [
-
                       SizedBox(
                         height:
                             MediaQuery.of(
@@ -179,23 +201,82 @@ class _CatatanPelayananNifasScreenState
                                     )
                                     .size
                                     .height *
-                                0.3,
+                                0.25,
                       ),
 
-                      const Center(
-                        child: Text(
-                          'Belum ada catatan pelayanan nifas',
-                          style:
-                              TextStyle(
-                            color:
-                                Colors
+                      Center(
+                        child: Column(
+                          mainAxisAlignment:
+                              MainAxisAlignment
+                                  .center,
+
+                          children: [
+                            Container(
+                              width: 90,
+                              height: 90,
+
+                              decoration:
+                                  BoxDecoration(
+                                color: AppColors
+                                    .primary
+                                    .withOpacity(
+                                  0.08,
+                                ),
+
+                                borderRadius:
+                                    BorderRadius.circular(
+                                  24,
+                                ),
+                              ),
+
+                              child: const Icon(
+                                Icons
+                                    .description_outlined,
+
+                                color:
+                                    AppColors
+                                        .primary,
+
+                                size: 42,
+                              ),
+                            ),
+
+                            const SizedBox(
+                              height: 18,
+                            ),
+
+                            const Text(
+                              'Belum Ada Catatan Pelayanan',
+
+                              style:
+                                  TextStyle(
+                                fontSize: 16,
+                                fontWeight:
+                                    FontWeight
+                                        .bold,
+                              ),
+                            ),
+
+                            const SizedBox(
+                              height: 6,
+                            ),
+
+                            const Text(
+                              'Catatan pelayanan nifas akan muncul di sini',
+
+                              style:
+                                  TextStyle(
+                                color: Colors
                                     .black54,
-                          ),
+
+                                fontSize: 13,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
                   )
-
                 : ListView.builder(
                     padding:
                         const EdgeInsets.all(
@@ -210,7 +291,6 @@ class _CatatanPelayananNifasScreenState
                       context,
                       index,
                     ) {
-
                       final item =
                           data[index];
 
@@ -231,12 +311,11 @@ class _CatatanPelayananNifasScreenState
                           ),
 
                           boxShadow: [
-
                             BoxShadow(
-                              color: Colors
-                                  .black
+                              color: AppColors
+                                  .primary
                                   .withOpacity(
-                                0.05,
+                                0.08,
                               ),
 
                               blurRadius:
@@ -253,9 +332,9 @@ class _CatatanPelayananNifasScreenState
 
                         child: Column(
                           children: [
-
                             Container(
-                              width: double.infinity,
+                              width:
+                                  double.infinity,
 
                               padding:
                                   const EdgeInsets.all(
@@ -264,9 +343,26 @@ class _CatatanPelayananNifasScreenState
 
                               decoration:
                                   BoxDecoration(
-                                color:
+                                gradient:
+                                    LinearGradient(
+                                  colors: [
                                     AppColors
                                         .primary,
+
+                                    AppColors
+                                        .primary
+                                        .withOpacity(
+                                      0.82,
+                                    ),
+                                  ],
+
+                                  begin:
+                                      Alignment
+                                          .topLeft,
+
+                                  end: Alignment
+                                      .bottomRight,
+                                ),
 
                                 borderRadius:
                                     const BorderRadius.only(
@@ -284,10 +380,10 @@ class _CatatanPelayananNifasScreenState
 
                               child: Row(
                                 children: [
-
                                   const CircleAvatar(
                                     backgroundColor:
-                                        Colors.white,
+                                        Colors
+                                            .white,
 
                                     child: Icon(
                                       Icons
@@ -311,7 +407,6 @@ class _CatatanPelayananNifasScreenState
                                               .start,
 
                                       children: [
-
                                         const Text(
                                           'Catatan Pemeriksaan',
 
@@ -367,7 +462,6 @@ class _CatatanPelayananNifasScreenState
                                         .start,
 
                                 children: [
-
                                   buildItem(
                                     'Keluhan / Pemeriksaan / Tindakan / Saran',
 

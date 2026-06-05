@@ -42,7 +42,6 @@ import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/grafi
 import 'package:ta_pa2_pa3_project/features/edukasi/presentation/screens/edukasi_screen_all.dart';
 import 'package:ta_pa2_pa3_project/core/themes/app_colors.dart';
 import 'package:ta_pa2_pa3_project/core/services/auth_session.dart';
-import 'package:ta_pa2_pa3_project/features/ibu/nifas/presentation/screens/ringkasan_persalinan_screen.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/nifas/presentation/screens/pelayanan_ibu_nifas_screen.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/nifas/presentation/screens/catatan_pelayanan_nifas_screen.dart';
 import 'package:ta_pa2_pa3_project/features/profil/presentation/screens/profil_screen.dart';
@@ -50,14 +49,12 @@ import 'package:ta_pa2_pa3_project/features/absensi/presentation/screens/absensi
 // MODUL IMUNISASI
 import 'package:ta_pa2_pa3_project/features/ibu/imunisasi/data/services/imunisasi_service.dart';
 
-// edukasi 
+// edukasi
 import 'package:ta_pa2_pa3_project/features/edukasi/presentation/ibu/edukasi_asi_screen.dart';
 import 'package:ta_pa2_pa3_project/features/edukasi/presentation/ibu/edukasi_imd_screen.dart';
 
-
 import 'package:ta_pa2_pa3_project/features/anak/catatan/presentation/screens/pilih_catatan_screen.dart';
 import 'package:ta_pa2_pa3_project/features/anak/catatan/presentation/screens/Input_bbl.dart';
-
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -94,27 +91,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
     Future.delayed(const Duration(milliseconds: 300), () {
       if (mounted) _loadImunisasi();
     });
+    _loadRujukan();
   }
 
   Future<void> _loadRujukan() async {
     try {
+      final kehamilan = await _kehamilanService.getKehamilanAktif();
 
-      final kehamilan =
-          await _kehamilanService
-              .getKehamilanAktif();
-
-      final data =
-          await _kehamilanService
-              .getRujukanByKehamilanId(
-                kehamilan.id,
-              );
+      final data = await _kehamilanService.getRujukanByKehamilanId(
+        kehamilan.id,
+      );
 
       if (!mounted) return;
 
       setState(() {
         _rujukanList = data;
       });
-
     } catch (_) {}
   }
 
@@ -280,40 +272,25 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   String _getContextualGuidanceText() {
+    if (_selectedPhase == 'Hamil') {
+      final week = _kehamilanAktif?.ukKehamilanSaatIni ?? 0;
 
-  if (_selectedPhase == 'Hamil') {
-
-    final week =
-        _kehamilanAktif
-            ?.ukKehamilanSaatIni ??
-        0;
-
-    if (week > 0 && week <= 12) {
-      return 'Bunda sedang di Trimester 1. Yuk cek kondisi awal kehamilan dan perkembangan janinmu!';
+      if (week > 0 && week <= 12) {
+        return 'Bunda sedang di Trimester 1. Yuk cek kondisi awal kehamilan dan perkembangan janinmu!';
+      } else if (week > 12 && week <= 27) {
+        return 'Bunda sudah di Trimester 2. Yuk pantau pertumbuhan janin dan kesehatan Bunda!';
+      } else if (week > 27) {
+        return 'Trimester 3 sedang berjalan, Bun. Yuk cek kondisi kehamilanmu dan kesiapan persalinan!';
+      }
+    } else if (_selectedPhase == 'Nifas') {
+      return 'Masa nifas juga penting, Bun. Yuk cek pemulihan tubuh Bunda secara rutin!';
+    } else if (_selectedPhase == 'Menyusui') {
+      return 'Semangat memberi ASI ya, Bun! Yuk cek panduan dan kesehatan ibu menyusui.';
+    } else if (_selectedPhase == 'Tumbuh') {
+      return 'Yuk pantau pertumbuhan dan perkembangan si kecil sesuai usianya!';
     }
 
-    else if (week > 12 && week <= 27) {
-      return 'Bunda sudah di Trimester 2. Yuk pantau pertumbuhan janin dan kesehatan Bunda!';
-    }
-
-    else if (week > 27) {
-      return 'Trimester 3 sedang berjalan, Bun. Yuk cek kondisi kehamilanmu dan kesiapan persalinan!';
-    }
-  }
-
-  else if (_selectedPhase == 'Nifas') {
-    return 'Masa nifas juga penting, Bun. Yuk cek pemulihan tubuh Bunda secara rutin!';
-  }
-
-  else if (_selectedPhase == 'Menyusui') {
-    return 'Semangat memberi ASI ya, Bun! Yuk cek panduan dan kesehatan ibu menyusui.';
-  }
-
-  else if (_selectedPhase == 'Tumbuh') {
-    return 'Yuk pantau pertumbuhan dan perkembangan si kecil sesuai usianya!';
-  }
-
-  return 'Yuk cek kondisi kesehatan Bunda dan si kecil hari ini!';
+    return 'Yuk cek kondisi kesehatan Bunda dan si kecil hari ini!';
   }
 
   @override
@@ -407,24 +384,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget _buildNifasShortcut() {
     return Column(
       children: [
-        DashboardMenuCard(
-          title: 'Ringkasan Pelayanan Proses Melahirkan',
-          subtitle: 'Lihat hasil pelayanan proses melahirkan',
-          icon: Icons.child_friendly_rounded,
-          iconColor: AppColors.primary,
-          onTap: () {
-            final token = AuthSession.token ?? '';
-
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => RingkasanPersalinanScreen(
-                  token: token,
-                ),
-              ),
-            );
-          },
-        ),
         const SizedBox(height: 16),
         DashboardMenuCard(
           title: 'Pemantauan Ibu Nifas',
@@ -438,9 +397,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
           ),
         ),
-        const SizedBox(height: 16),
         DashboardMenuCard(
-          title: 'Pelayanan Ibu Nifas',
+          title: 'Ringkasan Pelayanan Ibu Nifas',
           subtitle: 'Lihat catatan pelayanan ibu nifas',
           icon: Icons.medical_services_outlined,
           iconColor: AppColors.primary,
@@ -451,7 +409,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
           ),
         ),
-        const SizedBox(height: 16),
         DashboardMenuCard(
           title: 'Catatan Pelayanan Nifas',
           subtitle: 'Lihat catatan pemeriksaan dan saran nifas',
@@ -469,122 +426,78 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildMenyusuiShortcut() {
-  return Column(
-    crossAxisAlignment:
-        CrossAxisAlignment.start,
-
-    children: [
-
-      Container(
-        width: double.infinity,
-
-        padding:
-            const EdgeInsets.all(15),
-
-        decoration: BoxDecoration(
-
-          color:
-              const Color(0xFFE8F2FF),
-
-          borderRadius:
-              BorderRadius.circular(24),
-
-          border: Border.all(
-            color:
-                const Color(0xFFBFDBFE),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(15),
+          decoration: BoxDecoration(
+            color: const Color(0xFFE8F2FF),
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(
+              color: const Color(0xFFBFDBFE),
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Pelajari ASI eksklusif, IMD, dan tips menyusui untuk kesehatan ibu dan bayi.',
+                style: TextStyle(
+                  fontSize: 14,
+                  height: 1.5,
+                  color: Color(0xFF475569),
+                ),
+              ),
+            ],
           ),
         ),
-
-        child: Column(
-          crossAxisAlignment:
-              CrossAxisAlignment.start,
-
+        const SizedBox(height: 15),
+        Row(
           children: [
-
-            const Text(
-              'Pelajari ASI eksklusif, IMD, dan tips menyusui untuk kesehatan ibu dan bayi.',
-
-              style: TextStyle(
-                fontSize: 14,
-                height: 1.5,
-
-                color:
-                    Color(0xFF475569),
+            Expanded(
+              child: _buildMenyusuiMenu(
+                title: 'IMD',
+                subtitle: 'Inisiasi Menyusu Dini',
+                icon: Icons.child_friendly,
+                color: const Color(
+                  0xFF3B82F6,
+                ),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const EdukasiIMDScreen(),
+                    ),
+                  );
+                },
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _buildMenyusuiMenu(
+                title: 'ASI Eksklusif',
+                subtitle: 'Panduan menyusui',
+                icon: Icons.favorite,
+                color: const Color(
+                  0xFFEC4899,
+                ),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const EdukasiASIScreen(),
+                    ),
+                  );
+                },
               ),
             ),
           ],
         ),
-      ),
-
-      const SizedBox(height: 15),
-
-      Row(
-        children: [
-
-          Expanded(
-            child: _buildMenyusuiMenu(
-              title: 'IMD',
-
-              subtitle:
-                  'Inisiasi Menyusu Dini',
-
-              icon:
-                  Icons.child_friendly,
-
-              color:
-                  const Color(
-                    0xFF3B82F6,
-                  ),
-
-              onTap: () {
-
-                Navigator.push(
-                  context,
-
-                  MaterialPageRoute(
-                    builder: (_) =>
-                        const EdukasiIMDScreen(),
-                  ),
-                );
-              },
-            ),
-          ),
-
-          const SizedBox(width: 12),
-
-          Expanded(
-            child: _buildMenyusuiMenu(
-              title: 'ASI Eksklusif',
-
-              subtitle:
-                  'Panduan menyusui',
-
-              icon:
-                  Icons.favorite,
-
-              color:
-                  const Color(
-                    0xFFEC4899,
-                  ),
-
-              onTap: () {
-
-                Navigator.push(
-                  context,
-
-                  MaterialPageRoute(
-                    builder: (_) =>
-                        const EdukasiASIScreen(),
-                  ),
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-    ],
-  );
-}
+      ],
+    );
+  }
 
   Widget _buildHamilContent() {
     return Column(
@@ -617,7 +530,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ],
           ),
         ),
-        
+
         // Progress kehamilan — klik navigasi ke JourneyScreen
         InkWell(
           borderRadius: BorderRadius.circular(20),
@@ -733,21 +646,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ),
         DashboardMenuCard(
           title: 'Surat Rekomendasi Rujukan',
-
-          subtitle:
-              _rujukanList.isNotEmpty
-                  ? '${_rujukanList.length} surat rujukan tersedia'
-                  : 'Belum ada surat rekomendasi rujukan saat ini',
-
+          subtitle: _rujukanList.isNotEmpty
+              ? '${_rujukanList.length} surat rujukan tersedia'
+              : 'Belum ada surat rekomendasi rujukan saat ini',
           icon: Icons.description_outlined,
-
           iconColor: AppColors.blue500,
-
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (_) =>
-                  const RujukanListScreen(),
+              builder: (_) => const RujukanListScreen(),
             ),
           ),
         ),
@@ -778,7 +685,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         //         if (item['key'] == 'absensi') {
         //           Navigator.push(context,
         //               MaterialPageRoute(builder: (_) => const AbsensiKelasIbuHamilScreen()));
-        //           return;  
+        //           return;
         //         }
         //         if (item['key'] == 'catatan') {
         //           Navigator.push(context,
@@ -935,10 +842,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey)),
         const SizedBox(height: 16),
 
-        // [MODUL: ANAK] Card Berat Badan Lahir (BBL)
+        // [MODUL: ANAK] Card Bayi Baru Lahir (BBL)
         DashboardMenuCard(
-          title: 'Berat Badan Lahir (BBL)',
-          subtitle: 'Catat Berat badan lahir anak sebagai data awal pertumbuhan.',
+          title: 'Bayi Baru Lahir (BBL)',
+          subtitle: 'Catat data Bayi Baru Lahir anak untuk awal pemantauan.',
           icon: Icons.scale_outlined,
           iconColor: const Color(0xFF3B82F6),
           onTap: () {
@@ -1012,7 +919,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => const PilihAnakScreen(tujuan: 'catatan'),
+                        builder: (_) =>
+                            const PilihAnakScreen(tujuan: 'catatan'),
                       ),
                     );
                     break;
@@ -1129,328 +1037,203 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
     );
   }
-  
 
   // ─────────────────────────────────────────────
   // [MODUL: IBU - Hamil] Banner surat rujukan
   // ─────────────────────────────────────────────
 
   Widget _buildPemeriksaanIbuCard() {
-
-  return Container(
-
-    padding: const EdgeInsets.all(16),
-
-    decoration: BoxDecoration(
-
-      color: const Color(0xFFEFF6FF),
-
-      borderRadius:
-          BorderRadius.circular(18),
-
-      border: Border.all(
-        color: Colors.blue.shade100,
-      ),
-    ),
-
-    child: Column(
-
-      crossAxisAlignment:
-          CrossAxisAlignment.start,
-
-      children: [
-
-        Row(
-          children: [
-
-            Container(
-
-              padding:
-                  const EdgeInsets.all(10),
-
-              decoration: BoxDecoration(
-                color: Colors.blue.shade100,
-
-                borderRadius:
-                    BorderRadius.circular(
-                        14),
-              ),
-
-              child: Icon(
-                Icons.monitor_heart_outlined,
-
-                color: Colors.blue.shade700,
-              ),
-            ),
-
-            const SizedBox(width: 12),
-
-            Expanded(
-
-              child: Column(
-
-                crossAxisAlignment:
-                    CrossAxisAlignment.start,
-
-                children: [
-
-                  Text(
-                    "Pemeriksaan Ibu",
-
-                    style: TextStyle(
-                      fontSize: 14,
-
-                      fontWeight:
-                          FontWeight.bold,
-
-                      color:
-                          Colors.blue.shade900,
-                    ),
-                  ),
-
-                  const SizedBox(height: 4),
-
-                  Text(
-                    "Pantau hasil evaluasi kesehatan dan skrining kehamilan Ibu.",
-
-                    style: TextStyle(
-                      fontSize: 11,
-                      height: 1.4,
-
-                      color:
-                          Colors.blue.shade700,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-
-        const SizedBox(height: 16),
-
-        Row(
-          children: [
-
-            Expanded(
-              child: _menuPemeriksaan(
-                title:
-                    "Evaluasi\nKesehatan",
-
-                icon:
-                    Icons.health_and_safety_outlined,
-
-                onTap: () {
-
-                  Navigator.push(
-                    context,
-
-                    MaterialPageRoute(
-                      builder: (_) =>
-                          const HasilEvaluasiKesehatanScreen(),
-                    ),
-                  );
-
-                },
-              ),
-            ),
-
-            const SizedBox(width: 12),
-
-            Expanded(
-              child: _menuPemeriksaan(
-                title:
-                    "Skrining\nPreeklampsia",
-
-                icon:
-                    Icons.favorite_border,
-
-                onTap: () {
-
-                  Navigator.push(
-                    context,
-
-                    MaterialPageRoute(
-                      builder: (_) =>
-                          const SkriningPreeklampsiaScreen(),
-                    ),
-                  );
-
-                },
-              ),
-            ),
-          ],
-        ),
-      ],
-    ),
-  );
-}
-Widget _menuPemeriksaan({
-
-  required String title,
-  required IconData icon,
-  required VoidCallback onTap,
-
-}) {
-
-  return InkWell(
-
-    borderRadius:
-        BorderRadius.circular(14),
-
-    onTap: onTap,
-
-    child: Container(
-
-      padding: const EdgeInsets.symmetric(
-        vertical: 14,
-      ),
-
+    return Container(
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-
-        color: Colors.white,
-
-        borderRadius:
-            BorderRadius.circular(14),
-
+        color: const Color(0xFFEFF6FF),
+        borderRadius: BorderRadius.circular(18),
         border: Border.all(
           color: Colors.blue.shade100,
         ),
       ),
-
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-
-          Icon(
-            icon,
-            color: Colors.blue.shade700,
-            size: 24,
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.blue.shade100,
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Icon(
+                  Icons.monitor_heart_outlined,
+                  color: Colors.blue.shade700,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Pemeriksaan Ibu",
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.blue.shade900,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      "Pantau hasil evaluasi kesehatan dan skrining kehamilan Ibu.",
+                      style: TextStyle(
+                        fontSize: 11,
+                        height: 1.4,
+                        color: Colors.blue.shade700,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-
-          const SizedBox(height: 8),
-
-          Text(
-            title,
-
-            textAlign: TextAlign.center,
-
-            style: TextStyle(
-              fontSize: 11,
-
-              fontWeight: FontWeight.w600,
-
-              color: Colors.blue.shade900,
-            ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: _menuPemeriksaan(
+                  title: "Evaluasi\nKesehatan",
+                  icon: Icons.health_and_safety_outlined,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const HasilEvaluasiKesehatanScreen(),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _menuPemeriksaan(
+                  title: "Skrining\nPreeklampsia",
+                  icon: Icons.favorite_border,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const SkriningPreeklampsiaScreen(),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
           ),
         ],
       ),
-    ),
-  );
-}
+    );
+  }
 
-Widget _buildMenyusuiMenu({
-
-  required String title,
-  required String subtitle,
-  required IconData icon,
-  required Color color,
-  required VoidCallback onTap,
-
-}) {
-
-  return InkWell(
-
-    borderRadius:
-        BorderRadius.circular(20),
-
-    onTap: onTap,
-
-    child: Container(
-
-      padding:
-          const EdgeInsets.all(16),
-
-      decoration: BoxDecoration(
-
-        color: Colors.white,
-
-        borderRadius:
-            BorderRadius.circular(22),
-
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black
-                .withOpacity(0.04),
-
-            blurRadius: 10,
-
-            offset:
-                const Offset(0, 4),
+  Widget _menuPemeriksaan({
+    required String title,
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(14),
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+          vertical: 14,
+        ),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: Colors.blue.shade100,
           ),
-        ],
-      ),
-
-      child: Column(
-
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
-
-        children: [
-
-          Container(
-
-            padding:
-                const EdgeInsets.all(10),
-
-            decoration: BoxDecoration(
-
-              color:
-                  color.withOpacity(
-                      0.12),
-
-              borderRadius:
-                  BorderRadius.circular(
-                      14),
-            ),
-
-            child: Icon(
+        ),
+        child: Column(
+          children: [
+            Icon(
               icon,
-              color: color,
+              color: Colors.blue.shade700,
               size: 24,
             ),
-          ),
-
-          const SizedBox(height: 14),
-
-          Text(
-            title,
-
-            style: const TextStyle(
-              fontWeight:
-                  FontWeight.bold,
-
-              fontSize: 16,
+            const SizedBox(height: 8),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: Colors.blue.shade900,
+              ),
             ),
-          ),
-
-          const SizedBox(height: 4),
-
-          Text(
-            subtitle,
-
-            style: TextStyle(
-              fontSize: 12,
-
-              color:
-                  Colors.grey.shade600,
-
-              height: 1.4,
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 
+  Widget _buildMenyusuiMenu({
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(20),
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(22),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.12),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Icon(
+                icon,
+                color: color,
+                size: 24,
+              ),
+            ),
+            const SizedBox(height: 14),
+            Text(
+              title,
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              subtitle,
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.grey.shade600,
+                height: 1.4,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }

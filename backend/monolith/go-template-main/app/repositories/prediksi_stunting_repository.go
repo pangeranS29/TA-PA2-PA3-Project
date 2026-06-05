@@ -14,6 +14,7 @@ type PrediksiStuntingRepository interface {
 	GetPredictionByAnakID(anakID int32) ([]models.PrediksiStunting, error)
 	GetLatestPredictionByAnakID(anakID int32) (*models.PrediksiStunting, error)
 	UpdateAnakStatusPrediksi(anakID int32, status string) error
+	GetLatestPredictionsByAnakIDs(anakIDs []int32) (map[int32]string, error)
 }
 
 type prediksiStuntingRepository struct {
@@ -117,7 +118,39 @@ func (r *prediksiStuntingRepository) GetLatestPredictionByAnakID(anakID int32) (
 	return &prediction, nil
 }
 
-// UpdateAnakStatusPrediksi - perbarui status prediksi stunting terbaru di tabel anak
+// UpdateAnakStatusPrediksi - do nothing, as status is virtual and pulled dynamically from prediksi_stunting table
 func (r *prediksiStuntingRepository) UpdateAnakStatusPrediksi(anakID int32, status string) error {
-	return r.db.Model(&models.Anak{}).Where("id = ?", anakID).Update("status_prediksi", status).Error
+	return nil
 }
+
+// GetLatestPredictionsByAnakIDs mempermudah pengambilan status prediksi terbaru untuk sekelompok ID anak
+func (r *prediksiStuntingRepository) GetLatestPredictionsByAnakIDs(anakIDs []int32) (map[int32]string, error) {
+	if len(anakIDs) == 0 {
+		return make(map[int32]string), nil
+	}
+
+	type LatestPrediction struct {
+		AnakID         int32  `gorm:"column:anak_id"`
+		StatusPrediksi string `gorm:"column:status_prediksi"`
+	}
+	var predictions []LatestPrediction
+
+	// Query data stunting dengan ID terbesar (terbaru) untuk masing-masing anak ID
+	err := r.db.Table("prediksi_stunting").
+		Select("anak_id, status_prediksi").
+		Where("anak_id IN ? AND deleted_at IS NULL", anakIDs).
+		Where("id IN (SELECT MAX(id) FROM prediksi_stunting WHERE deleted_at IS NULL GROUP BY anak_id)").
+		Scan(&predictions).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	predMap := make(map[int32]string)
+	for _, p := range predictions {
+		predMap[p.AnakID] = p.StatusPrediksi
+	}
+
+	return predMap, nil
+}
+

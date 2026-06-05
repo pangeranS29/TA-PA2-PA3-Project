@@ -1,10 +1,11 @@
 package repositories
 
 import (
+	"fmt"
+	"strings"
 	"time"
 
 	"monitoring-service/app/models"
-	"strconv"
 	"monitoring-service/pkg/customerror"
 
 	"gorm.io/gorm"
@@ -33,50 +34,22 @@ func NewKategoriCapaianRepository(db *gorm.DB) KategoriCapaianRepository {
 
 func (r *kategoriCapaianRepository) FindAll() ([]models.KategoriCapaian, error) {
 	var data []models.KategoriCapaian
-	err := r.db.Preload("RentangUsia").Order("rentang_usia_id, id").Find(&data).Error
-	if err == nil {
-		for i := range data {
-			if data[i].RentangUsia != nil {
-				data[i].RentangUsiaStr = data[i].RentangUsia.NamaRentang
-			}
-		}
-	}
+	err := r.db.Order("rentang_usia, id").Find(&data).Error
 	return data, err
 }
 
 func (r *kategoriCapaianRepository) FindByID(id uint) (*models.KategoriCapaian, error) {
 	var data models.KategoriCapaian
-	err := r.db.Preload("RentangUsia").First(&data, id).Error
+	err := r.db.First(&data, id).Error
 	if err != nil {
 		return nil, err
-	}
-	if data.RentangUsia != nil {
-		data.RentangUsiaStr = data.RentangUsia.NamaRentang
 	}
 	return &data, nil
 }
 
 func (r *kategoriCapaianRepository) FindByRentangUsia(rentang string) ([]models.KategoriCapaian, error) {
 	var data []models.KategoriCapaian
-	query := r.db.
-		Joins("JOIN rentang_usia ON rentang_usia.id = kategori_capaian.rentang_usia_id").
-		Preload("RentangUsia").
-		Order("kategori_capaian.id")
-
-	if id, err := strconv.Atoi(rentang); err == nil {
-		query = query.Where("rentang_usia.id = ? OR rentang_usia.nama_rentang = ? OR CAST(kategori_capaian.rentang_usia_id AS VARCHAR) = ?", id, rentang, rentang)
-	} else {
-		query = query.Where("rentang_usia.nama_rentang = ? OR CAST(kategori_capaian.rentang_usia_id AS VARCHAR) = ?", rentang, rentang)
-	}
-
-	err := query.Find(&data).Error
-	if err == nil {
-		for i := range data {
-			if data[i].RentangUsia != nil {
-				data[i].RentangUsiaStr = data[i].RentangUsia.NamaRentang
-			}
-		}
-	}
+	err := r.db.Where("rentang_usia = ?", rentang).Order("id").Find(&data).Error
 	return data, err
 }
 
@@ -114,6 +87,9 @@ type PerawatanRepository interface {
 	GetAllKategoriCapaian() ([]models.KategoriCapaian, error)
 	GetKategoriCapaianByRentangUsia(rentangUsia string) ([]models.KategoriCapaian, error)
 	GetKategoriCapaianByID(id uint) (*models.KategoriCapaian, error)
+	CreateKategoriCapaian(data *models.KategoriCapaian) error
+	UpdateKategoriCapaian(data *models.KategoriCapaian) error
+	DeleteKategoriCapaian(id uint) error
 }
 
 // perawatanRepository is concrete implementation of PerawatanRepository
@@ -210,8 +186,8 @@ func (r *perawatanRepository) DeletePerawatan(id uint) error {
 func (r *perawatanRepository) GetAllKategoriCapaian() ([]models.KategoriCapaian, error) {
 	var result []models.KategoriCapaian
 	if err := r.db.
-		Where("deleted_at IS NULL").
-		Order("rentang_usia ASC, id ASC").
+		Where("kategori_capaian.deleted_at IS NULL").
+		Order("kategori_capaian.rentang_usia ASC, kategori_capaian.id ASC").
 		Find(&result).Error; err != nil {
 		return nil, customerror.NewInternalServiceError("gagal mengambil kategori capaian")
 	}
@@ -222,8 +198,8 @@ func (r *perawatanRepository) GetAllKategoriCapaian() ([]models.KategoriCapaian,
 func (r *perawatanRepository) GetKategoriCapaianByRentangUsia(rentangUsia string) ([]models.KategoriCapaian, error) {
 	var result []models.KategoriCapaian
 	if err := r.db.
-		Where("rentang_usia = ? AND deleted_at IS NULL", rentangUsia).
-		Order("id ASC").
+		Where("kategori_capaian.rentang_usia = ? AND kategori_capaian.deleted_at IS NULL", rentangUsia).
+		Order("kategori_capaian.id ASC").
 		Find(&result).Error; err != nil {
 		return nil, customerror.NewInternalServiceError("gagal mengambil kategori capaian")
 	}
@@ -244,6 +220,51 @@ func (r *perawatanRepository) GetKategoriCapaianByID(id uint) (*models.KategoriC
 		return nil, customerror.NewInternalServiceError("gagal mengambil kategori capaian")
 	}
 	return &result, nil
+}
+
+// CreateKategoriCapaian creates a new kategori capaian record
+func (r *perawatanRepository) CreateKategoriCapaian(data *models.KategoriCapaian) error {
+	// Sync the sequence first to avoid duplicate key issues in Postgres
+	_ = r.db.Exec("SELECT setval('kategori_capaian_id_seq', COALESCE((SELECT MAX(id) FROM kategori_capaian), 1))").Error
+
+	if err := r.db.Create(data).Error; err != nil {
+		fmt.Printf("[DEBUG] CreateKategoriCapaian error: %v\n", err)
+		fmt.Printf("[DEBUG] Data: rentang_usia=%q, pertanyaan_ceklist=%q, aspek=%q\n", data.RentangUsia, data.PertanyaaanCeklist, data.Aspek)
+		return customerror.NewInternalServiceError("gagal membuat kategori capaian: " + err.Error())
+	}
+
+	// Link rentang_usia_id if possible
+	var rentang models.RentangUsia
+	rentangName := strings.TrimSpace(data.RentangUsia)
+	if err := r.db.Where("nama_rentang ILIKE ? OR nama_rentang ILIKE ?", "%"+rentangName+"%", "%"+strings.ReplaceAll(rentangName, " Bulan", "")+"%").First(&rentang).Error; err == nil {
+		_ = r.db.Exec("UPDATE kategori_capaian SET rentang_usia_id = ? WHERE id = ?", rentang.ID, data.ID).Error
+	}
+
+	return nil
+}
+
+// UpdateKategoriCapaian updates an existing kategori capaian record
+func (r *perawatanRepository) UpdateKategoriCapaian(data *models.KategoriCapaian) error {
+	if err := r.db.Save(data).Error; err != nil {
+		return customerror.NewInternalServiceError("gagal mengubah kategori capaian: " + err.Error())
+	}
+
+	// Link/update rentang_usia_id if possible
+	var rentang models.RentangUsia
+	rentangName := strings.TrimSpace(data.RentangUsia)
+	if err := r.db.Where("nama_rentang ILIKE ? OR nama_rentang ILIKE ?", "%"+rentangName+"%", "%"+strings.ReplaceAll(rentangName, " Bulan", "")+"%").First(&rentang).Error; err == nil {
+		_ = r.db.Exec("UPDATE kategori_capaian SET rentang_usia_id = ? WHERE id = ?", rentang.ID, data.ID).Error
+	}
+
+	return nil
+}
+
+// DeleteKategoriCapaian soft deletes a kategori capaian record
+func (r *perawatanRepository) DeleteKategoriCapaian(id uint) error {
+	if err := r.db.Delete(&models.KategoriCapaian{}, id).Error; err != nil {
+		return customerror.NewInternalServiceError("gagal menghapus kategori capaian")
+	}
+	return nil
 }
 
 // ─────────────────────────────────────────────────────────

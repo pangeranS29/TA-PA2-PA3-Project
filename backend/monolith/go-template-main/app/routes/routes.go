@@ -11,6 +11,7 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	e.GET("/health", func(c echo.Context) error {
 		return c.JSON(200, map[string]string{"status": "ok"})
 	})
+	e.GET("/debug-antropometri", controller.DebugAntropometri)
 
 	// Auth routes
 	auth := e.Group("/auth")
@@ -43,6 +44,7 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	e.GET("/edukasi-perawatan-anak", controller.EdukasiPerawatanAnak.GetAll)
 	e.GET("/edukasi-perawatan-anak/:id", controller.EdukasiPerawatanAnak.GetByID)
 	// e.GET("/edukasi-nifas", controller.EdukasiNifas.GetAll)
+	e.GET("/edukasi-setelah-melahirkan", controller.EdukasiSetelahMelahirkan.GetAll) // Untuk edukasi ibu bagian Edukasi Nifas
 	e.GET("/edukasi-tanda-melahirkan", controller.EdukasiTandaMelahirkan.GetAll)
 	e.GET("/edukasi-trimester", controller.EdukasiTrimester.GetAll)
 	// e.GET("/edukasi-trimester/:trimester", controller.EdukasiTrimester.GetByTrimester)
@@ -134,17 +136,6 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	masterStandar.GET("", controller.GetMasterStandar)
 	masterStandar.POST("", controller.CreateMasterStandar)
 
-	// Kategori Capaian Routes
-	// kategoriCapaian := e.Group("/kategori-capaian")
-	// kategoriCapaian.Use(middlewares.JWTAuth(controller.JWTSecret()))
-	kategoriCapaian := e.Group("/kategori-capaian")
-	kategoriCapaian.Use(middlewares.JWTAuth(controller.JWTSecret()))
-	// kategoriCapaian.GET("", controller.GetAllKategoriCapaian)
-	// kategoriCapaian.GET("/:id", controller.GetKategoriCapaianById)
-	// kategoriCapaian.GET("/rentang-usia", controller.GetKategoriCapaianByRentangUsia)
-	// kategoriCapaian.POST("", controller.CreateKategoriCapaian)
-	// kategoriCapaian.PUT("/:id", controller.UpdateKategoriCapaian)
-	// kategoriCapaian.DELETE("/:id", controller.DeleteKategoriCapaian)
 
 	// Perkembangan Routes
 	// perkembangan := e.Group("/perkembangan")
@@ -177,7 +168,7 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 
 	tenaga.GET("/anak", controller.Anak.AdminList)
 	tenaga.POST("/anak", controller.Anak.Create, middlewares.BidanOnly())
-	// tenaga.POST("/anak/dengan-penduduk", controller.Anak.CreateDenganPenduduk)
+	tenaga.POST("/anak/dengan-penduduk", controller.Anak.CreateDenganPenduduk)
 	tenaga.GET("/anak/:id", controller.Anak.Detail)
 	tenaga.PUT("/anak/:id", controller.Anak.Update, middlewares.BidanOnly())
 	tenaga.DELETE("/anak/:id", controller.Anak.Delete, middlewares.BidanOnly())
@@ -288,21 +279,23 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	// tenaga.PUT("/kesehatan-lingkungan/:id/catatan-kader/:catatanId/kirim-mobile", controller.KesehatanLingkunganDanCatatanKader.KirimCatatanKeMobile)
 
 	// ==================== LINGKUNGAN (kategori & history) ====================
-	lingkungan := e.Group("/lingkungan")
-	lingkungan.Use(middlewares.JWTAuth(controller.JWTSecret()))
-	lingkungan.Use(middlewares.AuditTrail(controller.AuditTrail))
-	lingkungan.GET("/kategori", controller.KesehatanLingkungan.GetAllKategori)
-	lingkungan.GET("/history", controller.KesehatanLingkungan.GetHistory)
-	lingkungan.GET("/detail/:id", controller.KesehatanLingkungan.GetDetail)
-	lingkungan.POST("/submit", controller.KesehatanLingkungan.SubmitLembar)
+	// lingkungan := e.Group("/lingkungan")
+	// lingkungan.Use(middlewares.JWTAuth(controller.JWTSecret()))
+	// lingkungan.Use(middlewares.AuditTrail(controller.AuditTrail))
+	// lingkungan.GET("/kategori", controller.KesehatanLingkungan.GetAllKategori)
+	// lingkungan.GET("/history", controller.KesehatanLingkungan.GetHistory)
+	// lingkungan.GET("/detail/:id", controller.KesehatanLingkungan.GetDetail)
+	// lingkungan.POST("/submit", controller.KesehatanLingkungan.SubmitLembar)
 
-	tenaga.POST("/lingkungan/kategori", controller.KesehatanLingkungan.CreateKategori)
-	tenaga.DELETE("/lingkungan/kategori/:id", controller.KesehatanLingkungan.DeleteKategori)
-	tenaga.POST("/lingkungan/kategori/:id/indikator", controller.KesehatanLingkungan.AddIndikator)
-	tenaga.DELETE("/lingkungan/indikator/:id", controller.KesehatanLingkungan.DeleteIndikator)
-	tenaga.DELETE("/lingkungan/:id", controller.KesehatanLingkungan.DeleteLembar)
+	// tenaga.POST("/lingkungan/kategori", controller.KesehatanLingkungan.CreateKategori)
+	// tenaga.DELETE("/lingkungan/kategori/:id", controller.KesehatanLingkungan.DeleteKategori)
+	// tenaga.POST("/lingkungan/kategori/:id/indikator", controller.KesehatanLingkungan.AddIndikator)
+	// tenaga.DELETE("/lingkungan/indikator/:id", controller.KesehatanLingkungan.DeleteIndikator)
+	// tenaga.DELETE("/lingkungan/:id", controller.KesehatanLingkungan.DeleteLembar)
 
 	// ==================== EDUKASI DIGITAL ====================
+	tenaga.GET("/edukasi-informasi-umum", controller.EdukasiInformasiUmum.GetAll)
+	tenaga.GET("/edukasi-informasi-umum/:id", controller.EdukasiInformasiUmum.GetByID)
 	tenaga.POST("/edukasi-informasi-umum", controller.EdukasiInformasiUmum.Create)
 	tenaga.PUT("/edukasi-informasi-umum/:id", controller.EdukasiInformasiUmum.Update)
 	tenaga.DELETE("/edukasi-informasi-umum/:id", controller.EdukasiInformasiUmum.Delete)
@@ -355,11 +348,11 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	tenaga.PUT("/edukasi-perawatan-anak/:id", controller.EdukasiPerawatanAnak.Update)
 	tenaga.DELETE("/edukasi-perawatan-anak/:id", controller.EdukasiPerawatanAnak.Delete)
 
-	// tenaga.GET("/edukasi-mpasi", controller.EdukasiMPASI.GetAll)
-	// tenaga.POST("/edukasi-mpasi", controller.EdukasiMPASI.Create)
-	// tenaga.GET("/edukasi-mpasi/:id", controller.EdukasiMPASI.GetByID)
-	// tenaga.PUT("/edukasi-mpasi/:id", controller.EdukasiMPASI.Update)
-	// tenaga.DELETE("/edukasi-mpasi/:id", controller.EdukasiMPASI.Delete)
+	tenaga.GET("/edukasi-mpasi", controller.EdukasiMPASI.GetMateriAll)
+	tenaga.POST("/edukasi-mpasi", controller.EdukasiMPASI.CreateMateri)
+	tenaga.GET("/edukasi-mpasi/:id", controller.EdukasiMPASI.GetMateriByID)
+	tenaga.PUT("/edukasi-mpasi/:id", controller.EdukasiMPASI.UpdateMateri)
+	tenaga.DELETE("/edukasi-mpasi/:id", controller.EdukasiMPASI.DeleteMateri)
 
 	// MPASI Sub-modules
 	tenaga.GET("/edukasi-mpasi-aturan-porsi", controller.EdukasiAturanPorsiMPASI.GetAll)
@@ -391,13 +384,11 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	// admin.POST("/kader/:id/akun", controller.AdminCreateAkunKader)  // belum diimplementasi
 	// ==================== PERAWATAN ANAK (MILESTONE/PERKEMBANGAN) ====================
 	tenaga.GET("/kategori-capaian", controller.GetAllKategoriCapaian)
+	tenaga.POST("/kategori-capaian", controller.CreateKategoriCapaian)
+	tenaga.PUT("/kategori-capaian/:id", controller.UpdateKategoriCapaian)
+	tenaga.DELETE("/kategori-capaian/:id", controller.DeleteKategoriCapaian)
 	tenaga.GET("/kategori-capaian/rentang-usia/:rentang_usia", controller.GetKategoriCapaianByRentangUsia)
-	tenaga.GET("/perawatan/:id", controller.GetPerawatanByID)
-	tenaga.GET("/perawatan/anak/:anak_id", controller.GetPerawatanByAnakID)
-	tenaga.GET("/perawatan/anak/:anak_id/rentang-usia/:rentang_usia", controller.GetPerawatanByAnakIDAndRentangUsia)
-	tenaga.POST("/perawatan", controller.CreatePerawatan)
-	tenaga.PUT("/perawatan/:id", controller.UpdatePerawatan)
-	tenaga.DELETE("/perawatan/:id", controller.DeletePerawatan)
+	// Note: GET/POST/PUT/DELETE /perawatan routes are already registered above (lines 264-268)
 
 	// ==================== LEMBAR PEMANTAUAN ANAK ====================
 	pemantauanLembar := e.Group("/tenaga-kesehatan")
@@ -414,10 +405,10 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	tenaga.POST("/ibu", controller.Ibu.Create)
 	tenaga.GET("/ibu", controller.Ibu.GetAll)
 	tenaga.GET("/ibuk", controller.Ibu.GetDashboard)
+	tenaga.GET("/ibu/by-penduduk/:pendudukId", controller.Ibu.GetByPendudukID)
 	tenaga.GET("/ibu/:id", controller.Ibu.GetByID)
 	tenaga.PUT("/ibu/:id", controller.Ibu.Update)
 	tenaga.DELETE("/ibu/:id", controller.Ibu.Delete)
-	tenaga.GET("/ibu/by-penduduk/:pendudukId", controller.Ibu.GetByPendudukID)
 
 	tenaga.POST("/kehamilan", controller.Kehamilan.Create)
 	tenaga.GET("/kehamilan/all", controller.Kehamilan.GetAll)
@@ -635,6 +626,10 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	// untuk laporan ibu
 	tenaga.GET("/laporan/ibu/preview", controller.LaporanIbu.Preview)
 	tenaga.GET("/laporan/ibu/export/excel", controller.LaporanIbu.ExportExcel)
+
+	// untuk laporan anak
+	tenaga.GET("/laporan/anak/preview", controller.LaporanAnak.Preview)
+	tenaga.GET("/laporan/anak/export/excel", controller.LaporanAnak.ExportExcel)
 	//==== IBU ====
 	ibu := e.Group("/ibu")
 	ibu.Use(middlewares.JWTAuth(controller.JWTSecret()))
@@ -777,6 +772,8 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	ibu.POST("/bbl/anak/:anak_id", controller.Bbl.Upsert)
 	tenaga.GET("/bbl/anak/:anak_id", controller.Bbl.GetByAnakID)
 	tenaga.POST("/bbl/anak/:anak_id", controller.Bbl.Upsert)
+	tenaga.PUT("/bbl/anak/:anak_id/verifikasi", controller.Bbl.Verify)
+	tenaga.GET("/bbl", controller.Bbl.GetAll)
 
 	// ==================== PERTUMBUHAN ANAK (IBU) ====================
 	ibu.GET("/pertumbuhan/anak/:anak_id", controller.GetRiwayatPertumbuhan)
@@ -804,11 +801,10 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	ibu.GET("/jadwal-imunisasi/:id", controller.GetJadwalByID)
 	ibu.PUT("/jadwal-imunisasi/:id/selesai", controller.SetJadwalSelesai)
 
-		// Request Perubahan Jadwal Imunisasi Ibu
+	// Request Perubahan Jadwal Imunisasi Ibu
 	ibu.POST("/jadwal-imunisasi/:id/request-perubahan", controller.RequestPerubahanJadwal)
 	ibu.POST("/test-fcm", controller.TestFCM)
 	ibu.POST("/test-reminder", controller.TestReminder)
-
 
 	kader := e.Group("/kader")
 	kader.Use(middlewares.JWTAuth(controller.JWTSecret()))
@@ -823,6 +819,10 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	// Absensi Kelas Ibu Balita (Kader)
 	kader.GET("/absensi-kelas-ibu-balita", controller.AbsensiKelasIbuBalita.GetAll)
 	kader.PUT("/absensi-kelas-ibu-balita/:id/verifikasi", controller.AbsensiKelasIbuBalita.Verify)
+
+	kader.GET("/bbl/anak/:anak_id", controller.Bbl.GetByAnakID)
+	kader.PUT("/bbl/anak/:anak_id/verifikasi", controller.Bbl.Verify)
+	kader.GET("/bbl", controller.Bbl.GetAll)
 
 	// ==================== KELUHAN ANAK ====================
 	ibu.GET("/keluhan-anak", controller.KeluhanAnak.GetByAnakIDForIbu)

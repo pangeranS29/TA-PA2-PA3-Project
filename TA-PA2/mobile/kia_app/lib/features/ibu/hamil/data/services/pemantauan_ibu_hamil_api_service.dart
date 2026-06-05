@@ -16,33 +16,53 @@ class PemantauanIbuHamilApiService {
 
   Future<List<PemantauanIbuHamilModel>> getMine() async {
     final response = await _client.get(
-      Uri.parse('${ApiConstants.baseUrl}/modul-ibu/pemantauan-ibu-hamil/me'),
+      Uri.parse(
+        '${ApiConstants.baseUrl}/modul-ibu/pemantauan-ibu-hamil/me',
+      ),
       headers: _headers,
     );
 
     final body = jsonDecode(response.body);
 
-    if (response.statusCode >= 200 && response.statusCode < 300) {
+    if (response.statusCode >= 200 &&
+        response.statusCode < 300) {
       final List data = body['data'] ?? [];
-      return data.map((e) => PemantauanIbuHamilModel.fromJson(e)).toList();
+
+      return data
+          .map(
+            (e) => PemantauanIbuHamilModel.fromJson(e),
+          )
+          .toList();
     }
 
     throw Exception(
-        body['message']?.toString() ?? 'Gagal memuat data pemantauan');
+      body['message']?.toString() ??
+          'Gagal memuat data pemantauan',
+    );
   }
 
-  Future<void> save(PemantauanIbuHamilModel model) async {
+  Future<void> save(
+    PemantauanIbuHamilModel model,
+  ) async {
     final response = await _client.post(
-      Uri.parse('${ApiConstants.baseUrl}/modul-ibu/pemantauan-ibu-hamil/me'),
+      Uri.parse(
+        '${ApiConstants.baseUrl}/modul-ibu/pemantauan-ibu-hamil',
+      ),
+
+      // Uri.parse('${ApiConstants.baseUrl}/modul-ibu/pemantauan-ibu-hamil/me'),
+      // Uri.parse('${ApiConstants.baseUrl}${ApiConstants.savePemantauanIbuHamil}'),
       headers: _headers,
       body: jsonEncode(model.toJson()),
     );
 
     final body = jsonDecode(response.body);
 
-    if (response.statusCode < 200 || response.statusCode >= 300) {
+    if (response.statusCode < 200 ||
+        response.statusCode >= 300) {
       throw Exception(
-          body['message']?.toString() ?? 'Gagal menyimpan pemantauan');
+        body['message']?.toString() ??
+            'Gagal menyimpan pemantauan',
+      );
     }
   }
 }

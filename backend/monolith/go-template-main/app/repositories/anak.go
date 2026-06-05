@@ -41,7 +41,6 @@ func (r *AnakRepository) FindAll() ([]models.Anak, error) {
 		return nil, err
 	}
 	return list, nil
-
 }
 
 // FindAllByDesaID mengambil data anak yang penduduknya berada di desa tertentu.
