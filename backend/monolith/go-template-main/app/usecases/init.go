@@ -3,6 +3,7 @@ package usecases
 //AbsensiKelasIbuBalita//
 import (
 	"context"
+	"fmt"
 	"log"
 
 	firebase "firebase.google.com/go/v4"
@@ -193,6 +194,11 @@ func Init(opts Options) *Main {
 	prediksiUc := NewPrediksiRisikoUsecase(mlURL)
 	// Inisialisasi usecase yang sudah ada
 	m.Anak = NewAnakUseCase(opts.Repository.Anak, opts.Repository.Kependudukan, opts.Repository.PrediksiStunting)
+	m.Anak.SetOnAnakCreated(func(anakID int32) {
+		if err := m.GenerateJadwalImunisasiByAnakID(anakID); err != nil {
+			fmt.Println("[AUTO JADWAL] ERROR:", err)
+		}
+	})
 	m.PelayananKesehatanAnak = NewPelayananKesehatanAnakUseCase(opts.Repository.PelayananKesehatanAnak)
 	m.Neonatus = NewPelayananNeonatusUseCase(opts.Repository.Neonatus)
 	m.KunjunganGizi = NewKunjunganGiziUseCase(opts.Repository.KunjunganGizi)
@@ -315,13 +321,11 @@ func Init(opts Options) *Main {
 	m.PemeriksaanRemaja = NewPemeriksaanRemajaUsecase(opts.Repository.PemeriksaanRemaja)
 	m.PemeriksaanDewasa = NewPemeriksaanDewasaUsecase(opts.Repository.PemeriksaanDewasa)
 	m.PemeriksaanLansia = NewPemeriksaanLansiaUsecase(opts.Repository.PemeriksaanLansia)
-	m.PendudukRisk = NewPendudukRiskUsecase(opts.Repository.PemeriksaanAnak, opts.Repository.PemeriksaanRemaja, opts.Repository.PemeriksaanDewasa, opts.Repository.PemeriksaanLansia)
+	m.PendudukRisk = NewPendudukRiskUsecase(opts.Repository.Pemeriksaan)
 	m.RiwayatCard = NewRiwayatCardUsecase(
 		opts.Repository.Kependudukan,
-		opts.Repository.PemeriksaanAnak,
-		opts.Repository.PemeriksaanRemaja,
-		opts.Repository.PemeriksaanDewasa,
-		opts.Repository.PemeriksaanLansia,
+		 opts.Repository.Pemeriksaan,
+
 	)
 	m.Pencatatan = NewPencatatanUsecase(
 		opts.Repository.Kependudukan,

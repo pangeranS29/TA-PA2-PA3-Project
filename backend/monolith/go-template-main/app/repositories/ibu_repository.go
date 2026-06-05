@@ -2,8 +2,9 @@ package repositories
 
 import (
 	"errors"
+	"monitoring-service/app/middlewares"
 	"monitoring-service/app/models"
-	"monitoring-service/app/middlewares" 
+
 	"gorm.io/gorm"
 )
 
@@ -65,6 +66,7 @@ func (r *IbuRepository) Delete(id int32) error {
 	}
 	return nil
 }
+
 // func (r *IbuRepository) FindByPendudukID(pendudukID int32) (*models.Ibu, error) {
 // 	var ibu models.Ibu
 
@@ -80,21 +82,27 @@ func (r *IbuRepository) Delete(id int32) error {
 // }
 
 func (r *IbuRepository) FindByPendudukID(pendudukID int32) (*models.Ibu, error) {
-    var ibu models.Ibu
-    err := r.db.
-        Where("penduduk_id = ?", pendudukID).
-        First(&ibu).Error
-    if err != nil {
-        return nil, err
-    }
+	var ibu models.Ibu
+	err := r.db.
+		Where("penduduk_id = ?", pendudukID).
+		First(&ibu).Error
 
-    // Load Kependudukan manual karena Preload tidak jalan
-    var kependudukan models.Kependudukan
-    if err := r.db.Where("id = ?", pendudukID).First(&kependudukan).Error; err == nil {
-        ibu.Kependudukan = &kependudukan
-    }
+	// ✅ Jika tidak ditemukan, return nil, nil (bukan error)
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, nil
+	}
 
-    return &ibu, nil
+	if err != nil {
+		return nil, err
+	}
+
+	// Load Kependudukan manual
+	var kependudukan models.Kependudukan
+	if err := r.db.Where("id = ?", pendudukID).First(&kependudukan).Error; err == nil {
+		ibu.Kependudukan = &kependudukan
+	}
+
+	return &ibu, nil
 }
 
 // func (r *IbuRepository) GetDashboard() ([]models.IbuDashboardDTO, error) {
@@ -154,11 +162,11 @@ func (r *IbuRepository) FindByPendudukID(pendudukID int32) (*models.Ibu, error) 
 // return result, err
 // }
 func (r *IbuRepository) GetDashboard(desaID *int32, role string) ([]models.IbuDashboardDTO, error) {
-    var result []models.IbuDashboardDTO
+	var result []models.IbuDashboardDTO
 
-    query := r.db.
-        Table("ibu i").
-        Select(`
+	query := r.db.
+		Table("ibu i").
+		Select(`
             i.id as id_ibu,
             kp.nama_lengkap,
             kp.dusun,
@@ -176,9 +184,9 @@ func (r *IbuRepository) GetDashboard(desaID *int32, role string) ([]models.IbuDa
             p.tes_lab_hb as hb,
             k.id as kehamilan_id
         `).
-        Joins(`JOIN penduduk kp ON kp.id = i.penduduk_id`).
-        Joins(`LEFT JOIN kehamilan k ON k.ibu_id = i.id AND k.deleted_at IS NULL`).
-        Joins(`
+		Joins(`JOIN penduduk kp ON kp.id = i.penduduk_id`).
+		Joins(`LEFT JOIN kehamilan k ON k.ibu_id = i.id AND k.deleted_at IS NULL`).
+		Joins(`
             LEFT JOIN pemeriksaan_kehamilan p ON p.id_periksa = (
                 SELECT p2.id_periksa
                 FROM pemeriksaan_kehamilan p2
@@ -191,13 +199,13 @@ func (r *IbuRepository) GetDashboard(desaID *int32, role string) ([]models.IbuDa
                 LIMIT 1
             )
         `).
-        Order(`i.created_at DESC, i.id ASC, k.id ASC, p.tanggal_periksa DESC`)
+		Order(`i.created_at DESC, i.id ASC, k.id ASC, p.tanggal_periksa DESC`)
 
-    // Filter desa hanya jika role TIDAK memiliki akses penuh
-    if !middlewares.HasFullAccess(role) && desaID != nil {
-        query = query.Where("kp.desa_id = ?", *desaID)
-    }
+	// Filter desa hanya jika role TIDAK memiliki akses penuh
+	if !middlewares.HasFullAccess(role) && desaID != nil {
+		query = query.Where("kp.desa_id = ?", *desaID)
+	}
 
-    err := query.Scan(&result).Error
-    return result, err
+	err := query.Scan(&result).Error
+	return result, err
 }

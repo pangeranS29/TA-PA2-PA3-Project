@@ -53,6 +53,7 @@ export default function EdukasiDigitalCrudPage({
   const location = useLocation();
   const params = useParams();
   const [rows, setRows] = useState([]);
+  const [mpasiMateriList, setMpasiMateriList] = useState([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [editingId, setEditingId] = useState(null);
@@ -109,6 +110,19 @@ export default function EdukasiDigitalCrudPage({
   useEffect(() => {
     if (view === "form") return;
     loadData();
+  }, [resourcePath, view]);
+
+  useEffect(() => {
+    if (view === "form") return;
+    if (["edukasi-mpasi-jadwal-harian", "edukasi-mpasi-aturan-porsi", "edukasi-mpasi-resep"].includes(resourcePath)) {
+      listEdukasi("edukasi-mpasi")
+        .then((data) => {
+          setMpasiMateriList(Array.isArray(data) ? data : []);
+        })
+        .catch((err) => {
+          console.error("Failed to load MPASI materials:", err);
+        });
+    }
   }, [resourcePath, view]);
 
   useEffect(() => {
@@ -287,7 +301,8 @@ export default function EdukasiDigitalCrudPage({
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    if (!form.judul.trim()) {
+    const isJudulRequired = !fields || fields.some(f => f.key === "judul");
+    if (isJudulRequired && (!form.judul || !form.judul.trim())) {
       setError("Judul wajib diisi");
       return;
     }
@@ -355,6 +370,45 @@ export default function EdukasiDigitalCrudPage({
     if (!dateString) return "-";
     const date = new Date(dateString);
     return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+  };
+
+  const getItemTitle = (item) => {
+    if (item.judul) return item.judul;
+
+    if (item.bulan_min !== undefined && item.bulan_max !== undefined) {
+      const matchingMateri = mpasiMateriList.find(
+        (m) => m.bulan_min === item.bulan_min && m.bulan_max === item.bulan_max
+      );
+      if (matchingMateri && matchingMateri.judul) {
+        return matchingMateri.judul;
+      }
+      
+      if (resourcePath === "edukasi-mpasi-jadwal-harian") {
+        return `Jadwal Harian MPASI Usia ${item.bulan_min} - ${item.bulan_max} Bulan`;
+      }
+      if (resourcePath === "edukasi-mpasi-aturan-porsi") {
+        return `Aturan Porsi MPASI Usia ${item.bulan_min} - ${item.bulan_max} Bulan`;
+      }
+      return `MPASI Usia ${item.bulan_min} - ${item.bulan_max} Bulan`;
+    }
+
+    return "Tanpa Judul";
+  };
+
+  const getItemDescription = (item) => {
+    if (item.deskripsi) return item.deskripsi;
+    if (item.isi_konten) return item.isi_konten;
+    if (item.konten) return item.konten;
+    
+    if (item.waktu !== undefined && item.aktivitas !== undefined) {
+      return `Pukul ${item.waktu}: ${item.aktivitas}`;
+    }
+    
+    if (item.tekstur !== undefined) {
+      return `Tekstur: ${item.tekstur} | Frekuensi: ${item.frekuensi} | Porsi: ${item.porsi}`;
+    }
+
+    return "-";
   };
 
   return (
@@ -472,10 +526,10 @@ export default function EdukasiDigitalCrudPage({
                                   {/* Text Info */}
                                   <div className="max-w-[300px] whitespace-normal">
                                     <p className="text-[16px] font-bold text-slate-800 line-clamp-1">
-                                      {item.judul || "Tanpa Judul"}
+                                      {getItemTitle(item)}
                                     </p>
                                     <p className="text-[12px] text-slate-500 line-clamp-1 mt-0.5">
-                                      {item.deskripsi || item.isi_konten || item.konten || "-"}
+                                      {getItemDescription(item)}
                                     </p>
                                   </div>
                                 </div>

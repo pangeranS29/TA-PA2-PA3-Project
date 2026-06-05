@@ -21,27 +21,28 @@ export default function PencatatanKesehatanKategori() {
   const navigate = useNavigate();
   const cat = categories[kategori] || categories.anak;
 
-  // State untuk daftar pasien
   const [patients, setPatients] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [search, setSearch] = useState("");
   const [refreshing, setRefreshing] = useState(false);
 
-  // State untuk modal riwayat
-  const [modal, setModal] = useState(null); // "history" atau "checkup"
+  const [modal, setModal] = useState(null);
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [allHistories, setAllHistories] = useState([]);
   const [loadingHistory, setLoadingHistory] = useState(false);
 
-  // State untuk form pemeriksaan dinamis
   const [dynamicQuestions, setDynamicQuestions] = useState([]);
   const [dynamicFormData, setDynamicFormData] = useState({});
   const [loadingForm, setLoadingForm] = useState(false);
   const [activeFormVersion, setActiveFormVersion] = useState(null);
   const [submitting, setSubmitting] = useState(false);
 
-  // Fetch daftar pasien (menggunakan endpoint pencatatan yang sudah ada)
+  // State untuk modal hasil pemeriksaan
+  const [resultModal, setResultModal] = useState(false);
+  const [resultData, setResultData] = useState({ kategori_risiko: "", rekomendasi: "" });
+
+  // Fetch daftar pasien dari backend
   const fetchDataFromAPI = async () => {
     try {
       setLoading(true);
@@ -85,7 +86,7 @@ export default function PencatatanKesehatanKategori() {
     }
   };
 
-  // Fetch riwayat pemeriksaan (dari endpoint riwayat)
+  // Fetch riwayat pemeriksaan
   const fetchHistories = async (patientId) => {
     setLoadingHistory(true);
     try {
@@ -107,7 +108,7 @@ export default function PencatatanKesehatanKategori() {
     setModal("history");
   };
 
-  // Buka modal pemeriksaan dinamis
+  // Buka modal pemeriksaan dengan form dinamis
   const openCheckupModal = async (patient) => {
     setSelectedPatient(patient);
     setLoadingForm(true);
@@ -116,12 +117,15 @@ export default function PencatatanKesehatanKategori() {
       setActiveFormVersion(activeForm.versi);
       const questions = activeForm.pertanyaan || [];
       setDynamicQuestions(questions);
-      // Inisialisasi formData: semua field kosong
       const initial = {};
       questions.forEach(q => {
-        if (q.tipe === "boolean") initial[q.key] = undefined;
-        else if (q.tipe === "tanggal") initial[q.key] = "";
-        else initial[q.key] = "";
+        if (q.tipe === "boolean") {
+          initial[q.key] = undefined;
+        } else if (q.tipe === "angka") {
+          initial[q.key] = undefined;
+        } else {
+          initial[q.key] = "";
+        }
       });
       setDynamicFormData(initial);
       setModal("checkup");
@@ -133,25 +137,36 @@ export default function PencatatanKesehatanKategori() {
     }
   };
 
-  const handleDynamicChange = (key, value) => {
-    setDynamicFormData(prev => ({ ...prev, [key]: value }));
+  // Handler perubahan nilai dengan konversi tipe
+  const handleDynamicChange = (key, value, tipe) => {
+    let finalValue = value;
+    if (tipe === "angka") {
+      finalValue = value === "" ? undefined : Number(value);
+    } else if (tipe === "boolean") {
+      finalValue = value;
+    }
+    setDynamicFormData(prev => ({ ...prev, [key]: finalValue }));
   };
 
-  // Cek semua field sudah diisi
+  // Validasi semua field wajib
   const isAllFieldsFilled = () => {
     for (let q of dynamicQuestions) {
-      const val = dynamicFormData[q.key];
-      if (val === undefined || val === null || val === "") return false;
-      if (q.tipe === "boolean" && val !== "Ya" && val !== "Tidak") return false;
+      if (q.wajib) {
+        const val = dynamicFormData[q.key];
+        if (val === undefined || val === null || val === "") return false;
+        if (q.tipe === "boolean" && typeof val !== "boolean") return false;
+        if (q.tipe === "angka" && isNaN(val)) return false;
+      }
     }
     return true;
   };
 
+  // Simpan pemeriksaan
   const handleSaveDynamicCheckup = async (e) => {
     e.preventDefault();
     if (!selectedPatient) return;
     if (!isAllFieldsFilled()) {
-      alert("Harap isi SEMUA pertanyaan sebelum menyimpan.");
+      alert("Harap isi SEMUA pertanyaan yang bertanda * sebelum menyimpan.");
       return;
     }
     setSubmitting(true);
@@ -163,9 +178,14 @@ export default function PencatatanKesehatanKategori() {
         data: dynamicFormData
       };
       const response = await savePemeriksaan(payload);
-      alert(`Pemeriksaan berhasil disimpan! Kategori Risiko: ${response.kategori_risiko}`);
-      setModal(null);
-      fetchDataFromAPI(); // refresh daftar pasien (update status risiko terbaru)
+      // Simpan hasil dan tampilkan modal
+      setResultData({
+        kategori_risiko: response.kategori_risiko || "Normal",
+        rekomendasi: response.rekomendasi || "Tidak ada rekomendasi"
+      });
+      setResultModal(true);
+      setModal(null); // tutup modal pemeriksaan
+      fetchDataFromAPI(); // refresh daftar pasien
     } catch (err) {
       console.error(err);
       alert(err.response?.data?.error || "Gagal menyimpan pemeriksaan");
@@ -174,7 +194,7 @@ export default function PencatatanKesehatanKategori() {
     }
   };
 
-  // Render field berdasarkan tipe pertanyaan
+  // Render input field berdasarkan tipe
   const renderDynamicField = (q) => {
     const value = dynamicFormData[q.key];
     switch (q.tipe) {
@@ -183,10 +203,10 @@ export default function PencatatanKesehatanKategori() {
           <input
             type="number"
             step="any"
-            value={value || ""}
-            onChange={(e) => handleDynamicChange(q.key, e.target.value)}
+            value={value === undefined ? "" : value}
+            onChange={(e) => handleDynamicChange(q.key, e.target.value, q.tipe)}
             className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-            required
+            required={q.wajib}
           />
         );
       case "teks":
@@ -194,9 +214,9 @@ export default function PencatatanKesehatanKategori() {
           <input
             type="text"
             value={value || ""}
-            onChange={(e) => handleDynamicChange(q.key, e.target.value)}
+            onChange={(e) => handleDynamicChange(q.key, e.target.value, q.tipe)}
             className="w-full p-2 border border-gray-300 rounded-lg"
-            required
+            required={q.wajib}
           />
         );
       case "boolean":
@@ -206,34 +226,35 @@ export default function PencatatanKesehatanKategori() {
               <input
                 type="radio"
                 name={q.key}
-                value="Ya"
-                checked={value === "Ya"}
-                onChange={() => handleDynamicChange(q.key, "Ya")}
+                checked={value === true}
+                onChange={() => handleDynamicChange(q.key, true, q.tipe)}
                 className="mr-1"
-                required
+                required={q.wajib}
               /> Ya
             </label>
             <label className="inline-flex items-center">
               <input
                 type="radio"
                 name={q.key}
-                value="Tidak"
-                checked={value === "Tidak"}
-                onChange={() => handleDynamicChange(q.key, "Tidak")}
+                checked={value === false}
+                onChange={() => handleDynamicChange(q.key, false, q.tipe)}
                 className="mr-1"
-                required
+                required={q.wajib}
               /> Tidak
             </label>
           </div>
         );
       case "pilihan":
-        const options = q.opsi || [];
+        let options = q.opsi || [];
+        if (options.length > 0 && typeof options[0] === 'object') {
+          options = options.map(opt => opt.label);
+        }
         return (
           <select
             value={value || ""}
-            onChange={(e) => handleDynamicChange(q.key, e.target.value)}
+            onChange={(e) => handleDynamicChange(q.key, e.target.value, q.tipe)}
             className="w-full p-2 border border-gray-300 rounded-lg"
-            required
+            required={q.wajib}
           >
             <option value="">Pilih...</option>
             {options.map(opt => <option key={opt} value={opt}>{opt}</option>)}
@@ -244,9 +265,9 @@ export default function PencatatanKesehatanKategori() {
           <input
             type="date"
             value={value || ""}
-            onChange={(e) => handleDynamicChange(q.key, e.target.value)}
+            onChange={(e) => handleDynamicChange(q.key, e.target.value, q.tipe)}
             className="w-full p-2 border border-gray-300 rounded-lg"
-            required
+            required={q.wajib}
           />
         );
       default:
@@ -254,28 +275,30 @@ export default function PencatatanKesehatanKategori() {
           <input
             type="text"
             value={value || ""}
-            onChange={(e) => handleDynamicChange(q.key, e.target.value)}
+            onChange={(e) => handleDynamicChange(q.key, e.target.value, q.tipe)}
             className="w-full p-2 border border-gray-300 rounded-lg"
-            required
+            required={q.wajib}
           />
         );
     }
   };
 
-  // Statistik dan helper
+  // Filter pasien berdasarkan search
   const filteredPatients = patients.filter(p =>
     p.nama_lengkap?.toLowerCase().includes(search.toLowerCase()) ||
     (p.nik || "").includes(search)
   );
 
+  // Helper status kesehatan (sesuai dengan kategori risiko dari backend: Tinggi, Sedang, Normal)
   const getHealthStatus = (patient) => {
     const risiko = patient.kategori_risiko;
     if (risiko === "Normal") return { text: "Normal", color: "bg-green-100 text-green-800", icon: CheckCircle };
-    if (risiko === "Sedang") return { text: "Perlu Perhatian", color: "bg-yellow-100 text-yellow-800", icon: AlertCircle };
-    if (risiko === "Tinggi") return { text: "Berisiko Tinggi", color: "bg-red-100 text-red-800", icon: AlertCircle };
+    if (risiko === "Sedang") return { text: "Risiko Sedang", color: "bg-yellow-100 text-yellow-800", icon: AlertCircle };
+    if (risiko === "Tinggi") return { text: "Risiko Tinggi", color: "bg-red-100 text-red-800", icon: AlertCircle };
     return { text: "Belum Diperiksa", color: "bg-gray-100 text-gray-600", icon: AlertCircle };
   };
 
+  // Statistik risiko
   const getStatsByRisiko = () => {
     const normal = patients.filter(p => p.kategori_risiko === "Normal").length;
     const sedang = patients.filter(p => p.kategori_risiko === "Sedang").length;
@@ -469,6 +492,7 @@ export default function PencatatanKesehatanKategori() {
                             {exam.berat_badan && exam.tinggi_badan && <div>⚖️ BB: {exam.berat_badan} kg / TB: {exam.tinggi_badan} cm</div>}
                             {exam.imt && <div>📊 IMT: {typeof exam.imt === 'number' ? exam.imt.toFixed(1) : exam.imt}</div>}
                             {exam.kategori_risiko && <div>⚠️ Risiko: {exam.kategori_risiko}</div>}
+                            {exam.rekomendasi && <div>💡 Rekomendasi: {exam.rekomendasi}</div>}
                           </div>
                           {exam.riwayat_penyakit && <div className="text-sm mt-2"><span className="font-medium">Riwayat:</span> {exam.riwayat_penyakit}</div>}
                           {exam.catatan_khusus && <div className="text-sm mt-1"><span className="font-medium">Catatan:</span> {exam.catatan_khusus}</div>}
@@ -504,20 +528,60 @@ export default function PencatatanKesehatanKategori() {
                     {dynamicQuestions.map(q => (
                       <div key={q.id} className="flex flex-col gap-1">
                         <label className="font-medium text-gray-800">
-                          {q.label} {q.satuan && `(${q.satuan})`} <span className="text-red-500">*</span>
+                          {q.label} {q.satuan && `(${q.satuan})`} {q.wajib && <span className="text-red-500">*</span>}
                         </label>
                         {renderDynamicField(q)}
                       </div>
                     ))}
                     <div className="flex gap-3 pt-3">
-                      <button type="submit" disabled={submitting} className="flex-1 bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 disabled:opacity-50">
-                        {submitting ? <Loader2 className="animate-spin inline mr-1" size={16} /> : null}
+                      <button type="submit" disabled={submitting} className="flex-1 bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 disabled:opacity-50 flex items-center justify-center gap-2">
+                        {submitting ? <Loader2 className="animate-spin" size={18} /> : null}
                         {submitting ? 'Menyimpan...' : 'Simpan Pemeriksaan'}
                       </button>
                       <button type="button" onClick={() => setModal(null)} className="flex-1 bg-gray-200 text-gray-800 py-2 rounded-lg hover:bg-gray-300">Batal</button>
                     </div>
                   </form>
                 )}
+              </div>
+            </div>
+          )}
+
+          {/* Modal Hasil Pemeriksaan (Tingkat Risiko & Rekomendasi) */}
+          {resultModal && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+              <div className="bg-white rounded-lg max-w-md w-full p-6 shadow-xl">
+                <div className="text-center">
+                  <div className={`mx-auto w-16 h-16 rounded-full flex items-center justify-center text-2xl
+                    ${resultData.kategori_risiko === "Tinggi" ? "bg-red-100 text-red-600" :
+                      resultData.kategori_risiko === "Sedang" ? "bg-yellow-100 text-yellow-600" :
+                      resultData.kategori_risiko === "Normal" ? "bg-green-100 text-green-600" :
+                      "bg-gray-100 text-gray-600"}`}>
+                    {resultData.kategori_risiko === "Tinggi" ? "⚠️" :
+                     resultData.kategori_risiko === "Sedang" ? "⚡" :
+                     resultData.kategori_risiko === "Normal" ? "✅" : "ℹ️"}
+                  </div>
+                  <h3 className="text-xl font-bold mt-4">Pemeriksaan Selesai</h3>
+                  <div className="mt-4 p-3 rounded-lg bg-gray-50">
+                    <p className="text-sm text-gray-600">Tingkat Risiko</p>
+                    <p className={`text-2xl font-bold
+                      ${resultData.kategori_risiko === "Tinggi" ? "text-red-600" :
+                        resultData.kategori_risiko === "Sedang" ? "text-yellow-600" :
+                        resultData.kategori_risiko === "Normal" ? "text-green-600" :
+                        "text-gray-600"}`}>
+                      {resultData.kategori_risiko}
+                    </p>
+                  </div>
+                  <div className="mt-3 p-3 rounded-lg bg-blue-50">
+                    <p className="text-sm text-gray-600">Rekomendasi</p>
+                    <p className="text-md font-medium text-blue-800">{resultData.rekomendasi}</p>
+                  </div>
+                  <button
+                    onClick={() => setResultModal(false)}
+                    className="mt-6 w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700"
+                  >
+                    Tutup
+                  </button>
+                </div>
               </div>
             </div>
           )}

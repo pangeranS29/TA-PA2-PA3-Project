@@ -44,6 +44,10 @@
   const response = await api.get(`/tenaga-kesehatan/penduduk/${id}/riwayat-card`);
   return response.data.data;
 };
+  export const getRiwayat = async (id) => {
+  const response = await api.get(`/tenaga-kesehatan/penduduk/${id}/riwayat`);
+  return response.data;
+};
 export const getPendudukByKategori = async (kategori) => {
   const response = await api.get('/tenaga-kesehatan/penduduk-by-kategori', {
     params: { kategori }

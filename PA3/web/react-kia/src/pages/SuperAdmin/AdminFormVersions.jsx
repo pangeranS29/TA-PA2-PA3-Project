@@ -49,6 +49,7 @@ export default function AdminFormVersions() {
     nama_aturan: "",
     kondisi: { "==": [{ var: "" }, ""] },
     kategori_risiko: "Sedang",
+    rekomendasi: "", // tambahan field rekomendasi
     prioritas: 1,
     is_active: true,
   });
@@ -319,6 +320,7 @@ export default function AdminFormVersions() {
         nama_aturan: ruleForm.nama_aturan,
         kondisi: ruleForm.kondisi,
         kategori_risiko: ruleForm.kategori_risiko,
+        rekomendasi: ruleForm.rekomendasi, // field rekomendasi
         prioritas: ruleForm.prioritas,
         is_active: ruleForm.is_active,
       });
@@ -340,6 +342,7 @@ export default function AdminFormVersions() {
         nama_aturan: ruleForm.nama_aturan,
         kondisi: ruleForm.kondisi,
         kategori_risiko: ruleForm.kategori_risiko,
+        rekomendasi: ruleForm.rekomendasi, // field rekomendasi
         prioritas: ruleForm.prioritas,
         is_active: ruleForm.is_active,
       });
@@ -400,6 +403,7 @@ export default function AdminFormVersions() {
         nama_aturan: rule.nama_aturan,
         kondisi: rule.kondisi,
         kategori_risiko: rule.kategori_risiko,
+        rekomendasi: rule.rekomendasi || "",
         prioritas: rule.prioritas,
         is_active: rule.is_active,
       });
@@ -461,6 +465,7 @@ export default function AdminFormVersions() {
       nama_aturan: "",
       kondisi: { "==": [{ var: "" }, ""] },
       kategori_risiko: "Sedang",
+      rekomendasi: "",
       prioritas: 1,
       is_active: true,
     });
@@ -635,6 +640,10 @@ export default function AdminFormVersions() {
                               }`}>
                                 {r.kategori_risiko}
                               </span>
+                            </span>
+                            <span>
+                              <span className="font-medium">Rekomendasi:</span>{" "}
+                              <span className="font-medium text-blue-600">{r.rekomendasi || "-"}</span>
                             </span>
                             <span>
                               Status:{" "}
@@ -865,6 +874,23 @@ export default function AdminFormVersions() {
                   <option value="Sedang">Sedang (Perlu perhatian)</option>
                   <option value="Tinggi">Tinggi (Butuh tindakan segera)</option>
                 </select>
+              </div>
+
+              {/* Rekomendasi - field baru */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Rekomendasi <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  className="w-full border p-2 rounded-lg"
+                  placeholder="Contoh: Rujuk IGD, Berikan TTD, Edukasi gizi"
+                  value={ruleForm.rekomendasi}
+                  onChange={(e) => setRuleForm({ ...ruleForm, rekomendasi: e.target.value })}
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Rekomendasi akan ditampilkan ke petugas saat pemeriksaan selesai.
+                </p>
               </div>
 
               {/* Prioritas */}
