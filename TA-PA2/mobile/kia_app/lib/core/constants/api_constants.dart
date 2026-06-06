@@ -16,10 +16,6 @@ class ApiConstants {
     }
   }
 
-  // static String get  baseUrl {
-  //   return 'https://hosting-kia-production.up.railway.app';
-  // }
-
   static const String authLogin = '/auth/login';
   static const String authMe = '/auth/me';
 
