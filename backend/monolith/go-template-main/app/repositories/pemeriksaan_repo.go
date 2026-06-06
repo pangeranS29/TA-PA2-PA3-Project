@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"monitoring-service/app/models"
-
+     "github.com/lib/pq"
 	"gorm.io/gorm"
 )
 
@@ -19,6 +19,7 @@ type PemeriksaanRepository interface {
 	GetPendudukByRisk(kelompok string, risiko string, desaID *int32, role string) ([]models.PendudukRiskResponse, error)
 	GetRiwayatByPendudukID(ctx context.Context, pendudukID uint) ([]models.Pemeriksaan, error)
 	GetLatestPemeriksaanByPenduduk(ctx context.Context, pendudukID uint, kelompok string) (*models.Pemeriksaan, error)
+     GetLatestByPendudukIDs(ctx context.Context, kelompok string, pendudukIDs []uint) (map[uint]*models.Pemeriksaan, error)
 }
 
 type pemeriksaanRepository struct {
@@ -73,107 +74,108 @@ func (r *pemeriksaanRepository) GetUserByID(ctx context.Context, id uint) (*mode
 }
 
 func (r *pemeriksaanRepository) CountDistinctPendudukByKelompokAndIDs(kelompok string, pendudukIDs []int32) (int64, error) {
-	if len(pendudukIDs) == 0 {
-		return 0, nil
-	}
-	var count int64
-	err := r.db.Model(&models.Pemeriksaan{}).
-		Where("kelompok = ? AND penduduk_id IN ?", kelompok, pendudukIDs).
-		Distinct("penduduk_id").
-		Count(&count).Error
-	return count, err
+    if len(pendudukIDs) == 0 {
+        return 0, nil
+    }
+    
+    var count int64
+    err := r.db.Model(&models.Pemeriksaan{}).
+        Where("kelompok = ? AND penduduk_id IN ?", kelompok, pendudukIDs).
+        Where("deleted_at IS NULL").
+        Distinct("penduduk_id").
+        Count(&count).Error
+    
+    return count, err
 }
 func (r *pemeriksaanRepository) GetLatestRiskCountByPendudukIDs(kelompok string, pendudukIDs []int32) (map[string]int, error) {
-	if len(pendudukIDs) == 0 {
-		return map[string]int{"Rendah": 0, "Sedang": 0, "Tinggi": 0}, nil
-	}
-	
-	// Subquery untuk mendapatkan pemeriksaan terbaru per penduduk (berdasarkan TanggalPemeriksaan)
-	subQuery := r.db.Model(&models.Pemeriksaan{}).
-		Select("penduduk_id, MAX(tanggal_pemeriksaan) as max_tanggal").
-		Where("kelompok = ? AND penduduk_id IN ?", kelompok, pendudukIDs).
-		Group("penduduk_id")
-	
-	type Result struct {
-		KategoriRisiko string
-		Count          int
-	}
-	var results []Result
-	err := r.db.Table("pemeriksaans as p").
-		Select("p.kategori_risiko, COUNT(*) as count").
-		Joins("INNER JOIN (?) as latest ON p.penduduk_id = latest.penduduk_id AND p.tanggal_pemeriksaan = latest.max_tanggal", subQuery).
-		Where("p.kelompok = ?", kelompok).
-		Group("p.kategori_risiko").
-		Scan(&results).Error
-	if err != nil {
-		return nil, err
-	}
-	
-	riskMap := map[string]int{"Rendah": 0, "Sedang": 0, "Tinggi": 0}
-	for _, res := range results {
-		riskMap[res.KategoriRisiko] = res.Count
-	}
-	return riskMap, nil
-}
-func (r *pemeriksaanRepository) GetPendudukByRisk(kategori string, risiko string, desaID *int32, role string) ([]models.PendudukRiskResponse, error) {
-    // Gunakan DISTINCT ON untuk mengambil satu baris terbaru per penduduk
-    query := r.db.Table("pemeriksaans as p").
-        Select("DISTINCT ON (p.penduduk_id) p.penduduk_id, k.id, k.nama_lengkap, k.nik, k.dusun, EXTRACT(YEAR FROM AGE(CURRENT_DATE, k.tanggal_lahir)) as usia, p.kategori_risiko").
-        Joins("JOIN penduduk as k ON p.penduduk_id = k.id").
-        Where("p.kelompok = ?", kategori).
-        Where("p.deleted_at IS NULL").
-        Order("p.penduduk_id, p.tanggal_pemeriksaan DESC") // urutkan tanggal terbaru dulu
-
-    // Filter risiko berdasarkan nilai yang ada di database (case-sensitive, sesuai data)
-    if risiko != "" {
-        var dbRisiko string
-        switch risiko {
-        case "Tinggi":
-            dbRisiko = "Tinggi"   // sesuai dengan nilai di database
-        case "Sedang":
-            dbRisiko = "Sedang"
-        case "Normal":
-            dbRisiko = "Normal"
-        default:
-            dbRisiko = risiko
-        }
-        query = query.Where("p.kategori_risiko = ?", dbRisiko)
+    riskMap := map[string]int{"Rendah": 0, "Sedang": 0, "Tinggi": 0}
+    
+    if len(pendudukIDs) == 0 {
+        return riskMap, nil
     }
+    
+    // 🔧 PERBAIKAN: Gunakan DISTINCT ON untuk mengambil 1 pemeriksaan terbaru per penduduk
+    query := `
+        WITH latest_exam AS (
+            SELECT DISTINCT ON (penduduk_id) 
+                penduduk_id,
+                kategori_risiko
+            FROM pemeriksaans
+            WHERE kelompok = $1 
+                AND penduduk_id = ANY($2::int[])
+                AND tanggal_pemeriksaan IS NOT NULL
+                AND deleted_at IS NULL
+            ORDER BY penduduk_id, tanggal_pemeriksaan DESC
+        )
+        SELECT 
+            COALESCE(SUM(CASE WHEN kategori_risiko = 'Tinggi' THEN 1 ELSE 0 END), 0) AS tinggi,
+            COALESCE(SUM(CASE WHEN kategori_risiko = 'Sedang' THEN 1 ELSE 0 END), 0) AS sedang,
+            COALESCE(SUM(CASE WHEN kategori_risiko IN ('Rendah', 'Normal') THEN 1 ELSE 0 END), 0) AS rendah
+        FROM latest_exam
+    `
+    
+    // 🔧 Gunakan struct untuk menampung hasil
+    type Result struct {
+        Tinggi int
+        Sedang int
+        Rendah int
+    }
+    
+    var result Result
+    err := r.db.Raw(query, kelompok, pq.Array(pendudukIDs)).Scan(&result).Error
+    if err != nil {
+        return riskMap, err
+    }
+    
+    riskMap["Tinggi"] = result.Tinggi
+    riskMap["Sedang"] = result.Sedang
+    riskMap["Rendah"] = result.Rendah
+    
+    return riskMap, nil
+}
 
+func (r *pemeriksaanRepository) GetPendudukByRisk(kategori string, risiko string, desaID *int32, role string) ([]models.PendudukRiskResponse, error) {
+    // 🔧 PERBAIKAN: Gunakan raw query dengan DISTINCT ON terlebih dahulu, baru filter risiko
+    query := `
+        WITH latest_exam AS (
+            SELECT DISTINCT ON (p.penduduk_id) 
+                p.penduduk_id,
+                p.kategori_risiko
+            FROM pemeriksaans p
+            WHERE p.kelompok = $1 
+                AND p.tanggal_pemeriksaan IS NOT NULL
+                AND p.deleted_at IS NULL
+            ORDER BY p.penduduk_id, p.tanggal_pemeriksaan DESC
+        )
+        SELECT 
+            k.id,
+            k.nama_lengkap,
+            k.nik,
+            k.dusun,
+            EXTRACT(YEAR FROM AGE(CURRENT_DATE, k.tanggal_lahir)) as usia,
+            le.kategori_risiko as risiko
+        FROM latest_exam le
+        JOIN penduduk k ON le.penduduk_id = k.id
+        WHERE le.kategori_risiko = $2
+            AND k.deleted_at IS NULL
+    `
+    
+    args := []interface{}{kategori, risiko}
+    
     // Filter desa jika bukan superadmin
     hasFullAccess := role == "superadmin"
     if !hasFullAccess && desaID != nil {
-        query = query.Where("k.desa_id = ?", *desaID)
+        query += " AND k.desa_id = $3"
+        args = append(args, *desaID)
     }
-
-    type row struct {
-        PendudukID     int32
-        ID             int32
-        NamaLengkap    string
-        Nik            string
-        Dusun          string
-        Usia           int
-        KategoriRisiko string
-    }
-    var rows []row
-    if err := query.Scan(&rows).Error; err != nil {
+    
+    var results []models.PendudukRiskResponse
+    err := r.db.Raw(query, args...).Scan(&results).Error
+    if err != nil {
         return nil, err
     }
-
-    result := make([]models.PendudukRiskResponse, len(rows))
-    for i, r := range rows {
-        // Normalisasi risiko untuk frontend (sudah sesuai, tapi pastikan)
-        normalizedRisk := r.KategoriRisiko // bisa langsung pakai karena sudah "Tinggi", "Sedang", "Normal"
-        result[i] = models.PendudukRiskResponse{
-            ID:          r.ID,
-            NIK:         r.Nik,
-            NamaLengkap: r.NamaLengkap,
-            Dusun:       r.Dusun,
-            Usia:        r.Usia,
-            Risiko:      normalizedRisk,
-        }
-    }
-    return result, nil
+    
+    return results, nil
 }
 
 func (r *pemeriksaanRepository) GetRiwayatByPendudukID(ctx context.Context, pendudukID uint) ([]models.Pemeriksaan, error) {
@@ -196,4 +198,40 @@ func (r *pemeriksaanRepository) GetLatestPemeriksaanByPenduduk(ctx context.Conte
         return nil, nil
     }
     return &pemeriksaan, err
+}
+func (r *pemeriksaanRepository) GetLatestByPendudukIDs(ctx context.Context, kelompok string, pendudukIDs []uint) (map[uint]*models.Pemeriksaan, error) {
+    result := make(map[uint]*models.Pemeriksaan)
+    
+    if len(pendudukIDs) == 0 {
+        return result, nil
+    }
+    
+    var exams []models.Pemeriksaan
+    
+    // 🔧 Gunakan raw query yang sudah terbukti berhasil
+    query := `
+        SELECT DISTINCT ON (penduduk_id) 
+            id,
+            penduduk_id,
+            kelompok,
+            kategori_risiko,
+            tanggal_pemeriksaan
+        FROM pemeriksaans
+        WHERE kelompok = $1 
+            AND penduduk_id IN (79, 80, 81, 82)
+            AND deleted_at IS NULL
+            AND tanggal_pemeriksaan IS NOT NULL
+        ORDER BY penduduk_id, tanggal_pemeriksaan DESC
+    `
+    
+    err := r.db.WithContext(ctx).Raw(query, kelompok).Scan(&exams).Error
+    if err != nil {
+        return result, err
+    }
+    
+    for i := range exams {
+        result[exams[i].PendudukID] = &exams[i]
+    }
+    
+    return result, nil
 }

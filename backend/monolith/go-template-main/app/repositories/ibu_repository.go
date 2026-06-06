@@ -185,7 +185,7 @@ func (r *IbuRepository) GetDashboard(desaID *int32, role string) ([]models.IbuDa
             k.id as kehamilan_id
         `).
 		Joins(`JOIN penduduk kp ON kp.id = i.penduduk_id`).
-		Joins(`LEFT JOIN kehamilan k ON k.ibu_id = i.id AND k.deleted_at IS NULL`).
+		Joins(`INNER JOIN kehamilan k ON k.ibu_id = i.id AND k.deleted_at IS NULL`).
 		Joins(`
             LEFT JOIN pemeriksaan_kehamilan p ON p.id_periksa = (
                 SELECT p2.id_periksa
