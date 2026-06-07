@@ -1,6 +1,8 @@
 package repositories
 
 import (
+	"time"
+
 	"monitoring-service/app/middlewares"
 	"monitoring-service/app/models"
 
@@ -37,6 +39,7 @@ func (r *laporanAnakRepository) GetLaporanAnak(startDate, endDate string, desaID
 
 	query := r.db.Table("anak a").
 		Select(`
+			COALESCE(kk.no_kk, '') AS no_kk,
 			COALESCE(pa.nik, '') AS nik,
 			COALESCE(pa.nama_lengkap, '') AS nama_anak,
 			COALESCE(pi.nama_lengkap, '') AS nama_ibu,
@@ -51,6 +54,8 @@ func (r *laporanAnakRepository) GetLaporanAnak(startDate, endDate string, desaID
 		`).
 		// JOIN ke penduduk anak
 		Joins("JOIN penduduk pa ON pa.id = a.penduduk_id AND pa.deleted_at IS NULL").
+		// JOIN ke kartu keluarga
+		Joins("LEFT JOIN kartu_keluarga kk ON kk.id = pa.kartu_keluarga_id AND kk.deleted_at IS NULL").
 		// JOIN ke kehamilan → ibu → penduduk ibu
 		Joins("LEFT JOIN kehamilan k ON k.id = a.kehamilan_id AND k.deleted_at IS NULL").
 		Joins("LEFT JOIN ibu i ON i.id = k.ibu_id AND i.is_deleted IS NULL").
@@ -64,7 +69,12 @@ func (r *laporanAnakRepository) GetLaporanAnak(startDate, endDate string, desaID
 
 	// Filter tanggal lahir
 	if startDate != "" && endDate != "" {
-		query = query.Where("pa.tanggal_lahir >= ? AND pa.tanggal_lahir <= ?", startDate, endDate)
+		tStart, errStart := time.Parse("2006-01-02", startDate)
+		tEnd, errEnd := time.Parse("2006-01-02", endDate)
+		if errStart == nil && errEnd == nil {
+			tEnd = tEnd.Add(24*time.Hour - time.Second) // 23:59:59
+			query = query.Where("pa.tanggal_lahir >= ? AND pa.tanggal_lahir <= ?", tStart, tEnd)
+		}
 	}
 
 	// Filter desa berdasarkan role
@@ -107,7 +117,12 @@ func (r *laporanAnakRepository) GetLaporanPertumbuhan(startDate, endDate string,
 
 	// Filter tanggal pengukuran
 	if startDate != "" && endDate != "" {
-		query = query.Where("cp.tgl_ukur >= ? AND cp.tgl_ukur <= ?", startDate, endDate)
+		tStart, errStart := time.Parse("2006-01-02", startDate)
+		tEnd, errEnd := time.Parse("2006-01-02", endDate)
+		if errStart == nil && errEnd == nil {
+			tEnd = tEnd.Add(24*time.Hour - time.Second) // 23:59:59
+			query = query.Where("cp.tgl_ukur >= ? AND cp.tgl_ukur <= ?", tStart, tEnd)
+		}
 	}
 
 	// Filter desa berdasarkan role
@@ -145,7 +160,12 @@ func (r *laporanAnakRepository) GetLaporanImunisasi(startDate, endDate string, d
 
 	// Filter tanggal pemberian
 	if startDate != "" && endDate != "" {
-		query = query.Where("ki.created_at >= ? AND ki.created_at <= ?", startDate, endDate)
+		tStart, errStart := time.Parse("2006-01-02", startDate)
+		tEnd, errEnd := time.Parse("2006-01-02", endDate)
+		if errStart == nil && errEnd == nil {
+			tEnd = tEnd.Add(24*time.Hour - time.Second) // 23:59:59
+			query = query.Where("ki.created_at >= ? AND ki.created_at <= ?", tStart, tEnd)
+		}
 	}
 
 	// Filter desa berdasarkan role

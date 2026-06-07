@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import MainLayout from "../../components/Layout/MainLayout";
+import AlertNotification from "../../components/AlertNotification";
 import { PelayananLilaService } from "../../services/Pelayanan-lila-anak";
 import { Plus, Calendar, Ruler, ChevronRight, Loader2, Trash2, Edit, FileText } from 'lucide-react';
 
@@ -9,6 +10,7 @@ const PelayananLilaIndex = () => {
   const navigate = useNavigate();
   const [riwayat, setRiwayat] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [notification, setNotification] = useState(null);
 
   const fetchRiwayat = async () => {
     setLoading(true);
@@ -33,9 +35,18 @@ const PelayananLilaIndex = () => {
     if (window.confirm("Apakah Anda yakin ingin menghapus catatan bulan ini?")) {
       try {
         await PelayananLilaService.delete(id);
-        fetchRiwayat();
+        await fetchRiwayat();
+        setNotification({
+          type: "success",
+          message: "Data pencatatan LILA anak berhasil dihapus dari sistem!"
+        });
       } catch (err) {
-        alert("Gagal menghapus data");
+        const errorMsg = err.response?.data?.message || err.message || "Gagal menghapus data";
+        setNotification({
+          type: "error",
+          message: "Permintaan gagal diproses. Silakan coba lagi nanti atau hubungi bantuan.",
+          code: errorMsg
+        });
       }
     }
   };
@@ -62,6 +73,11 @@ const PelayananLilaIndex = () => {
 
   return (
     <MainLayout>
+      <AlertNotification 
+        notification={notification} 
+        onClose={() => setNotification(null)} 
+        onRetry={notification?.type === "error" ? () => setNotification(null) : null}
+      />
       <div className="max-w-6xl mx-auto p-6 md:p-8 bg-slate-50 min-h-screen">
 
         {/* HEADER */}

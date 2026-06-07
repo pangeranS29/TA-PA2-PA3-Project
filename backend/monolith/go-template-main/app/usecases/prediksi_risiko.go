@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"monitoring-service/app/models"
 	"net/http"
+	"time"
 )
 
 type PrediksiRisikoUsecase interface {
@@ -29,7 +30,10 @@ func (u *prediksiRisikoUsecase) Predict(req *models.PrediksiRisikoRequest) (*mod
     //     return nil, err
     // }
 
-    resp, err := http.Post(u.mlServiceURL+"/predict", "application/json", bytes.NewBuffer(jsonReq))
+    client := &http.Client{
+        Timeout: 5 * time.Second,
+    }
+    resp, err := client.Post(u.mlServiceURL+"/predict", "application/json", bytes.NewBuffer(jsonReq))
     if err != nil {
         return nil, errors.New("ML service tidak tersedia")
     }

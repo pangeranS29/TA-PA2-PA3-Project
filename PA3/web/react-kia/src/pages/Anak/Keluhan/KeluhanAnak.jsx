@@ -5,6 +5,7 @@ import {
   ChevronLeft, Trash2, Edit3, Stethoscope
 } from "lucide-react";
 import MainLayout from "../../../components/Layout/MainLayout";
+import AlertNotification from "../../../components/AlertNotification";
 import { 
   getKeluhanByAnakId, 
   createKeluhan, 
@@ -20,6 +21,7 @@ const KeluhanAnak = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editingId, setEditingId] = useState(null);
+  const [notification, setNotification] = useState(null);
 
   const [formData, setFormData] = useState({
     tanggal: new Date().toISOString().split('T')[0],
@@ -80,15 +82,27 @@ const KeluhanAnak = () => {
     try {
       if (editingId) {
         await updateKeluhan(editingId, payload);
+        setNotification({
+          type: "success",
+          message: "Data keluhan anak berhasil diperbarui ke dalam sistem!"
+        });
       } else {
         await createKeluhan(payload);
+        setNotification({
+          type: "success",
+          message: "Data keluhan anak berhasil disimpan ke dalam sistem!"
+        });
       }
       setIsModalOpen(false);
       fetchData();
     } catch (err) {
       console.error("Save error:", err);
       const errMsg = err.response?.data?.message || err.response?.data?.Message || err.message || "Unknown error";
-      alert("Gagal menyimpan data: " + errMsg);
+      setNotification({
+        type: "error",
+        message: "Permintaan gagal diproses. Silakan coba lagi nanti atau hubungi bantuan.",
+        code: errMsg
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -98,14 +112,28 @@ const KeluhanAnak = () => {
     if (!window.confirm("Hapus data keluhan ini?")) return;
     try {
       await deleteKeluhan(recordId);
+      setNotification({
+        type: "success",
+        message: "Data keluhan anak berhasil dihapus dari sistem!"
+      });
       fetchData();
     } catch (err) {
-      alert("Gagal menghapus data.");
+      const errMsg = err.response?.data?.message || err.message || "Unknown error";
+      setNotification({
+        type: "error",
+        message: "Permintaan gagal diproses. Silakan coba lagi nanti atau hubungi bantuan.",
+        code: errMsg
+      });
     }
   };
 
   return (
     <MainLayout>
+      <AlertNotification 
+        notification={notification} 
+        onClose={() => setNotification(null)} 
+        onRetry={notification?.type === "error" ? () => setNotification(null) : null}
+      />
       <div className="p-4 md:p-8 bg-[#f8fafc] min-h-screen relative overflow-hidden">
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-400/5 rounded-full blur-[100px] -mr-64 -mt-64"></div>
         

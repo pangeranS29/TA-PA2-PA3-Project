@@ -41,6 +41,9 @@ func (uc *kunjunganGiziUsecase) Create(req models.CreatePelayananGiziRequest) er
 	if req.Lokasi == "" {
 		return errors.New("lokasi wajib diisi")
 	}
+	if req.Bulanke < 6 && req.MPASI != nil && req.MPASI.DiberikanMPASI {
+		return errors.New("makanan tambahan (MPASI) tidak boleh diberikan sebelum usia 6 bulan")
+	}
 
 	tanggal, err := time.Parse("2006-01-02", req.Tanggal)
 	if err != nil {
@@ -50,13 +53,19 @@ func (uc *kunjunganGiziUsecase) Create(req models.CreatePelayananGiziRequest) er
 	now := time.Now()
 
 	kunjungan := models.KunjunganGizi{
-		AnakID:            req.AnakID,
-		Bulanke:           req.Bulanke,
-		TenagaKesehatanID: req.TenagaKesehatanID,
-		Tanggal:           tanggal,
-		Lokasi:            req.Lokasi,
-		CreatedAt:         now,
-		UpdatedAt:         now,
+		AnakID:             req.AnakID,
+		Bulanke:            req.Bulanke,
+		TenagaKesehatanID:  req.TenagaKesehatanID,
+		Tanggal:            tanggal,
+		Lokasi:             req.Lokasi,
+		ObatCacing:         req.ObatCacing,
+		JenisPemberianSusu: req.JenisPemberianSusu,
+		MasihMenyusui:      req.MasihMenyusui,
+		MenggunakanFormula: req.MenggunakanFormula,
+		AlasanFormula:      req.AlasanFormula,
+		UsiaMulaiMpasi:     req.UsiaMulaiMpasi,
+		CreatedAt:          now,
+		UpdatedAt:          now,
 	}
 
 	if req.ASI != nil {

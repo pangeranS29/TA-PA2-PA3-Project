@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Plus, X, Save, ShieldAlert, Smile, Loader2, Info, Calendar, Activity } from 'lucide-react';
 import MainLayout from "../../components/Layout/MainLayout";
+import AlertNotification from "../../components/AlertNotification";
 import { dentalService } from '../../services/dentalService';
 
 const PelayananGigi = () => {
@@ -10,6 +11,7 @@ const PelayananGigi = () => {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [notification, setNotification] = useState(null);
 
   // 1. Pastikan key di sini SAMA dengan yang digunakan di input
   const [formData, setFormData] = useState({
@@ -53,13 +55,15 @@ const PelayananGigi = () => {
     e.preventDefault();
 
     if (Number(formData.gigi_berlubang) > Number(formData.jumlah_gigi)) {
-      alert("⚠️ Jumlah gigi berlubang tidak boleh melebihi total gigi!");
+      setNotification({
+        type: "error",
+        message: "Jumlah gigi berlubang tidak boleh melebihi total gigi!"
+      });
       return;
     }
 
     setIsSubmitting(true);
 
-    // 2. Susun Payload - Pastikan key 'bulan_ke' sesuai dengan tag JSON di Go
     const payload = {
       anak_id: Number(id),
       bulan_ke: Number(formData.bulan_ke),
@@ -70,19 +74,21 @@ const PelayananGigi = () => {
       resiko_gigi_berlubang: formData.resiko_gigi_berlubang
     };
 
-    console.group("🚀 DEBUG REQUEST: Simpan Gigi");
-    console.log("Payload Dikirim:", payload);
-    console.groupEnd();
-
     try {
       await dentalService.create(payload);
-      alert("Data berhasil disimpan!");
       setIsModalOpen(false);
-      fetchData();
+      await fetchData();
+      setNotification({
+        type: "success",
+        message: "Data pemeriksaan gigi anak berhasil disimpan ke dalam sistem!"
+      });
     } catch (err) {
-      // Menampilkan pesan detail dari backend jika ada
       const errorMsg = err.response?.data?.message || "Gagal menyimpan data.";
-      alert(`Error: ${errorMsg}`);
+      setNotification({
+        type: "error",
+        message: "Permintaan gagal diproses. Silakan coba lagi nanti atau hubungi bantuan.",
+        code: errorMsg
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -90,6 +96,14 @@ const PelayananGigi = () => {
 
   return (
     <MainLayout>
+      <AlertNotification 
+        notification={notification} 
+        onClose={() => setNotification(null)} 
+        onRetry={notification?.type === "error" ? () => {
+          setNotification(null);
+          setIsModalOpen(true);
+        } : null}
+      />
       <div className="p-4 md:p-8 bg-[#f8fafc] min-h-screen relative overflow-hidden">
         {/* Dekorasi Background */}
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-400/5 rounded-full blur-[100px] -mr-64 -mt-64"></div>

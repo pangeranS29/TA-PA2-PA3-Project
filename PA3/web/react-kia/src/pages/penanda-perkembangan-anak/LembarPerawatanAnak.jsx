@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import MainLayout from "../../components/Layout/MainLayout";
+import AlertNotification from "../../components/AlertNotification";
 import { ChevronLeft, CheckCircle2, XCircle, Calendar, Save, RefreshCw } from "lucide-react";
 import { getAnakById } from "../../services/Anak";
 import {
@@ -20,6 +21,7 @@ export default function LembarPerawatanAnak() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [activeDate, setActiveDate] = useState(new Date().toISOString().split("T")[0]);
+  const [notification, setNotification] = useState(null);
 
   // ── Muat data awal ──────────────────────────────────────
   const loadData = async () => {
@@ -95,10 +97,18 @@ export default function LembarPerawatanAnak() {
 
       // Refresh data dari server
       await loadData();
-      alert("Data perawatan berhasil disimpan");
+      setNotification({
+        type: "success",
+        message: "Data pencatatan perawatan anak berhasil disimpan ke dalam sistem!"
+      });
     } catch (error) {
       console.error("Error saving perawatan:", error);
-      alert("Gagal menyimpan data perawatan: " + (error?.response?.data?.message || error.message));
+      const errMsg = error?.response?.data?.message || error.message || "Unknown error";
+      setNotification({
+        type: "error",
+        message: "Permintaan gagal diproses. Silakan coba lagi nanti atau hubungi bantuan.",
+        code: errMsg
+      });
     } finally {
       setSaving(false);
     }
@@ -126,6 +136,11 @@ export default function LembarPerawatanAnak() {
 
   return (
     <MainLayout>
+      <AlertNotification 
+        notification={notification} 
+        onClose={() => setNotification(null)} 
+        onRetry={notification?.type === "error" ? () => setNotification(null) : null}
+      />
       <div className="p-6 space-y-6 bg-[#F8FAFC] min-h-screen">
 
         {/* Header */}

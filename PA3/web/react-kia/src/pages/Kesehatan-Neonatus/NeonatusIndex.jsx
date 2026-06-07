@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import MainLayout from "../../components/Layout/MainLayout";
+import AlertNotification from "../../components/AlertNotification";
 import { neonatusService } from "../../services/Neonatus";
 import { 
   Scale, User, Loader2, ClipboardCheck, Stethoscope, 
@@ -58,6 +59,7 @@ const NeonatusIndex = () => {
   const [periodeMap, setPeriodeMap] = useState({ '0-6 JAM': 1, 'KN1': 2, 'KN2': 3, 'KN3': 4 });
   // kategori_umur_id dari DB (bayi_0_28_hari)
   const [kategoriUmurId, setKategoriUmurId] = useState(1);
+  const [notification, setNotification] = useState(null);
 
   // Local state with human-readable keys for absolute reactivity and zero input locking
   const [formData, setFormData] = useState({
@@ -334,7 +336,13 @@ const NeonatusIndex = () => {
   const requestPayload = useMemo(() => buildRequestPayload(), [id, tanggal, activeTab, formData, authUser, fallbackIds]);
 
   const handleFinalSubmit = async () => {
-    if (requestPayload.detail_pelayanan.length === 0) return alert("Mohon isi data terlebih dahulu.");
+    if (requestPayload.detail_pelayanan.length === 0) {
+      setNotification({
+        type: "error",
+        message: "Mohon isi data terlebih dahulu."
+      });
+      return;
+    }
 
     setSubmitting(true);
     try {
@@ -344,12 +352,19 @@ const NeonatusIndex = () => {
         await neonatusService.savePemeriksaan(requestPayload);
       }
       setViewMode('LIST');
-      loadAllData();
-      alert("✅ Data pemeriksaan neonatus berhasil disimpan.");
+      await loadAllData();
+      setNotification({
+        type: "success",
+        message: "Data pemeriksaan neonatus berhasil disimpan ke dalam sistem!"
+      });
     } catch (err) {
       console.error("Gagal menyimpan neonatus:", err);
       const errMsg = err.error || err.message || (typeof err === "string" ? err : "") || "Kesalahan Server";
-      alert("❌ Gagal menyimpan data: " + errMsg);
+      setNotification({
+        type: "error",
+        message: "Permintaan gagal diproses. Silakan coba lagi nanti atau hubungi bantuan.",
+        code: errMsg
+      });
     } finally {
       setSubmitting(false);
     }
@@ -362,6 +377,14 @@ const NeonatusIndex = () => {
 
   return (
     <MainLayout>
+      <AlertNotification 
+        notification={notification} 
+        onClose={() => setNotification(null)} 
+        onRetry={notification?.type === "error" ? () => {
+          setNotification(null);
+          setViewMode('FORM');
+        } : null}
+      />
       <div className="max-w-6xl mx-auto pb-20 px-4 font-sans">
         {/* HEADER */}
         <header className="mb-8 flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b pb-6">

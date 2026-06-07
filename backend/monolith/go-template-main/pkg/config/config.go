@@ -42,6 +42,7 @@ func NewConfig() *Config {
 		JWTSecret:          jwtSecret,
 		JWTAccessTokenMins: jwtAccessTokenMins,
 		Database:           LoadDatabaseConfig(),
+		MLServiceURL:       viper.GetString("ML_SERVICE_URL"),
 	}
 }
 

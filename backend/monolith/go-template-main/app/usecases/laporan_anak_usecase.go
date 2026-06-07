@@ -110,7 +110,7 @@ func (u *laporanAnakUsecase) ExportExcelLaporanAnak(startDate, endDate string, d
 	f.SetSheetName("Sheet1", sheet1)
 
 	headers1 := []string{
-		"No", "NIK Anak", "Nama Anak", "Nama Ibu", "Nama Ayah",
+		"No", "No KK", "NIK Anak", "Nama Anak", "Nama Ibu", "Nama Ayah",
 		"Tanggal Lahir", "Usia", "Berat Lahir (Kg)", "Tinggi Lahir (Cm)",
 		"LILA", "Golongan Darah", "Kecamatan", "Desa",
 	}
@@ -131,6 +131,7 @@ func (u *laporanAnakUsecase) ExportExcelLaporanAnak(startDate, endDate string, d
 
 		rowData := []interface{}{
 			rowIdx + 1,
+			d.NoKK,
 			d.NIK,
 			d.NamaAnak,
 			d.NamaIbu,
@@ -149,7 +150,7 @@ func (u *laporanAnakUsecase) ExportExcelLaporanAnak(startDate, endDate string, d
 			cell, _ := excelize.CoordinatesToCellName(colIdx+1, rowNum)
 			f.SetCellValue(sheet1, cell, val)
 			// Apply alignment style
-			if colIdx == 0 || colIdx == 1 || colIdx == 5 || colIdx == 6 || colIdx == 10 {
+			if colIdx == 0 || colIdx == 1 || colIdx == 2 || colIdx == 6 || colIdx == 7 || colIdx == 11 {
 				f.SetCellStyle(sheet1, cell, cell, centerStyle)
 			} else {
 				f.SetCellStyle(sheet1, cell, cell, dataStyle)
@@ -160,9 +161,9 @@ func (u *laporanAnakUsecase) ExportExcelLaporanAnak(startDate, endDate string, d
 
 	// Set widths Sheet 1
 	colWidths1 := map[int]float64{
-		1: 6, 2: 20, 3: 25, 4: 25, 5: 25,
-		6: 15, 7: 18, 8: 16, 9: 17,
-		10: 10, 11: 16, 12: 18, 13: 18,
+		1: 6, 2: 20, 3: 20, 4: 25, 5: 25, 6: 25,
+		7: 15, 8: 18, 9: 16, 10: 17,
+		11: 10, 12: 16, 13: 18, 14: 18,
 	}
 	for col, width := range colWidths1 {
 		colName, _ := excelize.ColumnNumberToName(col)

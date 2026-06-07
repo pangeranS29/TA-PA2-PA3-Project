@@ -116,8 +116,15 @@ type CreatePelayananGiziRequest struct {
 	Bulanke           int    `json:"bulan_ke"`
 	Lokasi            string `json:"lokasi"`
 
-	ASI   *ASIRequest   `json:"asi"`
-	MPASI *MPASIRequest `json:"mpasi"`
+	ASI        *ASIRequest   `json:"asi"`
+	MPASI      *MPASIRequest `json:"mpasi"`
+	ObatCacing *bool         `json:"obat_cacing,omitempty"`
+
+	JenisPemberianSusu string `json:"jenis_pemberian_susu,omitempty"`
+	MasihMenyusui     *bool  `json:"masih_menyusui,omitempty"`
+	MenggunakanFormula *bool  `json:"menggunakan_formula,omitempty"`
+	AlasanFormula     string `json:"alasan_formula,omitempty"`
+	UsiaMulaiMpasi     *int   `json:"usia_mulai_mpasi,omitempty"`
 }
 
 type UpdatePelayananGiziRequest struct {
@@ -127,8 +134,15 @@ type UpdatePelayananGiziRequest struct {
 	Bulanke           int    `json:"bulan_ke"`
 	Lokasi            string `json:"lokasi"`
 
-	ASI   *ASIRequest   `json:"asi"`
-	MPASI *MPASIRequest `json:"mpasi"`
+	ASI        *ASIRequest   `json:"asi"`
+	MPASI      *MPASIRequest `json:"mpasi"`
+	ObatCacing *bool         `json:"obat_cacing,omitempty"`
+
+	JenisPemberianSusu string `json:"jenis_pemberian_susu,omitempty"`
+	MasihMenyusui     *bool  `json:"masih_menyusui,omitempty"`
+	MenggunakanFormula *bool  `json:"menggunakan_formula,omitempty"`
+	AlasanFormula     string `json:"alasan_formula,omitempty"`
+	UsiaMulaiMpasi     *int   `json:"usia_mulai_mpasi,omitempty"`
 }
 
 type CreateKunjunganVitaminRequest struct {
