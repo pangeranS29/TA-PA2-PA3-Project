@@ -12,6 +12,7 @@ import {
   RefreshCw,
   AlertCircle,
   CalendarOff,
+  Syringe, // Add this
 } from "lucide-react";
 import {
   getJadwalLayananList,
@@ -248,6 +249,7 @@ function ScheduleRow({ r, onEdit, onDelete, deleting }) {
   const upcoming = !done && !today && isUpcoming(r.tanggal);
   const waktuMulai = normalizeTimeValue(r.waktu_mulai || r.waktu);
   const waktuSelesai = normalizeTimeValue(r.waktu_selesai);
+  const vaksins = r.vaksins || []; // Get vaksin list
 
   return (
     <div className="flex items-center gap-3 px-5 py-4 border-b border-slate-50 last:border-0 hover:bg-slate-50/60 transition-colors">
@@ -298,6 +300,22 @@ function ScheduleRow({ r, onEdit, onDelete, deleting }) {
             </span>
           )}
         </div>
+
+        {/* Vaksin chips */}
+        {vaksins.length > 0 && (
+          <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
+            <Syringe size={11} className="text-slate-400" />
+            {vaksins.map(v => (
+              <span
+                key={v.id}
+                className="text-xs px-1.5 py-0.5 bg-[#185FA5]/5 text-[#185FA5] rounded-full"
+              >
+                {v.nama}
+              </span>
+            ))}
+          </div>
+        )}
+        
         <div className="flex items-center gap-3 mt-1.5 text-xs text-slate-400 flex-wrap">
           <span className="flex items-center gap-1">
             <Clock size={11} />

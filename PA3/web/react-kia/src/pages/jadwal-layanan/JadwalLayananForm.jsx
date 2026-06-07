@@ -7,6 +7,7 @@ import {
   updateJadwalLayanan,
 } from "../../services/jadwalLayanan";
 import { listPosyanduForDropdown } from "../../services/adminTenagaKesehatan";
+import { getVaksinList } from "../../services/vaksin";
 import {
   ArrowLeft,
   Calendar,
@@ -17,6 +18,9 @@ import {
   RefreshCw,
   Save,
   AlertCircle,
+  Syringe,
+  Check,
+  X,
 } from "lucide-react";
 
 function FormField({ label, icon: Icon, children, hint }) {
@@ -47,6 +51,114 @@ function normalizeTimeValue(value) {
   return "";
 }
 
+// Multi-select dropdown component
+function MultiSelectVaksin({ options, selectedValues, onChange, disabled }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const filteredOptions = options.filter(opt =>
+    opt.nama?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const toggleOption = (vaksinId) => {
+    if (selectedValues.includes(vaksinId)) {
+      onChange(selectedValues.filter(id => id !== vaksinId));
+    } else {
+      onChange([...selectedValues, vaksinId]);
+    }
+  };
+
+  const removeOption = (vaksinId) => {
+    onChange(selectedValues.filter(id => id !== vaksinId));
+  };
+
+  const selectedVaksins = options.filter(opt => selectedValues.includes(opt.id));
+
+  return (
+    <div className="relative">
+      {/* Selected items display */}
+      <div
+        className={`${inputClass} min-h-[46px] flex flex-wrap gap-1.5 cursor-pointer`}
+        onClick={() => !disabled && setIsOpen(!isOpen)}
+      >
+        {selectedVaksins.length > 0 ? (
+          selectedVaksins.map(vaksin => (
+            <span
+              key={vaksin.id}
+              className="inline-flex items-center gap-1 px-2 py-0.5 bg-[#185FA5]/10 text-[#185FA5] text-xs rounded-lg"
+            >
+              {vaksin.nama}
+              {!disabled && (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    removeOption(vaksin.id);
+                  }}
+                  className="hover:text-[#A32D2D]"
+                >
+                  <X size={12} />
+                </button>
+              )}
+            </span>
+          ))
+        ) : (
+          <span className="text-slate-400">Pilih vaksin yang tersedia...</span>
+        )}
+      </div>
+
+      {/* Dropdown */}
+      {isOpen && !disabled && (
+        <>
+          <div
+            className="fixed inset-0 z-10"
+            onClick={() => setIsOpen(false)}
+          />
+          <div className="absolute z-20 mt-1 w-full bg-white border border-slate-200 rounded-xl shadow-lg overflow-hidden">
+            <div className="p-2 border-b border-slate-100">
+              <input
+                type="text"
+                placeholder="Cari vaksin..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full px-3 py-1.5 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#185FA5]/30"
+                onClick={(e) => e.stopPropagation()}
+              />
+            </div>
+            <div className="max-h-48 overflow-y-auto">
+              {filteredOptions.length > 0 ? (
+                filteredOptions.map(vaksin => (
+                  <label
+                    key={vaksin.id}
+                    className="flex items-center gap-2 px-3 py-2 hover:bg-slate-50 cursor-pointer transition-colors"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={selectedValues.includes(vaksin.id)}
+                      onChange={() => toggleOption(vaksin.id)}
+                      className="w-4 h-4 rounded border-slate-300 text-[#185FA5] focus:ring-[#185FA5]/30"
+                    />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-slate-700">{vaksin.nama}</p>
+                      {vaksin.deskripsi && (
+                        <p className="text-xs text-slate-400 truncate">{vaksin.deskripsi}</p>
+                      )}
+                    </div>
+                  </label>
+                ))
+              ) : (
+                <p className="px-3 py-4 text-sm text-slate-400 text-center">
+                  Tidak ada vaksin ditemukan
+                </p>
+              )}
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 export default function JadwalLayananForm() {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -56,6 +168,7 @@ export default function JadwalLayananForm() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [posyanduOptions, setPosyanduOptions] = useState([]);
+  const [vaksinOptions, setVaksinOptions] = useState([]); // ← TAMBAHKAN INI!
 
   const [form, setForm] = useState({
     posyandu_id: "",
@@ -64,6 +177,7 @@ export default function JadwalLayananForm() {
     waktu_mulai: "",
     waktu_selesai: "",
     keterangan: "",
+    vaksin_ids: [], // Array of vaksin IDs
   });
 
   // Load existing data when editing
@@ -81,6 +195,7 @@ export default function JadwalLayananForm() {
             waktu_mulai: normalizeTimeValue(data.waktu_mulai),
             waktu_selesai: normalizeTimeValue(data.waktu_selesai),
             keterangan: data.keterangan ?? "",
+            vaksin_ids: data.vaksin_ids ?? data.vaksins?.map(v => v.id) ?? [],
           });
         }
       } catch {
@@ -105,6 +220,20 @@ export default function JadwalLayananForm() {
     loadPosyandu();
   }, []);
 
+  // Load vaksin list
+  useEffect(() => {
+    const loadVaksin = async () => {
+      try {
+        const data = await getVaksinList();
+        console.log("Vaksin data:", data); // Untuk debugging
+        setVaksinOptions(Array.isArray(data) ? data : []);
+      } catch (error) {
+        console.error("Failed to load vaksin:", error);
+      }
+    };
+    loadVaksin();
+  }, []);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
@@ -122,7 +251,10 @@ export default function JadwalLayananForm() {
       waktu_mulai: form.waktu_mulai || null,
       waktu_selesai: form.waktu_selesai || null,
       keterangan: form.keterangan || null,
+      vaksin_ids: form.vaksin_ids, // Send selected vaksin IDs
     };
+
+    console.log("Payload yang dikirim:", payload); // Untuk debugging
 
     try {
       if (isEdit) {
@@ -132,6 +264,7 @@ export default function JadwalLayananForm() {
       }
       navigate("/jadwal-layanan");
     } catch (err) {
+      console.error("Error detail:", err); // Untuk debugging
       const apiErr = err?.response?.data;
       if (apiErr?.error === "validation" && Array.isArray(apiErr?.fields)) {
         setError(apiErr.fields.map((f) => `${f.field}: ${f.message}`).join("; "));
@@ -195,6 +328,20 @@ export default function JadwalLayananForm() {
                 />
               </FormField>
 
+              {/* Vaksin yang tersedia - Multi Select */}
+              <FormField 
+                label="Daftar Vaksin" 
+                icon={Syringe}
+                hint="Pilih vaksin yang akan diberikan pada jadwal ini"
+              >
+                <MultiSelectVaksin
+                  options={vaksinOptions}
+                  selectedValues={form.vaksin_ids}
+                  onChange={(values) => setForm(prev => ({ ...prev, vaksin_ids: values }))}
+                  disabled={saving}
+                />
+              </FormField>
+
               {/* Grid: Posyandu, Tanggal, Waktu */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <FormField
@@ -216,8 +363,6 @@ export default function JadwalLayananForm() {
                     ))}
                   </select>
                 </FormField>
-
-                {/* kapasitas column removed */}
 
                 <FormField label="Tanggal Pelayanan" icon={Calendar}>
                   <input
@@ -271,6 +416,29 @@ export default function JadwalLayananForm() {
                   className={`${inputClass} resize-none`}
                 />
               </FormField>
+
+              {/* Selected vaksin summary */}
+              {form.vaksin_ids.length > 0 && vaksinOptions.length > 0 && (
+                <div className="bg-slate-50 rounded-xl p-3 border border-slate-100">
+                  <p className="text-xs font-semibold text-slate-500 mb-2 flex items-center gap-1">
+                    <Syringe size={12} />
+                    VAKSIN YANG AKAN DIBERIKAN ({form.vaksin_ids.length})
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {vaksinOptions
+                      .filter(v => form.vaksin_ids.includes(v.id))
+                      .map(vaksin => (
+                        <span
+                          key={vaksin.id}
+                          className="inline-flex items-center gap-1 px-2.5 py-1 bg-white border border-slate-200 rounded-lg text-xs text-slate-600"
+                        >
+                          <Check size={10} className="text-emerald-500" />
+                          {vaksin.nama}
+                        </span>
+                      ))}
+                  </div>
+                </div>
+              )}
 
               {/* Error message */}
               {error && (

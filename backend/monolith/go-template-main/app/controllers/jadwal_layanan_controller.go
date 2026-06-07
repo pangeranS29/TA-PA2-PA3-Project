@@ -37,6 +37,7 @@ func (c *JadwalLayananController) Create(ctx echo.Context) error {
 		WaktuMulai   string `json:"waktu_mulai"`
 		WaktuSelesai string `json:"waktu_selesai"`
 		Keterangan   string `json:"keterangan"`
+		VaksinIDs    []uint `json:"vaksin_ids"` // Tambahkan ini
 	}
 
 	if err := ctx.Bind(&in); err != nil {
@@ -114,11 +115,14 @@ func (c *JadwalLayananController) Create(ctx echo.Context) error {
 	model.WaktuMulai = timePtrToDBString(waktuMulaiParsed)
 	model.WaktuSelesai = timePtrToDBString(waktuSelesaiParsed)
 
-	if err := c.usecase.Create(&model); err != nil {
+	// Panggil usecase dengan vaksinIDs
+	if err := c.usecase.Create(&model, in.VaksinIDs); err != nil {
 		return ctx.JSON(http.StatusInternalServerError, echo.Map{"error": "create_failed", "details": err.Error()})
 	}
 
-	return ctx.JSON(http.StatusCreated, model)
+	// Load data yang sudah dibuat lengkap dengan vaksinnya
+	result, _ := c.usecase.GetByID(model.ID)
+	return ctx.JSON(http.StatusCreated, result)
 }
 
 func (c *JadwalLayananController) GetAll(ctx echo.Context) error {
@@ -201,6 +205,7 @@ func (c *JadwalLayananController) Update(ctx echo.Context) error {
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, echo.Map{"error": "invalid id"})
 	}
+
 	var in struct {
 		PosyanduID   *int32 `json:"posyandu_id"`
 		Layanan      string `json:"layanan"`
@@ -208,6 +213,7 @@ func (c *JadwalLayananController) Update(ctx echo.Context) error {
 		WaktuMulai   string `json:"waktu_mulai"`
 		WaktuSelesai string `json:"waktu_selesai"`
 		Keterangan   string `json:"keterangan"`
+		VaksinIDs    []uint `json:"vaksin_ids"` // Tambahkan ini
 	}
 
 	if err := ctx.Bind(&in); err != nil {
@@ -283,9 +289,9 @@ func (c *JadwalLayananController) Update(ctx echo.Context) error {
 	if in.Keterangan != "" {
 		model.Keterangan = in.Keterangan
 	}
-	// kapasitas removed
 
-	if err := c.usecase.Update(int32(id), &model); err != nil {
+	// Panggil usecase dengan vaksinIDs
+	if err := c.usecase.Update(int32(id), &model, in.VaksinIDs); err != nil {
 		return ctx.JSON(http.StatusNotFound, echo.Map{"error": err.Error()})
 	}
 
