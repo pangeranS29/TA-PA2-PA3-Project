@@ -28,6 +28,14 @@ func NewKunjunganGiziRepository(db *gorm.DB) KunjunganGiziRepository {
 }
 
 func (r *kunjunganGiziRepository) Create(kunjungan *models.KunjunganGizi) error {
+	// Ensure obat_cacing and other columns exist in the database
+	_ = r.db.Exec("ALTER TABLE kunjungan_gizi ADD COLUMN IF NOT EXISTS obat_cacing BOOLEAN").Error
+	_ = r.db.Exec("ALTER TABLE kunjungan_gizi ADD COLUMN IF NOT EXISTS jenis_pemberian_susu VARCHAR(30)").Error
+	_ = r.db.Exec("ALTER TABLE kunjungan_gizi ADD COLUMN IF NOT EXISTS masih_menyusui BOOLEAN").Error
+	_ = r.db.Exec("ALTER TABLE kunjungan_gizi ADD COLUMN IF NOT EXISTS menggunakan_formula BOOLEAN").Error
+	_ = r.db.Exec("ALTER TABLE kunjungan_gizi ADD COLUMN IF NOT EXISTS alasan_formula TEXT").Error
+	_ = r.db.Exec("ALTER TABLE kunjungan_gizi ADD COLUMN IF NOT EXISTS usia_mulai_mpasi INTEGER").Error
+
 	tx := r.db.Begin()
 
 	defer func() {
@@ -88,6 +96,14 @@ func (r *kunjunganGiziRepository) GetByID(id int32) (*models.KunjunganGizi, erro
 // ================= UPDATE =================
 
 func (r *kunjunganGiziRepository) Update(id int32, req models.UpdatePelayananGiziRequest, tanggal time.Time, now time.Time) error {
+	// Ensure obat_cacing and other columns exist in the database
+	_ = r.db.Exec("ALTER TABLE kunjungan_gizi ADD COLUMN IF NOT EXISTS obat_cacing BOOLEAN").Error
+	_ = r.db.Exec("ALTER TABLE kunjungan_gizi ADD COLUMN IF NOT EXISTS jenis_pemberian_susu VARCHAR(30)").Error
+	_ = r.db.Exec("ALTER TABLE kunjungan_gizi ADD COLUMN IF NOT EXISTS masih_menyusui BOOLEAN").Error
+	_ = r.db.Exec("ALTER TABLE kunjungan_gizi ADD COLUMN IF NOT EXISTS menggunakan_formula BOOLEAN").Error
+	_ = r.db.Exec("ALTER TABLE kunjungan_gizi ADD COLUMN IF NOT EXISTS alasan_formula TEXT").Error
+	_ = r.db.Exec("ALTER TABLE kunjungan_gizi ADD COLUMN IF NOT EXISTS usia_mulai_mpasi INTEGER").Error
+
 	tx := r.db.Begin()
 
 	defer func() {
@@ -115,6 +131,24 @@ func (r *kunjunganGiziRepository) Update(id int32, req models.UpdatePelayananGiz
 	}
 	if req.Lokasi != "" {
 		parent["lokasi"] = req.Lokasi
+	}
+	if req.ObatCacing != nil {
+		parent["obat_cacing"] = req.ObatCacing
+	}
+	if req.JenisPemberianSusu != "" {
+		parent["jenis_pemberian_susu"] = req.JenisPemberianSusu
+	}
+	if req.MasihMenyusui != nil {
+		parent["masih_menyusui"] = req.MasihMenyusui
+	}
+	if req.MenggunakanFormula != nil {
+		parent["menggunakan_formula"] = req.MenggunakanFormula
+	}
+	if req.AlasanFormula != "" {
+		parent["alasan_formula"] = req.AlasanFormula
+	}
+	if req.UsiaMulaiMpasi != nil {
+		parent["usia_mulai_mpasi"] = req.UsiaMulaiMpasi
 	}
 
 	if err := tx.Model(&models.KunjunganGizi{}).

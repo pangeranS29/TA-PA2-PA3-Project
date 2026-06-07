@@ -44,7 +44,6 @@ class _GrafikEvaluasiKehamilanScreenState
   late TabController _tabController;
 
   int? _selectedTFUIndex;
-  int? _selectedDJJIndex;
 
   @override
   void initState() {
@@ -153,8 +152,11 @@ class _GrafikEvaluasiKehamilanScreenState
         controller: _tabController,
         indicatorColor: Colors.white,
         indicatorWeight: 3,
+        indicatorSize: TabBarIndicatorSize.tab,
+        labelColor: Colors.white,
+        unselectedLabelColor: Colors.white.withOpacity(0.55),
         labelStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
-        unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w400),
+        unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 13),
         tabs: const [
           Tab(text: 'Tinggi Fundus (TFU)'),
           Tab(text: 'Denyut Jantung (DJJ)'),
@@ -218,11 +220,7 @@ class _GrafikEvaluasiKehamilanScreenState
           ),
           const SizedBox(height: 10),
 
-          _buildLegend(items: [
-            _LegendItem(color: _C.primary,    label: 'TFU Aktual', solid: true),
-            _LegendItem(color: _C.normalLine,  label: 'Referensi Normal', solid: false),
-            _LegendItem(color: _C.zoneEdge,    label: 'Batas ±2 cm', solid: false),
-          ]),
+          _buildTFULegend(),
           const SizedBox(height: 20),
 
           if (data.penjelasanHasilGrafik != null &&
@@ -388,6 +386,105 @@ class _GrafikEvaluasiKehamilanScreenState
     );
   }
 
+  // ── Legend TFU — list vertikal yang jelas (sama seperti grafik BB) ────────
+  Widget _buildTFULegend() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: _C.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: _C.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Keterangan Grafik',
+            style: TextStyle(
+                fontSize: 12, fontWeight: FontWeight.w700, color: _C.textMain),
+          ),
+          const SizedBox(height: 10),
+          _legendRow(
+            indicator: Container(
+              width: 28,
+              height: 3,
+              decoration: BoxDecoration(
+                color: _C.primary,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            title: 'TFU Aktual',
+            desc:
+                'Garis biru menunjukkan pengukuran Tinggi Fundus Uteri (TFU) ibu dari setiap kunjungan',
+          ),
+          const SizedBox(height: 10),
+          _legendRow(
+            indicator: CustomPaint(
+              size: const Size(28, 3),
+              painter: _DashedPainter(_C.normalLine),
+            ),
+            title: 'Referensi Normal',
+            desc:
+                'Garis putus-putus hijau tua adalah nilai TFU ideal sesuai usia kehamilan (cm ≈ minggu)',
+          ),
+          const SizedBox(height: 10),
+          _legendRow(
+            indicator: SizedBox(
+              width: 28,
+              height: 14,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  Container(height: 14, color: _C.zone),
+                  CustomPaint(
+                    size: const Size(28, 3),
+                    painter: _DashedPainter(_C.zoneEdge),
+                  ),
+                ],
+              ),
+            ),
+            title: 'Batas ±2 cm',
+            desc:
+                'Area hijau muda adalah rentang toleransi normal — TFU di luar area ini perlu evaluasi lebih lanjut',
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _legendRow({
+    required Widget indicator,
+    required String title,
+    required String desc,
+  }) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: 36,
+          child: Center(child: indicator),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(title,
+                  style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: _C.textMain)),
+              const SizedBox(height: 2),
+              Text(desc,
+                  style: const TextStyle(
+                      fontSize: 11, color: _C.textSub, height: 1.4)),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
   // ══════════════════════════════════════════════════════════════════════════
   // TAB DJJ
   // ══════════════════════════════════════════════════════════════════════════
@@ -445,12 +542,7 @@ class _GrafikEvaluasiKehamilanScreenState
           ),
           const SizedBox(height: 10),
 
-          // ── Legend ──
-          _buildLegend(items: [
-            _LegendItem(color: _C.djjBlue,     label: 'DJJ Aktual', solid: true),
-            _LegendItem(color: _C.zoneDJJEdge,  label: 'Zona Normal (110–160)', solid: false),
-            _LegendItem(color: _C.danger,        label: 'Batas Kritis', solid: false),
-          ]),
+          _buildDJJLegend(),
           const SizedBox(height: 10),
 
           // ── Keterangan klinis ──
@@ -468,14 +560,10 @@ class _GrafikEvaluasiKehamilanScreenState
             return _DJJVisitCard(
               point: p,
               index: i,
-              isSelected: _selectedDJJIndex == i,
               formatDate: _fmtDate,
               statusColor: _statusColor,
               statusLabel: _statusLabel,
               statusIcon: _statusIcon,
-              onTap: () => setState(() {
-                _selectedDJJIndex = _selectedDJJIndex == i ? null : i;
-              }),
             );
           }),
         ],
@@ -629,6 +717,72 @@ class _GrafikEvaluasiKehamilanScreenState
         ),
       ],
       lineTouchData: LineTouchData(enabled: false),
+    );
+  }
+
+  // ── Legend DJJ — list vertikal yang jelas (sama seperti TFU & BB) ─────────
+  Widget _buildDJJLegend() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: _C.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: _C.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Keterangan Grafik',
+            style: TextStyle(
+                fontSize: 12, fontWeight: FontWeight.w700, color: _C.textMain),
+          ),
+          const SizedBox(height: 10),
+          _legendRow(
+            indicator: Container(
+              width: 28,
+              height: 3,
+              decoration: BoxDecoration(
+                color: _C.djjBlue,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            title: 'DJJ Aktual',
+            desc:
+                'Garis biru tua menunjukkan nilai Denyut Jantung Janin yang tercatat di setiap kunjungan',
+          ),
+          const SizedBox(height: 10),
+          _legendRow(
+            indicator: SizedBox(
+              width: 28,
+              height: 14,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  Container(height: 14, color: _C.zoneDJJ),
+                  CustomPaint(
+                    size: const Size(28, 3),
+                    painter: _DashedPainter(_C.zoneDJJEdge),
+                  ),
+                ],
+              ),
+            ),
+            title: 'Zona Normal (110–160)',
+            desc:
+                'Area biru muda adalah rentang DJJ yang sehat — janin dikatakan normal jika berada di zona ini',
+          ),
+          const SizedBox(height: 10),
+          _legendRow(
+            indicator: CustomPaint(
+              size: const Size(28, 3),
+              painter: _DashedPainter(_C.danger),
+            ),
+            title: 'Batas Kritis',
+            desc:
+                'Garis merah putus-putus adalah batas atas (160) dan batas bawah (110) — DJJ di luar batas ini perlu penanganan segera',
+          ),
+        ],
+      ),
     );
   }
 
@@ -1211,22 +1365,18 @@ class _TFUVisitCard extends StatelessWidget {
 class _DJJVisitCard extends StatelessWidget {
   final GrafikDJJPointModel point;
   final int index;
-  final bool isSelected;
   final String Function(String) formatDate;
   final Color Function(String) statusColor;
   final String Function(String) statusLabel;
   final IconData Function(String) statusIcon;
-  final VoidCallback onTap;
 
   const _DJJVisitCard({
     required this.point,
     required this.index,
-    required this.isSelected,
     required this.formatDate,
     required this.statusColor,
     required this.statusLabel,
     required this.statusIcon,
-    required this.onTap,
   });
 
   @override
@@ -1235,11 +1385,10 @@ class _DJJVisitCard extends StatelessWidget {
     final sl = statusLabel(point.statusDJJ);
     final si = statusIcon(point.statusDJJ);
 
-    // Hitung deviasi dari zona normal untuk progress bar
     final djj = point.djj;
-    final lower = point.lower; // 110
-    final upper = point.upper; // 160
-    final range = upper - lower; // 50
+    final lower = point.lower;
+    final upper = point.upper;
+    final range = upper - lower;
     double progressVal;
     if (djj < lower) {
       progressVal = 0.0;
@@ -1250,28 +1399,20 @@ class _DJJVisitCard extends StatelessWidget {
     }
     final isAbnormal = point.statusDJJ != 'normal';
 
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        margin: const EdgeInsets.only(bottom: 10),
-        decoration: BoxDecoration(
-          color: _C.surface,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-            color: isSelected ? sc.withOpacity(0.5) : _C.border,
-            width: isSelected ? 1.5 : 1,
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      decoration: BoxDecoration(
+        color: _C.surface,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: _C.border, width: 1),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x0A000000),
+            blurRadius: 4,
+            offset: Offset(0, 2),
           ),
-          boxShadow: [
-            BoxShadow(
-              color: isSelected
-                  ? sc.withOpacity(0.12)
-                  : const Color(0x0A000000),
-              blurRadius: isSelected ? 12 : 4,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
+        ],
+      ),
         child: Column(
           children: [
             Padding(
@@ -1445,27 +1586,8 @@ class _DJJVisitCard extends StatelessWidget {
               ),
             ),
 
-            // Expand chevron
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 5),
-              decoration: BoxDecoration(
-                color: _C.bg,
-                borderRadius: const BorderRadius.vertical(
-                    bottom: Radius.circular(13)),
-              ),
-              child: Center(
-                child: Icon(
-                  isSelected
-                      ? Icons.keyboard_arrow_up_rounded
-                      : Icons.keyboard_arrow_down_rounded,
-                  size: 18,
-                  color: _C.textSub,
-                ),
-              ),
-            ),
-          ],
-        ),
+            const SizedBox(height: 4),
+        ],
       ),
     );
   }

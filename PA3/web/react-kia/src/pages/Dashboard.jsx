@@ -65,10 +65,12 @@ function isDone(row) {
   return false;
 }
 function normalizeRisk(risk) {
-  const upperRisk = (risk || "").toUpperCase();
+  if (!risk || risk.trim() === "") return "Belum Diperiksa";
+  const upperRisk = risk.toUpperCase();
   if (upperRisk === "PERLU RUJUKAN" || upperRisk === "TINGGI") return "Tinggi";
   if (upperRisk === "PERLU TINDAKAN" || upperRisk === "SEDANG" || upperRisk === "SEDAMNG") return "Sedang";
-  return "Normal";
+  if (upperRisk === "NORMAL") return "Normal";
+  return "Belum Diperiksa";
 }
 function getFilterFromRisk(risk) {
   if (risk === "Tinggi") return "PERLU RUJUKAN";

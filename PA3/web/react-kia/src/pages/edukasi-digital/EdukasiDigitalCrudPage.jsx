@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import MainLayout from "../../components/Layout/MainLayout";
+import AlertNotification from "../../components/AlertNotification";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import {
   createEdukasi,
@@ -85,6 +86,7 @@ export default function EdukasiDigitalCrudPage({
   const [form, setForm] = useState(initialForm);
   const [error, setError] = useState("");
   const [showForm, setShowForm] = useState(false);
+  const [notification, setNotification] = useState(null);
 
   const sortedRows = useMemo(() => {
     return [...rows].sort((a, b) => {
@@ -303,7 +305,10 @@ export default function EdukasiDigitalCrudPage({
 
     const isJudulRequired = !fields || fields.some(f => f.key === "judul");
     if (isJudulRequired && (!form.judul || !form.judul.trim())) {
-      setError("Judul wajib diisi");
+      setNotification({
+        type: "error",
+        message: "Judul wajib diisi!"
+      });
       return;
     }
 
@@ -313,22 +318,39 @@ export default function EdukasiDigitalCrudPage({
       const payload = toPayload();
       if (editingId) {
         await updateEdukasi(resourcePath, editingId, payload);
+        setNotification({
+          type: "success",
+          message: "Data edukasi digital berhasil diperbarui ke dalam sistem!"
+        });
       } else {
         await createEdukasi(resourcePath, payload);
+        setNotification({
+          type: "success",
+          message: "Data edukasi digital berhasil disimpan ke dalam sistem!"
+        });
       }
-
-      if (view === "form") {
-        navigate(listPath || "/edukasi-digital/informasi-umum");
-        return;
-      }
-
-      resetForm();
-      await loadData();
     } catch (err) {
-      setError(err?.response?.data?.error || err?.response?.data?.message || err.message || "Gagal menyimpan data");
+      const errMsg = err?.response?.data?.error || err?.response?.data?.message || err.message || "Unknown error";
+      setNotification({
+        type: "error",
+        message: "Permintaan gagal diproses. Silakan coba lagi nanti atau hubungi bantuan.",
+        code: errMsg
+      });
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleAlertClose = () => {
+    if (notification && notification.type === "success") {
+      if (view === "form") {
+        navigate(listPath || "/edukasi-digital/informasi-umum");
+      } else {
+        resetForm();
+        loadData();
+      }
+    }
+    setNotification(null);
   };
 
   const handleEdit = (item) => {
@@ -359,9 +381,18 @@ export default function EdukasiDigitalCrudPage({
     setError("");
     try {
       await deleteEdukasi(resourcePath, id);
+      setNotification({
+        type: "success",
+        message: "Data edukasi digital berhasil dihapus dari sistem!"
+      });
       await loadData();
     } catch (err) {
-      setError(err?.response?.data?.message || "Gagal menghapus data");
+      const errMsg = err?.response?.data?.message || err.message || "Unknown error";
+      setNotification({
+        type: "error",
+        message: "Permintaan gagal diproses. Silakan coba lagi nanti atau hubungi bantuan.",
+        code: errMsg
+      });
     }
   };
 
@@ -413,6 +444,11 @@ export default function EdukasiDigitalCrudPage({
 
   return (
     <MainLayout>
+      <AlertNotification 
+        notification={notification} 
+        onClose={handleAlertClose} 
+        onRetry={notification?.type === "error" ? () => setNotification(null) : null}
+      />
       <div className="space-y-6 font-['Noto_Sans',_sans-serif]">
         
         {/* Header Section */}

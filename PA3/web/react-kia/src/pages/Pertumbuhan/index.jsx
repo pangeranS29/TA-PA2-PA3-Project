@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import MainLayout from "../../components/Layout/MainLayout";
+import AlertNotification from "../../components/AlertNotification";
 import {
   getRiwayatPertumbuhan,
   addCatatanPertumbuhan,
@@ -11,6 +12,7 @@ import { getAnakById } from "../../services/Anak";
 import {
   ChevronLeft, Plus, Trash2, Calendar, Scale, Ruler,
   Info, Pencil, TrendingUp, Target, Heart,
+  AlertTriangle, Check, X, Smile,
 } from "lucide-react";
 import { GrowthStatusCard, GrowthSummary } from "./components/GrowthStatusCard";
 import { GrowthChart } from "./components/GrowthChart";
@@ -78,6 +80,13 @@ export default function PertumbuhanIndex() {
     setIsModalOpen(true);
   };
 
+  const getCurrentTimeWIB = () => {
+    const now = new Date();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    return `${hours}:${minutes} WIB`;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -96,17 +105,28 @@ export default function PertumbuhanIndex() {
       }
       setIsModalOpen(false);
       await fetchData();
-
-      // Check if prediction is returned
       if (res?.data?.prediksi?.status_prediksi) {
-        alert(`Data berhasil disimpan!\nStatus Prediksi Anak: ${res.data.prediksi.status_prediksi}`);
+        setNotification({
+          type: "success",
+          message: `Data pertumbuhan anak berhasil disimpan!\n\nStatus Prediksi Anak: ${res.data.prediksi.status_prediksi}`,
+          time: getCurrentTimeWIB()
+        });
       } else {
-        alert("Data berhasil disimpan!");
+        setNotification({
+          type: "success",
+          message: "Data pertumbuhan anak berhasil disimpan ke dalam sistem!",
+          time: getCurrentTimeWIB()
+        });
       }
     } catch (err) {
       console.error("Save Error:", err);
       const msg = err.response?.data?.message || err.message || "Gagal menyimpan data";
-      alert(msg);
+      setNotification({
+        type: "error",
+        message: "Permintaan gagal diproses. Silakan coba lagi nanti atau hubungi bantuan.",
+        code: msg,
+        time: getCurrentTimeWIB()
+      });
     }
   };
 
@@ -114,9 +134,21 @@ export default function PertumbuhanIndex() {
     if (!window.confirm("Hapus catatan ini?")) return;
     try {
       await deleteCatatanPertumbuhan(recId);
-      fetchData();
-    } catch {
-      alert("Gagal menghapus data");
+      await fetchData();
+      setNotification({
+        type: "success",
+        message: "Data pertumbuhan anak berhasil dihapus dari sistem!",
+        time: getCurrentTimeWIB()
+      });
+    } catch (err) {
+      console.error("Delete Error:", err);
+      const msg = err.response?.data?.message || err.message || "Gagal menghapus data";
+      setNotification({
+        type: "error",
+        message: "Permintaan gagal diproses. Silakan coba lagi nanti atau hubungi bantuan.",
+        code: msg,
+        time: getCurrentTimeWIB()
+      });
     }
   };
 
@@ -128,7 +160,12 @@ export default function PertumbuhanIndex() {
     lk:   { label: "Lingkar Kepala (cm)", color: "#10b981", unit: "cm" },
   };
 
-  const chartData = [...riwayat].reverse().map((r) => ({
+  // Notification state
+  const [notification, setNotification] = useState(null);
+
+  // Modified chart data to start from left (oldest first)
+  const sortedRiwayat = [...riwayat].sort((a, b) => new Date(a.tgl_ukur) - new Date(b.tgl_ukur));
+  const chartData = sortedRiwayat.map((r) => ({
     bulan: `${r.usia_ukur_bulan}bln`,
     bb:   r.berat_badan   || null,
     tb:   r.tinggi_badan  || null,
@@ -151,6 +188,16 @@ export default function PertumbuhanIndex() {
     <MainLayout>
       <div className="p-6 bg-[#f8fafc] min-h-screen">
         <div className="max-w-7xl mx-auto space-y-6">
+          <AlertNotification 
+            notification={notification} 
+            onClose={() => setNotification(null)} 
+            onRetry={notification?.type === "error" ? () => {
+              setNotification(null);
+              if (!notification.message.includes("hapus")) {
+                setIsModalOpen(true);
+              }
+            } : null}
+          />
 
           {/* ── HEADER ── */}
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">

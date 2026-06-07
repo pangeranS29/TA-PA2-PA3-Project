@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import MainLayout from "../../components/Layout/MainLayout";
+import AlertNotification from "../../components/AlertNotification";
 import { Search, Plus, Pencil, Trash2, X, Check } from "lucide-react";
 import {
   getRentangUsia,
@@ -24,6 +25,7 @@ export default function KelolaPemantauan() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [notice, setNotice] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
+  const [notification, setNotification] = useState(null);
 
   useEffect(() => {
     const init = async () => {
@@ -117,19 +119,30 @@ export default function KelolaPemantauan() {
             rentang_usia_id: Number(activeRentangId),
             gejala: value,
           });
-          setNotice("Indikator berhasil diperbarui");
+          setNotification({
+            type: "success",
+            message: "Data indikator pemantauan anak berhasil diperbarui ke dalam sistem!"
+          });
         } else {
           await createIndicator({
             rentang_usia_id: Number(activeRentangId),
             gejala: value,
           });
-          setNotice("Indikator berhasil ditambahkan");
+          setNotification({
+            type: "success",
+            message: "Data indikator pemantauan anak berhasil ditambahkan ke dalam sistem!"
+          });
         }
 
         closeModal();
         await fetchData(activeRentangId, query);
       } catch (error) {
-        setErrorMsg("Gagal menyimpan indikator");
+        const errMsg = error?.response?.data?.message || error.message || "Unknown error";
+        setNotification({
+          type: "error",
+          message: "Permintaan gagal diproses. Silakan coba lagi nanti atau hubungi bantuan.",
+          code: errMsg
+        });
       } finally {
         setIsSubmitting(false);
       }
@@ -156,11 +169,19 @@ export default function KelolaPemantauan() {
 
       try {
         await deleteIndicator(selectedItem.id);
-        setNotice("Indikator berhasil dihapus");
+        setNotification({
+          type: "success",
+          message: "Data indikator pemantauan anak berhasil dihapus dari sistem!"
+        });
         closeDeleteModal();
         await fetchData(activeRentangId, query);
       } catch (error) {
-        setErrorMsg("Gagal menghapus indikator");
+        const errMsg = error?.response?.data?.message || error.message || "Unknown error";
+        setNotification({
+          type: "error",
+          message: "Permintaan gagal diproses. Silakan coba lagi nanti atau hubungi bantuan.",
+          code: errMsg
+        });
       } finally {
         setIsSubmitting(false);
       }
@@ -169,6 +190,11 @@ export default function KelolaPemantauan() {
 
   return (
     <MainLayout>
+      <AlertNotification 
+        notification={notification} 
+        onClose={() => setNotification(null)} 
+        onRetry={notification?.type === "error" ? () => setNotification(null) : null}
+      />
       <div className="max-w-6xl mx-auto space-y-6">
 
         {/* Header: Search Bar */}

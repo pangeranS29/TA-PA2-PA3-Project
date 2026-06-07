@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Plus, X, Save, UserCheck, ClipboardCheck, Loader2 } from 'lucide-react';
 import { useParams } from 'react-router-dom';
 import MainLayout from "../../components/Layout/MainLayout";
+import AlertNotification from "../../components/AlertNotification";
 import { getCurrentUser } from '../../services/auth';
 import { sdidtkService } from '../../services/SDIDTk';
 
@@ -12,6 +13,7 @@ const FormSDIDTK = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [dataList, setDataList] = useState([]);
   const [userLogin, setUserLogin] = useState(null);
+  const [notification, setNotification] = useState(null);
 
   const [formData, setFormData] = useState({
     bulan_ke: "",
@@ -46,7 +48,10 @@ const FormSDIDTK = () => {
 
     const nakesId = Number(userLogin?.user_id || userLogin?.id);
     if (!nakesId || nakesId === 0) {
-      alert("Sesi login tidak valid. Silakan login ulang.");
+      setNotification({
+        type: "error",
+        message: "Sesi login tidak valid. Silakan login ulang."
+      });
       return;
     }
 
@@ -72,20 +77,25 @@ const FormSDIDTK = () => {
       kunjungan_ulang: formData.kunjungan_ulang ? sdidtkService.formatToISO(formData.kunjungan_ulang) : null
     };
 
-    console.log("Mengirim payload SDIDTK:", payload);
-
     try {
       await sdidtkService.create(payload);
-      alert("Data berhasil disimpan!");
       setIsModalOpen(false);
       resetForm();
-      loadData();
+      await loadData();
+      setNotification({
+        type: "success",
+        message: "Data pemantauan tumbuh kembang anak (SDIDTK) berhasil disimpan ke dalam sistem!"
+      });
     } catch (err) {
       console.error("Gagal simpan SDIDTK. Detail error:", err);
       const status = err.response?.status;
       const serverMsg = err.response?.data?.message || err.message;
       const serverDetail = err.response?.data?.error || "";
-      alert(`Gagal menyimpan data ke server! (Status: ${status})\nDetail: ${serverMsg}${serverDetail ? `\n${serverDetail}` : ""}`);
+      setNotification({
+        type: "error",
+        message: "Permintaan gagal diproses. Silakan coba lagi nanti atau hubungi bantuan.",
+        code: `Status: ${status} | Detail: ${serverMsg}${serverDetail ? ` | ${serverDetail}` : ""}`
+      });
     } finally {
       setIsLoading(false);
     }
@@ -111,6 +121,14 @@ const FormSDIDTK = () => {
 
   return (
     <MainLayout>
+      <AlertNotification 
+        notification={notification} 
+        onClose={() => setNotification(null)} 
+        onRetry={notification?.type === "error" ? () => {
+          setNotification(null);
+          setIsModalOpen(true);
+        } : null}
+      />
       <div className="p-6 bg-gray-50 min-h-screen font-sans">
 
         {/* HEADER */}

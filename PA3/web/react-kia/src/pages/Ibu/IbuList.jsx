@@ -20,10 +20,12 @@ const statusBadge = (status) => {
 
 // Normalisasi risiko
 const normalizeRiskStatus = (risk) => {
-  const upperRisk = (risk || "").toUpperCase();
+  if (!risk || risk.trim() === "") return "BELUM_DIPERIKSA";
+  const upperRisk = risk.toUpperCase();
   if (upperRisk === "PERLU RUJUKAN" || upperRisk === "TINGGI") return "PERLU_RUJUKAN";
-  if (upperRisk === "PERLU TINDAKAN" || upperRisk === "SEDANG") return "PERLU_TINDAKAN";
-  return "NORMAL";
+  if (upperRisk === "PERLU TINDAKAN" || upperRisk === "SEDANG" || upperRisk === "SEDAMNG") return "PERLU_TINDAKAN";
+  if (upperRisk === "NORMAL") return "NORMAL";
+  return "BELUM_DIPERIKSA";
 };
 
 const riskLabel = (risk) => {
@@ -34,7 +36,10 @@ const riskLabel = (risk) => {
   if (normalized === "PERLU_TINDAKAN") {
     return { label: "Sedang", class: "bg-yellow-100 text-yellow-700 border border-yellow-200" };
   }
-  return { label: "Normal", class: "bg-green-100 text-green-700 border border-green-200" };
+  if (normalized === "NORMAL") {
+    return { label: "Normal", class: "bg-green-100 text-green-700 border border-green-200" };
+  }
+  return { label: "Belum Diperiksa", class: "bg-gray-100 text-gray-500 border border-gray-200" };
 };
 
 export default function IbuList() {

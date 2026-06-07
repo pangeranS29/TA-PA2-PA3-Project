@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import MainLayout from "../../components/Layout/MainLayout";
+import AlertNotification from "../../components/AlertNotification";
 import { Search, Plus, Pencil, Trash2, X, Check, RotateCcw } from "lucide-react";
 import { getRentangUsia } from "../../services/pemantauanAnak";
 import {
@@ -26,6 +27,7 @@ export default function KelolaPerkembangan() {
   const [notice, setNotice] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
   const [clickedBtn, setClickedBtn] = useState({ id: null, type: null });
+  const [notification, setNotification] = useState(null);
 
   const normalizeKategoriUmur = (items) => {
     return (Array.isArray(items) ? items : []).map((item) => ({
@@ -153,16 +155,27 @@ export default function KelolaPerkembangan() {
 
       if (formMode === "edit" && selectedItem) {
         await updateKategoriCapaian(selectedItem.id, payload);
-        setNotice("Indikator perawatan berhasil diperbarui");
+        setNotification({
+          type: "success",
+          message: "Data indikator perkembangan anak berhasil diperbarui ke dalam sistem!"
+        });
       } else {
         await createKategoriCapaian(payload);
-        setNotice("Indikator perawatan berhasil ditambahkan");
+        setNotification({
+          type: "success",
+          message: "Data indikator perkembangan anak berhasil ditambahkan ke dalam sistem!"
+        });
       }
 
       closeModal();
       await fetchData(activeKategoriUsia || kategoriUsia, query);
     } catch (error) {
-      setErrorMsg("Gagal menyimpan indikator: " + (error?.response?.data?.message || error.message));
+      const errMsg = error?.response?.data?.message || error.message || "Unknown error";
+      setNotification({
+        type: "error",
+        message: "Permintaan gagal diproses. Silakan coba lagi nanti atau hubungi bantuan.",
+        code: errMsg
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -187,11 +200,19 @@ export default function KelolaPerkembangan() {
 
     try {
       await deleteKategoriCapaian(selectedItem.id);
-      setNotice("Indikator perawatan berhasil dihapus");
+      setNotification({
+        type: "success",
+        message: "Data indikator perkembangan anak berhasil dihapus dari sistem!"
+      });
       closeDeleteModal();
       await fetchData(activeKategoriUsia, query);
     } catch (error) {
-      setErrorMsg("Gagal menghapus indikator");
+      const errMsg = error?.response?.data?.message || error.message || "Unknown error";
+      setNotification({
+        type: "error",
+        message: "Permintaan gagal diproses. Silakan coba lagi nanti atau hubungi bantuan.",
+        code: errMsg
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -199,6 +220,11 @@ export default function KelolaPerkembangan() {
 
   return (
     <MainLayout>
+      <AlertNotification 
+        notification={notification} 
+        onClose={() => setNotification(null)} 
+        onRetry={notification?.type === "error" ? () => setNotification(null) : null}
+      />
       <div className="max-w-6xl mx-auto space-y-6">
         <div className="flex justify-center">
           <div className="relative w-full max-w-2xl">

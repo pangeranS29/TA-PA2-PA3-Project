@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"log"
 
-	firebase "firebase.google.com/go/v4"
+	"firebase.google.com/go/v4"
 	"firebase.google.com/go/v4/messaging"
 	"google.golang.org/api/option"
 
@@ -329,10 +329,8 @@ func Init(opts Options) *Main {
 	)
 	m.Pencatatan = NewPencatatanUsecase(
 		opts.Repository.Kependudukan,
-		opts.Repository.PemeriksaanAnak,   //
-		opts.Repository.PemeriksaanRemaja, //
-		opts.Repository.PemeriksaanDewasa, //
-		opts.Repository.PemeriksaanLansia, //
+		opts.Repository.Pemeriksaan,   //
+		 //
 	)
 	m.Form = NewFormUsecase(opts.Repository.Form) // Inisialisasi FormUsecase dengan repository yang sesuai
 	m.Pemeriksaan = NewPemeriksaanUsecase(opts.Repository.Form, opts.Repository.Pemeriksaan)
