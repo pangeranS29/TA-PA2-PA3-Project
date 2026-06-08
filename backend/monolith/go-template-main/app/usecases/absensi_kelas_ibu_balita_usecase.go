@@ -11,7 +11,7 @@ type AbsensiKelasIbuBalitaUsecase interface {
 	GetMine(userID int32) ([]models.AbsensiKelasIbuBalita, error)
 	SaveMine(userID int32, req models.AbsensiKelasIbuBalita) (*models.AbsensiKelasIbuBalita, error)
 	GetAll() ([]models.AbsensiKelasIbuBalita, error)
-	Verify(id int32, namaKader string, tanggalParaf *time.Time) error
+	Verify(id int32, namaKader string, tanggalParaf *time.Time, status string) error
 }
 
 type absensiKelasIbuBalitaUsecase struct {
@@ -75,7 +75,7 @@ func (u *absensiKelasIbuBalitaUsecase) GetAll() ([]models.AbsensiKelasIbuBalita,
 	return u.repo.FindAllWithIbu()
 }
 
-func (u *absensiKelasIbuBalitaUsecase) Verify(id int32, namaKader string, tanggalParaf *time.Time) error {
+func (u *absensiKelasIbuBalitaUsecase) Verify(id int32, namaKader string, tanggalParaf *time.Time, status string) error {
 	data, err := u.repo.FindByID(id)
 	if err != nil {
 		return errors.New("data absensi tidak ditemukan")
@@ -83,6 +83,7 @@ func (u *absensiKelasIbuBalitaUsecase) Verify(id int32, namaKader string, tangga
 
 	data.NamaKader = namaKader
 	data.TanggalParaf = tanggalParaf
+	data.Status = status
 
 	return u.repo.Update(data)
 }

@@ -74,6 +74,7 @@ func (ctrl *bblController) Verify(c echo.Context) error {
 	var body struct {
 		KaderID      uint   `json:"kader_id"`
 		PeriodeWaktu string `json:"periode_waktu"`
+		Status       string `json:"status"`
 	}
 	if err := c.Bind(&body); err != nil {
 		return helpers.StandardResponse(c, http.StatusBadRequest, "Invalid request payload", nil, nil)
@@ -91,8 +92,12 @@ func (ctrl *bblController) Verify(c echo.Context) error {
 		return helpers.StandardResponse(c, http.StatusNotFound, "BBL data not found", nil, nil)
 	}
 
+	if body.Status == "" {
+		body.Status = "Diterima"
+	}
+
 	// Verifikasi
-	result, err := ctrl.bblUsecase.Verify(bbl.ID, body.KaderID, body.PeriodeWaktu)
+	result, err := ctrl.bblUsecase.Verify(bbl.ID, body.KaderID, body.PeriodeWaktu, body.Status)
 	if err != nil {
 		return helpers.StandardResponse(c, http.StatusInternalServerError, "Failed to verify BBL: "+err.Error(), nil, nil)
 	}

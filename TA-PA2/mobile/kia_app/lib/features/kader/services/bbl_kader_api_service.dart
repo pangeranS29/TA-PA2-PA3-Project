@@ -43,7 +43,7 @@ class BblKaderApiService {
     return raw.map((e) => BblModel.fromJson(e as Map<String, dynamic>)).toList();
   }
 
-  Future<void> verifyBbl(int anakId, int kaderId, String periodeWaktu) async {
+  Future<void> verifyBbl(int anakId, int kaderId, String periodeWaktu, String status) async {
     final uri = Uri.parse('${ApiConstants.baseUrl}/kader/bbl/anak/$anakId/verifikasi');
     final resp = await _client.put(
       uri,
@@ -51,6 +51,7 @@ class BblKaderApiService {
       body: jsonEncode({
         'kader_id': kaderId,
         'periode_waktu': periodeWaktu,
+        'status': status,
       }),
     );
 
