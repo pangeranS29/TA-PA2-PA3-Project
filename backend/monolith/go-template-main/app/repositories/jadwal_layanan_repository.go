@@ -9,13 +9,13 @@ import (
 )
 
 type JadwalLayananRepository interface {
-	Create(data *models.JadwalLayanan, vaksinIDs []uint) error
+	Create(data *models.JadwalLayanan, dosisVaksinIDs []uint) error
 	GetAll() ([]models.JadwalLayanan, error)
 	GetByID(id int32) (*models.JadwalLayanan, error)
 	GetByPosyandu(posyanduID int32) ([]models.JadwalLayanan, error)
 	GetByDateRange(posyanduID *int32, from, to *time.Time) ([]models.JadwalLayanan, error)
 	GetUpcoming(limit int) ([]models.JadwalLayanan, error)
-	Update(id int32, data *models.JadwalLayanan, vaksinIDs []uint) error
+	Update(id int32, data *models.JadwalLayanan, dosisVaksinIDs []uint) error
 	Delete(id int32) error
 }
 
@@ -24,30 +24,26 @@ type jadwalLayananRepository struct {
 }
 
 func NewJadwalLayananRepository(db *gorm.DB) JadwalLayananRepository {
-	return &jadwalLayananRepository{db}
+	return &jadwalLayananRepository{db: db}
 }
 
-func (r *jadwalLayananRepository) Create(data *models.JadwalLayanan, vaksinIDs []uint) error {
-	// Mulai transaction
+func (r *jadwalLayananRepository) Create(data *models.JadwalLayanan, dosisVaksinIDs []uint) error {
 	return r.db.Transaction(func(tx *gorm.DB) error {
-		// Create jadwal layanan
 		if err := tx.Create(data).Error; err != nil {
 			return err
 		}
 
-		// Jika ada vaksin IDs, buat relasi
-		if len(vaksinIDs) > 0 {
-			for _, vaksinID := range vaksinIDs {
-				pivot := models.JadwalLayananVaksin{
+		if len(dosisVaksinIDs) > 0 {
+			for _, dosisVaksinID := range dosisVaksinIDs {
+				pivot := models.JadwalLayananDosisVaksin{
 					JadwalLayananID: data.ID,
-					VaksinID:        vaksinID,
+					DosisVaksinID:   dosisVaksinID,
 				}
 				if err := tx.Create(&pivot).Error; err != nil {
 					return err
 				}
 			}
 		}
-
 		return nil
 	})
 }
@@ -55,7 +51,8 @@ func (r *jadwalLayananRepository) Create(data *models.JadwalLayanan, vaksinIDs [
 func (r *jadwalLayananRepository) GetAll() ([]models.JadwalLayanan, error) {
 	var data []models.JadwalLayanan
 	err := r.db.
-		Preload("Vaksins").
+		Preload("DosisVaksins").
+		Preload("DosisVaksins.Vaksin").
 		Preload("Posyandu").
 		Order("tanggal asc, waktu_mulai asc").
 		Find(&data).Error
@@ -65,7 +62,8 @@ func (r *jadwalLayananRepository) GetAll() ([]models.JadwalLayanan, error) {
 func (r *jadwalLayananRepository) GetByID(id int32) (*models.JadwalLayanan, error) {
 	var data models.JadwalLayanan
 	err := r.db.
-		Preload("Vaksins").
+		Preload("DosisVaksins").
+		Preload("DosisVaksins.Vaksin").
 		Preload("Posyandu").
 		First(&data, id).Error
 	return &data, err
@@ -74,7 +72,8 @@ func (r *jadwalLayananRepository) GetByID(id int32) (*models.JadwalLayanan, erro
 func (r *jadwalLayananRepository) GetByPosyandu(posyanduID int32) ([]models.JadwalLayanan, error) {
 	var data []models.JadwalLayanan
 	err := r.db.
-		Preload("Vaksins").
+		Preload("DosisVaksins").
+		Preload("DosisVaksins.Vaksin").
 		Preload("Posyandu").
 		Where("posyandu_id = ?", posyanduID).
 		Order("tanggal asc, waktu_mulai asc").
@@ -84,7 +83,10 @@ func (r *jadwalLayananRepository) GetByPosyandu(posyanduID int32) ([]models.Jadw
 
 func (r *jadwalLayananRepository) GetByDateRange(posyanduID *int32, from, to *time.Time) ([]models.JadwalLayanan, error) {
 	var data []models.JadwalLayanan
-	q := r.db.Model(&models.JadwalLayanan{}).Preload("Vaksins").Preload("Posyandu")
+	q := r.db.Model(&models.JadwalLayanan{}).
+		Preload("DosisVaksins").
+		Preload("DosisVaksins.Vaksin").
+		Preload("Posyandu")
 
 	if posyanduID != nil {
 		q = q.Where("posyandu_id = ?", *posyanduID)
@@ -103,12 +105,13 @@ func (r *jadwalLayananRepository) GetByDateRange(posyanduID *int32, from, to *ti
 
 func (r *jadwalLayananRepository) GetUpcoming(limit int) ([]models.JadwalLayanan, error) {
 	var data []models.JadwalLayanan
-	// Fetch upcoming where date > today OR (date == today AND waktu_selesai >= now_time OR waktu_selesai IS NULL)
 	now := time.Now()
 	today := now.Format("2006-01-02")
 	nowTime := now.Format("15:04:05")
+
 	err := r.db.
-		Preload("Vaksins").
+		Preload("DosisVaksins").
+		Preload("DosisVaksins.Vaksin").
 		Preload("Posyandu").
 		Where("tanggal > ? OR (tanggal = ? AND (waktu_selesai IS NULL OR waktu_selesai >= ?))", today, today, nowTime).
 		Order("tanggal asc, waktu_mulai asc").
@@ -117,49 +120,39 @@ func (r *jadwalLayananRepository) GetUpcoming(limit int) ([]models.JadwalLayanan
 	return data, err
 }
 
-func (r *jadwalLayananRepository) Update(id int32, data *models.JadwalLayanan, vaksinIDs []uint) error {
-	// Mulai transaction
+func (r *jadwalLayananRepository) Update(id int32, data *models.JadwalLayanan, dosisVaksinIDs []uint) error {
 	return r.db.Transaction(func(tx *gorm.DB) error {
-		// Update jadwal layanan
 		if err := tx.Model(&models.JadwalLayanan{}).Where("id = ?", id).Updates(data).Error; err != nil {
 			return err
 		}
 
-		// Hapus relasi yang lama
-		if err := tx.Where("jadwal_layanan_id = ?", id).Delete(&models.JadwalLayananVaksin{}).Error; err != nil {
+		if err := tx.Where("jadwal_layanan_id = ?", id).Delete(&models.JadwalLayananDosisVaksin{}).Error; err != nil {
 			return err
 		}
 
-		// Buat relasi baru jika ada
-		if len(vaksinIDs) > 0 {
-			for _, vaksinID := range vaksinIDs {
-				pivot := models.JadwalLayananVaksin{
+		if len(dosisVaksinIDs) > 0 {
+			for _, dosisVaksinID := range dosisVaksinIDs {
+				pivot := models.JadwalLayananDosisVaksin{
 					JadwalLayananID: id,
-					VaksinID:        vaksinID,
+					DosisVaksinID:   dosisVaksinID,
 				}
 				if err := tx.Create(&pivot).Error; err != nil {
 					return err
 				}
 			}
 		}
-
 		return nil
 	})
 }
 
 func (r *jadwalLayananRepository) Delete(id int32) error {
-	// Mulai transaction
 	return r.db.Transaction(func(tx *gorm.DB) error {
-		// Hapus relasi pivot terlebih dahulu
-		if err := tx.Where("jadwal_layanan_id = ?", id).Delete(&models.JadwalLayananVaksin{}).Error; err != nil {
+		if err := tx.Where("jadwal_layanan_id = ?", id).Delete(&models.JadwalLayananDosisVaksin{}).Error; err != nil {
 			return err
 		}
-
-		// Hapus jadwal layanan
 		if err := tx.Delete(&models.JadwalLayanan{}, id).Error; err != nil {
 			return err
 		}
-
 		return nil
 	})
 }

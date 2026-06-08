@@ -120,6 +120,10 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	bidan.GET("/vaksin", controller.Vaksin.GetAll)
 	bidan.GET("/vaksin/:id", controller.Vaksin.GetByID)
 
+	// Dosis Vaksin routes - TAMBAHKAN
+	bidan.GET("/dosis-vaksin", controller.DosisVaksin.GetAll)
+	bidan.GET("/dosis-vaksin/by-vaksin/:vaksin_id", controller.DosisVaksin.GetByVaksinID)
+
 	bidan.GET("/request-perubahan-jadwal-imunisasi", controller.GetAllRequestPerubahanJadwal)
 	bidan.PUT("/request-perubahan-jadwal-imunisasi/:id/approve", controller.ApproveRequestPerubahanJadwal)
 	bidan.PUT("/request-perubahan-jadwal-imunisasi/:id/reject", controller.RejectRequestPerubahanJadwal)

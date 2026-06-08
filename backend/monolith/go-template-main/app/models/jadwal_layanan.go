@@ -20,9 +20,8 @@ type JadwalLayanan struct {
 	UpdatedAt    time.Time      `json:"updated_at"`
 	DeletedAt    gorm.DeletedAt `json:"-" gorm:"index"`
 
-	// Relasi many-to-many dengan Vaksin
-	Vaksins   []Vaksin `json:"vaksins,omitempty" gorm:"many2many:jadwal_layanan_vaksin;"`
-	VaksinIDs []uint   `json:"vaksin_ids,omitempty" gorm:"-"`
+	// Relasi many-to-many dengan DosisVaksin
+	DosisVaksins []DosisVaksin `json:"dosis_vaksins,omitempty" gorm:"many2many:jadwal_layanan_dosis_vaksin;"`
 }
 
 func (JadwalLayanan) TableName() string {

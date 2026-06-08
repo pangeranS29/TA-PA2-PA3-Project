@@ -29,15 +29,15 @@ func timePtrToDBString(t *time.Time) *string {
 }
 
 func (c *JadwalLayananController) Create(ctx echo.Context) error {
-	// Bind to intermediate struct to validate formats (tanggal as YYYY-MM-DD)
+	// Bind to intermediate struct
 	var in struct {
-		PosyanduID   *int32 `json:"posyandu_id"`
-		Layanan      string `json:"layanan"`
-		Tanggal      string `json:"tanggal"`
-		WaktuMulai   string `json:"waktu_mulai"`
-		WaktuSelesai string `json:"waktu_selesai"`
-		Keterangan   string `json:"keterangan"`
-		VaksinIDs    []uint `json:"vaksin_ids"` // Tambahkan ini
+		PosyanduID     *int32 `json:"posyandu_id"`
+		Layanan        string `json:"layanan"`
+		Tanggal        string `json:"tanggal"`
+		WaktuMulai     string `json:"waktu_mulai"`
+		WaktuSelesai   string `json:"waktu_selesai"`
+		Keterangan     string `json:"keterangan"`
+		DosisVaksinIDs []uint `json:"dosis_vaksin_ids"` // ← GANTI dari VaksinIDs
 	}
 
 	if err := ctx.Bind(&in); err != nil {
@@ -61,7 +61,7 @@ func (c *JadwalLayananController) Create(ctx echo.Context) error {
 		}
 	}
 
-	// waktu validation: waktu_mulai required (HH:MM), waktu_selesai optional (HH:MM)
+	// waktu validation
 	if in.WaktuMulai == "" {
 		fieldErrors = append(fieldErrors, map[string]string{"field": "waktu_mulai", "message": "is required, format HH:MM"})
 	} else {
@@ -111,29 +111,29 @@ func (c *JadwalLayananController) Create(ctx echo.Context) error {
 		Keterangan: in.Keterangan,
 	}
 
-	// parse waktu_mulai and waktu_selesai into time.Time (time-only)
 	model.WaktuMulai = timePtrToDBString(waktuMulaiParsed)
 	model.WaktuSelesai = timePtrToDBString(waktuSelesaiParsed)
 
-	// Panggil usecase dengan vaksinIDs
-	if err := c.usecase.Create(&model, in.VaksinIDs); err != nil {
+	// Log untuk debugging
+	println("Creating jadwal with dosis_vaksin_ids:", len(in.DosisVaksinIDs))
+
+	// Panggil usecase dengan DosisVaksinIDs
+	if err := c.usecase.Create(&model, in.DosisVaksinIDs); err != nil {
 		return ctx.JSON(http.StatusInternalServerError, echo.Map{"error": "create_failed", "details": err.Error()})
 	}
 
-	// Load data yang sudah dibuat lengkap dengan vaksinnya
+	// Load data yang sudah dibuat
 	result, _ := c.usecase.GetByID(model.ID)
 	return ctx.JSON(http.StatusCreated, result)
 }
 
 func (c *JadwalLayananController) GetAll(ctx echo.Context) error {
-	// Query params: posyandu_id, from, to, upcoming (bool), limit
 	posyanduParam := ctx.QueryParam("posyandu_id")
 	fromParam := ctx.QueryParam("from")
 	toParam := ctx.QueryParam("to")
 	upcomingParam := ctx.QueryParam("upcoming")
 	limitParam := ctx.QueryParam("limit")
 
-	// upcoming handling
 	if upcomingParam == "true" {
 		limit := 5
 		if limitParam != "" {
@@ -148,7 +148,6 @@ func (c *JadwalLayananController) GetAll(ctx echo.Context) error {
 		return ctx.JSON(http.StatusOK, data)
 	}
 
-	// date range handling
 	var posyanduID *int32
 	if posyanduParam != "" {
 		if v, err := strconv.Atoi(posyanduParam); err == nil {
@@ -170,7 +169,6 @@ func (c *JadwalLayananController) GetAll(ctx echo.Context) error {
 		}
 	}
 
-	// If any filter provided, use date-range query; otherwise return all
 	if posyanduID != nil || fromTime != nil || toTime != nil {
 		data, err := c.usecase.GetByDateRange(posyanduID, fromTime, toTime)
 		if err != nil {
@@ -207,13 +205,13 @@ func (c *JadwalLayananController) Update(ctx echo.Context) error {
 	}
 
 	var in struct {
-		PosyanduID   *int32 `json:"posyandu_id"`
-		Layanan      string `json:"layanan"`
-		Tanggal      string `json:"tanggal"`
-		WaktuMulai   string `json:"waktu_mulai"`
-		WaktuSelesai string `json:"waktu_selesai"`
-		Keterangan   string `json:"keterangan"`
-		VaksinIDs    []uint `json:"vaksin_ids"` // Tambahkan ini
+		PosyanduID     *int32 `json:"posyandu_id"`
+		Layanan        string `json:"layanan"`
+		Tanggal        string `json:"tanggal"`
+		WaktuMulai     string `json:"waktu_mulai"`
+		WaktuSelesai   string `json:"waktu_selesai"`
+		Keterangan     string `json:"keterangan"`
+		DosisVaksinIDs []uint `json:"dosis_vaksin_ids"` // ← GANTI dari VaksinIDs
 	}
 
 	if err := ctx.Bind(&in); err != nil {
@@ -290,8 +288,8 @@ func (c *JadwalLayananController) Update(ctx echo.Context) error {
 		model.Keterangan = in.Keterangan
 	}
 
-	// Panggil usecase dengan vaksinIDs
-	if err := c.usecase.Update(int32(id), &model, in.VaksinIDs); err != nil {
+	// Panggil usecase dengan DosisVaksinIDs
+	if err := c.usecase.Update(int32(id), &model, in.DosisVaksinIDs); err != nil {
 		return ctx.JSON(http.StatusNotFound, echo.Map{"error": err.Error()})
 	}
 
