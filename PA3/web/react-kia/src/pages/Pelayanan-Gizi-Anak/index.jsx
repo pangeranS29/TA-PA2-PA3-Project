@@ -293,8 +293,7 @@ const requestPayload = useMemo(() => {
                   <div className="flex items-start gap-4 bg-rose-50 p-4 rounded-2xl border border-rose-100 mb-6">
                     <Info size={20} className="text-rose-600 shrink-0 mt-0.5" />
                     <div className="text-sm text-rose-800 leading-relaxed">
-                      <strong>🚨 Jadwal Suplementasi Obat Cacing:</strong> Anak berada di usia <strong>{formData.bulan_ke} bulan {'>= 24 bulan'}</strong>. Jadwalkan pemberian obat cacing dan catat statusnya di bawah.
-                    </div>
+                    <strong>🚨 Jadwal Suplementasi Obat Cacing:</strong> Anak berada di usia <strong>{`${formData.bulan_ke} bulan >= 24 bulan`}</strong>. Jadwalkan pemberian obat cacing dan catat statusnya di bawah.</div>
                   </div>
                 )}
 

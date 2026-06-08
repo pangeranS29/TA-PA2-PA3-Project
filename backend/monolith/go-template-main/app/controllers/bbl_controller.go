@@ -70,15 +70,19 @@ func (ctrl *bblController) Verify(c echo.Context) error {
 		return helpers.StandardResponse(c, http.StatusBadRequest, "Invalid Anak ID", nil, nil)
 	}
 
-	// Ambil kader_id dari request body
+	// Ambil kader_id dan periode_waktu dari request body
 	var body struct {
-		KaderID uint `json:"kader_id"`
+		KaderID      uint   `json:"kader_id"`
+		PeriodeWaktu string `json:"periode_waktu"`
 	}
 	if err := c.Bind(&body); err != nil {
 		return helpers.StandardResponse(c, http.StatusBadRequest, "Invalid request payload", nil, nil)
 	}
 	if body.KaderID == 0 {
 		return helpers.StandardResponse(c, http.StatusBadRequest, "kader_id is required", nil, nil)
+	}
+	if body.PeriodeWaktu == "" {
+		return helpers.StandardResponse(c, http.StatusBadRequest, "periode_waktu is required", nil, nil)
 	}
 
 	// Cari BBL berdasarkan anak_id
@@ -88,7 +92,7 @@ func (ctrl *bblController) Verify(c echo.Context) error {
 	}
 
 	// Verifikasi
-	result, err := ctrl.bblUsecase.Verify(bbl.ID, body.KaderID)
+	result, err := ctrl.bblUsecase.Verify(bbl.ID, body.KaderID, body.PeriodeWaktu)
 	if err != nil {
 		return helpers.StandardResponse(c, http.StatusInternalServerError, "Failed to verify BBL: "+err.Error(), nil, nil)
 	}

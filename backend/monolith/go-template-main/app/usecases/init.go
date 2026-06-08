@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 
 	"firebase.google.com/go/v4"
 	"firebase.google.com/go/v4/messaging"
@@ -148,42 +149,28 @@ func Init(opts Options) *Main {
 		config:     opts.Config,
 	}
 
-	opt := option.WithCredentialsFile("firebase-service-account.json")
-
-	app, err := firebase.NewApp(
-		context.Background(),
-		nil,
-		opt,
-	)
-
-	if err != nil {
-
-		log.Printf(
-			"[FCM INIT] Firebase NewApp gagal: %v",
-			err,
-		)
-
-	} else {
-
-		client, err := app.Messaging(
+	if _, err := os.Stat("firebase-service-account.json"); err == nil {
+		opt := option.WithCredentialsFile("firebase-service-account.json")
+		app, err := firebase.NewApp(
 			context.Background(),
+			nil,
+			opt,
 		)
-
 		if err != nil {
-
-			log.Printf(
-				"[FCM INIT] Messaging client gagal: %v",
-				err,
-			)
-
+			log.Printf("[FCM INIT] Firebase NewApp gagal: %v", err)
 		} else {
-
-			log.Printf(
-				"[FCM INIT] Firebase berhasil diinisialisasi",
+			client, err := app.Messaging(
+				context.Background(),
 			)
-
-			m.fcmClient = client
+			if err != nil {
+				log.Printf("[FCM INIT] Messaging client gagal: %v", err)
+			} else {
+				log.Printf("[FCM INIT] Firebase berhasil diinisialisasi")
+				m.fcmClient = client
+			}
 		}
+	} else {
+		log.Println("[FCM INIT] firebase-service-account.json tidak ditemukan, FCM dinonaktifkan")
 	}
 
 	//  BUAT PREDIKSI USECASE (panggil service Python)

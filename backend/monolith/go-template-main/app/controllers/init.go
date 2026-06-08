@@ -108,6 +108,7 @@ type Main struct {
 	EdukasiResepMPASI        *ResepMPASIController
 	LaporanIbu               *LaporanIbuController
 	JadwalLayanan            *JadwalLayananController
+	Vaksin                   *VaksinController // ← TAMBAHKAN INI
 	LaporanAnak              *LaporanAnakController
 	PemeriksaanAnak          *PemeriksaanAnakController
 	PemeriksaanRemaja        *PemeriksaanRemajaController
@@ -233,18 +234,20 @@ func Init(opts Options) *Main {
 
 	// Jadwal layanan (imunisasi)
 	m.JadwalLayanan = NewJadwalLayananController(opts.UseCases.JadwalLayanan)
+	// Vaksin - TAMBAHKAN INI
+	m.Vaksin = NewVaksinController(opts.DB)
 	m.PemeriksaanAnak = NewPemeriksaanAnakController(opts.UseCases.PemeriksaanAnak, opts.UseCases.Kependudukan)
 	m.PemeriksaanRemaja = NewPemeriksaanRemajaController(opts.UseCases.PemeriksaanRemaja, opts.UseCases.Kependudukan)
 	m.PemeriksaanDewasa = NewPemeriksaanDewasaController(opts.UseCases.PemeriksaanDewasa, opts.UseCases.Kependudukan)
 	m.PemeriksaanLansia = NewPemeriksaanLansiaController(opts.UseCases.PemeriksaanLansia, opts.UseCases.Kependudukan)
 	// Buat DashboardUsecase dari usecase yang sudah tersedia
 	// Buat repository pemeriksaan terpusat
-dashboardUsecase := usecases.NewDashboardUsecase(
+	dashboardUsecase := usecases.NewDashboardUsecase(
 		opts.UseCases.Kependudukan,
 		opts.UseCases.Pemeriksaan,
 	)
 
-	// Inject ke controller	
+	// Inject ke controller
 	m.Dashboard = NewDashboardController(dashboardUsecase)
 	m.PendudukRisk = NewPendudukRiskController(opts.UseCases.PendudukRisk)
 	m.RiwayatCard = NewRiwayatCardController(opts.UseCases.RiwayatCard)

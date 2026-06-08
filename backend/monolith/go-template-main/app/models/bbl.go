@@ -14,12 +14,6 @@ type Bbl struct {
 
 	Checklist         []BblCheck     `json:"checklist" gorm:"foreignKey:BblID"`
 
-	// Data Verifikasi oleh Kader
-	IsVerified        bool           `json:"is_verified" gorm:"default:false"`
-	VerifiedAt        *time.Time     `json:"verified_at"`
-	VerifiedByKaderID *uint          `json:"verified_by_kader_id"`
-	VerifiedByKader   *Kader         `json:"verified_by_kader,omitempty" gorm:"foreignKey:VerifiedByKaderID"`
-
 	CreatedAt         time.Time      `json:"created_at"`
 	UpdatedAt         time.Time      `json:"updated_at"`
 	DeletedAt         gorm.DeletedAt `json:"-" gorm:"index"`
@@ -36,6 +30,12 @@ type BblCheck struct {
 	PeriodeWaktu      string     `json:"periode_waktu" gorm:"type:varchar(50);not null"`
 	StatusPemeriksaan bool       `json:"status_pemeriksaan" gorm:"default:false"`
 	TanggalSubmit     *time.Time `json:"tanggal_submit"`
+
+	// Data Verifikasi oleh Kader per Periode
+	IsVerified        bool       `json:"is_verified" gorm:"default:false"`
+	VerifiedAt        *time.Time `json:"verified_at"`
+	VerifiedByKaderID *uint      `json:"verified_by_kader_id"`
+	VerifiedByKader   *Kader     `json:"verified_by_kader,omitempty" gorm:"foreignKey:VerifiedByKaderID"`
 }
 
 func (BblCheck) TableName() string {

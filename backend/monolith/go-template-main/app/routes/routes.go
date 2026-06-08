@@ -116,6 +116,9 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	bidan.GET("/dashboard/jadwal-layanan/:id", controller.JadwalLayanan.GetByID)
 	bidan.PUT("/dashboard/jadwal-layanan/:id", controller.JadwalLayanan.Update)
 	bidan.DELETE("/dashboard/jadwal-layanan/:id", controller.JadwalLayanan.Delete)
+	// Vaksin routes - TAMBAHKAN INI (gunakan controller.Vaksin)
+	bidan.GET("/vaksin", controller.Vaksin.GetAll)
+	bidan.GET("/vaksin/:id", controller.Vaksin.GetByID)
 
 	bidan.GET("/request-perubahan-jadwal-imunisasi", controller.GetAllRequestPerubahanJadwal)
 	bidan.PUT("/request-perubahan-jadwal-imunisasi/:id/approve", controller.ApproveRequestPerubahanJadwal)
@@ -135,7 +138,6 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	_ = masterStandar
 	masterStandar.GET("", controller.GetMasterStandar)
 	masterStandar.POST("", controller.CreateMasterStandar)
-
 
 	// Perkembangan Routes
 	// perkembangan := e.Group("/perkembangan")
