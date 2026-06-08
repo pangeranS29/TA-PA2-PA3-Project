@@ -1,4 +1,4 @@
-package routes
+﻿package routes
 
 import (
 	"monitoring-service/app/controllers"
@@ -600,6 +600,7 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 
 	// ==================== KEPENDUDUKAN ====================
 	tenaga.GET("/kependudukan", controller.Kependudukan.GetAll)
+	tenaga.GET("/kependudukan/desa", controller.Kependudukan.GetPendudukList)
 	tenaga.POST("/kependudukan", controller.Kependudukan.Create)
 	tenaga.GET("/kependudukan/:id", controller.Kependudukan.GetByID)
 	// tenaga.GET("/kependudukan/kartu-keluarga/:kartu_keluarga_id", controller.Kependudukan.GetByKartuKeluargaID)

@@ -2,9 +2,15 @@
 import joblib
 import numpy as np
 import pandas as pd
+import warnings
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import List
+
+
+# Suppress sklearn feature name warnings
+warnings.filterwarnings('ignore', message='X does not have valid feature names')
+
 
 app = FastAPI(title="MamaCare ML API")
 
