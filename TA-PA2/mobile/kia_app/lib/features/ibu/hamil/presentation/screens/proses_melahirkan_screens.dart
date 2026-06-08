@@ -210,7 +210,7 @@ class _KeteranganLahirScreenState extends State<KeteranganLahirScreen> {
               const SizedBox(height: 16),
 
               // ── Tanda Tangan ─────────────────────────────────────────────
-              _InfoCard(title: 'Tanda Tangan', children: [
+              _InfoCard(title: 'Data Saksi & Penolong', children: [
                 Row(children: [
                   Expanded(child: _SignatureBox(label: 'Saksi I', value: k.namaSaksi1)),
                   const SizedBox(width: 10),
