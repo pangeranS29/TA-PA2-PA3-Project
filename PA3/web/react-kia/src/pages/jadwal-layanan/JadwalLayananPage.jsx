@@ -12,7 +12,7 @@ import {
   RefreshCw,
   AlertCircle,
   CalendarOff,
-  Syringe, // Add this
+  Syringe,
 } from "lucide-react";
 import {
   getJadwalLayananList,
@@ -187,7 +187,6 @@ function TabButton({ tab, active, count, onClick }) {
         >
           {label}
         </span>
-        {/* Badge jumlah kunjungan */}
         <span
           className={`inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full text-xs font-semibold ${
             active
@@ -198,7 +197,6 @@ function TabButton({ tab, active, count, onClick }) {
           {count}
         </span>
       </div>
-      {/* Sub-label deskriptif */}
       <span className="text-xs text-slate-400 mt-1 pl-6">{sub}</span>
     </button>
   );
@@ -249,7 +247,7 @@ function ScheduleRow({ r, onEdit, onDelete, deleting }) {
   const upcoming = !done && !today && isUpcoming(r.tanggal);
   const waktuMulai = normalizeTimeValue(r.waktu_mulai || r.waktu);
   const waktuSelesai = normalizeTimeValue(r.waktu_selesai);
-  const vaksins = r.vaksins || []; // Get vaksin list
+  const dosisVaksins = r.dosis_vaksins || [];
 
   return (
     <div className="flex items-center gap-3 px-5 py-4 border-b border-slate-50 last:border-0 hover:bg-slate-50/60 transition-colors">
@@ -301,16 +299,16 @@ function ScheduleRow({ r, onEdit, onDelete, deleting }) {
           )}
         </div>
 
-        {/* Vaksin chips */}
-        {vaksins.length > 0 && (
+        {/* Dosis Vaksin chips */}
+        {dosisVaksins.length > 0 && (
           <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
             <Syringe size={11} className="text-slate-400" />
-            {vaksins.map(v => (
+            {dosisVaksins.map(d => (
               <span
-                key={v.id}
+                key={d.id}
                 className="text-xs px-1.5 py-0.5 bg-[#185FA5]/5 text-[#185FA5] rounded-full"
               >
-                {v.nama}
+                {d.Vaksin?.nama} - {d.nama_dosis}
               </span>
             ))}
           </div>
@@ -328,7 +326,6 @@ function ScheduleRow({ r, onEdit, onDelete, deleting }) {
               {r.posyandu?.nama || `Posyandu #${r.posyandu_id}`}
             </span>
           )}
-          {/* kapasitas removed */}
         </div>
         {r.keterangan && (
           <p className="text-xs text-slate-400 mt-1 line-clamp-1 italic">
@@ -379,14 +376,12 @@ export default function JadwalLayananPage() {
     setError("");
     try {
       const data = await getJadwalLayananList();
-      // Backend may return either an array or a pagination object like { data: [...] }
       let rows = [];
       if (Array.isArray(data)) rows = data;
       else if (Array.isArray(data?.data)) rows = data.data;
       else if (Array.isArray(data?.items)) rows = data.items;
       else rows = [];
 
-      // Normalize tanggal to ISO date strings and sort ascending by date + time.
       rows = rows
         .map((r) => ({ ...r }))
         .sort((a, b) => {
@@ -431,7 +426,6 @@ export default function JadwalLayananPage() {
     }
   };
 
-  // Kategori per tab
   const todayRows = allRows.filter((r) => isToday(r.tanggal));
   const upcomingRows = allRows.filter(
     (r) => !isDone(r) && !isToday(r.tanggal) && isUpcoming(r.tanggal)
@@ -445,7 +439,7 @@ export default function JadwalLayananPage() {
   return (
     <MainLayout>
       <div className="space-y-5">
-        {/* ── Header ── */}
+        {/* Header */}
         <section className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
           <div className="flex items-center justify-between px-6 py-5">
             <div className="flex items-center gap-3">
@@ -457,7 +451,6 @@ export default function JadwalLayananPage() {
                   <h1 className="text-xl font-bold text-slate-800 leading-tight">
                     Jadwal Layanan Imunisasi
                   </h1>
-                 
                 </div>
                 <p className="text-sm text-slate-400 mt-0.5">
                   Kelola sesi posyandu — Dashboard Bidan
@@ -492,7 +485,7 @@ export default function JadwalLayananPage() {
           )}
         </section>
 
-        {/* ── Tabs dengan badge & sub-label ── */}
+        {/* Tabs */}
         <div className="flex gap-3 flex-wrap">
           {TABS.map((tab) => (
             <TabButton
@@ -505,7 +498,7 @@ export default function JadwalLayananPage() {
           ))}
         </div>
 
-        {/* ── Daftar jadwal ── */}
+        {/* Daftar jadwal */}
         <section className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
           {loading || tabLoading ? (
             <LoadingState />
