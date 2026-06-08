@@ -24,6 +24,12 @@ export const updateRencana = async (id, data) => {
   return response;
 };
 
+// 🔥 Fungsi baru untuk menghapus rencana persalinan
+export const deleteRencana = async (id) => {
+  const response = await api.delete(`/tenaga-kesehatan/rencana-persalinan/${id}`);
+  return response.data;
+};
+
 // === (Opsional) Riwayat, Ringkasan, Keterangan ===
 export const getRiwayatByKehamilanId = async (kehamilanId) => {
   const response = await api.get('/tenaga-kesehatan/riwayat-proses-melahirkan', {

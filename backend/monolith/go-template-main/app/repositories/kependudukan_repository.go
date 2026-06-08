@@ -33,6 +33,7 @@ type kependudukanRepository interface {
 	GetAllActive() ([]models.Kependudukan, error)
 	FindByAgeRange(minAge, maxAge int) ([]models.Kependudukan, error)
 	GetAllActiveByDesaID(desaID int32) ([]models.Kependudukan, error)
+ 	GetPendudukByDesaAndJenisKelamin(desaID *int32, role string, jenisKelamin string) ([]models.Kependudukan, error)
 }
 
 // Implementasi privat
@@ -353,4 +354,33 @@ func (r *KependudukanRepository) GetAllActiveByDesaID(desaID int32) ([]models.Ke
 	var list []models.Kependudukan
 	err := r.db.Where("desa_id = ? AND deleted_at IS NULL", desaID).Find(&list).Error
 	return list, err
+}
+
+// repositories/kependudukan_repository.go
+
+// GetPendudukList mengambil daftar penduduk dengan filter desa dan jenis kelamin
+func (r *KependudukanRepository) GetPendudukList(desaID *int32, role string, jenisKelamin string) ([]models.Kependudukan, error) {
+    var penduduk []models.Kependudukan
+    
+    query := r.db.Where("deleted_at IS NULL")
+    
+    // Filter desa hanya jika role TIDAK memiliki akses penuh
+    if !middlewares.HasFullAccess(role) && desaID != nil {
+        query = query.Where("desa_id = ?", *desaID)
+    }
+    
+    // Filter jenis kelamin jika diberikan
+    if jenisKelamin != "" {
+        if jenisKelamin == "perempuan" {
+            query = query.Where("jenis_kelamin IN (?)", []string{"Perempuan", "P"})
+        } else if jenisKelamin == "laki" {
+            query = query.Where("jenis_kelamin IN (?)", []string{"Laki-laki", "L"})
+        }
+    }
+    
+    // Urutkan berdasarkan nama
+    query = query.Order("nama_lengkap ASC")
+    
+    err := query.Find(&penduduk).Error
+    return penduduk, err
 }

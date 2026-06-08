@@ -4,11 +4,33 @@ import { useParams } from "react-router-dom";
 import Swal from "sweetalert2";
 import MainLayout from "../../components/Layout/MainLayout";
 import { getKehamilanByIbuId } from "../../services/kehamilan";
-import { catatanT1, catatanT2, catatanT3, catatanNifas } from "../../services/catatanPelayanan";
+import {
+  catatanT1,
+  catatanT2,
+  catatanT3,
+  catatanNifas,
+} from "../../services/catatanPelayanan";
 import { Save, Plus, Trash2, AlertCircle } from "lucide-react";
 
-const services = { T1: catatanT1, T2: catatanT2, T3: catatanT3, Nifas: catatanNifas };
-const tabLabels = { T1: "Trimester 1", T2: "Trimester 2", T3: "Trimester 3", Nifas: "Nifas" };
+const services = {
+  T1: catatanT1,
+  T2: catatanT2,
+  T3: catatanT3,
+  Nifas: catatanNifas,
+};
+const tabLabels = {
+  T1: "Trimester 1",
+  T2: "Trimester 2",
+  T3: "Trimester 3",
+  Nifas: "Nifas",
+};
+
+// Helper fungsi validasi tanggal
+const isDateAfterToday = (dateStr) => {
+  if (!dateStr) return false;
+  const today = new Date().toISOString().split("T")[0];
+  return dateStr > today;
+};
 
 export default function CatatanPelayanan() {
   const { id } = useParams();
@@ -20,6 +42,7 @@ export default function CatatanPelayanan() {
     keluhan_pemeriksaan_tindakan_saran: "",
     tanggal_kembali: "",
   });
+  const [validationErrors, setValidationErrors] = useState({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
@@ -31,6 +54,34 @@ export default function CatatanPelayanan() {
     if (tab === "Nifas") return "id_catatan_nifas";
     if (tab === "T3") return "id_catatan_t3";
     return "id_catatan";
+  };
+
+  // Fungsi validasi form
+  const validateForm = () => {
+    const errors = {};
+
+    // Validasi Tanggal Periksa - WAJIB DIISI & TIDAK BOLEH MELEBIHI HARI INI
+    if (!form.tanggal_periksa_stamp_paraf) {
+      errors.tanggal_periksa_stamp_paraf = "Tanggal periksa harus diisi";
+    } else if (isDateAfterToday(form.tanggal_periksa_stamp_paraf)) {
+      errors.tanggal_periksa_stamp_paraf =
+        "Tanggal periksa tidak boleh melebihi hari ini";
+    }
+
+    // Validasi Keluhan - WAJIB DIISI
+    if (!form.keluhan_pemeriksaan_tindakan_saran?.trim()) {
+      errors.keluhan_pemeriksaan_tindakan_saran =
+        "Keluhan / pemeriksaan / tindakan / saran harus diisi";
+    }
+
+    // ✅ Validasi Tanggal Kembali - WAJIB DIISI & TIDAK BOLEH MELEBIHI HARI INI
+    if (!form.tanggal_kembali) {
+      errors.tanggal_kembali = "Tanggal kembali harus diisi";
+    } else if (isDateAfterToday(form.tanggal_kembali)) {
+      errors.tanggal_kembali = "Tanggal kembali tidak boleh melebihi hari ini";
+    }
+
+    return errors;
   };
 
   // Fetch kehamilan dan catatan saat komponen mount atau tab berubah
@@ -65,23 +116,31 @@ export default function CatatanPelayanan() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
+    // Hapus error field yang sedang diubah
+    if (validationErrors[name]) {
+      setValidationErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[name];
+        return newErrors;
+      });
+    }
+    setError(null);
   };
 
   // Handler submit form - CREATE catatan baru
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!kehamilan) {
       setError("Data kehamilan tidak ditemukan");
       return;
     }
 
     // Validasi input
-    if (!form.tanggal_periksa_stamp_paraf?.trim()) {
-      setError("Tanggal periksa harus diisi");
-      return;
-    }
-    if (!form.keluhan_pemeriksaan_tindakan_saran?.trim()) {
-      setError("Keluhan/Pemeriksaan/Tindakan/Saran harus diisi");
+    const errors = validateForm();
+    if (Object.keys(errors).length > 0) {
+      setValidationErrors(errors);
+      setError("Mohon lengkapi data yang wajib diisi dengan benar.");
       return;
     }
 
@@ -97,8 +156,7 @@ export default function CatatanPelayanan() {
       // Call API create
       const created = await svc.create(payload);
 
-      // PENTING: Tambahkan data yang baru dibuat ke dalam list
-      // Frontend harus refresh data setelah Create
+      // Tambahkan data yang baru dibuat ke dalam list
       setRecords((prev) => [created, ...prev]);
 
       // Reset form
@@ -107,13 +165,15 @@ export default function CatatanPelayanan() {
         keluhan_pemeriksaan_tindakan_saran: "",
         tanggal_kembali: "",
       });
+      setValidationErrors({});
 
       setSuccessMessage("Catatan pelayanan berhasil ditambahkan");
       setTimeout(() => setSuccessMessage(null), 3000);
     } catch (err) {
       console.error("Error creating catatan:", err);
       setError(
-        "Gagal menyimpan catatan: " + (err.response?.data?.message || err.message)
+        "Gagal menyimpan catatan: " +
+          (err.response?.data?.message || err.message),
       );
     } finally {
       setSaving(false);
@@ -123,14 +183,14 @@ export default function CatatanPelayanan() {
   // Handler DELETE catatan
   const handleDelete = async (recordId) => {
     const result = await Swal.fire({
-      title: 'Hapus Catatan?',
-      text: 'Yakin ingin menghapus catatan ini?',
-      icon: 'warning',
+      title: "Hapus Catatan?",
+      text: "Yakin ingin menghapus catatan ini?",
+      icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: '#dc2626',
-      cancelButtonColor: '#6b7280',
-      confirmButtonText: 'Ya, Hapus!',
-      cancelButtonText: 'Batal'
+      confirmButtonColor: "#dc2626",
+      cancelButtonColor: "#6b7280",
+      confirmButtonText: "Ya, Hapus!",
+      cancelButtonText: "Batal",
     });
 
     if (!result.isConfirmed) return;
@@ -141,15 +201,18 @@ export default function CatatanPelayanan() {
       const svc = services[activeTab];
       await svc.delete(recordId);
 
-      // PENTING: Hapus dari state setelah Delete berhasil
-      setRecords((prev) => prev.filter((r) => r[getIdFieldName(activeTab)] !== recordId));
+      // Hapus dari state setelah Delete berhasil
+      setRecords((prev) =>
+        prev.filter((r) => r[getIdFieldName(activeTab)] !== recordId),
+      );
 
       setSuccessMessage("Catatan berhasil dihapus");
       setTimeout(() => setSuccessMessage(null), 3000);
     } catch (err) {
       console.error("Error deleting catatan:", err);
       setError(
-        "Gagal menghapus catatan: " + (err.response?.data?.message || err.message)
+        "Gagal menghapus catatan: " +
+          (err.response?.data?.message || err.message),
       );
     } finally {
       setDeleteLoading(null);
@@ -182,7 +245,10 @@ export default function CatatanPelayanan() {
         {/* Pesan error */}
         {error && (
           <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
-            <AlertCircle className="text-red-500 flex-shrink-0 mt-0.5" size={18} />
+            <AlertCircle
+              className="text-red-500 flex-shrink-0 mt-0.5"
+              size={18}
+            />
             <p className="text-red-700 text-sm">{error}</p>
           </div>
         )}
@@ -190,7 +256,9 @@ export default function CatatanPelayanan() {
         {/* Pesan sukses */}
         {successMessage && (
           <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-            <p className="text-green-700 text-sm font-medium">{successMessage}</p>
+            <p className="text-green-700 text-sm font-medium">
+              {successMessage}
+            </p>
           </div>
         )}
 
@@ -203,6 +271,7 @@ export default function CatatanPelayanan() {
                 setActiveTab(tab);
                 setError(null);
                 setSuccessMessage(null);
+                setValidationErrors({});
               }}
               className={`px-4 py-2 font-medium transition-colors ${
                 activeTab === tab
@@ -245,20 +314,22 @@ export default function CatatanPelayanan() {
                 </thead>
                 <tbody className="divide-y divide-gray-100">
                   {records.map((r, idx) => (
-                    <tr key={r[idKey] || idx} className="hover:bg-gray-50 transition-colors">
+                    <tr
+                      key={r[idKey] || idx}
+                      className="hover:bg-gray-50 transition-colors"
+                    >
                       <td className="px-4 py-3 text-sm font-medium text-gray-900">
                         {idx + 1}
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-600">
                         {r.tanggal_periksa_stamp_paraf
-                          ? new Date(r.tanggal_periksa_stamp_paraf).toLocaleDateString(
-                              "id-ID",
-                              {
-                                year: "numeric",
-                                month: "short",
-                                day: "numeric",
-                              }
-                            )
+                          ? new Date(
+                              r.tanggal_periksa_stamp_paraf,
+                            ).toLocaleDateString("id-ID", {
+                              year: "numeric",
+                              month: "short",
+                              day: "numeric",
+                            })
                           : "-"}
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-600 whitespace-pre-wrap max-w-xs">
@@ -266,11 +337,14 @@ export default function CatatanPelayanan() {
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-600">
                         {r.tanggal_kembali
-                          ? new Date(r.tanggal_kembali).toLocaleDateString("id-ID", {
-                              year: "numeric",
-                              month: "short",
-                              day: "numeric",
-                            })
+                          ? new Date(r.tanggal_kembali).toLocaleDateString(
+                              "id-ID",
+                              {
+                                year: "numeric",
+                                month: "short",
+                                day: "numeric",
+                              },
+                            )
                           : "-"}
                       </td>
                       <td className="px-4 py-3 text-center">
@@ -309,49 +383,81 @@ export default function CatatanPelayanan() {
           onSubmit={handleSubmit}
           className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 space-y-4"
         >
-          <h3 className="font-semibold text-lg">Tambah Catatan Baru - {tabLabels[activeTab]}</h3>
+          <h3 className="font-semibold text-lg">
+            Tambah Catatan Baru - {tabLabels[activeTab]}
+          </h3>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Tanggal Periksa / Stempel / Paraf
+                Tanggal Periksa / Stempel / Paraf{" "}
+                <span className="text-red-500">*</span>
               </label>
               <input
                 type="date"
                 name="tanggal_periksa_stamp_paraf"
                 value={form.tanggal_periksa_stamp_paraf}
                 onChange={handleChange}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                required
+                max={new Date().toISOString().split("T")[0]}
+                className={`w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent ${
+                  validationErrors.tanggal_periksa_stamp_paraf
+                    ? "border-red-500 bg-red-50"
+                    : "border-gray-300"
+                }`}
               />
+              {validationErrors.tanggal_periksa_stamp_paraf && (
+                <p className="text-xs text-red-500 font-medium mt-1">
+                  {validationErrors.tanggal_periksa_stamp_paraf}
+                </p>
+              )}
             </div>
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Tanggal Kembali
+                Tanggal Kembali <span className="text-red-500">*</span>
               </label>
               <input
                 type="date"
                 name="tanggal_kembali"
                 value={form.tanggal_kembali}
                 onChange={handleChange}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                required
+                max={new Date().toISOString().split("T")[0]}
+                className={`w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent ${
+                  validationErrors.tanggal_kembali
+                    ? "border-red-500 bg-red-50"
+                    : "border-gray-300"
+                }`}
               />
+              {validationErrors.tanggal_kembali && (
+                <p className="text-xs text-red-500 font-medium mt-1">
+                  {validationErrors.tanggal_kembali}
+                </p>
+              )}
             </div>
           </div>
 
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Keluhan / Pemeriksaan / Tindakan / Saran
+              Keluhan / Pemeriksaan / Tindakan / Saran{" "}
+              <span className="text-red-500">*</span>
             </label>
             <textarea
               name="keluhan_pemeriksaan_tindakan_saran"
               value={form.keluhan_pemeriksaan_tindakan_saran}
               onChange={handleChange}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              className={`w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent ${
+                validationErrors.keluhan_pemeriksaan_tindakan_saran
+                  ? "border-red-500 bg-red-50"
+                  : "border-gray-300"
+              }`}
               rows="5"
-              required
               placeholder="Tuliskan keluhan, hasil pemeriksaan, tindakan yang dilakukan, dan saran untuk pasien..."
             />
+            {validationErrors.keluhan_pemeriksaan_tindakan_saran && (
+              <p className="text-xs text-red-500 font-medium mt-1">
+                {validationErrors.keluhan_pemeriksaan_tindakan_saran}
+              </p>
+            )}
           </div>
 
           <button

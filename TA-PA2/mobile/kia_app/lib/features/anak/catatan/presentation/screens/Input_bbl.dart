@@ -36,6 +36,9 @@ class _BblCheckItem {
   bool locked;
   DateTime? tanggalSubmit;
   int existingId;
+  bool isVerified;
+  DateTime? verifiedAt;
+  String? namaKaderVerifikasi;
 
   _BblCheckItem({
     required this.periodeWaktu,
@@ -43,6 +46,9 @@ class _BblCheckItem {
     required this.locked,
     this.tanggalSubmit,
     this.existingId = 0,
+    this.isVerified = false,
+    this.verifiedAt,
+    this.namaKaderVerifikasi,
   });
 }
 
@@ -52,11 +58,6 @@ class _InputBblScreenState extends State<InputBblScreen> {
 
   bool _isLoading = false;
   late BblApiService _apiService;
-
-  // Data verifikasi dari server
-  bool _isVerified = false;
-  DateTime? _verifiedAt;
-  String? _namaKaderVerifikasi;
 
   @override
   void initState() {
@@ -83,10 +84,6 @@ class _InputBblScreenState extends State<InputBblScreen> {
       final bbl = await _apiService.getByAnakId(anakId);
       if (bbl != null) {
         setState(() {
-          _isVerified = bbl.isVerified;
-          _verifiedAt = bbl.verifiedAt;
-          _namaKaderVerifikasi = bbl.namaKaderVerifikasi;
-
           // Map checklist dari server ke UI items
           for (var i = 0; i < _checkItems.length; i++) {
             final serverCheck = bbl.getCheckByPeriode(_checkItems[i].periodeWaktu);
@@ -95,6 +92,9 @@ class _InputBblScreenState extends State<InputBblScreen> {
               _checkItems[i].locked = serverCheck.statusPemeriksaan;
               _checkItems[i].tanggalSubmit = serverCheck.tanggalSubmit;
               _checkItems[i].existingId = serverCheck.id;
+              _checkItems[i].isVerified = serverCheck.isVerified;
+              _checkItems[i].verifiedAt = serverCheck.verifiedAt;
+              _checkItems[i].namaKaderVerifikasi = serverCheck.namaKaderVerifikasi;
             }
           }
 
@@ -108,6 +108,9 @@ class _InputBblScreenState extends State<InputBblScreen> {
                 locked: check.statusPemeriksaan,
                 tanggalSubmit: check.tanggalSubmit,
                 existingId: check.id,
+                isVerified: check.isVerified,
+                verifiedAt: check.verifiedAt,
+                namaKaderVerifikasi: check.namaKaderVerifikasi,
               ));
             }
           }
@@ -373,24 +376,35 @@ class _InputBblScreenState extends State<InputBblScreen> {
   // ─────────────────────── Verifikasi Card ────────────────────────────────
 
   Widget _buildVerifikasiCard() {
+    final submittedItems = _checkItems.where((c) => c.statusPemeriksaan).toList();
+    if (submittedItems.isEmpty) return const SizedBox.shrink();
+
+    final isVerified = submittedItems.every((c) => c.isVerified);
+    
+    final latestVerified = submittedItems.where((c) => c.isVerified).toList()
+      ..sort((a, b) => (b.verifiedAt ?? DateTime(0)).compareTo(a.verifiedAt ?? DateTime(0)));
+      
+    final namaKaderVerifikasi = latestVerified.isNotEmpty ? latestVerified.first.namaKaderVerifikasi : null;
+    final verifiedAt = latestVerified.isNotEmpty ? latestVerified.first.verifiedAt : null;
+
     final Color cardColor;
     final Color borderColor;
     final IconData statusIcon;
     final String statusText;
     final Color iconColor;
 
-    if (_isVerified) {
+    if (isVerified) {
       cardColor = const Color(0xFFECFDF5);
       borderColor = const Color(0xFF10B981);
       statusIcon = Icons.verified;
       iconColor = const Color(0xFF059669);
-      statusText = 'Terverifikasi';
+      statusText = 'Semua data terverifikasi';
     } else {
       cardColor = const Color(0xFFFFF7ED);
       borderColor = const Color(0xFFFB923C);
       statusIcon = Icons.pending;
       iconColor = const Color(0xFFEA580C);
-      statusText = 'Menunggu Verifikasi';
+      statusText = 'Menunggu Verifikasi (${submittedItems.where((c) => c.isVerified).length}/${submittedItems.length})';
     }
 
     return Container(
@@ -416,17 +430,17 @@ class _InputBblScreenState extends State<InputBblScreen> {
                     color: iconColor,
                   ),
                 ),
-                if (_isVerified && _namaKaderVerifikasi != null) ...[
+                if (isVerified && namaKaderVerifikasi != null) ...[
                   const SizedBox(height: 4),
                   Text(
-                    'Diverifikasi oleh: $_namaKaderVerifikasi',
+                    'Terakhir diverifikasi oleh: $namaKaderVerifikasi',
                     style: TextStyle(fontSize: 12, color: iconColor.withOpacity(0.8)),
                   ),
                 ],
-                if (_isVerified && _verifiedAt != null) ...[
+                if (isVerified && verifiedAt != null) ...[
                   const SizedBox(height: 2),
                   Text(
-                    'Tanggal: ${_formatDate(_verifiedAt)}',
+                    'Tanggal: ${_formatDate(verifiedAt)}',
                     style: TextStyle(fontSize: 12, color: iconColor.withOpacity(0.8)),
                   ),
                 ],
