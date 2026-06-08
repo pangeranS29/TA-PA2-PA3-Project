@@ -40,7 +40,8 @@ func (r *PemeriksaanDokterTrimester1Repository) CreateWithLab(dokter *models.Pem
 // ── UpdateWithLab (transaksi update dokter + lab) ─────────────────────
 func (r *PemeriksaanDokterTrimester1Repository) UpdateWithLab(dokterID int32, dokter *models.PemeriksaanDokterTrimester1, lab *models.PemeriksaanLaboratoriumJiwa) error {
 	return r.db.Transaction(func(tx *gorm.DB) error {
-		if err := tx.Model(&models.PemeriksaanDokterTrimester1{}).Where("id_trimester1 = ?", dokterID).Updates(dokter).Error; err != nil {
+		dokter.ID = dokterID
+		if err := tx.Save(dokter).Error; err != nil {
 			return err
 		}
 		if lab != nil {

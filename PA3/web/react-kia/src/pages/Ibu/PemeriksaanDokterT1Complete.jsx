@@ -157,16 +157,25 @@ const formatTanggalIndo = (dateStr) => {
 };
 
 // ── Helper: "YYYY-MM-DD" → "YYYY-MM-DDT00:00:00Z" (null jika kosong) ─────
-const toDateTimeISO = (dateStr) => {
-  if (!dateStr || typeof dateStr !== "string" || !dateStr.trim()) return null;
-  if (dateStr.includes("T")) return dateStr;
-  return `${dateStr}T00:00:00Z`;
-};
-
 // ── Helper: ambil tanggal (YYYY-MM-DD) dari string ISO maupun plain date ──
 const toDateOnly = (val) => {
   if (!val) return "";
   return typeof val === "string" ? val.split("T")[0] : "";
+};
+
+const todayDateStr = () => new Date().toISOString().split("T")[0];
+
+const buildKehamilanPrefill = (kehamilanDetail, tanggalPeriksa = todayDateStr()) => {
+  if (!kehamilanDetail?.hpht) return {};
+  const hpht = toDateOnly(kehamilanDetail.hpht);
+  const usia = hitungUsiaKehamilanDariHPHT(kehamilanDetail.hpht, tanggalPeriksa);
+  const hpl = hitungHPLDariHPHT(kehamilanDetail.hpht);
+  const hplFromKehamilan = toDateOnly(kehamilanDetail.taksiran_persalinan);
+  return {
+    hpht,
+    umur_hamil_hpht_minggu: usia?.minggu?.toString() || "",
+    hpl_berdasarkan_hpht: hpl?.date || hplFromKehamilan || "",
+  };
 };
 
 // ── Helper Components ─────────────────────────────────────────────────────
@@ -485,6 +494,14 @@ export default function PemeriksaanDokterT1Complete() {
       const aktif = kehamilanList[0];
       setKehamilan(aktif);
 
+      let kehamilanData = null;
+      try {
+        kehamilanData = await getKehamilanById(aktif.id);
+        setKehamilanDetail(kehamilanData);
+      } catch (err) {
+        console.error("Error fetching kehamilan detail:", err);
+      }
+
       // Coba ambil data existing
       let res = null;
       try {
@@ -497,8 +514,8 @@ export default function PemeriksaanDokterT1Complete() {
       if (!normalized) {
         // Tidak ada data → mode create
         setExistingData(null);
-        // setIsEditMode(false);
-        // Jika dokter, bisa create; jika bidan, tampilkan pesan data kosong
+        const tanggalPeriksa = todayDateStr();
+        const prefill = buildKehamilanPrefill(kehamilanData, tanggalPeriksa);
         if (!isDokter) {
           setError(
             "Belum ada data pemeriksaan. Hanya dokter yang dapat menambah data.",
@@ -508,6 +525,8 @@ export default function PemeriksaanDokterT1Complete() {
             ...INITIAL_FORM,
             kehamilan_id: aktif.id,
             nama_dokter: dokterName,
+            tanggal_periksa: tanggalPeriksa,
+            ...prefill,
           });
         }
         return;
@@ -1027,7 +1046,7 @@ export default function PemeriksaanDokterT1Complete() {
     return {
       kehamilan_id: kehamilan.id,
       nama_dokter: form.nama_dokter,
-      tanggal_periksa: toDateTimeISO(form.tanggal_periksa),
+      tanggal_periksa: form.tanggal_periksa || todayDateStr(),
       konsep_anamnesa_pemeriksaan: form.konsep_anamnesa_pemeriksaan,
       fisik_konjungtiva: form.fisik_konjungtiva,
       fisik_sklera: form.fisik_sklera,
@@ -1039,9 +1058,9 @@ export default function PemeriksaanDokterT1Complete() {
       fisik_dada_paru: form.fisik_dada_paru,
       fisik_perut: form.fisik_perut,
       fisik_tungkai: form.fisik_tungkai,
-      hpht: toDateTimeISO(form.hpht),
-      hpl_berdasarkan_hpht: toDateTimeISO(form.hpl_berdasarkan_hpht),
-      hpl_berdasarkan_usg: toDateTimeISO(form.hpl_berdasarkan_usg),
+      hpht: form.hpht || null,
+      hpl_berdasarkan_hpht: form.hpl_berdasarkan_hpht || null,
+      hpl_berdasarkan_usg: form.hpl_berdasarkan_usg || null,
       keteraturan_haid: form.keteraturan_haid,
       umur_hamil_hpht_minggu: numeric(form.umur_hamil_hpht_minggu),
       umur_hamil_usg_minggu: numeric(form.umur_hamil_usg_minggu),
@@ -1058,7 +1077,7 @@ export default function PemeriksaanDokterT1Complete() {
       usg_kecurigaan_temuan_abnormal: form.usg_kecurigaan_temuan_abnormal,
       usg_keterangan_temuan_abnormal: form.usg_keterangan_temuan_abnormal,
       gambar_usg: imageBase64 ?? "",
-      tanggal_lab: toDateTimeISO(form.tanggal_lab),
+      tanggal_lab: form.tanggal_lab || null,
       lab_hemoglobin_hasil: numeric(form.lab_hemoglobin_hasil, "float"),
       lab_hemoglobin_rencana_tindak_lanjut:
         form.lab_hemoglobin_rencana_tindak_lanjut,
@@ -1075,7 +1094,7 @@ export default function PemeriksaanDokterT1Complete() {
       lab_hepatitis_b_hasil: form.lab_hepatitis_b_hasil,
       lab_hepatitis_b_rencana_tindak_lanjut:
         form.lab_hepatitis_b_rencana_tindak_lanjut,
-      tanggal_skrining_jiwa: toDateTimeISO(form.tanggal_skrining_jiwa),
+      tanggal_skrining_jiwa: form.tanggal_skrining_jiwa || null,
       skrining_jiwa_hasil: form.skrining_jiwa_hasil,
       skrining_jiwa_tindak_lanjut: form.skrining_jiwa_tindak_lanjut,
       skrining_jiwa_perlu_rujukan: form.skrining_jiwa_perlu_rujukan,
