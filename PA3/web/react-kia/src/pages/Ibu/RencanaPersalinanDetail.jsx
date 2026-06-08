@@ -1,20 +1,22 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, useSearchParams, Link } from "react-router-dom";
 import MainLayout from "../../components/Layout/MainLayout";
-import { getRencanaById } from "../../services/persalinan";
+import { getRencanaById, deleteRencana } from "../../services/persalinan"; // <-- tambahkan deleteRencana
 import { getCurrentUser, isDokterUser } from "../../services/auth";
-import { Edit, Download, ArrowLeft, Home } from "lucide-react";
+import { Edit, Download, Trash2, ArrowLeft, Home } from "lucide-react"; // <-- Trash2 untuk ikon hapus
+import Swal from "sweetalert2"; // <-- untuk konfirmasi
 
 export default function RencanaPersalinanDetail() {
-  const { id } = useParams();
+  const { id } = useParams(); // id ibu
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const rencanaId = searchParams.get("id");
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [deleting, setDeleting] = useState(false); // state loading hapus
 
-  // Role: bidan bisa edit, dokter hanya baca
+  // Role: bidan bisa edit & hapus, dokter hanya baca
   const user = getCurrentUser();
   const isDokter = isDokterUser(user);
   const canEdit = !isDokter; // bidan
@@ -41,7 +43,51 @@ export default function RencanaPersalinanDetail() {
 
   const handleExport = () => window.print();
 
+  const handleDelete = async () => {
+    if (!canEdit) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Akses Ditolak',
+        text: 'Anda tidak memiliki izin untuk menghapus data.'
+      });
+      return;
+    }
 
+    const result = await Swal.fire({
+      title: 'Apakah Anda yakin?',
+      text: 'Rencana persalinan ini akan dihapus secara permanen!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Ya, hapus!',
+      cancelButtonText: 'Batal'
+    });
+
+    if (result.isConfirmed) {
+      setDeleting(true);
+      try {
+        await deleteRencana(rencanaId);
+        Swal.fire({
+          icon: 'success',
+          title: 'Terhapus',
+          text: 'Rencana persalinan berhasil dihapus.',
+          timer: 1500,
+          showConfirmButton: false
+        });
+        // Kembali ke halaman rencana persalinan ibu
+        navigate(`/data-ibu/${id}/rencana-persalinan`);
+      } catch (err) {
+        console.error(err);
+        Swal.fire({
+          icon: 'error',
+          title: 'Gagal',
+          text: 'Gagal menghapus: ' + (err.response?.data?.message || err.message)
+        });
+        setDeleting(false);
+      }
+    }
+  };
 
   if (loading) return <MainLayout><div className="p-6 text-center">Memuat data...</div></MainLayout>;
   if (error) return (
@@ -55,10 +101,11 @@ export default function RencanaPersalinanDetail() {
   if (!data) return <MainLayout><div className="p-6 text-center">Data tidak ditemukan.</div></MainLayout>;
 
   const editId = data.id_rencana_persalinan || data.id;
+
   return (
     <MainLayout>
       <div className="p-6 max-w-4xl mx-auto print:p-0">
-        {/* <Breadcrumb /> */}
+        {/* Header dengan tombol-tombol */}
         <div className="flex items-center justify-between mb-6 print:hidden">
           <div className="flex items-center gap-4">
             <button onClick={() => navigate(`/data-ibu/${id}`)} className="p-2 rounded-full hover:bg-gray-100"><ArrowLeft size={20} /></button>
@@ -66,20 +113,36 @@ export default function RencanaPersalinanDetail() {
           </div>
           <div className="flex gap-2">
             {canEdit && (
-              <button onClick={() => navigate(`/data-ibu/${id}/rencana-persalinan/form?id=${editId}`)} className="px-4 py-2 bg-amber-500 text-white rounded-lg flex items-center gap-2 hover:bg-amber-600">
-                <Edit size={18} /> Edit
-              </button>
+              <>
+                <button 
+                  onClick={() => navigate(`/data-ibu/${id}/rencana-persalinan/form?id=${editId}`)} 
+                  className="px-4 py-2 bg-amber-500 text-white rounded-lg flex items-center gap-2 hover:bg-amber-600"
+                >
+                  <Edit size={18} /> Edit
+                </button>
+                <button 
+                  onClick={handleDelete} 
+                  disabled={deleting}
+                  className="px-4 py-2 bg-red-600 text-white rounded-lg flex items-center gap-2 hover:bg-red-700 disabled:opacity-50"
+                >
+                  <Trash2 size={18} /> {deleting ? "Menghapus..." : "Hapus"}
+                </button>
+              </>
             )}
             <button onClick={handleExport} className="px-4 py-2 bg-green-600 text-white rounded-lg flex items-center gap-2 hover:bg-green-700">
               <Download size={18} /> Export PDF
             </button>
           </div>
         </div>
+
+        {/* Mode baca */}
         {!canEdit && (
           <div className="bg-blue-50 border border-blue-200 p-3 rounded-lg mb-4 text-blue-700 text-sm flex items-center gap-2">
             <Home size={16} /> Anda dalam mode baca (Dokter). Data hanya dapat dilihat, tidak dapat diubah.
           </div>
         )}
+
+        {/* Detail data */}
         <div className="bg-white rounded-xl shadow-sm p-8 print:shadow-none">
           <div className="text-center mb-8">
             <h2 className="text-2xl font-bold">Rencana Persalinan</h2>
