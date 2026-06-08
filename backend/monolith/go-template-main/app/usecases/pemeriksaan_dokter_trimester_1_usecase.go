@@ -361,11 +361,14 @@ import (
 
 type PemeriksaanDokterTrimester1Usecase interface {
 	Create(p *models.PemeriksaanDokterTrimester1) error
+	CreateWithLab(dokter *models.PemeriksaanDokterTrimester1, lab *models.PemeriksaanLaboratoriumJiwa) error
 	GetByID(id int32) (*models.PemeriksaanDokterTrimester1, error)
+	GetLabByKehamilanID(kehamilanID int32) (*models.PemeriksaanLaboratoriumJiwa, error)
 	GetMine(userID int32) (*models.PemeriksaanDokterTrimester1, error)
 	GetAllMine(userID int32) ([]models.PemeriksaanDokterTrimester1, error)
 	GetByKehamilanID(kehamilanID int32) ([]models.PemeriksaanDokterTrimester1, error)
-	Update(id int32, p *models.PemeriksaanDokterTrimester1) error // DIUBAH
+	Update(id int32, p *models.PemeriksaanDokterTrimester1) error
+	UpdateWithLab(id int32, dokter *models.PemeriksaanDokterTrimester1, lab *models.PemeriksaanLaboratoriumJiwa) error
 	Delete(id int32) error
 }
 
@@ -386,15 +389,29 @@ func (u *pemeriksaanDokterTrimester1Usecase) Create(p *models.PemeriksaanDokterT
 	return u.repo.Create(p)
 }
 
+func (u *pemeriksaanDokterTrimester1Usecase) CreateWithLab(dokter *models.PemeriksaanDokterTrimester1, lab *models.PemeriksaanLaboratoriumJiwa) error {
+	if dokter.KehamilanID == 0 {
+		return errors.New("kehamilan_id wajib diisi")
+	}
+	return u.repo.CreateWithLab(dokter, lab)
+}
+
 func (u *pemeriksaanDokterTrimester1Usecase) GetByID(id int32) (*models.PemeriksaanDokterTrimester1, error) {
 	return u.repo.FindByID(id)
+}
+
+func (u *pemeriksaanDokterTrimester1Usecase) GetLabByKehamilanID(kehamilanID int32) (*models.PemeriksaanLaboratoriumJiwa, error) {
+	lab, err := u.labRepo.FindByKehamilanIDAndTrimester(kehamilanID, 1)
+	if err != nil {
+		return nil, err
+	}
+	return lab, nil
 }
 
 func (u *pemeriksaanDokterTrimester1Usecase) GetByKehamilanID(kehamilanID int32) ([]models.PemeriksaanDokterTrimester1, error) {
 	return u.repo.FindByKehamilanID(kehamilanID)
 }
 
-// DIUBAH: Logic disesuaikan dengan parameter id
 func (u *pemeriksaanDokterTrimester1Usecase) Update(id int32, p *models.PemeriksaanDokterTrimester1) error {
 	_, err := u.repo.FindByID(id)
 	if err != nil {
@@ -402,6 +419,16 @@ func (u *pemeriksaanDokterTrimester1Usecase) Update(id int32, p *models.Pemeriks
 	}
 	p.ID = id
 	return u.repo.Update(p)
+}
+
+func (u *pemeriksaanDokterTrimester1Usecase) UpdateWithLab(id int32, dokter *models.PemeriksaanDokterTrimester1, lab *models.PemeriksaanLaboratoriumJiwa) error {
+	existing, err := u.repo.FindByID(id)
+	if err != nil {
+		return errors.New("data pemeriksaan dokter trimester 1 tidak ditemukan")
+	}
+	dokter.ID = id
+	dokter.KehamilanID = existing.KehamilanID
+	return u.repo.UpdateWithLab(id, dokter, lab)
 }
 
 func (u *pemeriksaanDokterTrimester1Usecase) Delete(id int32) error {

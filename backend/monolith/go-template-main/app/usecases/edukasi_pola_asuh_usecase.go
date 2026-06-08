@@ -12,6 +12,7 @@ type EdukasiPolaAsuhUsecase interface {
 	GetByID(id int32) (*models.EdukasiPolaAsuh, error)
 	Update(id int32, data *models.EdukasiPolaAsuh) error
 	Delete(id int32) error
+	GetByRentangUsia(rentangUsia string) ([]models.EdukasiPolaAsuh, error)
 }
 
 type edukasiPolaAsuhUsecase struct {
@@ -43,10 +44,15 @@ func (u *edukasiPolaAsuhUsecase) Update(id int32, data *models.EdukasiPolaAsuh) 
 	existing.Judul = data.Judul
 	existing.GambarURL = data.GambarURL
 	existing.Isi = data.Isi
+	existing.RentangUsia = data.RentangUsia
 
 	return u.repo.Update(existing)
 }
 
 func (u *edukasiPolaAsuhUsecase) Delete(id int32) error {
 	return u.repo.Delete(id)
+}
+
+func (u *edukasiPolaAsuhUsecase) GetByRentangUsia(rentangUsia string) ([]models.EdukasiPolaAsuh, error) {
+	return u.repo.FindByRentangUsia(rentangUsia)
 }

@@ -32,6 +32,7 @@ type BblCheck struct {
 	TanggalSubmit     *time.Time `json:"tanggal_submit"`
 
 	// Data Verifikasi oleh Kader per Periode
+	Status            string     `json:"status" gorm:"type:varchar(50);default:'Menunggu verifikasi'"`
 	IsVerified        bool       `json:"is_verified" gorm:"default:false"`
 	VerifiedAt        *time.Time `json:"verified_at"`
 	VerifiedByKaderID *uint      `json:"verified_by_kader_id"`

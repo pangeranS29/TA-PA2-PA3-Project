@@ -11,6 +11,7 @@ type EdukasiPerawatanAnakRepository interface {
 	Delete(id uint) error
 	FindAll() ([]models.EdukasiPerawatanAnak, error)
 	FindByID(id uint) (*models.EdukasiPerawatanAnak, error)
+	FindByRentangUsia(rentangUsia string) ([]models.EdukasiPerawatanAnak, error)
 }
 
 type edukasiPerawatanAnakRepository struct {
@@ -46,4 +47,10 @@ func (r *edukasiPerawatanAnakRepository) FindByID(id uint) (*models.EdukasiPeraw
 		return nil, err
 	}
 	return &data, nil
+}
+
+func (r *edukasiPerawatanAnakRepository) FindByRentangUsia(rentangUsia string) ([]models.EdukasiPerawatanAnak, error) {
+	var data []models.EdukasiPerawatanAnak
+	err := r.db.Where("rentang_usia = ?", rentangUsia).Order("id desc").Find(&data).Error
+	return data, err
 }

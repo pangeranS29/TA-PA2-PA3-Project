@@ -5,6 +5,7 @@ class BblCheckModel {
   final bool statusPemeriksaan;
   final DateTime? tanggalSubmit;
   final bool isVerified;
+  final String status;
   final DateTime? verifiedAt;
   final int? verifiedByKaderId;
   final String? namaKaderVerifikasi;
@@ -16,6 +17,7 @@ class BblCheckModel {
     required this.statusPemeriksaan,
     this.tanggalSubmit,
     this.isVerified = false,
+    this.status = 'Menunggu verifikasi',
     this.verifiedAt,
     this.verifiedByKaderId,
     this.namaKaderVerifikasi,
@@ -40,6 +42,7 @@ class BblCheckModel {
           ? DateTime.parse(json['tanggal_submit'] as String)
           : null,
       isVerified: json['is_verified'] == true,
+      status: (json['status'] ?? 'Menunggu verifikasi') as String,
       verifiedAt: json['verified_at'] != null
           ? DateTime.parse(json['verified_at'] as String)
           : null,

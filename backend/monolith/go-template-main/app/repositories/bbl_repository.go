@@ -10,7 +10,7 @@ type BblRepository interface {
 	GetByAnakID(anakID uint) (*models.Bbl, error)
 	GetByID(id uint) (*models.Bbl, error)
 	Upsert(bbl *models.Bbl) error
-	Verify(bblID uint, kaderID uint, periodeWaktu string) error
+	Verify(bblID uint, kaderID uint, periodeWaktu string, status string) error
 	GetAll() ([]models.Bbl, error)
 }
 
@@ -111,10 +111,17 @@ func (r *bblRepository) Upsert(bbl *models.Bbl) error {
 	return r.db.Where("id = ?", bbl.ID).Preload("Checklist").Preload("Checklist.VerifiedByKader").Preload("Checklist.VerifiedByKader.Penduduk").First(bbl).Error
 }
 
-func (r *bblRepository) Verify(bblID uint, kaderID uint, periodeWaktu string) error {
+func (r *bblRepository) Verify(bblID uint, kaderID uint, periodeWaktu string, status string) error {
 	now := gorm.Expr("NOW()")
+	
+	isVerified := false
+	if status == "Diterima" {
+		isVerified = true
+	}
+
 	return r.db.Model(&models.BblCheck{}).Where("bbl_id = ? AND periode_waktu = ?", bblID, periodeWaktu).Updates(map[string]interface{}{
-		"is_verified":          true,
+		"status":               status,
+		"is_verified":          isVerified,
 		"verified_at":          now,
 		"verified_by_kader_id": kaderID,
 	}).Error

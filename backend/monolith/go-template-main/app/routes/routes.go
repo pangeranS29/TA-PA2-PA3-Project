@@ -124,6 +124,11 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	bidan.PUT("/request-perubahan-jadwal-imunisasi/:id/approve", controller.ApproveRequestPerubahanJadwal)
 	bidan.PUT("/request-perubahan-jadwal-imunisasi/:id/reject", controller.RejectRequestPerubahanJadwal)
 
+	// Imunisasi - Dashboard Bidan
+	bidan.GET("/imunisasi/anak/:anak_id", controller.GetJadwalImunisasiByAnakIDBidan)
+	bidan.PUT("/imunisasi/:id/selesai", controller.SetJadwalSelesaiBidan)
+	bidan.GET("/imunisasi/:id", controller.GetJadwalImunisasiByIDBidan)
+
 	// Kader Management dipindahkan ke superadmin
 
 	// ==================== MODUL Anak ====================

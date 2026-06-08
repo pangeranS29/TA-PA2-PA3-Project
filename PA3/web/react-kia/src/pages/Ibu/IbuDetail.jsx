@@ -4,10 +4,7 @@ import { useParams, useSearchParams, Link, useNavigate } from "react-router-dom"
 import MainLayout from "../../components/Layout/MainLayout";
 import { getIbuById } from "../../services/ibu";
 import { getKehamilanByIbuId } from "../../services/kehamilan";
-import {
-  getDokterT1CompleteByKehamilanId,
-  getDokterT3CompleteByKehamilanId,
-} from "../../services/pemeriksaanDokter";
+import { getDokterT1CompleteByKehamilanId } from "../../services/pemeriksaanDokter";
 import { 
   ArrowLeft, 
   Users, 
@@ -196,22 +193,11 @@ export default function IbuDetail() {
     }
   };
 
-  const handleT3Click = async () => {
+  const handleT3Click = () => {
     if (!kehamilan) return;
     setCheckingT3(true);
-    try {
-      const data = await getDokterT3CompleteByKehamilanId(kehamilan.id);
-      if (data && data.dokter) {
-        navigate(`/data-ibu/${id}/pemeriksaan-dokter-t3-complete/detail?kehamilan_id=${kehamilan.id}`);
-      } else {
-        navigate(`/data-ibu/${id}/pemeriksaan-dokter-t3-complete/form?kehamilan_id=${kehamilan.id}`);
-      }
-    } catch (err) {
-      console.error(err);
-      navigate(`/data-ibu/${id}/pemeriksaan-dokter-t3-complete/form?kehamilan_id=${kehamilan.id}`);
-    } finally {
-      setCheckingT3(false);
-    }
+    navigate(`/data-ibu/${id}/pemeriksaan-dokter-t3-complete`);
+    setCheckingT3(false);
   };
 
   if (loading) {

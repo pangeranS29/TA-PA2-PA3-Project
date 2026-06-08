@@ -43,7 +43,7 @@ class _VerifikasiAbsensiKelasIbuBalitaScreenState extends State<VerifikasiAbsens
     }
   }
 
-  Future<void> _verify(AbsensiKelasIbuBalitaModel item) async {
+  Future<void> _verify(AbsensiKelasIbuBalitaModel item, String status) async {
     final namaKader = AuthSession.userName ?? 'Kader';
     final tanggalParaf = DateFormat('yyyy-MM-dd').format(DateTime.now());
 
@@ -54,7 +54,7 @@ class _VerifikasiAbsensiKelasIbuBalitaScreenState extends State<VerifikasiAbsens
         builder: (context) => const Center(child: CircularProgressIndicator()),
       );
 
-      await _apiService.verifyKader(item.id!, namaKader, tanggalParaf);
+      await _apiService.verifyKader(item.id!, namaKader, tanggalParaf, status);
       
       if (!mounted) return;
       Navigator.pop(context); // close loading
@@ -79,6 +79,44 @@ class _VerifikasiAbsensiKelasIbuBalitaScreenState extends State<VerifikasiAbsens
     }
   }
 
+  void _showConfirmationDialog({
+    required BuildContext context,
+    required String title,
+    required String content,
+    required VoidCallback onConfirm,
+  }) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+          content: Text(content),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Tidak', style: TextStyle(color: Colors.grey)),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                onConfirm();
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF185FA5),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: const Text('Ya'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -98,7 +136,20 @@ class _VerifikasiAbsensiKelasIbuBalitaScreenState extends State<VerifikasiAbsens
                       itemCount: _absensiList.length,
                       itemBuilder: (context, index) {
                         final item = _absensiList[index];
-                        final isVerified = item.namaKader.isNotEmpty && item.tanggalParaf.isNotEmpty;
+                        final isVerified = item.status == 'Diterima' || (item.namaKader.isNotEmpty && item.tanggalParaf.isNotEmpty && item.status != 'Ditolak');
+                        final isRejected = item.status == 'Ditolak';
+                        final isPending = !isVerified && !isRejected;
+
+                        Color statusColor = Colors.orange;
+                        String statusText = 'Menunggu Verifikasi';
+                        
+                        if (isVerified) {
+                          statusColor = Colors.green;
+                          statusText = 'Diterima';
+                        } else if (isRejected) {
+                          statusColor = Colors.red;
+                          statusText = 'Ditolak';
+                        }
 
                         return Card(
                           margin: const EdgeInsets.only(bottom: 12),
@@ -119,15 +170,16 @@ class _VerifikasiAbsensiKelasIbuBalitaScreenState extends State<VerifikasiAbsens
                                       ),
                                     ),
                                     Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                                       decoration: BoxDecoration(
-                                        color: isVerified ? Colors.green.shade100 : Colors.orange.shade100,
+                                        color: statusColor.withOpacity(0.1),
                                         borderRadius: BorderRadius.circular(8),
+                                        border: Border.all(color: statusColor.withOpacity(0.5))
                                       ),
                                       child: Text(
-                                        isVerified ? 'Terverifikasi' : 'Belum Verifikasi',
+                                        statusText,
                                         style: TextStyle(
-                                          color: isVerified ? Colors.green.shade800 : Colors.orange.shade800,
+                                          color: statusColor,
                                           fontSize: 12,
                                           fontWeight: FontWeight.bold,
                                         ),
@@ -138,28 +190,56 @@ class _VerifikasiAbsensiKelasIbuBalitaScreenState extends State<VerifikasiAbsens
                                 const SizedBox(height: 8),
                                 Text('Pertemuan ke: ${item.pertemuanKe}'),
                                 Text('Tanggal Hadir: ${item.tanggal}'),
-                                if (isVerified) ...[
+                                if (isVerified || isRejected) ...[
                                   const SizedBox(height: 4),
-                                  Text('Diverifikasi oleh: ${item.namaKader}', style: const TextStyle(color: Colors.grey)),
-                                  Text('Tanggal Paraf: ${item.tanggalParaf}', style: const TextStyle(color: Colors.grey)),
+                                  Text(isRejected ? 'Ditolak oleh: ${item.namaKader}' : 'Diverifikasi oleh: ${item.namaKader}', style: const TextStyle(color: Colors.grey)),
+                                  Text('Tanggal: ${item.tanggalParaf}', style: const TextStyle(color: Colors.grey)),
                                 ],
-                                if (!isVerified) ...[
-                                  const SizedBox(height: 12),
-                                  SizedBox(
-                                    width: double.infinity,
-                                    child: ElevatedButton(
-                                      onPressed: () => _verify(item),
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: Colors.teal,
-                                        foregroundColor: Colors.white,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(8),
+                                  if (isPending) ...[
+                                    const SizedBox(height: 12),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: OutlinedButton(
+                                            onPressed: () => _showConfirmationDialog(
+                                              context: context,
+                                              title: 'Tolak Verifikasi',
+                                              content: 'Apakah Anda yakin ingin menolak data absensi ini?',
+                                              onConfirm: () => _verify(item, 'Ditolak'),
+                                            ),
+                                            style: OutlinedButton.styleFrom(
+                                              foregroundColor: Colors.red,
+                                              side: const BorderSide(color: Colors.red),
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.circular(8),
+                                              ),
+                                            ),
+                                            child: const Text('Tolak'),
+                                          ),
                                         ),
-                                      ),
-                                      child: const Text('Verifikasi Kehadiran'),
+                                        const SizedBox(width: 10),
+                                        Expanded(
+                                          child: ElevatedButton(
+                                            onPressed: () => _showConfirmationDialog(
+                                              context: context,
+                                              title: 'Verifikasi Kehadiran',
+                                              content: 'Apakah Anda yakin ingin memverifikasi data absensi ini?',
+                                              onConfirm: () => _verify(item, 'Diterima'),
+                                            ),
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: const Color(0xFF185FA5),
+                                              foregroundColor: Colors.white,
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.circular(8),
+                                              ),
+                                              elevation: 1,
+                                            ),
+                                            child: const Text('Verifikasi'),
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                  ),
-                                ]
+                                  ]
                               ],
                             ),
                           ),

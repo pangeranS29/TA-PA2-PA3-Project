@@ -12,6 +12,7 @@ type EdukasiPolaAsuhRepository interface {
 	FindByID(id int32) (*models.EdukasiPolaAsuh, error)
 	Update(data *models.EdukasiPolaAsuh) error
 	Delete(id int32) error
+	FindByRentangUsia(rentangUsia string) ([]models.EdukasiPolaAsuh, error)
 }
 
 type edukasiPolaAsuhRepository struct {
@@ -44,4 +45,10 @@ func (r *edukasiPolaAsuhRepository) Update(data *models.EdukasiPolaAsuh) error {
 
 func (r *edukasiPolaAsuhRepository) Delete(id int32) error {
 	return r.db.Delete(&models.EdukasiPolaAsuh{}, id).Error
+}
+
+func (r *edukasiPolaAsuhRepository) FindByRentangUsia(rentangUsia string) ([]models.EdukasiPolaAsuh, error) {
+	var result []models.EdukasiPolaAsuh
+	err := r.db.Where("rentang_usia = ?", rentangUsia).Find(&result).Error
+	return result, err
 }
