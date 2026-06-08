@@ -126,6 +126,7 @@ func AutoMigrate(db *gorm.DB) error {
 
 		// ==================== BBL (BAYI BARU LAHIR) ====================
 		&Bbl{},
+		&BblCheck{},
 
 		// ==================== LAPORAN ====================
 		&LaporanIbu{},
