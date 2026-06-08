@@ -46,29 +46,29 @@ class _ImunisasiScreenState extends State<ImunisasiScreen> {
     ).format(date);
   }
 
-  Future<void> _setSelesai(int jadwalId) async {
-    try {
-      setState(() {
-        _isUpdating = true;
-      });
+  // Future<void> _setSelesai(int jadwalId) async {
+  //   try {
+  //     setState(() {
+  //       _isUpdating = true;
+  //     });
 
-      await _service.setJadwalSelesai(jadwalId);
+  //     await _service.setJadwalSelesai(jadwalId);
 
-      _loadData();
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString())),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isUpdating = false;
-        });
-      }
-    }
-  }
+  //     _loadData();
+  //   } catch (e) {
+  //     if (mounted) {
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         SnackBar(content: Text(e.toString())),
+  //       );
+  //     }
+  //   } finally {
+  //     if (mounted) {
+  //       setState(() {
+  //         _isUpdating = false;
+  //       });
+  //     }
+  //   }
+  // }
 
   Color getStatusColor(String status) {
     switch (status.toLowerCase()) {
@@ -351,52 +351,52 @@ class _ImunisasiScreenState extends State<ImunisasiScreen> {
                 ),
 
                 /// ROW 2: SELESAI (FULL WIDTH)
-                if (item.statusId != 6) ...[
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed:
-                          _isUpdating ? null : () => _setSelesai(item.jadwalId),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
-                        disabledBackgroundColor: Colors.grey,
-                        elevation: 0,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                      ),
-                      child: _isUpdating
-                          ? const SizedBox(
-                              width: 18,
-                              height: 18,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.white,
-                              ),
-                            )
-                          : Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: const [
-                                Icon(
-                                  Icons.task_alt,
-                                  color: Colors.white,
-                                  size: 18,
-                                ),
-                                SizedBox(width: 8),
-                                Text(
-                                  'Selesai',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                    ),
-                  ),
-                ],
+                // if (item.statusId != 6) ...[
+                //   const SizedBox(height: 10),
+                //   SizedBox(
+                //     width: double.infinity,
+                //     child: ElevatedButton(
+                //       onPressed:
+                //           _isUpdating ? null : () => _setSelesai(item.jadwalId),
+                //       style: ElevatedButton.styleFrom(
+                //         backgroundColor: Colors.green,
+                //         disabledBackgroundColor: Colors.grey,
+                //         elevation: 0,
+                //         padding: const EdgeInsets.symmetric(vertical: 14),
+                //         shape: RoundedRectangleBorder(
+                //           borderRadius: BorderRadius.circular(14),
+                //         ),
+                //       ),
+                //       child: _isUpdating
+                //           ? const SizedBox(
+                //               width: 18,
+                //               height: 18,
+                //               child: CircularProgressIndicator(
+                //                 strokeWidth: 2,
+                //                 color: Colors.white,
+                //               ),
+                //             )
+                //           : Row(
+                //               mainAxisAlignment: MainAxisAlignment.center,
+                //               children: const [
+                //                 Icon(
+                //                   Icons.task_alt,
+                //                   color: Colors.white,
+                //                   size: 18,
+                //                 ),
+                //                 SizedBox(width: 8),
+                //                 Text(
+                //                   'Selesai',
+                //                   style: TextStyle(
+                //                     color: Colors.white,
+                //                     fontWeight: FontWeight.bold,
+                //                   ),
+                //                 ),
+                //               ],
+                //             ),
+                //     ),
+                //   ),
+                // ],
 
               ],
             )
@@ -593,16 +593,16 @@ class _ImunisasiScreenState extends State<ImunisasiScreen> {
                                 isEditable: true)),
                           ],
 
-                          if (lainnya.isNotEmpty) ...[
-                            _buildSectionHeader(
-                              title: 'Selesai',
-                              color: Colors.greenAccent,
-                              subtitle: '${lainnya.length} imunisasi selesai',
-                            ),
-                            ...lainnya.map((item) => _buildImunisasiItem(
-                                context, item,
-                                isEditable: false)),
-                          ],
+                          // if (lainnya.isNotEmpty) ...[
+                          //   _buildSectionHeader(
+                          //     title: 'Selesai',
+                          //     color: Colors.greenAccent,
+                          //     subtitle: '${lainnya.length} imunisasi selesai',
+                          //   ),
+                          //   ...lainnya.map((item) => _buildImunisasiItem(
+                          //       context, item,
+                          //       isEditable: false)),
+                          // ],
                         ],
                       );
                     },
