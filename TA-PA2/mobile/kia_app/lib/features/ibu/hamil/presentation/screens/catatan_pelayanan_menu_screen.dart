@@ -84,6 +84,215 @@
 //   }
 // }
 
+// import 'package:flutter/material.dart';
+// import 'package:ta_pa2_pa3_project/core/themes/app_colors.dart';
+
+// import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/catatan_pelayanan_t1_screen.dart';
+// import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/catatan_pelayanan_t2_screen.dart';
+// import 'package:ta_pa2_pa3_project/features/ibu/hamil/presentation/screens/catatan_pelayanan_t3_screen.dart';
+
+// class CatatanPelayananMenuScreen extends StatefulWidget {
+//   const CatatanPelayananMenuScreen({super.key});
+
+//   @override
+//   State<CatatanPelayananMenuScreen> createState() =>
+//       _CatatanPelayananMenuScreenState();
+// }
+
+// class _CatatanPelayananMenuScreenState
+//     extends State<CatatanPelayananMenuScreen> {
+//   int selectedIndex = 0;
+
+//   final List<Widget> pages = const [
+//     CatatanPelayananT1Screen(),
+//     CatatanPelayananT2Screen(),
+//     CatatanPelayananT3Screen(),
+//   ];
+
+//   final List<String> labels = const [
+//     'Trimester 1',
+//     'Trimester 2',
+//     'Trimester 3',
+//   ];
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       backgroundColor: const Color(0xFFF4F8FF),
+
+//       body: SafeArea(
+//         child: Column(
+//           children: [
+//             Container(
+//               width: double.infinity,
+
+//               padding: const EdgeInsets.fromLTRB(
+//                 20,
+//                 20,
+//                 20,
+//                 22,
+//               ),
+
+//               decoration: const BoxDecoration(
+//                 color: AppColors.primary,
+
+//                 borderRadius: BorderRadius.only(
+//                   bottomLeft: Radius.circular(28),
+//                   bottomRight: Radius.circular(28),
+//                 ),
+//               ),
+
+//               child: Column(
+//                 crossAxisAlignment:
+//                     CrossAxisAlignment.start,
+
+//                 children: [
+//                   Row(
+//                     children: [
+//                       InkWell(
+//                         onTap: () {
+//                           Navigator.pop(context);
+//                         },
+
+//                         borderRadius:
+//                             BorderRadius.circular(30),
+
+//                         child: Container(
+//                           padding:
+//                               const EdgeInsets.all(8),
+
+//                           decoration: BoxDecoration(
+//                             color: Colors.white
+//                                 .withOpacity(0.15),
+
+//                             shape: BoxShape.circle,
+//                           ),
+
+//                           child: const Icon(
+//                             Icons.arrow_back_ios_new,
+//                             color: Colors.white,
+//                             size: 18,
+//                           ),
+//                         ),
+//                       ),
+
+//                       const SizedBox(width: 14),
+
+//                       const Expanded(
+//                         child: Text(
+//                           'Catatan Pelayanan',
+//                           style: TextStyle(
+//                             color: Colors.white,
+//                             fontSize: 20,
+//                             fontWeight:
+//                                 FontWeight.bold,
+//                           ),
+//                         ),
+//                       ),
+//                     ],
+//                   ),
+
+//                   const SizedBox(height: 20),
+
+//                   Container(
+//                     height: 54,
+
+//                     padding: const EdgeInsets.all(5),
+
+//                     decoration: BoxDecoration(
+//                       color:
+//                           Colors.white.withOpacity(0.14),
+
+//                       borderRadius:
+//                           BorderRadius.circular(18),
+//                     ),
+
+//                     child: Row(
+//                       children: List.generate(
+//                         labels.length,
+//                         (index) {
+//                           final selected =
+//                               selectedIndex == index;
+
+//                           return Expanded(
+//                             child: GestureDetector(
+//                               onTap: () {
+//                                 setState(() {
+//                                   selectedIndex = index;
+//                                 });
+//                               },
+
+//                               child: AnimatedContainer(
+//                                 duration:
+//                                     const Duration(
+//                                   milliseconds: 220,
+//                                 ),
+
+//                                 margin:
+//                                     const EdgeInsets.symmetric(
+//                                   horizontal: 3,
+//                                 ),
+
+//                                 decoration: BoxDecoration(
+//                                   color: selected
+//                                       ? Colors.white
+//                                       : Colors.transparent,
+
+//                                   borderRadius:
+//                                       BorderRadius.circular(
+//                                     14,
+//                                   ),
+//                                 ),
+
+//                                 child: Center(
+//                                   child: Text(
+//                                     labels[index],
+//                                     style: TextStyle(
+//                                       fontSize: 13,
+//                                       fontWeight:
+//                                           FontWeight.w700,
+
+//                                       color: selected
+//                                           ? AppColors
+//                                               .primary
+//                                           : Colors.white,
+//                                     ),
+//                                   ),
+//                                 ),
+//                               ),
+//                             ),
+//                           );
+//                         },
+//                       ),
+//                     ),
+//                   ),
+//                 ],
+//               ),
+//             ),
+
+//             Expanded(
+//               child: AnimatedSwitcher(
+//                 duration: const Duration(
+//                   milliseconds: 250,
+//                 ),
+
+//                 child: Container(
+//                   key: ValueKey(selectedIndex),
+
+//                   margin:
+//                       const EdgeInsets.only(top: 10),
+
+//                   child: pages[selectedIndex],
+//                 ),
+//               ),
+//             ),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }
+
 import 'package:flutter/material.dart';
 import 'package:ta_pa2_pa3_project/core/themes/app_colors.dart';
 
@@ -100,194 +309,59 @@ class CatatanPelayananMenuScreen extends StatefulWidget {
 }
 
 class _CatatanPelayananMenuScreenState
-    extends State<CatatanPelayananMenuScreen> {
-  int selectedIndex = 0;
+    extends State<CatatanPelayananMenuScreen>
+    with SingleTickerProviderStateMixin {
+  late final TabController _tabController;
 
-  final List<Widget> pages = const [
-    CatatanPelayananT1Screen(),
-    CatatanPelayananT2Screen(),
-    CatatanPelayananT3Screen(),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 3, vsync: this);
+  }
 
-  final List<String> labels = const [
-    'Trimester 1',
-    'Trimester 2',
-    'Trimester 3',
-  ];
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF4F8FF),
-
-      body: SafeArea(
-        child: Column(
-          children: [
-            Container(
-              width: double.infinity,
-
-              padding: const EdgeInsets.fromLTRB(
-                20,
-                20,
-                20,
-                22,
-              ),
-
-              decoration: const BoxDecoration(
-                color: AppColors.primary,
-
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(28),
-                  bottomRight: Radius.circular(28),
-                ),
-              ),
-
-              child: Column(
-                crossAxisAlignment:
-                    CrossAxisAlignment.start,
-
-                children: [
-                  Row(
-                    children: [
-                      InkWell(
-                        onTap: () {
-                          Navigator.pop(context);
-                        },
-
-                        borderRadius:
-                            BorderRadius.circular(30),
-
-                        child: Container(
-                          padding:
-                              const EdgeInsets.all(8),
-
-                          decoration: BoxDecoration(
-                            color: Colors.white
-                                .withOpacity(0.15),
-
-                            shape: BoxShape.circle,
-                          ),
-
-                          child: const Icon(
-                            Icons.arrow_back_ios_new,
-                            color: Colors.white,
-                            size: 18,
-                          ),
-                        ),
-                      ),
-
-                      const SizedBox(width: 14),
-
-                      const Expanded(
-                        child: Text(
-                          'Catatan Pelayanan',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontWeight:
-                                FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  Container(
-                    height: 54,
-
-                    padding: const EdgeInsets.all(5),
-
-                    decoration: BoxDecoration(
-                      color:
-                          Colors.white.withOpacity(0.14),
-
-                      borderRadius:
-                          BorderRadius.circular(18),
-                    ),
-
-                    child: Row(
-                      children: List.generate(
-                        labels.length,
-                        (index) {
-                          final selected =
-                              selectedIndex == index;
-
-                          return Expanded(
-                            child: GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  selectedIndex = index;
-                                });
-                              },
-
-                              child: AnimatedContainer(
-                                duration:
-                                    const Duration(
-                                  milliseconds: 220,
-                                ),
-
-                                margin:
-                                    const EdgeInsets.symmetric(
-                                  horizontal: 3,
-                                ),
-
-                                decoration: BoxDecoration(
-                                  color: selected
-                                      ? Colors.white
-                                      : Colors.transparent,
-
-                                  borderRadius:
-                                      BorderRadius.circular(
-                                    14,
-                                  ),
-                                ),
-
-                                child: Center(
-                                  child: Text(
-                                    labels[index],
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontWeight:
-                                          FontWeight.w700,
-
-                                      color: selected
-                                          ? AppColors
-                                              .primary
-                                          : Colors.white,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            Expanded(
-              child: AnimatedSwitcher(
-                duration: const Duration(
-                  milliseconds: 250,
-                ),
-
-                child: Container(
-                  key: ValueKey(selectedIndex),
-
-                  margin:
-                      const EdgeInsets.only(top: 10),
-
-                  child: pages[selectedIndex],
-                ),
-              ),
-            ),
+      appBar: AppBar(
+        backgroundColor: AppColors.primary,
+        foregroundColor: Colors.white,
+        elevation: 0,
+        title: const Text(
+          'Catatan Pelayanan',
+          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 17),
+        ),
+        bottom: TabBar(
+          controller: _tabController,
+          indicatorColor: Colors.white,
+          indicatorWeight: 3,
+          indicatorSize: TabBarIndicatorSize.tab,
+          labelColor: Colors.white,
+          unselectedLabelColor: Colors.white.withOpacity(0.55),
+          labelStyle: const TextStyle(
+              fontWeight: FontWeight.w700, fontSize: 13),
+          unselectedLabelStyle: const TextStyle(
+              fontWeight: FontWeight.w500, fontSize: 13),
+          tabs: const [
+            Tab(text: 'Trimester 1'),
+            Tab(text: 'Trimester 2'),
+            Tab(text: 'Trimester 3'),
           ],
         ),
+      ),
+      body: TabBarView(
+        controller: _tabController,
+        children: const [
+          CatatanPelayananT1Screen(),
+          CatatanPelayananT2Screen(),
+          CatatanPelayananT3Screen(),
+        ],
       ),
     );
   }

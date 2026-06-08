@@ -68,8 +68,10 @@ const unwrap = (res) => {
 
 const basePath = (resourcePath) => `/tenaga-kesehatan/${resourcePath}`;
 
-export const listEdukasi = async (resourcePath) => {
-  const res = await api.get(basePath(resourcePath));
+export const listEdukasi = async (resourcePath, params = {}) => {
+  const queryString = new URLSearchParams(params).toString();
+  const url = queryString ? `${basePath(resourcePath)}?${queryString}` : basePath(resourcePath);
+  const res = await api.get(url);
   return unwrap(res) || [];
 };
 

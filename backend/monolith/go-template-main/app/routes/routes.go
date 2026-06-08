@@ -124,6 +124,11 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	bidan.PUT("/request-perubahan-jadwal-imunisasi/:id/approve", controller.ApproveRequestPerubahanJadwal)
 	bidan.PUT("/request-perubahan-jadwal-imunisasi/:id/reject", controller.RejectRequestPerubahanJadwal)
 
+	// Imunisasi - Dashboard Bidan
+	bidan.GET("/imunisasi/anak/:anak_id", controller.GetJadwalImunisasiByAnakIDBidan)
+	bidan.PUT("/imunisasi/:id/selesai", controller.SetJadwalSelesaiBidan)
+	bidan.GET("/imunisasi/:id", controller.GetJadwalImunisasiByIDBidan)
+
 	// Kader Management dipindahkan ke superadmin
 
 	// ==================== MODUL Anak ====================
@@ -822,6 +827,14 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	// Absensi Kelas Ibu Balita (Kader)
 	kader.GET("/absensi-kelas-ibu-balita", controller.AbsensiKelasIbuBalita.GetAll)
 	kader.PUT("/absensi-kelas-ibu-balita/:id/verifikasi", controller.AbsensiKelasIbuBalita.Verify)
+
+	// Absensi kelas ibu hamil (kader)
+	kader.GET("/absensi-kelas-ibu-hamil", controller.AbsensiKelasIbuHamil.GetAll)
+	kader.PUT("/absensi-kelas-ibu-hamil/:id/verifikasi", controller.AbsensiKelasIbuHamil.Verify)
+
+	// Log TTD/MMS
+	kader.GET("/log-ttd-mms/rekap", controller.LogTTDMMS.GetRekapKader)
+	kader.GET("/log-ttd-mms/:kehamilan_id", controller.LogTTDMMS.GetDetailLogKader)
 
 	kader.GET("/bbl/anak/:anak_id", controller.Bbl.GetByAnakID)
 	kader.PUT("/bbl/anak/:anak_id/verifikasi", controller.Bbl.Verify)

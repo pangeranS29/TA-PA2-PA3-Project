@@ -128,6 +128,7 @@ CREATE TABLE IF NOT EXISTS edukasi_perawatan_anak (
     judul VARCHAR(255) NOT NULL,
     gambar_url TEXT,
     isi_konten TEXT,
+    rentang_usia VARCHAR(50),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP WITH TIME ZONE
@@ -138,6 +139,7 @@ CREATE TABLE IF NOT EXISTS edukasi_pola_asuh (
     judul VARCHAR(255) NOT NULL,
     gambar_url TEXT,
     isi TEXT,
+    rentang_usia VARCHAR(50),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );

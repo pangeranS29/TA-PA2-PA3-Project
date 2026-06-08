@@ -4,11 +4,15 @@ import (
 	"errors"
 	"monitoring-service/app/models"
 	"monitoring-service/app/repositories"
+	"time"
 )
 
 type AbsensiKelasIbuHamilUsecase interface {
 	GetMine(userID int32) ([]models.AbsensiKelasIbuHamil, error)
 	SaveMine(userID int32, req models.AbsensiKelasIbuHamil) (*models.AbsensiKelasIbuHamil, error)
+	// Kaader
+	GetAll() ([]models.AbsensiKelasIbuHamil, error) 
+	Verify(id int32, namaKader string, tanggalParaf *time.Time) error
 }
 
 type absensiKelasIbuHamilUsecase struct {
@@ -66,4 +70,23 @@ func (u *absensiKelasIbuHamilUsecase) SaveMine(
 	}
 
 	return data, nil
+}
+
+
+// BAGIAN KADER
+
+func (u *absensiKelasIbuHamilUsecase) GetAll() ([]models.AbsensiKelasIbuHamil, error) {
+	return u.repo.FindAllWithIbu()
+}
+ 
+func (u *absensiKelasIbuHamilUsecase) Verify(id int32, namaKader string, tanggalParaf *time.Time) error {
+	data, err := u.repo.FindByID(id)
+	if err != nil {
+		return errors.New("data absensi tidak ditemukan")
+	}
+ 
+	data.NamaKader = namaKader
+	data.TanggalParaf = tanggalParaf
+ 
+	return u.repo.Update(data)
 }

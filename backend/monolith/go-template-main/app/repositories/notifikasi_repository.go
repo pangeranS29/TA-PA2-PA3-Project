@@ -1,7 +1,7 @@
 package repositories
 
 import (
-	// "time"
+	"time"
 	"monitoring-service/app/models"
 )
 
@@ -131,3 +131,63 @@ func (r *Main) GetFCMTokensByAnakID(anakID uint) ([]string, error) {
 
 	return tokens, err
 }
+
+
+// Notifikasi Kontrol
+func (r *Main) IsKontrolNotifAlreadySentToday(userID uint, date time.Time) (bool, error) {
+	var count int64
+ 
+	dateStr := date.Format("2006-01-02")
+ 
+	err := r.postgres.
+		Table("notifikasi").
+		Where("id_pengguna = ?", userID).
+		Where("id_tipe_notifikasi = ?", 3).
+		Where("DATE(created_at) = ?", dateStr).
+		Where("deleted_at IS NULL").
+		Count(&count).Error
+ 
+	if err != nil {
+		return false, err
+	}
+ 
+	return count > 0, nil
+}
+// IbuReminderRow adalah struct hasil query ibu aktif untuk keperluan reminder.
+// Berisi user_id, nama_ibu, kehamilan_id, dan HPHT dalam format string.
+type IbuReminderRow struct {
+	UserID      uint
+	NamaIbu     string
+	KehamilanID uint
+	HPHTStr     string // format "2006-01-02"
+}
+ 
+// GetActiveIbuForTTDReminder mengambil semua ibu dengan kehamilan aktif
+// (status TRIMESTER 1/2/3) yang memiliki HPHT, beserta user_id dan nama ibu.
+// Digunakan bersama oleh TTD reminder maupun Kontrol reminder.
+func (r *Main) GetActiveIbuForTTDReminder() ([]IbuReminderRow, error) {
+	var rows []IbuReminderRow
+ 
+	err := r.postgres.
+		Table("kehamilan k").
+		Select(`
+			p.id          AS user_id,
+			pd.nama_lengkap AS nama_ibu,
+			k.id          AS kehamilan_id,
+			TO_CHAR(k.hpht, 'YYYY-MM-DD') AS hpht_str
+		`).
+		Joins("JOIN ibu i ON i.id = k.ibu_id").
+		Joins("JOIN penduduk pd ON pd.id = i.penduduk_id").
+		Joins("JOIN pengguna p ON p.penduduk_id = pd.id").
+		Where("k.status_kehamilan IN ?", []string{
+			"TRIMESTER 1",
+			"TRIMESTER 2",
+			"TRIMESTER 3",
+		}).
+		Where("k.hpht IS NOT NULL").
+		Where("k.deleted_at IS NULL").
+		Scan(&rows).Error
+ 
+	return rows, err
+}
+ 

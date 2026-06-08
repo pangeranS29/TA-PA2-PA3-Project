@@ -58,6 +58,7 @@ export default function EdukasiDigitalCrudPage({
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [editingId, setEditingId] = useState(null);
+  const [activeRentangUsia, setActiveRentangUsia] = useState("");
   const initialForm = useMemo(() => {
     if (fields && Array.isArray(fields)) {
       const f = {};
@@ -96,11 +97,11 @@ export default function EdukasiDigitalCrudPage({
     });
   }, [rows]);
 
-  const loadData = async () => {
+  const loadData = async (filterParams = {}) => {
     setLoading(true);
     setError("");
     try {
-      const data = await listEdukasi(resourcePath);
+      const data = await listEdukasi(resourcePath, filterParams);
       setRows(Array.isArray(data) ? data : []);
     } catch (err) {
       setError(err?.response?.data?.message || "Gagal memuat data edukasi");
@@ -490,9 +491,49 @@ export default function EdukasiDigitalCrudPage({
               </div>
 
               <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
-                <button className="px-4 py-2 flex items-center gap-2 rounded-xl bg-white border border-[#e2e8f0] text-slate-700 text-[14px] font-semibold hover:bg-[#F7FAFB] transition-colors">
+                {resourcePath === "edukasi-perawatan-anak" && (
+                  <select
+                    value={activeRentangUsia}
+                    onChange={(e) => {
+                      const newVal = e.target.value;
+                      setActiveRentangUsia(newVal);
+                      loadData(newVal ? { rentang_usia: newVal } : {});
+                    }}
+                    className="px-3 py-2 border border-[#e2e8f0] rounded-xl bg-[#F7FAFB] text-slate-700 text-[14px] font-semibold hover:bg-white focus:bg-white focus:outline-none focus:border-[#185FA5] focus:ring-1 focus:ring-[#185FA5] transition-colors"
+                  >
+                    <option value="">Semua Umur</option>
+                    <option value="0-3 bulan">0-3 bulan</option>
+                    <option value="0-28 hari">0-28 hari</option>
+                    <option value="3-6 bulan">3-6 bulan</option>
+                    <option value="6-9 bulan">6-9 bulan</option>
+                    <option value="9-12 bulan">9-12 bulan</option>
+                    <option value="12-18 bulan">12-18 bulan</option>
+                    <option value="18-24 bulan">18-24 bulan</option>
+                    <option value="2-3 tahun">2-3 tahun</option>
+                    <option value="3-4 tahun">3-4 tahun</option>
+                    <option value="4-5 tahun">4-5 tahun</option>
+                    <option value="5-6 tahun">5-6 tahun</option>
+                  </select>
+                )}
+                {resourcePath === "edukasi-pola-asuh" && (
+                  <select
+                    value={activeRentangUsia}
+                    onChange={(e) => {
+                      const newVal = e.target.value;
+                      setActiveRentangUsia(newVal);
+                      loadData(newVal ? { rentang_usia: newVal } : {});
+                    }}
+                    className="px-3 py-2 border border-[#e2e8f0] rounded-xl bg-[#F7FAFB] text-slate-700 text-[14px] font-semibold hover:bg-white focus:bg-white focus:outline-none focus:border-[#185FA5] focus:ring-1 focus:ring-[#185FA5] transition-colors"
+                  >
+                    <option value="">Semua Umur</option>
+                    <option value="0-18 Bulan">0-18 Bulan</option>
+                    <option value="1.5 Tahun - 3 Tahun">1.5 Tahun - 3 Tahun</option>
+                    <option value="3 tahun - 6 Tahun">3 tahun - 6 Tahun</option>
+                  </select>
+                )}
+                {/* <button className="px-4 py-2 flex items-center gap-2 rounded-xl bg-white border border-[#e2e8f0] text-slate-700 text-[14px] font-semibold hover:bg-[#F7FAFB] transition-colors">
                   <Filter size={16} /> Filter & Urutkan
-                </button>
+                </button> */}
                 <button
                   type="button"
                   onClick={() => {
@@ -573,7 +614,7 @@ export default function EdukasiDigitalCrudPage({
                               
                               <td className="px-6 py-4">
                                 <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#185FA5]/10 text-[#185FA5] rounded-full text-[12px] font-semibold">
-                                  <BookOpen size={14} /> {guessCategory(item)}
+                                  <BookOpen size={14} /> {item.rentang_usia || guessCategory(item)}
                                 </span>
                               </td>
                               
@@ -695,11 +736,15 @@ export default function EdukasiDigitalCrudPage({
                         className="w-full border border-slate-200 bg-[#F7FAFB] rounded-xl px-4 py-3 text-[14px] focus:bg-white focus:border-[#185FA5] focus:ring-1 focus:ring-[#185FA5] outline-none transition-all"
                       >
                         <option value="">{f.placeholder || `Pilih ${f.label.toLowerCase()}`}</option>
-                        {(f.options || []).map((option) => (
-                          <option key={String(option.value)} value={option.value}>
-                            {option.label}
-                          </option>
-                        ))}
+                        {(f.options || []).map((option) => {
+                          const optValue = typeof option === 'string' ? option : option.value;
+                          const optLabel = typeof option === 'string' ? option : (option.label || optValue);
+                          return (
+                            <option key={String(optValue)} value={optValue}>
+                              {optLabel}
+                            </option>
+                          );
+                        })}
                       </select>
                     </div>
                   );

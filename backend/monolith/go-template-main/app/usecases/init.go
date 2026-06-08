@@ -363,6 +363,7 @@ func Init(opts Options) *Main {
 		opts.Repository.Kehamilan,
 		opts.Repository.EvaluasiKesehatanIbu,
 		opts.Repository.RiwayatKehamilanLalu,
+		opts.Repository.Desa,
 	)
 	return m
 }

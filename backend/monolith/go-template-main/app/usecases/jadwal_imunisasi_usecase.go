@@ -220,3 +220,85 @@ func (m *Main) SetJadwalSelesai(userID int32, jadwalID uint) error {
 	// update status jadi 6 (SELESAI)
 	return m.repository.UpdateStatusJadwalImunisasi(jadwalID, 6)
 }
+
+// ==================== KHUSUS BIDAN ====================
+
+func (m *Main) GetJadwalImunisasiByAnakIDBidan(anakID int32) ([]models.JadwalImunisasiResponse, error) {
+
+	rows, err := m.repository.GetJadwalImunisasiByAnakIDBidan(anakID)
+	if err != nil {
+		return nil, err
+	}
+
+	anakMap := make(map[int32]*models.JadwalImunisasiResponse)
+
+	for _, row := range rows {
+		if _, exists := anakMap[row.AnakID]; !exists {
+			anakMap[row.AnakID] = &models.JadwalImunisasiResponse{
+				AnakID:         row.AnakID,
+				NamaAnak:       row.NamaAnak,
+				TanggalLahir:   row.TanggalLahir,
+				JumlahTerlewat: 0,
+				Jadwal:         []models.JadwalImunisasiItem{},
+			}
+		}
+
+		if row.JadwalID != 0 {
+			switch row.StatusID {
+			case 3, 4, 5:
+				anakMap[row.AnakID].JumlahTerlewat++
+			}
+
+			anakMap[row.AnakID].Jadwal = append(anakMap[row.AnakID].Jadwal, models.JadwalImunisasiItem{
+				JadwalID:        row.JadwalID,
+				NamaDosis:       row.NamaDosis,
+				TanggalEstimasi: row.TanggalEstimasi,
+				Deskripsi:       row.Deskripsi,
+				EfekSamping:     row.EfekSamping,
+				StatusID:        row.StatusID,
+				Status:          row.Status,
+			})
+		}
+	}
+
+	response := []models.JadwalImunisasiResponse{}
+	for _, anak := range anakMap {
+		response = append(response, *anak)
+	}
+
+	return response, nil
+}
+
+func (m *Main) SetJadwalSelesaiBidan(jadwalID uint) error {
+	return m.repository.UpdateStatusJadwalImunisasi(jadwalID, 6)
+}
+
+func (m *Main) GetJadwalImunisasiByJadwalIDBidan(jadwalID uint) (*models.JadwalImunisasiResponse, error) {
+
+	row, err := m.repository.GetJadwalImunisasiByJadwalIDBidan(jadwalID)
+	if err != nil {
+		return nil, err
+	}
+
+	if row == nil || row.JadwalID == 0 {
+		return nil, nil
+	}
+
+	return &models.JadwalImunisasiResponse{
+		AnakID:         int32(row.AnakID),
+		NamaAnak:       row.NamaAnak,
+		TanggalLahir:   row.TanggalLahir,
+		JumlahTerlewat: 0,
+		Jadwal: []models.JadwalImunisasiItem{
+			{
+				JadwalID:        row.JadwalID,
+				NamaDosis:       row.NamaDosis,
+				TanggalEstimasi: row.TanggalEstimasi,
+				Deskripsi:       row.Deskripsi,
+				EfekSamping:     row.EfekSamping,
+				StatusID:        row.StatusID,
+				Status:          row.Status,
+			},
+		},
+	}, nil
+}

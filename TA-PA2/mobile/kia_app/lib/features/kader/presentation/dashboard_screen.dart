@@ -7,6 +7,9 @@ import 'package:ta_pa2_pa3_project/features/kader/widgets/dashboard_header.dart'
 import 'package:ta_pa2_pa3_project/features/anak/pemantauan/presentation/screens/skrining/riwayat_skrining_tanda_bahaya_screen.dart';
 import 'package:ta_pa2_pa3_project/features/kader/screens/verifikasi_absensi_kelas_ibu_balita_screen.dart';
 import 'package:ta_pa2_pa3_project/features/kader/screens/verifikasi_bbl_screen.dart';
+// Bagian Ibu
+import 'package:ta_pa2_pa3_project/features/kader/screens/ttd_mms/rekap_ttd_mms_kader_screen.dart';
+import 'package:ta_pa2_pa3_project/features/kader/screens/verifikasi_absensi_kelas_ibu_hamil_screen.dart';
 
 class DashboardKaderScreen extends StatefulWidget {
   const DashboardKaderScreen({super.key});
@@ -199,6 +202,36 @@ class _DashboardKaderScreenState extends State<DashboardKaderScreen> {
                       context,
                       MaterialPageRoute(
                         builder: (_) => const VerifikasiBblScreen(),
+                      ),
+                    );
+                  },
+                ),
+
+                _buildFeatureActionCard(
+                  title: 'Pemantauan TTD/MMS Ibu Hamil.',
+                  subtitle: 'Lihat rekap kepatuhan minum suplemen ibu hamil di wilayah kamu.',
+                  icon: Icons.medication_liquid_outlined,
+                  accentColor: Colors.pink,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const RekapTTDMMSKaderScreen(),
+                      ),
+                    );
+                  },
+                ),
+
+                _buildFeatureActionCard(
+                  title: 'Verifikasi Kelas Ibu Hamil.',
+                  subtitle: 'Tinjau dan verifikasi kehadiran ibu hamil di kelas.',
+                  icon: Icons.pregnant_woman_rounded,
+                  accentColor: Colors.pink,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const VerifikasiAbsensiKelasIbuHamilScreen(),
                       ),
                     );
                   },
