@@ -223,6 +223,7 @@ func Init(opts Options) *Main {
 	dashboardUsecase := usecases.NewDashboardUsecase(
 		opts.UseCases.Kependudukan,
 		opts.UseCases.Pemeriksaan,
+		opts.UseCases.Anak,
 	)
 	m.Dashboard = NewDashboardController(dashboardUsecase)
 	m.PendudukRisk = NewPendudukRiskController(opts.UseCases.PendudukRisk)

@@ -43,6 +43,8 @@ func hitungUmurPadaTanggal(tglLahir, tglReferensi time.Time) int {
 func (u *pencatatanUsecase) GetPendudukByKategori(kategori string, desaID *int32, role string) ([]models.PendudukWithPemeriksaan, error) {
     var minAge, maxAge int
     switch kategori {
+    case "balita":
+        minAge, maxAge = 0, 5
     case "anak":
         minAge, maxAge = 5, 9
     case "remaja":
@@ -117,6 +119,8 @@ func (u *pencatatanUsecase) ValidasiUmurKategori(pendudukID int32, kategori stri
     }
     umur := utils.HitungUmur(penduduk.TanggalLahir)
     switch kategori {
+    case "balita":
+        return umur >= 0 && umur <= 5, nil
     case "anak":
         return umur >= 5 && umur <= 9, nil
     case "remaja":

@@ -48,7 +48,7 @@ type UpdateRiskRuleRequest struct {
 }
 
     type CreateFormVersionRequest struct {
-        Kelompok   string `json:"kelompok" validate:"required,oneof=anak remaja dewasa lansia"`
+        Kelompok   string `json:"kelompok" validate:"required,oneof=balita anak remaja dewasa lansia"`
         Tahun      int    `json:"tahun" validate:"required,min=2000,max=2099"`
         Nama       string `json:"nama"`
         Keterangan string `json:"keterangan"`

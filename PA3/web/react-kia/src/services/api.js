@@ -23,4 +23,18 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+// Interceptor untuk menangani error response (seperti token expired)
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      alert("Sesi Anda telah berakhir. Silakan login kembali.");
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("user");
+      window.location.href = "/login";
+    }
+    return Promise.reject(error);
+  }
+);
+
 export default api;

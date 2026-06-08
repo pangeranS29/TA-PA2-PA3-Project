@@ -27,6 +27,14 @@ func NewKeluhanAnakUseCase(repo repositories.KeluhanAnakRepository) KeluhanAnakU
 }
 
 func (u *keluhanAnakUseCase) Create(data *models.KeluhanAnak) error {
+	existing, err := u.repo.FindAllByAnakID(uint(data.AnakID))
+	if err == nil {
+		for _, record := range existing {
+			if record.Tanggal.Year() == data.Tanggal.Year() && record.Tanggal.Month() == data.Tanggal.Month() {
+				return errors.New("keluhan anak untuk anak ini sudah diinput pada bulan ini")
+			}
+		}
+	}
 	return u.repo.Create(data)
 }
 

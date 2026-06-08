@@ -41,6 +41,15 @@ func (u *pemeriksaangigiUseCase) Create(req models.CreatePemeriksaanGigiRequest)
 		}
 	}
 
+	existing, err := u.repo.GetByAnakID(req.AnakID)
+	if err == nil {
+		for _, record := range existing {
+			if record.Tanggal.Year() == tgl.Year() && record.Tanggal.Month() == tgl.Month() {
+				return errors.New("pemeriksaan gigi untuk anak ini sudah diinput pada bulan ini")
+			}
+		}
+	}
+
 	pemeriksaan := models.PeriksaGigi{
 		AnakID:              req.AnakID,
 		Bulanke:             req.Bulanke,

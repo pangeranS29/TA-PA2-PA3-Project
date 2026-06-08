@@ -47,6 +47,8 @@ type AnakResponse struct {
 	TanggalLahir  string `json:"tanggal_lahir,omitempty"`
 	JenisKelamin  string `json:"jenis_kelamin,omitempty"`
 	GolonganDarah string `json:"golongan_darah,omitempty"`
+	NIK           string `json:"nik,omitempty"`
+	Dusun         string `json:"dusun,omitempty"`
 
 	// Usia dalam bulan dan representasi teksnya
 	UsiaBulan int    `json:"usia_bulan,omitempty"`

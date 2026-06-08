@@ -332,6 +332,15 @@ func (m *Main) AddCatatanPertumbuhan(req *models.CreatePertumbuhanRequest) (*mod
 		return nil, customerror.NewBadRequestError("format tanggal ukur tidak valid, gunakan YYYY-MM-DD")
 	}
 
+	existing, err := m.repository.GetRiwayatPertumbuhanByAnakID(uint(req.AnakID))
+	if err == nil {
+		for _, record := range existing {
+			if record.TglUkur.Year() == tglUkur.Year() && record.TglUkur.Month() == tglUkur.Month() {
+				return nil, customerror.NewBadRequestError("catatan pertumbuhan untuk anak ini sudah diinput pada bulan ini")
+			}
+		}
+	}
+
 	// Validasi masa depan
 	if tglUkur.After(time.Now()) {
 		return nil, customerror.NewBadRequestError("Data tidak dapat diinput untuk tanggal yang melebihi tanggal hari ini.")

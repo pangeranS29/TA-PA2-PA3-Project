@@ -50,6 +50,15 @@ func (uc *kunjunganGiziUsecase) Create(req models.CreatePelayananGiziRequest) er
 		return fmt.Errorf("format tanggal harus YYYY-MM-DD")
 	}
 
+	existing, err := uc.PelayananGiziRepo.GetByAnakID(req.AnakID)
+	if err == nil {
+		for _, record := range existing {
+			if record.Tanggal.Year() == tanggal.Year() && record.Tanggal.Month() == tanggal.Month() {
+				return errors.New("pelayanan gizi untuk anak ini sudah diinput pada bulan ini")
+			}
+		}
+	}
+
 	now := time.Now()
 
 	kunjungan := models.KunjunganGizi{
