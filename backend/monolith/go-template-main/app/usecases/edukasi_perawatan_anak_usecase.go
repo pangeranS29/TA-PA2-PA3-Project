@@ -11,6 +11,7 @@ type EdukasiPerawatanAnakUseCase interface {
 	Delete(id uint) error
 	GetAll() ([]models.EdukasiPerawatanAnak, error)
 	GetByID(id uint) (*models.EdukasiPerawatanAnak, error)
+	GetByRentangUsia(rentangUsia string) ([]models.EdukasiPerawatanAnak, error)
 }
 
 type edukasiPerawatanAnakUseCase struct {
@@ -46,4 +47,8 @@ func (u *edukasiPerawatanAnakUseCase) GetAll() ([]models.EdukasiPerawatanAnak, e
 
 func (u *edukasiPerawatanAnakUseCase) GetByID(id uint) (*models.EdukasiPerawatanAnak, error) {
 	return u.repo.FindByID(id)
+}
+
+func (u *edukasiPerawatanAnakUseCase) GetByRentangUsia(rentangUsia string) ([]models.EdukasiPerawatanAnak, error) {
+	return u.repo.FindByRentangUsia(rentangUsia)
 }
