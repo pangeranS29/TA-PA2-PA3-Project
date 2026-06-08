@@ -69,7 +69,7 @@ const Sidebar = () => {
 
   // Menu untuk bidan (lengkap)
   const bidanMenuItems = [
-    { path: "/data-ibu", name: "Data Ibu", icon: Users },
+    { path: "/data-ibu", name: "Data Ibu Hamil", icon: Users },
     { path: "/daftar-anak", name: "Data Anak Balita", icon: Baby },
     // { path: "/kependudukan", name: "Manajemen KK", icon: UserCheck },
     // { path: "/monitoring", name: "Monitoring", icon: Activity },
@@ -144,7 +144,7 @@ const Sidebar = () => {
 
   // Menu untuk dokter (hanya Data Ibu & Laporan)
   const dokterMenuItems = [
-    { path: "/data-ibu", name: "Data Ibu", icon: Users },
+    { path: "/data-ibu", name: "Data Ibu Hamil", icon: Users },
     { path: "/laporan", name: "Laporan", icon: BarChart3 },
     { path: "/daftar-rujukan", name: "Rujukan", icon: ClipboardList },
   ];

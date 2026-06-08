@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import MainLayout from "../../components/Layout/MainLayout";
+import AlertNotification from "../../components/AlertNotification";
 import { PelayananLilaService } from "../../services/Pelayanan-lila-anak";
 import { ChevronLeft, Save, AlertCircle, Loader2, CheckCircle2 } from 'lucide-react';
 
@@ -11,6 +12,7 @@ const PelayananLilaCreate = () => {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+  const [notification, setNotification] = useState(null);
 
   const authUser = useMemo(() => {
     try {
@@ -64,14 +66,18 @@ const PelayananLilaCreate = () => {
   };
 
   const handleSubmit = async () => {
-    setError("");
-
     if (!formData.hasil_lila) {
-      setError("Hasil LILA harus diisi!");
+      setNotification({
+        type: "error",
+        message: "Hasil LILA harus diisi!"
+      });
       return;
     }
     if (formData.bulan_ke < 0 || formData.bulan_ke > 60) {
-      setError("Bulan harus antara 0-60!");
+      setNotification({
+        type: "error",
+        message: "Bulan harus antara 0-60!"
+      });
       return;
     }
 
@@ -87,17 +93,28 @@ const PelayananLilaCreate = () => {
     setSubmitting(true);
     try {
       await PelayananLilaService.create(payload);
-      setSuccess(true);
-      setTimeout(() => {
-        navigate(`/data-anak/lila/${id}`);
-      }, 1500);
+      setNotification({
+        type: "success",
+        message: "Data pencatatan LILA anak berhasil disimpan ke dalam sistem!"
+      });
     } catch (err) {
       console.error("Gagal simpan:", err);
       const errMsg = err.response?.data?.error || err.response?.data?.message || err.message;
-      setError("Gagal Simpan: " + errMsg);
+      setNotification({
+        type: "error",
+        message: "Permintaan gagal diproses. Silakan coba lagi nanti atau hubungi bantuan.",
+        code: errMsg
+      });
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const handleAlertClose = () => {
+    if (notification && notification.type === "success") {
+      navigate(`/data-anak/lila/${id}`);
+    }
+    setNotification(null);
   };
 
   const getRisikoBadge = (kategori) => {
@@ -113,6 +130,11 @@ const PelayananLilaCreate = () => {
 
   return (
     <MainLayout>
+      <AlertNotification 
+        notification={notification} 
+        onClose={handleAlertClose} 
+        onRetry={notification?.type === "error" ? () => setNotification(null) : null}
+      />
       <div className="max-w-6xl mx-auto p-4 md:p-8 bg-slate-50 min-h-screen pb-24 font-sans">
 
         {/* Header */}
@@ -127,22 +149,6 @@ const PelayananLilaCreate = () => {
             Petugas: {authUser.nama} • ID Anak: {id}
           </p>
         </header>
-
-        {/* Error */}
-        {error && (
-          <div className="mb-6 p-4 bg-red-100 border border-red-300 rounded-2xl flex items-start gap-3">
-            <AlertCircle className="text-red-600 flex-shrink-0 mt-0.5" size={20} />
-            <p className="font-bold text-red-800">{error}</p>
-          </div>
-        )}
-
-        {/* Success */}
-        {success && (
-          <div className="mb-6 p-4 bg-green-100 border border-green-300 rounded-2xl flex items-start gap-3">
-            <CheckCircle2 className="text-green-600 flex-shrink-0 mt-0.5" size={20} />
-            <p className="font-bold text-green-800">Data berhasil disimpan!</p>
-          </div>
-        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
           {/* Form */}

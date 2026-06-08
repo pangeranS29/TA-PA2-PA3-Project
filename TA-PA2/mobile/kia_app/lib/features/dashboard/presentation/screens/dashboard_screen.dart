@@ -1238,7 +1238,6 @@
 //   }
 // }
 
-
 import 'package:flutter/material.dart';
 import 'package:ta_pa2_pa3_project/core/services/auth_session.dart';
 import 'package:ta_pa2_pa3_project/core/themes/app_theme.dart';
@@ -1296,6 +1295,11 @@ import 'package:ta_pa2_pa3_project/features/edukasi/presentation/ibu/edukasi_imd
 
 import 'package:ta_pa2_pa3_project/features/anak/catatan/presentation/screens/pilih_catatan_screen.dart';
 import 'package:ta_pa2_pa3_project/features/anak/catatan/presentation/screens/Input_bbl.dart';
+// Untuk notifikasi
+import 'package:ta_pa2_pa3_project/features/ibu/hamil/data/models/log_ttd_mms_model.dart';
+import 'package:ta_pa2_pa3_project/features/ibu/hamil/data/services/log_ttd_mms_api_service.dart';
+// Untuk kontrol
+import 'package:shared_preferences/shared_preferences.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -1319,8 +1323,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
   List<ImunisasiModel> _imunisasiData = [];
   int _overdueCount = 0;
 
+  // Reminder Kontrol
+  bool _hasKontrolAlert = false;
+  String _kontrolAlertMessage = '';
+  String _kontrolDismissKey = '';
+
   bool _loadingImunisasi = false;
   String? _imunisasiError;
+
+  // Untuk notif Log TTD/MMS
+  bool _hasTTDAlert = false;
+  String _ttdAlertMessage = '';
+  final _logTTDService = LogTTDMMSApiService();
 
   List<dynamic> _rujukanList = [];
 
@@ -1333,6 +1347,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
       if (mounted) _loadImunisasi();
     });
     _loadRujukan();
+    Future.delayed(const Duration(milliseconds: 400), () {
+      if (mounted) _checkKontrolAlert();
+    });
+    Future.delayed(const Duration(milliseconds: 600), () {
+      if (mounted) _checkTTDAlert();
+    });
   }
 
   Future<void> _loadRujukan() async {
@@ -1400,10 +1420,223 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
+  // Future<void> _checkKontrolAlert() async {
+  //   final hpht = _kehamilanAktif?.hpht;
+  //   if (hpht == null) return;
+
+  //   final now = DateTime.now();
+  //   final hariIni = DateTime(now.year, now.month, now.day);
+
+  //   // Hitung usia kehamilan dalam minggu
+  //   final offsetHari = hariIni
+  //       .difference(
+  //         DateTime(hpht.year, hpht.month, hpht.day),
+  //       )
+  //       .inDays;
+
+  //   if (offsetHari < 0 || offsetHari > 294) {
+  //     // Di luar rentang kehamilan normal (294 hari = 42 minggu)
+  //     if (mounted) setState(() => _hasKontrolAlert = false);
+  //     return;
+  //   }
+
+  //   final mingguKehamilan = offsetHari ~/ 7;
+
+  //   // Hitung semua jadwal kontrol dari HPHT
+  //   final jadwals = _hitungJadwalKontrol(hpht, mingguKehamilan);
+
+  //   // Cek apakah besok ada jadwal kontrol
+  //   final besok = hariIni.add(const Duration(days: 1));
+
+  //   String? pesanAlert;
+  //   for (final jadwal in jadwals) {
+  //     final jadwalOnly = DateTime(jadwal.year, jadwal.month, jadwal.day);
+  //     if (jadwalOnly == besok) {
+  //       final tglStr = '${besok.day}/${besok.month}/${besok.year}';
+  //       pesanAlert = 'Besok ($tglStr) jadwal kontrol pemeriksaan kehamilan.';
+  //       break;
+  //     }
+  //     // Juga alert hari-H itu sendiri jika terlewat kemarin (belum ada notif H-1)
+  //     if (jadwalOnly == hariIni) {
+  //       pesanAlert = 'Hari ini jadwal kontrol pemeriksaan kehamilanmu!';
+  //       break;
+  //     }
+  //   }
+
+  //   if (!mounted) return;
+  //   setState(() {
+  //     _hasKontrolAlert = pesanAlert != null;
+  //     _kontrolAlertMessage = pesanAlert ?? '';
+  //   });
+  // }
+
+  Future<void> _checkKontrolAlert() async {
+    final hpht = _kehamilanAktif?.hpht;
+    if (hpht == null) {
+      if (mounted) setState(() => _hasKontrolAlert = false);
+      return;
+    }
+
+    final now = DateTime.now();
+    final hariIni = DateTime(now.year, now.month, now.day);
+    final hphtOnly = DateTime(hpht.year, hpht.month, hpht.day);
+
+    final offsetHari = hariIni.difference(hphtOnly).inDays;
+
+    // Di luar rentang kehamilan normal (0–294 hari = 42 minggu)
+    if (offsetHari < 0 || offsetHari > 294) {
+      if (mounted) setState(() => _hasKontrolAlert = false);
+      return;
+    }
+
+    // Bulan kehamilan saat ini (1 bulan = 28 hari)
+    final bulanKe = (offsetHari ~/ 28) + 1;
+    if (bulanKe < 1 || bulanKe > 10) {
+      if (mounted) setState(() => _hasKontrolAlert = false);
+      return;
+    }
+
+    // Frekuensi kontrol per bulan sesuai trimester
+    int frekuensi;
+    String labelTrimester;
+    if (bulanKe <= 3) {
+      frekuensi = 1;
+      labelTrimester = 'Trimester 1';
+    } else if (bulanKe <= 6) {
+      frekuensi = 2;
+      labelTrimester = 'Trimester 2';
+    } else {
+      frekuensi = 3;
+      labelTrimester = 'Trimester 3';
+    }
+
+    // Key unik per periode — sekali dismiss, tidak muncul lagi di bulan itu
+    final dismissKey = 'kontrol_dismissed_b${bulanKe}_f$frekuensi';
+
+    final prefs = await SharedPreferences.getInstance();
+    final sudahDismiss = prefs.getBool(dismissKey) ?? false;
+
+    if (!mounted) return;
+    setState(() {
+      _hasKontrolAlert = !sudahDismiss;
+      _kontrolAlertMessage = sudahDismiss
+          ? ''
+          : 'Bulan ini ($labelTrimester) kamu perlu kontrol $frekuensi kali. '
+              'Sudah periksa bulan ini?';
+      _kontrolDismissKey = dismissKey;
+    });
+  }
+
+  List<DateTime> _hitungJadwalKontrol(DateTime hpht, int mingguSaatIni) {
+    final hphtOnly = DateTime(hpht.year, hpht.month, hpht.day);
+    final hariIni = DateTime.now();
+    final hariIniOnly = DateTime(hariIni.year, hariIni.month, hariIni.day);
+
+    final List<DateTime> jadwals = [];
+
+    for (int bulan = 1; bulan <= 10; bulan++) {
+      final awalBulan = hphtOnly.add(Duration(days: (bulan - 1) * 28));
+
+      List<DateTime> tanggalDalamBulan;
+
+      if (bulan <= 3) {
+        // Trimester 1: 1x per bulan
+        tanggalDalamBulan = [awalBulan];
+      } else if (bulan <= 6) {
+        // Trimester 2: 2x per bulan
+        tanggalDalamBulan = [
+          awalBulan,
+          awalBulan.add(const Duration(days: 14)),
+        ];
+      } else {
+        // Trimester 3: 3x per bulan
+        tanggalDalamBulan = [
+          awalBulan,
+          awalBulan.add(const Duration(days: 9)),
+          awalBulan.add(const Duration(days: 19)),
+        ];
+      }
+
+      for (final tgl in tanggalDalamBulan) {
+        final tglOnly = DateTime(tgl.year, tgl.month, tgl.day);
+        // Hanya yang belum lewat (termasuk hari ini dan besok)
+        if (!tglOnly.isBefore(hariIniOnly)) {
+          jadwals.add(tgl);
+        }
+      }
+    }
+
+    return jadwals;
+  }
+
+  // Untuk notifikasi Log TTD/MMS
+  Future<void> _checkTTDAlert() async {
+    final hpht = _kehamilanAktif?.hpht;
+    if (hpht == null) return;
+
+    try {
+      final logs = await _logTTDService.getMine();
+
+      final now = DateTime.now();
+      final hariIni = DateTime(now.year, now.month, now.day);
+      final kemarin = hariIni.subtract(const Duration(days: 1));
+
+      final belumHariIni = !_sudahDiminum(logs, hpht, hariIni);
+      final belumKemarin = !_sudahDiminum(logs, hpht, kemarin);
+
+      if (!mounted) return;
+
+      if (belumHariIni) {
+        setState(() {
+          _hasTTDAlert = true;
+          _ttdAlertMessage = 'Belum minum TTD/MMS hari ini. Yuk catat!';
+        });
+      } else if (belumKemarin) {
+        setState(() {
+          _hasTTDAlert = true;
+          _ttdAlertMessage = 'Catatan TTD/MMS kemarin belum terisi.';
+        });
+      } else {
+        setState(() {
+          _hasTTDAlert = false;
+          _ttdAlertMessage = '';
+        });
+      }
+    } catch (_) {
+      // Gagal diam-diam, tidak perlu tampilkan error
+    }
+  }
+
+  /// Cek apakah pada [tgl] sudah ada log TTD yang diminum.
+  bool _sudahDiminum(
+    List<LogTTDMMSModel> logs,
+    DateTime hpht,
+    DateTime tgl,
+  ) {
+    const hariPerBulan = 30;
+    final hphtOnly = DateTime(hpht.year, hpht.month, hpht.day);
+    final tglOnly = DateTime(tgl.year, tgl.month, tgl.day);
+    final offsetHari = tglOnly.difference(hphtOnly).inDays;
+
+    if (offsetHari < 0) return true; // sebelum HPHT, skip
+    final bulanKe = (offsetHari ~/ hariPerBulan) + 1;
+    final hariKe = (offsetHari % hariPerBulan) + 1;
+
+    if (bulanKe < 1 || bulanKe > 10 || hariKe < 1 || hariKe > 31) {
+      return true; // di luar masa kehamilan
+    }
+
+    return logs.any(
+      (log) =>
+          log.bulanKe == bulanKe && log.hariKe == hariKe && log.sudahDiminum,
+    );
+  }
+
   @override
   void dispose() {
     _ibuApiService.dispose();
     _imunisasiService.dispose();
+    _logTTDService.dispose();
     super.dispose();
   }
 
@@ -1412,6 +1645,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
       final kehamilan = await _kehamilanService.getKehamilanAktif();
       if (!mounted) return;
       setState(() => _kehamilanAktif = kehamilan);
+      _checkKontrolAlert();
+      _checkTTDAlert();
     } catch (_) {}
   }
 
@@ -1485,6 +1720,166 @@ class _DashboardScreenState extends State<DashboardScreen> {
     } finally {
       if (mounted) setState(() => _loadingKehamilan = false);
     }
+  }
+
+  // void _showKontrolDialog() {
+  //   showDialog(
+  //     context: context,
+  //     builder: (ctx) => AlertDialog(
+  //       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+  //       title: const Row(
+  //         children: [
+  //           Icon(Icons.local_hospital_outlined, color: Color(0xFF185FA5)),
+  //           SizedBox(width: 8),
+  //           Text(
+  //             'Jadwal Kontrol Kehamilan',
+  //             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+  //           ),
+  //         ],
+  //       ),
+  //       content: Column(
+  //         mainAxisSize: MainAxisSize.min,
+  //         crossAxisAlignment: CrossAxisAlignment.start,
+  //         children: [
+  //           Text(
+  //             _kontrolAlertMessage,
+  //             style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+  //           ),
+  //           const SizedBox(height: 12),
+  //           const Text(
+  //             'Kontrol kehamilan rutin penting untuk memantau kesehatan Bunda '
+  //             'dan perkembangan si kecil. Pastikan datang ke Posyandu atau '
+  //             'Puskesmas terdekat sesuai jadwal.',
+  //             style:
+  //                 TextStyle(fontSize: 13, color: Colors.black87, height: 1.4),
+  //           ),
+  //           const SizedBox(height: 12),
+  //           Container(
+  //             padding: const EdgeInsets.all(10),
+  //             decoration: BoxDecoration(
+  //               color: const Color(0xFFEEF4FF),
+  //               borderRadius: BorderRadius.circular(8),
+  //             ),
+  //             child: const Row(
+  //               children: [
+  //                 Icon(Icons.info_outline, size: 16, color: Color(0xFF185FA5)),
+  //                 SizedBox(width: 8),
+  //                 Expanded(
+  //                   child: Text(
+  //                     'Ketuk "Lihat Detail" untuk membuka perjalanan kehamilan '
+  //                     'dan melihat jadwal lengkap kontrol.',
+  //                     style: TextStyle(fontSize: 12, color: Color(0xFF185FA5)),
+  //                   ),
+  //                 ),
+  //               ],
+  //             ),
+  //           ),
+  //         ],
+  //       ),
+  //       actions: [
+  //         TextButton(
+  //           onPressed: () => Navigator.pop(ctx),
+  //           child: const Text('Tutup', style: TextStyle(color: Colors.grey)),
+  //         ),
+  //         ElevatedButton(
+  //           style: ElevatedButton.styleFrom(
+  //             backgroundColor: const Color(0xFF185FA5),
+  //             shape: RoundedRectangleBorder(
+  //               borderRadius: BorderRadius.circular(8),
+  //             ),
+  //           ),
+  //           onPressed: () {
+  //             Navigator.pop(ctx); // tutup dialog dulu
+  //             // Navigate ke JourneyScreen; setelah kembali, alert hilang otomatis
+  //             _openHamilJourney().then((_) {
+  //               // Re-check: hari mungkin sudah berganti atau jadwal sudah lewat
+  //               _checkKontrolAlert();
+  //             });
+  //           },
+  //           child: const Text(
+  //             'Lihat Detail',
+  //             style: TextStyle(color: Colors.white),
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
+
+  void _showKontrolDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false, // harus tekan tombol, bukan tap di luar
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Row(
+          children: [
+            Icon(Icons.local_hospital_outlined, color: Color(0xFF185FA5)),
+            SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                'Pengingat Kontrol Kehamilan',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              _kontrolAlertMessage,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                height: 1.4,
+              ),
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              'Kontrol rutin penting untuk memastikan kesehatan Bunda '
+              'dan perkembangan si kecil. Kunjungi Posyandu atau '
+              'Puskesmas terdekat ya, Bun! 💙',
+              style: TextStyle(fontSize: 13, color: Colors.black87, height: 1.4),
+            ),
+          ],
+        ),
+        actions: [
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF185FA5),
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              onPressed: () async {
+                // Simpan dismiss — tidak muncul lagi bulan ini
+                if (_kontrolDismissKey.isNotEmpty) {
+                  final prefs = await SharedPreferences.getInstance();
+                  await prefs.setBool(_kontrolDismissKey, true);
+                }
+                if (ctx.mounted) Navigator.pop(ctx);
+                // Langsung hilangkan alert dari bell
+                if (mounted) {
+                  setState(() {
+                    _hasKontrolAlert = false;
+                    _kontrolAlertMessage = '';
+                  });
+                }
+              },
+              child: const Text(
+                'Oke, Mengerti',
+                style: TextStyle(color: Colors.white, fontSize: 14),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   String _trimesterLabel(int week) {
@@ -1573,6 +1968,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
           if (i == 0) {
             _loadImunisasi();
             _loadDataAnak();
+            _checkTTDAlert();
+            _checkKontrolAlert();
           }
         },
       ),
@@ -1583,12 +1980,50 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return SingleChildScrollView(
       child: Column(
         children: [
+          // DashboardHeader(
+          //   data: _imunisasiData,
+          //   overdueCount: _overdueCount,
+          //   onOpenImunisasi: () {
+          //     setState(() {
+          //       _selectedNavIndex = 3;
+          //     });
+          //   },
+          // ),
           DashboardHeader(
             data: _imunisasiData,
             overdueCount: _overdueCount,
             onOpenImunisasi: () {
               setState(() {
                 _selectedNavIndex = 3;
+              });
+            },
+            // ── Kontrol pemeriksaan ──
+            hasKontrolAlert: _hasKontrolAlert,
+            kontrolAlertMessage: _kontrolAlertMessage,
+            onOpenKontrol: () {
+              // Arahkan ke screen pemeriksaan kehamilan / perjalanan hamil
+              // _openHamilJourney();
+              _showKontrolDialog();
+            },
+            // ── TAMBAHAN TTD ──
+            hasTTDAlert: _hasTTDAlert,
+            ttdAlertMessage: _ttdAlertMessage,
+            onOpenTTD: () {
+              if (_kehamilanAktif?.hpht == null) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                      content: Text('Data kehamilan belum tersedia')),
+                );
+                return;
+              }
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => LogTTDMMSScreen(hpht: _kehamilanAktif!.hpht!),
+                ),
+              ).then((_) {
+                // Refresh status TTD setelah kembali dari screen log
+                _checkTTDAlert();
               });
             },
           ),

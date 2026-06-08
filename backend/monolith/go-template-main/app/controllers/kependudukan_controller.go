@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"time"
 
+	"monitoring-service/app/middlewares"
 	"monitoring-service/app/models"
 	"monitoring-service/app/usecases"
 
@@ -231,4 +232,31 @@ func (c *KependudukanController) GetRekapPerDusun(ctx echo.Context) error {
 		StatusCode: http.StatusOK,
 		Data:       data,
 	})
+}
+
+// controllers/kependudukan_controller.go
+
+// GetPendudukList mengambil daftar penduduk dengan filter desa dan jenis kelamin
+// GET /tenaga-kesehatan/kependudukan?jenis_kelamin=perempuan
+// GET /tenaga-kesehatan/kependudukan?jenis_kelamin=laki
+// GET /tenaga-kesehatan/kependudukan (semua)
+func (c *KependudukanController) GetPendudukList(ctx echo.Context) error {
+    // Ambil desa_id dan role dari context (sudah diset middleware)
+    desaID := middlewares.GetDesaID(ctx)
+    role := middlewares.GetRole(ctx)
+    jenisKelamin := ctx.QueryParam("jenis_kelamin") // optional: "perempuan", "laki"
+    
+    list, err := c.usecase.GetPendudukList(desaID, role, jenisKelamin)
+    if err != nil {
+        return ctx.JSON(http.StatusInternalServerError, models.Response{
+            StatusCode: http.StatusInternalServerError,
+            Message:    err.Error(),
+        })
+    }
+    
+    return ctx.JSON(http.StatusOK, models.Response{
+        StatusCode: http.StatusOK,
+        Message:    "success",
+        Data:       list,
+    })
 }

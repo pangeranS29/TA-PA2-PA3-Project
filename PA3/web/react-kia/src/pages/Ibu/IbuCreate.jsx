@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import MainLayout from "../../components/Layout/MainLayout";
 import { createIbu, getIbuByPendudukId } from "../../services/ibu";
 import { createKehamilan } from "../../services/kehamilan";
-import { getKependudukanList } from "../../services/kependudukan";
+import { getPerempuanList, getLakiList } from "../../services/kependudukan"; // ← PERUBAHAN: import fungsi baru
 import {
   ArrowLeft,
   ArrowRight,
@@ -48,21 +48,47 @@ export default function IbuCreate() {
     tb: "",
   });
 
-  // Fetch penduduk
+  // Fetch penduduk PEREMPUAN
+  const fetchIbuList = async () => {
+    try {
+      const data = await getPerempuanList(); // ← PERUBAHAN: panggil getPerempuanList
+      return Array.isArray(data) ? data : [];
+    } catch (err) {
+      console.error("Error fetching ibu list:", err);
+      return [];
+    }
+  };
+
+  // Fetch penduduk LAKI-LAKI
+  const fetchSuamiList = async () => {
+    try {
+      const data = await getLakiList(); // ← PERUBAHAN: panggil getLakiList
+      return Array.isArray(data) ? data : [];
+    } catch (err) {
+      console.error("Error fetching suami list:", err);
+      return [];
+    }
+  };
+
+  // Fetch semua penduduk
+  const fetchPenduduk = async () => {
+    try {
+      setLoading(true);
+      const [perempuanData, lakiData] = await Promise.all([
+        fetchIbuList(),
+        fetchSuamiList(),
+      ]);
+      
+      setPendudukList([...perempuanData, ...lakiData]);
+    } catch (err) {
+      console.error(err);
+      setErrorMessage("Gagal mengambil data penduduk.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchPenduduk = async () => {
-      try {
-        const data = await getKependudukanList();
-        if (Array.isArray(data)) {
-          setPendudukList(data);
-        } else {
-          setPendudukList([]);
-        }
-      } catch (err) {
-        console.error(err);
-        setErrorMessage("Gagal mengambil data penduduk.");
-      }
-    };
     fetchPenduduk();
   }, []);
 
@@ -220,7 +246,7 @@ export default function IbuCreate() {
       }, 2000);
     } catch (err) {
       console.error(err);
-      const msg = err.response?.data?.message || err.message || "Gagal menyimpan data kehamilan";
+      const msg = err.response?.data?.message || err.message || "Gagal menyimpan数据 kehamilan";
       setErrorMessage(msg);
     } finally {
       setLoading(false);

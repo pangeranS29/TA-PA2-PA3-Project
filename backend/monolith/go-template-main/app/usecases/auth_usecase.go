@@ -229,12 +229,12 @@ func (m *Main) Register(req *models.RegisterRequest) error {
 	}
 
 	user := &models.User{
-		Name:        req.Name,
-		Email:       req.Email,
-		IsActive:    true,
-		Password:    string(hashedPassword),
-		RoleID:      role.ID,
-		PendudukID:  pendudukID,
+		Name:       req.Name,
+		Email:      req.Email,
+		IsActive:   true,
+		Password:   string(hashedPassword),
+		RoleID:     role.ID,
+		PendudukID: pendudukID,
 	}
 
 	if err := m.repository.CreateUser(user); err != nil {
@@ -326,21 +326,6 @@ func (m *Main) Login(req *models.LoginRequest) (*models.LoginResponse, error) {
 	}
 	user.Role.Name = canonicalRoleName
 
-	// ========== AMBIL DESA & HP ==========
-	// var desaID *int32
-	// var desaNama string
-	// var userPhone string
-	// if user.PendudukID != nil {
-	// 	penduduk, err := m.repository.Kependudukan.FindByID(int32(*user.PendudukID))
-	// 	if err == nil && penduduk != nil {
-	// 		userPhone = penduduk.Telepon
-	// 		if penduduk.DesaID != nil {
-	// 			desaID = penduduk.DesaID
-	// 			desa, err := m.repository.Desa.FindByID(*penduduk.DesaID)
-	// 			if err == nil && desa != nil {
-	// 				desaNama = desa.NamaDesa
-	// 			}
-
 	// ========== AMBIL DESA ==========
 	var desaID *int32
 	var desaNama string
@@ -368,7 +353,6 @@ func (m *Main) Login(req *models.LoginRequest) (*models.LoginResponse, error) {
 		UserID:        user.ID,
 		Name:          user.Name,
 		Email:         user.Email,
-		// PhoneNumber:   userPhone,
 		Role:          user.Role.Name,
 		TargetApp:     destination.TargetApp,
 		RedirectRoute: destination.RedirectRoute,

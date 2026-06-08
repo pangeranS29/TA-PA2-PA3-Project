@@ -65,6 +65,13 @@ func (m *Main) startCronJob() {
 		} else {
 			log.Println("[CRON] reminder selesai")
 		}
+
+		// 3. Reminder kontrol pemeriksaan kehamilan
+		if err := m.usecase.ProcessKontrolReminder(); err != nil {
+			log.Printf("[CRON] reminder kontrol error: %v", err)
+		} else {
+			log.Println("[CRON] reminder kontrol selesai")
+		}
 	})
 	if err != nil {
 		log.Fatalf("[CRON] Gagal menjadwalkan job: %v", err)
@@ -162,6 +169,7 @@ func (m *Main) Init() (err error) {
 	m.controller = controllers.Init(controllers.Options{
 		Config:   m.cfg,
 		UseCases: m.usecase,
+		DB:       m.database.Postgres,
 	})
 
 	m.router = e

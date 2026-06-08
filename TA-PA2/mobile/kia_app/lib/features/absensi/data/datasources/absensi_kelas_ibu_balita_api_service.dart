@@ -110,7 +110,7 @@ class AbsensiKelasIbuBalitaApiService {
     return [];
   }
 
-  Future<void> verifyKader(int id, String namaKader, String tanggalParaf) async {
+  Future<void> verifyKader(int id, String namaKader, String tanggalParaf, String status) async {
     final uri = Uri.parse(
       '${ApiConstants.baseUrl}/kader/absensi-kelas-ibu-balita/$id/verifikasi',
     );
@@ -121,6 +121,7 @@ class AbsensiKelasIbuBalitaApiService {
       body: jsonEncode({
         'nama_kader': namaKader,
         'tanggal_paraf': tanggalParaf,
+        'status': status,
       }),
     );
 

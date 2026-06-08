@@ -1,11 +1,13 @@
 import React, { useState, useMemo } from "react";
 import { PelayananGiziService } from "../../services/Pelayanan-gizi-anak";
 import { X, Save, Loader2, CheckCircle2, Circle } from 'lucide-react';
+import AlertNotification from "../../components/AlertNotification";
 
 const PelayananGiziModal = ({ isOpen, onClose, anakId, onSuccess }) => {
   if (!isOpen) return null;
 
   const [submitting, setSubmitting] = useState(false);
+  const [notification, setNotification] = useState(null);
   const authUser = JSON.parse(localStorage.getItem('user')) || { id: 0, nama: 'Petugas' };
 
   const [formData, setFormData] = useState({
@@ -37,13 +39,28 @@ const PelayananGiziModal = ({ isOpen, onClose, anakId, onSuccess }) => {
 
     try {
       await PelayananGiziService.create(payload);
-      onSuccess();
-      onClose();
+      setNotification({
+        type: "success",
+        message: "Data pelayanan gizi berhasil disimpan ke dalam sistem!"
+      });
     } catch (err) {
-      alert("Gagal menyimpan data");
+      const errorMsg = err.response?.data?.message || err.message || "Gagal menyimpan data";
+      setNotification({
+        type: "error",
+        message: "Permintaan gagal diproses. Silakan coba lagi nanti atau hubungi bantuan.",
+        code: errorMsg
+      });
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const handleAlertClose = () => {
+    if (notification && notification.type === "success") {
+      onSuccess();
+      onClose();
+    }
+    setNotification(null);
   };
 
   const toggleVarian = (item) => {
@@ -56,6 +73,11 @@ const PelayananGiziModal = ({ isOpen, onClose, anakId, onSuccess }) => {
 
   return (
     <div className="fixed inset-0 z-[999] flex items-center justify-center p-4">
+      <AlertNotification 
+        notification={notification} 
+        onClose={handleAlertClose} 
+        onRetry={notification?.type === "error" ? () => setNotification(null) : null}
+      />
       {/* Backdrop */}
       <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={onClose}></div>
       

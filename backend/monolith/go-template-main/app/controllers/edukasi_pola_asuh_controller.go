@@ -22,66 +22,76 @@ func (c *EdukasiPolaAsuhController) Create(ctx echo.Context) error {
 	var input models.EdukasiPolaAsuh
 
 	if err := ctx.Bind(&input); err != nil {
-		return ctx.JSON(http.StatusBadRequest, echo.Map{"error": err.Error()})
+		return ctx.JSON(http.StatusBadRequest, models.Response{StatusCode: http.StatusBadRequest, Message: err.Error()})
 	}
 
 	if err := c.usecase.Create(&input); err != nil {
-		return ctx.JSON(http.StatusInternalServerError, echo.Map{"error": err.Error()})
+		return ctx.JSON(http.StatusInternalServerError, models.Response{StatusCode: http.StatusInternalServerError, Message: err.Error()})
 	}
 
-	return ctx.JSON(http.StatusCreated, input)
+	return ctx.JSON(http.StatusCreated, models.Response{StatusCode: http.StatusCreated, Data: input})
 }
 
 func (c *EdukasiPolaAsuhController) GetAll(ctx echo.Context) error {
-	data, err := c.usecase.GetAll()
+	rentangUsia := ctx.QueryParam("rentang_usia")
+	
+	var data interface{}
+	var err error
+	
+	if rentangUsia != "" {
+		data, err = c.usecase.GetByRentangUsia(rentangUsia)
+	} else {
+		data, err = c.usecase.GetAll()
+	}
+	
 	if err != nil {
-		return ctx.JSON(http.StatusInternalServerError, echo.Map{"error": err.Error()})
+		return ctx.JSON(http.StatusInternalServerError, models.Response{StatusCode: http.StatusInternalServerError, Message: err.Error()})
 	}
 
-	return ctx.JSON(http.StatusOK, data)
+	return ctx.JSON(http.StatusOK, models.Response{StatusCode: http.StatusOK, Data: data})
 }
 
 func (c *EdukasiPolaAsuhController) GetByID(ctx echo.Context) error {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, echo.Map{"error": "invalid id"})
+		return ctx.JSON(http.StatusBadRequest, models.Response{StatusCode: http.StatusBadRequest, Message: "invalid id"})
 	}
 
 	data, err := c.usecase.GetByID(int32(id))
 	if err != nil {
-		return ctx.JSON(http.StatusNotFound, echo.Map{"error": "Data not found"})
+		return ctx.JSON(http.StatusNotFound, models.Response{StatusCode: http.StatusNotFound, Message: "Data not found"})
 	}
 
-	return ctx.JSON(http.StatusOK, data)
+	return ctx.JSON(http.StatusOK, models.Response{StatusCode: http.StatusOK, Data: data})
 }
 
 func (c *EdukasiPolaAsuhController) Update(ctx echo.Context) error {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, echo.Map{"error": "invalid id"})
+		return ctx.JSON(http.StatusBadRequest, models.Response{StatusCode: http.StatusBadRequest, Message: "invalid id"})
 	}
 
 	var input models.EdukasiPolaAsuh
 	if err := ctx.Bind(&input); err != nil {
-		return ctx.JSON(http.StatusBadRequest, echo.Map{"error": err.Error()})
+		return ctx.JSON(http.StatusBadRequest, models.Response{StatusCode: http.StatusBadRequest, Message: err.Error()})
 	}
 
 	if err := c.usecase.Update(int32(id), &input); err != nil {
-		return ctx.JSON(http.StatusNotFound, echo.Map{"error": err.Error()})
+		return ctx.JSON(http.StatusNotFound, models.Response{StatusCode: http.StatusNotFound, Message: err.Error()})
 	}
 
-	return ctx.JSON(http.StatusOK, echo.Map{"message": "updated successfully"})
+	return ctx.JSON(http.StatusOK, models.Response{StatusCode: http.StatusOK, Message: "updated successfully"})
 }
 
 func (c *EdukasiPolaAsuhController) Delete(ctx echo.Context) error {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, echo.Map{"error": "invalid id"})
+		return ctx.JSON(http.StatusBadRequest, models.Response{StatusCode: http.StatusBadRequest, Message: "invalid id"})
 	}
 
 	if err := c.usecase.Delete(int32(id)); err != nil {
-		return ctx.JSON(http.StatusInternalServerError, echo.Map{"error": err.Error()})
+		return ctx.JSON(http.StatusInternalServerError, models.Response{StatusCode: http.StatusInternalServerError, Message: err.Error()})
 	}
 
-	return ctx.JSON(http.StatusOK, echo.Map{"message": "deleted successfully"})
+	return ctx.JSON(http.StatusOK, models.Response{StatusCode: http.StatusOK, Message: "deleted successfully"})
 }

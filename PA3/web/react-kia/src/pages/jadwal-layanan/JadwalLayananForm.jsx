@@ -7,6 +7,7 @@ import {
   updateJadwalLayanan,
 } from "../../services/jadwalLayanan";
 import { listPosyanduForDropdown } from "../../services/adminTenagaKesehatan";
+import { getDosisVaksinList } from "../../services/dosisVaksin";
 import {
   ArrowLeft,
   Calendar,
@@ -17,6 +18,9 @@ import {
   RefreshCw,
   Save,
   AlertCircle,
+  Syringe,
+  Check,
+  X,
 } from "lucide-react";
 
 function FormField({ label, icon: Icon, children, hint }) {
@@ -47,6 +51,147 @@ function normalizeTimeValue(value) {
   return "";
 }
 
+// Fungsi validasi waktu untuk hari ini
+function isTimeValidForToday(selectedDate, timeValue) {
+  if (!selectedDate || !timeValue) return true;
+  
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const selectedDateObj = new Date(selectedDate);
+  selectedDateObj.setHours(0, 0, 0, 0);
+  
+  // Jika tanggal bukan hari ini, tidak perlu validasi waktu
+  if (selectedDateObj.getTime() !== today.getTime()) {
+    return true;
+  }
+  
+  // Jika tanggal hari ini, cek apakah waktu sudah lewat
+  const now = new Date();
+  const currentHour = now.getHours();
+  const currentMinute = now.getMinutes();
+  
+  const [hour, minute] = timeValue.split(':').map(Number);
+  
+  if (hour < currentHour) return false;
+  if (hour === currentHour && minute < currentMinute) return false;
+  
+  return true;
+}
+
+// Mendapatkan waktu minimal untuk hari ini
+function getMinTimeForToday() {
+  const today = new Date();
+  const currentHour = today.getHours();
+  const currentMinute = today.getMinutes();
+  return `${String(currentHour).padStart(2, '0')}:${String(currentMinute).padStart(2, '0')}`;
+}
+
+// Multi-select dropdown component untuk Dosis Vaksin
+function MultiSelectDosisVaksin({ options, selectedValues, onChange, disabled }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const filteredOptions = options.filter(opt =>
+    opt.Vaksin?.nama?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    opt.nama_dosis?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const toggleOption = (dosisId) => {
+    if (selectedValues.includes(dosisId)) {
+      onChange(selectedValues.filter(id => id !== dosisId));
+    } else {
+      onChange([...selectedValues, dosisId]);
+    }
+  };
+
+  const removeOption = (dosisId) => {
+    onChange(selectedValues.filter(id => id !== dosisId));
+  };
+
+  const selectedDosisVaksins = options.filter(opt => selectedValues.includes(opt.id));
+
+  return (
+    <div className="relative">
+      <div
+        className={`${inputClass} min-h-[46px] flex flex-wrap gap-1.5 cursor-pointer`}
+        onClick={() => !disabled && setIsOpen(!isOpen)}
+      >
+        {selectedDosisVaksins.length > 0 ? (
+          selectedDosisVaksins.map(dosis => (
+            <span
+              key={dosis.id}
+              className="inline-flex items-center gap-1 px-2 py-0.5 bg-[#185FA5]/10 text-[#185FA5] text-xs rounded-lg"
+            >
+              {dosis.Vaksin?.nama} - {dosis.nama_dosis}
+              {!disabled && (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    removeOption(dosis.id);
+                  }}
+                  className="hover:text-[#A32D2D]"
+                >
+                  <X size={12} />
+                </button>
+              )}
+            </span>
+          ))
+        ) : (
+          <span className="text-slate-400">Pilih dosis vaksin yang tersedia...</span>
+        )}
+      </div>
+
+      {isOpen && !disabled && (
+        <>
+          <div className="fixed inset-0 z-10" onClick={() => setIsOpen(false)} />
+          <div className="absolute z-20 mt-1 w-full bg-white border border-slate-200 rounded-xl shadow-lg overflow-hidden">
+            <div className="p-2 border-b border-slate-100">
+              <input
+                type="text"
+                placeholder="Cari vaksin atau dosis..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full px-3 py-1.5 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#185FA5]/30"
+                onClick={(e) => e.stopPropagation()}
+              />
+            </div>
+            <div className="max-h-48 overflow-y-auto">
+              {filteredOptions.length > 0 ? (
+                filteredOptions.map(dosis => (
+                  <label
+                    key={dosis.id}
+                    className="flex items-center gap-2 px-3 py-2 hover:bg-slate-50 cursor-pointer transition-colors"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={selectedValues.includes(dosis.id)}
+                      onChange={() => toggleOption(dosis.id)}
+                      className="w-4 h-4 rounded border-slate-300 text-[#185FA5] focus:ring-[#185FA5]/30"
+                    />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-slate-700">
+                        {dosis.Vaksin?.nama} - {dosis.nama_dosis}
+                      </p>
+                      {dosis.Vaksin?.deskripsi && (
+                        <p className="text-xs text-slate-400 truncate">{dosis.Vaksin.deskripsi}</p>
+                      )}
+                    </div>
+                  </label>
+                ))
+              ) : (
+                <p className="px-3 py-4 text-sm text-slate-400 text-center">
+                  Tidak ada dosis vaksin ditemukan
+                </p>
+              )}
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 export default function JadwalLayananForm() {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -56,6 +201,7 @@ export default function JadwalLayananForm() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [posyanduOptions, setPosyanduOptions] = useState([]);
+  const [dosisVaksinOptions, setDosisVaksinOptions] = useState([]);
 
   const [form, setForm] = useState({
     posyandu_id: "",
@@ -64,6 +210,7 @@ export default function JadwalLayananForm() {
     waktu_mulai: "",
     waktu_selesai: "",
     keterangan: "",
+    dosis_vaksin_ids: [],
   });
 
   // Load existing data when editing
@@ -81,6 +228,7 @@ export default function JadwalLayananForm() {
             waktu_mulai: normalizeTimeValue(data.waktu_mulai),
             waktu_selesai: normalizeTimeValue(data.waktu_selesai),
             keterangan: data.keterangan ?? "",
+            dosis_vaksin_ids: data.dosis_vaksin_ids ?? data.dosis_vaksins?.map(d => d.id) ?? [],
           });
         }
       } catch {
@@ -99,21 +247,135 @@ export default function JadwalLayananForm() {
         const data = await listPosyanduForDropdown({ page: 1, per_page: 100 });
         setPosyanduOptions(Array.isArray(data) ? data : []);
       } catch {
-        // ignore — posyandu is optional
+        // ignore
       }
     };
     loadPosyandu();
   }, []);
 
+  // Load dosis vaksin list
+  useEffect(() => {
+    const loadDosisVaksin = async () => {
+      try {
+        const data = await getDosisVaksinList();
+        setDosisVaksinOptions(Array.isArray(data) ? data : []);
+      } catch (error) {
+        console.error("Failed to load dosis vaksin:", error);
+      }
+    };
+    loadDosisVaksin();
+  }, []);
+
+  // Handler untuk semua input
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
+    setError("");
+  };
+
+  // Handler khusus untuk tanggal
+  const handleTanggalChange = (e) => {
+    const value = e.target.value;
+    
+    // Validasi tanggal tidak boleh kurang dari hari ini
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const selectedDate = new Date(value);
+    
+    if (selectedDate < today) {
+      setError("Tanggal pelayanan tidak boleh kurang dari hari ini");
+      return;
+    }
+    
+    setError("");
+    setForm((prev) => ({ ...prev, tanggal: value }));
+  };
+
+  // Handler khusus untuk waktu mulai
+  const handleWaktuMulaiChange = (e) => {
+    const value = e.target.value;
+    
+    if (!form.tanggal) {
+      setError("Pilih tanggal terlebih dahulu");
+      return;
+    }
+    
+    if (!isTimeValidForToday(form.tanggal, value)) {
+      setError("Waktu mulai tidak boleh kurang dari jam sekarang untuk hari ini");
+      return;
+    }
+    
+    setError("");
+    setForm((prev) => ({ ...prev, waktu_mulai: value }));
+  };
+
+  // Handler khusus untuk waktu selesai
+  const handleWaktuSelesaiChange = (e) => {
+    const value = e.target.value;
+    
+    if (form.waktu_mulai && value <= form.waktu_mulai) {
+      setError("Waktu selesai harus lebih besar dari waktu mulai");
+      return;
+    }
+    
+    if (!isTimeValidForToday(form.tanggal, value)) {
+      setError("Waktu selesai tidak boleh kurang dari jam sekarang untuk hari ini");
+      return;
+    }
+    
+    setError("");
+    setForm((prev) => ({ ...prev, waktu_selesai: value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
     setError("");
+
+    // Validasi tanggal
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const selectedDate = new Date(form.tanggal);
+    
+    if (!form.tanggal) {
+      setError("Tanggal harus diisi");
+      setSaving(false);
+      return;
+    }
+    
+    if (selectedDate < today) {
+      setError("Tanggal pelayanan tidak boleh kurang dari hari ini");
+      setSaving(false);
+      return;
+    }
+
+    // Validasi waktu mulai
+    if (!form.waktu_mulai) {
+      setError("Waktu mulai harus diisi");
+      setSaving(false);
+      return;
+    }
+
+    if (!isTimeValidForToday(form.tanggal, form.waktu_mulai)) {
+      setError("Waktu mulai tidak boleh kurang dari jam sekarang untuk hari ini");
+      setSaving(false);
+      return;
+    }
+
+    // Validasi waktu selesai
+    if (form.waktu_selesai) {
+      if (form.waktu_selesai <= form.waktu_mulai) {
+        setError("Waktu selesai harus lebih besar dari waktu mulai");
+        setSaving(false);
+        return;
+      }
+      
+      if (!isTimeValidForToday(form.tanggal, form.waktu_selesai)) {
+        setError("Waktu selesai tidak boleh kurang dari jam sekarang untuk hari ini");
+        setSaving(false);
+        return;
+      }
+    }
 
     const payload = {
       posyandu_id: form.posyandu_id ? Number(form.posyandu_id) : null,
@@ -122,6 +384,7 @@ export default function JadwalLayananForm() {
       waktu_mulai: form.waktu_mulai || null,
       waktu_selesai: form.waktu_selesai || null,
       keterangan: form.keterangan || null,
+      dosis_vaksin_ids: form.dosis_vaksin_ids,
     };
 
     try {
@@ -142,6 +405,8 @@ export default function JadwalLayananForm() {
       setSaving(false);
     }
   };
+
+  const isTodayDate = form.tanggal === new Date().toISOString().split('T')[0];
 
   return (
     <MainLayout>
@@ -195,13 +460,23 @@ export default function JadwalLayananForm() {
                 />
               </FormField>
 
+              {/* Dosis Vaksin */}
+              <FormField 
+                label="Daftar Vaksin & Dosis" 
+                icon={Syringe}
+                hint="Pilih dosis vaksin yang akan diberikan pada jadwal ini"
+              >
+                <MultiSelectDosisVaksin
+                  options={dosisVaksinOptions}
+                  selectedValues={form.dosis_vaksin_ids}
+                  onChange={(values) => setForm(prev => ({ ...prev, dosis_vaksin_ids: values }))}
+                  disabled={saving}
+                />
+              </FormField>
+
               {/* Grid: Posyandu, Tanggal, Waktu */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <FormField
-                  label="Posyandu"
-                  icon={MapPin}
-                  hint="Kosongkan jika belum ditentukan"
-                >
+                <FormField label="Posyandu" icon={MapPin} hint="Kosongkan jika belum ditentukan">
                   <select
                     name="posyandu_id"
                     value={form.posyandu_id}
@@ -217,51 +492,44 @@ export default function JadwalLayananForm() {
                   </select>
                 </FormField>
 
-                {/* kapasitas column removed */}
-
                 <FormField label="Tanggal Pelayanan" icon={Calendar}>
                   <input
                     type="date"
                     name="tanggal"
                     value={form.tanggal}
-                    onChange={handleChange}
+                    onChange={handleTanggalChange}
                     className={inputClass}
                     required
+                    min={new Date().toISOString().split('T')[0]}
                   />
                 </FormField>
 
-                <FormField
-                  label="Waktu Pelayanan"
-                  icon={Clock}
-                  hint='Pilih rentang waktu: mulai dan selesai (HH:MM)'
-                >
+                <FormField label="Waktu Pelayanan" icon={Clock} hint="Pilih rentang waktu: mulai dan selesai (HH:MM)">
                   <div className="flex items-center gap-2">
                     <input
                       type="time"
                       name="waktu_mulai"
                       value={form.waktu_mulai}
-                      onChange={handleChange}
+                      onChange={handleWaktuMulaiChange}
                       className={`${inputClass} max-w-[140px]`}
                       required
+                      min={isTodayDate ? getMinTimeForToday() : undefined}
                     />
                     <span className="text-sm text-slate-400">—</span>
                     <input
                       type="time"
                       name="waktu_selesai"
                       value={form.waktu_selesai}
-                      onChange={handleChange}
+                      onChange={handleWaktuSelesaiChange}
                       className={`${inputClass} max-w-[140px]`}
+                      min={form.waktu_mulai || undefined}
                     />
                   </div>
                 </FormField>
               </div>
 
               {/* Keterangan */}
-              <FormField
-                label="Keterangan"
-                icon={FileText}
-                hint="Opsional — catatan tambahan untuk jadwal ini"
-              >
+              <FormField label="Keterangan" icon={FileText} hint="Opsional — catatan tambahan untuk jadwal ini">
                 <textarea
                   name="keterangan"
                   value={form.keterangan}
@@ -272,16 +540,34 @@ export default function JadwalLayananForm() {
                 />
               </FormField>
 
+              {/* Selected dosis vaksin summary */}
+              {form.dosis_vaksin_ids.length > 0 && dosisVaksinOptions.length > 0 && (
+                <div className="bg-slate-50 rounded-xl p-3 border border-slate-100">
+                  <p className="text-xs font-semibold text-slate-500 mb-2 flex items-center gap-1">
+                    <Syringe size={12} />
+                    DOSIS VAKSIN YANG AKAN DIBERIKAN ({form.dosis_vaksin_ids.length})
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {dosisVaksinOptions
+                      .filter(d => form.dosis_vaksin_ids.includes(d.id))
+                      .map(dosis => (
+                        <span
+                          key={dosis.id}
+                          className="inline-flex items-center gap-1 px-2.5 py-1 bg-white border border-slate-200 rounded-lg text-xs text-slate-600"
+                        >
+                          <Check size={10} className="text-emerald-500" />
+                          {dosis.Vaksin?.nama} - {dosis.nama_dosis}
+                        </span>
+                      ))}
+                  </div>
+                </div>
+              )}
+
               {/* Error message */}
               {error && (
                 <div className="flex items-start gap-3 px-4 py-3 bg-red-50 border border-red-100 rounded-xl">
-                  <AlertCircle
-                    size={16}
-                    className="text-[#A32D2D] mt-0.5 shrink-0"
-                  />
-                  <p className="text-sm text-[#A32D2D] leading-relaxed">
-                    {String(error)}
-                  </p>
+                  <AlertCircle size={16} className="text-[#A32D2D] mt-0.5 shrink-0" />
+                  <p className="text-sm text-[#A32D2D] leading-relaxed">{error}</p>
                 </div>
               )}
 

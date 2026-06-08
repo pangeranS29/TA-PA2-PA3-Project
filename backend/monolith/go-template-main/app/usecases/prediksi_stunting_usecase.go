@@ -10,6 +10,7 @@ import (
 	"monitoring-service/app/repositories"
 	"monitoring-service/pkg/customerror"
 	"net/http"
+	"time"
 )
 
 type PrediksiStuntingUsecase interface {
@@ -136,7 +137,9 @@ func (u *prediksiStuntingUsecase) callPythonPredictionService(ctx context.Contex
 	}
 	httpReq.Header.Set("Content-Type", "application/json")
 
-	client := &http.Client{}
+	client := &http.Client{
+		Timeout: 5 * time.Second,
+	}
 	resp, err := client.Do(httpReq)
 	if err != nil {
 		return nil, customerror.NewInternalServiceError("gagal koneksi ke Python service")

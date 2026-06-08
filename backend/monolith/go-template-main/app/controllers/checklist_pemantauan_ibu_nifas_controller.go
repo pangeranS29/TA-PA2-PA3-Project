@@ -173,3 +173,71 @@ func (ctrl *ChecklistPemantauanIbuNifasController) SaveMine(c echo.Context) erro
 		"data":    data,
 	})
 }
+
+
+// BAGIAN KADER 
+
+// GetAll mengambil semua data checklist pemantauan ibu nifas untuk ditampilkan ke kader.
+func (ctrl *ChecklistPemantauanIbuNifasController) GetAll(c echo.Context) error {
+	data, err := ctrl.usecase.GetAll()
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"message": "Gagal mengambil data checklist pemantauan ibu nifas",
+			"error":   err.Error(),
+		})
+	}
+ 
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"message": "Berhasil mengambil data checklist pemantauan ibu nifas",
+		"data":    data,
+	})
+}
+ 
+type verifyChecklistNifasRequest struct {
+	NamaKader         string `json:"nama_kader"`
+	TanggalVerifikasi string `json:"tanggal_verifikasi"`
+}
+ 
+// Verify digunakan kader untuk menandai bahwa data pemantauan nifas sudah ditinjau.
+func (ctrl *ChecklistPemantauanIbuNifasController) Verify(c echo.Context) error {
+	idParam := c.Param("id")
+ 
+	var req verifyChecklistNifasRequest
+	if err := c.Bind(&req); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"message": "format request tidak valid",
+		})
+	}
+ 
+	if req.NamaKader == "" {
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"message": "nama_kader tidak boleh kosong",
+		})
+	}
+ 
+	tanggalVerifikasi, err := parseOptionalDate(req.TanggalVerifikasi)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"message": "format tanggal_verifikasi harus YYYY-MM-DD",
+		})
+	}
+ 
+	id, err := strconv.Atoi(idParam)
+	if err != nil || id <= 0 {
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"message": "id tidak valid",
+		})
+	}
+ 
+	err = ctrl.usecase.Verify(int32(id), req.NamaKader, tanggalVerifikasi)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"message": err.Error(),
+		})
+	}
+ 
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"message": "Berhasil memverifikasi checklist pemantauan ibu nifas",
+	})
+}
+ 

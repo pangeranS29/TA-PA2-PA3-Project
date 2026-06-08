@@ -122,6 +122,7 @@ func (c *AbsensiKelasIbuBalitaController) GetAll(ctx echo.Context) error {
 type verifyAbsensiKelasIbuBalitaRequest struct {
 	NamaKader    string `json:"nama_kader"`
 	TanggalParaf string `json:"tanggal_paraf"`
+	Status       string `json:"status"`
 }
 
 func (c *AbsensiKelasIbuBalitaController) Verify(ctx echo.Context) error {
@@ -161,7 +162,12 @@ func (c *AbsensiKelasIbuBalitaController) Verify(ctx echo.Context) error {
 		})
 	}
 
-	err = c.usecase.Verify(int32(id), req.NamaKader, tanggalParaf)
+	status := req.Status
+	if status == "" {
+		status = "Diterima"
+	}
+
+	err = c.usecase.Verify(int32(id), req.NamaKader, tanggalParaf, status)
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, models.Response{
 			StatusCode: http.StatusBadRequest,

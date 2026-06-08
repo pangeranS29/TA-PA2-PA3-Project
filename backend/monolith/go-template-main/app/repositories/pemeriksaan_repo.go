@@ -3,8 +3,10 @@ package repositories
 import (
 	"context"
 	"errors"
+	"log"
 	"monitoring-service/app/models"
-     "github.com/lib/pq"
+
+	"github.com/lib/pq"
 	"gorm.io/gorm"
 )
 
@@ -202,35 +204,42 @@ func (r *pemeriksaanRepository) GetLatestPemeriksaanByPenduduk(ctx context.Conte
 func (r *pemeriksaanRepository) GetLatestByPendudukIDs(ctx context.Context, kelompok string, pendudukIDs []uint) (map[uint]*models.Pemeriksaan, error) {
     result := make(map[uint]*models.Pemeriksaan)
     
+    log.Printf("GetLatestByPendudukIDs: kelompok=%s, pendudukIDs=%v", kelompok, pendudukIDs)
+    
     if len(pendudukIDs) == 0 {
         return result, nil
     }
     
     var exams []models.Pemeriksaan
     
-    // 🔧 Gunakan raw query yang sudah terbukti berhasil
+    // 🔧 PERBAIKAN: Gunakan parameter pendudukIDs, jangan hardcode
     query := `
         SELECT DISTINCT ON (penduduk_id) 
             id,
             penduduk_id,
             kelompok,
             kategori_risiko,
-            tanggal_pemeriksaan
+            tanggal_pemeriksaan,
+            rekomendasi
         FROM pemeriksaans
         WHERE kelompok = $1 
-            AND penduduk_id IN (79, 80, 81, 82)
+            AND penduduk_id = ANY($2::int[])
             AND deleted_at IS NULL
             AND tanggal_pemeriksaan IS NOT NULL
         ORDER BY penduduk_id, tanggal_pemeriksaan DESC
     `
     
-    err := r.db.WithContext(ctx).Raw(query, kelompok).Scan(&exams).Error
+    err := r.db.WithContext(ctx).Raw(query, kelompok, pq.Array(pendudukIDs)).Scan(&exams).Error
     if err != nil {
+        log.Printf("Query error: %v", err)
         return result, err
     }
     
+    log.Printf("Found %d exams", len(exams))
+    
     for i := range exams {
         result[exams[i].PendudukID] = &exams[i]
+        log.Printf("Added exam for penduduk %d: risiko=%s", exams[i].PendudukID, exams[i].KategoriRisiko)
     }
     
     return result, nil

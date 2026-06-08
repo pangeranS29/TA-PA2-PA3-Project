@@ -6,6 +6,7 @@ import "time"
 // Semua field diisi langsung dari raw SQL query (bukan dari GORM Preload),
 // sehingga tidak perlu relasi struct.
 type LaporanAnak struct {
+	NoKK          string    `gorm:"column:no_kk" json:"no_kk"`
 	NIK           string    `gorm:"column:nik" json:"nik"`
 	NamaAnak      string    `gorm:"column:nama_anak" json:"nama_anak"`
 	NamaIbu       string    `gorm:"column:nama_ibu" json:"nama_ibu"`

@@ -179,9 +179,6 @@ export default function LaporanAnakPreview() {
 				</div>
 				<div className="mt-3 flex flex-wrap justify-between items-center gap-2 text-sm text-gray-500">
 					<span>Menampilkan <strong>{currentData.length}</strong> data</span>
-					<span className="inline-flex items-center gap-1 bg-green-50 text-green-700 px-2 py-1 rounded-full text-xs">
-						<FileSpreadsheet size={12} /> Siap ekspor
-					</span>
 				</div>
 			</div>
 		);
@@ -189,6 +186,7 @@ export default function LaporanAnakPreview() {
 
 	// Column definitions
 	const anakCols = [
+		{ field: "no_kk", label: "No KK" },
 		{ field: "nik", label: "NIK Anak" },
 		{ field: "nama_anak", label: "Nama Anak" },
 		{ field: "nama_ibu", label: "Nama Ibu" },

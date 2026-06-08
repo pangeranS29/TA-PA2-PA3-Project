@@ -1,12 +1,13 @@
 // src/pages/Ibu/PemeriksaanDokterT3Complete.jsx
 import React, { useEffect, useState, useRef } from "react";
-import { useParams, useNavigate, Link, useLocation } from "react-router-dom";
+import { useParams, useNavigate, Link, useLocation, Navigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import MainLayout from "../../components/Layout/MainLayout";
-import { getKehamilanByIbuId } from "../../services/kehamilan";
-import { getCurrentUser } from "../../services/auth";
+import { getKehamilanByIbuId, getKehamilanById } from "../../services/kehamilan";
+import { getCurrentUser, isDokterUser } from "../../services/auth";
 import {
   getDokterT3CompleteByKehamilanId,
+  getDokterT1CompleteByKehamilanId,
   createDokterT3Complete,
   updateDokterT3Complete,
 } from "../../services/pemeriksaanDokter";
@@ -28,6 +29,7 @@ import {
   ChevronLeft,
   Upload,
   Image as ImageIcon,
+  Lock,
 } from "lucide-react";
 
 /* ────────────────────────────────────────────────────────────────────────
@@ -54,6 +56,58 @@ const inputCls =
   "w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent bg-white transition";
 const selectCls =
   "w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent bg-white transition";
+
+const todayDateStr = () => new Date().toISOString().split("T")[0];
+
+const hitungUsiaKehamilanDariHPHT = (hpht, tanggalPeriksa = null) => {
+  if (!hpht) return null;
+  let hphtDate = new Date(hpht);
+  if (isNaN(hphtDate.getTime())) {
+    const parts = String(hpht).split("T")[0].split("-");
+    if (parts.length === 3) hphtDate = new Date(parts[0], parts[1] - 1, parts[2]);
+  }
+  if (isNaN(hphtDate.getTime())) return null;
+
+  let periksaDate = tanggalPeriksa ? new Date(tanggalPeriksa) : new Date();
+  if (isNaN(periksaDate.getTime())) periksaDate = new Date();
+
+  const diffDays = Math.floor((periksaDate - hphtDate) / (1000 * 60 * 60 * 24));
+  if (diffDays < 0) return { minggu: 0, hari: 0, display: "0 minggu 0 hari" };
+
+  const minggu = Math.floor(diffDays / 7);
+  const hari = diffDays % 7;
+  return { minggu, hari, display: `${minggu} minggu ${hari} hari` };
+};
+
+const buildT3PrefillFromExisting = (kehamilanDetail, t1Dokter, tanggalPeriksa) => {
+  const prefill = {
+    tanggal_periksa: tanggalPeriksa,
+    uk_berdasarkan_usg_trimester1_minggu: "",
+    uk_berdasarkan_hpht_minggu: "",
+    usg_jumlah_bayi: "",
+  };
+
+  if (t1Dokter) {
+    prefill.uk_berdasarkan_usg_trimester1_minggu =
+      t1Dokter.umur_hamil_usg_minggu?.toString() || "";
+    prefill.usg_jumlah_bayi = t1Dokter.usg_jumlah_bayi || "";
+    if (!prefill.uk_berdasarkan_hpht_minggu) {
+      prefill.uk_berdasarkan_hpht_minggu =
+        t1Dokter.umur_hamil_hpht_minggu?.toString() || "";
+    }
+  }
+
+  if (kehamilanDetail?.hpht) {
+    const usia = hitungUsiaKehamilanDariHPHT(kehamilanDetail.hpht, tanggalPeriksa);
+    if (usia?.minggu !== undefined) {
+      prefill.uk_berdasarkan_hpht_minggu = usia.minggu.toString();
+    }
+  } else if (kehamilanDetail?.uk_kehamilan_saat_ini) {
+    prefill.uk_berdasarkan_hpht_minggu = String(kehamilanDetail.uk_kehamilan_saat_ini);
+  }
+
+  return prefill;
+};
 
 function Section({ icon: Icon, title, color = "indigo", children, defaultOpen = true }) {
   const [open, setOpen] = useState(defaultOpen);
@@ -101,6 +155,15 @@ export default function PemeriksaanDokterT3Complete() {
   const [error, setError] = useState(null);
   const [currentStep, setCurrentStep] = useState(1);
   const [validationErrors, setValidationErrors] = useState({});
+  const [canEdit, setCanEdit] = useState(false);
+  const [canDelete, setCanDelete] = useState(false);
+
+  useEffect(() => {
+    const user = getCurrentUser();
+    const isDokter = isDokterUser(user);
+    setCanEdit(isDokter);
+    setCanDelete(isDokter);
+  }, []);
 
   useEffect(() => {
     const stepParam = new URLSearchParams(location.search).get("step");
@@ -164,11 +227,11 @@ export default function PemeriksaanDokterT3Complete() {
     hasil_usg_catatan: "",
     tanggal_lab: "",
     lab_hemoglobin_hasil: "",
-    lab_hemoglobin_rencana: "",
+    lab_hemoglobin_rencana_tindak_lanjut: "",
     lab_protein_urin_hasil: "",
-    lab_protein_urin_rencana: "",
+    lab_protein_urin_rencana_tindak_lanjut: "",
     lab_urin_reduksi_hasil: "",
-    lab_urin_reduksi_rencana: "",
+    lab_urin_reduksi_rencana_tindak_lanjut: "",
     tanggal_skrining_jiwa: "",
     skrining_jiwa_hasil: "",
     skrining_jiwa_tindak_lanjut: "",
@@ -192,27 +255,6 @@ export default function PemeriksaanDokterT3Complete() {
     kebutuhan_konseling: "Tidak",
     penjelasan: "",
     kesimpulan_rekomendasi_tempat_melahirkan: "",
-
-    // === pemeriksaan_laboratorium_jiwa (trimester=3) ===
-    tanggal_lab_jiwa: "",
-    lab_hemoglobin_hasil_jiwa: "",
-    lab_hemoglobin_rencana_tindak_lanjut_jiwa: "",
-    lab_golongan_darah_rhesus_hasil: "",
-    lab_golongan_darah_rhesus_rencana: "",
-    lab_gula_darah_sewaktu_hasil: "",
-    lab_gula_darah_sewaktu_rencana: "",
-    lab_hiv_hasil: "NonReaktif",
-    lab_hiv_rencana: "",
-    lab_sifilis_hasil: "NonReaktif",
-    lab_sifilis_rencana: "",
-    lab_hepatitis_b_hasil: "NonReaktif",
-    lab_hepatitis_b_rencana: "",
-    tanggal_skrining_jiwa_tr: "",
-    skrining_jiwa_hasil_tr: "",
-    skrining_jiwa_tindak_lanjut_tr: "",
-    skrining_jiwa_perlu_rujukan_tr: "Tidak",
-    kesimpulan_tr: "",
-    rekomendasi_tr: "",
   });
 
   /* ── Fetch data ─────────────────────────────────────────────────────── */
@@ -263,8 +305,8 @@ export default function PemeriksaanDokterT3Complete() {
             usg_letak_bayi: d.usg_letak_bayi || "",
             usg_presentasi_bayi: d.usg_presentasi_bayi || "",
             usg_keadaan_bayi: d.usg_keadaan_bayi || "",
-            usgdj_nilai: d.usg_djj_nilai?.toString() || "",
-            usgdjj_status: d.usg_djj_status || "Normal",
+            usg_djj_nilai: d.usg_djj_nilai?.toString() || "",
+            usg_djj_status: d.usg_djj_status || "Normal",
             usg_lokasi_plasenta: d.usg_lokasi_plasenta || "",
             usg_cairan_ketuban_sdp_cm: d.usg_cairan_ketuban_sdp_cm?.toString() || "",
             usg_cairan_ketuban_status: d.usg_cairan_ketuban_status || "Normal",
@@ -280,16 +322,16 @@ export default function PemeriksaanDokterT3Complete() {
             biometri_efwtbj_minggu: d.biometri_efwtbj_minggu?.toString() || "",
             usg_kecurigaan_temuan_abnormal: d.usg_kecurigaan_temuan_abnormal || "Tidak",
             usg_keterangan_temuan_abnormal: d.usg_keterangan_temuan_abnormal || "",
-            usg_image: d.usg_image || "",
+            gambar_usg: d.gambar_usg || "",
             // Lanjutan T3
             hasil_usg_catatan: lanjutan?.hasil_usg_catatan || d.hasil_usg_catatan || "",
             tanggal_lab: lanjutan?.tanggal_lab ? lanjutan.tanggal_lab.split("T")[0] : (d.tanggal_lab ? d.tanggal_lab.split("T")[0] : ""),
             lab_hemoglobin_hasil: lanjutan?.lab_hemoglobin_hasil?.toString() || d.lab_hemoglobin_hasil?.toString() || "",
-            lab_hemoglobin_rencana: lanjutan?.lab_hemoglobin_rencana || d.lab_hemoglobin_rencana || "",
+            lab_hemoglobin_rencana_tindak_lanjut: lanjutan?.lab_hemoglobin_rencana_tindak_lanjut || lanjutan?.lab_hemoglobin_rencana || d.lab_hemoglobin_rencana_tindak_lanjut || d.lab_hemoglobin_rencana || "",
             lab_protein_urin_hasil: lanjutan?.lab_protein_urin_hasil?.toString() || d.lab_protein_urin_hasil?.toString() || "",
-            lab_protein_urin_rencana: lanjutan?.lab_protein_urin_rencana || d.lab_protein_urin_rencana || "",
+            lab_protein_urin_rencana_tindak_lanjut: lanjutan?.lab_protein_urin_rencana_tindak_lanjut || lanjutan?.lab_protein_urin_rencana || d.lab_protein_urin_rencana_tindak_lanjut || d.lab_protein_urin_rencana || "",
             lab_urin_reduksi_hasil: lanjutan?.lab_urin_reduksi_hasil || d.lab_urin_reduksi_hasil || "",
-            lab_urin_reduksi_rencana: lanjutan?.lab_urin_reduksi_rencana || d.lab_urin_reduksi_rencana || "",
+            lab_urin_reduksi_rencana_tindak_lanjut: lanjutan?.lab_urin_reduksi_rencana_tindak_lanjut || lanjutan?.lab_urin_reduksi_rencana || d.lab_urin_reduksi_rencana_tindak_lanjut || d.lab_urin_reduksi_rencana || "",
             tanggal_skrining_jiwa: d.tanggal_skrining_jiwa ? d.tanggal_skrining_jiwa.split("T")[0] : "",
             skrining_jiwa_hasil: d.skrining_jiwa_hasil || "",
             skrining_jiwa_tindak_lanjut: d.skrining_jiwa_tindak_lanjut || "",
@@ -313,37 +355,37 @@ export default function PemeriksaanDokterT3Complete() {
             kebutuhan_konseling: lanjutan?.kebutuhan_konseling || d.kebutuhan_konseling || "Tidak",
             penjelasan: lanjutan?.penjelasan || d.penjelasan || "",
             kesimpulan_rekomendasi_tempat_melahirkan: lanjutan?.kesimpulan_rekomendasi_tempat_melahirkan || d.kesimpulan_rekomendasi_tempat_melahirkan || "",
-            // Lab Jiwa T3
-            tanggal_lab_jiwa: lab?.tanggal_lab ? lab.tanggal_lab.split("T")[0] : "",
-            lab_hemoglobin_hasil_jiwa: lab?.lab_hemoglobin_hasil?.toString() || "",
-            lab_hemoglobin_rencana_tindak_lanjut_jiwa: lab?.lab_hemoglobin_rencana_tindak_lanjut || "",
-            lab_golongan_darah_rhesus_hasil: lab?.lab_golongan_darah_rhesus_hasil || "",
-            lab_golongan_darah_rhesus_rencana: lab?.lab_golongan_darah_rhesus_rencana || "",
-            lab_gula_darah_sewaktu_hasil: lab?.lab_gula_darah_sewaktu_hasil?.toString() || "",
-            lab_gula_darah_sewaktu_rencana: lab?.lab_gula_darah_sewaktu_rencana || "",
-            lab_hiv_hasil: lab?.lab_hiv_hasil || "NonReaktif",
-            lab_hiv_rencana: lab?.lab_hiv_rencana || "",
-            lab_sifilis_hasil: lab?.lab_sifilis_hasil || "NonReaktif",
-            lab_sifilis_rencana: lab?.lab_sifilis_rencana || "",
-            lab_hepatitis_b_hasil: lab?.lab_hepatitis_b_hasil || "NonReaktif",
-            lab_hepatitis_b_rencana: lab?.lab_hepatitis_b_rencana || "",
-            tanggal_skrining_jiwa_tr: lab?.tanggal_skrining_jiwa ? lab.tanggal_skrining_jiwa.split("T")[0] : "",
-            skrining_jiwa_hasil_tr: lab?.skrining_jiwa_hasil || "",
-            skrining_jiwa_tindak_lanjut_tr: lab?.skrining_jiwa_tindak_lanjut || "",
-            skrining_jiwa_perlu_rujukan_tr: lab?.skrining_jiwa_perlu_rujukan || "Tidak",
-            kesimpulan_tr: lab?.kesimpulan || "",
-            rekomendasi_tr: lab?.rekomendasi || "",
           }));
 
           // Jika ada gambar USG, tampilkan preview
-          if (d.usg_image && d.usg_image.startsWith("data:image")) {
-            setUsgImagePreview(d.usg_image);
+          if (d.gambar_usg && d.gambar_usg.startsWith("data:image")) {
+            setUsgImagePreview(d.gambar_usg);
           }
         } else {
-          setForm(prev => ({
+          const tanggalPeriksa = todayDateStr();
+          let kehamilanDetail = null;
+          let t1Dokter = null;
+          try {
+            kehamilanDetail = await getKehamilanById(aktif.id);
+          } catch (err) {
+            console.error("Error fetching kehamilan detail:", err);
+          }
+          try {
+            const t1Res = await getDokterT1CompleteByKehamilanId(aktif.id);
+            t1Dokter = t1Res?.dokter || null;
+          } catch {
+            t1Dokter = null;
+          }
+          const prefill = buildT3PrefillFromExisting(
+            kehamilanDetail,
+            t1Dokter,
+            tanggalPeriksa,
+          );
+          setForm((prev) => ({
             ...prev,
             kehamilan_id: aktif.id,
             nama_dokter: dokterName || "",
+            ...prefill,
           }));
         }
       } catch (err) {
@@ -380,7 +422,7 @@ export default function PemeriksaanDokterT3Complete() {
   const handleRemoveImage = () => {
     setUsgImageFile(null);
     setUsgImagePreview("");
-    setForm(prev => ({ ...prev, usg_image: "" }));
+    setForm(prev => ({ ...prev, gambar_usg: "" }));
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
@@ -402,7 +444,7 @@ export default function PemeriksaanDokterT3Complete() {
       if (!form.usg_letak_bayi?.trim()) errors.usg_letak_bayi = "Letak bayi harus diisi";
       if (!form.usg_presentasi_bayi?.trim()) errors.usg_presentasi_bayi = "Presentasi bayi harus diisi";
       if (!form.usg_keadaan_bayi?.trim()) errors.usg_keadaan_bayi = "Keadaan bayi harus diisi";
-      if (!form.usgdj_nilai?.toString().trim()) errors.usgdj_nilai = "DJJ harus diisi";
+      if (!form.usg_djj_nilai?.toString().trim()) errors.usg_djj_nilai = "DJJ harus diisi";
       if (!form.usg_lokasi_plasenta?.trim()) errors.usg_lokasi_plasenta = "Lokasi plasenta harus diisi";
       if (!form.usg_cairan_ketuban_sdp_cm?.toString().trim()) errors.usg_cairan_ketuban_sdp_cm = "SDP harus diisi";
       if (!form.biometri_bpd_cm?.toString().trim()) errors.biometri_bpd_cm = "BPD harus diisi";
@@ -422,23 +464,12 @@ export default function PemeriksaanDokterT3Complete() {
     // Lab Lanjutan (optional jika tanggal diisi)
     if (form.tanggal_lab?.trim()) {
       if (!form.lab_hemoglobin_hasil?.toString().trim()) errors.lab_hemoglobin_hasil = "Hb harus diisi";
-      if (!form.lab_hemoglobin_rencana?.trim()) errors.lab_hemoglobin_rencana = "Rencana Hb harus diisi";
+      if (!form.lab_hemoglobin_rencana_tindak_lanjut?.trim()) errors.lab_hemoglobin_rencana_tindak_lanjut = "Rencana Hb harus diisi";
       if (!form.lab_protein_urin_hasil?.toString().trim()) errors.lab_protein_urin_hasil = "Protein urin harus diisi";
-      if (!form.lab_protein_urin_rencana?.trim()) errors.lab_protein_urin_rencana = "Rencana protein urin harus diisi";
+      if (!form.lab_protein_urin_rencana_tindak_lanjut?.trim()) errors.lab_protein_urin_rencana_tindak_lanjut = "Rencana protein urin harus diisi";
       if (!form.lab_urin_reduksi_hasil?.trim()) errors.lab_urin_reduksi_hasil = "Urin reduksi harus diisi";
-      if (!form.lab_urin_reduksi_rencana?.trim()) errors.lab_urin_reduksi_rencana = "Rencana urin reduksi harus diisi";
+      if (!form.lab_urin_reduksi_rencana_tindak_lanjut?.trim()) errors.lab_urin_reduksi_rencana_tindak_lanjut = "Rencana urin reduksi harus diisi";
     }
-    // Lab Jiwa T3 wajib
-    if (!form.tanggal_lab_jiwa?.trim()) errors.tanggal_lab_jiwa = "Tanggal lab jiwa harus diisi";
-    if (!form.lab_hemoglobin_hasil_jiwa?.toString().trim()) errors.lab_hemoglobin_hasil_jiwa = "Hb (jiwa) harus diisi";
-    if (!form.lab_hemoglobin_rencana_tindak_lanjut_jiwa?.trim()) errors.lab_hemoglobin_rencana_tindak_lanjut_jiwa = "Rencana Hb jiwa harus diisi";
-    if (!form.lab_gula_darah_sewaktu_hasil?.toString().trim()) errors.lab_gula_darah_sewaktu_hasil = "Gula darah harus diisi";
-    if (!form.lab_gula_darah_sewaktu_rencana?.trim()) errors.lab_gula_darah_sewaktu_rencana = "Rencana gula darah harus diisi";
-    if (!form.lab_golongan_darah_rhesus_hasil?.trim()) errors.lab_golongan_darah_rhesus_hasil = "Goldar harus diisi";
-    if (!form.lab_golongan_darah_rhesus_rencana?.trim()) errors.lab_golongan_darah_rhesus_rencana = "Rencana goldar harus diisi";
-    if (!form.lab_hiv_rencana?.trim()) errors.lab_hiv_rencana = "Rencana HIV harus diisi";
-    if (!form.lab_sifilis_rencana?.trim()) errors.lab_sifilis_rencana = "Rencana sifilis harus diisi";
-    if (!form.lab_hepatitis_b_rencana?.trim()) errors.lab_hepatitis_b_rencana = "Rencana hepatitis B harus diisi";
     return errors;
   };
 
@@ -447,11 +478,6 @@ export default function PemeriksaanDokterT3Complete() {
     if (!form.tanggal_skrining_jiwa?.trim()) errors.tanggal_skrining_jiwa = "Tanggal skrining jiwa harus diisi";
     if (!form.skrining_jiwa_hasil?.trim()) errors.skrining_jiwa_hasil = "Hasil skrining jiwa harus diisi";
     if (!form.skrining_jiwa_tindak_lanjut?.trim()) errors.skrining_jiwa_tindak_lanjut = "Tindak lanjut jiwa harus diisi";
-    if (!form.tanggal_skrining_jiwa_tr?.trim()) errors.tanggal_skrining_jiwa_tr = "Tanggal skrining jiwa TR harus diisi";
-    if (!form.skrining_jiwa_hasil_tr?.trim()) errors.skrining_jiwa_hasil_tr = "Hasil skrining jiwa TR harus diisi";
-    if (!form.skrining_jiwa_tindak_lanjut_tr?.trim()) errors.skrining_jiwa_tindak_lanjut_tr = "Tindak lanjut jiwa TR harus diisi";
-    if (!form.kesimpulan_tr?.trim()) errors.kesimpulan_tr = "Kesimpulan TR harus diisi";
-    if (!form.rekomendasi_tr?.trim()) errors.rekomendasi_tr = "Rekomendasi TR harus diisi";
     if (!form.rencana_proses_melahirkan?.trim()) errors.rencana_proses_melahirkan = "Rencana melahirkan harus diisi";
     if (!form.kesimpulan_rekomendasi_tempat_melahirkan?.trim()) errors.kesimpulan_rekomendasi_tempat_melahirkan = "Rekomendasi tempat harus diisi";
     if (!form.penjelasan?.trim()) errors.penjelasan = "Penjelasan harus diisi";
@@ -486,9 +512,17 @@ export default function PemeriksaanDokterT3Complete() {
     }
   };
 
-  /* ── Submit ────────────────────────────────────────────────────────── */
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  /* ── Submit (dipanggil manual, bukan via form onSubmit) ───────────── */
+  const handleSave = async () => {
+    if (!canEdit) {
+      Swal.fire({
+        icon: "error",
+        title: "Akses Ditolak",
+        text: "Hanya dokter yang dapat menyimpan atau mengubah data pemeriksaan.",
+      });
+      return;
+    }
+
     const errors = validateStep4();
     if (Object.keys(errors).length > 0) {
       setValidationErrors(errors);
@@ -501,18 +535,14 @@ export default function PemeriksaanDokterT3Complete() {
       return;
     }
     if (!kehamilan) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Data Tidak Ditemukan',
-        text: 'Data kehamilan tidak ditemukan.',
-      });
+      Swal.fire({ icon: 'error', title: 'Error', text: 'Data kehamilan tidak ditemukan.' });
       return;
     }
+    if (saving) return;
     setSaving(true);
 
     try {
-      // Proses gambar USG jika ada
-      let imageBase64 = form.usg_image;
+      let imageBase64 = form.gambar_usg || "";
       if (usgImageFile) {
         imageBase64 = await new Promise((resolve, reject) => {
           const reader = new FileReader();
@@ -522,22 +552,15 @@ export default function PemeriksaanDokterT3Complete() {
         });
       }
 
-      // Destructure form untuk menghapus field redundan sesuai README_PERBAIKAN_TRIMESTER.md
-      const {
-        tanggal_periksa,
-        tanggal_lab,
-        tanggal_skrining_jiwa,
-        tanggal_lab_jiwa,
-        tanggal_skrining_jiwa_tr,
-        ...formClean
-      } = form;
+      const toInt = (v) => (v === "" || v == null ? null : parseInt(v, 10));
+      const toFloat = (v) => (v === "" || v == null ? null : parseFloat(v));
 
       const payload = {
-        ...formClean,
         kehamilan_id: kehamilan.id,
         gambar_usg: imageBase64,
-        // === pemeriksaan_dokter_trimester_3 ===
+        // === Data Dokter & Fisik ===
         nama_dokter: form.nama_dokter,
+        tanggal_periksa: form.tanggal_periksa,
         konsep_anamnesa_pemeriksaan: form.konsep_anamnesa_pemeriksaan,
         fisik_konjungtiva: form.fisik_konjungtiva,
         fisik_sklera: form.fisik_sklera,
@@ -549,47 +572,48 @@ export default function PemeriksaanDokterT3Complete() {
         fisik_dada_paru: form.fisik_dada_paru,
         fisik_perut: form.fisik_perut,
         fisik_tungkai: form.fisik_tungkai,
-        usg_trimester3_dilakukan: form.usg_trimester3_dilakukan,
-        uk_berdasarkan_usg_trimester1_minggu: form.uk_berdasarkan_usg_trimester1_minggu ? parseInt(form.uk_berdasarkan_usg_trimester1_minggu) : null,
-        uk_berdasarkan_hpht_minggu: form.uk_berdasarkan_hpht_minggu ? parseInt(form.uk_berdasarkan_hpht_minggu) : null,
-        uk_berdasarkan_biometri_usg_trimester3_minggu: form.uk_berdasarkan_biometri_usg_trimester3_minggu ? parseInt(form.uk_berdasarkan_biometri_usg_trimester3_minggu) : null,
-        selisih_uk3_minggu_atau_lebih: form.selisih_uk3_minggu_atau_lebih,
+        // === USG T3 (JSON tags model Go) ===
+        usg_trimester_3_dilakukan: form.usg_trimester3_dilakukan,
+        uk_berdasarkan_usg_trimester_1_minggu: toInt(form.uk_berdasarkan_usg_trimester1_minggu),
+        uk_berdasarkan_hpht_minggu: toInt(form.uk_berdasarkan_hpht_minggu),
+        uk_berdasarkan_biometri_usg_trimester_3_minggu: toInt(form.uk_berdasarkan_biometri_usg_trimester3_minggu),
+        selisih_uk_3_minggu_atau_lebih: form.selisih_uk3_minggu_atau_lebih,
         usg_jumlah_bayi: form.usg_jumlah_bayi,
         usg_letak_bayi: form.usg_letak_bayi,
         usg_presentasi_bayi: form.usg_presentasi_bayi,
         usg_keadaan_bayi: form.usg_keadaan_bayi,
-        usgdj_nilai: form.usg_djj_nilai ? parseInt(form.usg_djj_nilai) : null,
-        usgdjj_status: form.usg_djj_status,
+        usg_djj_nilai: toInt(form.usg_djj_nilai),
+        usg_djj_status: form.usg_djj_status,
         usg_lokasi_plasenta: form.usg_lokasi_plasenta,
-        usg_cairan_ketuban_sdp_cm: form.usg_cairan_ketuban_sdp_cm ? parseFloat(form.usg_cairan_ketuban_sdp_cm) : null,
+        usg_cairan_ketuban_sdp_cm: toFloat(form.usg_cairan_ketuban_sdp_cm),
         usg_cairan_ketuban_status: form.usg_cairan_ketuban_status,
-        biometri_bpd_cm: form.biometri_bpd_cm ? parseFloat(form.biometri_bpd_cm) : null,
-        biometri_bpd_minggu: form.biometri_bpd_minggu ? parseInt(form.biometri_bpd_minggu) : null,
-        biometri_hc_cm: form.biometri_hc_cm ? parseFloat(form.biometri_hc_cm) : null,
-        biometri_hc_minggu: form.biometri_hc_minggu ? parseInt(form.biometri_hc_minggu) : null,
-        biometri_ac_cm: form.biometri_ac_cm ? parseFloat(form.biometri_ac_cm) : null,
-        biometri_ac_minggu: form.biometri_ac_minggu ? parseInt(form.biometri_ac_minggu) : null,
-        biometri_fl_cm: form.biometri_fl_cm ? parseFloat(form.biometri_fl_cm) : null,
-        biometri_fl_minggu: form.biometri_fl_minggu ? parseInt(form.biometri_fl_minggu) : null,
-        biometri_efwtbj_gram: form.biometri_efwtbj_gram ? parseInt(form.biometri_efwtbj_gram) : null,
-        biometri_efwtbj_minggu: form.biometri_efwtbj_minggu ? parseInt(form.biometri_efwtbj_minggu) : null,
+        biometri_bpd_cm: toFloat(form.biometri_bpd_cm),
+        biometri_bpd_minggu: toInt(form.biometri_bpd_minggu),
+        biometri_hc_cm: toFloat(form.biometri_hc_cm),
+        biometri_hc_minggu: toInt(form.biometri_hc_minggu),
+        biometri_ac_cm: toFloat(form.biometri_ac_cm),
+        biometri_ac_minggu: toInt(form.biometri_ac_minggu),
+        biometri_fl_cm: toFloat(form.biometri_fl_cm),
+        biometri_fl_minggu: toInt(form.biometri_fl_minggu),
+        biometri_efw_tbj_gram: toInt(form.biometri_efwtbj_gram),
+        biometri_efw_tbj_minggu: toInt(form.biometri_efwtbj_minggu),
         usg_kecurigaan_temuan_abnormal: form.usg_kecurigaan_temuan_abnormal,
         usg_keterangan_temuan_abnormal: form.usg_keterangan_temuan_abnormal,
-        // Skrining jiwa di tabel dokter T3
-        tanggal_skrining_jiwa: form.tanggal_skrining_jiwa,
+        // === Lanjutan T3 ===
+        hasil_usg_catatan: form.hasil_usg_catatan,
+        tanggal_lab: form.tanggal_lab || null,
+        lab_hemoglobin_hasil: toFloat(form.lab_hemoglobin_hasil),
+        lab_hemoglobin_rencana_tindak_lanjut: form.lab_hemoglobin_rencana_tindak_lanjut,
+        lab_protein_urin_hasil: toInt(form.lab_protein_urin_hasil),
+        lab_protein_urin_rencana_tindak_lanjut: form.lab_protein_urin_rencana_tindak_lanjut,
+        lab_urin_reduksi_hasil: form.lab_urin_reduksi_hasil,
+        lab_urin_reduksi_rencana_tindak_lanjut: form.lab_urin_reduksi_rencana_tindak_lanjut,
+        // === Skrining Jiwa ===
+        tanggal_skrining_jiwa: form.tanggal_skrining_jiwa || null,
         skrining_jiwa_hasil: form.skrining_jiwa_hasil,
         skrining_jiwa_tindak_lanjut: form.skrining_jiwa_tindak_lanjut,
         skrining_jiwa_perlu_rujukan: form.skrining_jiwa_perlu_rujukan,
-
-        // === pemeriksaan_lanjutan_trimester_3 ===
-        hasil_usg_catatan: form.hasil_usg_catatan,
-        tanggal_lab: form.tanggal_lab,
-        lab_hemoglobin_hasil: form.lab_hemoglobin_hasil ? parseFloat(form.lab_hemoglobin_hasil) : null,
-        lab_hemoglobin_rencana: form.lab_hemoglobin_rencana,
-        lab_protein_urin_hasil: form.lab_protein_urin_hasil ? parseInt(form.lab_protein_urin_hasil) : null,
-        lab_protein_urin_rencana: form.lab_protein_urin_rencana,
-        lab_urin_reduksi_hasil: form.lab_urin_reduksi_hasil,
-        lab_urin_reduksi_rencana: form.lab_urin_reduksi_rencana,
+        // === Rencana Konsultasi & Melahirkan ===
         rencana_konsultasi_gizi: form.rencana_konsultasi_gizi,
         rencana_konsultasi_kebidanan: form.rencana_konsultasi_kebidanan,
         rencana_konsultasi_anak: form.rencana_konsultasi_anak,
@@ -609,53 +633,20 @@ export default function PemeriksaanDokterT3Complete() {
         kebutuhan_konseling: form.kebutuhan_konseling,
         penjelasan: form.penjelasan,
         kesimpulan_rekomendasi_tempat_melahirkan: form.kesimpulan_rekomendasi_tempat_melahirkan,
-
-        // === pemeriksaan_laboratorium_jiwa (trimester=3) ===
-        trimester: 3,
-        tanggal_lab_jiwa: form.tanggal_lab_jiwa,
-        lab_hemoglobin_hasil_jiwa: form.lab_hemoglobin_hasil_jiwa ? parseFloat(form.lab_hemoglobin_hasil_jiwa) : null,
-        lab_hemoglobin_rencana_tindak_lanjut_jiwa: form.lab_hemoglobin_rencana_tindak_lanjut_jiwa,
-        lab_golongan_darah_rhesus_hasil: form.lab_golongan_darah_rhesus_hasil,
-        lab_golongan_darah_rhesus_rencana: form.lab_golongan_darah_rhesus_rencana,
-        lab_gula_darah_sewaktu_hasil: form.lab_gula_darah_sewaktu_hasil ? parseInt(form.lab_gula_darah_sewaktu_hasil) : null,
-        lab_gula_darah_sewaktu_rencana: form.lab_gula_darah_sewaktu_rencana,
-        lab_hiv_hasil: form.lab_hiv_hasil,
-        lab_hiv_rencana: form.lab_hiv_rencana,
-        lab_sifilis_hasil: form.lab_sifilis_hasil,
-        lab_sifilis_rencana: form.lab_sifilis_rencana,
-        lab_hepatitis_b_hasil: form.lab_hepatitis_b_hasil,
-        lab_hepatitis_b_rencana: form.lab_hepatitis_b_rencana,
-        tanggal_skrining_jiwa_tr: form.tanggal_skrining_jiwa_tr,
-        skrining_jiwa_hasil_tr: form.skrining_jiwa_hasil_tr,
-        skrining_jiwa_tindak_lanjut_tr: form.skrining_jiwa_tindak_lanjut_tr,
-        skrining_jiwa_perlu_rujukan_tr: form.skrining_jiwa_perlu_rujukan_tr,
-        kesimpulan_tr: form.kesimpulan_tr,
-        rekomendasi_tr: form.rekomendasi_tr,
       };
 
       if (existingData) {
         await updateDokterT3Complete(existingData.id, payload);
-        await Swal.fire({
-          icon: 'success',
-          title: 'Berhasil',
-          text: 'Data pemeriksaan berhasil diperbarui!',
-          timer: 2000,
-          showConfirmButton: false
-        });
+        await Swal.fire({ icon: 'success', title: 'Berhasil', text: 'Data pemeriksaan berhasil diperbarui!', timer: 2000, showConfirmButton: false });
       } else {
         await createDokterT3Complete(payload);
-        await Swal.fire({
-          icon: 'success',
-          title: 'Berhasil',
-          text: 'Data pemeriksaan berhasil disimpan!',
-          timer: 2000,
-          showConfirmButton: false
-        });
+        await Swal.fire({ icon: 'success', title: 'Berhasil', text: 'Data pemeriksaan berhasil disimpan!', timer: 2000, showConfirmButton: false });
       }
       navigate(`/data-ibu/${id}/pemeriksaan-dokter-t3-complete/detail`);
     } catch (err) {
       console.error("Error saving:", err);
-      Swal.fire('Error', 'Gagal menyimpan: ' + (err.response?.data?.message || err.message), 'error');
+      const msg = err.response?.data?.message || err.message;
+      Swal.fire('Error', 'Gagal menyimpan: ' + msg, 'error');
     } finally {
       setSaving(false);
     }
@@ -689,17 +680,47 @@ export default function PemeriksaanDokterT3Complete() {
     );
   }
 
+  if (!canEdit && existingData) {
+    return (
+      <Navigate
+        to={`/data-ibu/${id}/pemeriksaan-dokter-t3-complete/detail`}
+        replace
+      />
+    );
+  }
+
+  if (!canEdit && !existingData) {
+    return (
+      <MainLayout>
+        <div className="p-6 max-w-2xl mx-auto mt-10">
+          <div className="bg-blue-50 border border-blue-200 rounded-2xl p-8 text-center">
+            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Lock size={32} className="text-blue-500" />
+            </div>
+            <h2 className="text-xl font-bold text-blue-700 mb-2">
+              Belum Ada Data Pemeriksaan
+            </h2>
+            <p className="text-gray-600 mb-6 text-sm">
+              Hanya dokter yang dapat menambahkan data pemeriksaan dokter
+              trimester 3. Silakan hubungi dokter untuk pengisian data.
+            </p>
+            <button
+              onClick={() => navigate(`/data-ibu/${id}`)}
+              className="bg-blue-600 text-white px-6 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition"
+            >
+              Kembali
+            </button>
+          </div>
+        </div>
+      </MainLayout>
+    );
+  }
+
   /* ── Data tampilan ──────────────────────────────────────────────────── */
   const fisikFields = [
     "fisik_konjungtiva","fisik_sklera","fisik_kulit","fisik_leher",
     "fisik_gigi_mulut","fisik_tht","fisik_dada_jantung","fisik_dada_paru",
     "fisik_perut","fisik_tungkai"
-  ];
-
-  const labReaktifFields = [
-    { name: "lab_hiv_hasil", label: "HIV (H)", rencana: "lab_hiv_rencana" },
-    { name: "lab_sifilis_hasil", label: "Sifilis (S)", rencana: "lab_sifilis_rencana" },
-    { name: "lab_hepatitis_b_hasil", label: "Hepatitis B", rencana: "lab_hepatitis_b_rencana" },
   ];
 
   const konsultasiFields = [
@@ -775,7 +796,7 @@ export default function PemeriksaanDokterT3Complete() {
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="space-y-4">
 
           {/* ══ STEP 1 ══ */}
           {currentStep === 1 && (
@@ -874,11 +895,11 @@ export default function PemeriksaanDokterT3Complete() {
                         className={`${inputCls} ${validationErrors.usg_presentasi_bayi ? "border-red-500" : ""}`} /><ErrorMessage message={validationErrors.usg_presentasi_bayi} /></Field>
                       <Field label="Keadaan Bayi"><input name="usg_keadaan_bayi" value={form.usg_keadaan_bayi} onChange={handleChange}
                         className={`${inputCls} ${validationErrors.usg_keadaan_bayi ? "border-red-500" : ""}`} /><ErrorMessage message={validationErrors.usg_keadaan_bayi} /></Field>
-                      <Field label="DJJ (x/menit)"><input type="number" name="usgdj_nilai" value={form.usgdj_nilai} onChange={handleChange}
-                        className={`${inputCls} ${validationErrors.usgdj_nilai ? "border-red-500" : ""}`} /><ErrorMessage message={validationErrors.usgdj_nilai} /></Field>
+                      <Field label="DJJ (x/menit)"><input type="number" name="usg_djj_nilai" value={form.usg_djj_nilai} onChange={handleChange}
+                        className={`${inputCls} ${validationErrors.usg_djj_nilai ? "border-red-500" : ""}`} /><ErrorMessage message={validationErrors.usg_djj_nilai} /></Field>
                       <Field label="Status DJJ">
-                        <select name="usgdjj_status" value={form.usgdjj_status} onChange={handleChange}
-                          className={`${selectCls} ${form.usgdjj_status==="Abnormal" ? "border-red-300 bg-red-50 text-red-700" : ""}`}>
+                        <select name="usg_djj_status" value={form.usg_djj_status} onChange={handleChange}
+                          className={`${selectCls} ${form.usg_djj_status==="Abnormal" ? "border-red-300 bg-red-50 text-red-700" : ""}`}>
                           <option value="Normal">Normal</option>
                           <option value="Abnormal">Abnormal</option>
                         </select>
@@ -1039,9 +1060,9 @@ export default function PemeriksaanDokterT3Complete() {
                     </thead>
                     <tbody className="divide-y divide-amber-50">
                       {[
-                        { label: "Hemoglobin", hasil: "lab_hemoglobin_hasil", rencana: "lab_hemoglobin_rencana", satuan: "g/dL" },
-                        { label: "Protein Urin", hasil: "lab_protein_urin_hasil", rencana: "lab_protein_urin_rencana", satuan: "mg/dL" },
-                        { label: "Urin Reduksi", hasil: "lab_urin_reduksi_hasil", rencana: "lab_urin_reduksi_rencana", satuan: "" },
+                        { label: "Hemoglobin", hasil: "lab_hemoglobin_hasil", rencana: "lab_hemoglobin_rencana_tindak_lanjut", satuan: "g/dL" },
+                        { label: "Protein Urin", hasil: "lab_protein_urin_hasil", rencana: "lab_protein_urin_rencana_tindak_lanjut", satuan: "mg/dL" },
+                        { label: "Urin Reduksi", hasil: "lab_urin_reduksi_hasil", rencana: "lab_urin_reduksi_rencana_tindak_lanjut", satuan: "" },
                       ].map((item, idx) => (
                         <tr key={item.hasil} className={idx % 2 === 1 ? "bg-gray-50/50" : ""}>
                           <td className="px-4 py-3 font-medium text-gray-700">{item.label}</td>
@@ -1065,110 +1086,8 @@ export default function PemeriksaanDokterT3Complete() {
                 </div>
               </div>
 
-              {/* Lab Jiwa T3 */}
-              <div>
-                <h3 className="text-xs font-bold text-amber-600 uppercase tracking-widest mb-3">Laboratorium Trimester 3 (Jiwa)</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                  <Field label="Tanggal Lab Jiwa">
-                    <input type="date" name="tanggal_lab_jiwa" value={form.tanggal_lab_jiwa} onChange={handleChange}
-                      className={`${inputCls} ${validationErrors.tanggal_lab_jiwa ? "border-red-500" : ""}`} />
-                    <ErrorMessage message={validationErrors.tanggal_lab_jiwa} />
-                  </Field>
-                </div>
-                {/* Tabel kuantitatif */}
-                <div className="rounded-xl border border-amber-100 overflow-hidden mb-4">
-                  <table className="w-full text-sm">
-                    <thead className="bg-amber-50">
-                      <tr>
-                        <th className="text-left px-4 py-2 text-xs font-bold text-amber-700 uppercase tracking-wide w-1/3">Pemeriksaan</th>
-                        <th className="text-left px-4 py-2 text-xs font-bold text-amber-700 uppercase tracking-wide w-1/3">Hasil</th>
-                        <th className="text-left px-4 py-2 text-xs font-bold text-amber-700 uppercase tracking-wide w-1/3">Rencana Tindak Lanjut</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-amber-50">
-                      <tr>
-                        <td className="px-4 py-3 font-medium text-gray-700">Hemoglobin</td>
-                        <td className="px-4 py-3">
-                          <div className="flex items-center gap-1">
-                            <input type="number" step="0.1" name="lab_hemoglobin_hasil_jiwa" value={form.lab_hemoglobin_hasil_jiwa} onChange={handleChange}
-                              className={`${inputCls} ${validationErrors.lab_hemoglobin_hasil_jiwa ? "border-red-500" : ""}`} />
-                            <span className="text-xs text-gray-400">g/dL</span>
-                          </div>
-                          <ErrorMessage message={validationErrors.lab_hemoglobin_hasil_jiwa} />
-                        </td>
-                        <td className="px-4 py-3">
-                          <input name="lab_hemoglobin_rencana_tindak_lanjut_jiwa" value={form.lab_hemoglobin_rencana_tindak_lanjut_jiwa} onChange={handleChange}
-                            className={`${inputCls} ${validationErrors.lab_hemoglobin_rencana_tindak_lanjut_jiwa ? "border-red-500" : ""}`} />
-                          <ErrorMessage message={validationErrors.lab_hemoglobin_rencana_tindak_lanjut_jiwa} />
-                        </td>
-                      </tr>
-                      <tr className="bg-gray-50/50">
-                        <td className="px-4 py-3 font-medium text-gray-700">Gula Darah Sewaktu</td>
-                        <td className="px-4 py-3">
-                          <div className="flex items-center gap-1">
-                            <input type="number" name="lab_gula_darah_sewaktu_hasil" value={form.lab_gula_darah_sewaktu_hasil} onChange={handleChange}
-                              className={`${inputCls} ${validationErrors.lab_gula_darah_sewaktu_hasil ? "border-red-500" : ""}`} />
-                            <span className="text-xs text-gray-400">mg/dL</span>
-                          </div>
-                          <ErrorMessage message={validationErrors.lab_gula_darah_sewaktu_hasil} />
-                        </td>
-                        <td className="px-4 py-3">
-                          <input name="lab_gula_darah_sewaktu_rencana" value={form.lab_gula_darah_sewaktu_rencana} onChange={handleChange}
-                            className={`${inputCls} ${validationErrors.lab_gula_darah_sewaktu_rencana ? "border-red-500" : ""}`} />
-                          <ErrorMessage message={validationErrors.lab_gula_darah_sewaktu_rencana} />
-                        </td>
-                      </tr>
-                      <tr>
-                        <td className="px-4 py-3 font-medium text-gray-700">Golongan Darah & Rhesus</td>
-                        <td className="px-4 py-3">
-                          <input name="lab_golongan_darah_rhesus_hasil" value={form.lab_golongan_darah_rhesus_hasil} onChange={handleChange}
-                            className={`${inputCls} ${validationErrors.lab_golongan_darah_rhesus_hasil ? "border-red-500" : ""}`} />
-                          <ErrorMessage message={validationErrors.lab_golongan_darah_rhesus_hasil} />
-                        </td>
-                        <td className="px-4 py-3">
-                          <input name="lab_golongan_darah_rhesus_rencana" value={form.lab_golongan_darah_rhesus_rencana} onChange={handleChange}
-                            className={`${inputCls} ${validationErrors.lab_golongan_darah_rhesus_rencana ? "border-red-500" : ""}`} />
-                          <ErrorMessage message={validationErrors.lab_golongan_darah_rhesus_rencana} />
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-                {/* Reaktif */}
-                <div className="rounded-xl border border-amber-100 overflow-hidden">
-                  <table className="w-full text-sm">
-                    <thead className="bg-amber-50">
-                      <tr>
-                        <th className="text-left px-4 py-2 text-xs font-bold text-amber-700 uppercase tracking-wide w-1/3">Pemeriksaan</th>
-                        <th className="text-left px-4 py-2 text-xs font-bold text-amber-700 uppercase tracking-wide w-1/3">Hasil</th>
-                        <th className="text-left px-4 py-2 text-xs font-bold text-amber-700 uppercase tracking-wide w-1/3">Rencana Tindak Lanjut</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-amber-50">
-                      {labReaktifFields.map((lf, idx) => (
-                        <tr key={lf.name} className={idx % 2 === 1 ? "bg-gray-50/50" : ""}>
-                          <td className="px-4 py-3 font-medium text-gray-700">{lf.label}</td>
-                          <td className="px-4 py-3">
-                            <select name={lf.name} value={form[lf.name]} onChange={handleChange}
-                              className={`${selectCls} ${
-                                validationErrors[lf.name] ? "border-red-500" : form[lf.name]==="Reaktif" ? "border-red-300 bg-red-50 text-red-700" : "border-emerald-200 bg-emerald-50 text-emerald-700"
-                              }`}>
-                              <option value="NonReaktif">Non Reaktif</option>
-                              <option value="Reaktif">Reaktif</option>
-                            </select>
-                            <ErrorMessage message={validationErrors[lf.name]} />
-                          </td>
-                          <td className="px-4 py-3">
-                            <input name={lf.rencana} value={form[lf.rencana]} onChange={handleChange}
-                              className={`${inputCls} ${validationErrors[lf.rencana] ? "border-red-500" : ""}`} />
-                            <ErrorMessage message={validationErrors[lf.rencana]} />
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
+              {/* Lab Jiwa T3 — tidak disimpan di tabel T3, bagian ini untuk referensi saja */}
+              {/* Field ini tidak ada di model pemeriksaan_dokter_trimester_3, jadi dihapus dari form */}
             </Section>
           )}
 
@@ -1209,51 +1128,7 @@ export default function PemeriksaanDokterT3Complete() {
                 </div>
               </div>
 
-              {/* Skrining Jiwa TR (dari lab jiwa T3) */}
-              <div className="mb-5">
-                <h3 className="text-xs font-bold text-rose-600 uppercase tracking-widest mb-3">Skrining Kesehatan Jiwa (TR)</h3>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  <Field label="Tanggal Skrining TR"><input type="date" name="tanggal_skrining_jiwa_tr" value={form.tanggal_skrining_jiwa_tr} onChange={handleChange}
-                    className={`${inputCls} ${validationErrors.tanggal_skrining_jiwa_tr ? "border-red-500" : ""}`} /><ErrorMessage message={validationErrors.tanggal_skrining_jiwa_tr} /></Field>
-                  <Field label="Skrining Jiwa TR">
-                    <select name="skrining_jiwa_hasil_tr" value={form.skrining_jiwa_hasil_tr} onChange={handleChange}
-                      className={`${selectCls} ${validationErrors.skrining_jiwa_hasil_tr ? "border-red-500" : ""}`}>
-                      <option value="">-- Pilih --</option>
-                      <option value="Ya">Ya</option>
-                      <option value="Tidak">Tidak</option>
-                    </select>
-                    <ErrorMessage message={validationErrors.skrining_jiwa_hasil_tr} />
-                  </Field>
-                  <Field label="Tindak Lanjut TR">
-                    <select name="skrining_jiwa_tindak_lanjut_tr" value={form.skrining_jiwa_tindak_lanjut_tr} onChange={handleChange}
-                      className={`${selectCls} ${validationErrors.skrining_jiwa_tindak_lanjut_tr ? "border-red-500" : ""}`}>
-                      <option value="">-- Pilih --</option>
-                      <option value="Edukasi">Edukasi</option>
-                      <option value="Konseling">Konseling</option>
-                    </select>
-                    <ErrorMessage message={validationErrors.skrining_jiwa_tindak_lanjut_tr} />
-                  </Field>
-                  <Field label="Perlu Rujukan TR?">
-                    <select name="skrining_jiwa_perlu_rujukan_tr" value={form.skrining_jiwa_perlu_rujukan_tr} onChange={handleChange}
-                      className={`${selectCls} ${form.skrining_jiwa_perlu_rujukan_tr==="Ya" ? "border-red-300 bg-red-50 text-red-700" : "border-emerald-200 bg-emerald-50 text-emerald-700"}`}>
-                      <option value="Tidak">Tidak</option>
-                      <option value="Ya">Ya</option>
-                    </select>
-                  </Field>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
-                  <Field label="Kesimpulan TR">
-                    <textarea name="kesimpulan_tr" value={form.kesimpulan_tr} onChange={handleChange}
-                      className={`${inputCls} ${validationErrors.kesimpulan_tr ? "border-red-500" : ""}`} rows={3} />
-                    <ErrorMessage message={validationErrors.kesimpulan_tr} />
-                  </Field>
-                  <Field label="Rekomendasi TR">
-                    <textarea name="rekomendasi_tr" value={form.rekomendasi_tr} onChange={handleChange}
-                      className={`${inputCls} ${validationErrors.rekomendasi_tr ? "border-red-500" : ""}`} rows={3} />
-                    <ErrorMessage message={validationErrors.rekomendasi_tr} />
-                  </Field>
-                </div>
-              </div>
+              {/* Skrining Jiwa TR — field ini tidak ada di model T3, dihapus */}
 
               {/* Rencana Konsultasi */}
               <div className="mb-5">
@@ -1352,14 +1227,14 @@ export default function PemeriksaanDokterT3Complete() {
                   Selanjutnya <ChevronRight size={16} />
                 </button>
               ) : (
-                <button type="submit" disabled={saving} className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 text-white px-8 py-2.5 rounded-xl text-sm font-semibold transition shadow-sm">
+                <button type="button" onClick={handleSave} disabled={saving} className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 text-white px-8 py-2.5 rounded-xl text-sm font-semibold transition shadow-sm">
                   {saving ? <Loader2 className="animate-spin" size={16} /> : <Save size={16} />}
                   {saving ? "Menyimpan..." : "Simpan Semua Data"}
                 </button>
               )}
             </div>
           </div>
-        </form>
+        </div>
       </div>
     </MainLayout> 
   );

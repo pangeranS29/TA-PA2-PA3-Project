@@ -87,7 +87,7 @@ func (r *IbuRepository) FindByPendudukID(pendudukID int32) (*models.Ibu, error) 
 		Where("penduduk_id = ?", pendudukID).
 		First(&ibu).Error
 
-	// ✅ Jika tidak ditemukan, return nil, nil (bukan error)
+	// Jika tidak ditemukan, return nil, nil (bukan error)
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, nil
 	}

@@ -10,7 +10,7 @@ type BblRepository interface {
 	GetByAnakID(anakID uint) (*models.Bbl, error)
 	GetByID(id uint) (*models.Bbl, error)
 	Upsert(bbl *models.Bbl) error
-	Verify(bblID uint, kaderID uint) error
+	Verify(bblID uint, kaderID uint, periodeWaktu string, status string) error
 	GetAll() ([]models.Bbl, error)
 }
 
@@ -27,8 +27,8 @@ func (r *bblRepository) GetByAnakID(anakID uint) (*models.Bbl, error) {
 	err := r.db.
 		Where("anak_id = ?", anakID).
 		Preload("Checklist").
-		Preload("VerifiedByKader").
-		Preload("VerifiedByKader.Penduduk").
+		Preload("Checklist.VerifiedByKader").
+		Preload("Checklist.VerifiedByKader.Penduduk").
 		First(&bbl).Error
 	if err != nil {
 		return nil, err
@@ -41,8 +41,8 @@ func (r *bblRepository) GetByID(id uint) (*models.Bbl, error) {
 	err := r.db.
 		Where("id = ?", id).
 		Preload("Checklist").
-		Preload("VerifiedByKader").
-		Preload("VerifiedByKader.Penduduk").
+		Preload("Checklist.VerifiedByKader").
+		Preload("Checklist.VerifiedByKader.Penduduk").
 		First(&bbl).Error
 	if err != nil {
 		return nil, err
@@ -101,20 +101,27 @@ func (r *bblRepository) Upsert(bbl *models.Bbl) error {
 		}
 
 		// Reload untuk return
-		return r.db.Where("anak_id = ?", bbl.AnakID).Preload("Checklist").Preload("VerifiedByKader").Preload("VerifiedByKader.Penduduk").First(bbl).Error
+		return r.db.Where("anak_id = ?", bbl.AnakID).Preload("Checklist").Preload("Checklist.VerifiedByKader").Preload("Checklist.VerifiedByKader.Penduduk").First(bbl).Error
 	}
 
 	// Record baru - create
 	if err := r.db.Create(bbl).Error; err != nil {
 		return err
 	}
-	return r.db.Where("id = ?", bbl.ID).Preload("Checklist").Preload("VerifiedByKader").Preload("VerifiedByKader.Penduduk").First(bbl).Error
+	return r.db.Where("id = ?", bbl.ID).Preload("Checklist").Preload("Checklist.VerifiedByKader").Preload("Checklist.VerifiedByKader.Penduduk").First(bbl).Error
 }
 
-func (r *bblRepository) Verify(bblID uint, kaderID uint) error {
+func (r *bblRepository) Verify(bblID uint, kaderID uint, periodeWaktu string, status string) error {
 	now := gorm.Expr("NOW()")
-	return r.db.Model(&models.Bbl{}).Where("id = ?", bblID).Updates(map[string]interface{}{
-		"is_verified":          true,
+	
+	isVerified := false
+	if status == "Diterima" {
+		isVerified = true
+	}
+
+	return r.db.Model(&models.BblCheck{}).Where("bbl_id = ? AND periode_waktu = ?", bblID, periodeWaktu).Updates(map[string]interface{}{
+		"status":               status,
+		"is_verified":          isVerified,
 		"verified_at":          now,
 		"verified_by_kader_id": kaderID,
 	}).Error
@@ -124,8 +131,8 @@ func (r *bblRepository) GetAll() ([]models.Bbl, error) {
 	var bbls []models.Bbl
 	err := r.db.
 		Preload("Checklist").
-		Preload("VerifiedByKader").
-		Preload("VerifiedByKader.Penduduk").
+		Preload("Checklist.VerifiedByKader").
+		Preload("Checklist.VerifiedByKader.Penduduk").
 		Preload("Anak").
 		Preload("Anak.Penduduk").
 		Find(&bbls).Error

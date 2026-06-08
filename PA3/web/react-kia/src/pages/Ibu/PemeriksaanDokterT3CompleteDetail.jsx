@@ -4,6 +4,7 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import Swal from "sweetalert2";
 import MainLayout from "../../components/Layout/MainLayout";
 import { getKehamilanByIbuId } from "../../services/kehamilan";
+import { getCurrentUser, isDokterUser } from "../../services/auth";
 import {
   getDokterT3CompleteByKehamilanId,
   deleteDokterT3Complete,
@@ -269,6 +270,15 @@ export default function PemeriksaanDokterT3CompleteDetail() {
   const [loadingCatatan, setLoadingCatatan] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [editCatatan, setEditCatatan] = useState(null);
+  const [canEdit, setCanEdit] = useState(false);
+  const [canDelete, setCanDelete] = useState(false);
+
+  useEffect(() => {
+    const user = getCurrentUser();
+    const isDokter = isDokterUser(user);
+    setCanEdit(isDokter);
+    setCanDelete(isDokter);
+  }, []);
 
   // Fetch data pemeriksaan utama T3
   useEffect(() => {
@@ -326,6 +336,15 @@ export default function PemeriksaanDokterT3CompleteDetail() {
 
   // Hapus pemeriksaan utama T3
   const handleDelete = async () => {
+    if (!canDelete) {
+      Swal.fire({
+        icon: "error",
+        title: "Akses Ditolak",
+        text: "Hanya dokter yang dapat menghapus data pemeriksaan.",
+      });
+      return;
+    }
+
     const result = await Swal.fire({
       title: "Hapus Data Pemeriksaan T3?",
       html: "<p class='text-sm'>Apakah Anda yakin ingin menghapus semua data pemeriksaan Trimester 3 ini?</p><p class='text-xs text-red-600 mt-2'>⚠️ Seluruh Catatan Pelayanan pada Trimester ini juga akan ikut terhapus.</p>",
@@ -368,6 +387,8 @@ export default function PemeriksaanDokterT3CompleteDetail() {
 
   // Hapus catatan T3
   const handleDeleteCatatan = async (idCatatan) => {
+    if (!canEdit) return;
+
     const result = await Swal.fire({
       title: "Hapus Catatan?",
       text: "Apakah Anda yakin ingin menghapus catatan ini?",
@@ -401,11 +422,13 @@ export default function PemeriksaanDokterT3CompleteDetail() {
   };
 
   const handleTambahCatatan = () => {
+    if (!canEdit) return;
     setEditCatatan(null);
     setModalOpen(true);
   };
 
   const handleEditCatatan = (catatan) => {
+    if (!canEdit) return;
     setEditCatatan(catatan);
     setModalOpen(true);
   };
@@ -439,12 +462,14 @@ export default function PemeriksaanDokterT3CompleteDetail() {
             <h2 className="text-xl font-bold text-yellow-700 mb-2">Data Tidak Ditemukan</h2>
             <p className="text-gray-600 mb-6 text-sm">{error || "Belum ada data pemeriksaan Trimester 3."}</p>
             <div className="flex gap-3 justify-center">
-              <Link
-                to={`/data-ibu/${id}/pemeriksaan-dokter-t3-complete/form`}
-                className="bg-indigo-600 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition"
-              >
-                Buat Data Baru
-              </Link>
+              {canEdit && (
+                <Link
+                  to={`/data-ibu/${id}/pemeriksaan-dokter-t3-complete/form`}
+                  className="bg-indigo-600 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition"
+                >
+                  Buat Data Baru
+                </Link>
+              )}
               <button
                 onClick={() => navigate(-1)}
                 className="bg-gray-100 text-gray-700 px-5 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition"
@@ -497,7 +522,29 @@ export default function PemeriksaanDokterT3CompleteDetail() {
               </p>
             </div>
           </div>
-          <div className="flex gap-2 shrink-0">
+          <div
+            className={`px-3 py-1 rounded-full text-xs font-semibold shrink-0 ${
+              canEdit
+                ? "bg-green-100 text-green-700"
+                : "bg-blue-100 text-blue-700"
+            }`}
+          >
+            {canEdit ? "Mode Edit (Dokter)" : "Mode Baca (Bidan)"}
+          </div>
+        </div>
+
+        {!canEdit && (
+          <div className="mb-6 p-3 bg-blue-50 rounded-lg border border-blue-200">
+            <p className="text-sm text-blue-700 flex items-center gap-2">
+              <AlertCircle size={16} />
+              Anda login sebagai BIDAN. Data hanya dapat dilihat, tidak dapat
+              diedit atau dihapus.
+            </p>
+          </div>
+        )}
+
+        {canEdit && (
+          <div className="flex gap-2 shrink-0 mb-6">
             <Link
               to={`/data-ibu/${id}/pemeriksaan-dokter-t3-complete/form`}
               className="flex items-center gap-1.5 bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-xl text-sm font-medium transition"
@@ -511,7 +558,7 @@ export default function PemeriksaanDokterT3CompleteDetail() {
               <Trash2 size={15} /> Hapus
             </button>
           </div>
-        </div>
+        )}
 
         {/* Summary cards */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
@@ -678,11 +725,11 @@ export default function PemeriksaanDokterT3CompleteDetail() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <InfoRow label="Tanggal Lab Lanjutan" value={fmtDate(d.tanggal_lab)} />
                 <InfoRow label="Hemoglobin (g/dL)" value={d.lab_hemoglobin_hasil ? `${d.lab_hemoglobin_hasil} g/dL` : null} />
-                <InfoRow label="Rencana Hb" value={d.lab_hemoglobin_rencana} />
-                <InfoRow label="Protein Urin (hasil)" value={d.lab_protein_urin_hasil || "-"} />
-                <InfoRow label="Rencana Protein Urin" value={d.lab_protein_urin_rencana} />
+                <InfoRow label="Rencana Hb" value={d.lab_hemoglobin_rencana_tindak_lanjut} />
+                <InfoRow label="Protein Urin (hasil)" value={d.lab_protein_urin_hasil != null ? String(d.lab_protein_urin_hasil) : "-"} />
+                <InfoRow label="Rencana Protein Urin" value={d.lab_protein_urin_rencana_tindak_lanjut} />
                 <InfoRow label="Urin Reduksi" value={d.lab_urin_reduksi_hasil} />
-                <InfoRow label="Rencana Urin Reduksi" value={d.lab_urin_reduksi_rencana} />
+                <InfoRow label="Rencana Urin Reduksi" value={d.lab_urin_reduksi_rencana_tindak_lanjut} />
                 <InfoRow label="Tanggal Skrining Jiwa" value={fmtDate(d.tanggal_skrining_jiwa)} />
                 <InfoRow label="Hasil Skrining Jiwa" value={d.skrining_jiwa_hasil} />
                 <InfoRow label="Tindak Lanjut Jiwa" value={d.skrining_jiwa_tindak_lanjut} />
@@ -738,41 +785,63 @@ export default function PemeriksaanDokterT3CompleteDetail() {
             </div>
           </DetailSection>
 
-          {/* Pemeriksaan Laboratorium & Skrining Jiwa (tabel terpisah) */}
+          {/* Pemeriksaan Laboratorium Lanjutan T3 */}
           <DetailSection icon={FlaskConical} title="Pemeriksaan Laboratorium & Skrining Jiwa" colorCls="bg-amber-50 text-amber-700 border-amber-100">
-            {lab ? (
-              <>
-                <InfoRow label="Tanggal Lab" value={fmtDate(lab.tanggal_lab)} />
-                <div className="rounded-xl border border-amber-100 overflow-hidden mt-3">
-                  <table className="w-full text-sm">
-                    <thead className="bg-amber-50">
-                      <tr><th className="text-left px-4 py-2.5 text-xs font-bold uppercase tracking-wide">Pemeriksaan</th><th className="text-left px-4 py-2.5 text-xs font-bold uppercase tracking-wide">Hasil</th><th className="text-left px-4 py-2.5 text-xs font-bold uppercase tracking-wide">Rencana</th></tr>
-                    </thead>
-                    <tbody className="divide-y divide-amber-50">
-                      <tr><td className="px-4 py-3">Hemoglobin</td><td className="px-4 py-3">{lab.lab_hemoglobin_hasil ? `${lab.lab_hemoglobin_hasil} g/dL` : "-"}</td><td className="px-4 py-3">{lab.lab_hemoglobin_rencana_tindak_lanjut || "-"}</td></tr>
-                      <tr className="bg-gray-50/60"><td className="px-4 py-3">Gula Darah Sewaktu</td><td className="px-4 py-3">{lab.lab_gula_darah_sewaktu_hasil ? `${lab.lab_gula_darah_sewaktu_hasil} mg/dL` : "-"}</td><td className="px-4 py-3">{lab.lab_gula_darah_sewaktu_rencana_tindak_lanjut || "-"}</td></tr>
-                      <tr><td className="px-4 py-3">Golongan Darah & Rhesus</td><td className="px-4 py-3 font-semibold">{lab.lab_golongan_darah_rhesus_hasil || "-"}</td><td className="px-4 py-3">{lab.lab_golongan_darah_rhesus_rencana_tindak_lanjut || "-"}</td></tr>
-                      <tr className="bg-gray-50/60"><td className="px-4 py-3">HIV</td><td className="px-4 py-3"><ReaktifBadge value={lab.lab_hiv_hasil} /></td><td className="px-4 py-3">{lab.lab_hiv_rencana_tindak_lanjut || "-"}</td></tr>
-                      <tr><td className="px-4 py-3">Sifilis</td><td className="px-4 py-3"><ReaktifBadge value={lab.lab_sifilis_hasil} /></td><td className="px-4 py-3">{lab.lab_sifilis_rencana_tindak_lanjut || "-"}</td></tr>
-                      <tr className="bg-gray-50/60"><td className="px-4 py-3">Hepatitis B</td><td className="px-4 py-3"><ReaktifBadge value={lab.lab_hepatitis_b_hasil} /></td><td className="px-4 py-3">{lab.lab_hepatitis_b_rencana_tindak_lanjut || "-"}</td></tr>
-                    </tbody>
-                  </table>
-                </div>
-                <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <InfoRow label="Tanggal Skrining Jiwa" value={fmtDate(lab.tanggal_skrining_jiwa)} />
-                  <InfoRow label="Hasil Skrining Jiwa" value={lab.skrining_jiwa_hasil} />
-                  <InfoRow label="Tindak Lanjut Jiwa" value={lab.skrining_jiwa_tindak_lanjut} />
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <InfoRow label="Tanggal Lab Lanjutan" value={fmtDate(d.tanggal_lab)} />
+              </div>
+              {/* Tabel lab lanjutan */}
+              <div className="rounded-xl border border-amber-100 overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead className="bg-amber-50">
+                    <tr>
+                      <th className="text-left px-4 py-2.5 text-xs font-bold uppercase tracking-wide w-1/3">Pemeriksaan</th>
+                      <th className="text-left px-4 py-2.5 text-xs font-bold uppercase tracking-wide w-1/3">Hasil</th>
+                      <th className="text-left px-4 py-2.5 text-xs font-bold uppercase tracking-wide w-1/3">Rencana Tindak Lanjut</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-amber-50">
+                    <tr>
+                      <td className="px-4 py-3 font-medium">Hemoglobin</td>
+                      <td className="px-4 py-3">{d.lab_hemoglobin_hasil != null ? `${d.lab_hemoglobin_hasil} g/dL` : "-"}</td>
+                      <td className="px-4 py-3">{d.lab_hemoglobin_rencana_tindak_lanjut || "-"}</td>
+                    </tr>
+                    <tr className="bg-gray-50/60">
+                      <td className="px-4 py-3 font-medium">Protein Urin</td>
+                      <td className="px-4 py-3">{d.lab_protein_urin_hasil != null ? String(d.lab_protein_urin_hasil) : "-"}</td>
+                      <td className="px-4 py-3">{d.lab_protein_urin_rencana_tindak_lanjut || "-"}</td>
+                    </tr>
+                    <tr>
+                      <td className="px-4 py-3 font-medium">Urin Reduksi</td>
+                      <td className="px-4 py-3">{d.lab_urin_reduksi_hasil || "-"}</td>
+                      <td className="px-4 py-3">{d.lab_urin_reduksi_rencana_tindak_lanjut || "-"}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              {/* Skrining Jiwa */}
+              <div>
+                <p className="text-xs font-bold text-amber-600 uppercase tracking-wider mb-3">Skrining Kesehatan Jiwa</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <InfoRow label="Tanggal Skrining Jiwa" value={fmtDate(d.tanggal_skrining_jiwa)} />
+                  <InfoRow label="Hasil Skrining Jiwa" value={d.skrining_jiwa_hasil} />
+                  <InfoRow label="Tindak Lanjut Jiwa" value={d.skrining_jiwa_tindak_lanjut} />
                   <div className="flex flex-col gap-1">
-                    <span className="text-xs font-semibold text-gray-400 uppercase">Perlu Rujukan Jiwa</span>
-                    {lab.skrining_jiwa_perlu_rujukan === "Ya" ? <span className="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full w-fit">Ya</span> : <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full w-fit">Tidak</span>}
+                    <span className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Perlu Rujukan Jiwa</span>
+                    {d.skrining_jiwa_perlu_rujukan === "Ya" ? (
+                      <span className="inline-flex items-center gap-1 text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-semibold w-fit">
+                        <XCircle size={10} /> Ya
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-semibold w-fit">
+                        <CheckCircle size={10} /> Tidak
+                      </span>
+                    )}
                   </div>
-                  <div className="sm:col-span-2"><InfoRow label="Kesimpulan" value={lab.kesimpulan} /></div>
-                  <div className="sm:col-span-2"><InfoRow label="Rekomendasi" value={lab.rekomendasi} /></div>
                 </div>
-              </>
-            ) : (
-              <p className="text-sm text-gray-400 italic">Data laboratorium belum diisi.</p>
-            )}
+              </div>
+            </div>
           </DetailSection>
 
           {/* Catatan Pelayanan Trimester 3 */}
@@ -787,13 +856,15 @@ export default function PemeriksaanDokterT3CompleteDetail() {
                   </span>
                 )}
               </div>
-              <button
-                type="button"
-                onClick={handleTambahCatatan}
-                className="flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white px-3.5 py-1.5 rounded-xl text-xs font-semibold transition shadow-sm"
-              >
-                <Plus size={14} /> Tambah Catatan
-              </button>
+              {canEdit && (
+                <button
+                  type="button"
+                  onClick={handleTambahCatatan}
+                  className="flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white px-3.5 py-1.5 rounded-xl text-xs font-semibold transition shadow-sm"
+                >
+                  <Plus size={14} /> Tambah Catatan
+                </button>
+              )}
             </div>
             <div className="p-5">
               {loadingCatatan ? (
@@ -807,14 +878,20 @@ export default function PemeriksaanDokterT3CompleteDetail() {
                     <MessageSquarePlus size={24} className="text-indigo-300" />
                   </div>
                   <p className="text-sm font-medium text-gray-500 mb-1">Belum ada catatan pelayanan</p>
-                  <p className="text-xs text-gray-400 mb-4">Tambahkan catatan keluhan, tindakan, atau saran untuk kunjungan ini</p>
-                  <button
-                    type="button"
-                    onClick={handleTambahCatatan}
-                    className="flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition"
-                  >
-                    <Plus size={15} /> Tambah Catatan Pertama
-                  </button>
+                  <p className="text-xs text-gray-400 mb-4">
+                    {canEdit
+                      ? "Tambahkan catatan keluhan, tindakan, atau saran untuk kunjungan ini"
+                      : "Belum ada catatan. Hanya dokter yang dapat menambahkan catatan."}
+                  </p>
+                  {canEdit && (
+                    <button
+                      type="button"
+                      onClick={handleTambahCatatan}
+                      className="flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition"
+                    >
+                      <Plus size={15} /> Tambah Catatan Pertama
+                    </button>
+                  )}
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -845,24 +922,26 @@ export default function PemeriksaanDokterT3CompleteDetail() {
                           {catatan.keluhan_pemeriksaan_tindakan_saran || <span className="italic text-gray-400">Tidak ada isi catatan</span>}
                         </p>
                       </div>
-                      <div className="absolute top-3 right-3 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button
-                          type="button"
-                          onClick={() => handleEditCatatan(catatan)}
-                          className="p-1.5 rounded-lg bg-white border border-amber-200 text-amber-600 hover:bg-amber-50 transition shadow-sm"
-                          title="Edit catatan"
-                        >
-                          <Pencil size={13} />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleDeleteCatatan(catatan.id_catatan_t3)}
-                          className="p-1.5 rounded-lg bg-white border border-red-200 text-red-500 hover:bg-red-50 transition shadow-sm"
-                          title="Hapus catatan"
-                        >
-                          <Trash2 size={13} />
-                        </button>
-                      </div>
+                      {canEdit && (
+                        <div className="absolute top-3 right-3 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button
+                            type="button"
+                            onClick={() => handleEditCatatan(catatan)}
+                            className="p-1.5 rounded-lg bg-white border border-amber-200 text-amber-600 hover:bg-amber-50 transition shadow-sm"
+                            title="Edit catatan"
+                          >
+                            <Pencil size={13} />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteCatatan(catatan.id_catatan_t3)}
+                            className="p-1.5 rounded-lg bg-white border border-red-200 text-red-500 hover:bg-red-50 transition shadow-sm"
+                            title="Hapus catatan"
+                          >
+                            <Trash2 size={13} />
+                          </button>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>

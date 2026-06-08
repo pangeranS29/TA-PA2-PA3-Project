@@ -20,6 +20,11 @@ export const updateRingkasanPersalinan = async (id, data) => {
   return res.data.data;
 };
 
+export const deleteRingkasanPersalinan = async (id) => {
+  const res = await api.delete(`${BASE_RINGKASAN}/${id}`);
+  return res.data;
+};
+
 // 2. Riwayat Proses Melahirkan
 export const getRiwayatMelahirkanByKehamilanId = async (kehamilanId) => {
   const res = await api.get(`${BASE_RIWAYAT}?kehamilan_id=${kehamilanId}`);

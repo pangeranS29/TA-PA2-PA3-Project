@@ -1,4 +1,4 @@
-package routes
+﻿package routes
 
 import (
 	"monitoring-service/app/controllers"
@@ -116,10 +116,22 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	bidan.GET("/dashboard/jadwal-layanan/:id", controller.JadwalLayanan.GetByID)
 	bidan.PUT("/dashboard/jadwal-layanan/:id", controller.JadwalLayanan.Update)
 	bidan.DELETE("/dashboard/jadwal-layanan/:id", controller.JadwalLayanan.Delete)
+	// Vaksin routes - TAMBAHKAN INI (gunakan controller.Vaksin)
+	bidan.GET("/vaksin", controller.Vaksin.GetAll)
+	bidan.GET("/vaksin/:id", controller.Vaksin.GetByID)
+
+	// Dosis Vaksin routes - TAMBAHKAN
+	bidan.GET("/dosis-vaksin", controller.DosisVaksin.GetAll)
+	bidan.GET("/dosis-vaksin/by-vaksin/:vaksin_id", controller.DosisVaksin.GetByVaksinID)
 
 	bidan.GET("/request-perubahan-jadwal-imunisasi", controller.GetAllRequestPerubahanJadwal)
 	bidan.PUT("/request-perubahan-jadwal-imunisasi/:id/approve", controller.ApproveRequestPerubahanJadwal)
 	bidan.PUT("/request-perubahan-jadwal-imunisasi/:id/reject", controller.RejectRequestPerubahanJadwal)
+
+	// Imunisasi - Dashboard Bidan
+	bidan.GET("/imunisasi/anak/:anak_id", controller.GetJadwalImunisasiByAnakIDBidan)
+	bidan.PUT("/imunisasi/:id/selesai", controller.SetJadwalSelesaiBidan)
+	bidan.GET("/imunisasi/:id", controller.GetJadwalImunisasiByIDBidan)
 
 	// Kader Management dipindahkan ke superadmin
 
@@ -135,7 +147,6 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	_ = masterStandar
 	masterStandar.GET("", controller.GetMasterStandar)
 	masterStandar.POST("", controller.CreateMasterStandar)
-
 
 	// Perkembangan Routes
 	// perkembangan := e.Group("/perkembangan")
@@ -600,6 +611,7 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 
 	// ==================== KEPENDUDUKAN ====================
 	tenaga.GET("/kependudukan", controller.Kependudukan.GetAll)
+	tenaga.GET("/kependudukan/desa", controller.Kependudukan.GetPendudukList)
 	tenaga.POST("/kependudukan", controller.Kependudukan.Create)
 	tenaga.GET("/kependudukan/:id", controller.Kependudukan.GetByID)
 	// tenaga.GET("/kependudukan/kartu-keluarga/:kartu_keluarga_id", controller.Kependudukan.GetByKartuKeluargaID)
@@ -819,6 +831,22 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	// Absensi Kelas Ibu Balita (Kader)
 	kader.GET("/absensi-kelas-ibu-balita", controller.AbsensiKelasIbuBalita.GetAll)
 	kader.PUT("/absensi-kelas-ibu-balita/:id/verifikasi", controller.AbsensiKelasIbuBalita.Verify)
+
+	// Absensi kelas ibu hamil (kader)
+	kader.GET("/absensi-kelas-ibu-hamil", controller.AbsensiKelasIbuHamil.GetAll)
+	kader.PUT("/absensi-kelas-ibu-hamil/:id/verifikasi", controller.AbsensiKelasIbuHamil.Verify)
+
+	// Pemantauan Ibu Hamil (kader)
+	kader.GET("/pemantauan-ibu-hamil", controller.PemantauanIbuHamil.GetAll)
+	kader.PUT("/pemantauan-ibu-hamil/:id/verifikasi", controller.PemantauanIbuHamil.Verify)
+
+	// Pemantauan Ibu Nifas (kader)
+	kader.GET("/checklist-pemantauan-ibu-nifas", controller.ChecklistPemantauanIbuNifas.GetAll)
+	kader.PUT("/checklist-pemantauan-ibu-nifas/:id/verifikasi", controller.ChecklistPemantauanIbuNifas.Verify)
+
+	// Log TTD/MMS
+	kader.GET("/log-ttd-mms/rekap", controller.LogTTDMMS.GetRekapKader)
+	kader.GET("/log-ttd-mms/:kehamilan_id", controller.LogTTDMMS.GetDetailLogKader)
 
 	kader.GET("/bbl/anak/:anak_id", controller.Bbl.GetByAnakID)
 	kader.PUT("/bbl/anak/:anak_id/verifikasi", controller.Bbl.Verify)

@@ -4,6 +4,7 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import Swal from "sweetalert2";
 import MainLayout from "../../components/Layout/MainLayout";
 import { getKehamilanByIbuId } from "../../services/kehamilan";
+import { getCurrentUser, isDokterUser, isBidanUser } from "../../services/auth"; 
 import {
   getDokterT1CompleteByKehamilanId,
   deleteDokterT1Complete,
@@ -95,6 +96,84 @@ function fmtDate(val) {
   }
 }
 
+function normalizeT1Response(res) {
+  if (!res) return null;
+  const body =
+    res.data && (res.data.dokter || res.data.id || res.data.id_trimester1)
+      ? res.data
+      : res;
+
+  if (body.dokter && (body.dokter.id || body.dokter.id_trimester1)) {
+    return { dokter: body.dokter, lab_jiwa: body.lab_jiwa || null };
+  }
+
+  if (body.id || body.id_trimester1) {
+    const dokterFields = {};
+    const labFields = {};
+    const labPrefixes = [
+      "tanggal_lab",
+      "lab_",
+      "tanggal_skrining_jiwa",
+      "skrining_jiwa_",
+      "kesimpulan",
+      "rekomendasi",
+    ];
+    for (const key of Object.keys(body)) {
+      if (labPrefixes.some((pf) => key.startsWith(pf))) {
+        labFields[key] = body[key];
+      } else {
+        dokterFields[key] = body[key];
+      }
+    }
+    dokterFields.id = dokterFields.id || dokterFields.id_trimester1;
+    return {
+      dokter: dokterFields,
+      lab_jiwa: Object.keys(labFields).length ? labFields : null,
+    };
+  }
+
+  return null;
+}
+
+function mergeLabData(dokter, labJiwa) {
+  const lab = labJiwa || {};
+  return {
+    tanggal_lab: lab.tanggal_lab || dokter?.tanggal_lab,
+    lab_hemoglobin_hasil: lab.lab_hemoglobin_hasil ?? dokter?.lab_hemoglobin_hasil,
+    lab_hemoglobin_rencana_tindak_lanjut:
+      lab.lab_hemoglobin_rencana_tindak_lanjut ||
+      dokter?.lab_hemoglobin_rencana_tindak_lanjut,
+    lab_gula_darah_sewaktu_hasil:
+      lab.lab_gula_darah_sewaktu_hasil ?? dokter?.lab_gula_darah_sewaktu_hasil,
+    lab_gula_darah_sewaktu_rencana_tindak_lanjut:
+      lab.lab_gula_darah_sewaktu_rencana_tindak_lanjut ||
+      dokter?.lab_gula_darah_sewaktu_rencana_tindak_lanjut,
+    lab_golongan_darah_rhesus_hasil:
+      lab.lab_golongan_darah_rhesus_hasil || dokter?.lab_golongan_darah_rhesus_hasil,
+    lab_golongan_darah_rhesus_rencana_tindak_lanjut:
+      lab.lab_golongan_darah_rhesus_rencana_tindak_lanjut ||
+      dokter?.lab_golongan_darah_rhesus_rencana_tindak_lanjut,
+    lab_hiv_hasil: lab.lab_hiv_hasil || dokter?.lab_hiv_hasil,
+    lab_hiv_rencana_tindak_lanjut:
+      lab.lab_hiv_rencana_tindak_lanjut || dokter?.lab_hiv_rencana_tindak_lanjut,
+    lab_sifilis_hasil: lab.lab_sifilis_hasil || dokter?.lab_sifilis_hasil,
+    lab_sifilis_rencana_tindak_lanjut:
+      lab.lab_sifilis_rencana_tindak_lanjut || dokter?.lab_sifilis_rencana_tindak_lanjut,
+    lab_hepatitis_b_hasil: lab.lab_hepatitis_b_hasil || dokter?.lab_hepatitis_b_hasil,
+    lab_hepatitis_b_rencana_tindak_lanjut:
+      lab.lab_hepatitis_b_rencana_tindak_lanjut ||
+      dokter?.lab_hepatitis_b_rencana_tindak_lanjut,
+    tanggal_skrining_jiwa: lab.tanggal_skrining_jiwa || dokter?.tanggal_skrining_jiwa,
+    skrining_jiwa_hasil: lab.skrining_jiwa_hasil || dokter?.skrining_jiwa_hasil,
+    skrining_jiwa_tindak_lanjut:
+      lab.skrining_jiwa_tindak_lanjut || dokter?.skrining_jiwa_tindak_lanjut,
+    skrining_jiwa_perlu_rujukan:
+      lab.skrining_jiwa_perlu_rujukan || dokter?.skrining_jiwa_perlu_rujukan,
+    kesimpulan: lab.kesimpulan || dokter?.kesimpulan,
+    rekomendasi: lab.rekomendasi || dokter?.rekomendasi,
+  };
+}
+
 function DetailSection({
   icon: Icon,
   title,
@@ -123,8 +202,18 @@ function DetailSection({
 
 // ─── Modal Catatan ────────────────────────────────────────────────────────────
 
+// ─── Modal Catatan ────────────────────────────────────────────────────────────
+
 function ModalCatatan({ kehamilanId, catatan, onClose, onSaved }) {
   const isEdit = Boolean(catatan);
+  
+  // Fungsi helper untuk validasi tanggal
+  const isDateAfterToday = (dateStr) => {
+    if (!dateStr) return false;
+    const today = new Date().toISOString().split("T")[0];
+    return dateStr > today;
+  };
+  
   const [form, setForm] = useState({
     tanggal_periksa_stamp_paraf: catatan?.tanggal_periksa_stamp_paraf
       ? catatan.tanggal_periksa_stamp_paraf.split("T")[0]
@@ -137,27 +226,66 @@ function ModalCatatan({ kehamilanId, catatan, onClose, onSaved }) {
   });
   const [saving, setSaving] = useState(false);
   const [fieldError, setFieldError] = useState("");
+  const [validationErrors, setValidationErrors] = useState({});
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
+    // Hapus error field yang sedang diubah
+    if (validationErrors[name]) {
+      setValidationErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[name];
+        return newErrors;
+      });
+    }
     setFieldError("");
+  };
+
+  // Fungsi validasi form
+  const validateForm = () => {
+    const errors = {};
+    
+    // Validasi Tanggal Periksa - WAJIB DIISI & TIDAK BOLEH MELEBIHI HARI INI
+    if (!form.tanggal_periksa_stamp_paraf) {
+      errors.tanggal_periksa_stamp_paraf = "Tanggal periksa harus diisi";
+    } else if (isDateAfterToday(form.tanggal_periksa_stamp_paraf)) {
+      errors.tanggal_periksa_stamp_paraf = "Tanggal periksa tidak boleh melebihi hari ini";
+    }
+    
+    // Validasi Keluhan - WAJIB DIISI
+    if (!form.keluhan_pemeriksaan_tindakan_saran.trim()) {
+      errors.keluhan_pemeriksaan_tindakan_saran = "Keluhan / pemeriksaan / tindakan / saran harus diisi";
+    }
+    
+    // ✅ Validasi Tanggal Kembali - WAJIB DIISI (boleh melebihi hari ini / boleh di masa depan)
+    if (!form.tanggal_kembali) {
+      errors.tanggal_kembali = "Tanggal kembali harus diisi";
+    }
+    // HAPUS validasi isDateAfterToday untuk tanggal_kembali
+    
+    return errors;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.keluhan_pemeriksaan_tindakan_saran.trim()) {
-      setFieldError("Keluhan / tindakan / saran tidak boleh kosong.");
+    
+    // Jalankan validasi
+    const errors = validateForm();
+    if (Object.keys(errors).length > 0) {
+      setValidationErrors(errors);
+      setFieldError("Mohon lengkapi data yang wajib diisi dengan benar.");
       return;
     }
+    
     setSaving(true);
     try {
       const payload = {
         kehamilan_id: kehamilanId,
-        tanggal_periksa_stamp_paraf: form.tanggal_periksa_stamp_paraf || null,
+        tanggal_periksa_stamp_paraf: form.tanggal_periksa_stamp_paraf,
         keluhan_pemeriksaan_tindakan_saran:
           form.keluhan_pemeriksaan_tindakan_saran.trim(),
-        tanggal_kembali: form.tanggal_kembali || null,
+        tanggal_kembali: form.tanggal_kembali,
       };
 
       if (isEdit) {
@@ -199,18 +327,31 @@ function ModalCatatan({ kehamilanId, catatan, onClose, onSaved }) {
           </button>
         </div>
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          {/* Field Tanggal Periksa */}
           <div>
             <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
-              Tanggal Periksa / Stempel / Paraf
+              Tanggal Periksa / Stempel / Paraf <span className="text-red-500">*</span>
             </label>
             <input
               type="date"
               name="tanggal_periksa_stamp_paraf"
               value={form.tanggal_periksa_stamp_paraf}
               onChange={handleChange}
-              className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 transition"
+              max={new Date().toISOString().split("T")[0]}
+              className={`w-full border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 transition ${
+                validationErrors.tanggal_periksa_stamp_paraf
+                  ? "border-red-500 bg-red-50"
+                  : "border-gray-200"
+              }`}
             />
+            {validationErrors.tanggal_periksa_stamp_paraf && (
+              <p className="text-xs text-red-500 font-medium mt-1">
+                {validationErrors.tanggal_periksa_stamp_paraf}
+              </p>
+            )}
           </div>
+          
+          {/* Field Keluhan */}
           <div>
             <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
               Keluhan / Pemeriksaan / Tindakan / Saran{" "}
@@ -222,27 +363,52 @@ function ModalCatatan({ kehamilanId, catatan, onClose, onSaved }) {
               onChange={handleChange}
               placeholder="Tuliskan keluhan pasien, hasil pemeriksaan, tindakan yang dilakukan, atau saran dokter..."
               rows={5}
-              className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 transition resize-none"
+              className={`w-full border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 transition resize-none ${
+                validationErrors.keluhan_pemeriksaan_tindakan_saran
+                  ? "border-red-500 bg-red-50"
+                  : "border-gray-200"
+              }`}
             />
+            {validationErrors.keluhan_pemeriksaan_tindakan_saran && (
+              <p className="text-xs text-red-500 font-medium mt-1">
+                {validationErrors.keluhan_pemeriksaan_tindakan_saran}
+              </p>
+            )}
           </div>
+          
+          {/* Field Tanggal Kembali - Boleh di masa depan */}
           <div>
             <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
-              Tanggal Kembali (Kontrol Selanjutnya)
+              Tanggal Kembali (Kontrol Selanjutnya) <span className="text-red-500">*</span>
             </label>
             <input
               type="date"
               name="tanggal_kembali"
               value={form.tanggal_kembali}
               onChange={handleChange}
-              className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 transition"
+              // HAPUS max attribute - boleh pilih tanggal berapa saja (masa depan)
+              className={`w-full border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 transition ${
+                validationErrors.tanggal_kembali
+                  ? "border-red-500 bg-red-50"
+                  : "border-gray-200"
+              }`}
             />
+            {validationErrors.tanggal_kembali && (
+              <p className="text-xs text-red-500 font-medium mt-1">
+                {validationErrors.tanggal_kembali}
+              </p>
+            )}
           </div>
+          
+          {/* Error umum */}
           {fieldError && (
             <div className="flex items-center gap-2 bg-red-50 border border-red-200 rounded-xl px-3 py-2">
               <AlertCircle size={14} className="text-red-500 shrink-0" />
               <p className="text-xs text-red-600">{fieldError}</p>
             </div>
           )}
+          
+          {/* Tombol aksi */}
           <div className="flex gap-3 pt-1">
             <button
               type="button"
@@ -289,6 +455,19 @@ export default function PemeriksaanDokterT1CompleteDetail() {
   const [loadingCatatan, setLoadingCatatan] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [editCatatan, setEditCatatan] = useState(null);
+ const [canEdit, setCanEdit] = useState(false);
+  const [canDelete, setCanDelete] = useState(false);
+   // ✅ Cek role user saat komponen mount
+  useEffect(() => {
+    const user = getCurrentUser();
+    const isDokter = isDokterUser(user);
+    setCanEdit(isDokter);
+    setCanDelete(isDokter);
+    
+    console.log("[Detail] User role:", user?.role);
+    console.log("[Detail] Can Edit:", isDokter);
+    console.log("[Detail] Can Delete:", isDokter);
+  }, []);
 
   // ── Fetch data pemeriksaan ─────────────────────────────────────────────
   useEffect(() => {
@@ -304,12 +483,13 @@ export default function PemeriksaanDokterT1CompleteDetail() {
         setKehamilan(aktif);
 
         const res = await getDokterT1CompleteByKehamilanId(aktif.id);
-        if (!res || !res.dokter) {
+        const normalized = normalizeT1Response(res);
+        if (!normalized?.dokter) {
           setError(
             "Belum ada data pemeriksaan. Silakan buat data terlebih dahulu."
           );
         } else {
-          setData(res);
+          setData(normalized);
         }
       } catch (err) {
         console.error(err);
@@ -349,7 +529,8 @@ export default function PemeriksaanDokterT1CompleteDetail() {
   // ── Hapus pemeriksaan utama ────────────────────────────────────────────
   const handleDelete = async () => {
     // Pastikan ID tersedia
-    if (!data?.dokter?.id) {
+    const dokterId = data?.dokter?.id || data?.dokter?.id_trimester1;
+    if (!dokterId) {
       Swal.fire({
         icon: "error",
         title: "Gagal Menghapus",
@@ -381,7 +562,7 @@ export default function PemeriksaanDokterT1CompleteDetail() {
       }
 
       // Hapus pemeriksaan utama
-      await deleteDokterT1Complete(data.dokter.id);
+      await deleteDokterT1Complete(dokterId);
 
       await Swal.fire({
         icon: "success",
@@ -505,7 +686,7 @@ export default function PemeriksaanDokterT1CompleteDetail() {
   }
 
   const d = data.dokter;
-  const lab = data.lab_jiwa;
+  const lab = mergeLabData(d, data.lab_jiwa);
 
   const fisikItems = [
     { label: "Konjungtiva", value: d.fisik_konjungtiva },
@@ -543,7 +724,27 @@ export default function PemeriksaanDokterT1CompleteDetail() {
               </p>
             </div>
           </div>
-          <div className="flex gap-2 shrink-0">
+           {/* ✅ Badge Role */}
+          <div className={`px-3 py-1 rounded-full text-xs font-semibold ${
+            canEdit ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'
+          }`}>
+            {canEdit ? '✏️ Mode Edit (Dokter)' : '👁️ Mode Baca (Bidan)'}
+          </div>
+        </div>
+
+        {/* ✅ Informasi akses untuk BIDAN */}
+        {!canEdit && (
+          <div className="mb-6 p-3 bg-blue-50 rounded-lg border border-blue-200">
+            <p className="text-sm text-blue-700 flex items-center gap-2">
+              <AlertCircle size={16} />
+              Anda login sebagai BIDAN. Data hanya dapat dilihat, tidak dapat diedit atau dihapus.
+            </p>
+          </div>
+        )}
+
+        {/* ✅ Tombol Edit dan Hapus - HANYA untuk DOKTER */}
+        {canEdit && (
+          <div className="flex gap-2 shrink-0 mb-6">
             <Link
               to={`/data-ibu/${id}/pemeriksaan-dokter-t1-complete/form`}
               className="flex items-center gap-1.5 bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-xl text-sm font-medium transition"
@@ -557,7 +758,8 @@ export default function PemeriksaanDokterT1CompleteDetail() {
               <Trash2 size={15} /> Hapus
             </button>
           </div>
-        </div>
+        )}
+
 
         {/* Summary cards */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">

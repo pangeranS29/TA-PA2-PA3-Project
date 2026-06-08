@@ -4,10 +4,7 @@ import { useParams, useSearchParams, Link, useNavigate } from "react-router-dom"
 import MainLayout from "../../components/Layout/MainLayout";
 import { getIbuById } from "../../services/ibu";
 import { getKehamilanByIbuId } from "../../services/kehamilan";
-import {
-  getDokterT1CompleteByKehamilanId,
-  getDokterT3CompleteByKehamilanId,
-} from "../../services/pemeriksaanDokter";
+import { getDokterT1CompleteByKehamilanId } from "../../services/pemeriksaanDokter";
 import { 
   ArrowLeft, 
   Users, 
@@ -21,12 +18,54 @@ import {
   Activity,
   FileText,
   AlertTriangle,
-  ListChecks,
   Stethoscope,
   Hospital,
   Droplet,
-  UserPlus
+  UserPlus,
+  Info
 } from "lucide-react";
+
+// Fungsi helper untuk menghitung usia
+const hitungUsia = (tanggalLahir) => {
+  if (!tanggalLahir) return 0;
+  
+  const today = new Date();
+  let birthDate;
+  
+  try {
+    birthDate = new Date(tanggalLahir);
+    if (isNaN(birthDate.getTime())) return 0;
+  } catch (e) {
+    return 0;
+  }
+  
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const monthDiff = today.getMonth() - birthDate.getMonth();
+  
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+  
+  return age >= 0 ? age : 0;
+};
+
+// Fungsi helper untuk format tanggal
+const formatTanggal = (dateStr) => {
+  if (!dateStr) return "-";
+  
+  try {
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return "-";
+    
+    return date.toLocaleDateString("id-ID", {
+      day: "2-digit",
+      month: "long",
+      year: "numeric"
+    });
+  } catch (e) {
+    return "-";
+  }
+};
 
 export default function IbuDetail() {
   const { id } = useParams();
@@ -45,14 +84,24 @@ export default function IbuDetail() {
   // Hitung usia kehamilan dari HPHT
   const hitungUsiaKehamilan = (hpht) => {
     if (!hpht) return "? minggu";
-    const hphtDate = new Date(hpht);
-    const now = new Date();
-    const diffTime = now - hphtDate;
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-    if (diffDays < 0) return "Belum hamil";
-    const weeks = Math.floor(diffDays / 7);
-    const days = diffDays % 7;
-    return `${weeks} minggu ${days} hari`;
+    
+    try {
+      const hphtDate = new Date(hpht);
+      const now = new Date();
+      
+      if (isNaN(hphtDate.getTime())) return "Tanggal tidak valid";
+      
+      const diffTime = now - hphtDate;
+      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+      
+      if (diffDays < 0) return "Belum hamil";
+      
+      const weeks = Math.floor(diffDays / 7);
+      const days = diffDays % 7;
+      return `${weeks} minggu ${days} hari`;
+    } catch (e) {
+      return "? minggu";
+    }
   };
 
   useEffect(() => {
@@ -61,11 +110,43 @@ export default function IbuDetail() {
         setLoading(true);
         setError(null);
 
+        // 🔧 PERBAIKAN: getIbuById harus mengembalikan data ibu yang sudah difilter
         const ibuRes = await getIbuById(id);
-        setIbu(ibuRes);
+        console.log("Data ibu response:", ibuRes);
+        
+        // Handle response dari API
+        let ibuData = null;
+        if (ibuRes && ibuRes.data) {
+          // Jika response memiliki field data
+          ibuData = ibuRes.data;
+        } else if (ibuRes && !ibuRes.data) {
+          // Jika response langsung object ibu
+          ibuData = ibuRes;
+        }
+        
+        if (!ibuData) {
+          setError("Data ibu tidak ditemukan");
+          setIbu(null);
+          setLoading(false);
+          return;
+        }
+        
+        setIbu(ibuData);
 
+        // Ambil data kehamilan
         const kehamilanRes = await getKehamilanByIbuId(id);
-        if (!kehamilanRes || kehamilanRes.length === 0) {
+        console.log("Data kehamilan response:", kehamilanRes);
+        
+        let kehamilanList = [];
+        if (kehamilanRes && kehamilanRes.data) {
+          kehamilanList = Array.isArray(kehamilanRes.data) ? kehamilanRes.data : [kehamilanRes.data];
+        } else if (kehamilanRes && Array.isArray(kehamilanRes)) {
+          kehamilanList = kehamilanRes;
+        } else if (kehamilanRes && !Array.isArray(kehamilanRes)) {
+          kehamilanList = [kehamilanRes];
+        }
+        
+        if (!kehamilanList || kehamilanList.length === 0) {
           setError("Ibu ini belum memiliki data kehamilan.");
           setKehamilan(null);
           return;
@@ -73,23 +154,25 @@ export default function IbuDetail() {
 
         let targetKehamilan = null;
         if (kehamilanId) {
-          targetKehamilan = kehamilanRes.find((k) => k.id == kehamilanId);
+          targetKehamilan = kehamilanList.find((k) => k.id == kehamilanId);
           if (!targetKehamilan) {
             setError(`Kehamilan dengan ID ${kehamilanId} tidak ditemukan.`);
           }
         } else {
-          targetKehamilan = kehamilanRes[0];
+          targetKehamilan = kehamilanList[0];
         }
         setKehamilan(targetKehamilan);
       } catch (err) {
-        console.error(err);
-        setError("Gagal memuat data. Silakan coba lagi.");
+        console.error("Error fetching data:", err);
+        setError(err.response?.data?.message || err.message || "Gagal memuat data. Silakan coba lagi.");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchData();
+    if (id) {
+      fetchData();
+    }
   }, [id, kehamilanId]);
 
   const handleT1Click = async () => {
@@ -103,39 +186,32 @@ export default function IbuDetail() {
         navigate(`/data-ibu/${id}/pemeriksaan-dokter-t1-complete/form?kehamilan_id=${kehamilan.id}`);
       }
     } catch (err) {
+      console.error(err);
       navigate(`/data-ibu/${id}/pemeriksaan-dokter-t1-complete/form?kehamilan_id=${kehamilan.id}`);
     } finally {
       setCheckingT1(false);
     }
   };
 
-  const handleT3Click = async () => {
+  const handleT3Click = () => {
     if (!kehamilan) return;
     setCheckingT3(true);
-    try {
-      const data = await getDokterT3CompleteByKehamilanId(kehamilan.id);
-      if (data && data.dokter) {
-        navigate(`/data-ibu/${id}/pemeriksaan-dokter-t3-complete/detail?kehamilan_id=${kehamilan.id}`);
-      } else {
-        navigate(`/data-ibu/${id}/pemeriksaan-dokter-t3-complete/form?kehamilan_id=${kehamilan.id}`);
-      }
-    } catch (err) {
-      navigate(`/data-ibu/${id}/pemeriksaan-dokter-t3-complete/form?kehamilan_id=${kehamilan.id}`);
-    } finally {
-      setCheckingT3(false);
-    }
+    navigate(`/data-ibu/${id}/pemeriksaan-dokter-t3-complete`);
+    setCheckingT3(false);
   };
 
-  if (loading)
+  if (loading) {
     return (
       <MainLayout>
         <div className="min-h-screen flex items-center justify-center bg-[#F7FAFB]">
-          <div className="text-[#185FA5] text-sm">Memuat data...</div>
+          <Loader2 className="animate-spin text-[#185FA5]" size={32} />
+          <span className="ml-2 text-gray-500">Memuat data...</span>
         </div>
       </MainLayout>
     );
+  }
 
-  if (!ibu)
+  if (!ibu) {
     return (
       <MainLayout>
         <div className="min-h-screen flex items-center justify-center bg-[#F7FAFB]">
@@ -143,8 +219,9 @@ export default function IbuDetail() {
         </div>
       </MainLayout>
     );
+  }
 
-  if (error)
+  if (error && !kehamilan) {
     return (
       <MainLayout>
         <div className="min-h-screen bg-[#F7FAFB] p-4">
@@ -157,13 +234,14 @@ export default function IbuDetail() {
         </div>
       </MainLayout>
     );
+  }
 
-  if (!kehamilan)
+  if (!kehamilan) {
     return (
       <MainLayout>
         <div className="min-h-screen bg-[#F7FAFB] p-4">
           <div className="bg-[#FAEEDA] border-l-4 border-[#BA7517] p-3 text-[#633806] text-sm">
-            Belum ada data kehamilan.
+            {error || "Belum ada data kehamilan."}
           </div>
           <Link to="/data-ibu" className="text-[#185FA5] flex items-center gap-2 mt-3 text-sm">
             <ArrowLeft size={16} /> Kembali
@@ -171,11 +249,18 @@ export default function IbuDetail() {
         </div>
       </MainLayout>
     );
+  }
 
+  // 🔧 PERBAIKAN: Ambil data kependudukan dan suami dari response
   const kependudukan = ibu.kependudukan || {};
-  const suami = ibu.suami; // data suami dari API
+  const suami = ibu.suami;
+  
+  // 🔧 PERBAIKAN: Hitung usia dari tanggal lahir menggunakan fungsi yang sudah dibuat
+  const usiaIbu = hitungUsia(kependudukan.tanggal_lahir);
+  const tanggalLahirFormatted = formatTanggal(kependudukan.tanggal_lahir);
+  const hphtFormatted = formatTanggal(kehamilan.hpht);
+  const hplFormatted = formatTanggal(kehamilan.taksiran_persalinan);
   const usiaKehamilan = hitungUsiaKehamilan(kehamilan.hpht);
-  const formatDate = (dateStr) => (dateStr ? new Date(dateStr).toLocaleDateString("id-ID") : "-");
 
   const withKehamilan = (path) => `${path}?kehamilan_id=${kehamilan.id}`;
 
@@ -183,7 +268,7 @@ export default function IbuDetail() {
     <MainLayout>
       <div className="min-h-screen bg-[#F7FAFB]">
         <div className="max-w-7xl mx-auto p-4 space-y-4">
-          {/* Header dengan tombol navigasi primary dan badge informasi */}
+          {/* Header */}
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
             <Link
               to="/data-ibu"
@@ -196,11 +281,11 @@ export default function IbuDetail() {
             <div className="flex flex-wrap gap-2">
               <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-xl shadow-sm text-xs md:text-sm border border-gray-100">
                 <Calendar size={16} className="text-[#0F6E56]" />
-                <span className="text-gray-700">HPHT: <span className="font-semibold">{formatDate(kehamilan.hpht)}</span></span>
+                <span className="text-gray-700">HPHT: <span className="font-semibold">{hphtFormatted}</span></span>
               </div>
               <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-xl shadow-sm text-xs md:text-sm border border-gray-100">
                 <Target size={16} className="text-[#BA7517]" />
-                <span className="text-gray-700">HPL: <span className="font-semibold">{formatDate(kehamilan.taksiran_persalinan)}</span></span>
+                <span className="text-gray-700">HPL: <span className="font-semibold">{hplFormatted}</span></span>
               </div>
               <div className="flex items-center gap-2 bg-[#E1F5EE] px-4 py-2 rounded-xl text-xs md:text-sm border border-[#0F6E56]/20">
                 <Baby size={16} className="text-[#085041]" />
@@ -224,44 +309,63 @@ export default function IbuDetail() {
                 <span className="text-gray-800 text-sm">{kependudukan.nik || "-"}</span>
                 
                 <span className="text-gray-500 text-xs">Tanggal Lahir</span>
-                <span className="text-gray-800 text-sm">{kependudukan.tanggal_lahir || "-"} ({ibu.usia || 0} tahun)</span>
+                <span className="text-gray-800 text-sm">
+                  {tanggalLahirFormatted}
+                  {usiaIbu > 0 && (
+                    <span className="ml-1 text-gray-500 text-xs">({usiaIbu} tahun)</span>
+                  )}
+                  {usiaIbu === 0 && tanggalLahirFormatted !== "-" && (
+                    <span className="ml-1 text-yellow-600 text-xs flex items-center gap-1">
+                      <Info size={12} /> Periksa tanggal lahir
+                    </span>
+                  )}
+                </span>
                 
                 <span className="text-gray-500 text-xs">Golongan Darah</span>
-                <span className="text-gray-800 text-sm">{kependudukan.golongan_darah || "-"} {ibu.rhesus === "Positif" ? "(Rh+)" : ""}</span>
+                <span className="text-gray-800 text-sm">{kependudukan.golongan_darah || "-"}</span>
+                
+                <span className="text-gray-500 text-xs">Pekerjaan</span>
+                <span className="text-gray-800 text-sm">{kependudukan.pekerjaan || "-"}</span>
                 
                 <span className="text-gray-500 text-xs">Alamat</span>
                 <span className="text-gray-800 text-sm">{kependudukan.dusun || "-"}</span>
+                
+                {/* <span className="text-gray-500 text-xs">Gravida / Paritas</span>
+                <span className="text-gray-800 text-sm">G{ibu.gravida || 0} P{ibu.paritas || 0}</span> */}
               </div>
             </div>
 
-            {/* Card Data Suami - data dinamis dari API */}
+            {/* Card Data Suami */}
             <div className="bg-white shadow-sm rounded-xl p-4 border border-gray-100">
               <h2 className="text-base font-semibold text-[#0F6E56] flex items-center gap-2 mb-3">
                 <Heart size={18} /> Data Suami
               </h2>
-              <div className="grid grid-cols-2 gap-y-2 gap-x-3 text-sm">
-                <span className="text-gray-500 text-xs">Nama Lengkap</span>
-                <span className="font-medium text-gray-800 text-sm">{suami?.nama_lengkap || "-"}</span>
-                
-                <span className="text-gray-500 text-xs">NIK</span>
-                <span className="text-gray-800 text-sm">{suami?.nik || "-"}</span>
-                
-                <span className="text-gray-500 text-xs">Pekerjaan</span>
-                <span className="text-gray-800 text-sm">{suami?.pekerjaan || "-"}</span>
-                
-                <span className="text-gray-500 text-xs">Golongan Darah</span>
-                <span className="text-gray-800 text-sm">{suami?.golongan_darah || "-"}</span>
+              {suami ? (
+                <div className="grid grid-cols-2 gap-y-2 gap-x-3 text-sm">
+                  <span className="text-gray-500 text-xs">Nama Lengkap</span>
+                  <span className="font-medium text-gray-800 text-sm">{suami.nama_lengkap || "-"}</span>
+                  
+                  <span className="text-gray-500 text-xs">NIK</span>
+                  <span className="text-gray-800 text-sm">{suami.nik || "-"}</span>
+                  
+                  <span className="text-gray-500 text-xs">Pekerjaan</span>
+                  <span className="text-gray-800 text-sm">{suami.pekerjaan || "-"}</span>
+                  
+                  <span className="text-gray-500 text-xs">Golongan Darah</span>
+                  <span className="text-gray-800 text-sm">{suami.golongan_darah || "-"}</span>
 
-                <span className="text-gray-500 text-xs">Alamat</span>
-                <span className="text-gray-800 text-sm">{suami?.dusun || "-"}</span>
-              </div>
-              {!suami && (
-                <div className="mt-3 text-xs text-gray-400 italic">Data suami tidak tersedia</div>
+                  <span className="text-gray-500 text-xs">Alamat</span>
+                  <span className="text-gray-800 text-sm">{suami.dusun || "-"}</span>
+                </div>
+              ) : (
+                <div className="text-center py-4 text-gray-400 text-sm italic">
+                  Data suami tidak tersedia
+                </div>
               )}
             </div>
           </div>
 
-          {/* Jalur Pelayanan KIA */}
+          {/* Jalur Pelayanan KIA - tetap sama */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             {/* Skrining & Evaluasi */}
             <div className="bg-white shadow-sm rounded-xl overflow-hidden border border-gray-100">
@@ -310,16 +414,18 @@ export default function IbuDetail() {
                   <button 
                     onClick={handleT1Click} 
                     disabled={checkingT1}
-                    className="w-full flex items-center gap-2 p-2.5 rounded-lg border border-[#185FA5] text-[#185FA5] text-sm font-semibold hover:bg-[#185FA5]/5 disabled:opacity-50 transition"
+                    className="w-full flex items-center justify-center gap-2 p-2.5 rounded-lg border border-[#185FA5] text-[#185FA5] text-sm font-semibold hover:bg-[#185FA5]/5 disabled:opacity-50 transition"
                   >
-                    {checkingT1 ? <Loader2 size={14} className="animate-spin" /> : <UserPlus size={14} />} Trimester 1
+                    {checkingT1 ? <Loader2 size={14} className="animate-spin" /> : <UserPlus size={14} />} 
+                    Trimester 1
                   </button>
                   <button 
                     onClick={handleT3Click} 
                     disabled={checkingT3}
-                    className="w-full flex items-center gap-2 p-2.5 rounded-lg border border-[#185FA5] text-[#185FA5] text-sm font-semibold hover:bg-[#185FA5]/5 disabled:opacity-50 transition"
+                    className="w-full flex items-center justify-center gap-2 p-2.5 rounded-lg border border-[#185FA5] text-[#185FA5] text-sm font-semibold hover:bg-[#185FA5]/5 disabled:opacity-50 transition"
                   >
-                    {checkingT3 ? <Loader2 size={14} className="animate-spin" /> : <UserPlus size={14} />} Trimester 3
+                    {checkingT3 ? <Loader2 size={14} className="animate-spin" /> : <UserPlus size={14} />} 
+                    Trimester 3
                   </button>
                 </div>
               </div>

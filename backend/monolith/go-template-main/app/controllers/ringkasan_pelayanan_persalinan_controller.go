@@ -1,9 +1,9 @@
-// app/controllers/ringkasan_pelayanan_persalinan_controller.go
 package controllers
 
 import (
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"monitoring-service/app/models"
@@ -13,46 +13,125 @@ import (
 )
 
 type RingkasanPelayananPersalinanController struct {
-	usecase usecases.RingkasanPelayananPersalinanUsecase
+	usecase        usecases.RingkasanPelayananPersalinanUsecase
+	riwayatUsecase usecases.RiwayatProsesMelahirkanUsecase
 }
 
-func NewRingkasanPelayananPersalinanController(u usecases.RingkasanPelayananPersalinanUsecase) *RingkasanPelayananPersalinanController {
-	return &RingkasanPelayananPersalinanController{usecase: u}
+// NewRingkasanPelayananPersalinanController sekarang menerima RiwayatProsesMelahirkanUsecase
+func NewRingkasanPelayananPersalinanController(
+	u usecases.RingkasanPelayananPersalinanUsecase,
+	ru usecases.RiwayatProsesMelahirkanUsecase,
+) *RingkasanPelayananPersalinanController {
+	return &RingkasanPelayananPersalinanController{usecase: u, riwayatUsecase: ru}
 }
 
 type createRingkasanRequest struct {
-	KehamilanID                      int32  `json:"kehamilan_id"`
-	TanggalMelahirkan                string `json:"tanggal_melahirkan"`
-	PukulMelahirkan                  string `json:"pukul_melahirkan"`
-	UmurKehamilanMinggu              int    `json:"umur_kehamilan_minggu"`
-	PenolongProsesMelahirkan         string `json:"penolong_proses_melahirkan"`
-	CaraMelahirkan                   string `json:"cara_melahirkan"`
-	KeadaanIbu                       string `json:"keadaan_ibu"`
-	KeadaanIbuDetailSakit            string `json:"keadaan_ibu_detail_sakit"`
-	KBPascaMelahirkan                string `json:"kb_pasca_melahirkan"`
+	KehamilanID                      int32    `json:"kehamilan_id"`
+	TanggalMelahirkan                string   `json:"tanggal_melahirkan"`
+	PukulMelahirkan                  string   `json:"pukul_melahirkan"`
+	UmurKehamilanMinggu              int      `json:"umur_kehamilan_minggu"`
+	PenolongProsesMelahirkan         string   `json:"penolong_proses_melahirkan"`
+	CaraMelahirkan                   string   `json:"cara_melahirkan"`
+	KeadaanIbu                       string   `json:"keadaan_ibu"`
+	KeadaanIbuDetailSakit            string   `json:"keadaan_ibu_detail_sakit"`
+	KBPascaMelahirkan                string   `json:"kb_pasca_melahirkan"`
 	KeteranganTambahanIbu            string   `json:"keterangan_tambahan_ibu"`
 	BayiAnakKe                       int      `json:"bayi_anak_ke"`
 	BayiBeratLahirGram               *float64 `json:"bayi_berat_lahir_gram"`
 	BayiPanjangBadanCm               *float64 `json:"bayi_panjang_badan_cm"`
 	BayiLingkarKepalaCm              *float64 `json:"bayi_lingkar_kepala_cm"`
 	BayiJenisKelamin                 string   `json:"bayi_jenis_kelamin"`
-	KondisiBayiSegeraMenangis        bool   `json:"kondisi_bayi_segera_menangis"`
-	KondisiBayiMenangisBeberapaSaat  bool   `json:"kondisi_bayi_menangis_beberapa_saat"`
-	KondisiBayiTidakMenangis         bool   `json:"kondisi_bayi_tidak_menangis"`
-	KondisiBayiSeluruhTubuhKemerahan bool   `json:"kondisi_bayi_seluruh_tubuh_kemerahan"`
-	KondisiBayiAnggotaGerakKebiruan  bool   `json:"kondisi_bayi_anggota_gerak_kebiruan"`
-	KondisiBayiSeluruhTubuhBiru      bool   `json:"kondisi_bayi_seluruh_tubuh_biru"`
-	KondisiBayiKelainanBawaan        bool   `json:"kondisi_bayi_kelainan_bawaan"`
-	KondisiBayiKelainanBawaanDetail  string `json:"kondisi_bayi_kelainan_bawaan_detail"`
-	KondisiBayiMeninggal             bool   `json:"kondisi_bayi_meninggal"`
-	AsuhanIMD1JamPertama             bool   `json:"asuhan_imd_1_jam_pertama"`
-	AsuhanSuntikanVitaminK1          bool   `json:"asuhan_suntikan_vitamin_k1"`
-	AsuhanSalepMataAntibiotika       bool   `json:"asuhan_salep_mata_antibiotika"`
-	AsuhanImunisasiHB0               bool   `json:"asuhan_imunisasi_hb0"`
-	KeteranganTambahanBayi           string `json:"keterangan_tambahan_bayi"`
-	Gravida                          int    `json:"gravida"`
-	Paritas                          int    `json:"paritas"`
-	Abortus                          int    `json:"abortus"`
+	KondisiBayiSegeraMenangis        bool     `json:"kondisi_bayi_segera_menangis"`
+	KondisiBayiMenangisBeberapaSaat  bool     `json:"kondisi_bayi_menangis_beberapa_saat"`
+	KondisiBayiTidakMenangis         bool     `json:"kondisi_bayi_tidak_menangis"`
+	KondisiBayiSeluruhTubuhKemerahan bool     `json:"kondisi_bayi_seluruh_tubuh_kemerahan"`
+	KondisiBayiAnggotaGerakKebiruan  bool     `json:"kondisi_bayi_anggota_gerak_kebiruan"`
+	KondisiBayiSeluruhTubuhBiru      bool     `json:"kondisi_bayi_seluruh_tubuh_biru"`
+	KondisiBayiKelainanBawaan        bool     `json:"kondisi_bayi_kelainan_bawaan"`
+	KondisiBayiKelainanBawaanDetail  string   `json:"kondisi_bayi_kelainan_bawaan_detail"`
+	KondisiBayiMeninggal             bool     `json:"kondisi_bayi_meninggal"`
+	AsuhanIMD1JamPertama             bool     `json:"asuhan_imd_1_jam_pertama"`
+	AsuhanSuntikanVitaminK1          bool     `json:"asuhan_suntikan_vitamin_k1"`
+	AsuhanSalepMataAntibiotika       bool     `json:"asuhan_salep_mata_antibiotika"`
+	AsuhanImunisasiHB0               bool     `json:"asuhan_imunisasi_hb0"`
+	KeteranganTambahanBayi           string   `json:"keterangan_tambahan_bayi"`
+	Gravida                          int      `json:"gravida"`
+	Paritas                          int      `json:"paritas"`
+	Abortus                          int      `json:"abortus"`
+}
+
+// sinkronisasiRiwayat menyamakan data Ringkasan ke RiwayatProsesMelahirkan
+func (c *RingkasanPelayananPersalinanController) sinkronisasiRiwayat(ringkasan *models.RingkasanPelayananPersalinan) error {
+	// Cari riwayat existing untuk kehamilan ini
+	riwayatList, err := c.riwayatUsecase.GetByKehamilanID(ringkasan.KehamilanID)
+	if err != nil || len(riwayatList) == 0 {
+		// Buat baru
+		riwayatBaru := &models.RiwayatProsesMelahirkan{
+			KehamilanID: ringkasan.KehamilanID,
+			GGravida:    ringkasan.Gravida,
+			PPartus:     ringkasan.Paritas,
+			AAbortus:    ringkasan.Abortus,
+		}
+		if ringkasan.TanggalMelahirkan != nil {
+			riwayatBaru.TanggalMelahirkan = ringkasan.TanggalMelahirkan
+		}
+		// mapping cara melahirkan ke bool
+		if strings.Contains(strings.ToLower(ringkasan.CaraMelahirkan), "spontan") || strings.Contains(strings.ToLower(ringkasan.CaraMelahirkan), "normal") {
+			riwayatBaru.CaraMelahirkanSpontan = true
+		} else if strings.Contains(strings.ToLower(ringkasan.CaraMelahirkan), "sc") || strings.Contains(strings.ToLower(ringkasan.CaraMelahirkan), "caesar") {
+			riwayatBaru.TindakanSC = true
+		} else if strings.Contains(strings.ToLower(ringkasan.CaraMelahirkan), "vakum") {
+			riwayatBaru.TindakanEkstraksiVakum = true
+		}
+		// penolong
+		if strings.Contains(strings.ToLower(ringkasan.PenolongProsesMelahirkan), "bidan") {
+			riwayatBaru.PenolongBidan = true
+		} else if strings.Contains(strings.ToLower(ringkasan.PenolongProsesMelahirkan), "dokter spesialis") {
+			riwayatBaru.PenolongDokterSpesialis = true
+		} else if strings.Contains(strings.ToLower(ringkasan.PenolongProsesMelahirkan), "dokter") {
+			riwayatBaru.PenolongDokter = true
+		}
+		return c.riwayatUsecase.Create(riwayatBaru)
+	} else {
+		// Update yang sudah ada (ambil record pertama)
+		riwayat := &riwayatList[0]
+		if ringkasan.Gravida > 0 {
+			riwayat.GGravida = ringkasan.Gravida
+		}
+		if ringkasan.Paritas > 0 {
+			riwayat.PPartus = ringkasan.Paritas
+		}
+		if ringkasan.Abortus > 0 {
+			riwayat.AAbortus = ringkasan.Abortus
+		}
+		if ringkasan.TanggalMelahirkan != nil {
+			riwayat.TanggalMelahirkan = ringkasan.TanggalMelahirkan
+		}
+		// reset bool dulu lalu set sesuai cara melahirkan terbaru
+		riwayat.CaraMelahirkanSpontan = false
+		riwayat.CaraMelahirkanSungsang = false
+		riwayat.TindakanEkstraksiVakum = false
+		riwayat.TindakanSC = false
+		if strings.Contains(strings.ToLower(ringkasan.CaraMelahirkan), "spontan") || strings.Contains(strings.ToLower(ringkasan.CaraMelahirkan), "normal") {
+			riwayat.CaraMelahirkanSpontan = true
+		} else if strings.Contains(strings.ToLower(ringkasan.CaraMelahirkan), "sc") || strings.Contains(strings.ToLower(ringkasan.CaraMelahirkan), "caesar") {
+			riwayat.TindakanSC = true
+		} else if strings.Contains(strings.ToLower(ringkasan.CaraMelahirkan), "vakum") {
+			riwayat.TindakanEkstraksiVakum = true
+		}
+		// penolong
+		riwayat.PenolongDokterSpesialis = false
+		riwayat.PenolongDokter = false
+		riwayat.PenolongBidan = false
+		if strings.Contains(strings.ToLower(ringkasan.PenolongProsesMelahirkan), "bidan") {
+			riwayat.PenolongBidan = true
+		} else if strings.Contains(strings.ToLower(ringkasan.PenolongProsesMelahirkan), "dokter spesialis") {
+			riwayat.PenolongDokterSpesialis = true
+		} else if strings.Contains(strings.ToLower(ringkasan.PenolongProsesMelahirkan), "dokter") {
+			riwayat.PenolongDokter = true
+		}
+		return c.riwayatUsecase.Update(riwayat)
+	}
 }
 
 func (c *RingkasanPelayananPersalinanController) Create(ctx echo.Context) error {
@@ -92,6 +171,9 @@ func (c *RingkasanPelayananPersalinanController) Create(ctx echo.Context) error 
 		AsuhanSalepMataAntibiotika:       req.AsuhanSalepMataAntibiotika,
 		AsuhanImunisasiHB0:               req.AsuhanImunisasiHB0,
 		KeteranganTambahanBayi:           req.KeteranganTambahanBayi,
+		Gravida:                          req.Gravida,
+		Paritas:                          req.Paritas,
+		Abortus:                          req.Abortus,
 	}
 	if req.TanggalMelahirkan != "" {
 		if t, err := time.Parse("2006-01-02", req.TanggalMelahirkan); err == nil {
@@ -105,6 +187,10 @@ func (c *RingkasanPelayananPersalinanController) Create(ctx echo.Context) error 
 	}
 	if err := c.usecase.Create(r); err != nil {
 		return ctx.JSON(http.StatusInternalServerError, models.Response{StatusCode: http.StatusInternalServerError, Message: err.Error()})
+	}
+	// Sinkronisasi ke Riwayat
+	if err := c.sinkronisasiRiwayat(r); err != nil {
+		// Log error, tapi tidak perlu gagalkan response
 	}
 	return ctx.JSON(http.StatusCreated, models.Response{StatusCode: http.StatusCreated, Data: r})
 }
@@ -193,7 +279,6 @@ func (c *RingkasanPelayananPersalinanController) Update(ctx echo.Context) error 
 	if req.BayiJenisKelamin != "" {
 		existing.BayiJenisKelamin = req.BayiJenisKelamin
 	}
-	// Boolean fields (langsung assign)
 	existing.KondisiBayiSegeraMenangis = req.KondisiBayiSegeraMenangis
 	existing.KondisiBayiMenangisBeberapaSaat = req.KondisiBayiMenangisBeberapaSaat
 	existing.KondisiBayiTidakMenangis = req.KondisiBayiTidakMenangis
@@ -212,52 +297,41 @@ func (c *RingkasanPelayananPersalinanController) Update(ctx echo.Context) error 
 	if req.KeteranganTambahanBayi != "" {
 		existing.KeteranganTambahanBayi = req.KeteranganTambahanBayi
 	}
+	existing.Gravida = req.Gravida
+	existing.Paritas = req.Paritas
+	existing.Abortus = req.Abortus
+
 	if err := c.usecase.Update(existing); err != nil {
 		return ctx.JSON(http.StatusInternalServerError, models.Response{StatusCode: http.StatusInternalServerError, Message: err.Error()})
+	}
+	// Sinkronisasi ke Riwayat
+	if err := c.sinkronisasiRiwayat(existing); err != nil {
+		// optional error log
 	}
 	return ctx.JSON(http.StatusOK, models.Response{StatusCode: http.StatusOK, Data: existing})
 }
 
-func (c *RingkasanPelayananPersalinanController) GetMine(
-	ctx echo.Context,
-) error {
-
+// GetMine tetap seperti semula
+func (c *RingkasanPelayananPersalinanController) GetMine(ctx echo.Context) error {
 	claims, ok := ctx.Get("auth_claims").(*models.AuthClaims)
-
 	if !ok || claims == nil {
-		return ctx.JSON(
-			http.StatusUnauthorized,
-			models.Response{
-				StatusCode: http.StatusUnauthorized,
-				Message:    "Unauthorized",
-			},
-		)
+		return ctx.JSON(http.StatusUnauthorized, models.Response{
+			StatusCode: http.StatusUnauthorized,
+			Message:    "Unauthorized",
+		})
 	}
-
 	userID := claims.UserID
-
-	data, err := c.usecase.GetMine(
-		ctx.Request().Context(),
-		userID,
-	)
-
+	data, err := c.usecase.GetMine(ctx.Request().Context(), userID)
 	if err != nil {
-		return ctx.JSON(
-			http.StatusInternalServerError,
-			models.Response{
-				StatusCode: http.StatusInternalServerError,
-				Message:    err.Error(),
-			},
-		)
+		return ctx.JSON(http.StatusInternalServerError, models.Response{
+			StatusCode: http.StatusInternalServerError,
+			Message:    err.Error(),
+		})
 	}
-
-	return ctx.JSON(
-		http.StatusOK,
-		models.Response{
-			StatusCode: http.StatusOK,
-			Data:       data,
-		},
-	)
+	return ctx.JSON(http.StatusOK, models.Response{
+		StatusCode: http.StatusOK,
+		Data:       data,
+	})
 }
 
 func (c *RingkasanPelayananPersalinanController) Delete(ctx echo.Context) error {

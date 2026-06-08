@@ -70,3 +70,45 @@ func (r *AbsensiKelasIbuHamilRepository) Upsert(
 
 	return err
 }
+
+
+
+// BAGIAN KADER
+
+
+// func (r *AbsensiKelasIbuHamilRepository) FindAllWithIbu() ([]models.AbsensiKelasIbuHamil, error) {
+// 	var list []models.AbsensiKelasIbuHamil
+// 	err := r.db.
+// 		Preload("Kehamilan").
+// 		Preload("Kehamilan.Ibu").
+// 		Preload("Kehamilan.Ibu.Kependudukan").
+// 		Order("created_at DESC").
+// 		Find(&list).Error
+// 	return list, err
+// }
+
+func (r *AbsensiKelasIbuHamilRepository) FindAllWithIbu() ([]models.AbsensiKelasIbuHamil, error) {
+    var list []models.AbsensiKelasIbuHamil
+    err := r.db.
+        Preload("Kehamilan").
+        Preload("Kehamilan.Ibu").
+        Preload("Kehamilan.Ibu.Kependudukan").
+        Order("created_at DESC").
+        Find(&list).Error
+    return list, err
+}
+ 
+// FindByID mengambil satu data absensi berdasarkan ID.
+func (r *AbsensiKelasIbuHamilRepository) FindByID(id int32) (*models.AbsensiKelasIbuHamil, error) {
+	var data models.AbsensiKelasIbuHamil
+	err := r.db.First(&data, id).Error
+	if err != nil {
+		return nil, err
+	}
+	return &data, nil
+}
+ 
+// Update menyimpan perubahan pada data absensi (dipakai saat verifikasi).
+func (r *AbsensiKelasIbuHamilRepository) Update(data *models.AbsensiKelasIbuHamil) error {
+	return r.db.Save(data).Error
+}

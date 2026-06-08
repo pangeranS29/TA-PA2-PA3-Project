@@ -4,6 +4,11 @@ class BblCheckModel {
   final String periodeWaktu;
   final bool statusPemeriksaan;
   final DateTime? tanggalSubmit;
+  final bool isVerified;
+  final String status;
+  final DateTime? verifiedAt;
+  final int? verifiedByKaderId;
+  final String? namaKaderVerifikasi;
 
   BblCheckModel({
     required this.id,
@@ -11,9 +16,23 @@ class BblCheckModel {
     required this.periodeWaktu,
     required this.statusPemeriksaan,
     this.tanggalSubmit,
+    this.isVerified = false,
+    this.status = 'Menunggu verifikasi',
+    this.verifiedAt,
+    this.verifiedByKaderId,
+    this.namaKaderVerifikasi,
   });
 
   factory BblCheckModel.fromJson(Map<String, dynamic> json) {
+    String? namaKader;
+    if (json['verified_by_kader'] != null) {
+      final kader = json['verified_by_kader'] as Map<String, dynamic>;
+      if (kader['penduduk'] != null) {
+        final penduduk = kader['penduduk'] as Map<String, dynamic>;
+        namaKader = penduduk['nama_lengkap'] as String?;
+      }
+    }
+
     return BblCheckModel(
       id: (json['id'] ?? 0) as int,
       bblId: (json['bbl_id'] ?? 0) as int,
@@ -22,6 +41,13 @@ class BblCheckModel {
       tanggalSubmit: json['tanggal_submit'] != null
           ? DateTime.parse(json['tanggal_submit'] as String)
           : null,
+      isVerified: json['is_verified'] == true,
+      status: (json['status'] ?? 'Menunggu verifikasi') as String,
+      verifiedAt: json['verified_at'] != null
+          ? DateTime.parse(json['verified_at'] as String)
+          : null,
+      verifiedByKaderId: json['verified_by_kader_id'] as int?,
+      namaKaderVerifikasi: namaKader,
     );
   }
 
@@ -39,20 +65,12 @@ class BblModel {
   final int id;
   final int anakId;
   final List<BblCheckModel> checklist;
-  final bool isVerified;
-  final DateTime? verifiedAt;
-  final int? verifiedByKaderId;
-  final String? namaKaderVerifikasi;
   final String? namaAnak;
 
   BblModel({
     required this.id,
     required this.anakId,
     required this.checklist,
-    this.isVerified = false,
-    this.verifiedAt,
-    this.verifiedByKaderId,
-    this.namaKaderVerifikasi,
     this.namaAnak,
   });
 
@@ -63,16 +81,6 @@ class BblModel {
       checklistData = (json['checklist'] as List)
           .map((e) => BblCheckModel.fromJson(e as Map<String, dynamic>))
           .toList();
-    }
-
-    // Extract nama kader dari nested relation
-    String? namaKader;
-    if (json['verified_by_kader'] != null) {
-      final kader = json['verified_by_kader'] as Map<String, dynamic>;
-      if (kader['penduduk'] != null) {
-        final penduduk = kader['penduduk'] as Map<String, dynamic>;
-        namaKader = penduduk['nama_lengkap'] as String?;
-      }
     }
 
     String? namaAnakStr;
@@ -91,12 +99,6 @@ class BblModel {
       id: (json['id'] ?? 0) as int,
       anakId: (json['anak_id'] ?? 0) as int,
       checklist: checklistData,
-      isVerified: json['is_verified'] == true,
-      verifiedAt: json['verified_at'] != null
-          ? DateTime.parse(json['verified_at'] as String)
-          : null,
-      verifiedByKaderId: json['verified_by_kader_id'] as int?,
-      namaKaderVerifikasi: namaKader,
       namaAnak: namaAnakStr,
     );
   }

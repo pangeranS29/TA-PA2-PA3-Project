@@ -11,6 +11,7 @@ type AbsensiKelasIbuBalita struct {
 	Tanggal      *time.Time `gorm:"type:date" json:"tanggal"`
 	NamaKader    string     `gorm:"type:varchar(255)" json:"nama_kader"`
 	TanggalParaf *time.Time `gorm:"type:date" json:"tanggal_paraf"`
+	Status       string     `gorm:"type:varchar(50);default:'Menunggu Verifikasi'" json:"status"`
 
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
