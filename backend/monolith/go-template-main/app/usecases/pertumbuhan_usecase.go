@@ -27,19 +27,17 @@ func hitungZScore(aktual float64, standar *models.MasterStandarAntropometri) flo
 
 	var sd float64
 	if aktual < standar.Median {
-		// SD = (Median - SD_2_Neg) / 2
 		sd = (standar.Median - standar.SD2Neg) / 2
 	} else {
-		// SD = (SD_2_Pos - Median) / 2
 		sd = (standar.SD2Pos - standar.Median) / 2
 	}
 
 	if sd == 0 {
-		return 0 // Mencegah division by zero
+		return 0
 	}
 
 	zScore := (aktual - standar.Median) / sd
-	return math.Round(zScore*100) / 100 // Round 2 decimal
+	return math.Round(zScore*100) / 100
 }
 
 // Interpretasi Status Gizi
@@ -337,10 +335,8 @@ func (m *Main) AddCatatanPertumbuhan(req *models.CreatePertumbuhanRequest) error
 		CatatanNakes:  req.CatatanNakes,
 	}
 
-	// Hitung IMT (tidak perlu data anak)
 	catatan.IMT = catatan.HitungIMT()
 
-	// Hitung usia dan Z-score HANYA jika data Penduduk lengkap
 	rawTanggalLahir, rawGender, extractErr := extractAnakTanggalLahirDanGender(dataAnak)
 	if extractErr == nil && rawTanggalLahir != "" && rawGender != "" {
 		tanggalLahir, parseErr := parseTanggalLahir(rawTanggalLahir)
@@ -373,9 +369,11 @@ func (m *Main) AddCatatanPertumbuhan(req *models.CreatePertumbuhanRequest) error
 	return nil
 }
 
-
-// GetPertumbuhanChart returns riwayat + standar data for the frontend GrowthChart component.
-// Response shape: { riwayat: [...], standar_bb_u: [...], standar_tb_u: [...] }
+// =============================================================================
+// GRAFIK CHART — ENDPOINT LAMA (DEPRECATED, tetap berjalan untuk backward compat)
+// GetPertumbuhanChart returns riwayat + standar bb_u + standar tb_u (response gabungan)
+// Gunakan endpoint per-kategori di bawah untuk integrasi baru.
+// =============================================================================
 func (m *Main) GetPertumbuhanChart(anakID uint) (map[string]interface{}, error) {
 	dataAnak, err := m.repository.GetAnakByID(anakID)
 	if err != nil {
@@ -418,6 +416,288 @@ func (m *Main) GetPertumbuhanChart(anakID uint) (map[string]interface{}, error) 
 		"riwayat":      riwayatList,
 		"standar_bb_u": standarBBU,
 		"standar_tb_u": standarTBU,
+	}, nil
+}
+
+// =============================================================================
+// GRAFIK CHART — ENDPOINT BARU PER KATEGORI
+// =============================================================================
+
+// riwayatChartBase adalah data riwayat dasar yang dipakai di semua chart
+type riwayatChartBase struct {
+	ID            uint    `json:"id"`
+	AnakID        int32   `json:"anak_id"`
+	TglUkur       string  `json:"tgl_ukur"`
+	UsiaUkurBulan int     `json:"usia_ukur_bulan"`
+	UsiaUkurYM    string  `json:"usia_ukur_tahun_bulan"`
+	BeratBadan    float64 `json:"berat_badan"`
+	TinggiBadan   float64 `json:"tinggi_badan"`
+}
+
+// GetChartBBTB mengembalikan data grafik Berat Badan/Tinggi Badan
+// GET /pertumbuhan/chart/bb-tb/:anak_id
+func (m *Main) GetChartBBTB(anakID uint) (map[string]interface{}, error) {
+	dataAnak, err := m.repository.GetAnakByID(anakID)
+	if err != nil {
+		return nil, err
+	}
+
+	_, rawGender, err := extractAnakTanggalLahirDanGender(dataAnak)
+	if err != nil {
+		return nil, err
+	}
+	gender := sanitizeGender(rawGender)
+	genderNorm := normalizeGenderStr(gender)
+
+	riwayat, _ := m.repository.GetRiwayatPertumbuhanByAnakID(anakID)
+
+	type ItemBBTB struct {
+		riwayatChartBase
+		ZScoreBBTB float64 `json:"z_score_bb_tb"`
+		StatusBBTB string  `json:"status_bb_tb"`
+	}
+
+	list := make([]ItemBBTB, 0, len(riwayat))
+	for _, r := range riwayat {
+		item := ItemBBTB{
+			riwayatChartBase: riwayatChartBase{
+				ID:            uint(r.ID),
+				AnakID:        r.AnakID,
+				TglUkur:       r.TglUkur.Format("2006-01-02"),
+				UsiaUkurBulan: r.UsiaUkurBulan,
+				UsiaUkurYM:    fmt.Sprintf("%d:%d", r.UsiaUkurBulan/12, r.UsiaUkurBulan%12),
+				BeratBadan:    r.BeratBadan,
+				TinggiBadan:   r.TinggiBadan,
+			},
+			ZScoreBBTB: r.ZScoreBBTB,
+			StatusBBTB: r.StatusBBTB,
+		}
+		// Recalculate jika z_score belum tersimpan (misal data lama)
+		if r.ZScoreBBTB == 0 {
+			std, _ := m.repository.GetStandarAntropometri(ParamBBTB, gender, r.TinggiBadan)
+			if std != nil {
+				item.ZScoreBBTB = hitungZScore(r.BeratBadan, std)
+				item.StatusBBTB = interpretasiStatusBBTB(item.ZScoreBBTB)
+			}
+		}
+		list = append(list, item)
+	}
+
+	standar, _ := m.repository.GetMasterStandarByFilter(ParamBBTB, genderNorm)
+
+	return map[string]interface{}{
+		"kategori":       "BB/TB",
+		"deskripsi":      "Berat Badan menurut Tinggi Badan",
+		"riwayat":        list,
+		"standar_bb_tb":  standar,
+	}, nil
+}
+
+// GetChartBBU mengembalikan data grafik Berat Badan/Umur
+// GET /pertumbuhan/chart/bb-u/:anak_id
+func (m *Main) GetChartBBU(anakID uint) (map[string]interface{}, error) {
+	dataAnak, err := m.repository.GetAnakByID(anakID)
+	if err != nil {
+		return nil, err
+	}
+
+	_, rawGender, err := extractAnakTanggalLahirDanGender(dataAnak)
+	if err != nil {
+		return nil, err
+	}
+	gender := sanitizeGender(rawGender)
+	genderNorm := normalizeGenderStr(gender)
+
+	riwayat, _ := m.repository.GetRiwayatPertumbuhanByAnakID(anakID)
+
+	type ItemBBU struct {
+		riwayatChartBase
+		ZScoreBBU  float64 `json:"z_score_bb_u"`
+		StatusBBU  string  `json:"status_bb_u"`
+		// KMS fields
+		StatusKMSNaik string  `json:"status_kms_naik,omitempty"`
+		StatusKMSBGM  string  `json:"status_kms_bgm,omitempty"`
+		KBMMinGram    int     `json:"kbm_min_gram,omitempty"`
+		KenaikanGram  float64 `json:"kenaikan_bb_gram,omitempty"`
+		StatusKMSInfo string  `json:"status_kms_info,omitempty"`
+	}
+
+	list := make([]ItemBBU, 0, len(riwayat))
+	var prev *models.CatatanPertumbuhan
+	for _, r := range riwayat {
+		zScore := r.ZScoreBBU
+		status := r.StatusBBU
+
+		// Recalculate jika z_score belum tersimpan
+		if zScore == 0 {
+			std, _ := m.repository.GetStandarAntropometri(ParamBBU, gender, float64(r.UsiaUkurBulan))
+			if std != nil {
+				zScore = hitungZScore(r.BeratBadan, std)
+				status = interpretasiStatusBBU(zScore)
+			}
+		}
+
+		stdBBU, _ := m.repository.GetStandarAntropometri(ParamBBU, gender, float64(r.UsiaUkurBulan))
+		statusNaik, statusBGM, kbmMin, kenaikan, statusInfo := hitungKMSStatus(r, prev, stdBBU)
+
+		item := ItemBBU{
+			riwayatChartBase: riwayatChartBase{
+				ID:            uint(r.ID),
+				AnakID:        r.AnakID,
+				TglUkur:       r.TglUkur.Format("2006-01-02"),
+				UsiaUkurBulan: r.UsiaUkurBulan,
+				UsiaUkurYM:    fmt.Sprintf("%d:%d", r.UsiaUkurBulan/12, r.UsiaUkurBulan%12),
+				BeratBadan:    r.BeratBadan,
+				TinggiBadan:   r.TinggiBadan,
+			},
+			ZScoreBBU:     zScore,
+			StatusBBU:     status,
+			StatusKMSNaik: statusNaik,
+			StatusKMSBGM:  statusBGM,
+			KBMMinGram:    kbmMin,
+			KenaikanGram:  kenaikan,
+			StatusKMSInfo: statusInfo,
+		}
+		list = append(list, item)
+
+		cur := r
+		prev = &cur
+	}
+
+	standar, _ := m.repository.GetMasterStandarByFilter(ParamBBU, genderNorm)
+
+	return map[string]interface{}{
+		"kategori":     "BB/U",
+		"deskripsi":    "Berat Badan menurut Umur",
+		"riwayat":      list,
+		"standar_bb_u": standar,
+	}, nil
+}
+
+// GetChartTBU mengembalikan data grafik Tinggi Badan/Umur
+// GET /pertumbuhan/chart/tb-u/:anak_id
+func (m *Main) GetChartTBU(anakID uint) (map[string]interface{}, error) {
+	dataAnak, err := m.repository.GetAnakByID(anakID)
+	if err != nil {
+		return nil, err
+	}
+
+	_, rawGender, err := extractAnakTanggalLahirDanGender(dataAnak)
+	if err != nil {
+		return nil, err
+	}
+	gender := sanitizeGender(rawGender)
+	genderNorm := normalizeGenderStr(gender)
+
+	riwayat, _ := m.repository.GetRiwayatPertumbuhanByAnakID(anakID)
+
+	type ItemTBU struct {
+		riwayatChartBase
+		ZScoreTBU float64 `json:"z_score_tb_u"`
+		StatusTBU string  `json:"status_tb_u"`
+	}
+
+	list := make([]ItemTBU, 0, len(riwayat))
+	for _, r := range riwayat {
+		zScore := r.ZScoreTBU
+		status := r.StatusTBU
+
+		// Recalculate jika z_score belum tersimpan
+		if zScore == 0 {
+			std, _ := m.repository.GetStandarAntropometri(ParamTBU, gender, float64(r.UsiaUkurBulan))
+			if std != nil {
+				zScore = hitungZScore(r.TinggiBadan, std)
+				status = interpretasiStatusTBU(zScore)
+			}
+		}
+
+		list = append(list, ItemTBU{
+			riwayatChartBase: riwayatChartBase{
+				ID:            uint(r.ID),
+				AnakID:        r.AnakID,
+				TglUkur:       r.TglUkur.Format("2006-01-02"),
+				UsiaUkurBulan: r.UsiaUkurBulan,
+				UsiaUkurYM:    fmt.Sprintf("%d:%d", r.UsiaUkurBulan/12, r.UsiaUkurBulan%12),
+				BeratBadan:    r.BeratBadan,
+				TinggiBadan:   r.TinggiBadan,
+			},
+			ZScoreTBU: zScore,
+			StatusTBU: status,
+		})
+	}
+
+	standar, _ := m.repository.GetMasterStandarByFilter(ParamTBU, genderNorm)
+
+	return map[string]interface{}{
+		"kategori":     "TB/U",
+		"deskripsi":    "Tinggi Badan menurut Umur",
+		"riwayat":      list,
+		"standar_tb_u": standar,
+	}, nil
+}
+
+// GetChartIMTU mengembalikan data grafik Indeks Massa Tubuh/Umur
+// GET /pertumbuhan/chart/imt-u/:anak_id
+func (m *Main) GetChartIMTU(anakID uint) (map[string]interface{}, error) {
+	dataAnak, err := m.repository.GetAnakByID(anakID)
+	if err != nil {
+		return nil, err
+	}
+
+	_, rawGender, err := extractAnakTanggalLahirDanGender(dataAnak)
+	if err != nil {
+		return nil, err
+	}
+	gender := sanitizeGender(rawGender)
+	genderNorm := normalizeGenderStr(gender)
+
+	riwayat, _ := m.repository.GetRiwayatPertumbuhanByAnakID(anakID)
+
+	type ItemIMTU struct {
+		riwayatChartBase
+		IMT        float64 `json:"imt"`
+		ZScoreIMTU float64 `json:"z_score_imt_u"`
+		StatusIMTU string  `json:"status_imt_u"`
+	}
+
+	list := make([]ItemIMTU, 0, len(riwayat))
+	for _, r := range riwayat {
+		zScore := r.ZScoreIMTU
+		status := r.StatusIMTU
+		imt := math.Round(r.IMT*100) / 100
+
+		// Recalculate jika z_score belum tersimpan
+		if zScore == 0 && imt > 0 {
+			std, _ := m.repository.GetStandarAntropometri(ParamIMTU, gender, float64(r.UsiaUkurBulan))
+			if std != nil {
+				zScore = hitungZScore(imt, std)
+				status = interpretasiStatusIMTU(zScore)
+			}
+		}
+
+		list = append(list, ItemIMTU{
+			riwayatChartBase: riwayatChartBase{
+				ID:            uint(r.ID),
+				AnakID:        r.AnakID,
+				TglUkur:       r.TglUkur.Format("2006-01-02"),
+				UsiaUkurBulan: r.UsiaUkurBulan,
+				UsiaUkurYM:    fmt.Sprintf("%d:%d", r.UsiaUkurBulan/12, r.UsiaUkurBulan%12),
+				BeratBadan:    r.BeratBadan,
+				TinggiBadan:   r.TinggiBadan,
+			},
+			IMT:        imt,
+			ZScoreIMTU: zScore,
+			StatusIMTU: status,
+		})
+	}
+
+	standar, _ := m.repository.GetMasterStandarByFilter(ParamIMTU, genderNorm)
+
+	return map[string]interface{}{
+		"kategori":      "IMT/U",
+		"deskripsi":     "Indeks Massa Tubuh menurut Umur",
+		"riwayat":       list,
+		"standar_imt_u": standar,
 	}, nil
 }
 

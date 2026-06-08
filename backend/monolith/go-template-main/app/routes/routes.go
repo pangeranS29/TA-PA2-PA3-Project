@@ -137,11 +137,21 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	tenaga.Use(middlewares.TenagaKesehatan())
 
 	// ==================== PERTUMBUHAN ANAK ====================
+	// Data riwayat & CRUD
 	tenaga.GET("/pertumbuhan/anak/:anak_id", controller.GetRiwayatPertumbuhan)
-	tenaga.GET("/pertumbuhan/chart/:anak_id", controller.GetPertumbuhanChart)
+	tenaga.GET("/pertumbuhan/:id", controller.GetDetailCatatanPertumbuhan)
 	tenaga.POST("/pertumbuhan", controller.AddCatatanPertumbuhan)
 	tenaga.PUT("/pertumbuhan/:id", controller.UpdateCatatanPertumbuhan)
 	tenaga.DELETE("/pertumbuhan/:id", controller.DeleteCatatanPertumbuhan)
+
+	// Grafik per kategori (ENDPOINT BARU)
+	tenaga.GET("/pertumbuhan/chart/bb-tb/:anak_id", controller.GetChartBBTB)
+	tenaga.GET("/pertumbuhan/chart/bb-u/:anak_id", controller.GetChartBBU)
+	tenaga.GET("/pertumbuhan/chart/tb-u/:anak_id", controller.GetChartTBU)
+	tenaga.GET("/pertumbuhan/chart/imt-u/:anak_id", controller.GetChartIMTU)
+
+	// Grafik gabungan lama (DEPRECATED — tetap berjalan untuk backward compat)
+	tenaga.GET("/pertumbuhan/chart/:anak_id", controller.GetPertumbuhanChart)
 
 	// ==================== MODUL ANAK & PELAYANAN ANAK (yang sudah ada) ====================
 
@@ -746,7 +756,16 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	tenaga.POST("/bbl/anak/:anak_id", controller.Bbl.Upsert)
 
 	// ==================== PERTUMBUHAN ANAK (IBU) ====================
+	// Data riwayat
 	ibu.GET("/pertumbuhan/anak/:anak_id", controller.GetRiwayatPertumbuhan)
+
+	// Grafik per kategori (ENDPOINT BARU)
+	ibu.GET("/pertumbuhan/chart/bb-tb/:anak_id", controller.GetChartBBTB)
+	ibu.GET("/pertumbuhan/chart/bb-u/:anak_id", controller.GetChartBBU)
+	ibu.GET("/pertumbuhan/chart/tb-u/:anak_id", controller.GetChartTBU)
+	ibu.GET("/pertumbuhan/chart/imt-u/:anak_id", controller.GetChartIMTU)
+
+	// Grafik gabungan lama (DEPRECATED — tetap berjalan untuk backward compat)
 	ibu.GET("/pertumbuhan/chart/:anak_id", controller.GetPertumbuhanChart)
 
 	ibu.GET("/pemeriksaan-gigi", controller.PemeriksaanGigi.GetByAnakIDForIbu)
