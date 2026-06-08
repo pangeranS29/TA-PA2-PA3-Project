@@ -1,6 +1,7 @@
 package usecases
 
 import (
+	"time"
 	"errors"
 	"monitoring-service/app/models"
 	"monitoring-service/app/repositories"
@@ -9,6 +10,9 @@ import (
 type PemantauanIbuHamilUsecase interface {
 	GetMine(userID int32) ([]models.PemantauanIbuHamil, error)
 	SaveMine(userID int32, req models.PemantauanIbuHamil) (*models.PemantauanIbuHamil, error)
+	// Kader
+	GetAll() ([]models.PemantauanIbuHamil, error)
+	Verify(id int32, namaKader string, tanggalVerifikasi *time.Time) error
 }
 
 type pemantauanIbuHamilUsecase struct {
@@ -68,4 +72,28 @@ func (u *pemantauanIbuHamilUsecase) SaveMine(
 	}
 
 	return data, nil
+}
+
+
+
+
+
+
+
+// ─── BAGIAN KADER ────────────────────────────────────────────────────────────
+
+func (u *pemantauanIbuHamilUsecase) GetAll() ([]models.PemantauanIbuHamil, error) {
+	return u.repo.FindAllWithKehamilan()
+}
+
+func (u *pemantauanIbuHamilUsecase) Verify(id int32, namaKader string, tanggalVerifikasi *time.Time) error {
+	data, err := u.repo.FindByID(id)
+	if err != nil {
+		return errors.New("data pemantauan tidak ditemukan")
+	}
+
+	data.NamaKader = namaKader
+	data.TanggalVerifikasi = tanggalVerifikasi
+
+	return u.repo.UpdateVerifikasi(data)
 }

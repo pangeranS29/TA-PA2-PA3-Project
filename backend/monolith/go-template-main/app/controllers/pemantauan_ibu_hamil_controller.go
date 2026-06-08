@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"net/http"
+	"strconv"
 
 	"monitoring-service/app/models"
 	"monitoring-service/app/usecases"
@@ -96,5 +97,79 @@ func (c *PemantauanIbuHamilController) SaveMine(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, models.Response{
 		StatusCode: http.StatusOK,
 		Data:       data,
+	})
+}
+
+
+
+// ─── BAGIAN KADER ────────────────────────────────────────────────────────────
+
+// GetAll mengambil semua data pemantauan ibu hamil untuk ditampilkan ke kader.
+func (c *PemantauanIbuHamilController) GetAll(ctx echo.Context) error {
+	data, err := c.usecase.GetAll()
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, models.Response{
+			StatusCode: http.StatusInternalServerError,
+			Message:    err.Error(),
+		})
+	}
+
+	return ctx.JSON(http.StatusOK, models.Response{
+		StatusCode: http.StatusOK,
+		Data:       data,
+	})
+}
+
+type verifyPemantauanIbuHamilRequest struct {
+	NamaKader         string `json:"nama_kader"`
+	TanggalVerifikasi string `json:"tanggal_verifikasi"`
+}
+
+// Verify digunakan kader untuk menandai bahwa data pemantauan sudah ditinjau.
+func (c *PemantauanIbuHamilController) Verify(ctx echo.Context) error {
+	idParam := ctx.Param("id")
+
+	var req verifyPemantauanIbuHamilRequest
+	if err := ctx.Bind(&req); err != nil {
+		return ctx.JSON(http.StatusBadRequest, models.Response{
+			StatusCode: http.StatusBadRequest,
+			Message:    "format request tidak valid",
+		})
+	}
+
+	if req.NamaKader == "" {
+		return ctx.JSON(http.StatusBadRequest, models.Response{
+			StatusCode: http.StatusBadRequest,
+			Message:    "nama_kader tidak boleh kosong",
+		})
+	}
+
+	tanggalVerifikasi, err := parseOptionalDate(req.TanggalVerifikasi)
+	if err != nil {
+		return ctx.JSON(http.StatusBadRequest, models.Response{
+			StatusCode: http.StatusBadRequest,
+			Message:    "format tanggal_verifikasi harus YYYY-MM-DD",
+		})
+	}
+
+	id, err := strconv.Atoi(idParam)
+	if err != nil || id <= 0 {
+		return ctx.JSON(http.StatusBadRequest, models.Response{
+			StatusCode: http.StatusBadRequest,
+			Message:    "id tidak valid",
+		})
+	}
+
+	err = c.usecase.Verify(int32(id), req.NamaKader, tanggalVerifikasi)
+	if err != nil {
+		return ctx.JSON(http.StatusBadRequest, models.Response{
+			StatusCode: http.StatusBadRequest,
+			Message:    err.Error(),
+		})
+	}
+
+	return ctx.JSON(http.StatusOK, models.Response{
+		StatusCode: http.StatusOK,
+		Message:    "Berhasil memverifikasi pemantauan ibu hamil",
 	})
 }

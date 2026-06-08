@@ -72,3 +72,38 @@ func (r *PemantauanIbuHamilRepository) Upsert(data *models.PemantauanIbuHamil) e
 
 	return err
 }
+
+
+
+
+
+// ─── BAGIAN KADER ────────────────────────────────────────────────────────────
+
+// FindAllWithKehamilan mengambil semua data pemantauan ibu hamil beserta info ibu,
+// digunakan oleh kader untuk melihat dan memverifikasi.
+func (r *PemantauanIbuHamilRepository) FindAllWithKehamilan() ([]models.PemantauanIbuHamil, error) {
+	var list []models.PemantauanIbuHamil
+	err := r.db.
+		Preload("Kehamilan").
+		Preload("Kehamilan.Ibu").
+		Preload("Kehamilan.Ibu.Kependudukan").
+		Where("deleted_at IS NULL").
+		Order("created_at DESC").
+		Find(&list).Error
+	return list, err
+}
+
+// FindByID mengambil satu data pemantauan berdasarkan ID.
+func (r *PemantauanIbuHamilRepository) FindByID(id int32) (*models.PemantauanIbuHamil, error) {
+	var data models.PemantauanIbuHamil
+	err := r.db.First(&data, id).Error
+	if err != nil {
+		return nil, err
+	}
+	return &data, nil
+}
+
+// UpdateVerifikasi menyimpan nama kader dan tanggal verifikasi pada record.
+func (r *PemantauanIbuHamilRepository) UpdateVerifikasi(data *models.PemantauanIbuHamil) error {
+	return r.db.Save(data).Error
+}
