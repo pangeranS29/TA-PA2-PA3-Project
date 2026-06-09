@@ -11,7 +11,7 @@ import {
   deleteCatatanNifas 
 } from "../../services/catatanNifas";
 import Swal from "sweetalert2";
-import { Save, ArrowLeft, Edit2, CheckCircle, FileText, X, Trash2, Plus, Home } from "lucide-react";
+import { Save, ArrowLeft, Edit2, CheckCircle, FileText, X, Trash2, Plus, Home, AlertCircle, EyeOff } from "lucide-react";
 
 // ============================================================
 // KOMPONEN EMPTY STATE
@@ -317,6 +317,26 @@ export default function PelayananNifas() {
   const [selectedCatatan, setSelectedCatatan] = useState(null);
   const [isModalCatatanOpen, setIsModalCatatanOpen] = useState(false);
   
+  // ========== TAMBAHKAN STATE INI ==========
+  const [canAccessNifas, setCanAccessNifas] = useState(false);
+  const [accessMessage, setAccessMessage] = useState("");
+  
+  // ========== TAMBAHKAN FUNGSI UNTUK CEK AKSES ==========
+  const isAllowedStatus = (status) => {
+    // Hanya status NIFAS atau NON-AKTIF yang diizinkan untuk akses pelayanan nifas
+    return status === "NIFAS" || status === "NON-AKTIF";
+  };
+
+   const getAccessMessage = (status) => {
+    if (status === "AKTIF") {
+      return "Ibu masih dalam masa kehamilan aktif. Pelayanan Nifas hanya dapat diakses setelah ibu melahirkan (status NIFAS). Silakan tunggu hingga ibu memasuki masa nifas.";
+    } else if (status === "TRIMESTER 1" || status === "TRIMESTER 2" || status === "TRIMESTER 3") {
+      return `Ibu masih dalam masa kehamilan (${status}). Pelayanan Nifas hanya dapat diakses setelah ibu melahirkan dan status kehamilan berubah menjadi NIFAS atau NON-AKTIF.`;
+    } else {
+      return "Status kehamilan tidak valid untuk mengakses pelayanan nifas.";
+    }
+  };
+
   const [form, setForm] = useState({
     kunjungan_ke: "KF1",
     tanggal_periksa: "",
@@ -417,6 +437,17 @@ export default function PelayananNifas() {
         if (kehamilanList.length > 0) {
           const aktif = kehamilanList[0];
           setKehamilan(aktif);
+
+            // ========== CEK STATUS AKSES ==========
+        const allowed = isAllowedStatus(aktif.status_kehamilan);
+        setCanAccessNifas(allowed);
+        
+        if (!allowed) {
+          setAccessMessage(getAccessMessage(aktif.status_kehamilan));
+          setLoading(false);
+          return;
+        }
+        // =====================================
           
           const dataNifas = await getNifasByKehamilanId(aktif.id);
           const nifasArray = Array.isArray(dataNifas) ? dataNifas : [];
@@ -454,6 +485,18 @@ export default function PelayananNifas() {
   };
 
   const handleEdit = () => {
+    // ========== VALIDASI AKSES ==========
+  if (!canAccessNifas) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Akses Ditolak',
+      text: accessMessage || 'Pelayanan Nifas hanya dapat diakses jika status kehamilan adalah NIFAS atau NON-AKTIF.',
+      confirmButtonColor: '#4f46e5'
+    });
+    return;
+  }
+  // ====================================
+
     setMode("form");
   };
 
@@ -468,11 +511,34 @@ export default function PelayananNifas() {
   };
 
   const handleOpenTambahCatatan = () => {
+     // ========== VALIDASI AKSES ==========
+  if (!canAccessNifas) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Akses Ditolak',
+      text: accessMessage || 'Pelayanan Nifas hanya dapat diakses jika status kehamilan adalah NIFAS atau NON-AKTIF.',
+      confirmButtonColor: '#4f46e5'
+    });
+    return;
+  }
+  // ====================================
     setSelectedCatatan(null);
     setIsModalCatatanOpen(true);
   };
 
   const handleEditCatatan = (catatan) => {
+     // ========== VALIDASI AKSES ==========
+  if (!canAccessNifas) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Akses Ditolak',
+      text: accessMessage || 'Pelayanan Nifas hanya dapat diakses jika status kehamilan adalah NIFAS atau NON-AKTIF.',
+      confirmButtonColor: '#4f46e5'
+    });
+    return;
+  }
+  // ====================================
+
     setSelectedCatatan(catatan);
     setIsModalCatatanOpen(true);
   };
@@ -525,6 +591,17 @@ export default function PelayananNifas() {
   
   // Fungsi untuk menghapus catatan
   const handleDeleteCatatan = async (idCatatan) => {
+     // ========== VALIDASI AKSES ==========
+  if (!canAccessNifas) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Akses Ditolak',
+      text: accessMessage || 'Pelayanan Nifas hanya dapat diakses jika status kehamilan adalah NIFAS atau NON-AKTIF.',
+      confirmButtonColor: '#4f46e5'
+    });
+    return;
+  }
+  // ====================================
     if (!confirm("Apakah Anda yakin ingin menghapus catatan ini?")) return;
     
     setSavingCatatan(true);
@@ -544,6 +621,19 @@ export default function PelayananNifas() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+     // ========== VALIDASI AKSES ==========
+  if (!canAccessNifas) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Akses Ditolak',
+      text: accessMessage || 'Pelayanan Nifas hanya dapat diakses jika status kehamilan adalah NIFAS atau NON-AKTIF.',
+      confirmButtonColor: '#4f46e5'
+    });
+    return;
+  }
+  // ====================================
+
     if (!kehamilan) {
       Swal.fire('Error', 'Data kehamilan tidak ditemukan!', 'error');
       return;
@@ -692,6 +782,74 @@ if (selectedKunjungan === "KF4") {
           </div>
         </div>
         
+          {/* Banner Peringatan jika tidak dapat akses */}
+      {!canAccessNifas && kehamilan && (
+        <div className="mb-6 bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded-r-lg">
+          <div className="flex items-start gap-3">
+            <div className="flex-shrink-0">
+              <AlertCircle size={20} className="text-yellow-600" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-yellow-800">
+                ⚠️ Akses Pelayanan Nifas Dibatasi
+              </p>
+              <p className="text-sm text-yellow-700 mt-1">{accessMessage}</p>
+              <p className="text-xs text-yellow-600 mt-2">
+                Status kehamilan saat ini: <strong>{kehamilan.status_kehamilan}</strong>
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+       {/* Banner Info untuk status NIFAS */}
+      {canAccessNifas && kehamilan && kehamilan.status_kehamilan === "NIFAS" && (
+        <div className="mb-6 bg-green-50 border-l-4 border-green-500 p-4 rounded-r-lg">
+          <div className="flex items-start gap-3">
+            <div className="flex-shrink-0">
+              <CheckCircle size={20} className="text-green-600" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-green-800">✅ Status Kehamilan: NIFAS</p>
+              <p className="text-sm text-green-700 mt-1">Ibu sedang dalam masa nifas. Anda dapat melakukan pencatatan pelayanan nifas.</p>
+            </div>
+          </div>
+        </div>
+      )}
+       {/* Banner Info untuk status NON-AKTIF */}
+      {canAccessNifas && kehamilan && kehamilan.status_kehamilan === "NON-AKTIF" && (
+        <div className="mb-6 bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg">
+          <div className="flex items-start gap-3">
+            <div className="flex-shrink-0">
+              <FileText size={20} className="text-blue-600" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-blue-800">📋 Status Kehamilan: NON-AKTIF (Selesai)</p>
+              <p className="text-sm text-blue-700 mt-1">Masa nifas telah selesai. Anda masih dapat melihat data pelayanan nifas yang sudah tercatat.</p>
+            </div>
+          </div>
+        </div>
+      )}
+      
+        {/* Tampilan jika tidak dapat akses */}
+      {!canAccessNifas && (
+        <div className="bg-white rounded-xl shadow-sm p-12 text-center">
+          <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <EyeOff size={40} className="text-gray-400" />
+          </div>
+          <h2 className="text-xl font-semibold text-gray-700 mb-2">Akses Tidak Diizinkan</h2>
+          <p className="text-gray-500 max-w-md mx-auto">
+            {accessMessage || "Pelayanan Nifas hanya dapat diakses setelah ibu melahirkan (status NIFAS)."}
+          </p>
+          <button
+            onClick={() => navigate(`/data-ibu/${id}`)}
+            className="mt-6 bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition"
+          >
+            Kembali ke Detail Ibu
+          </button>
+        </div>
+      )}
+         {canAccessNifas && (
+          <>
         {/* Tombol Pilih Kunjungan */}
         <div className="flex gap-2 mb-6 flex-wrap">
           {["KF1", "KF2", "KF3", "KF4"].map((k) => {
@@ -1033,6 +1191,8 @@ if (selectedKunjungan === "KF4") {
             />
           </div>
         )}
+          </>
+      )}
       </div>
     </MainLayout>
   );
