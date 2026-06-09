@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -15,14 +16,16 @@ import (
 type RingkasanPelayananPersalinanController struct {
 	usecase        usecases.RingkasanPelayananPersalinanUsecase
 	riwayatUsecase usecases.RiwayatProsesMelahirkanUsecase
+	kehamilanUsecase usecases.KehamilanUsecase 
 }
 
 // NewRingkasanPelayananPersalinanController sekarang menerima RiwayatProsesMelahirkanUsecase
 func NewRingkasanPelayananPersalinanController(
 	u usecases.RingkasanPelayananPersalinanUsecase,
 	ru usecases.RiwayatProsesMelahirkanUsecase,
+	ku usecases.KehamilanUsecase,
 ) *RingkasanPelayananPersalinanController {
-	return &RingkasanPelayananPersalinanController{usecase: u, riwayatUsecase: ru}
+	return &RingkasanPelayananPersalinanController{usecase: u, riwayatUsecase: ru, kehamilanUsecase: ku,}
 }
 
 type createRingkasanRequest struct {
@@ -187,6 +190,13 @@ func (c *RingkasanPelayananPersalinanController) Create(ctx echo.Context) error 
 	}
 	if err := c.usecase.Create(r); err != nil {
 		return ctx.JSON(http.StatusInternalServerError, models.Response{StatusCode: http.StatusInternalServerError, Message: err.Error()})
+	}
+	if err := c.kehamilanUsecase.UpdateStatusKehamilan(req.KehamilanID, "NIFAS"); err != nil {
+		// Log error tapi jangan batalkan response (atau bisa juga return error)
+		// Sesuaikan dengan kebutuhan bisnis
+		fmt.Printf("Warning: gagal update status kehamilan ID %d: %v\n", req.KehamilanID, err)
+		// Jika ingin response gagal, uncomment baris di bawah:
+		// return ctx.JSON(http.StatusInternalServerError, models.Response{StatusCode: http.StatusInternalServerError, Message: "Berhasil create ringkasan tapi gagal update status kehamilan"})
 	}
 	// Sinkronisasi ke Riwayat
 	if err := c.sinkronisasiRiwayat(r); err != nil {

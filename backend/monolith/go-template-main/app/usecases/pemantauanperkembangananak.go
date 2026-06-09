@@ -46,6 +46,15 @@ func (u *pemantauanpertumbuhanUseCase) Create(req models.CreatePemantauanPemerik
 		}
 	}
 
+	existing, err := u.repo.GetByAnakID(req.AnakID)
+	if err == nil {
+		for _, record := range existing {
+			if record.Tanggal.Year() == tgl.Year() && record.Tanggal.Month() == tgl.Month() {
+				return errors.New("pemantauan tumbuh kembang untuk anak ini sudah diinput pada bulan ini")
+			}
+		}
+	}
+
 	// Parse kunjungan ulang
 	var kunjunganUlang time.Time
 	if req.KunjunganUlang != "" {

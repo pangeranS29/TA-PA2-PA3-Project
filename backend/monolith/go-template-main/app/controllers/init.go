@@ -166,6 +166,7 @@ func Init(opts Options) *Main {
 	m.RingkasanPelayananPersalinan = NewRingkasanPelayananPersalinanController(
 		opts.UseCases.RingkasanPelayananPersalinan,
 		opts.UseCases.RiwayatProsesMelahirkan,
+		opts.UseCases.Kehamilan,
 	)
 
 	m.RiwayatProsesMelahirkan = NewRiwayatProsesMelahirkanController(opts.UseCases.RiwayatProsesMelahirkan)
@@ -223,6 +224,7 @@ func Init(opts Options) *Main {
 	dashboardUsecase := usecases.NewDashboardUsecase(
 		opts.UseCases.Kependudukan,
 		opts.UseCases.Pemeriksaan,
+		opts.UseCases.Anak,
 	)
 	m.Dashboard = NewDashboardController(dashboardUsecase)
 	m.PendudukRisk = NewPendudukRiskController(opts.UseCases.PendudukRisk)

@@ -198,11 +198,13 @@ class _CatatanMenuScreenState extends State<CatatanMenuScreen> {
     );
   }
 
-  Widget _buildTabChips() {
+Widget _buildTabChips() {
     return Container(
       color: Colors.white,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      child: Row(
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
         children: List.generate(_tabLabels.length, (i) {
           final selected = _selectedTab == i;
           return Padding(
@@ -235,10 +237,11 @@ class _CatatanMenuScreenState extends State<CatatanMenuScreen> {
             ),
           );
         }),
+        ),
       ),
     );
   }
-
+  
   Widget _buildSectionTitle() {
     final titles = ['Catatan Pelayanan Kesehatan', 'Catatan Kesehatan Gigi', 'Catatan LiLA'];
     final counts = [_keluhanList.length, _gigiList.length, _lilaList.length];

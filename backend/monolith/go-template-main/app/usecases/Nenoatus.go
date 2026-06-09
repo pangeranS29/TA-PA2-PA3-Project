@@ -46,6 +46,15 @@ func (uc *pelayananNeonatusUseCase)Create(req models.CreatePelayananNeonatusRequ
 		return fmt.Errorf("format tanggal harus YYYY-MM-DD")
 	}
 
+	existing, err := uc.NeonatusRepo.GetByAnakID(req.AnakID)
+	if err == nil {
+		for _, record := range existing {
+			if record.Tanggal.Year() == tanggal.Year() && record.Tanggal.Month() == tanggal.Month() {
+				return errors.New("pelayanan neonatus untuk anak ini sudah diinput pada bulan ini")
+			}
+		}
+	}
+
 	now := time.Now()
 
 

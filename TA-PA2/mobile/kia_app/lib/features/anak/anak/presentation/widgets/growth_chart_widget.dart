@@ -46,6 +46,24 @@ class GrowthChartWidget extends StatelessWidget {
     return const Color(0xFF2563EB);
   }
 
+  bool get _isLengthChart => selectedTab == 'TB/U' || selectedTab == 'BB/TB';
+
+  double get _xGridInterval => _isLengthChart ? 12.0 : 6.0;
+
+  double get _yGridInterval => selectedTab == 'TB/U' ? 10.0 : (selectedTab == 'BB/TB' ? 0.5 : 1.0);
+
+  double get _xTitleInterval => _isLengthChart ? 12.0 : 6.0;
+
+  double get _yTitleInterval => selectedTab == 'TB/U' ? 10.0 : (selectedTab == 'BB/TB' ? 1.0 : 2.0);
+
+  double get _chartAspectRatio => selectedTab == 'TB/U' ? 0.82 : 1.15;
+
+  double get _leftTitleReservedSize => selectedTab == 'TB/U' ? 54.0 : 40.0;
+
+  double get _bottomTitleFontSize => selectedTab == 'TB/U' ? 8.5 : 10.0;
+
+  double get _topChartPadding => selectedTab == 'TB/U' ? 8.0 : 14.0;
+
   /// Helper: Mengurutkan riwayat agar sinkron dengan index di grafik
   List<PertumbuhanModel> get _sortedRiwayat {
     final sorted = List<PertumbuhanModel>.from(riwayatPertumbuhan);
@@ -128,7 +146,9 @@ class GrowthChartWidget extends StatelessWidget {
     }
 
     final xStep = selectedTab == 'BB/TB' ? 5.0 : 6.0;
-    final yStep = selectedTab == 'BB/TB' ? 0.5 : 1.0;
+    final yStep = selectedTab == 'TB/U'
+      ? 5.0
+      : (selectedTab == 'BB/TB' ? 0.5 : 1.0);
 
     final rawMinX =
         selectedTab == 'BB/TB' ? 45.0 : masterStandar.first.nilaiSumbuX;
@@ -277,9 +297,9 @@ class GrowthChartWidget extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 14),
+          SizedBox(height: _topChartPadding),
           AspectRatio(
-            aspectRatio: 1.15,
+            aspectRatio: _chartAspectRatio,
             child: masterStandar.isEmpty
                 ? Center(
                     child: Column(
@@ -301,8 +321,8 @@ class GrowthChartWidget extends StatelessWidget {
                       gridData: FlGridData(
                         show: true,
                         drawVerticalLine: true,
-                        horizontalInterval: selectedTab == 'BB/TB' ? 0.5 : 1.0,
-                        verticalInterval: selectedTab == 'BB/TB' ? 10.0 : 6.0,
+                        horizontalInterval: _yGridInterval,
+                        verticalInterval: _xGridInterval,
                         getDrawingHorizontalLine: (value) => FlLine(
                           color: Colors.grey.withOpacity(0.16),
                           strokeWidth: 0.7,
@@ -320,14 +340,14 @@ class GrowthChartWidget extends StatelessWidget {
                         bottomTitles: AxisTitles(
                           sideTitles: SideTitles(
                             showTitles: true,
-                            reservedSize: 30,
-                            interval: selectedTab == 'BB/TB' ? 10.0 : 6.0,
+                            reservedSize: selectedTab == 'TB/U' ? 24 : 30,
+                            interval: _xTitleInterval,
                             getTitlesWidget: (value, meta) => Padding(
-                              padding: const EdgeInsets.only(top: 8.0),
+                              padding: const EdgeInsets.only(top: 6.0),
                               child: Text(
                                 _formatBottomTitle(value),
                                 style: TextStyle(
-                                  fontSize: 10,
+                                  fontSize: _bottomTitleFontSize,
                                   color: Colors.grey.shade600,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -338,16 +358,33 @@ class GrowthChartWidget extends StatelessWidget {
                         leftTitles: AxisTitles(
                           sideTitles: SideTitles(
                             showTitles: true,
-                            reservedSize: 40,
-                            interval: selectedTab == 'BB/TB' ? 1.0 : 2.0,
-                            getTitlesWidget: (value, meta) => Text(
-                              value.toStringAsFixed(1),
-                              style: TextStyle(
-                                fontSize: 10,
-                                color: Colors.grey.shade600,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
+                            reservedSize: _leftTitleReservedSize,
+                            interval: _yTitleInterval,
+                            getTitlesWidget: (value, meta) {
+                              if (selectedTab == 'TB/U') {
+                                final rounded = value.round();
+                                if (rounded % 10 != 0) {
+                                  return const SizedBox.shrink();
+                                }
+                                return Text(
+                                  rounded.toString(),
+                                  style: TextStyle(
+                                    fontSize: 9.0,
+                                    color: Colors.grey.shade600,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                );
+                              }
+
+                              return Text(
+                                value.toStringAsFixed(1),
+                                style: TextStyle(
+                                  fontSize: 10.0,
+                                  color: Colors.grey.shade600,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              );
+                            },
                           ),
                         ),
                       ),
@@ -372,7 +409,6 @@ class GrowthChartWidget extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Wrap(
-            spacing: 10,
             runSpacing: 8,
             children: [
               _buildLegendItem('Median', const Color(0xFF22C55E), false),
@@ -401,6 +437,14 @@ class GrowthChartWidget extends StatelessWidget {
       if (rounded % 10 != 0 &&
           rounded != value.floor() &&
           rounded != value.ceil()) {
+        return '';
+      }
+      return rounded.toString();
+    }
+
+    if (selectedTab == 'TB/U') {
+      final rounded = value.round();
+      if (rounded % 12 != 0) {
         return '';
       }
       return rounded.toString();

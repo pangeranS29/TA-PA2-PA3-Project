@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ta_pa2_pa3_project/core/themes/app_colors.dart';
+import 'package:ta_pa2_pa3_project/core/constants/api_constants.dart';
 import 'package:ta_pa2_pa3_project/features/edukasi/data/models/edukasi_anak_item.dart';
 import 'package:ta_pa2_pa3_project/features/edukasi/data/services/informasi_umum_api_service.dart';
 import 'package:ta_pa2_pa3_project/features/edukasi/data/services/edukasi_pola_asuh_api_service.dart';
@@ -127,8 +128,8 @@ class _KontenEdukasiAnakScreenState extends State<KontenEdukasiAnakScreen> {
 
   List<EdukasiAnakItem> get _filteredItems {
     return _allItems.where((item) {
-      final matchesCategory = selectedCategory == 'Semua' ||
-          item.kategori == selectedCategory;
+      final matchesCategory =
+          selectedCategory == 'Semua' || item.kategori == selectedCategory;
 
       final matchesSearch = searchQuery.isEmpty ||
           item.judul.toLowerCase().contains(searchQuery.toLowerCase()) ||
@@ -328,8 +329,54 @@ class _EdukasiCard extends StatelessWidget {
 
   const _EdukasiCard({required this.item, required this.onTap});
 
+  String? _resolveImageUrl(String url) {
+    final trimmed = url.trim();
+    if (trimmed.isEmpty) return null;
+
+    if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+      return trimmed;
+    }
+
+    if (trimmed.startsWith('/')) {
+      return '${ApiConstants.baseUrl}$trimmed';
+    }
+
+    return '${ApiConstants.baseUrl}/$trimmed';
+  }
+
+  Widget _buildFallbackIcon() {
+    return Container(
+      decoration: const BoxDecoration(
+        color: Color(0xFFDDEEFF),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
+      ),
+      child: Center(
+        child: Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.08),
+                blurRadius: 8,
+              ),
+            ],
+          ),
+          child: Icon(
+            item.isVideo ? Icons.play_arrow_rounded : Icons.menu_book_rounded,
+            size: 32,
+            color: AppColors.primary,
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final imageUrl = _resolveImageUrl(item.thumbnailUrl);
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -357,55 +404,58 @@ class _EdukasiCard extends StatelessWidget {
                   top: Radius.circular(18),
                 ),
               ),
-              child: Stack(
-                children: [
-                  Center(
-                    child: Container(
-                      padding: const EdgeInsets.all(12),
+              child: ClipRRect(
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(18),
+                ),
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    if (imageUrl != null)
+                      Image.network(
+                        imageUrl,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => _buildFallbackIcon(),
+                      )
+                    else
+                      _buildFallbackIcon(),
+                    const DecoratedBox(
                       decoration: BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.08),
-                            blurRadius: 8,
-                          ),
-                        ],
-                      ),
-                      child: Icon(
-                        item.isVideo
-                            ? Icons.play_arrow_rounded
-                            : Icons.menu_book_rounded,
-                        size: 32,
-                        color: AppColors.primary,
-                      ),
-                    ),
-                  ),
-                  // Badge ARTIKEL / VIDEO at top left
-                  Positioned(
-                    top: 12,
-                    left: 12,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColors.primary,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        item.displayTipe,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 0.5,
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Color(0x22000000),
+                            Color(0x00000000),
+                          ],
                         ),
                       ),
                     ),
-                  ),
-                ],
+                    Positioned(
+                      top: 12,
+                      left: 12,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          item.displayTipe,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
             // Bottom section with title

@@ -41,6 +41,15 @@ func (u *pengukuranlilaUseCase) Create(req models.CreatePengukuranLilARequest) e
 		}
 	}
 
+	existing, err := u.repo.GetByAnakID(req.AnakID)
+	if err == nil {
+		for _, record := range existing {
+			if record.Tanggal.Year() == tgl.Year() && record.Tanggal.Month() == tgl.Month() {
+				return errors.New("pengukuran LILA untuk anak ini sudah diinput pada bulan ini")
+			}
+		}
+	}
+
 	kategori := req.KategoriRisiko
 	if kategori == "" {
 		// Auto-klasifikasi berdasarkan usia dan hasil LILA

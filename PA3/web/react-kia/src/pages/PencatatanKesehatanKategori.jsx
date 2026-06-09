@@ -11,10 +11,10 @@ import {
 } from 'lucide-react';
 
 const categories = {
-  anak: { name: "Anak", emoji: "👶", color: "blue", range: "5-9 tahun", bgGradient: "from-blue-500 to-blue-600" },
-  remaja: { name: "Remaja", emoji: "🧒", color: "green", range: "10-18 tahun", bgGradient: "from-green-500 to-green-600" },
-  dewasa: { name: "Dewasa", emoji: "👨", color: "purple", range: "19-59 tahun", bgGradient: "from-purple-500 to-purple-600" },
-  lansia: { name: "Lansia", emoji: "👴", color: "orange", range: "≥60 tahun", bgGradient: "from-orange-500 to-orange-600" }
+  anak: { name: "Anak",  color: "blue", range: "5-9 tahun", bgGradient: "from-blue-500 to-blue-600" },
+  remaja: { name: "Remaja",  color: "green", range: "10-18 tahun", bgGradient: "from-green-500 to-green-600" },
+  dewasa: { name: "Dewasa",  color: "purple", range: "19-59 tahun", bgGradient: "from-purple-500 to-purple-600" },
+  lansia: { name: "Lansia",  color: "orange", range: "≥60 tahun", bgGradient: "from-orange-500 to-orange-600" }
 };
 
 // Validasi umum untuk semua kategori

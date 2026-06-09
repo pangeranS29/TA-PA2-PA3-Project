@@ -253,7 +253,7 @@ class _PemantauanMenuScreenState extends State<PemantauanMenuScreen> {
         crossAxisCount: 2,
         mainAxisSpacing: 14,
         crossAxisSpacing: 14,
-        mainAxisExtent: 176,
+        mainAxisExtent: 190,
       ),
       itemBuilder: (context, index) {
         final card = _ageCards[index];
