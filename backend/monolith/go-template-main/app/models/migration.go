@@ -79,10 +79,10 @@ func AutoMigrate(db *gorm.DB) error {
 		&ResepMPASI{},
 
 		// ==================== PEMERIKSAAN UMUM (LINTAS USIA) ====================
-		&PemeriksaanAnak{},
-		&PemeriksaanRemaja{},
-		&PemeriksaanDewasa{},
-		&PemeriksaanLansia{},
+		// &PemeriksaanAnak{},
+		// &PemeriksaanRemaja{},
+		// &PemeriksaanDewasa{},
+		// &PemeriksaanLansia{},
 		&Perangkat{},
 
 		// ==================== IBU & KEHAMILAN ====================

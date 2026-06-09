@@ -501,8 +501,8 @@ export default function Dashboard() {
   // Data untuk 6 kartu ringkasan
   const kelompokList = [
     { key: "balita", label: "Balita (0-5 th)", icon: icons.baby, color: "#d97706", bg: "#fef3c7", tooltip: "Cakupan imunisasi & pemantauan tumbuh kembang balita" },
-    { key: "anak", label: "Anak (6-12 th)", icon: icons.school, color: "#0284c7", bg: "#e0f2fe", tooltip: "Pemeriksaan kesehatan anak usia sekolah" },
-    { key: "remaja", label: "Remaja (13-18 th)", icon: icons.teen, color: "#16a34a", bg: "#dcfce7", tooltip: "Kesehatan reproduksi & skrining remaja" },
+    { key: "anak", label: "Anak (6- 9 th)", icon: icons.school, color: "#0284c7", bg: "#e0f2fe", tooltip: "Pemeriksaan kesehatan anak usia sekolah" },
+    { key: "remaja", label: "Remaja (10-18 th)", icon: icons.teen, color: "#16a34a", bg: "#dcfce7", tooltip: "Kesehatan reproduksi & skrining remaja" },
     { key: "dewasa", label: "Dewasa (19-59 th)", icon: icons.adult, color: "#ca8a04", bg: "#fef9c3", tooltip: "Skrining PTM & pemeriksaan kesehatan umum" },
     { key: "lansia", label: "Lansia (60+ th)", icon: icons.elderly, color: "#475569", bg: "#f1f5f9", tooltip: "Pemantauan penyakit kronis & kunjungan lansia" },
   ];

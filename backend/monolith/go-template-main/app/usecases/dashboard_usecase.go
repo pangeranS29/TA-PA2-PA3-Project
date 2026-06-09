@@ -72,7 +72,7 @@ func (u *dashboardUsecase) GetJumlahPerKelompokUsia(desaID *int32, role string) 
 		switch {
 		case umur <= 5:
 			// Dihitung terpisah dari daftar pencatatan anak
-		case umur <= 12:
+		case umur <= 10:
 			// Dihitung terpisah dari daftar pencatatan anak
 		case umur <= 18:
 			result.Remaja++
@@ -119,7 +119,7 @@ func (u *dashboardUsecase) GetKesehatanPerKelompok(desaID *int32, role string) (
 		switch {
 		case umur <= 5:
 			// Dihitung terpisah dari daftar pencatatan anak
-		case umur <= 12:
+		case umur <= 10:
 			// Dihitung terpisah dari daftar pencatatan anak
 		case umur <= 18:
 			kelompokIDs["remaja"] = append(kelompokIDs["remaja"], id)
@@ -197,14 +197,20 @@ func (u *dashboardUsecase) GetCakupanPemeriksaan(desaID *int32, role string) ([]
 	kelompokIDs := map[string][]int32{
 		"balita": {}, "anak": {}, "remaja": {}, "dewasa": {}, "lansia": {},
 	}
+	
+	// Track ID anak yang sudah diproses dari tabel anak
+	anakProcessedIDs := make(map[int32]bool)
+	
 	for _, p := range penduduks {
 		umur := utils.HitungUmur(p.TanggalLahir)
 		id := p.IDKependudukan
 		switch {
 		case umur <= 5:
-			// Dihitung terpisah dari daftar pencatatan anak
-		case umur <= 12:
-			// Dihitung terpisah dari daftar pencatatan anak
+			// Dihitung terpisah dari daftar pencatatan anak (BALITA)
+			// TIDAK DIUBAH - tetap kosong
+		case umur >= 5 && umur <= 9:
+			// ANAK (5-9 tahun) dari tabel penduduk
+			kelompokIDs["anak"] = append(kelompokIDs["anak"], id)
 		case umur <= 18:
 			kelompokIDs["remaja"] = append(kelompokIDs["remaja"], id)
 		case umur <= 59:
@@ -218,16 +224,23 @@ func (u *dashboardUsecase) GetCakupanPemeriksaan(desaID *int32, role string) ([]
 	if err != nil {
 		return nil, err
 	}
+	
 	for _, a := range anaks {
 		tglLahir, parseErr := time.Parse("2006-01-02", a.TanggalLahir)
 		if parseErr != nil {
 			continue
 		}
 		umur := utils.HitungUmur(tglLahir)
+		
+		// LOGIKA BALITA TIDAK DIUBAH
 		if umur <= 5 {
 			kelompokIDs["balita"] = append(kelompokIDs["balita"], a.PendudukID)
-		} else if umur <= 12 {
-			kelompokIDs["anak"] = append(kelompokIDs["anak"], a.PendudukID)
+		} else if umur >= 5 && umur <= 9 {
+			// ANAK (5-9 tahun) dari tabel anak
+			if !anakProcessedIDs[a.PendudukID] {
+				kelompokIDs["anak"] = append(kelompokIDs["anak"], a.PendudukID)
+				anakProcessedIDs[a.PendudukID] = true
+			}
 		}
 	}
 
@@ -238,6 +251,8 @@ func (u *dashboardUsecase) GetCakupanPemeriksaan(desaID *int32, role string) ([]
 		ids := kelompokIDs[kelompok]
 		total := int64(len(ids))
 		var sudah int64 = 0
+		
+		// LOGIKA BALITA TIDAK DIUBAH
 		if kelompok == "balita" {
 			for _, a := range anaks {
 				tglLahir, parseErr := time.Parse("2006-01-02", a.TanggalLahir)
@@ -249,7 +264,39 @@ func (u *dashboardUsecase) GetCakupanPemeriksaan(desaID *int32, role string) ([]
 					sudah++
 				}
 			}
+		} else if kelompok == "anak" {
+			// LOGIKA UNTUK ANAK (5-9 tahun)
+			if total > 0 {
+				// 1. Hitung dari tabel anak yang sudah diperiksa (StatusPrediksi)
+				for _, a := range anaks {
+					tglLahir, parseErr := time.Parse("2006-01-02", a.TanggalLahir)
+					if parseErr != nil {
+						continue
+					}
+					umur := utils.HitungUmur(tglLahir)
+					if umur >= 5 && umur <= 9 && a.StatusPrediksi != "" {
+						sudah++
+					}
+				}
+				
+				// 2. Hitung dari tabel penduduk yang belum terhitung
+				var pendudukOnlyIDs []int32
+				for _, id := range ids {
+					if !anakProcessedIDs[id] {
+						pendudukOnlyIDs = append(pendudukOnlyIDs, id)
+					}
+				}
+				
+				if len(pendudukOnlyIDs) > 0 {
+					count, err := u.pemeriksaanUsecase.CountPendudukWithExamination(kelompok, pendudukOnlyIDs)
+					if err != nil {
+						return nil, fmt.Errorf("gagal hitung pemeriksaan anak dari penduduk: %w", err)
+					}
+					sudah += count
+				}
+			}
 		} else {
+			// REMUA, DEWASA, LANSIA (tidak berubah)
 			if total > 0 {
 				count, err := u.pemeriksaanUsecase.CountPendudukWithExamination(kelompok, ids)
 				if err != nil {
@@ -258,6 +305,7 @@ func (u *dashboardUsecase) GetCakupanPemeriksaan(desaID *int32, role string) ([]
 				sudah = count
 			}
 		}
+		
 		result = append(result, models.CakupanPemeriksaan{
 			Kelompok:       kelompok,
 			TotalSasaran:   total,
