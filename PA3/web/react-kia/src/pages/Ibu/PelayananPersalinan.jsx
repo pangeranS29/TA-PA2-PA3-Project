@@ -40,7 +40,7 @@ const emptyRingkasan = (ibuData) => ({
   penolong_proses_melahirkan: "", cara_melahirkan: "",
   keadaan_ibu: "", keadaan_ibu_detail_sakit: "", keterangan_tambahan_ibu: "",
   kb_pasca_melahirkan: "",
-  gravida: ibuData?.gravida ?? "", paritas: ibuData?.paritas ?? "", abortus: ibuData?.abortus ?? "",
+  // gravida: ibuData?.gravida ?? "", paritas: ibuData?.paritas ?? "", abortus: ibuData?.abortus ?? "",
   kondisi_bayi_segera_menangis: false,
   kondisi_bayi_menangis_beberapa_saat: false,
   kondisi_bayi_tidak_menangis: false,
@@ -128,6 +128,14 @@ function KelahiranCard({ index, ringkasan, anakList, kehamilanId, ibuId, onEdit,
     ringkasan.asuhan_salep_mata_antibiotika && "Salep mata antibiotika",
     ringkasan.asuhan_imunisasi_hb0 && "Imunisasi HB0",
   ].filter(Boolean);
+  const formatTanggal = (tanggal) => {
+  if (!tanggal) return "-";
+  return new Date(tanggal).toLocaleDateString("id-ID", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric"
+  });
+};
 
   return (
     <div className="border border-indigo-100 rounded-2xl overflow-hidden shadow-sm">
@@ -170,7 +178,7 @@ function KelahiranCard({ index, ringkasan, anakList, kehamilanId, ibuId, onEdit,
           <div>
             <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Ringkasan Persalinan</p>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 bg-gray-50 rounded-xl p-4">
-              <DetailItem label="Tanggal Melahirkan" value={ringkasan.tanggal_melahirkan} />
+              <DetailItem label="Tanggal Melahirkan" value={formatTanggal(ringkasan.tanggal_melahirkan)} />
               <DetailItem label="Umur Kehamilan" value={ringkasan.umur_kehamilan_minggu ? `${ringkasan.umur_kehamilan_minggu} mgg` : "-"} />
               <DetailItem label="Penolong" value={ringkasan.penolong_proses_melahirkan} />
               <DetailItem label="Cara Melahirkan" value={ringkasan.cara_melahirkan} />
@@ -253,8 +261,23 @@ function KelahiranCard({ index, ringkasan, anakList, kehamilanId, ibuId, onEdit,
 function RingkasanForm({ initial, onSubmit, onCancel, saving, title }) {
   const [form, setForm] = useState(initial || emptyRingkasan());
 
+  // Tambahkan ini di sini
+  const today = new Date().toISOString().split("T")[0];
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
+
+    // Validasi + auto-fill tanggal melahirkan
+    if (name === "tanggal_melahirkan") {
+      if (value > today) return; // blokir tanggal masa depan
+      setForm((prev) => ({
+        ...prev,
+        tanggal_melahirkan: value,
+        anak_tanggal_lahir: value, // auto-fill ke tanggal lahir anak
+      }));
+      return;
+    }
+
     setForm((prev) => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
   };
 
@@ -275,28 +298,31 @@ function RingkasanForm({ initial, onSubmit, onCancel, saving, title }) {
       </div>
 
       {/* Info Persalinan */}
-      <div>
-        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Info Persalinan</p>
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-3">
-          <div><label className="block text-xs font-medium mb-1">Tanggal Melahirkan</label>
-            <input type="date" name="tanggal_melahirkan" value={form.tanggal_melahirkan} onChange={handleChange} className="w-full border rounded-lg px-2 py-1.5 text-sm" /></div>
-          <div><label className="block text-xs font-medium mb-1">Umur Kehamilan (Mgg)</label>
-            <input type="number" name="umur_kehamilan_minggu" value={form.umur_kehamilan_minggu} onChange={handleChange} className="w-full border rounded-lg px-2 py-1.5 text-sm" /></div>
-          <div><label className="block text-xs font-medium mb-1">Penolong</label>
-            <input name="penolong_proses_melahirkan" value={form.penolong_proses_melahirkan} onChange={handleChange} className="w-full border rounded-lg px-2 py-1.5 text-sm" /></div>
-          <div><label className="block text-xs font-medium mb-1">Cara Melahirkan</label>
-            <select name="cara_melahirkan" value={form.cara_melahirkan} onChange={handleChange} className="w-full border rounded-lg px-2 py-1.5 text-sm">
-              <option value="">-- Pilih --</option>
-              <option>Spontan/Normal</option><option>SC</option><option>Vakum</option>
-            </select></div>
-          <div><label className="block text-xs font-medium mb-1">Keadaan Ibu</label>
-            <input name="keadaan_ibu" value={form.keadaan_ibu} onChange={handleChange} className="w-full border rounded-lg px-2 py-1.5 text-sm" /></div>
-          <div><label className="block text-xs font-medium mb-1">KB Pasca Salin</label>
-            <input name="kb_pasca_melahirkan" value={form.kb_pasca_melahirkan} onChange={handleChange} className="w-full border rounded-lg px-2 py-1.5 text-sm" /></div>
-        </div>
-      </div>
+<div className="border border-gray-200 rounded-2xl p-4 space-y-4">
+  <div className="flex items-center gap-2">
+    <Info size={16} className="text-indigo-500" />
+    <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">Info Persalinan</p>
+  </div>
+  <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-3">
+    <div><label className="block text-xs font-medium mb-1">Tanggal Melahirkan</label>
+      <input type="date" name="tanggal_melahirkan" value={form.tanggal_melahirkan} onChange={handleChange} max={today} className="w-full border rounded-lg px-2 py-1.5 text-sm" /></div>
+    <div><label className="block text-xs font-medium mb-1">Umur Kehamilan (Mgg)</label>
+      <input type="number" name="umur_kehamilan_minggu" value={form.umur_kehamilan_minggu} onChange={handleChange} className="w-full border rounded-lg px-2 py-1.5 text-sm" /></div>
+    <div><label className="block text-xs font-medium mb-1">Penolong</label>
+      <input name="penolong_proses_melahirkan" value={form.penolong_proses_melahirkan} onChange={handleChange} className="w-full border rounded-lg px-2 py-1.5 text-sm" /></div>
+    <div><label className="block text-xs font-medium mb-1">Cara Melahirkan</label>
+      <select name="cara_melahirkan" value={form.cara_melahirkan} onChange={handleChange} className="w-full border rounded-lg px-2 py-1.5 text-sm">
+        <option value="">-- Pilih --</option>
+        <option>Spontan/Normal</option><option>SC</option><option>Vakum</option>
+      </select></div>
+    <div><label className="block text-xs font-medium mb-1">Keadaan Ibu</label>
+      <input name="keadaan_ibu" value={form.keadaan_ibu} onChange={handleChange} className="w-full border rounded-lg px-2 py-1.5 text-sm" /></div>
+    <div><label className="block text-xs font-medium mb-1">KB Pasca Salin</label>
+      <input name="kb_pasca_melahirkan" value={form.kb_pasca_melahirkan} onChange={handleChange} className="w-full border rounded-lg px-2 py-1.5 text-sm" /></div>
+  </div>
+</div>
 
-      {/* Gravida, Paritas, Abortus (dari ibu / diubah) */}
+      {/* Gravida, Paritas, Abortus (dari ibu / diubah)
       <div className="grid grid-cols-3 gap-3">
         <div><label className="block text-xs font-medium mb-1">Gravida (G)</label>
           <input type="number" name="gravida" value={form.gravida} onChange={handleChange} className="w-full border rounded-lg px-2 py-1.5 text-sm" /></div>
@@ -304,23 +330,50 @@ function RingkasanForm({ initial, onSubmit, onCancel, saving, title }) {
           <input type="number" name="paritas" value={form.paritas} onChange={handleChange} className="w-full border rounded-lg px-2 py-1.5 text-sm" /></div>
         <div><label className="block text-xs font-medium mb-1">Abortus (A)</label>
           <input type="number" name="abortus" value={form.abortus} onChange={handleChange} className="w-full border rounded-lg px-2 py-1.5 text-sm" /></div>
-      </div>
+      </div> */}
 
-      {/* Data Bayi */}
-      <div>
-        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Data Bayi</p>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <div><label className="block text-xs font-medium mb-1">Anak Ke</label>
-            <input type="number" name="bayi_anak_ke" value={form.bayi_anak_ke} onChange={handleChange} className="w-full border rounded-lg px-2 py-1.5 text-sm" /></div>
-          <div><label className="block text-xs font-medium mb-1">Berat (gram)</label>
-            <input type="number" name="bayi_berat_lahir_gram" value={form.bayi_berat_lahir_gram} onChange={handleChange} className="w-full border rounded-lg px-2 py-1.5 text-sm" /></div>
-          <div><label className="block text-xs font-medium mb-1">Panjang (cm)</label>
-            <input type="number" name="bayi_panjang_badan_cm" value={form.bayi_panjang_badan_cm} onChange={handleChange} className="w-full border rounded-lg px-2 py-1.5 text-sm" /></div>
-          <div><label className="block text-xs font-medium mb-1">Lingkar Kepala (cm)</label>
-            <input type="number" name="bayi_lingkar_kepala_cm" value={form.bayi_lingkar_kepala_cm} onChange={handleChange} className="w-full border rounded-lg px-2 py-1.5 text-sm" /></div>
-        </div>
-      </div>
+      {/* Data Bayi & Anak */}
+<div className="border border-gray-200 rounded-2xl p-4 space-y-4">
+  <div className="flex items-center gap-2">
+    <Baby size={16} className="text-indigo-500" />
+    <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">
+      Data Anak <span className="normal-case font-normal text-gray-400">(opsional)</span>
+    </p>
+  </div>
 
+  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+    <div><label className="block text-xs font-medium mb-1">Nama Anak</label>
+    <input name="nama_anak" value={form.nama_anak} onChange={handleChange} className="w-full border rounded-lg px-2 py-1.5 text-sm" /></div>
+    <div><label className="block text-xs font-medium mb-1">Anak Ke</label>
+      <input type="number" name="bayi_anak_ke" value={form.bayi_anak_ke} onChange={handleChange} className="w-full border rounded-lg px-2 py-1.5 text-sm" /></div>
+       
+    <div>
+      <label className="block text-xs font-medium mb-1 flex items-center gap-1">
+        Tanggal Lahir Anak
+      </label>
+      <input type="date" name="anak_tanggal_lahir" value={form.anak_tanggal_lahir} onChange={handleChange} disabled className="w-full border border-blue-200 bg-blue-50/30 rounded-lg px-2 py-1.5 text-sm" />
+    </div>
+    <div><label className="block text-xs font-medium mb-1">Jenis Kelamin</label>
+      <select name="anak_jenis_kelamin" value={form.anak_jenis_kelamin} onChange={handleChange} className="w-full border rounded-lg px-2 py-1.5 text-sm">
+        <option value="">-- Pilih --</option>
+        <option value="Laki-laki">Laki-laki</option>
+        <option value="Perempuan">Perempuan</option>
+      </select>
+    </div>
+    <div><label className="block text-xs font-medium mb-1">Berat (kg)</label>
+      <input type="number" name="bayi_berat_lahir_gram" value={form.bayi_berat_lahir_gram} onChange={handleChange} className="w-full border rounded-lg px-2 py-1.5 text-sm" /></div>
+    <div><label className="block text-xs font-medium mb-1">Panjang (cm)</label>
+      <input type="number" name="bayi_panjang_badan_cm" value={form.bayi_panjang_badan_cm} onChange={handleChange} className="w-full border rounded-lg px-2 py-1.5 text-sm" /></div>
+    <div><label className="block text-xs font-medium mb-1">Lingkar Kepala (cm)</label>
+      <input type="number" name="bayi_lingkar_kepala_cm" value={form.bayi_lingkar_kepala_cm} onChange={handleChange} className="w-full border rounded-lg px-2 py-1.5 text-sm" /></div>
+  </div>
+      <input type="hidden" name="anak_nama_ibu" value={form.anak_nama_ibu} disabled className="w-full bg-gray-100 border border-gray-200 text-gray-500 rounded-lg px-2 py-1.5 text-sm cursor-not-allowed" />
+    </div>
+    <div>
+      
+      <input type="hidden" name="anak_nama_ayah" value={form.anak_nama_ayah} disabled className="w-full bg-gray-100 border border-gray-200 text-gray-500 rounded-lg px-2 py-1.5 text-sm cursor-not-allowed" />
+    </div>
+  
       {/* Kondisi Bayi */}
       <div className="bg-gray-50 rounded-xl p-4 space-y-3">
         <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">Kondisi Bayi Saat Lahir</p>
@@ -365,37 +418,6 @@ function RingkasanForm({ initial, onSubmit, onCancel, saving, title }) {
         </div>
         <div><label className="block text-xs font-medium mb-1">Keterangan Tambahan Bayi</label>
           <textarea name="keterangan_tambahan_bayi" value={form.keterangan_tambahan_bayi} onChange={handleChange} rows={2} className="w-full border rounded-lg px-2 py-1.5 text-sm" /></div>
-      </div>
-
-      {/* Data Anak (opsional) */}
-      <div>
-        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Data Anak Lahir <span className="normal-case font-normal text-gray-400">(opsional)</span></p>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-          <div><label className="block text-xs font-medium mb-1">Nama Anak</label>
-            <input name="nama_anak" value={form.nama_anak} onChange={handleChange} className="w-full border rounded-lg px-2 py-1.5 text-sm" /></div>
-          <div><label className="block text-xs font-medium mb-1">Tanggal Lahir Anak</label>
-            <input type="date" name="anak_tanggal_lahir" value={form.anak_tanggal_lahir} onChange={handleChange} className="w-full border rounded-lg px-2 py-1.5 text-sm" /></div>
-          <div><label className="block text-xs font-medium mb-1">Jenis Kelamin</label>
-            <select name="anak_jenis_kelamin" value={form.anak_jenis_kelamin} onChange={handleChange} className="w-full border rounded-lg px-2 py-1.5 text-sm">
-              <option value="">-- Pilih --</option>
-              <option value="Laki-laki">Laki-laki</option>
-              <option value="Perempuan">Perempuan</option>
-            </select></div>
-          <div>
-            <label className="block text-xs font-medium mb-1 flex items-center justify-between">
-              Nama Ibu
-              <span className="text-[9px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded font-semibold">Terkunci</span>
-            </label>
-            <input name="anak_nama_ibu" value={form.anak_nama_ibu} onChange={handleChange} disabled className="w-full bg-gray-100 border border-gray-200 text-gray-500 rounded-lg px-2 py-1.5 text-sm cursor-not-allowed" />
-          </div>
-          <div>
-            <label className="block text-xs font-medium mb-1 flex items-center justify-between">
-              Nama Ayah
-              <span className="text-[9px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded font-semibold">Terkunci</span>
-            </label>
-            <input name="anak_nama_ayah" value={form.anak_nama_ayah} onChange={handleChange} disabled className="w-full bg-gray-100 border border-gray-200 text-gray-500 rounded-lg px-2 py-1.5 text-sm cursor-not-allowed" />
-          </div>
-        </div>
       </div>
 
       <div className="flex gap-2 pt-2">
@@ -451,38 +473,61 @@ export default function PelayananPersalinan() {
   });
   const [autoFilledFields, setAutoFilledFields] = useState([]);
 
-  const fetchKelahiran = async (kehamilanId, ibuIdParam) => {
-    try {
-      const [ringkasanList, anakList] = await Promise.all([
-        getRingkasanPersalinanByKehamilanId(kehamilanId),
-        getAnakByKehamilanId(kehamilanId),
-      ]);
-      const safeRingkasan = Array.isArray(ringkasanList) ? ringkasanList : [];
-      const safeAnak = Array.isArray(anakList) ? anakList : [];
-      const sorted = [...safeRingkasan].sort(
-        (a, b) => new Date(a.tanggal_melahirkan) - new Date(b.tanggal_melahirkan)
-      );
-      const grouped = sorted.map((r, i) => {
-        const nextDate = sorted[i + 1]?.tanggal_melahirkan;
-        const anakForThis = safeAnak.filter((a) => {
-          if (!a.tanggal_lahir) return i === 0;
-          const tgl = new Date(a.tanggal_lahir);
-          const from = new Date(r.tanggal_melahirkan);
-          const to = nextDate ? new Date(nextDate) : new Date("9999-12-31");
-          return tgl >= from && tgl < to;
+  const fetchKelahiran = async (kehamilanId) => {
+  try {
+    const [ringkasanList, anakList] = await Promise.all([
+      getRingkasanPersalinanByKehamilanId(kehamilanId),
+      getAnakByKehamilanId(kehamilanId),
+    ]);
+    const safeRingkasan = Array.isArray(ringkasanList) ? ringkasanList : [];
+    const safeAnak = Array.isArray(anakList) ? anakList : [];
+
+    const sorted = [...safeRingkasan].sort(
+      (a, b) => new Date(a.tanggal_melahirkan) - new Date(b.tanggal_melahirkan)
+    );
+
+    const grouped = sorted.map((r) => {
+      // Cocokkan anak berdasarkan tanggal lahir == tanggal melahirkan
+      const tglLahir = r.tanggal_melahirkan
+        ? new Date(r.tanggal_melahirkan).toISOString().split("T")[0]
+        : null;
+
+      const anakForThis = tglLahir
+        ? safeAnak.filter((a) => {
+            if (!a.tanggal_lahir) return false;
+            const tglAnak = new Date(a.tanggal_lahir).toISOString().split("T")[0];
+            return tglAnak === tglLahir;
+          })
+        : [];
+
+      return { ringkasan: r, anakList: anakForThis };
+    });
+      const allGroupedAnakIds = grouped.flatMap((g) => g.anakList.map((a) => a.id));
+    const orphans = safeAnak.filter((a) => !allGroupedAnakIds.includes(a.id));
+    if (orphans.length > 0 && grouped.length > 0) {
+      // Masukkan orphan ke kelahiran yang paling dekat tanggalnya
+      orphans.forEach((anak) => {
+        if (!anak.tanggal_lahir) {
+          grouped[grouped.length - 1].anakList.push(anak);
+          return;
+        }
+        const tglAnak = new Date(anak.tanggal_lahir);
+        let closest = 0;
+        let minDiff = Infinity;
+        grouped.forEach((g, i) => {
+          if (!g.ringkasan.tanggal_melahirkan) return;
+          const diff = Math.abs(new Date(g.ringkasan.tanggal_melahirkan) - tglAnak);
+          if (diff < minDiff) { minDiff = diff; closest = i; }
         });
-        return { ringkasan: r, anakList: anakForThis };
+        grouped[closest].anakList.push(anak);
       });
-      if (grouped.length > 0) {
-        const allGroupedAnakIds = grouped.flatMap((g) => g.anakList.map((a) => a.id));
-        const orphans = safeAnak.filter((a) => !allGroupedAnakIds.includes(a.id));
-        grouped[0].anakList = [...orphans, ...grouped[0].anakList];
-      }
-      setKelahiranList(grouped);
-    } catch (err) {
-      console.error("Error fetching kelahiran:", err);
     }
-  };
+
+    setKelahiranList(grouped);
+  } catch (err) {
+    console.error("Error fetching kelahiran:", err);
+  }
+};
 
   useEffect(() => {
     const fetchData = async () => {
@@ -618,9 +663,9 @@ export default function PelayananPersalinan() {
       keadaan_ibu_detail_sakit: form.keadaan_ibu_detail_sakit,
       keterangan_tambahan_ibu: form.keterangan_tambahan_ibu,
       kb_pasca_melahirkan: form.kb_pasca_melahirkan,
-      gravida: parseInt(form.gravida) || 0,
-      paritas: parseInt(form.paritas) || 0,
-      abortus: parseInt(form.abortus) || 0,
+      // gravida: parseInt(form.gravida) || 0,
+      // paritas: parseInt(form.paritas) || 0,
+      // abortus: parseInt(form.abortus) || 0,
       kondisi_bayi_segera_menangis: form.kondisi_bayi_segera_menangis,
       kondisi_bayi_menangis_beberapa_saat: form.kondisi_bayi_menangis_beberapa_saat,
       kondisi_bayi_tidak_menangis: form.kondisi_bayi_tidak_menangis,
@@ -649,7 +694,7 @@ export default function PelayananPersalinan() {
     setSaving(true);
     try {
       const payload = buildPayload(form, kehamilan.id);
-      await createRingkasanPersalinan(payload);
+      const savedRingkasan = await createRingkasanPersalinan(payload);
 
       if (kehamilan.status_kehamilan !== "NIFAS" && kehamilan.status_kehamilan !== "NON-AKTIF") {
         try {
@@ -668,7 +713,7 @@ export default function PelayananPersalinan() {
           jenis_kelamin: form.anak_jenis_kelamin || "",
           tanggal_lahir: form.anak_tanggal_lahir || "",
           anak_ke: parseInt(form.bayi_anak_ke) || 0,
-          berat_lahir_kg: form.bayi_berat_lahir_gram ? parseFloat(form.bayi_berat_lahir_gram) / 1000 : null,
+          berat_lahir_kg: form.bayi_berat_lahir_gram ? parseFloat(form.bayi_berat_lahir_gram) : null,
           tinggi_lahir_cm: form.bayi_panjang_badan_cm ? parseFloat(form.bayi_panjang_badan_cm) : null,
           lingkar_kepala_cm: form.bayi_lingkar_kepala_cm ? parseFloat(form.bayi_lingkar_kepala_cm) : null,
           nama_ibu: form.anak_nama_ibu || "",
@@ -833,7 +878,7 @@ export default function PelayananPersalinan() {
   const handleDeleteRingkasan = async (ringkasanId) => {
     const result = await Swal.fire({
       title: 'Hapus Kelahiran?',
-      text: 'Data kelahiran ini akan dihapus secara permanen! Ini juga akan menghapus data anak yang terkait dengan kelahiran ini.',
+      text: 'Data kelahiran ini akan dihapus secara permanen beserta data anak yang terkait.',
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#dc2626',
@@ -846,12 +891,36 @@ export default function PelayananPersalinan() {
 
     setSaving(true);
     try {
+      // Cari anak yang terkait dengan kelahiran ini dari state kelahiranList
+      const kelahiran = kelahiranList.find(
+        (k) => (k.ringkasan.id || k.ringkasan.ID) === ringkasanId
+      );
+
+      // Hapus semua anak yang terkait dulu
+      if (kelahiran && kelahiran.anakList.length > 0) {
+        await Promise.all(
+          kelahiran.anakList.map((anak) => deleteAnak(anak.id))
+        );
+      }
+
+      // Baru hapus ringkasan
       await deleteRingkasanPersalinan(ringkasanId);
-      await Swal.fire({ icon: "success", title: "Terhapus", text: "Data kelahiran berhasil dihapus.", timer: 1500, showConfirmButton: false });
-      await fetchKelahiran(kehamilan.id, id); // Re-fetch all data
+
+      await Swal.fire({ 
+        icon: "success", 
+        title: "Terhapus", 
+        text: "Data kelahiran dan anak berhasil dihapus.", 
+        timer: 1500, 
+        showConfirmButton: false 
+      });
+      await fetchKelahiran(kehamilan.id, id);
     } catch (err) {
       console.error("Error deleting ringkasan:", err);
-      Swal.fire({ icon: "error", title: "Gagal", text: 'Gagal menghapus data: ' + (err.response?.data?.message || err.message) });
+      Swal.fire({ 
+        icon: "error", 
+        title: "Gagal", 
+        text: 'Gagal menghapus data: ' + (err.response?.data?.message || err.message) 
+      });
     } finally {
       setSaving(false);
     }

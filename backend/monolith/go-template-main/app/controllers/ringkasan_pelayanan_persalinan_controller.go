@@ -14,9 +14,9 @@ import (
 )
 
 type RingkasanPelayananPersalinanController struct {
-	usecase        usecases.RingkasanPelayananPersalinanUsecase
-	riwayatUsecase usecases.RiwayatProsesMelahirkanUsecase
-	kehamilanUsecase usecases.KehamilanUsecase 
+	usecase          usecases.RingkasanPelayananPersalinanUsecase
+	riwayatUsecase   usecases.RiwayatProsesMelahirkanUsecase
+	kehamilanUsecase usecases.KehamilanUsecase
 }
 
 // NewRingkasanPelayananPersalinanController sekarang menerima RiwayatProsesMelahirkanUsecase
@@ -25,7 +25,7 @@ func NewRingkasanPelayananPersalinanController(
 	ru usecases.RiwayatProsesMelahirkanUsecase,
 	ku usecases.KehamilanUsecase,
 ) *RingkasanPelayananPersalinanController {
-	return &RingkasanPelayananPersalinanController{usecase: u, riwayatUsecase: ru, kehamilanUsecase: ku,}
+	return &RingkasanPelayananPersalinanController{usecase: u, riwayatUsecase: ru, kehamilanUsecase: ku}
 }
 
 type createRingkasanRequest struct {
@@ -58,9 +58,6 @@ type createRingkasanRequest struct {
 	AsuhanSalepMataAntibiotika       bool     `json:"asuhan_salep_mata_antibiotika"`
 	AsuhanImunisasiHB0               bool     `json:"asuhan_imunisasi_hb0"`
 	KeteranganTambahanBayi           string   `json:"keterangan_tambahan_bayi"`
-	Gravida                          int      `json:"gravida"`
-	Paritas                          int      `json:"paritas"`
-	Abortus                          int      `json:"abortus"`
 }
 
 // sinkronisasiRiwayat menyamakan data Ringkasan ke RiwayatProsesMelahirkan
@@ -71,9 +68,9 @@ func (c *RingkasanPelayananPersalinanController) sinkronisasiRiwayat(ringkasan *
 		// Buat baru
 		riwayatBaru := &models.RiwayatProsesMelahirkan{
 			KehamilanID: ringkasan.KehamilanID,
-			GGravida:    ringkasan.Gravida,
-			PPartus:     ringkasan.Paritas,
-			AAbortus:    ringkasan.Abortus,
+			// // GGravida:    ringkasan.Gravida,
+			// PPartus:     ringkasan.Paritas,
+			// AAbortus:    ringkasan.Abortus,
 		}
 		if ringkasan.TanggalMelahirkan != nil {
 			riwayatBaru.TanggalMelahirkan = ringkasan.TanggalMelahirkan
@@ -98,15 +95,15 @@ func (c *RingkasanPelayananPersalinanController) sinkronisasiRiwayat(ringkasan *
 	} else {
 		// Update yang sudah ada (ambil record pertama)
 		riwayat := &riwayatList[0]
-		if ringkasan.Gravida > 0 {
-			riwayat.GGravida = ringkasan.Gravida
-		}
-		if ringkasan.Paritas > 0 {
-			riwayat.PPartus = ringkasan.Paritas
-		}
-		if ringkasan.Abortus > 0 {
-			riwayat.AAbortus = ringkasan.Abortus
-		}
+		// if ringkasan.Gravida > 0 {
+		// 	riwayat.GGravida = ringkasan.Gravida
+		// }
+		// if ringkasan.Paritas > 0 {
+		// 	riwayat.PPartus = ringkasan.Paritas
+		// }
+		// if ringkasan.Abortus > 0 {
+		// 	riwayat.AAbortus = ringkasan.Abortus
+		// }
 		if ringkasan.TanggalMelahirkan != nil {
 			riwayat.TanggalMelahirkan = ringkasan.TanggalMelahirkan
 		}
@@ -174,9 +171,9 @@ func (c *RingkasanPelayananPersalinanController) Create(ctx echo.Context) error 
 		AsuhanSalepMataAntibiotika:       req.AsuhanSalepMataAntibiotika,
 		AsuhanImunisasiHB0:               req.AsuhanImunisasiHB0,
 		KeteranganTambahanBayi:           req.KeteranganTambahanBayi,
-		Gravida:                          req.Gravida,
-		Paritas:                          req.Paritas,
-		Abortus:                          req.Abortus,
+		// Gravida:                          req.Gravida,
+		// Paritas:                          req.Paritas,
+		// Abortus:                          req.Abortus,
 	}
 	if req.TanggalMelahirkan != "" {
 		if t, err := time.Parse("2006-01-02", req.TanggalMelahirkan); err == nil {
@@ -307,9 +304,9 @@ func (c *RingkasanPelayananPersalinanController) Update(ctx echo.Context) error 
 	if req.KeteranganTambahanBayi != "" {
 		existing.KeteranganTambahanBayi = req.KeteranganTambahanBayi
 	}
-	existing.Gravida = req.Gravida
-	existing.Paritas = req.Paritas
-	existing.Abortus = req.Abortus
+	// existing.Gravida = req.Gravida
+	// existing.Paritas = req.Paritas
+	// existing.Abortus = req.Abortus
 
 	if err := c.usecase.Update(existing); err != nil {
 		return ctx.JSON(http.StatusInternalServerError, models.Response{StatusCode: http.StatusInternalServerError, Message: err.Error()})

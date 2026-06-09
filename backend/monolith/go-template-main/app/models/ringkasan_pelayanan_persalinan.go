@@ -40,10 +40,10 @@ type RingkasanPelayananPersalinan struct {
 
 	KeteranganTambahanBayi string `json:"keterangan_tambahan_bayi"`
 
-	// Tambahan untuk keterkaitan dengan Riwayat & Ibu
-	Gravida int `json:"gravida"`
-	Paritas int `json:"paritas"`
-	Abortus int `json:"abortus"`
+	// // Tambahan untuk keterkaitan dengan Riwayat & Ibu
+	// Gravida int `json:"gravida"`
+	// Paritas int `json:"paritas"`
+	// Abortus int `json:"abortus"`
 
 	CreatedAt time.Time `json:"created_at"`
 }

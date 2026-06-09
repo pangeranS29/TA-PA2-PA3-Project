@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "docx": "^9.7.1",
     "sweetalert2": "^11.26.24"
   }
 }
