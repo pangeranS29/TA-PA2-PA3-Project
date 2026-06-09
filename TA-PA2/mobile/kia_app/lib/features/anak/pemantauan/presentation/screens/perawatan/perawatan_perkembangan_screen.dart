@@ -36,7 +36,7 @@ class _PerawatanPerkembanganScreenState
     '4-5 tahun',
     '5-6 tahun',
   ];
-  
+
   final Map<String, String> _ageRangeDisplay = {
     '29 hari-3 bulan': '19h-3b',
     '3-6 bulan': '3-6b',
@@ -49,7 +49,7 @@ class _PerawatanPerkembanganScreenState
     '4-5 tahun': '4-5th',
     '5-6 tahun': '5-6th',
   };
-  
+
   int _selectedAgeIndex = 0;
 
   // State per rentang usia
@@ -60,7 +60,8 @@ class _PerawatanPerkembanganScreenState
   Map<String, String> _errorByRange = {};
   Map<String, bool> _submittingByRange = {};
   Map<String, bool> _submittedByRange = {}; // sudah tersimpan?
-  Map<String, DateTime?> _tanggalPeriksaByRange = {}; // tanggal pengisian per range
+  Map<String, DateTime?> _tanggalPeriksaByRange =
+      {}; // tanggal pengisian per range
 
   // Tanggal periksa (sama untuk seluruh submit)
   DateTime _tanggalPeriksa = DateTime.now();
@@ -109,7 +110,8 @@ class _PerawatanPerkembanganScreenState
             checklistMap[item.kategoriCapaianId] = item.jawaban;
             idMap[item.kategoriCapaianId] = item.id;
             if (item.tanggalPeriksa != null) {
-              if (latestTanggal == null || item.tanggalPeriksa!.isAfter(latestTanggal)) {
+              if (latestTanggal == null ||
+                  item.tanggalPeriksa!.isAfter(latestTanggal)) {
                 latestTanggal = item.tanggalPeriksa;
               }
             }
@@ -140,14 +142,13 @@ class _PerawatanPerkembanganScreenState
     }
   }
 
-
-
   void _showExitPopup() {
     showVerificationPopup(
       context: context,
       type: VerificationPopupType.exit,
       title: 'Yakin ingin keluar?',
-      content: 'Apakah Anda yakin ingin keluar tanpa menyimpan? Data yang belum disimpan akan hilang dan tidak dapat dikembalikan.',
+      content:
+          'Apakah Anda yakin ingin keluar tanpa menyimpan? Data yang belum disimpan akan hilang dan tidak dapat dikembalikan.',
       onConfirm: () {
         Navigator.pop(context);
         Navigator.pop(context);
@@ -161,7 +162,8 @@ class _PerawatanPerkembanganScreenState
       context: context,
       type: VerificationPopupType.save,
       title: 'Konfirmasi Simpan',
-      content: 'Apakah Anda yakin data perawatan/perkembangan sudah benar? Data yang sudah disimpan tidak dapat diubah kembali.',
+      content:
+          'Apakah Anda yakin data perawatan/perkembangan sudah benar? Data yang sudah disimpan tidak dapat diubah kembali.',
       onConfirm: () {
         Navigator.pop(context);
         _submit(range);
@@ -247,8 +249,10 @@ class _PerawatanPerkembanganScreenState
         _tanggalPeriksaByRange[range] = _tanggalPeriksa;
       });
     } else {
-      final firstError = errorMessages.isNotEmpty ? errorMessages.first : 'Coba lagi.';
-      _showSnack('$successCount berhasil, $failCount gagal disimpan. $firstError');
+      final firstError =
+          errorMessages.isNotEmpty ? errorMessages.first : 'Coba lagi.';
+      _showSnack(
+          '$successCount berhasil, $failCount gagal disimpan. $firstError');
     }
   }
 
@@ -538,208 +542,213 @@ class _PerawatanPerkembanganScreenState
         children: [
           const SizedBox(height: 16),
           // Profile Card
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.04),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Row(
-              children: [
-                const CircleAvatar(
-                  radius: 26,
-                  backgroundColor: Color(0xFFD7ECFF),
-                  child: Icon(
-                    Icons.person_outline,
-                    size: 30,
-                    color: Color(0xFF185FA5),
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        _anakNama,
-                        style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                            color: Color(0xFF1E293B)),
-                      ),
-                      const SizedBox(height: 4),
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFDBEAFE),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Text(
-                              'Usia: $_anakUsia',
-                              style: const TextStyle(
-                                  fontSize: 12,
-                                  color: Color(0xFF1D4ED8),
-                                  fontWeight: FontWeight.w600),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        
-        const SizedBox(height: 16),
-
-        // Tanggal Pemeriksaan
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: GestureDetector(
-            onTap: _pickTanggal,
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: const Color(0xFFEFF6FF),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFFBFDBFE)),
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.04),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    children: const [
-                      Icon(Icons.calendar_month, color: Color(0xFF3B82F6), size: 20),
-                      SizedBox(width: 8),
-                      Text(
-                        'Tanggal Pemeriksaan',
-                        style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFF1E40AF)),
-                      ),
-                    ],
+                  const CircleAvatar(
+                    radius: 26,
+                    backgroundColor: Color(0xFFD7ECFF),
+                    child: Icon(
+                      Icons.person_outline,
+                      size: 30,
+                      color: Color(0xFF185FA5),
+                    ),
                   ),
-                  Text(
-                    _formatDate(_tanggalPeriksa),
-                    style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF1E40AF)),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          _anakNama,
+                          style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                              color: Color(0xFF1E293B)),
+                        ),
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFDBEAFE),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Text(
+                                'Usia: $_anakUsia',
+                                style: const TextStyle(
+                                    fontSize: 12,
+                                    color: Color(0xFF1D4ED8),
+                                    fontWeight: FontWeight.w600),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
             ),
           ),
-        ),
 
-        const SizedBox(height: 24),
+          const SizedBox(height: 16),
 
-        // Tahapan Perkembangan Title
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: const [
-              Text(
-                'TAHAPAN PERKEMBANGAN',
-                style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF64748B)),
-              ),
-              Text(
-                'Pilih kuisioner berdasarkan usia anak',
-                style: TextStyle(
-                    fontSize: 10,
-                    fontStyle: FontStyle.italic,
-                    color: Color(0xFF94A3B8)),
-              ),
-            ],
-          ),
-        ),
-        
-        const SizedBox(height: 12),
-
-        // Age category grid (cards)
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: _ageRanges.length,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 5,
-              mainAxisSpacing: 8,
-              crossAxisSpacing: 8,
-              childAspectRatio: 1.1,
-            ),
-            itemBuilder: (context, i) {
-              final isSelected = i == _selectedAgeIndex;
-              final range = _ageRanges[i];
-              final isDone = _submittedByRange[range] == true;
-              final displayStr = _ageRangeDisplay[range] ?? range;
-
-              return GestureDetector(
-                onTap: () => setState(() => _selectedAgeIndex = i),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: isSelected ? const Color(0xFF1D4ED8) : Colors.white,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color: isSelected
-                          ? const Color(0xFF1D4ED8)
-                          : const Color(0xFFCBD5E1),
+          // Tanggal Pemeriksaan
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: GestureDetector(
+              onTap: _pickTanggal,
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFEFF6FF),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFFBFDBFE)),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: const [
+                        Icon(Icons.calendar_month,
+                            color: Color(0xFF3B82F6), size: 20),
+                        SizedBox(width: 8),
+                        Text(
+                          'Tanggal Pemeriksaan',
+                          style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF1E40AF)),
+                        ),
+                      ],
                     ),
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        displayStr,
-                        style: TextStyle(
-                          fontSize: 11,
+                    Text(
+                      _formatDate(_tanggalPeriksa),
+                      style: const TextStyle(
+                          fontSize: 14,
                           fontWeight: FontWeight.bold,
+                          color: Color(0xFF1E40AF)),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 24),
+
+          // Tahapan Perkembangan Title
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: const [
+                Text(
+                  'TAHAPAN PERKEMBANGAN',
+                  style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF64748B)),
+                ),
+                Text(
+                  'Pilih kuisioner berdasarkan usia anak',
+                  style: TextStyle(
+                      fontSize: 10,
+                      fontStyle: FontStyle.italic,
+                      color: Color(0xFF94A3B8)),
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 12),
+
+          // Age category grid (cards)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: _ageRanges.length,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 5,
+                mainAxisSpacing: 8,
+                crossAxisSpacing: 8,
+                childAspectRatio: 1.1,
+              ),
+              itemBuilder: (context, i) {
+                final isSelected = i == _selectedAgeIndex;
+                final range = _ageRanges[i];
+                final isDone = _submittedByRange[range] == true;
+                final displayStr = _ageRangeDisplay[range] ?? range;
+
+                return GestureDetector(
+                  onTap: () => setState(() => _selectedAgeIndex = i),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color:
+                          isSelected ? const Color(0xFF1D4ED8) : Colors.white,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: isSelected
+                            ? const Color(0xFF1D4ED8)
+                            : const Color(0xFFCBD5E1),
+                      ),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          displayStr,
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            color: isSelected
+                                ? Colors.white
+                                : const Color(0xFF64748B),
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Icon(
+                          isDone ? Icons.check_circle : Icons.circle_outlined,
+                          size: 14,
                           color: isSelected
                               ? Colors.white
-                              : const Color(0xFF64748B),
+                              : (isDone
+                                  ? const Color(0xFF1D4ED8)
+                                  : const Color(0xFFCBD5E1)),
                         ),
-                      ),
-                      const SizedBox(height: 4),
-                      Icon(
-                        isDone ? Icons.check_circle : Icons.circle_outlined,
-                        size: 14,
-                        color: isSelected
-                            ? Colors.white
-                            : (isDone ? const Color(0xFF1D4ED8) : const Color(0xFFCBD5E1)),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
-        ),
 
-        const SizedBox(height: 16),
+          const SizedBox(height: 16),
 
-        _buildRangeContent(_ageRanges[_selectedAgeIndex]),
-      ],
+          _buildRangeContent(_ageRanges[_selectedAgeIndex]),
+        ],
       ),
     );
   }
@@ -759,7 +768,8 @@ class _PerawatanPerkembanganScreenState
             children: [
               CircularProgressIndicator(color: Color(0xFF1D4ED8)),
               SizedBox(height: 12),
-              Text('Memuat data...', style: TextStyle(color: Color(0xFF64748B))),
+              Text('Memuat data...',
+                  style: TextStyle(color: Color(0xFF64748B))),
             ],
           ),
         ),
@@ -804,7 +814,8 @@ class _PerawatanPerkembanganScreenState
         children: [
           // ── Materi Perawatan ──
           _buildMateriSection(range),
-          if (_materiByRange[range]?.isNotEmpty ?? false) const SizedBox(height: 16),
+          if (_materiByRange[range]?.isNotEmpty ?? false)
+            const SizedBox(height: 16),
 
           // ── Header Kuesioner ──
           _buildKuesionerHeader(range, answeredCount, totalCount),
@@ -814,7 +825,8 @@ class _PerawatanPerkembanganScreenState
           if (kategori.isEmpty)
             _buildEmptyKuesioner(range)
           else
-            _buildChecklistTable(range, kategori, checklist, _submittedByRange[range] ?? false),
+            _buildChecklistTable(
+                range, kategori, checklist, _submittedByRange[range] ?? false),
           const SizedBox(height: 32),
         ],
       ),
@@ -940,7 +952,7 @@ class _PerawatanPerkembanganScreenState
 
   Widget _buildKuesionerHeader(String range, int answered, int total) {
     if (total == 0) return const SizedBox.shrink();
-    
+
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -955,7 +967,8 @@ class _PerawatanPerkembanganScreenState
             child: LinearProgressIndicator(
               value: total > 0 ? answered / total : 0,
               minHeight: 4,
-              backgroundColor: const Color(0xFFFDE047).withOpacity(0.4), // pale yellow
+              backgroundColor:
+                  const Color(0xFFFDE047).withOpacity(0.4), // pale yellow
               color: const Color(0xFFFACC15), // distinct yellow
             ),
           ),
@@ -975,20 +988,55 @@ class _PerawatanPerkembanganScreenState
 
   Widget _buildEmptyKuesioner(String range) {
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: const Color(0xFFE2E8F0)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.02),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
-      child: Column(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const Icon(Icons.info_outline, color: Color(0xFF94A3B8), size: 36),
-          const SizedBox(height: 8),
-          Text(
-            'Kuesioner untuk $range belum tersedia',
-            textAlign: TextAlign.center,
-            style: const TextStyle(color: Color(0xFF64748B)),
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: const Color(0xFFF1F5F9),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: const Icon(Icons.info_outline,
+                color: Color(0xFF64748B), size: 24),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Kuesioner belum tersedia',
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF1E293B),
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  'Kuesioner untuk $range belum tersedia',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Color(0xFF64748B),
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -1107,14 +1155,16 @@ class _PerawatanPerkembanganScreenState
                             activeColor: const Color(0xFF1D4ED8),
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(4)),
-                            onChanged: isLocked ? null : (v) {
-                              setState(() {
-                                final map = Map<int, bool?>.from(
-                                    _checklistByRange[range] ?? {});
-                                map[item.id] = (v == true) ? true : null;
-                                _checklistByRange[range] = map;
-                              });
-                            },
+                            onChanged: isLocked
+                                ? null
+                                : (v) {
+                                    setState(() {
+                                      final map = Map<int, bool?>.from(
+                                          _checklistByRange[range] ?? {});
+                                      map[item.id] = (v == true) ? true : null;
+                                      _checklistByRange[range] = map;
+                                    });
+                                  },
                           ),
                         ),
                         // Tidak checkbox
@@ -1125,14 +1175,16 @@ class _PerawatanPerkembanganScreenState
                             activeColor: const Color(0xFFEA580C),
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(4)),
-                            onChanged: isLocked ? null : (v) {
-                              setState(() {
-                                final map = Map<int, bool?>.from(
-                                    _checklistByRange[range] ?? {});
-                                map[item.id] = (v == true) ? false : null;
-                                _checklistByRange[range] = map;
-                              });
-                            },
+                            onChanged: isLocked
+                                ? null
+                                : (v) {
+                                    setState(() {
+                                      final map = Map<int, bool?>.from(
+                                          _checklistByRange[range] ?? {});
+                                      map[item.id] = (v == true) ? false : null;
+                                      _checklistByRange[range] = map;
+                                    });
+                                  },
                           ),
                         ),
                       ],
@@ -1178,8 +1230,7 @@ class _PerawatanPerkembanganScreenState
           disabledBackgroundColor: const Color(0xFF9CA3AF),
           disabledForegroundColor: Colors.white,
           foregroundColor: Colors.white,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           elevation: 0,
         ),
       ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ta_pa2_pa3_project/core/constants/api_constants.dart';
 import 'package:ta_pa2_pa3_project/features/anak/mpasi/data/models/mpasi_models.dart';
 import 'package:ta_pa2_pa3_project/features/anak/mpasi/data/services/mpasi_api_service.dart';
 import 'package:ta_pa2_pa3_project/features/anak/mpasi/presentation/widgets/mpasi_age_tabs.dart';
@@ -69,12 +70,14 @@ class _MpasiResepScreenState extends State<MpasiResepScreen> {
         backgroundColor: const Color(0xFF1E5B9B),
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20),
+          icon: const Icon(Icons.arrow_back_ios_new,
+              color: Colors.white, size: 20),
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
           'Resep Harian',
-          style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+          style: TextStyle(
+              color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
         ),
       ),
       body: Column(
@@ -91,7 +94,8 @@ class _MpasiResepScreenState extends State<MpasiResepScreen> {
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : _resepList.isEmpty
-                    ? const Center(child: Text('Belum ada resep untuk usia ini'))
+                    ? const Center(
+                        child: Text('Belum ada resep untuk usia ini'))
                     : ListView.builder(
                         padding: const EdgeInsets.all(16),
                         itemCount: _resepList.length,
@@ -106,8 +110,10 @@ class _MpasiResepScreenState extends State<MpasiResepScreen> {
   }
 
   Widget _buildResepCard(ResepMpasi resep) {
-    final bool isSelingan = resep.tipe.toLowerCase().contains('selingan') || resep.tipe.toLowerCase().contains('snack');
-    
+    final bool isSelingan = resep.tipe.toLowerCase().contains('selingan') ||
+        resep.tipe.toLowerCase().contains('snack');
+    final String? imageUrl = _resolveImageUrl(resep.gambarUrl);
+
     return GestureDetector(
       onTap: () => _showResepDetail(resep),
       child: Container(
@@ -121,15 +127,21 @@ class _MpasiResepScreenState extends State<MpasiResepScreen> {
         ),
         child: Row(
           children: [
-            Container(
-              width: 120,
-              height: 120,
-              decoration: BoxDecoration(
-                borderRadius: const BorderRadius.horizontal(left: Radius.circular(12)),
-                image: DecorationImage(
-                  image: NetworkImage(resep.gambarUrl ?? 'https://via.placeholder.com/150'),
-                  fit: BoxFit.cover,
-                ),
+            ClipRRect(
+              borderRadius:
+                  const BorderRadius.horizontal(left: Radius.circular(12)),
+              child: Container(
+                width: 120,
+                height: 120,
+                color: const Color(0xFFEAF2FF),
+                child: imageUrl != null
+                    ? Image.network(
+                        imageUrl,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) =>
+                            _buildResepImageFallback(isSelingan),
+                      )
+                    : _buildResepImageFallback(isSelingan),
               ),
             ),
             Expanded(
@@ -139,9 +151,12 @@ class _MpasiResepScreenState extends State<MpasiResepScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: isSelingan ? Colors.orange.shade50 : Colors.blue.shade50,
+                        color: isSelingan
+                            ? Colors.orange.shade50
+                            : Colors.blue.shade50,
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
@@ -167,13 +182,19 @@ class _MpasiResepScreenState extends State<MpasiResepScreen> {
                     const SizedBox(height: 12),
                     Row(
                       children: [
-                        const Icon(Icons.access_time, size: 14, color: Colors.grey),
+                        const Icon(Icons.access_time,
+                            size: 14, color: Colors.grey),
                         const SizedBox(width: 4),
-                        Text('${resep.waktuPersiapan} Min', style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                        Text('${resep.waktuPersiapan} Min',
+                            style: const TextStyle(
+                                fontSize: 12, color: Colors.grey)),
                         const SizedBox(width: 12),
-                        const Icon(Icons.local_fire_department, size: 14, color: Colors.orange),
+                        const Icon(Icons.local_fire_department,
+                            size: 14, color: Colors.orange),
                         const SizedBox(width: 4),
-                        Text('${resep.kalori} kkal', style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                        Text('${resep.kalori} kkal',
+                            style: const TextStyle(
+                                fontSize: 12, color: Colors.grey)),
                       ],
                     ),
                   ],
@@ -226,9 +247,36 @@ class _MpasiResepScreenState extends State<MpasiResepScreen> {
                   controller: controller,
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(16),
+                      child: Container(
+                        height: 200,
+                        width: double.infinity,
+                        color: const Color(0xFFEAF2FF),
+                        child: _resolveImageUrl(resep.gambarUrl) != null
+                            ? Image.network(
+                                _resolveImageUrl(resep.gambarUrl)!,
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, __, ___) =>
+                                    _buildResepImageFallback(resep.tipe
+                                            .toLowerCase()
+                                            .contains('selingan') ||
+                                        resep.tipe
+                                            .toLowerCase()
+                                            .contains('snack')),
+                              )
+                            : _buildResepImageFallback(
+                                resep.tipe.toLowerCase().contains('selingan') ||
+                                    resep.tipe.toLowerCase().contains('snack')),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
                     Text(
                       resep.judul,
-                      style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color(0xFF1A2B4C)),
+                      style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF1A2B4C)),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 16),
@@ -241,7 +289,9 @@ class _MpasiResepScreenState extends State<MpasiResepScreen> {
                       ],
                     ),
                     const SizedBox(height: 24),
-                    const Text('Bahan-bahan', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    const Text('Bahan-bahan',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 8),
                     ...resep.bahanBahan.map((bahan) => Padding(
                           padding: const EdgeInsets.only(bottom: 6),
@@ -250,14 +300,19 @@ class _MpasiResepScreenState extends State<MpasiResepScreen> {
                             children: [
                               const Padding(
                                 padding: EdgeInsets.only(top: 6, right: 8),
-                                child: Icon(Icons.circle, size: 8, color: Colors.blue),
+                                child: Icon(Icons.circle,
+                                    size: 8, color: Colors.blue),
                               ),
-                              Expanded(child: Text(bahan, style: const TextStyle(height: 1.5))),
+                              Expanded(
+                                  child: Text(bahan,
+                                      style: const TextStyle(height: 1.5))),
                             ],
                           ),
                         )),
                     const SizedBox(height: 24),
-                    const Text('Cara Membuat', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    const Text('Cara Membuat',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 8),
                     ...resep.caraMembuat.asMap().entries.map((entry) => Padding(
                           padding: const EdgeInsets.only(bottom: 12),
@@ -274,32 +329,44 @@ class _MpasiResepScreenState extends State<MpasiResepScreen> {
                                 ),
                                 child: Text(
                                   '${entry.key + 1}',
-                                  style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                                  style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold),
                                 ),
                               ),
                               const SizedBox(width: 12),
-                              Expanded(child: Text(entry.value, style: const TextStyle(height: 1.5))),
+                              Expanded(
+                                  child: Text(entry.value,
+                                      style: const TextStyle(height: 1.5))),
                             ],
                           ),
                         )),
                     if (resep.manfaat != null && resep.manfaat!.isNotEmpty) ...[
                       const SizedBox(height: 24),
-                      const Text('Manfaat', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                      const Text('Manfaat',
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 8),
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Padding(
                             padding: EdgeInsets.only(top: 4, right: 8),
-                            child: Icon(Icons.check_circle, size: 16, color: Colors.green),
+                            child: Icon(Icons.check_circle,
+                                size: 16, color: Colors.green),
                           ),
-                          Expanded(child: Text(resep.manfaat!, style: const TextStyle(height: 1.5))),
+                          Expanded(
+                              child: Text(resep.manfaat!,
+                                  style: const TextStyle(height: 1.5))),
                         ],
                       ),
                     ],
                     if (resep.tips != null && resep.tips!.isNotEmpty) ...[
                       const SizedBox(height: 24),
-                      const Text('Tips', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                      const Text('Tips',
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 8),
                       Container(
                         padding: const EdgeInsets.all(12),
@@ -311,9 +378,12 @@ class _MpasiResepScreenState extends State<MpasiResepScreen> {
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Icon(Icons.lightbulb_outline, color: Colors.orange, size: 20),
+                            const Icon(Icons.lightbulb_outline,
+                                color: Colors.orange, size: 20),
                             const SizedBox(width: 8),
-                            Expanded(child: Text(resep.tips!, style: const TextStyle(height: 1.5))),
+                            Expanded(
+                                child: Text(resep.tips!,
+                                    style: const TextStyle(height: 1.5))),
                           ],
                         ),
                       ),
@@ -338,7 +408,35 @@ class _MpasiResepScreenState extends State<MpasiResepScreen> {
       ),
       child: Text(
         text,
-        style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF1A2B4C)),
+        style: const TextStyle(
+            fontWeight: FontWeight.bold, color: Color(0xFF1A2B4C)),
+      ),
+    );
+  }
+
+  String? _resolveImageUrl(String? url) {
+    final trimmed = url?.trim() ?? '';
+    if (trimmed.isEmpty) return null;
+
+    if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+      return trimmed;
+    }
+
+    if (trimmed.startsWith('/')) {
+      return '${ApiConstants.baseUrl}$trimmed';
+    }
+
+    return '${ApiConstants.baseUrl}/$trimmed';
+  }
+
+  Widget _buildResepImageFallback(bool isSelingan) {
+    return Container(
+      color: isSelingan ? Colors.orange.shade50 : Colors.blue.shade50,
+      alignment: Alignment.center,
+      child: Icon(
+        Icons.restaurant_menu_rounded,
+        size: 36,
+        color: isSelingan ? Colors.orange : Colors.blue,
       ),
     );
   }
