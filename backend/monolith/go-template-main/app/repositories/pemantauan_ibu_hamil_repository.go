@@ -42,6 +42,21 @@ func (r *PemantauanIbuHamilRepository) FindByKehamilanID(kehamilanID int32) ([]m
 	return list, err
 }
 
+// FindByKehamilanIDAndMinggu mencari satu record berdasarkan kehamilan_id dan minggu_kehamilan.
+// Digunakan untuk mengecek apakah record sudah ada sebelum upsert (untuk validasi tanggal).
+func (r *PemantauanIbuHamilRepository) FindByKehamilanIDAndMinggu(kehamilanID int32, mingguKehamilan int32) (*models.PemantauanIbuHamil, error) {
+	var data models.PemantauanIbuHamil
+
+	err := r.db.
+		Where("kehamilan_id = ? AND minggu_kehamilan = ?", kehamilanID, mingguKehamilan).
+		First(&data).Error
+
+	if err != nil {
+		return nil, err
+	}
+	return &data, nil
+}
+
 func (r *PemantauanIbuHamilRepository) Upsert(data *models.PemantauanIbuHamil) error {
 	var existing models.PemantauanIbuHamil
 
@@ -73,14 +88,8 @@ func (r *PemantauanIbuHamilRepository) Upsert(data *models.PemantauanIbuHamil) e
 	return err
 }
 
-
-
-
-
 // ─── BAGIAN KADER ────────────────────────────────────────────────────────────
 
-// FindAllWithKehamilan mengambil semua data pemantauan ibu hamil beserta info ibu,
-// digunakan oleh kader untuk melihat dan memverifikasi.
 func (r *PemantauanIbuHamilRepository) FindAllWithKehamilan() ([]models.PemantauanIbuHamil, error) {
 	var list []models.PemantauanIbuHamil
 	err := r.db.
@@ -93,7 +102,6 @@ func (r *PemantauanIbuHamilRepository) FindAllWithKehamilan() ([]models.Pemantau
 	return list, err
 }
 
-// FindByID mengambil satu data pemantauan berdasarkan ID.
 func (r *PemantauanIbuHamilRepository) FindByID(id int32) (*models.PemantauanIbuHamil, error) {
 	var data models.PemantauanIbuHamil
 	err := r.db.First(&data, id).Error
@@ -103,7 +111,6 @@ func (r *PemantauanIbuHamilRepository) FindByID(id int32) (*models.PemantauanIbu
 	return &data, nil
 }
 
-// UpdateVerifikasi menyimpan nama kader dan tanggal verifikasi pada record.
 func (r *PemantauanIbuHamilRepository) UpdateVerifikasi(data *models.PemantauanIbuHamil) error {
 	return r.db.Save(data).Error
 }

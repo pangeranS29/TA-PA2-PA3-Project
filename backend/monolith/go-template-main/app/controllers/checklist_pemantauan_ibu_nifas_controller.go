@@ -71,7 +71,7 @@ func (ctrl *ChecklistPemantauanIbuNifasController) GetFilledDays(c echo.Context)
 		})
 	}
 
-	days, err := ctrl.usecase.GetFilledDaysByUserID(claims.UserID)
+	days, err := ctrl.usecase.GetFilledDaysWithStatusByUserID(claims.UserID)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
 			"message": "Gagal mengambil daftar hari nifas",
@@ -240,4 +240,3 @@ func (ctrl *ChecklistPemantauanIbuNifasController) Verify(c echo.Context) error 
 		"message": "Berhasil memverifikasi checklist pemantauan ibu nifas",
 	})
 }
- 

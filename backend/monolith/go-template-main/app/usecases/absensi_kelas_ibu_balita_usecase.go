@@ -56,6 +56,13 @@ func (u *absensiKelasIbuBalitaUsecase) SaveMine(
 		return nil, err
 	}
 
+	//
+	for _, a := range existing {
+    if a.Status == "Menunggu Verifikasi" {
+        return nil, errors.New("masih ada absensi yang belum diverifikasi kader, silakan tunggu verifikasi terlebih dahulu")
+    }
+}
+
 	data := &models.AbsensiKelasIbuBalita{
 		IbuID:        ibuID,
 		PertemuanKe:  int32(len(existing) + 1),
@@ -79,6 +86,10 @@ func (u *absensiKelasIbuBalitaUsecase) Verify(id int32, namaKader string, tangga
 	data, err := u.repo.FindByID(id)
 	if err != nil {
 		return errors.New("data absensi tidak ditemukan")
+	}
+
+	if data.Status == "Terverifikasi" {
+		return errors.New("absensi ini sudah terverifikasi dan tidak dapat diubah kembali")
 	}
 
 	data.NamaKader = namaKader

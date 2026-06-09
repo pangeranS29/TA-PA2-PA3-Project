@@ -47,14 +47,19 @@ class _AbsensiKelasIbuBalitaScreenState
 
   int get _totalHadir => _absensiList.length;
   int get _tervalidasi =>
-      _absensiList.where((a) => a.namaKader.isNotEmpty).length;
+      _absensiList.where((a) => a.status == 'Terverifikasi').length;
+
+  /// Cek apakah ada data yang masih menunggu verifikasi
+  bool get _adaYangBelumVerifikasi =>
+      _absensiList.any((a) => a.status == 'Menunggu Verifikasi');
 
   void _showExitPopup() {
     showVerificationPopup(
       context: context,
       type: VerificationPopupType.exit,
       title: 'Yakin ingin keluar?',
-      content: 'Apakah Anda yakin ingin keluar tanpa menyimpan? Data yang belum disimpan akan hilang dan tidak dapat dikembalikan.',
+      content:
+          'Apakah Anda yakin ingin keluar tanpa menyimpan? Data yang belum disimpan akan hilang dan tidak dapat dikembalikan.',
       onConfirm: () {
         Navigator.pop(context);
         Navigator.pop(context);
@@ -141,7 +146,8 @@ class _AbsensiKelasIbuBalitaScreenState
                       }
                     },
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 14),
                       decoration: BoxDecoration(
                         border: Border.all(color: const Color(0xFFD1D5DB)),
                         borderRadius: BorderRadius.circular(10),
@@ -180,7 +186,8 @@ class _AbsensiKelasIbuBalitaScreenState
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: const [
-                        Icon(Icons.info_outline, size: 18, color: Color(0xFFD97706)),
+                        Icon(Icons.info_outline,
+                            size: 18, color: Color(0xFFD97706)),
                         SizedBox(width: 10),
                         Expanded(
                           child: Text(
@@ -209,14 +216,16 @@ class _AbsensiKelasIbuBalitaScreenState
                                 context: context,
                                 type: VerificationPopupType.save,
                                 title: 'Konfirmasi Simpan',
-                                content: 'Apakah Anda yakin data absensi sudah benar? Data yang sudah disimpan tidak dapat diubah kembali.',
+                                content:
+                                    'Apakah Anda yakin data absensi sudah benar? Data yang sudah disimpan tidak dapat diubah kembali.',
                                 onConfirm: () async {
                                   Navigator.pop(context); // close popup
                                   setModalState(() => isSaving = true);
                                   try {
                                     final newItem = await _apiService.save(
                                       AbsensiKelasIbuBalitaModel(
-                                        pertemuanKe: _absensiList.length + 1,
+                                        pertemuanKe:
+                                            _absensiList.length + 1,
                                         tanggal:
                                             '${selectedDate!.year}-${selectedDate!.month.toString().padLeft(2, '0')}-${selectedDate!.day.toString().padLeft(2, '0')}',
                                         namaKader: '',
@@ -225,20 +234,26 @@ class _AbsensiKelasIbuBalitaScreenState
                                     );
                                     if (!mounted) return;
                                     Navigator.pop(ctx);
-                                    setState(() => _absensiList.add(newItem));
-                                    ScaffoldMessenger.of(context).showSnackBar(
+                                    setState(
+                                        () => _absensiList.add(newItem));
+                                    ScaffoldMessenger.of(context)
+                                        .showSnackBar(
                                       const SnackBar(
-                                        content: Text('Absensi berhasil dikirim'),
-                                        behavior: SnackBarBehavior.floating,
+                                        content:
+                                            Text('Absensi berhasil dikirim'),
+                                        behavior:
+                                            SnackBarBehavior.floating,
                                       ),
                                     );
                                   } catch (e) {
                                     setModalState(() => isSaving = false);
                                     if (!mounted) return;
-                                    ScaffoldMessenger.of(context).showSnackBar(
+                                    ScaffoldMessenger.of(context)
+                                        .showSnackBar(
                                       SnackBar(
                                         content: Text(e.toString()),
-                                        behavior: SnackBarBehavior.floating,
+                                        behavior:
+                                            SnackBarBehavior.floating,
                                       ),
                                     );
                                   }
@@ -291,6 +306,48 @@ class _AbsensiKelasIbuBalitaScreenState
     }
   }
 
+  /// Badge chip status verifikasi
+  Widget _buildStatusBadge(String status) {
+    final isVerified = status == 'Terverifikasi';
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: isVerified
+            ? const Color(0xFFD1FAE5) // hijau muda
+            : const Color(0xFFFEF3C7), // kuning muda
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: isVerified
+              ? const Color(0xFF10B981) // hijau
+              : const Color(0xFFF59E0B), // kuning
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            isVerified ? Icons.verified_rounded : Icons.hourglass_top_rounded,
+            size: 11,
+            color: isVerified
+                ? const Color(0xFF059669)
+                : const Color(0xFFD97706),
+          ),
+          const SizedBox(width: 4),
+          Text(
+            isVerified ? 'Terverifikasi' : 'Menunggu',
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
+              color: isVerified
+                  ? const Color(0xFF059669)
+                  : const Color(0xFFD97706),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -325,231 +382,275 @@ class _AbsensiKelasIbuBalitaScreenState
         child: _isLoading
             ? const Center(child: CircularProgressIndicator())
             : RefreshIndicator(
-              onRefresh: _loadAbsensi,
-              child: ListView(
-                padding: const EdgeInsets.all(16),
-                children: [
-                  // Info banner
-                  Container(
-                    padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFEF3C7),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: const Color(0xFFFBBF24)),
-                    ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
-                        Icon(Icons.info_outline, size: 18, color: Color(0xFFD97706)),
-                        SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            'Diisi oleh ibu pada setiap pertemuan. Kader memverifikasi kehadiran dengan paraf pada kolom yang tersedia.',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Color(0xFF92400E),
-                              height: 1.4,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Log Kehadiran
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(14),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.04),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Padding(
-                          padding: EdgeInsets.fromLTRB(16, 14, 16, 10),
-                          child: Text(
-                            'LOG KEHADIRAN',
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w700,
-                              color: Color(0xFF6B7280),
-                              letterSpacing: 0.8,
-                            ),
-                          ),
-                        ),
-                        // Summary row
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: _SummaryBox(
-                                  label: 'Total hadir',
-                                  value: '$_totalHadir kali',
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: _SummaryBox(
-                                  label: 'Kehadiran Tervalidasi',
-                                  value: '$_tervalidasi kali',
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        if (_absensiList.isNotEmpty) ...[
-                          const Divider(height: 1),
-                          // Table header
-                          Container(
-                            color: const Color(0xFFF8FAFC),
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 10),
-                            child: const Row(
-                              children: [
-                                SizedBox(
-                                  width: 28,
-                                  child: Text('No',
-                                      style: TextStyle(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w700,
-                                          color: Color(0xFF6B7280))),
-                                ),
-                                Expanded(
-                                  flex: 3,
-                                  child: Text('Tanggal',
-                                      style: TextStyle(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w700,
-                                          color: Color(0xFF6B7280))),
-                                ),
-                                Expanded(
-                                  flex: 3,
-                                  child: Text('Nama Kader',
-                                      style: TextStyle(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w700,
-                                          color: Color(0xFF6B7280))),
-                                ),
-                                SizedBox(
-                                  width: 40,
-                                  child: Text('Paraf',
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w700,
-                                          color: Color(0xFF6B7280))),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const Divider(height: 1),
-                          // Table rows
-                          ...List.generate(_absensiList.length, (i) {
-                            final item = _absensiList[i];
-                            final isLast = i == _absensiList.length - 1;
-                            return Column(
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 16, vertical: 12),
-                                  child: Row(
-                                    children: [
-                                      SizedBox(
-                                        width: 28,
-                                        child: Text('${i + 1}',
-                                            style: const TextStyle(
-                                                fontSize: 13,
-                                                color: Color(0xFF374151))),
-                                      ),
-                                      Expanded(
-                                        flex: 3,
-                                        child: Text(
-                                          _formatTanggal(item.tanggal),
-                                          style: const TextStyle(
-                                              fontSize: 13,
-                                              color: Color(0xFF374151)),
-                                        ),
-                                      ),
-                                      Expanded(
-                                        flex: 3,
-                                        child: Text(
-                                          item.namaKader.isNotEmpty
-                                              ? item.namaKader
-                                              : '-',
-                                          style: const TextStyle(
-                                              fontSize: 13,
-                                              color: Color(0xFF374151)),
-                                        ),
-                                      ),
-                                      SizedBox(
-                                        width: 40,
-                                        child: Center(
-                                          child: item.namaKader.isNotEmpty
-                                              ? const Icon(Icons.check,
-                                                  size: 18,
-                                                  color: Color(0xFF10B981))
-                                              : const Text('-',
-                                                  style: TextStyle(
-                                                      color:
-                                                          Color(0xFF9CA3AF))),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                if (!isLast) const Divider(height: 1),
-                              ],
-                            );
-                          }),
-                        ] else ...[
-                          const Padding(
-                            padding: EdgeInsets.fromLTRB(16, 0, 16, 20),
-                            child: Center(
-                              child: Text(
-                                'Belum ada data kehadiran',
-                                style: TextStyle(
-                                    fontSize: 13, color: Color(0xFF9CA3AF)),
+                onRefresh: _loadAbsensi,
+                child: ListView(
+                  padding: const EdgeInsets.all(16),
+                  children: [
+                    // Info banner
+                    Container(
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFEF3C7),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: const Color(0xFFFBBF24)),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: const [
+                          Icon(Icons.info_outline,
+                              size: 18, color: Color(0xFFD97706)),
+                          SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              'Diisi oleh ibu pada setiap pertemuan. Kader memverifikasi kehadiran dengan paraf pada kolom yang tersedia.',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Color(0xFF92400E),
+                                height: 1.4,
                               ),
                             ),
                           ),
                         ],
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  // Tambah Absensi button
-                  SizedBox(
-                    height: 50,
-                    child: ElevatedButton.icon(
-                      onPressed: _showTambahAbsensi,
-                      icon: const Icon(Icons.add_rounded),
-                      label: const Text(
-                        'Tambah Absensi',
-                        style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF1A5FA8),
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12)),
                       ),
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 16),
+
+                    // Log Kehadiran
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(14),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.04),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Padding(
+                            padding: EdgeInsets.fromLTRB(16, 14, 16, 10),
+                            child: Text(
+                              'LOG KEHADIRAN',
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF6B7280),
+                                letterSpacing: 0.8,
+                              ),
+                            ),
+                          ),
+                          // Summary row
+                          Padding(
+                            padding:
+                                const EdgeInsets.fromLTRB(16, 0, 16, 14),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: _SummaryBox(
+                                    label: 'Total hadir',
+                                    value: '$_totalHadir kali',
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: _SummaryBox(
+                                    label: 'Terverifikasi',
+                                    value: '$_tervalidasi kali',
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          if (_absensiList.isNotEmpty) ...[
+                            const Divider(height: 1),
+                            // Table header
+                            Container(
+                              color: const Color(0xFFF8FAFC),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 10),
+                              child: const Row(
+                                children: [
+                                  SizedBox(
+                                    width: 28,
+                                    child: Text('No',
+                                        style: TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w700,
+                                            color: Color(0xFF6B7280))),
+                                  ),
+                                  Expanded(
+                                    flex: 3,
+                                    child: Text('Tanggal',
+                                        style: TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w700,
+                                            color: Color(0xFF6B7280))),
+                                  ),
+                                  Expanded(
+                                    flex: 3,
+                                    child: Text('Nama Kader',
+                                        style: TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w700,
+                                            color: Color(0xFF6B7280))),
+                                  ),
+                                  // ── KOLOM STATUS BARU ──
+                                  Expanded(
+                                    flex: 4,
+                                    child: Text('Status',
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w700,
+                                            color: Color(0xFF6B7280))),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const Divider(height: 1),
+                            // Table rows
+                            ...List.generate(_absensiList.length, (i) {
+                              final item = _absensiList[i];
+                              final isLast = i == _absensiList.length - 1;
+                              return Column(
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 16, vertical: 12),
+                                    child: Row(
+                                      children: [
+                                        SizedBox(
+                                          width: 28,
+                                          child: Text('${i + 1}',
+                                              style: const TextStyle(
+                                                  fontSize: 13,
+                                                  color:
+                                                      Color(0xFF374151))),
+                                        ),
+                                        Expanded(
+                                          flex: 3,
+                                          child: Text(
+                                            _formatTanggal(item.tanggal),
+                                            style: const TextStyle(
+                                                fontSize: 13,
+                                                color: Color(0xFF374151)),
+                                          ),
+                                        ),
+                                        Expanded(
+                                          flex: 3,
+                                          child: Text(
+                                            item.namaKader.isNotEmpty
+                                                ? item.namaKader
+                                                : '-',
+                                            style: const TextStyle(
+                                                fontSize: 13,
+                                                color: Color(0xFF374151)),
+                                          ),
+                                        ),
+                                        // ── BADGE STATUS ──
+                                        Expanded(
+                                          flex: 4,
+                                          child: Center(
+                                            child: _buildStatusBadge(
+                                                item.status),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  if (!isLast) const Divider(height: 1),
+                                ],
+                              );
+                            }),
+                          ] else ...[
+                            const Padding(
+                              padding:
+                                  EdgeInsets.fromLTRB(16, 0, 16, 20),
+                              child: Center(
+                                child: Text(
+                                  'Belum ada data kehadiran',
+                                  style: TextStyle(
+                                      fontSize: 13,
+                                      color: Color(0xFF9CA3AF)),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    // ── BANNER PERINGATAN jika ada yang belum terverifikasi ──
+                    if (_adaYangBelumVerifikasi) ...[
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        margin: const EdgeInsets.only(bottom: 12),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFFF7ED),
+                          borderRadius: BorderRadius.circular(10),
+                          border:
+                              Border.all(color: const Color(0xFFFB923C)),
+                        ),
+                        child: Row(
+                          children: const [
+                            Icon(Icons.lock_clock_rounded,
+                                size: 16, color: Color(0xFFEA580C)),
+                            SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                'Masih ada absensi yang menunggu verifikasi kader. Absensi baru dapat ditambahkan setelah diverifikasi.',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Color(0xFFEA580C),
+                                  height: 1.4,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+
+                    // Tambah Absensi button — disabled jika ada yg belum verifikasi
+                    Tooltip(
+                      message: _adaYangBelumVerifikasi
+                          ? 'Tunggu verifikasi kader terlebih dahulu'
+                          : '',
+                      child: SizedBox(
+                        height: 50,
+                        child: ElevatedButton.icon(
+                          onPressed: _adaYangBelumVerifikasi
+                              ? null
+                              : _showTambahAbsensi,
+                          icon: const Icon(Icons.add_rounded),
+                          label: const Text(
+                            'Tambah Absensi',
+                            style: TextStyle(
+                                fontWeight: FontWeight.w700, fontSize: 15),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF1A5FA8),
+                            foregroundColor: Colors.white,
+                            disabledBackgroundColor:
+                                Colors.grey.shade300,
+                            disabledForegroundColor:
+                                Colors.grey.shade500,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12)),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
       ),
     );
   }
@@ -574,7 +675,8 @@ class _SummaryBox extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(label,
-              style: const TextStyle(fontSize: 11, color: Color(0xFF6B7280))),
+              style:
+                  const TextStyle(fontSize: 11, color: Color(0xFF6B7280))),
           const SizedBox(height: 4),
           Text(value,
               style: const TextStyle(

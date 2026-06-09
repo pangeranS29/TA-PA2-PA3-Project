@@ -6,9 +6,18 @@ import (
 	"gorm.io/gorm"
 )
 
+// FilledDayStatus menyimpan info hari nifas beserta status verifikasi kader.
+type FilledDayStatus struct {
+	HariNifas         int32  `json:"hari_nifas"`
+	Terverifikasi     bool   `json:"terverifikasi"`
+	NamaKader         string `json:"nama_kader,omitempty"`
+	TanggalVerifikasi string `json:"tanggal_verifikasi,omitempty"`
+}
+
 type ChecklistPemantauanIbuNifasRepository interface {
 	GetByKehamilanIDAndHariNifas(kehamilanID int32, hariNifas int32) (*models.ChecklistPemantauanIbuNifas, error)
 	GetFilledDaysByKehamilanID(kehamilanID int32) ([]int32, error)
+	GetFilledDaysWithStatusByKehamilanID(kehamilanID int32) ([]FilledDayStatus, error)
 	Create(data *models.ChecklistPemantauanIbuNifas) error
 	Update(data *models.ChecklistPemantauanIbuNifas) error
 	// Kader
@@ -60,6 +69,35 @@ func (r *checklistPemantauanIbuNifasRepository) GetFilledDaysByKehamilanID(keham
 	return days, nil
 }
 
+func (r *checklistPemantauanIbuNifasRepository) GetFilledDaysWithStatusByKehamilanID(kehamilanID int32) ([]FilledDayStatus, error) {
+	var list []models.ChecklistPemantauanIbuNifas
+
+	err := r.db.
+		Model(&models.ChecklistPemantauanIbuNifas{}).
+		Select("hari_nifas, nama_kader, tanggal_verifikasi").
+		Where("kehamilan_id = ? AND deleted_at IS NULL", kehamilanID).
+		Order("hari_nifas ASC").
+		Find(&list).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]FilledDayStatus, 0, len(list))
+	for _, item := range list {
+		status := FilledDayStatus{
+			HariNifas:     item.HariNifas,
+			Terverifikasi: item.TanggalVerifikasi != nil,
+			NamaKader:     item.NamaKader,
+		}
+		if item.TanggalVerifikasi != nil {
+			status.TanggalVerifikasi = item.TanggalVerifikasi.Format("2006-01-02")
+		}
+		result = append(result, status)
+	}
+	return result, nil
+}
+
 func (r *checklistPemantauanIbuNifasRepository) Create(data *models.ChecklistPemantauanIbuNifas) error {
 	return r.db.Create(data).Error
 }
@@ -100,4 +138,3 @@ func (r *checklistPemantauanIbuNifasRepository) FindByID(id int32) (*models.Chec
 func (r *checklistPemantauanIbuNifasRepository) UpdateVerifikasi(data *models.ChecklistPemantauanIbuNifas) error {
 	return r.db.Save(data).Error
 }
- 

@@ -47,14 +47,16 @@ class DashboardQuickMenu extends StatelessWidget {
                 Icon(
                   item['icon'] as IconData,
                   color: item['color'] as Color,
-                  size: 22,
+                  // size: 22,
+                  size: 25,
                 ),
                 const SizedBox(height: 6),
                 Text(
                   item['label'] as String,
                   textAlign: TextAlign.center,
                   style: const TextStyle(
-                    fontSize: 9,
+                    // fontSize: 9,
+                    fontSize: 11,
                     fontWeight: FontWeight.w600,
                   ),
                 ),

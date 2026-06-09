@@ -41,12 +41,22 @@ func (r *RingkasanPelayananPersalinanRepository) GetMine(
 
 	var list []models.RingkasanPelayananPersalinan
 
+	// err := r.db.
+	// 	Table("ringkasan_pelayanan_persalinan rp").
+	// 	Joins("JOIN kehamilan k ON k.id = rp.kehamilan_id").
+	// 	Joins("JOIN ibu i ON i.id = k.ibu_id").
+	// 	Joins("JOIN penduduk pd ON pd.id = i.penduduk_id").
+	// 	Joins("JOIN pengguna u ON u.penduduk_id = pd.id").
+	// 	Where("u.id = ?", userID).
+	// 	Find(&list).Error
+
 	err := r.db.
-		Table("ringkasan_pelayanan_persalinan rp").
-		Joins("JOIN kehamilan k ON k.id = rp.kehamilan_id").
-		Joins("JOIN ibu i ON i.id = k.ibu_id").
-		Joins("JOIN penduduk pd ON pd.id = i.penduduk_id").
-		Joins("JOIN pengguna u ON u.penduduk_id = pd.id").
+		Table("ringkasan_pelayanan_persalinan AS rp").
+		Select("rp.*").
+		Joins("JOIN kehamilan AS k ON k.id = rp.kehamilan_id").
+		Joins("JOIN ibu AS i ON i.id = k.ibu_id").
+		Joins("JOIN penduduk AS p ON p.id = i.penduduk_id").
+		Joins("JOIN pengguna AS u ON u.penduduk_id = p.id").
 		Where("u.id = ?", userID).
 		Find(&list).Error
 

@@ -44,6 +44,23 @@ func (r *AbsensiKelasIbuHamilRepository) FindByKehamilanID(
 	return list, err
 }
 
+// ── BARU: cari satu record berdasarkan kehamilan_id + pertemuan_ke ──
+func (r *AbsensiKelasIbuHamilRepository) FindByKehamilanIDAndPertemuanKe(
+	kehamilanID int32,
+	pertemuanKe int32,
+) (*models.AbsensiKelasIbuHamil, error) {
+	var data models.AbsensiKelasIbuHamil
+
+	err := r.db.
+		Where("kehamilan_id = ? AND pertemuan_ke = ?", kehamilanID, pertemuanKe).
+		First(&data).Error
+
+	if err != nil {
+		return nil, err
+	}
+	return &data, nil
+}
+
 func (r *AbsensiKelasIbuHamilRepository) Upsert(
 	data *models.AbsensiKelasIbuHamil,
 ) error {
@@ -57,9 +74,9 @@ func (r *AbsensiKelasIbuHamilRepository) Upsert(
 		First(&existing).Error
 
 	if err == nil {
+		// ── Update hanya field yang boleh diubah ibu (tanggal saja) ──
+		// NamaKader & Status tidak disentuh agar data verifikasi kader aman
 		existing.Tanggal = data.Tanggal
-		existing.NamaKader = data.NamaKader
-		existing.TanggalParaf = data.TanggalParaf
 
 		return r.db.Save(&existing).Error
 	}
@@ -71,33 +88,19 @@ func (r *AbsensiKelasIbuHamilRepository) Upsert(
 	return err
 }
 
-
-
 // BAGIAN KADER
 
-
-// func (r *AbsensiKelasIbuHamilRepository) FindAllWithIbu() ([]models.AbsensiKelasIbuHamil, error) {
-// 	var list []models.AbsensiKelasIbuHamil
-// 	err := r.db.
-// 		Preload("Kehamilan").
-// 		Preload("Kehamilan.Ibu").
-// 		Preload("Kehamilan.Ibu.Kependudukan").
-// 		Order("created_at DESC").
-// 		Find(&list).Error
-// 	return list, err
-// }
-
 func (r *AbsensiKelasIbuHamilRepository) FindAllWithIbu() ([]models.AbsensiKelasIbuHamil, error) {
-    var list []models.AbsensiKelasIbuHamil
-    err := r.db.
-        Preload("Kehamilan").
-        Preload("Kehamilan.Ibu").
-        Preload("Kehamilan.Ibu.Kependudukan").
-        Order("created_at DESC").
-        Find(&list).Error
-    return list, err
+	var list []models.AbsensiKelasIbuHamil
+	err := r.db.
+		Preload("Kehamilan").
+		Preload("Kehamilan.Ibu").
+		Preload("Kehamilan.Ibu.Kependudukan").
+		Order("created_at DESC").
+		Find(&list).Error
+	return list, err
 }
- 
+
 // FindByID mengambil satu data absensi berdasarkan ID.
 func (r *AbsensiKelasIbuHamilRepository) FindByID(id int32) (*models.AbsensiKelasIbuHamil, error) {
 	var data models.AbsensiKelasIbuHamil
@@ -107,7 +110,7 @@ func (r *AbsensiKelasIbuHamilRepository) FindByID(id int32) (*models.AbsensiKela
 	}
 	return &data, nil
 }
- 
+
 // Update menyimpan perubahan pada data absensi (dipakai saat verifikasi).
 func (r *AbsensiKelasIbuHamilRepository) Update(data *models.AbsensiKelasIbuHamil) error {
 	return r.db.Save(data).Error

@@ -209,6 +209,8 @@ class _DashboardKaderScreenState extends State<DashboardKaderScreen> {
                   },
                 ),
 
+                const SizedBox(height: 12),
+
                 _buildFeatureActionCard(
                   title: 'Pemantauan TTD/MMS Ibu Hamil.',
                   subtitle: 'Lihat rekap kepatuhan minum suplemen ibu hamil di wilayah kamu.',
@@ -223,6 +225,8 @@ class _DashboardKaderScreenState extends State<DashboardKaderScreen> {
                     );
                   },
                 ),
+
+                const SizedBox(height: 12),
 
                 _buildFeatureActionCard(
                   title: 'Verifikasi Kelas Ibu Hamil.',

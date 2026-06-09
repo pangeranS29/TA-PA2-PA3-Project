@@ -57,6 +57,13 @@ func (u *absensiKelasIbuHamilUsecase) SaveMine(
 		return nil, errors.New("kehamilan aktif tidak ditemukan")
 	}
 
+	existing, err := u.repo.FindByKehamilanIDAndPertemuanKe(kehamilan.ID, req.PertemuanKe)
+	if err == nil && existing != nil {
+		if existing.Status == "Terverifikasi" {
+			return nil, errors.New("sesi ini sudah terverifikasi dan tidak dapat diubah kembali")
+		}
+	}
+
 	data := &models.AbsensiKelasIbuHamil{
 		KehamilanID:  kehamilan.ID,
 		PertemuanKe:  req.PertemuanKe,
@@ -84,9 +91,14 @@ func (u *absensiKelasIbuHamilUsecase) Verify(id int32, namaKader string, tanggal
 	if err != nil {
 		return errors.New("data absensi tidak ditemukan")
 	}
+
+	if data.Status == "Terverifikasi" {
+		return errors.New("absensi ini sudah terverifikasi dan tidak dapat diubah kembali")
+	}
  
 	data.NamaKader = namaKader
 	data.TanggalParaf = tanggalParaf
+	data.Status = "Terverifikasi"
  
 	return u.repo.Update(data)
 }

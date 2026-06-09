@@ -70,6 +70,15 @@ func (u *ChecklistPemantauanIbuNifasUsecase) GetFilledDaysByUserID(userID int32)
 	return u.repo.GetFilledDaysByKehamilanID(kehamilan.ID)
 }
 
+func (u *ChecklistPemantauanIbuNifasUsecase) GetFilledDaysWithStatusByUserID(userID int32) ([]repositories.FilledDayStatus, error) {
+	kehamilan, err := u.kehamilanRepo.FindAktifByUserID(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	return u.repo.GetFilledDaysWithStatusByKehamilanID(kehamilan.ID)
+}
+
 
 
 
@@ -93,4 +102,3 @@ func (u *ChecklistPemantauanIbuNifasUsecase) Verify(id int32, namaKader string, 
  
 	return u.repo.UpdateVerifikasi(data)
 }
- 

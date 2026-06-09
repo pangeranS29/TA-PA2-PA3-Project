@@ -1,8 +1,9 @@
 package usecases
 
 import (
-	"time"
 	"errors"
+	"time"
+
 	"monitoring-service/app/models"
 	"monitoring-service/app/repositories"
 )
@@ -36,6 +37,27 @@ func (u *pemantauanIbuHamilUsecase) GetMine(userID int32) ([]models.PemantauanIb
 	return u.repo.FindByKehamilanID(kehamilan.ID)
 }
 
+// isAllowedToFill memeriksa apakah record boleh diisi:
+// - Belum pernah diisi (created_at nil / record baru) → selalu boleh jika hari ini atau kemarin
+// - Sudah pernah diisi → hanya boleh update jika created_at-nya hari ini atau kemarin
+func isAllowedToFill(createdAt *time.Time) bool {
+	loc := time.Local
+	now := time.Now().In(loc)
+	today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, loc)
+	yesterday := today.AddDate(0, 0, -1)
+
+	if createdAt == nil {
+		return true // data baru, diperbolehkan
+	}
+
+	recordDate := time.Date(
+		createdAt.Year(), createdAt.Month(), createdAt.Day(),
+		0, 0, 0, 0, loc,
+	)
+
+	return !recordDate.Before(yesterday)
+}
+
 func (u *pemantauanIbuHamilUsecase) SaveMine(
 	userID int32,
 	req models.PemantauanIbuHamil,
@@ -52,6 +74,16 @@ func (u *pemantauanIbuHamilUsecase) SaveMine(
 	if err != nil {
 		return nil, errors.New("kehamilan aktif tidak ditemukan")
 	}
+
+	// Cek apakah sudah ada data untuk minggu ini
+	existing, errFind := u.repo.FindByKehamilanIDAndMinggu(kehamilan.ID, req.MingguKehamilan)
+	if errFind == nil && existing != nil {
+		// Data sudah ada — validasi: hanya boleh ubah jika hari ini atau kemarin
+		if !isAllowedToFill(&existing.CreatedAt) {
+			return nil, errors.New("data pemantauan minggu ini hanya dapat diisi pada hari yang sama atau sehari setelahnya")
+		}
+	}
+	// Jika belum ada (record baru), langsung lanjut — tidak ada batasan
 
 	data := &models.PemantauanIbuHamil{
 		KehamilanID:       kehamilan.ID,
@@ -73,12 +105,6 @@ func (u *pemantauanIbuHamilUsecase) SaveMine(
 
 	return data, nil
 }
-
-
-
-
-
-
 
 // ─── BAGIAN KADER ────────────────────────────────────────────────────────────
 
