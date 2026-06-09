@@ -752,3 +752,147 @@ func (u *SuperadminUserUsecase) ActivateUser(id int32) (*models.User, error) {
 	user.IsActive = true
 	return user, nil
 }
+
+// file: usecase/superadmin_user_usecase.go
+
+// CreateIbuUser - Membuat akun dengan role IBU (khusus untuk Ibu)
+func (u *SuperadminUserUsecase) CreateIbuUser(req *SuperadminCreateUserRequest) (*models.User, error) {
+	if req == nil {
+		return nil, customerror.NewBadRequestError("request tidak valid")
+	}
+	
+	// Force role menjadi IBU (abaikan apapun yang dikirim dari request)
+	req.RoleName = "Ibu"
+	
+	// Validasi: Penduduk ID wajib untuk akun Ibu
+	if req.PendudukID == nil || *req.PendudukID == 0 {
+		return nil, customerror.NewBadRequestError("penduduk_id wajib diisi untuk akun Ibu")
+	}
+	
+	// Validasi nama
+	if strings.TrimSpace(req.Name) == "" {
+		return nil, customerror.NewBadRequestError("nama wajib diisi")
+	}
+	
+	// Validasi email
+	if strings.TrimSpace(req.Email) == "" {
+		return nil, customerror.NewBadRequestError("email wajib diisi")
+	}
+	
+	// Validasi password
+	if req.Password == "" || len(req.Password) < 6 {
+		return nil, customerror.NewBadRequestError("password wajib diisi minimal 6 karakter")
+	}
+	
+	// Normalisasi email dan phone
+	email := strings.ToLower(strings.TrimSpace(req.Email))
+	normalizedPhone, err := normalizePhoneNumber(req.PhoneNumber)
+	if err != nil {
+		return nil, customerror.NewBadRequestError("nomor telepon tidak valid: " + err.Error())
+	}
+	
+	// Cek apakah penduduk valid
+	penduduk, err := u.repo.Kependudukan.FindByID(int32(*req.PendudukID))
+	if err != nil {
+		return nil, customerror.NewNotFoundError("penduduk tidak ditemukan")
+	}
+	
+	// Jika nomor telepon dari request kosong, ambil dari data penduduk
+	if normalizedPhone == "" && penduduk.Telepon != "" {
+		normalizedPhone, err = normalizePhoneNumber(penduduk.Telepon)
+		if err != nil {
+			return nil, err
+		}
+	}
+	
+	// Validasi nomor telepon (wajib untuk akun Ibu)
+	if normalizedPhone == "" {
+		return nil, customerror.NewBadRequestError("penduduk belum memiliki nomor telepon. Silakan lengkapi data kependudukan terlebih dahulu.")
+	}
+	
+	// Cek desa penduduk
+	pendudukDesaID := penduduk.DesaID
+	if pendudukDesaID == nil || *pendudukDesaID == 0 {
+		return nil, customerror.NewBadRequestError("penduduk belum memiliki desa_id")
+	}
+	
+	if _, err := u.repo.Desa.GetByID(*pendudukDesaID); err != nil {
+		return nil, customerror.NewNotFoundError("desa pada data penduduk tidak ditemukan")
+	}
+	
+	// Validasi desa consistency (jika ada desa_id di request)
+	if req.DesaID != nil && *req.DesaID != 0 {
+		if *req.DesaID != *pendudukDesaID {
+			return nil, customerror.NewBadRequestError("desa_id tidak sesuai dengan data penduduk")
+		}
+	}
+	
+	// Validasi email sudah terdaftar
+	if _, err := u.repo.User.FindByEmail(email); err == nil {
+		return nil, customerror.NewConflictError("email sudah terdaftar")
+	} else if !u.isNotFound(err) {
+		return nil, customerror.NewInternalServiceError("gagal memvalidasi email")
+	}
+	
+	// Validasi nomor hp sudah terdaftar
+	if _, err := u.repo.User.FindByPhoneNumber(normalizedPhone); err == nil {
+		return nil, customerror.NewConflictError("nomor hp sudah terdaftar")
+	} else if !u.isNotFound(err) {
+		return nil, customerror.NewInternalServiceError("gagal memvalidasi nomor hp")
+	}
+	
+	// Validasi penduduk sudah memiliki akun
+	if _, err := u.repo.User.FindByPendudukID(*req.PendudukID); err == nil {
+		return nil, customerror.NewConflictError("penduduk sudah memiliki akun pengguna")
+	} else if !u.isNotFound(err) {
+		return nil, customerror.NewInternalServiceError("gagal memvalidasi akun pengguna")
+	}
+	
+	// Cari role IBU
+	role, err := u.repo.Role.FindByName("Ibu")
+	if err != nil {
+		return nil, customerror.NewNotFoundError("role IBU tidak ditemukan. Silakan tambahkan role IBU terlebih dahulu ke database.")
+	}
+	
+	// Hash password
+	hashedPassword, err := u.preparePassword(req.Password)
+	if err != nil {
+		return nil, err
+	}
+	
+	var user *models.User
+	
+	// Simpan ke database dengan transaction
+	err = u.repo.DB().Transaction(func(tx *gorm.DB) error {
+		user = &models.User{
+			Name:       strings.TrimSpace(req.Name),
+			Email:      email,
+			IsActive:   true,
+			Password:   hashedPassword,
+			RoleID:     role.ID,
+			PendudukID: req.PendudukID,
+		}
+		
+		if err := tx.Create(user).Error; err != nil {
+			return err
+		}
+		
+		// Update nomor telepon penduduk jika berbeda
+		if penduduk.Telepon != normalizedPhone {
+			if err := tx.Model(&models.Kependudukan{}).Where("id = ?", *req.PendudukID).Update("telepon", normalizedPhone).Error; err != nil {
+				return err
+			}
+		}
+		
+		return nil
+	})
+	
+	if err != nil {
+		if strings.Contains(strings.ToLower(err.Error()), "unique") || strings.Contains(strings.ToLower(err.Error()), "duplicate") {
+			return nil, customerror.NewConflictError("data user sudah terdaftar")
+		}
+		return nil, customerror.NewInternalServiceError("gagal membuat akun ibu: " + err.Error())
+	}
+	
+	return user, nil
+}

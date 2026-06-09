@@ -642,6 +642,7 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	// untuk laporan anak
 	tenaga.GET("/laporan/anak/preview", controller.LaporanAnak.Preview)
 	tenaga.GET("/laporan/anak/export/excel", controller.LaporanAnak.ExportExcel)
+
 	//==== IBU ====
 	ibu := e.Group("/ibu")
 	ibu.Use(middlewares.JWTAuth(controller.JWTSecret()))
@@ -953,4 +954,7 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 
 	// Endpoint untuk detail pemeriksaan (opsional)
 	tenaga.GET("/pemeriksaan/:id", controller.Pemeriksaan.GetDetailPemeriksaan)
+
+	//bidan create akun ibu
+	tenaga.POST("/users", controller.CreateIbuUser)
 }
