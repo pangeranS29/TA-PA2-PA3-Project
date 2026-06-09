@@ -37,6 +37,12 @@ func (c *kunjunganGiziController) Create(ctx echo.Context) error {
 		})
 	}
 
+	if req.Bulanke <= 0 {
+		return ctx.JSON(http.StatusBadRequest, map[string]string{
+			"error": "bulan_ke harus lebih besar dari 0",
+		})
+	}
+
 	if err := c.usecase.Create(req); err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{
 			"error": err.Error(),
@@ -114,6 +120,12 @@ func (c *kunjunganGiziController) Update(ctx echo.Context) error {
 	if err := ctx.Bind(&req); err != nil {
 		return ctx.JSON(http.StatusBadRequest, map[string]string{
 			"error": "request tidak valid",
+		})
+	}
+
+	if req.Bulanke <= 0 {
+		return ctx.JSON(http.StatusBadRequest, map[string]string{
+			"error": "bulan_ke harus lebih besar dari 0",
 		})
 	}
 

@@ -29,6 +29,9 @@ func NewKunjunganGiziUseCase(repo repositories.KunjunganGiziRepository) Kunjunga
 
 func (uc *kunjunganGiziUsecase) Create(req models.CreatePelayananGiziRequest) error {
 
+	fmt.Printf("[Gizi UC] Create called: AnakID=%d, Bulanke=%d, Tanggal=%s, ObatCacing=%v, ASI=%v, MPASI=%v\n",
+		req.AnakID, req.Bulanke, req.Tanggal, req.ObatCacing, req.ASI != nil, req.MPASI != nil)
+
 	if req.AnakID == 0 {
 		return errors.New("anak_id wajib di isi")
 	}
@@ -101,6 +104,8 @@ func (uc *kunjunganGiziUsecase) Create(req models.CreatePelayananGiziRequest) er
 			UpdatedAt:           now,
 		}
 	}
+
+	fmt.Printf("[Gizi UC] Calling repo.Create...\n")
 	return uc.PelayananGiziRepo.Create(&kunjungan)
 }
 

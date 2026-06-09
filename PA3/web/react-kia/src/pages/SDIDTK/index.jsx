@@ -55,6 +55,15 @@ const FormSDIDTK = () => {
       return;
     }
 
+    const bulanKeNum = Number(formData.bulan_ke);
+    if (isNaN(bulanKeNum) || bulanKeNum <= 0) {
+      setNotification({
+        type: "error",
+        message: "Bulan ke- harus berupa angka lebih besar dari 0."
+      });
+      return;
+    }
+
     setIsLoading(true);
 
     const payload = {
@@ -207,8 +216,14 @@ const FormSDIDTK = () => {
                     <InputField
                       label="Bulan Ke-"
                       type="number"
+                      min="1"
                       value={formData.bulan_ke}
-                      onChange={e => setFormData({ ...formData, bulan_ke: e.target.value })}
+                      onChange={e => {
+                        const val = e.target.value;
+                        if (val === "" || Number(val) > 0) {
+                          setFormData({ ...formData, bulan_ke: val });
+                        }
+                      }}
                       required
                     />
                     <InputField

@@ -258,3 +258,7 @@ func Init(opts Options) *Main {
 func (m *Main) JWTSecret() string {
 	return m.config.JWTSecret
 }
+
+func (m *Main) GetUseCases() *usecases.Main {
+	return m.usecases
+}

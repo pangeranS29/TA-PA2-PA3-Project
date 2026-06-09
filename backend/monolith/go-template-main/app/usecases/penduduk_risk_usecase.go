@@ -56,10 +56,8 @@ func (u *pendudukRiskUsecase) GetPendudukByRisk(kelompok, risiko string, desaID 
 					ris = "Tinggi"
 				case "Risiko Stunting":
 					ris = "Sedang"
-				case "Normal":
-					ris = "Normal"
 				default:
-					continue
+					ris = "Normal"
 				}
 
 				if risiko != "" && ris != risiko {

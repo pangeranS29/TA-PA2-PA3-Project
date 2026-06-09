@@ -130,6 +130,28 @@ export default function DetailPenduduk() {
     { key: 'status_gizi', label: 'Status Gizi', unit: '' },
     { key: 'lingkar_perut', label: 'Lingkar Perut', unit: 'cm' },
     { key: 'lingkar_kepala', label: 'Lingkar Kepala', unit: 'cm' },
+    { key: 'hasil_lila', label: 'Hasil LILA', unit: 'cm' },
+    { key: 'status_bb_u', label: 'Status BB/U', unit: '' },
+    { key: 'status_tb_u', label: 'Status TB/U', unit: '' },
+    { key: 'status_imt_u', label: 'Status IMT/U', unit: '' },
+    { key: 'status_bb_tb', label: 'Status BB/TB', unit: '' },
+    { key: 'status_lk_u', label: 'Status LK/U', unit: '' },
+    { key: 'jumlah_gigi', label: 'Jumlah Gigi', unit: '' },
+    { key: 'gigi_berlubang', label: 'Gigi Berlubang', unit: '' },
+    { key: 'status_plak', label: 'Status Plak Gigi', unit: '' },
+    { key: 'resiko_gigi_berlubang', label: 'Resiko Gigi Berlubang', unit: '' },
+    { key: 'masih_menyusui', label: 'Masih Menyusui (ASI)', unit: '' },
+    { key: 'frekuensi_menyusui', label: 'Frekuensi Menyusui', unit: 'kali/hari' },
+    { key: 'asi_perah', label: 'Diberikan ASI Perah', unit: '' },
+    { key: 'jenis_pemberian_susu', label: 'Jenis Pemberian Susu', unit: '' },
+    { key: 'menggunakan_formula', label: 'Menggunakan Formula', unit: '' },
+    { key: 'alasan_formula', label: 'Alasan Susu Formula', unit: '' },
+    { key: 'diberikan_mpasi', label: 'Diberikan MPASI', unit: '' },
+    { key: 'usia_mulai_mpasi', label: 'Usia Mulai MPASI', unit: 'bulan' },
+    { key: 'jumlah_makan_perporsi', label: 'Jumlah Makan MPASI', unit: '' },
+    { key: 'frekuensi_makan_perhari', label: 'Frekuensi Makan MPASI', unit: '' },
+    { key: 'obat_cacing', label: 'Pemberian Obat Cacing', unit: '' },
+    { key: 'imunisasi_diberikan', label: 'Vaksin Imunisasi', unit: '' },
     { key: 'suhu', label: 'Suhu Tubuh', unit: '°C' },
     { key: 'status_pemantauan', label: 'Status Pemantauan', unit: '' },
     { key: 'riwayat_penyakit', label: 'Riwayat Penyakit', unit: '' },
@@ -158,7 +180,7 @@ export default function DetailPenduduk() {
               <div><div className="text-sm text-gray-500">Tanggal Lahir</div><div className="font-medium">{formatDate(data_diri?.tanggal_lahir)}</div></div>
               <div><div className="text-sm text-gray-500">Jenis Kelamin</div><div className="font-medium">{data_diri?.jenis_kelamin || '-'}</div></div>
               <div><div className="text-sm text-gray-500">Dusun</div><div className="font-medium">{data_diri?.dusun || '-'}</div></div>
-              <div><div className="text-sm text-gray-500">Usia</div><div className="font-medium">{data_diri?.usia || '-'} tahun</div></div>
+              <div><div className="text-sm text-gray-500">Usia</div><div className="font-medium">{data_diri?.usia !== undefined && data_diri?.usia !== null ? data_diri.usia : '-'} tahun</div></div>
               <div><div className="text-sm text-gray-500">Agama</div><div className="font-medium">{data_diri?.agama || '-'}</div></div>
               <div><div className="text-sm text-gray-500">Pekerjaan</div><div className="font-medium">{data_diri?.pekerjaan || '-'}</div></div>
             </div>
@@ -196,8 +218,10 @@ export default function DetailPenduduk() {
                   <h3 className="font-semibold text-md mb-2 text-gray-700">Detail Pemeriksaan</h3>
                   <div className="grid grid-cols-2 gap-3 text-sm">
                     {detailFields.map((field) => {
-                      const value = latestDetail.jawaban?.[field.key] || latestDetail[field.key];
-                      if (!value) return null;
+                      const value = (latestDetail.jawaban && latestDetail.jawaban[field.key] !== undefined)
+                        ? latestDetail.jawaban[field.key]
+                        : latestDetail[field.key];
+                      if (value === undefined || value === null || value === "") return null;
                       return (
                         <div key={field.key} className="flex justify-between items-center border-b py-1">
                           <span className="text-gray-600">{field.label}</span>

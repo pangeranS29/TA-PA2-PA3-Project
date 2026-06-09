@@ -73,6 +73,11 @@ const PelayananVitaminCreate = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const umurBulan = Number(formData.bulan);
+    if (isNaN(umurBulan) || umurBulan <= 0) {
+      alert("Umur anak (bulan) harus lebih besar dari 0!");
+      return;
+    }
     if (formData.detail.length === 0) return alert("Pilih minimal satu pelayanan!");
     
     setSubmitting(true);
@@ -126,9 +131,15 @@ const PelayananVitaminCreate = () => {
                 </label>
                 <input 
                   type="number" 
+                  min="1"
                   placeholder="Masukkan umur..."
                   value={formData.bulan}
-                  onChange={(e) => setFormData({...formData, bulan: e.target.value})}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val === "" || Number(val) > 0) {
+                      setFormData({...formData, bulan: val});
+                    }
+                  }}
                   className="w-full p-5 bg-pink-50/20 border-2 border-pink-100 rounded-[1.5rem] font-black text-slate-700 focus:border-pink-500 outline-none transition-all"
                   required
                 />

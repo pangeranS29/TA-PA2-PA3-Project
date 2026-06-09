@@ -34,6 +34,10 @@ func (u *pemantauanpertumbuhanUseCase) Create(req models.CreatePemantauanPemerik
 		return errors.New("tenaga_kesehatan_id wajib diisi")
 	}
 
+	if req.Bulanke <= 0 {
+		return errors.New("bulan ke- harus lebih besar dari 0")
+	}
+
 	now := time.Now()
 
 	// Parse tanggal
@@ -100,6 +104,9 @@ func (u *pemantauanpertumbuhanUseCase) Create(req models.CreatePemantauanPemerik
 	return u.repo.Create(&pemeriksaan)
 }
 func (u *pemantauanpertumbuhanUseCase) Update(id int32, req models.UpdatePemantauanPemeriksaanRequest) error {
+	if req.Bulanke <= 0 {
+		return errors.New("bulan ke- harus lebih besar dari 0")
+	}
 	now := time.Now()
 	return u.repo.Update(id, req, now)
 }
