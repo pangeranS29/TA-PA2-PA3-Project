@@ -24,6 +24,10 @@ func (c *KunjunganImunisasiController) Create(ctx echo.Context) error {
 		return errorResponse(ctx, http.StatusBadRequest, "invalid request", err)
 	}
 
+	if req.Bulanke <= 0 {
+		return errorResponse(ctx, http.StatusBadRequest, "bulan_ke harus lebih besar dari 0", nil)
+	}
+
 	if err := c.usecase.Create(req); err != nil {
 		return errorResponse(ctx, http.StatusInternalServerError, "failed to create kunjungan imunisasi", err)
 	}
@@ -40,6 +44,10 @@ func (c *KunjunganImunisasiController) Update(ctx echo.Context) error {
 	var req models.UpdateKunjunganImunisasiRequest
 	if err := ctx.Bind(&req); err != nil {
 		return errorResponse(ctx, http.StatusBadRequest, "invalid request", err)
+	}
+
+	if req.Bulanke <= 0 {
+		return errorResponse(ctx, http.StatusBadRequest, "bulan_ke harus lebih besar dari 0", nil)
 	}
 
 	if err := c.usecase.Update(int32(id), req); err != nil {

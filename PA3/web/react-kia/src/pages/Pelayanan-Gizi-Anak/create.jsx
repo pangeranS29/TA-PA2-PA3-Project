@@ -27,7 +27,7 @@ const PelayananGiziModal = ({ isOpen, onClose, anakId, onSuccess }) => {
       asi: {
         frekuensi_menyusui: parseInt(formData.asi.frekuensi_menyusui) || 0,
         posisi_menyusui: formData.asi.posisi_menyusui,
-        asiperah: formData.asi.asiperah
+        asi_perah: formData.asi.asiperah
       },
       mpasi: {
         diberikan_mp_asi: formData.mpasi.sudah_mpasi,
@@ -44,7 +44,7 @@ const PelayananGiziModal = ({ isOpen, onClose, anakId, onSuccess }) => {
         message: "Data pelayanan gizi berhasil disimpan ke dalam sistem!"
       });
     } catch (err) {
-      const errorMsg = err.response?.data?.message || err.message || "Gagal menyimpan data";
+      const errorMsg = err.response?.data?.error || err.response?.data?.message || err.message || "Gagal menyimpan data";
       setNotification({
         type: "error",
         message: "Permintaan gagal diproses. Silakan coba lagi nanti atau hubungi bantuan.",
@@ -104,7 +104,7 @@ const PelayananGiziModal = ({ isOpen, onClose, anakId, onSuccess }) => {
               value={formData.bulan_ke}
               onChange={(e) => setFormData({...formData, bulan_ke: e.target.value})}
             >
-              {[0,1,2,3,4,5,6,7,8,9,10,11,12].map(m => <option key={m} value={m}>{m}</option>)}
+              {[1,2,3,4,5,6,7,8,9,10,11,12].map(m => <option key={m} value={m}>{m}</option>)}
             </select>
           </div>
 

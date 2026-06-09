@@ -6,6 +6,7 @@ import (
 	"monitoring-service/app/middlewares"
 	"monitoring-service/app/models"
 	"monitoring-service/app/utils"
+	"os"
 	"time"
 )
 
@@ -134,6 +135,21 @@ func (u *dashboardUsecase) GetKesehatanPerKelompok(desaID *int32, role string) (
 	if err != nil {
 		return nil, err
 	}
+
+	// Write debug logs to a file in the workspace
+	logContent := fmt.Sprintf("=== DEBUG DASHBOARD %s ===\n", time.Now().Format("2006-01-02 15:04:05"))
+	logContent += fmt.Sprintf("Total raw children returned from getFilteredAnak: %d\n", len(anaks))
+
+	for _, a := range anaks {
+		tglLahir, parseErr := time.Parse("2006-01-02", a.TanggalLahir)
+		var umur int
+		if parseErr == nil {
+			umur = utils.HitungUmur(tglLahir)
+		}
+		logContent += fmt.Sprintf("Anak ID: %d, PendudukID: %d, Nama: %s, DOB: %s, Umur: %d, StatusPrediksi: '%s'\n", 
+			a.ID, a.PendudukID, a.Nama, a.TanggalLahir, umur, a.StatusPrediksi)
+	}
+
 	for _, a := range anaks {
 		tglLahir, parseErr := time.Parse("2006-01-02", a.TanggalLahir)
 		if parseErr != nil {
@@ -170,6 +186,8 @@ func (u *dashboardUsecase) GetKesehatanPerKelompok(desaID *int32, role string) (
 					}
 				}
 			}
+			logContent += fmt.Sprintf("Processed Balita Risk counts: Rendah=%d, Sedang=%d, Tinggi=%d\n", 
+				balitaRisk["Rendah"], balitaRisk["Sedang"], balitaRisk["Tinggi"])
 			result[kelompok] = balitaRisk
 		} else {
 			ids := kelompokIDs[kelompok]
@@ -182,6 +200,9 @@ func (u *dashboardUsecase) GetKesehatanPerKelompok(desaID *int32, role string) (
 			}
 		}
 	}
+
+	// Write log file
+	_ = os.WriteFile("d:\\Perkuliahan\\PA 3\\PA_TA_KIA\\TA-PA2-PA3-Project\\backend\\monolith\\go-template-main\\scratch\\debug_dashboard.log", []byte(logContent), 0644)
 
 	return result, nil
 }

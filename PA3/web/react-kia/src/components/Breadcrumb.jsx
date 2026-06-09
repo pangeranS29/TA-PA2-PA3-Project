@@ -105,6 +105,18 @@ const Breadcrumb = () => {
     // General
     "tenaga-kesehatan": "Tenaga Kesehatan",
     "jadwal-layanan": "Jadwal Layanan",
+    "perubahan-jadwal-imunisasi": "Perubahan Jadwal Imunisasi",
+
+    // Additional categories & sub-pages
+    anak: "Anak",
+    remaja: "Remaja",
+    dewasa: "Dewasa",
+    lansia: "Lansia",
+    preview: "Preview",
+    "audit-trail": "Audit Trail",
+    "kelola-user": "Kelola User",
+    "kelola-user-per-desa": "Kelola Akun User Per Desa",
+    "form-versi": "Kelola Form Versi",
   };
 
   // Build breadcrumb items
@@ -197,8 +209,50 @@ function formatLabel(segment) {
 }
 
 function getBreadcrumbPath(pathname, segment, currentPath) {
-  if (pathname.startsWith("/pencatatan/kesehatan-lingkungan") && segment === "kesehatan-lingkungan") {
-    return "/pencatatan";
+  // 1. Root-level segments redirect mapping
+  if (segment === "superadmin") {
+    return "/superadmin/dashboard";
+  }
+  if (segment === "data-penduduk") {
+    return "/kependudukan";
+  }
+  if (segment === "data-anak") {
+    return "/daftar-anak";
+  }
+  if (segment === "pemantauan") {
+    return "/pemantauan/lihat";
+  }
+  if (segment === "pencatatan") {
+    return "/pencatatan/kesehatan-lingkungan";
+  }
+  if (segment === "edukasi-digital") {
+    return "/edukasi-digital/informasi-umum";
+  }
+
+  // 2. Child/toddler paths with IDs: /data-anak/CATEGORY/ID/...
+  // Extract category and child ID from pathname
+  const childMatch = pathname.match(/^\/data-anak\/([^/]+)\/([0-9a-f-]{36}|\d+)/);
+  if (childMatch) {
+    const childCategory = childMatch[1];
+    const childId = childMatch[2];
+    
+    // If the segment is the childCategory (e.g. pertumbuhan, pelayanan-gizi),
+    // append the child ID to construct a valid route.
+    if (segment === childCategory) {
+      return `/data-anak/${childCategory}/${childId}`;
+    }
+  }
+
+  // 3. Fallback to valid endpoints for other invalid intermediate segments
+  if (segment === "detail" && pathname.startsWith("/pencatatan/kesehatan-lingkungan")) {
+    return "/pencatatan/kesehatan-lingkungan";
+  }
+  if (segment === "edit" && pathname.startsWith("/data-anak/lila")) {
+    // Extract child ID
+    const lilaMatch = pathname.match(/^\/data-anak\/lila\/([0-9a-f-]{36}|\d+)/);
+    if (lilaMatch) {
+      return `/data-anak/lila/${lilaMatch[1]}`;
+    }
   }
 
   return currentPath;

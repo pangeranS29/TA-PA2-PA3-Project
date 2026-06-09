@@ -297,7 +297,7 @@ const PelayananGigi = () => {
                       >
                         <option value="">Pilih Jadwal</option>
                         {[...Array(60)].map((_, i) => (
-                          <option key={i} value={i}>Bulan {i}</option>
+                          <option key={i} value={i + 1}>Bulan {i + 1}</option>
                         ))}
                       </select>
                     </div>

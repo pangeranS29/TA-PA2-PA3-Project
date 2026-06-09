@@ -31,6 +31,10 @@ func (u *pengukuranlilaUseCase) Create(req models.CreatePengukuranLilARequest) e
 		return errors.New("anak_id wajib diisi")
 	}
 
+	if req.Bulanke <= 0 {
+		return errors.New("bulan ke- harus lebih besar dari 0")
+	}
+
 	now := time.Now()
 	tgl := now
 	if req.Tanggal != "" {
@@ -88,6 +92,9 @@ func (u *pengukuranlilaUseCase) Create(req models.CreatePengukuranLilARequest) e
 	return u.repo.Create(&pemeriksaan)
 }
 func (u *pengukuranlilaUseCase) Update(id int32, req models.UpdatePengukuranLilARequest) error {
+	if req.Bulanke <= 0 {
+		return errors.New("bulan ke- harus lebih besar dari 0")
+	}
 	now := time.Now()
 	return u.repo.Update(id, req, now)
 }

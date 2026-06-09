@@ -907,7 +907,7 @@ export default function PelayananPersalinan() {
       await deleteRingkasanPersalinan(ringkasanId);
 
       await Swal.fire({ 
-        icon: "success", 
+        icon: "success",  
         title: "Terhapus", 
         text: "Data kelahiran dan anak berhasil dihapus.", 
         timer: 1500, 

@@ -3,6 +3,7 @@ package repositories
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"monitoring-service/app/models"
 	"time"
 
@@ -28,13 +29,47 @@ func NewKunjunganGiziRepository(db *gorm.DB) KunjunganGiziRepository {
 }
 
 func (r *kunjunganGiziRepository) Create(kunjungan *models.KunjunganGizi) error {
-	// Ensure obat_cacing and other columns exist in the database
+	// Ensure all columns exist in the database (AutoMigrate is disabled)
+	_ = r.db.Exec("ALTER TABLE kunjungan_gizi ADD COLUMN IF NOT EXISTS bulanke INTEGER NOT NULL DEFAULT 0").Error
 	_ = r.db.Exec("ALTER TABLE kunjungan_gizi ADD COLUMN IF NOT EXISTS obat_cacing BOOLEAN").Error
 	_ = r.db.Exec("ALTER TABLE kunjungan_gizi ADD COLUMN IF NOT EXISTS jenis_pemberian_susu VARCHAR(30)").Error
 	_ = r.db.Exec("ALTER TABLE kunjungan_gizi ADD COLUMN IF NOT EXISTS masih_menyusui BOOLEAN").Error
 	_ = r.db.Exec("ALTER TABLE kunjungan_gizi ADD COLUMN IF NOT EXISTS menggunakan_formula BOOLEAN").Error
 	_ = r.db.Exec("ALTER TABLE kunjungan_gizi ADD COLUMN IF NOT EXISTS alasan_formula TEXT").Error
 	_ = r.db.Exec("ALTER TABLE kunjungan_gizi ADD COLUMN IF NOT EXISTS usia_mulai_mpasi INTEGER").Error
+
+	// Ensure Pelayanan_Asi table has all required columns
+	_ = r.db.Exec(`CREATE TABLE IF NOT EXISTS "Pelayanan_Asi" (
+		id SERIAL PRIMARY KEY,
+		kunjungan_gizi_id INTEGER NOT NULL UNIQUE,
+		frekuensi_menyusui INTEGER NOT NULL DEFAULT 0,
+		posisi_menyusui VARCHAR(255),
+		asi_perah VARCHAR(255) NOT NULL DEFAULT 'tidak',
+		created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+		updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+		deleted_at TIMESTAMP WITH TIME ZONE
+	)`).Error
+	_ = r.db.Exec(`ALTER TABLE "Pelayanan_Asi" ADD COLUMN IF NOT EXISTS frekuensi_menyusui INTEGER NOT NULL DEFAULT 0`).Error
+	_ = r.db.Exec(`ALTER TABLE "Pelayanan_Asi" ADD COLUMN IF NOT EXISTS posisi_menyusui VARCHAR(255)`).Error
+	_ = r.db.Exec(`ALTER TABLE "Pelayanan_Asi" ADD COLUMN IF NOT EXISTS asi_perah VARCHAR(255) NOT NULL DEFAULT 'tidak'`).Error
+
+	// Ensure mp_asi table has all required columns
+	_ = r.db.Exec(`CREATE TABLE IF NOT EXISTS mp_asi (
+		id SERIAL PRIMARY KEY,
+		kunjungan_gizi_id INTEGER NOT NULL UNIQUE,
+		diberikan_mpasi BOOLEAN NOT NULL DEFAULT false,
+		variasi_mpasi JSONB,
+		jumlahmakan_perporsi VARCHAR(255),
+		frekuensi_makan VARCHAR(255),
+		created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+		updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+		deleted_at TIMESTAMP WITH TIME ZONE
+	)`).Error
+	_ = r.db.Exec("ALTER TABLE mp_asi ADD COLUMN IF NOT EXISTS diberikan_mpasi BOOLEAN NOT NULL DEFAULT false").Error
+	_ = r.db.Exec("ALTER TABLE mp_asi ADD COLUMN IF NOT EXISTS diberikan_mp_asi BOOLEAN NOT NULL DEFAULT false").Error
+	_ = r.db.Exec("ALTER TABLE mp_asi ADD COLUMN IF NOT EXISTS variasi_mpasi JSONB").Error
+	_ = r.db.Exec("ALTER TABLE mp_asi ADD COLUMN IF NOT EXISTS jumlahmakan_perporsi VARCHAR(255)").Error
+	_ = r.db.Exec("ALTER TABLE mp_asi ADD COLUMN IF NOT EXISTS frekuensi_makan VARCHAR(255)").Error
 
 	tx := r.db.Begin()
 
@@ -44,11 +79,15 @@ func (r *kunjunganGiziRepository) Create(kunjungan *models.KunjunganGizi) error 
 		}
 	}()
 
+	fmt.Printf("[Gizi Repo] Creating record: AnakID=%d, Bulanke=%d, ObatCacing=%v\n", kunjungan.AnakID, kunjungan.Bulanke, kunjungan.ObatCacing)
+
 	if err := tx.Create(kunjungan).Error; err != nil {
+		fmt.Printf("[Gizi Repo] CREATE ERROR: %v\n", err)
 		tx.Rollback()
 		return err
 	}
 
+	fmt.Printf("[Gizi Repo] CREATE SUCCESS, ID=%d\n", kunjungan.ID)
 	return tx.Commit().Error
 }
 
@@ -96,13 +135,47 @@ func (r *kunjunganGiziRepository) GetByID(id int32) (*models.KunjunganGizi, erro
 // ================= UPDATE =================
 
 func (r *kunjunganGiziRepository) Update(id int32, req models.UpdatePelayananGiziRequest, tanggal time.Time, now time.Time) error {
-	// Ensure obat_cacing and other columns exist in the database
+	// Ensure all columns exist in the database (AutoMigrate is disabled)
+	_ = r.db.Exec("ALTER TABLE kunjungan_gizi ADD COLUMN IF NOT EXISTS bulanke INTEGER NOT NULL DEFAULT 0").Error
 	_ = r.db.Exec("ALTER TABLE kunjungan_gizi ADD COLUMN IF NOT EXISTS obat_cacing BOOLEAN").Error
 	_ = r.db.Exec("ALTER TABLE kunjungan_gizi ADD COLUMN IF NOT EXISTS jenis_pemberian_susu VARCHAR(30)").Error
 	_ = r.db.Exec("ALTER TABLE kunjungan_gizi ADD COLUMN IF NOT EXISTS masih_menyusui BOOLEAN").Error
 	_ = r.db.Exec("ALTER TABLE kunjungan_gizi ADD COLUMN IF NOT EXISTS menggunakan_formula BOOLEAN").Error
 	_ = r.db.Exec("ALTER TABLE kunjungan_gizi ADD COLUMN IF NOT EXISTS alasan_formula TEXT").Error
 	_ = r.db.Exec("ALTER TABLE kunjungan_gizi ADD COLUMN IF NOT EXISTS usia_mulai_mpasi INTEGER").Error
+
+	// Ensure Pelayanan_Asi table has all required columns
+	_ = r.db.Exec(`CREATE TABLE IF NOT EXISTS "Pelayanan_Asi" (
+		id SERIAL PRIMARY KEY,
+		kunjungan_gizi_id INTEGER NOT NULL UNIQUE,
+		frekuensi_menyusui INTEGER NOT NULL DEFAULT 0,
+		posisi_menyusui VARCHAR(255),
+		asi_perah VARCHAR(255) NOT NULL DEFAULT 'tidak',
+		created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+		updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+		deleted_at TIMESTAMP WITH TIME ZONE
+	)`).Error
+	_ = r.db.Exec(`ALTER TABLE "Pelayanan_Asi" ADD COLUMN IF NOT EXISTS frekuensi_menyusui INTEGER NOT NULL DEFAULT 0`).Error
+	_ = r.db.Exec(`ALTER TABLE "Pelayanan_Asi" ADD COLUMN IF NOT EXISTS posisi_menyusui VARCHAR(255)`).Error
+	_ = r.db.Exec(`ALTER TABLE "Pelayanan_Asi" ADD COLUMN IF NOT EXISTS asi_perah VARCHAR(255) NOT NULL DEFAULT 'tidak'`).Error
+
+	// Ensure mp_asi table has all required columns
+	_ = r.db.Exec(`CREATE TABLE IF NOT EXISTS mp_asi (
+		id SERIAL PRIMARY KEY,
+		kunjungan_gizi_id INTEGER NOT NULL UNIQUE,
+		diberikan_mpasi BOOLEAN NOT NULL DEFAULT false,
+		variasi_mpasi JSONB,
+		jumlahmakan_perporsi VARCHAR(255),
+		frekuensi_makan VARCHAR(255),
+		created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+		updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+		deleted_at TIMESTAMP WITH TIME ZONE
+	)`).Error
+	_ = r.db.Exec("ALTER TABLE mp_asi ADD COLUMN IF NOT EXISTS diberikan_mpasi BOOLEAN NOT NULL DEFAULT false").Error
+	_ = r.db.Exec("ALTER TABLE mp_asi ADD COLUMN IF NOT EXISTS diberikan_mp_asi BOOLEAN NOT NULL DEFAULT false").Error
+	_ = r.db.Exec("ALTER TABLE mp_asi ADD COLUMN IF NOT EXISTS variasi_mpasi JSONB").Error
+	_ = r.db.Exec("ALTER TABLE mp_asi ADD COLUMN IF NOT EXISTS jumlahmakan_perporsi VARCHAR(255)").Error
+	_ = r.db.Exec("ALTER TABLE mp_asi ADD COLUMN IF NOT EXISTS frekuensi_makan VARCHAR(255)").Error
 
 	tx := r.db.Begin()
 
