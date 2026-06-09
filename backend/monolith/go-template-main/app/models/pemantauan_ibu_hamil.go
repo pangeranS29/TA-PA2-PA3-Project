@@ -23,6 +23,10 @@ type PemantauanIbuHamil struct {
 	MasalahKemaluan    bool `gorm:"not null;default:false" json:"masalah_kemaluan"`
 	DiareBerulang      bool `gorm:"not null;default:false" json:"diare_berulang"`
 
+	// Untuk kader
+	NamaKader         string     `gorm:"type:varchar(255);default:''" json:"nama_kader"`
+	TanggalVerifikasi *time.Time `gorm:"type:date" json:"tanggal_verifikasi"`
+
 	CreatedAt          time.Time      `json:"created_at"`
 	UpdatedAt          time.Time      `json:"updated_at"`
 	DeletedAt          gorm.DeletedAt `json:"-" gorm:"index"`

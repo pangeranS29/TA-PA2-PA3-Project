@@ -1,6 +1,8 @@
 package usecases
 
 import (
+	"errors"
+	"time"
 	"monitoring-service/app/models"
 	"monitoring-service/app/repositories"
 
@@ -67,3 +69,28 @@ func (u *ChecklistPemantauanIbuNifasUsecase) GetFilledDaysByUserID(userID int32)
 
 	return u.repo.GetFilledDaysByKehamilanID(kehamilan.ID)
 }
+
+
+
+
+
+
+// BAGIAN KADER
+// GetAll mengambil semua checklist pemantauan ibu nifas untuk ditampilkan ke kader.
+func (u *ChecklistPemantauanIbuNifasUsecase) GetAll() ([]models.ChecklistPemantauanIbuNifas, error) {
+	return u.repo.FindAllWithKehamilan()
+}
+ 
+// Verify digunakan kader untuk menandai bahwa data sudah ditinjau.
+func (u *ChecklistPemantauanIbuNifasUsecase) Verify(id int32, namaKader string, tanggalVerifikasi *time.Time) error {
+	data, err := u.repo.FindByID(id)
+	if err != nil {
+		return errors.New("data checklist pemantauan ibu nifas tidak ditemukan")
+	}
+ 
+	data.NamaKader = namaKader
+	data.TanggalVerifikasi = tanggalVerifikasi
+ 
+	return u.repo.UpdateVerifikasi(data)
+}
+ 

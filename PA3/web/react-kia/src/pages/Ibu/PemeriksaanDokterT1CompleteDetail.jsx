@@ -96,6 +96,84 @@ function fmtDate(val) {
   }
 }
 
+function normalizeT1Response(res) {
+  if (!res) return null;
+  const body =
+    res.data && (res.data.dokter || res.data.id || res.data.id_trimester1)
+      ? res.data
+      : res;
+
+  if (body.dokter && (body.dokter.id || body.dokter.id_trimester1)) {
+    return { dokter: body.dokter, lab_jiwa: body.lab_jiwa || null };
+  }
+
+  if (body.id || body.id_trimester1) {
+    const dokterFields = {};
+    const labFields = {};
+    const labPrefixes = [
+      "tanggal_lab",
+      "lab_",
+      "tanggal_skrining_jiwa",
+      "skrining_jiwa_",
+      "kesimpulan",
+      "rekomendasi",
+    ];
+    for (const key of Object.keys(body)) {
+      if (labPrefixes.some((pf) => key.startsWith(pf))) {
+        labFields[key] = body[key];
+      } else {
+        dokterFields[key] = body[key];
+      }
+    }
+    dokterFields.id = dokterFields.id || dokterFields.id_trimester1;
+    return {
+      dokter: dokterFields,
+      lab_jiwa: Object.keys(labFields).length ? labFields : null,
+    };
+  }
+
+  return null;
+}
+
+function mergeLabData(dokter, labJiwa) {
+  const lab = labJiwa || {};
+  return {
+    tanggal_lab: lab.tanggal_lab || dokter?.tanggal_lab,
+    lab_hemoglobin_hasil: lab.lab_hemoglobin_hasil ?? dokter?.lab_hemoglobin_hasil,
+    lab_hemoglobin_rencana_tindak_lanjut:
+      lab.lab_hemoglobin_rencana_tindak_lanjut ||
+      dokter?.lab_hemoglobin_rencana_tindak_lanjut,
+    lab_gula_darah_sewaktu_hasil:
+      lab.lab_gula_darah_sewaktu_hasil ?? dokter?.lab_gula_darah_sewaktu_hasil,
+    lab_gula_darah_sewaktu_rencana_tindak_lanjut:
+      lab.lab_gula_darah_sewaktu_rencana_tindak_lanjut ||
+      dokter?.lab_gula_darah_sewaktu_rencana_tindak_lanjut,
+    lab_golongan_darah_rhesus_hasil:
+      lab.lab_golongan_darah_rhesus_hasil || dokter?.lab_golongan_darah_rhesus_hasil,
+    lab_golongan_darah_rhesus_rencana_tindak_lanjut:
+      lab.lab_golongan_darah_rhesus_rencana_tindak_lanjut ||
+      dokter?.lab_golongan_darah_rhesus_rencana_tindak_lanjut,
+    lab_hiv_hasil: lab.lab_hiv_hasil || dokter?.lab_hiv_hasil,
+    lab_hiv_rencana_tindak_lanjut:
+      lab.lab_hiv_rencana_tindak_lanjut || dokter?.lab_hiv_rencana_tindak_lanjut,
+    lab_sifilis_hasil: lab.lab_sifilis_hasil || dokter?.lab_sifilis_hasil,
+    lab_sifilis_rencana_tindak_lanjut:
+      lab.lab_sifilis_rencana_tindak_lanjut || dokter?.lab_sifilis_rencana_tindak_lanjut,
+    lab_hepatitis_b_hasil: lab.lab_hepatitis_b_hasil || dokter?.lab_hepatitis_b_hasil,
+    lab_hepatitis_b_rencana_tindak_lanjut:
+      lab.lab_hepatitis_b_rencana_tindak_lanjut ||
+      dokter?.lab_hepatitis_b_rencana_tindak_lanjut,
+    tanggal_skrining_jiwa: lab.tanggal_skrining_jiwa || dokter?.tanggal_skrining_jiwa,
+    skrining_jiwa_hasil: lab.skrining_jiwa_hasil || dokter?.skrining_jiwa_hasil,
+    skrining_jiwa_tindak_lanjut:
+      lab.skrining_jiwa_tindak_lanjut || dokter?.skrining_jiwa_tindak_lanjut,
+    skrining_jiwa_perlu_rujukan:
+      lab.skrining_jiwa_perlu_rujukan || dokter?.skrining_jiwa_perlu_rujukan,
+    kesimpulan: lab.kesimpulan || dokter?.kesimpulan,
+    rekomendasi: lab.rekomendasi || dokter?.rekomendasi,
+  };
+}
+
 function DetailSection({
   icon: Icon,
   title,
@@ -405,12 +483,13 @@ export default function PemeriksaanDokterT1CompleteDetail() {
         setKehamilan(aktif);
 
         const res = await getDokterT1CompleteByKehamilanId(aktif.id);
-        if (!res || !res.dokter) {
+        const normalized = normalizeT1Response(res);
+        if (!normalized?.dokter) {
           setError(
             "Belum ada data pemeriksaan. Silakan buat data terlebih dahulu."
           );
         } else {
-          setData(res);
+          setData(normalized);
         }
       } catch (err) {
         console.error(err);
@@ -450,7 +529,8 @@ export default function PemeriksaanDokterT1CompleteDetail() {
   // ── Hapus pemeriksaan utama ────────────────────────────────────────────
   const handleDelete = async () => {
     // Pastikan ID tersedia
-    if (!data?.dokter?.id) {
+    const dokterId = data?.dokter?.id || data?.dokter?.id_trimester1;
+    if (!dokterId) {
       Swal.fire({
         icon: "error",
         title: "Gagal Menghapus",
@@ -482,7 +562,7 @@ export default function PemeriksaanDokterT1CompleteDetail() {
       }
 
       // Hapus pemeriksaan utama
-      await deleteDokterT1Complete(data.dokter.id);
+      await deleteDokterT1Complete(dokterId);
 
       await Swal.fire({
         icon: "success",
@@ -606,7 +686,7 @@ export default function PemeriksaanDokterT1CompleteDetail() {
   }
 
   const d = data.dokter;
-  const lab = data.lab_jiwa;
+  const lab = mergeLabData(d, data.lab_jiwa);
 
   const fisikItems = [
     { label: "Konjungtiva", value: d.fisik_konjungtiva },

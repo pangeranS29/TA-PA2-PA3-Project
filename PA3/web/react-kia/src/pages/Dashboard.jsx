@@ -458,9 +458,9 @@ export default function Dashboard() {
     } else {
       const data = kesehatanKelompok?.[selectedKategori] || { Tinggi: 0, Sedang: 0, Normal: 0 };
       return {
-        Tinggi: data.Tinggi || 0,
-        Sedang: data.Sedang || 0,
-        Normal: data.Normal || 0,
+        Tinggi: data.Tinggi || data.tinggi || 0,
+        Sedang: data.Sedang || data.sedang || 0,
+        Normal: data.Normal || data.Rendah || data.normal || data.rendah || 0,
       };
     }
   };

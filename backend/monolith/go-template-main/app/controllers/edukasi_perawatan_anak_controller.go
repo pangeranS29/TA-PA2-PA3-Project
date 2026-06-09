@@ -49,7 +49,17 @@ func (c *EdukasiPerawatanAnakController) Delete(ctx echo.Context) error {
 }
 
 func (c *EdukasiPerawatanAnakController) GetAll(ctx echo.Context) error {
-	data, err := c.useCase.GetAll()
+	rentangUsia := ctx.QueryParam("rentang_usia")
+	
+	var data interface{}
+	var err error
+	
+	if rentangUsia != "" {
+		data, err = c.useCase.GetByRentangUsia(rentangUsia)
+	} else {
+		data, err = c.useCase.GetAll()
+	}
+	
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, models.Response{StatusCode: http.StatusInternalServerError, Message: err.Error()})
 	}

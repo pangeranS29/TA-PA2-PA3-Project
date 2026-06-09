@@ -49,7 +49,7 @@ class _VerifikasiBblScreenState extends State<VerifikasiBblScreen> {
     }
   }
 
-  Future<void> _verify(int anakId, BblCheckModel item) async {
+  Future<void> _verify(int anakId, BblCheckModel item, String status) async {
     // Sebagai fallback jika Kader ID tidak bisa di ekstrak, berikan default value 1 (karena kita bypass di backend)
     int kaderId = 1; 
 
@@ -60,7 +60,7 @@ class _VerifikasiBblScreenState extends State<VerifikasiBblScreen> {
         builder: (context) => const Center(child: CircularProgressIndicator()),
       );
 
-      await _apiService.verifyBbl(anakId, kaderId, item.periodeWaktu);
+      await _apiService.verifyBbl(anakId, kaderId, item.periodeWaktu, status);
       
       if (!mounted) return;
       Navigator.pop(context); // close loading
@@ -83,6 +83,44 @@ class _VerifikasiBblScreenState extends State<VerifikasiBblScreen> {
         ),
       );
     }
+  }
+
+  void _showConfirmationDialog({
+    required BuildContext context,
+    required String title,
+    required String content,
+    required VoidCallback onConfirm,
+  }) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+          content: Text(content),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Tidak', style: TextStyle(color: Colors.grey)),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                onConfirm();
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF185FA5),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: const Text('Ya'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -135,7 +173,21 @@ class _VerifikasiBblScreenState extends State<VerifikasiBblScreen> {
                                   ),
                                   const SizedBox(height: 12),
                                   ...submittedChecklists.map((check) {
-                                    final isVerified = check.isVerified;
+                                    final isVerified = check.isVerified || check.status == 'Diterima';
+                                    final isRejected = check.status == 'Ditolak';
+                                    final isPending = !isVerified && !isRejected;
+                                    
+                                    Color statusColor = Colors.orange;
+                                    String statusText = 'Menunggu Verifikasi';
+                                    
+                                    if (isVerified) {
+                                      statusColor = Colors.green;
+                                      statusText = 'Diterima';
+                                    } else if (isRejected) {
+                                      statusColor = Colors.red;
+                                      statusText = 'Ditolak';
+                                    }
+
                                     return Container(
                                       margin: const EdgeInsets.only(bottom: 12),
                                       padding: const EdgeInsets.all(12),
@@ -157,14 +209,14 @@ class _VerifikasiBblScreenState extends State<VerifikasiBblScreen> {
                                               Container(
                                                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                                                 decoration: BoxDecoration(
-                                                  color: isVerified ? Colors.green.shade50 : Colors.orange.shade50,
+                                                  color: statusColor.withOpacity(0.1),
                                                   borderRadius: BorderRadius.circular(8),
-                                                  border: Border.all(color: isVerified ? Colors.green.shade200 : Colors.orange.shade200)
+                                                  border: Border.all(color: statusColor.withOpacity(0.5))
                                                 ),
                                                 child: Text(
-                                                  isVerified ? 'Terverifikasi' : 'Menunggu Verifikasi',
+                                                  statusText,
                                                   style: TextStyle(
-                                                    color: isVerified ? Colors.green.shade800 : Colors.orange.shade800,
+                                                    color: statusColor,
                                                     fontSize: 12,
                                                     fontWeight: FontWeight.bold,
                                                   ),
@@ -175,31 +227,60 @@ class _VerifikasiBblScreenState extends State<VerifikasiBblScreen> {
                                           const SizedBox(height: 8),
                                           if (check.tanggalSubmit != null)
                                             Text('Tanggal Submit: ${DateFormat('dd MMM yyyy, HH:mm').format(check.tanggalSubmit!.toLocal())}', style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
-                                          if (isVerified) ...[
+                                          if (isVerified || isRejected) ...[
                                             const SizedBox(height: 8),
                                             const Divider(height: 1),
                                             const SizedBox(height: 8),
-                                            Text('Diverifikasi oleh: ${check.namaKaderVerifikasi ?? '-'}', style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
+                                            Text(
+                                              isRejected ? 'Ditolak oleh: ${check.namaKaderVerifikasi ?? '-'}' : 'Diverifikasi oleh: ${check.namaKaderVerifikasi ?? '-'}', 
+                                              style: TextStyle(color: Colors.grey.shade600, fontSize: 12)
+                                            ),
                                             if (check.verifiedAt != null)
-                                              Text('Tanggal Verifikasi: ${DateFormat('dd MMM yyyy, HH:mm').format(check.verifiedAt!.toLocal())}', style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
+                                              Text('Tanggal: ${DateFormat('dd MMM yyyy, HH:mm').format(check.verifiedAt!.toLocal())}', style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
                                           ],
-                                          if (!isVerified) ...[
+                                          if (isPending) ...[
                                             const SizedBox(height: 12),
-                                            SizedBox(
-                                              width: double.infinity,
-                                              height: 40,
-                                              child: ElevatedButton(
-                                                onPressed: () => _verify(item.anakId, check),
-                                                style: ElevatedButton.styleFrom(
-                                                  backgroundColor: Colors.teal,
-                                                  foregroundColor: Colors.white,
-                                                  shape: RoundedRectangleBorder(
-                                                    borderRadius: BorderRadius.circular(8),
+                                            Row(
+                                              children: [
+                                                Expanded(
+                                                  child: OutlinedButton(
+                                                    onPressed: () => _showConfirmationDialog(
+                                                      context: context,
+                                                      title: 'Tolak Verifikasi',
+                                                      content: 'Apakah Anda yakin ingin menolak data BBL ini?',
+                                                      onConfirm: () => _verify(item.anakId, check, 'Ditolak'),
+                                                    ),
+                                                    style: OutlinedButton.styleFrom(
+                                                      foregroundColor: Colors.red,
+                                                      side: const BorderSide(color: Colors.red),
+                                                      shape: RoundedRectangleBorder(
+                                                        borderRadius: BorderRadius.circular(8),
+                                                      ),
+                                                    ),
+                                                    child: const Text('Tolak'),
                                                   ),
-                                                  elevation: 1,
                                                 ),
-                                                child: const Text('Verifikasi BBL', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-                                              ),
+                                                const SizedBox(width: 10),
+                                                Expanded(
+                                                  child: ElevatedButton(
+                                                    onPressed: () => _showConfirmationDialog(
+                                                      context: context,
+                                                      title: 'Verifikasi BBL',
+                                                      content: 'Apakah Anda yakin ingin memverifikasi data BBL ini?',
+                                                      onConfirm: () => _verify(item.anakId, check, 'Diterima'),
+                                                    ),
+                                                    style: ElevatedButton.styleFrom(
+                                                      backgroundColor: const Color(0xFF185FA5),
+                                                      foregroundColor: Colors.white,
+                                                      shape: RoundedRectangleBorder(
+                                                        borderRadius: BorderRadius.circular(8),
+                                                      ),
+                                                      elevation: 1,
+                                                    ),
+                                                    child: const Text('Verifikasi'),
+                                                  ),
+                                                ),
+                                              ],
                                             ),
                                           ]
                                         ],

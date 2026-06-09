@@ -32,7 +32,7 @@ func (Pemeriksaan) TableName() string {
 
 type SavePemeriksaanRequest struct {
     PendudukID uint                   `json:"penduduk_id" validate:"required"`
-    Kelompok   string                 `json:"kelompok" validate:"required,oneof=anak remaja dewasa lansia"`
+    Kelompok   string                 `json:"kelompok" validate:"required,oneof=balita anak remaja dewasa lansia"`
     Tanggal    string                 `json:"tanggal" validate:"required"` // YYYY-MM-DD
     Data       map[string]interface{} `json:"data" validate:"required"`
 }

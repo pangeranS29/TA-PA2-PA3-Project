@@ -36,6 +36,10 @@ type ChecklistPemantauanIbuNifas struct {
 	// Keluhan tambahan
 	Keluhan string `gorm:"column:keluhan;type:text" json:"keluhan"`
 
+	// Untuk kader
+	NamaKader         string     `gorm:"column:nama_kader;type:varchar(255);default:''" json:"nama_kader"`
+	TanggalVerifikasi *time.Time `gorm:"column:tanggal_verifikasi;type:date" json:"tanggal_verifikasi"`
+
 	CreatedAt time.Time      `gorm:"column:created_at" json:"created_at"`
 	UpdatedAt time.Time      `gorm:"column:updated_at" json:"updated_at"`
 	DeletedAt gorm.DeletedAt `gorm:"column:deleted_at;index" json:"-"`

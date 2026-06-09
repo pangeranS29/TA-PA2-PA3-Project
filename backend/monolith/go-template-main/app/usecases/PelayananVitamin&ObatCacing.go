@@ -38,6 +38,15 @@ func (u *kunjunganVitaminUseCase) Create(req models.CreateKunjunganVitaminReques
 		}
 	}
 
+	existing, err := u.repo.GetByAnakID(req.AnakID)
+	if err == nil {
+		for _, record := range existing {
+			if record.Tanggal.Year() == tgl.Year() && record.Tanggal.Month() == tgl.Month() {
+				return errors.New("pelayanan vitamin & obat cacing untuk anak ini sudah diinput pada bulan ini")
+			}
+		}
+	}
+
 	kunjungan := models.KunjunganVitamin{
 		AnakID:    req.AnakID,
 		Tanggal:   tgl,

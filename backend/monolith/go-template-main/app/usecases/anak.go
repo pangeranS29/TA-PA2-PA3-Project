@@ -484,6 +484,10 @@ func (u *AnakUseCase) toAnakResponse(anak *models.Anak) models.AnakResponse {
 		}
 		resp.JenisKelamin = anak.Penduduk.JenisKelamin
 		resp.GolonganDarah = anak.Penduduk.GolonganDarah
+		if anak.Penduduk.NIK != nil {
+			resp.NIK = *anak.Penduduk.NIK
+		}
+		resp.Dusun = anak.Penduduk.Dusun
 	}
 
 	if anak.Kehamilan != nil {
