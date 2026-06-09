@@ -38,7 +38,7 @@ class _PerawatanPerkembanganScreenState
   ];
   
   final Map<String, String> _ageRangeDisplay = {
-    '29 hari-3 bulan': '19h-3b',
+    '29 hari-3 bulan': '29h-3b',
     '3-6 bulan': '3-6b',
     '6-9 bulan': '6-9b',
     '9-12 bulan': '9-12b',
