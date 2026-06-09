@@ -7,6 +7,9 @@ import 'package:ta_pa2_pa3_project/features/anak/catatan/data/services/keluhan_a
 import 'package:ta_pa2_pa3_project/features/anak/catatan/data/services/pemeriksaan_gigi_api_service.dart';
 import 'package:ta_pa2_pa3_project/features/anak/catatan/data/services/pengukuran_lila_api_service.dart';
 import 'package:ta_pa2_pa3_project/features/anak/catatan/presentation/utils/catatan_detail_bottom_sheet.dart';
+import 'package:ta_pa2_pa3_project/features/anak/catatan/data/models/neonatus_model.dart';
+import 'package:ta_pa2_pa3_project/features/anak/catatan/data/services/neonatus_api_service.dart';
+import 'package:ta_pa2_pa3_project/features/anak/catatan/presentation/utils/catatan_detail_neonatus_bottom_sheet.dart';
 
 const _kBlue = Color(0xFF1565C0);
 const _kBlueDark = Color(0xFF0D47A1);
@@ -30,24 +33,27 @@ class CatatanMenuScreen extends StatefulWidget {
 
 class _CatatanMenuScreenState extends State<CatatanMenuScreen> {
   int _selectedTab = 0;
-  final _tabLabels = ['Kesehatan Anak', 'Kesehatan Gigi', 'LILA'];
-  final _tabIcons = [Icons.favorite_border, Icons.medical_services_outlined, Icons.straighten];
+  final _tabLabels = ['Neonatus', 'Kesehatan Anak', 'Kesehatan Gigi', 'LILA'];
+  final _tabIcons = [Icons.child_care_outlined, Icons.favorite_border, Icons.medical_services_outlined, Icons.straighten];
 
   // Services
   final _keluhanService = KeluhanAnakApiService();
   final _gigiService = PemeriksaanGigiApiService();
   final _lilaService = PengukuranLilaApiService();
+  final _neonatusService = NeonatusApiService();
 
   // Data
   List<KeluhanAnakModel> _keluhanList = [];
   List<PemeriksaanGigiModel> _gigiList = [];
   List<PengukuranLilaModel> _lilaList = [];
+  List<NeonatusModel> _neonatusList = [];
 
   bool _loadingKeluhan = true;
   bool _loadingGigi = true;
   bool _loadingLila = true;
+  bool _loadingNeonatus = true;
 
-  String? _errKeluhan, _errGigi, _errLila;
+  String? _errKeluhan, _errGigi, _errLila, _errNeonatus;
 
   @override
   void initState() {
@@ -60,6 +66,7 @@ class _CatatanMenuScreenState extends State<CatatanMenuScreen> {
     _keluhanService.dispose();
     _gigiService.dispose();
     _lilaService.dispose();
+    _neonatusService.dispose();
     super.dispose();
   }
 
@@ -67,6 +74,7 @@ class _CatatanMenuScreenState extends State<CatatanMenuScreen> {
     _fetchKeluhan();
     _fetchGigi();
     _fetchLila();
+    _fetchNeonatus();
   }
 
   Future<void> _fetchKeluhan() async {
@@ -96,6 +104,16 @@ class _CatatanMenuScreenState extends State<CatatanMenuScreen> {
       if (mounted) setState(() { _lilaList = data; _loadingLila = false; });
     } catch (e) {
       if (mounted) setState(() { _errLila = e.toString(); _loadingLila = false; });
+    }
+  }
+
+  Future<void> _fetchNeonatus() async {
+    setState(() { _loadingNeonatus = true; _errNeonatus = null; });
+    try {
+      final data = await _neonatusService.getByAnakId(widget.anakId);
+      if (mounted) setState(() { _neonatusList = data; _loadingNeonatus = false; });
+    } catch (e) {
+      if (mounted) setState(() { _errNeonatus = e.toString(); _loadingNeonatus = false; });
     }
   }
 
@@ -243,9 +261,9 @@ Widget _buildTabChips() {
   }
   
   Widget _buildSectionTitle() {
-    final titles = ['Catatan Pelayanan Kesehatan', 'Catatan Kesehatan Gigi', 'Catatan LiLA'];
-    final counts = [_keluhanList.length, _gigiList.length, _lilaList.length];
-    final loading = [_loadingKeluhan, _loadingGigi, _loadingLila];
+    final titles = ['Catatan Neonatus', 'Catatan Pelayanan Kesehatan', 'Catatan Kesehatan Gigi', 'Catatan LiLA'];
+    final counts = [_neonatusList.length, _keluhanList.length, _gigiList.length, _lilaList.length];
+    final loading = [_loadingNeonatus, _loadingKeluhan, _loadingGigi, _loadingLila];
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
@@ -262,9 +280,10 @@ Widget _buildTabChips() {
 
   Widget _buildContent() {
     switch (_selectedTab) {
-      case 0: return _buildKeluhanList();
-      case 1: return _buildGigiList();
-      case 2: return _buildLilaList();
+      case 0: return _buildNeonatusList();
+      case 1: return _buildKeluhanList();
+      case 2: return _buildGigiList();
+      case 3: return _buildLilaList();
       default: return const SizedBox.shrink();
     }
   }
@@ -333,6 +352,39 @@ Widget _buildTabChips() {
           description: 'Kategori Risiko: ${item.kategoriRisiko}',
           date: _fmtDateShort(item.tanggal),
           onTap: () => showCatatanDetailLila(context, item),
+        );
+      },
+    );
+  }
+
+  // ─── NEONATUS ───
+  String _getPeriodeName(int periodeId) {
+    switch (periodeId) {
+      case 1: return '0 - 6 jam';
+      case 2: return 'KN1 (Kunjungan Neonatus)';
+      case 3: return 'KN2 (Kunjungan Neonatus)';
+      case 4: return 'KN3 (Kunjungan Neonatus)';
+      default: return 'Kunjungan Neonatus';
+    }
+  }
+
+  Widget _buildNeonatusList() {
+    if (_loadingNeonatus) return const Center(child: CircularProgressIndicator(color: _kBlue));
+    if (_errNeonatus != null) return _buildError(_errNeonatus!, _fetchNeonatus);
+    if (_neonatusList.isEmpty) return _buildEmpty('Belum ada catatan Neonatus');
+
+    return ListView.builder(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+      itemCount: _neonatusList.length,
+      itemBuilder: (ctx, i) {
+        final item = _neonatusList[i];
+        return _buildRecordCard(
+          icon: Icons.child_care_outlined,
+          title: _getPeriodeName(item.periodeId),
+          subtitle: 'Tanggal: ${_fmtDateShort(item.tanggal)}',
+          description: 'Detail Pelayanan: ${item.detailPelayanan.length} item',
+          date: _fmtDateShort(item.tanggal),
+          onTap: () => showCatatanDetailNeonatus(context, item),
         );
       },
     );

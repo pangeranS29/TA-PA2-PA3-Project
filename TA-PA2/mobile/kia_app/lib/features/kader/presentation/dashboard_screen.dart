@@ -6,7 +6,6 @@ import 'package:ta_pa2_pa3_project/features/kader/widgets/dashboard_bottom_nav.d
 import 'package:ta_pa2_pa3_project/features/kader/widgets/dashboard_header.dart';
 import 'package:ta_pa2_pa3_project/features/anak/pemantauan/presentation/screens/skrining/riwayat_skrining_tanda_bahaya_screen.dart';
 import 'package:ta_pa2_pa3_project/features/kader/screens/verifikasi_absensi_kelas_ibu_balita_screen.dart';
-import 'package:ta_pa2_pa3_project/features/kader/screens/verifikasi_bbl_screen.dart';
 // Bagian Ibu
 import 'package:ta_pa2_pa3_project/features/kader/screens/ttd_mms/rekap_ttd_mms_kader_screen.dart';
 import 'package:ta_pa2_pa3_project/features/kader/screens/verifikasi_absensi_kelas_ibu_hamil_screen.dart';
@@ -193,23 +192,7 @@ class _DashboardKaderScreenState extends State<DashboardKaderScreen> {
 
                 const SizedBox(height: 12),
 
-                _buildFeatureActionCard(
-                  title: 'Verifikasi Bayi Baru Lahir (BBL).',
-                  subtitle:
-                      'Tinjau dan verifikasi data BBL yang diajukan oleh ibu.',
-                  icon: Icons.baby_changing_station_rounded,
-                  accentColor: Colors.deepPurple,
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const VerifikasiBblScreen(),
-                      ),
-                    );
-                  },
-                ),
 
-                const SizedBox(height: 12),
 
                 _buildFeatureActionCard(
                   title: 'Pemantauan TTD/MMS Ibu Hamil.',

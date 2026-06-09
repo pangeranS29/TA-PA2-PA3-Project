@@ -2504,28 +2504,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
         const SizedBox(height: 24),
 
-        const Text('MENU CEPAT',
-            style: TextStyle(
-                fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey)),
-        const SizedBox(height: 16),
-
-        // [MODUL: ANAK] Card Bayi Baru Lahir (BBL)
-        DashboardMenuCard(
-          title: 'Bayi Baru Lahir (BBL)',
-          subtitle: 'Catat data Bayi Baru Lahir anak untuk awal pemantauan.',
-          icon: Icons.scale_outlined,
-          iconColor: const Color(0xFF3B82F6),
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => const PilihAnakScreen(tujuan: 'input_bbl'),
-              ),
-            );
-          },
-        ),
-        const SizedBox(height: 24),
-
         const Text('MENU TUMBUH',
             style: TextStyle(
                 fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey)),

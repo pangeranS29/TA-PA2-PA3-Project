@@ -205,3 +205,41 @@ func (c *NeonatusController) GetPeriodeByKategori(ctx echo.Context) error {
 		"data":             periode,
 	})
 }
+
+// GetByAnakIDForIbu
+func (c *NeonatusController) GetByAnakIDForIbu(ctx echo.Context) error {
+	anakID, err := ParseInt(ctx.Param("anak_id"), "anak_id")
+	if err != nil {
+		return ctx.JSON(http.StatusBadRequest, map[string]string{
+			"error": err.Error(),
+		})
+	}
+
+	data, err := c.usecase.GetByAnakID(anakID)
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, map[string]string{
+			"error": err.Error(),
+		})
+	}
+
+	return ctx.JSON(http.StatusOK, data)
+}
+
+func (c *NeonatusController) GetByIDForIbu(ctx echo.Context) error {
+	id, err := ParseInt(ctx.Param("id"), "id")
+	if err != nil {
+		return ctx.JSON(http.StatusBadRequest, map[string]string{
+			"error": err.Error(),
+		})
+	}
+
+	data, err := c.usecase.GetByID(id)
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, map[string]string{
+			"error": err.Error(),
+		})
+	}
+
+	return ctx.JSON(http.StatusOK, data)
+}
+

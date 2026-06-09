@@ -48,7 +48,8 @@ func (r *pelayananNeonatusRepository) GetAll() ([]models.Neonatus, error) {
 	var result []models.Neonatus
 
 	err := r.db.
-		Preload("DetailPelayanan"). // relasi
+		Preload("DetailPelayanan").
+		Preload("DetailPelayanan.JenisPelayanan"). // relasi
 		Order("tanggal DESC").
 		Find(&result).Error
 
@@ -65,6 +66,7 @@ func (r *pelayananNeonatusRepository) GetByAnakID(anakID int32) ([]models.Neonat
 
 	err := r.db.
 		Preload("DetailPelayanan").
+		Preload("DetailPelayanan.JenisPelayanan").
 		Where("anak_id = ?", anakID).
 		Find(&result).Error
 
@@ -77,6 +79,7 @@ func (r *pelayananNeonatusRepository) GetByID(id int32) (*models.Neonatus, error
 
 	err := r.db.
 		Preload("DetailPelayanan").
+		Preload("DetailPelayanan.JenisPelayanan").
 		First(&data, "id = ?", id).Error
 
 	if err != nil {

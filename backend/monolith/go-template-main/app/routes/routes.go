@@ -791,6 +791,8 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	ibuk.GET("/catatan-pelayanan-nifas/me", controller.CatatanPelayananNifas.GetMine)
 	// Profile
 	ibuk.GET("/profil", controller.ProfilIbu.GetProfilSaya)
+	ibuk.GET("/neonatus/anak/:anak_id", controller.Neonatus.GetByAnakIDForIbu)
+	ibuk.GET("/neonatus/:id", controller.Neonatus.GetByIDForIbu)
 
 	// ibu := e.Group("/ibu")
 	ibu.Use(middlewares.JWTAuth(controller.JWTSecret()))
