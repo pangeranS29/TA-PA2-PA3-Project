@@ -695,7 +695,7 @@ const requestPayload = useMemo(() => {
                   className="px-8 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-sm shadow-lg shadow-blue-100 transition-all flex items-center gap-2 disabled:opacity-50"
                 >
                   {submitting ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
-                  Simpan & Proses AI
+                  Simpan
                 </button>
               </div>
             </div>
