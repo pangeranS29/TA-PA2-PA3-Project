@@ -182,7 +182,12 @@ func (m *Main) Init() (err error) {
 func (m *Main) Run() (err error) {
 	defer m.close()
 
-	m.router.Start(":" + m.cfg.ServicePort)
+	fmt.Println("PORT:", m.cfg.ServicePort)
+
+	addr := ":" + m.cfg.ServicePort
+	fmt.Println("Starting server on", addr)
+
+	err = m.router.Start(addr)
 	return
 }
 
