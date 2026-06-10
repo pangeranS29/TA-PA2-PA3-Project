@@ -289,16 +289,16 @@ func calculateStatusID(
 
 	switch {
 
-	case diff >= 1 && diff <= 7:
+	case diff >= 1:
 		return 1
 
 	case diff == 0:
 		return 2
 
-	case diff >= -3:
+	case diff >= -6 && diff < 0:
 		return 3
 
-	case diff >= -7:
+	case diff >= -14 && diff < -6:
 		return 4
 
 	default:
