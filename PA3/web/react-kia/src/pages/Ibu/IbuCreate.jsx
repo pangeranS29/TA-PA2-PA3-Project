@@ -162,6 +162,37 @@ export default function IbuCreate() {
     }
     setErrorMessage("");
   }, [formIbu.id_kependudukan]);
+  useEffect(() => {
+  if (!formIbu.id_kependudukan) return;
+
+  // Cari data ibu yang dipilih
+  const selectedIbu = ibuList.find(
+    (kk) => String(kk.id_kependudukan ?? kk.id) === formIbu.id_kependudukan
+  );
+
+  if (!selectedIbu || !selectedIbu.kartu_keluarga_id) {
+    // Tidak ada KK, kosongkan pilihan suami
+    setFormIbu((prev) => ({ ...prev, id_suami: "" }));
+    return;
+  }
+
+  // Cari suami: laki-laki dengan kartu_keluarga_id yang sama
+  const suamiDiKK = suamiList.find(
+  (s) =>
+    s.kartu_keluarga_id &&
+    String(s.kartu_keluarga_id) === String(selectedIbu.kartu_keluarga_id) &&
+    (
+      s.kedudukan_keluarga === "Kepala Keluarga" ||
+      s.kedudukan_keluarga === "Suami"
+    )
+);
+    if (suamiDiKK) {
+    const idSuami = String(suamiDiKK.id_kependudukan ?? suamiDiKK.id);
+    setFormIbu((prev) => ({ ...prev, id_suami: idSuami }));
+  } else {
+    setFormIbu((prev) => ({ ...prev, id_suami: "" }));
+  }
+}, [formIbu.id_kependudukan, ibuList, suamiList]);
 
   // Handle perubahan form ibu
   const handleChangeIbu = (e) => {
@@ -508,19 +539,35 @@ export default function IbuCreate() {
                   </div>
 
                   <div className="mt-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Pilih Suami (Opsional)</label>
-                    <select name="id_suami" value={formIbu.id_suami} onChange={handleChangeIbu} className="w-full border rounded-xl p-3">
-                      <option value="">-- Tidak ada suami / pilih --</option>
-                      {suamiList.map((suami) => {
-                        const idPenduduk = suami.id_kependudukan ?? suami.id;
-                        return (
-                          <option key={idPenduduk} value={String(idPenduduk)}>
-                            {suami.nama_lengkap} — NIK: {suami.nik}
-                          </option>
-                        );
-                      })}
-                    </select>
-                  </div>
+  <label className="block text-sm font-medium text-gray-700 mb-1">
+    Suami
+  </label>
+  <select
+    name="id_suami"
+    value={formIbu.id_suami}
+    onChange={handleChangeIbu}
+    disabled={!!formIbu.id_suami} 
+   className={`w-full border rounded-xl p-3 ${
+  formIbu.id_suami
+    ? "bg-gray-100 text-black opacity-100 cursor-not-allowed appearance-none pointer-events-none"
+    : ""
+}`}>
+    <option value="">-- Tidak ada suami / pilih --</option>
+    {suamiList.map((suami) => {
+      const idPenduduk = suami.id_kependudukan ?? suami.id;
+      return (
+        <option key={idPenduduk} value={String(idPenduduk)}>
+          {suami.nama_lengkap} — NIK: {suami.nik}
+        </option>
+      );
+    })}
+  </select>
+  {!formIbu.id_suami && formIbu.id_kependudukan && (
+    <p className="text-xs text-gray-400 mt-1">
+      Tidak ditemukan suami dalam KK yang sama. Pilih manual jika diperlukan.
+    </p>
+  )}
+</div>
 
                   <div className="grid grid-cols-3 gap-4 mt-4">
                     <div>

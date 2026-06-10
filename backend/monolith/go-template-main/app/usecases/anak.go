@@ -147,7 +147,6 @@ func (u *AnakUseCase) CreateAnakDenganPenduduk(req models.CreateAnakDenganPendud
 		return nil, errors.New("format tanggal_lahir harus YYYY-MM-DD")
 	}
 
-	// ✅ Ambil desa_id dari penduduk ibu
 	var desaID *int32
 	ibuPenduduk, errIbu := u.kependudukanRepo.FindByID(req.IbuID)
 	if errIbu == nil && ibuPenduduk != nil {
@@ -155,7 +154,7 @@ func (u *AnakUseCase) CreateAnakDenganPenduduk(req models.CreateAnakDenganPendud
 	}
 
 	nikSementara := fmt.Sprintf("A%d", time.Now().UnixNano())
-	// Buat kependudukan baru untuk anak
+
 	newPenduduk := &models.Kependudukan{
 		NIK:           &nikSementara,
 		NamaLengkap:   req.Nama,
