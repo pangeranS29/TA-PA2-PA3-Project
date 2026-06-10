@@ -8,10 +8,6 @@ import 'package:ta_pa2_pa3_project/features/anak/pemantauan/presentation/screens
 import 'package:ta_pa2_pa3_project/features/anak/pertumbuhan/presentation/screens/pertumbuhan_info_screen.dart';
 import 'package:ta_pa2_pa3_project/features/anak/pemantauan/presentation/screens/skrining/pemantauan_menu_screen.dart';
 import 'package:ta_pa2_pa3_project/features/anak/catatan/presentation/screens/catatan_menu_screen.dart';
-import 'package:ta_pa2_pa3_project/features/anak/catatan/presentation/screens/pilih_catatan_screen.dart';
-
-// ← Tambahkan import InputBblScreen
-import 'package:ta_pa2_pa3_project/features/anak/catatan/presentation/screens/Input_bbl.dart';
 
 class PilihAnakScreen extends StatefulWidget {
   final String tujuan;
@@ -224,26 +220,11 @@ class _PilihAnakScreenState extends State<PilihAnakScreen> {
       return;
     }
 
-    // ← Tambahkan kondisi ini
-    if (widget.tujuan == 'input_bbl') {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => InputBblScreen(
-            namaAnak: anak.nama,
-            usiaTeks: anak.usiaTeks,
-            anakId: anak.id.toString(),
-          ),
-        ),
-      );
-      return;
-    }
-
     if (widget.tujuan == 'catatan') {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (_) => PilihCatatanScreen(
+          builder: (_) => CatatanMenuScreen(
             anakId: int.tryParse(anak.id.toString()) ?? 0,
             anakName: anak.nama,
             usiaTeks: anak.usiaTeks,

@@ -182,3 +182,17 @@ func (m *Main) ActivateUser(c echo.Context) error {
 
 	return helpers.StandardResponse(c, http.StatusOK, []string{constants.SUCCESS_RESPONSE_MESSAGE}, data, nil)
 }
+func (m *Main) CreateIbuUser(c echo.Context) error {
+	var req usecases.SuperadminCreateUserRequest
+	if err := c.Bind(&req); err != nil {
+		return helpers.Response(c, http.StatusBadRequest, []string{"format request tidak valid: " + err.Error()})
+	}
+	
+	// Panggil usecase CreateIbuUser (role akan dipaksa menjadi "IBU" di dalam usecase)
+	data, createErr := m.usecases.SuperadminUser.CreateIbuUser(&req)
+	if createErr != nil {
+		return helpers.Response(c, customerror.GetStatusCode(createErr), []string{createErr.Error()})
+	}
+	
+	return helpers.StandardResponse(c, http.StatusCreated, []string{"Akun Ibu berhasil dibuat"}, data, nil)
+}

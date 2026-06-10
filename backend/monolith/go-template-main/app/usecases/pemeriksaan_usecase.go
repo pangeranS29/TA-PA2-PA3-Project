@@ -8,14 +8,16 @@ import (
 	"fmt"
 	"monitoring-service/app/models"
 	"monitoring-service/app/repositories"
+	"strings"
 	"time"
 
 	"github.com/diegoholiveira/jsonlogic/v3"
 )
 
 type pemeriksaanUsecase struct {
-    formRepo     repositories.FormRepository
-    periksaRepo  repositories.PemeriksaanRepository
+	formRepo    repositories.FormRepository
+	periksaRepo repositories.PemeriksaanRepository
+	mainRepo    *repositories.Main
 }
 
 type PemeriksaanUsecase interface {
@@ -26,11 +28,12 @@ type PemeriksaanUsecase interface {
 	CountPendudukWithExamination(kelompok string, pendudukIDs []int32) (int64, error)
 	GetLatestRiskCountByPendudukIDs(kelompok string, pendudukIDs []int32) (map[string]int, error)
 }
-func NewPemeriksaanUsecase(formRepo repositories.FormRepository, periksaRepo repositories.PemeriksaanRepository) PemeriksaanUsecase {
-    return &pemeriksaanUsecase{
-        formRepo:    formRepo,
-        periksaRepo: periksaRepo,
-    }
+func NewPemeriksaanUsecase(formRepo repositories.FormRepository, periksaRepo repositories.PemeriksaanRepository, mainRepo *repositories.Main) PemeriksaanUsecase {
+	return &pemeriksaanUsecase{
+		formRepo:    formRepo,
+		periksaRepo: periksaRepo,
+		mainRepo:    mainRepo,
+	}
 }
 // Helper untuk truthiness
 func isTruthy(val interface{}) bool {
@@ -268,37 +271,206 @@ func (u *pemeriksaanUsecase) GetRiwayatPenduduk(ctx context.Context, pendudukID 
 
 // GetDetailPemeriksaan mengambil detail pemeriksaan
 func (u *pemeriksaanUsecase) GetDetailPemeriksaan(ctx context.Context, id uint) (*models.DetailPemeriksaanResponse, error) {
-    p, err := u.periksaRepo.GetPemeriksaanByID(ctx, id)
-    if err != nil || p == nil {
-        return nil, errors.New("pemeriksaan not found")
-    }
+	if id >= 1000000 {
+		pendudukID := int32(id - 1000000)
+		db := u.mainRepo.DB()
 
-    penduduk, _ := u.periksaRepo.GetPendudukByID(ctx, p.PendudukID)
-    var namaPenduduk string
-    if penduduk != nil {
-        namaPenduduk = penduduk.NamaLengkap
-    }
+		// 1. Get penduduk
+		var kependudukan models.Kependudukan
+		if err := db.Where("id = ? AND deleted_at IS NULL", pendudukID).First(&kependudukan).Error; err != nil {
+			return nil, errors.New("penduduk not found")
+		}
 
-    versi, _ := u.formRepo.GetFormVersionByID(ctx, p.FormVersiID)
-    namaVersi := ""
-    if versi != nil {
-        namaVersi = versi.Nama
-    }
+		// 2. Get anak
+		var anak models.Anak
+		if err := db.Where("penduduk_id = ? AND deleted_at IS NULL", pendudukID).First(&anak).Error; err != nil {
+			return nil, errors.New("anak record not found")
+		}
 
-    var jawabanMap map[string]interface{}
-    json.Unmarshal(p.Jawaban, &jawabanMap)
+		jawabanMap := make(map[string]interface{})
 
-    return &models.DetailPemeriksaanResponse{
-        ID:                 p.ID,
-        PendudukID:         p.PendudukID,
-        NamaPenduduk:       namaPenduduk,
-        Kelompok:           p.Kelompok,
-        TanggalPemeriksaan: p.TanggalPemeriksaan,
-        VersiForm:          namaVersi,
-        KategoriRisiko:     p.KategoriRisiko,
-        Rekomendasi:        p.Rekomendasi,
-        Jawaban:            jawabanMap,
-    }, nil
+		// 3. Get growth
+		var cp models.CatatanPertumbuhan
+		var latestDate time.Time
+		hasCp := false
+		if err := db.Where("anak_id = ? AND deleted_at IS NULL", anak.ID).Order("tgl_ukur DESC").First(&cp).Error; err == nil {
+			hasCp = true
+			latestDate = cp.TglUkur
+
+			jawabanMap["berat_badan"] = cp.BeratBadan
+			jawabanMap["tinggi_badan"] = cp.TinggiBadan
+			jawabanMap["lingkar_kepala"] = cp.LingkarKepala
+			jawabanMap["hasil_lila"] = cp.HasilLila
+			jawabanMap["imt"] = cp.IMT
+			jawabanMap["status_bb_u"] = cp.StatusBBU
+			jawabanMap["status_tb_u"] = cp.StatusTBU
+			jawabanMap["status_imt_u"] = cp.StatusIMTU
+			jawabanMap["status_bb_tb"] = cp.StatusBBTB
+			jawabanMap["status_lk_u"] = cp.StatusLKU
+
+			var statusGiziParts []string
+			if cp.StatusTBU != "" {
+				statusGiziParts = append(statusGiziParts, "TB/U: "+cp.StatusTBU)
+			}
+			if cp.StatusBBU != "" {
+				statusGiziParts = append(statusGiziParts, "BB/U: "+cp.StatusBBU)
+			}
+			if cp.StatusBBTB != "" {
+				statusGiziParts = append(statusGiziParts, "BB/TB: "+cp.StatusBBTB)
+			}
+			if len(statusGiziParts) > 0 {
+				jawabanMap["status_gizi"] = strings.Join(statusGiziParts, ", ")
+			}
+		}
+
+		var latestPred models.PrediksiStunting
+		hasPred := false
+		if err := db.Where("anak_id = ? AND deleted_at IS NULL", anak.ID).Order("created_at DESC").First(&latestPred).Error; err == nil {
+			hasPred = true
+			if latestPred.CreatedAt.After(latestDate) {
+				latestDate = latestPred.CreatedAt
+			}
+		}
+
+		if !hasCp && hasPred {
+			jawabanMap["berat_badan"] = latestPred.BeratBadan
+			jawabanMap["tinggi_badan"] = latestPred.TinggiBadan
+			jawabanMap["lingkar_kepala"] = latestPred.LingkarKepala
+			jawabanMap["hasil_lila"] = latestPred.HasilLila
+			jawabanMap["status_tb_u"] = latestPred.StatusTBU
+
+			var statusGiziParts []string
+			if latestPred.StatusTBU != "" {
+				statusGiziParts = append(statusGiziParts, "TB/U: "+latestPred.StatusTBU)
+			}
+			if len(statusGiziParts) > 0 {
+				jawabanMap["status_gizi"] = strings.Join(statusGiziParts, ", ")
+			}
+		}
+
+		// 4. Get dental
+		var pg models.PeriksaGigi
+		if err := db.Where("anak_id = ? AND deleted_at IS NULL", anak.ID).Order("tanggal DESC").First(&pg).Error; err == nil {
+			if pg.Tanggal.After(latestDate) {
+				latestDate = pg.Tanggal
+			}
+			jawabanMap["jumlah_gigi"] = pg.Jumlahgigi
+			jawabanMap["gigi_berlubang"] = pg.GigiBerlubang
+			jawabanMap["status_plak"] = pg.StatusPlak
+			jawabanMap["resiko_gigi_berlubang"] = pg.ResikoGigiBerlubang
+		}
+
+		// 5. Get gizi
+		var kg models.KunjunganGizi
+		if err := db.Preload("ASI").Preload("MPASI").Where("anak_id = ? AND deleted_at IS NULL", anak.ID).Order("tanggal DESC").First(&kg).Error; err == nil {
+			if kg.Tanggal.After(latestDate) {
+				latestDate = kg.Tanggal
+			}
+
+			if kg.MasihMenyusui != nil {
+				jawabanMap["masih_menyusui"] = *kg.MasihMenyusui
+			}
+			if kg.JenisPemberianSusu != "" {
+				jawabanMap["jenis_pemberian_susu"] = kg.JenisPemberianSusu
+			}
+			if kg.MenggunakanFormula != nil {
+				jawabanMap["menggunakan_formula"] = *kg.MenggunakanFormula
+			}
+			if kg.AlasanFormula != "" {
+				jawabanMap["alasan_formula"] = kg.AlasanFormula
+			}
+			if kg.ObatCacing != nil {
+				jawabanMap["obat_cacing"] = *kg.ObatCacing
+			}
+			if kg.UsiaMulaiMpasi != nil {
+				jawabanMap["usia_mulai_mpasi"] = *kg.UsiaMulaiMpasi
+			}
+
+			if kg.ASI != nil {
+				jawabanMap["frekuensi_menyusui"] = kg.ASI.FrekuensiMenyusui
+				jawabanMap["asi_perah"] = kg.ASI.ASIPerah
+			}
+			if kg.MPASI != nil {
+				jawabanMap["diberikan_mpasi"] = kg.MPASI.DiberikanMPASI
+				jawabanMap["jumlah_makan_perporsi"] = kg.MPASI.JumlahmakanPerporsi
+				jawabanMap["frekuensi_makan_perhari"] = kg.MPASI.FrekuensiMakan
+			}
+		}
+
+		// 6. Get imunisasi
+		var ki models.KehadiranImunisasi
+		if err := db.Preload("Detail.JenisPelayanan").Where("anak_id = ? AND deleted_at IS NULL", anak.ID).Order("id DESC").First(&ki).Error; err == nil {
+			if ki.CreatedAt.After(latestDate) {
+				latestDate = ki.CreatedAt
+			}
+
+			var vaksinList []string
+			for _, det := range ki.Detail {
+				if det.JenisPelayanan != nil {
+					vaksinList = append(vaksinList, det.JenisPelayanan.Nama)
+				}
+			}
+			if len(vaksinList) > 0 {
+				jawabanMap["imunisasi_diberikan"] = strings.Join(vaksinList, ", ")
+			}
+		}
+
+		if latestDate.IsZero() {
+			latestDate = time.Now()
+		}
+
+		ris := "Normal"
+		if hasPred {
+			if latestPred.StatusPrediksi == "Stunting" {
+				ris = "Tinggi"
+			} else if latestPred.StatusPrediksi == "Risiko Stunting" {
+				ris = "Sedang"
+			}
+		}
+
+		return &models.DetailPemeriksaanResponse{
+			ID:                 id,
+			PendudukID:         uint(pendudukID),
+			NamaPenduduk:       kependudukan.NamaLengkap,
+			Kelompok:           "balita",
+			TanggalPemeriksaan: latestDate,
+			VersiForm:          "Pemeriksaan Balita Terintegrasi",
+			KategoriRisiko:     ris,
+			Jawaban:            jawabanMap,
+		}, nil
+	}
+
+	p, err := u.periksaRepo.GetPemeriksaanByID(ctx, id)
+	if err != nil || p == nil {
+		return nil, errors.New("pemeriksaan not found")
+	}
+
+	penduduk, _ := u.periksaRepo.GetPendudukByID(ctx, p.PendudukID)
+	var namaPenduduk string
+	if penduduk != nil {
+		namaPenduduk = penduduk.NamaLengkap
+	}
+
+	versi, _ := u.formRepo.GetFormVersionByID(ctx, p.FormVersiID)
+	namaVersi := ""
+	if versi != nil {
+		namaVersi = versi.Nama
+	}
+
+	var jawabanMap map[string]interface{}
+	json.Unmarshal(p.Jawaban, &jawabanMap)
+
+	return &models.DetailPemeriksaanResponse{
+		ID:                 p.ID,
+		PendudukID:         p.PendudukID,
+		NamaPenduduk:       namaPenduduk,
+		Kelompok:           p.Kelompok,
+		TanggalPemeriksaan: p.TanggalPemeriksaan,
+		VersiForm:          namaVersi,
+		KategoriRisiko:     p.KategoriRisiko,
+		Rekomendasi:        p.Rekomendasi,
+		Jawaban:            jawabanMap,
+	}, nil
 }
 
 

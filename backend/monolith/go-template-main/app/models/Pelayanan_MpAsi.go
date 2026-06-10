@@ -10,10 +10,10 @@ import (
 type MPASI struct {
 	ID                  int32          `json:"id" gorm:"primaryKey;autoIncrement"`
 	KunjunganGiziID     int32          `json:"kunjungan_gizi_id" gorm:"uniqueIndex;not null;index"`
-	DiberikanMPASI      bool           `json:"diberikan_mp_asi" gorm:"type:bool;not null"` //ya atau tidak
-	VariasiMPASI        datatypes.JSON `json:"variasi_mpasi"`
-	JumlahmakanPerporsi string         `json:"jumlah_makan_perporsi" `   //misal "1 mangkuk / 2 sdm"
-	FrekuensiMakan      string         `json:"frekuensi_makan_perhari" ` // misal "3x utama, 2x selingan"
+	DiberikanMPASI      bool           `json:"diberikan_mp_asi" gorm:"column:diberikan_mpasi;type:bool;not null"` //ya atau tidak
+	VariasiMPASI        datatypes.JSON `json:"variasi_mpasi" gorm:"column:variasi_mpasi"`
+	JumlahmakanPerporsi string         `json:"jumlah_makan_perporsi" gorm:"column:jumlahmakan_perporsi"`   //misal "1 mangkuk / 2 sdm"
+	FrekuensiMakan      string         `json:"frekuensi_makan_perhari" gorm:"column:frekuensi_makan"` // misal "3x utama, 2x selingan"
 	CreatedAt           time.Time      `json:"created_at"`
 	UpdatedAt           time.Time      `json:"updated_at"`
 	DeletedAt           gorm.DeletedAt `json:"-" gorm:"index"`

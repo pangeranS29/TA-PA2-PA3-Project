@@ -5,7 +5,7 @@ import Swal from "sweetalert2";
 import MainLayout from "../../components/Layout/MainLayout";
 import { getKehamilanByIbuId } from "../../services/kehamilan";
 import { getSkriningDMByKehamilanId, createSkriningDM, updateSkriningDM } from "../../services/rujukanService";
-import { getCurrentUser, isDokterUser } from "../../services/auth";
+import { getCurrentUser, isDokterUser, isBidanUser } from "../../services/auth";
 import { Save, ArrowLeft, Loader2, Eye, EyeOff, Plus, Edit2 } from "lucide-react";
 
 export default function SkriningDMGestasional() {
@@ -15,7 +15,9 @@ export default function SkriningDMGestasional() {
   const navigate = useNavigate();
 
   const user = getCurrentUser();
+  // Skrining DM Gestasional: dokter mengelola, bidan hanya melihat
   const isDokter = isDokterUser(user);
+  const isBidan  = isBidanUser(user);
 
   const [kehamilan, setKehamilan] = useState(null);
   const [data, setData] = useState(null);
@@ -369,15 +371,19 @@ export default function SkriningDMGestasional() {
             <h1 className="text-[28px] font-bold text-gray-900">Skrining DM Gestasional</h1>
           </div>
 
-          {/* Banner peringatan status kehamilan dan hak akses */}
           {!isActive && (
             <div className="bg-gray-100 border-l-4 border-gray-500 p-3 rounded text-gray-700 text-base flex items-center gap-2">
               <EyeOff size={16} /> Kehamilan ini sudah selesai (NON-AKTIF). Data hanya dapat dilihat, tidak dapat diubah.
             </div>
           )}
-          {!canEdit && isActive && (
+          {!canEdit && isActive && isBidan && (
             <div className="bg-blue-50 border border-blue-200 p-3 rounded-lg text-blue-700 text-base flex items-center gap-2">
-              <Eye size={16} /> Anda dalam mode baca (Bidan). Data hanya dapat dilihat, tidak dapat diubah.
+              <Eye size={16} /> <span><strong>Mode Lihat — Bidan.</strong> Skrining DM Gestasional dikelola oleh Dokter. Anda hanya dapat melihat data ini.</span>
+            </div>
+          )}
+          {!canEdit && isActive && !isBidan && (
+            <div className="bg-blue-50 border border-blue-200 p-3 rounded-lg text-blue-700 text-base flex items-center gap-2">
+              <Eye size={16} /> Anda dalam mode baca. Data hanya dapat dilihat, tidak dapat diubah.
             </div>
           )}
 

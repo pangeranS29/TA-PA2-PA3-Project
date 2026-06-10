@@ -154,8 +154,10 @@ func (u *AnakUseCase) CreateAnakDenganPenduduk(req models.CreateAnakDenganPendud
 		desaID = ibuPenduduk.DesaID
 	}
 
+	nikSementara := fmt.Sprintf("A%d", time.Now().UnixNano())
 	// Buat kependudukan baru untuk anak
 	newPenduduk := &models.Kependudukan{
+		NIK:           &nikSementara,
 		NamaLengkap:   req.Nama,
 		JenisKelamin:  req.JenisKelamin,
 		TanggalLahir:  tanggalLahir,

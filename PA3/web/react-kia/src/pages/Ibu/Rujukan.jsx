@@ -282,6 +282,16 @@ export default function Rujukan() {
       Swal.fire({ icon: "warning", title: "Perhatian", text: "Bidan belum membuat permintaan rujukan.", confirmButtonColor: "#4f46e5" });
       return;
     }
+    
+    // Validation for dokter form
+    if (!formDokter.rujukan_resume_pemeriksaan_tatalaksana.trim()) {
+      Swal.fire({ icon: "warning", title: "Perhatian", text: "Resume pemeriksaan tatalaksana wajib diisi.", confirmButtonColor: "#4f46e5" });
+      return;
+    }
+    if (!formDokter.rujukan_diagnosis_akhir.trim()) {
+      Swal.fire({ icon: "warning", title: "Perhatian", text: "Diagnosis akhir wajib diisi.", confirmButtonColor: "#4f46e5" });
+      return;
+    }
     setSaving(true);
     try {
       const payload = {

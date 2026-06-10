@@ -95,10 +95,10 @@ const PelayananLilaEdit = () => {
       });
       return;
     }
-    if (formData.bulan_ke < 0 || formData.bulan_ke > 60) {
+    if (formData.bulan_ke <= 0 || formData.bulan_ke > 60) {
       setNotification({
         type: "error",
-        message: "Bulan harus antara 0-60!"
+        message: "Bulan harus antara 1-60!"
       });
       return;
     }
@@ -205,12 +205,12 @@ const PelayananLilaEdit = () => {
                   name="bulan_ke"
                   value={formData.bulan_ke}
                   onChange={handleInputChange}
-                  min="0"
+                  min="1"
                   max="60"
                   className="w-full px-5 py-4 border-2 border-slate-200 rounded-2xl focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 font-semibold"
                   placeholder="Contoh: 6"
                 />
-                <p className="text-xs text-slate-500 mt-2">Usia anak dalam bulan (0-60)</p>
+                <p className="text-xs text-slate-500 mt-2">Usia anak dalam bulan (1-60)</p>
               </div>
 
               <div>

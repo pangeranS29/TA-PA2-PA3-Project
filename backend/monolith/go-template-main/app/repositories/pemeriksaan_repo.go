@@ -138,37 +138,70 @@ func (r *pemeriksaanRepository) GetLatestRiskCountByPendudukIDs(kelompok string,
 
 func (r *pemeriksaanRepository) GetPendudukByRisk(kategori string, risiko string, desaID *int32, role string) ([]models.PendudukRiskResponse, error) {
     // 🔧 PERBAIKAN: Gunakan raw query dengan DISTINCT ON terlebih dahulu, baru filter risiko
-    query := `
-        WITH latest_exam AS (
-            SELECT DISTINCT ON (p.penduduk_id) 
-                p.penduduk_id,
-                p.kategori_risiko
-            FROM pemeriksaans p
-            WHERE p.kelompok = $1 
-                AND p.tanggal_pemeriksaan IS NOT NULL
-                AND p.deleted_at IS NULL
-            ORDER BY p.penduduk_id, p.tanggal_pemeriksaan DESC
-        )
-        SELECT 
-            k.id,
-            k.nama_lengkap,
-            k.nik,
-            k.dusun,
-            EXTRACT(YEAR FROM AGE(CURRENT_DATE, k.tanggal_lahir)) as usia,
-            le.kategori_risiko as risiko
-        FROM latest_exam le
-        JOIN penduduk k ON le.penduduk_id = k.id
-        WHERE le.kategori_risiko = $2
-            AND k.deleted_at IS NULL
-    `
-    
-    args := []interface{}{kategori, risiko}
+    var query string
+    var args []interface{}
     
     // Filter desa jika bukan superadmin
     hasFullAccess := role == "superadmin"
-    if !hasFullAccess && desaID != nil {
-        query += " AND k.desa_id = $3"
-        args = append(args, *desaID)
+    
+    if risiko == "Normal" || risiko == "Rendah" {
+        query = `
+            WITH latest_exam AS (
+                SELECT DISTINCT ON (p.penduduk_id) 
+                    p.penduduk_id,
+                    p.kategori_risiko
+                FROM pemeriksaans p
+                WHERE p.kelompok = $1 
+                    AND p.tanggal_pemeriksaan IS NOT NULL
+                    AND p.deleted_at IS NULL
+                ORDER BY p.penduduk_id, p.tanggal_pemeriksaan DESC
+            )
+            SELECT 
+                k.id,
+                k.nama_lengkap,
+                k.nik,
+                k.dusun,
+                EXTRACT(YEAR FROM AGE(CURRENT_DATE, k.tanggal_lahir)) as usia,
+                le.kategori_risiko as risiko
+            FROM latest_exam le
+            JOIN penduduk k ON le.penduduk_id = k.id
+            WHERE le.kategori_risiko IN ('Rendah', 'Normal')
+                AND k.deleted_at IS NULL
+        `
+        args = []interface{}{kategori}
+        if !hasFullAccess && desaID != nil {
+            query += " AND k.desa_id = $2"
+            args = append(args, *desaID)
+        }
+    } else {
+        query = `
+            WITH latest_exam AS (
+                SELECT DISTINCT ON (p.penduduk_id) 
+                    p.penduduk_id,
+                    p.kategori_risiko
+                FROM pemeriksaans p
+                WHERE p.kelompok = $1 
+                    AND p.tanggal_pemeriksaan IS NOT NULL
+                    AND p.deleted_at IS NULL
+                ORDER BY p.penduduk_id, p.tanggal_pemeriksaan DESC
+            )
+            SELECT 
+                k.id,
+                k.nama_lengkap,
+                k.nik,
+                k.dusun,
+                EXTRACT(YEAR FROM AGE(CURRENT_DATE, k.tanggal_lahir)) as usia,
+                le.kategori_risiko as risiko
+            FROM latest_exam le
+            JOIN penduduk k ON le.penduduk_id = k.id
+            WHERE le.kategori_risiko = $2
+                AND k.deleted_at IS NULL
+        `
+        args = []interface{}{kategori, risiko}
+        if !hasFullAccess && desaID != nil {
+            query += " AND k.desa_id = $3"
+            args = append(args, *desaID)
+        }
     }
     
     var results []models.PendudukRiskResponse

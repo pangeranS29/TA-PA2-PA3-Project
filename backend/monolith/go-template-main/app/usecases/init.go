@@ -7,7 +7,7 @@ import (
 	"log"
 	"os"
 
-	"firebase.google.com/go/v4"
+	firebase "firebase.google.com/go/v4"
 	"firebase.google.com/go/v4/messaging"
 	"google.golang.org/api/option"
 
@@ -174,7 +174,7 @@ func Init(opts Options) *Main {
 	}
 
 	//  BUAT PREDIKSI USECASE (panggil service Python)
-	mlURL := "http://localhost:8001"
+	mlURL := "https://model.generasisehat.com"
 	if opts.Config != nil && opts.Config.MLServiceURL != "" {
 		mlURL = opts.Config.MLServiceURL
 	}
@@ -311,8 +311,8 @@ func Init(opts Options) *Main {
 	m.PendudukRisk = NewPendudukRiskUsecase(opts.Repository.Pemeriksaan, m.Anak)
 	m.RiwayatCard = NewRiwayatCardUsecase(
 		opts.Repository.Kependudukan,
-		 opts.Repository.Pemeriksaan,
-
+		opts.Repository.Pemeriksaan,
+		opts.Repository,
 	)
 	m.Pencatatan = NewPencatatanUsecase(
 		opts.Repository.Kependudukan,
@@ -320,7 +320,7 @@ func Init(opts Options) *Main {
 		 //
 	)
 	m.Form = NewFormUsecase(opts.Repository.Form) // Inisialisasi FormUsecase dengan repository yang sesuai
-	m.Pemeriksaan = NewPemeriksaanUsecase(opts.Repository.Form, opts.Repository.Pemeriksaan)
+	m.Pemeriksaan = NewPemeriksaanUsecase(opts.Repository.Form, opts.Repository.Pemeriksaan, opts.Repository)
 
 	// m.AdminAkunKeluarga = NewAdminAkunKeluargaUsecase(
 	// 	opts.Repository.User,

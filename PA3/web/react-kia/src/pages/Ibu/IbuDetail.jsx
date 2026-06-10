@@ -4,6 +4,9 @@ import { useParams, useSearchParams, Link, useNavigate } from "react-router-dom"
 import MainLayout from "../../components/Layout/MainLayout";
 import { getIbuById } from "../../services/ibu";
 import { getKehamilanByIbuId } from "../../services/kehamilan";
+import { updateStatusKehamilan } from "../../services/kehamilan";
+import { XCircle } from "lucide-react";
+import Swal from "sweetalert2";
 import { getDokterT1CompleteByKehamilanId } from "../../services/pemeriksaanDokter";
 import { 
   ArrowLeft, 
@@ -80,6 +83,45 @@ export default function IbuDetail() {
 
   const [checkingT1, setCheckingT1] = useState(false);
   const [checkingT3, setCheckingT3] = useState(false);
+
+
+  const [nonAktifLoading, setNonAktifLoading] = useState(false);
+
+const handleNonAktif = async () => {
+  const result = await Swal.fire({
+    title: "Tandai Abortus?",
+    text: "Kehamilan ini akan ditandai sebagai abortus dan dinonaktifkan.",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#ef4444",
+    cancelButtonColor: "#6b7280",
+    confirmButtonText: "Ya, Tandai Abortus",
+    cancelButtonText: "Batal",
+  });
+
+  if (!result.isConfirmed) return;
+
+  setNonAktifLoading(true);
+  try {
+    await updateStatusKehamilan(kehamilan.id, "NON-AKTIF");
+    setKehamilan((prev) => ({ ...prev, status_kehamilan: "NON-AKTIF" }));
+    await Swal.fire({
+      title: "Berhasil!",
+      text: "Kehamilan berhasil ditandai sebagai abortus.",
+      icon: "success",
+      confirmButtonColor: "#185FA5",
+    });
+  } catch (err) {
+    await Swal.fire({
+      title: "Gagal!",
+      text: err.response?.data?.message || err.message,
+      icon: "error",
+      confirmButtonColor: "#185FA5",
+    });
+  } finally {
+    setNonAktifLoading(false);
+  }
+};
 
   // Hitung usia kehamilan dari HPHT
   const hitungUsiaKehamilan = (hpht) => {
@@ -269,14 +311,36 @@ export default function IbuDetail() {
       <div className="min-h-screen bg-[#F7FAFB]">
         <div className="max-w-7xl mx-auto p-4 space-y-4">
           {/* Header */}
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-            <Link
-              to="/data-ibu"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-[#185FA5] text-[#185FA5] text-sm font-semibold hover:bg-[#185FA5]/5 transition w-fit"
-            >
-              <ArrowLeft size={16} />
-              <span>Kembali</span>
-            </Link>
+    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+
+  {/* Grup kiri */}
+  <div className="flex items-center gap-2">
+    <Link
+      to="/data-ibu"
+      className="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-[#185FA5] text-[#185FA5] text-sm font-semibold hover:bg-[#185FA5]/5 transition w-fit"
+    >
+      <ArrowLeft size={16} />
+      <span>Kembali</span>
+    </Link>
+
+    {kehamilan.status_kehamilan !== "NON-AKTIF" && (
+      <button
+        onClick={handleNonAktif}
+        disabled={nonAktifLoading}
+        className="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-red-400 text-red-500 text-sm font-semibold hover:bg-red-50 transition w-fit disabled:opacity-50"
+      >
+        <XCircle size={16} />
+        {nonAktifLoading ? "Memproses..." : "Tandai Abortus"}
+      </button>
+    )}
+
+    {kehamilan.status_kehamilan === "NON-AKTIF" && (
+      <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-red-100 text-red-600 text-sm font-semibold">
+        <XCircle size={14} /> Abortus
+      </span>
+    )}
+  </div> 
+
 
             <div className="flex flex-wrap gap-2">
               <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-xl shadow-sm text-xs md:text-sm border border-gray-100">

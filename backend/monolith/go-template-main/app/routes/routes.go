@@ -1,6 +1,7 @@
-﻿package routes
+package routes
 
 import (
+	"fmt"
 	"monitoring-service/app/controllers"
 	"monitoring-service/app/middlewares"
 
@@ -10,6 +11,30 @@ import (
 func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	e.GET("/health", func(c echo.Context) error {
 		return c.JSON(200, map[string]string{"status": "ok"})
+	})
+	e.GET("/debug-riwayat/:id", func(c echo.Context) error {
+		var pendudukID int
+		var err error
+		if _, err = fmt.Sscanf(c.Param("id"), "%d", &pendudukID); err != nil {
+			return c.JSON(400, map[string]string{"error": "invalid ID"})
+		}
+		res, err := controller.GetUseCases().RiwayatCard.GetRiwayatCard(c.Request().Context(), int32(pendudukID))
+		if err != nil {
+			return c.JSON(500, map[string]string{"error": err.Error()})
+		}
+		return c.JSON(200, res)
+	})
+	e.GET("/debug-pemeriksaan/:id", func(c echo.Context) error {
+		var examID int
+		var err error
+		if _, err = fmt.Sscanf(c.Param("id"), "%d", &examID); err != nil {
+			return c.JSON(400, map[string]string{"error": "invalid ID"})
+		}
+		res, err := controller.GetUseCases().Pemeriksaan.GetDetailPemeriksaan(c.Request().Context(), uint(examID))
+		if err != nil {
+			return c.JSON(500, map[string]string{"error": err.Error()})
+		}
+		return c.JSON(200, res)
 	})
 	e.GET("/debug-antropometri", controller.DebugAntropometri)
 
@@ -642,6 +667,7 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	// untuk laporan anak
 	tenaga.GET("/laporan/anak/preview", controller.LaporanAnak.Preview)
 	tenaga.GET("/laporan/anak/export/excel", controller.LaporanAnak.ExportExcel)
+
 	//==== IBU ====
 	ibu := e.Group("/ibu")
 	ibu.Use(middlewares.JWTAuth(controller.JWTSecret()))
@@ -765,6 +791,8 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	ibuk.GET("/catatan-pelayanan-nifas/me", controller.CatatanPelayananNifas.GetMine)
 	// Profile
 	ibuk.GET("/profil", controller.ProfilIbu.GetProfilSaya)
+	ibuk.GET("/neonatus/anak/:anak_id", controller.Neonatus.GetByAnakIDForIbu)
+	ibuk.GET("/neonatus/:id", controller.Neonatus.GetByIDForIbu)
 
 	// ibu := e.Group("/ibu")
 	ibu.Use(middlewares.JWTAuth(controller.JWTSecret()))
@@ -953,4 +981,7 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 
 	// Endpoint untuk detail pemeriksaan (opsional)
 	tenaga.GET("/pemeriksaan/:id", controller.Pemeriksaan.GetDetailPemeriksaan)
+
+	//bidan create akun ibu
+	tenaga.POST("/users", controller.CreateIbuUser)
 }

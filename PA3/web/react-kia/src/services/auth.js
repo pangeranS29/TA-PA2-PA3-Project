@@ -64,3 +64,16 @@ export const registerUser = async (userData) => {
   const response = await api.post("/auth/register", userData);
   return response.data; // Mengembalikan data user yang terdaftar
 };
+
+export const createIbuUser = async (data) => {
+  // Endpoint untuk membuat akun Ibu
+  // Sesuaikan dengan role user yang login
+  const response = await api.post('tenaga-kesehatan/users', {
+    penduduk_id: data.penduduk_id,
+    name: data.name,
+    email: data.email,
+    phone_number: data.phone_number,
+    password: data.password,
+  });
+  return response.data;
+};

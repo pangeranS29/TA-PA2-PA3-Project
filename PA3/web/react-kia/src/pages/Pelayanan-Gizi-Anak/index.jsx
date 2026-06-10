@@ -111,7 +111,7 @@ const requestPayload = useMemo(() => {
     asi: bulan < 24 ? {
       frekuensi_menyusui: parseInt(formData.asi.frekuensi_menyusui) || 0,
       posisi_menyusui: formData.asi.posisi_menyusui,
-      asiperah: formData.asi.asiperah
+      asi_perah: formData.asi.asiperah
     } : null,
 
     mpasi: (bulan >= 6) ? {
@@ -151,6 +151,7 @@ const requestPayload = useMemo(() => {
 
     setSubmitting(true);
     try {
+      console.log("[Gizi] Payload:", JSON.stringify(requestPayload, null, 2));
       await PelayananGiziService.create(requestPayload);
       setIsModalOpen(false);
       setFormData(initialForm);
@@ -160,10 +161,11 @@ const requestPayload = useMemo(() => {
         message: "Data pelayanan gizi berhasil disimpan ke dalam sistem!"
       });
     } catch (err) {
-      const errorMsg = err.response?.data?.message || err.message;
+      const errorMsg = err.response?.data?.error || err.response?.data?.message || err.message;
+      console.error("[Gizi] Error:", errorMsg, err.response?.data);
       setNotification({
         type: "error",
-        message: "Permintaan gagal diproses. Silakan coba lagi nanti atau hubungi bantuan.",
+        message: errorMsg || "Permintaan gagal diproses.",
         code: errorMsg
       });
     } finally {
@@ -322,7 +324,7 @@ const requestPayload = useMemo(() => {
                             });
                           }}
                         >
-                          {[...Array(60)].map((_, m) => <option key={m} value={m}>Bulan {m}</option>)}
+                          {[...Array(60)].map((_, m) => <option key={m} value={m + 1}>Bulan {m + 1}</option>)}
                         </select>
                       </div>
                     </section>
@@ -693,7 +695,7 @@ const requestPayload = useMemo(() => {
                   className="px-8 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-sm shadow-lg shadow-blue-100 transition-all flex items-center gap-2 disabled:opacity-50"
                 >
                   {submitting ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
-                  Simpan & Proses AI
+                  Simpan
                 </button>
               </div>
             </div>
