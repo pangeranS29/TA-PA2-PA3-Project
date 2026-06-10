@@ -5,7 +5,7 @@ import Swal from "sweetalert2";
 import MainLayout from "../../components/Layout/MainLayout";
 import { getKehamilanByIbuId } from "../../services/kehamilan";
 import { getSkriningByKehamilanId, createSkrining, updateSkrining } from "../../services/skrining";
-import { getCurrentUser, isBidanUser } from "../../services/auth";
+import { getCurrentUser, isBidanUser, isDokterUser } from "../../services/auth";
 import {
   AlertCircle,
   Save,
@@ -28,7 +28,9 @@ export default function SkriningPreeklampsia() {
   const navigate = useNavigate();
 
   const user = getCurrentUser();
-  const isDokter = isBidanUser(user);
+  // Skrining Preeklampsia: bidan mengelola, dokter hanya melihat
+  const isBidan  = isBidanUser(user);
+  const isDokter = isDokterUser(user);
 
   const [kehamilan, setKehamilan] = useState(null);
   const [skrining, setSkrining] = useState(null);
@@ -37,7 +39,8 @@ export default function SkriningPreeklampsia() {
   const [isEditing, setIsEditing] = useState(false);
   const [isActive, setIsActive] = useState(true);
 
-  const canEdit = isDokter && isActive;
+  // Hanya bidan yang bisa mengelola; dokter hanya bisa melihat
+  const canEdit = isBidan && isActive;
 
   const [form, setForm] = useState({
     anamnesis_multipara_pasangan_baru_sedang: false,
@@ -125,6 +128,37 @@ export default function SkriningPreeklampsia() {
     setForm((prev) => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
   };
 
+  const validateForm = () => {
+    const newErrors = {};
+    
+    // At least one risk factor must be checked
+    const allRiskFactors = [
+      'anamnesis_multipara_pasangan_baru_sedang',
+      'anamnesis_teknologi_reproduksi_berbantu_sedang',
+      'anamnesis_umur_diatas_35_tahun_sedang',
+      'anamnesis_nulipara_sedang',
+      'anamnesis_jarak_kehamilan_diatas_10_tahun_sedang',
+      'anamnesis_riwayat_preeklampsia_keluarga_sedang',
+      'anamnesis_obesitas_imt_diatas_30_sedang',
+      'anamnesis_riwayat_preeklampsia_sebelumnya_tinggi',
+      'anamnesis_kehamilan_multipel_tinggi',
+      'anamnesis_diabetes_dalam_kehamilan_tinggi',
+      'anamnesis_hipertensi_kronik_tinggi',
+      'anamnesis_penyakit_ginjal_tinggi',
+      'anamnesis_penyakit_autoimun_sle_tinggi',
+      'anamnesis_anti_phospholipid_syndrome_tinggi',
+      'fisik_map_diatas_90_mmhg',
+      'fisik_proteinuria_urin_celup'
+    ];
+    
+    const hasRiskFactor = allRiskFactors.some(key => form[key]);
+    if (!hasRiskFactor) {
+      newErrors.risk_factors = "Setidaknya satu faktor risiko harus dipilih";
+    }
+    
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!canEdit) {
@@ -132,6 +166,15 @@ export default function SkriningPreeklampsia() {
         icon: 'error',
         title: 'Akses Ditolak',
         text: 'Anda tidak memiliki izin untuk mengubah data.'
+      });
+      return;
+    }
+    
+    if (!validateForm()) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Data Belum Lengkap',
+        text: 'Setidaknya satu faktor risiko harus dipilih.'
       });
       return;
     }
@@ -640,9 +683,14 @@ export default function SkriningPreeklampsia() {
               <EyeOff size={16} /> Kehamilan ini sudah selesai (NON-AKTIF). Data hanya dapat dilihat, tidak dapat diubah.
             </div>
           )}
-          {!canEdit && isActive && (
+          {!canEdit && isActive && isDokter && (
             <div className="bg-blue-50 border border-blue-200 p-3 rounded-lg text-blue-700 text-base flex items-center gap-2">
-              <Eye size={16} /> Anda dalam mode baca (Bidan). Data hanya dapat dilihat, tidak dapat diubah.
+              <Eye size={16} /> <span><strong>Mode Lihat — Dokter.</strong> Skrining Preeklampsia dikelola oleh Bidan. Anda hanya dapat melihat data ini.</span>
+            </div>
+          )}
+          {!canEdit && isActive && !isDokter && (
+            <div className="bg-blue-50 border border-blue-200 p-3 rounded-lg text-blue-700 text-base flex items-center gap-2">
+              <Eye size={16} /> Anda dalam mode baca. Data hanya dapat dilihat, tidak dapat diubah.
             </div>
           )}
 

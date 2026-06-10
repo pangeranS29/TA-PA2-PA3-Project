@@ -16,3 +16,8 @@ export const updateNifas = async (id, data) => {
   const res = await api.put(`${BASE}/${id}`, data);
   return res.data.data;
 };
+
+export const deleteNifas = async (id) => {
+  const res = await api.delete(`${BASE}/${id}`);
+  return res.data;
+};

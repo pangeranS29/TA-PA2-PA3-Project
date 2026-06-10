@@ -25,6 +25,7 @@ import {
   Save, ArrowLeft, Edit2, CheckCircle, Printer, Trash2,
   Plus, ChevronDown, ChevronUp, Baby, X, Info, Link2
 } from "lucide-react";
+import { getCurrentUser, isBidanUser, isDokterUser } from "../../services/auth";
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
@@ -108,7 +109,7 @@ const SuratKeteranganLahir = ({ data }) => (
 
 // ─── KelahiranCard ──────────────────────────────────────────────────────────
 
-function KelahiranCard({ index, ringkasan, anakList, kehamilanId, ibuId, onEdit, onAnakAdded, onDelete }) {
+function KelahiranCard({ index, ringkasan, anakList, kehamilanId, ibuId, onEdit, onAnakAdded, onDelete, canEdit }) {
   const [expanded, setExpanded] = useState(index === 0);
 
   const kondisiList = [
@@ -157,18 +158,22 @@ function KelahiranCard({ index, ringkasan, anakList, kehamilanId, ibuId, onEdit,
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <button
-            onClick={(e) => { e.stopPropagation(); onEdit(ringkasan); }}
-            className="text-xs text-indigo-600 border border-indigo-300 px-3 py-1.5 rounded-lg hover:bg-indigo-50 flex items-center gap-1"
-          >
-            <Edit2 size={12} /> Edit
-          </button>
-          <button
-            onClick={(e) => { e.stopPropagation(); onDelete(ringkasan.id_ringkasan || ringkasan.id || 0); }}
-            className="text-xs text-red-600 border border-red-300 px-3 py-1.5 rounded-lg hover:bg-red-50 flex items-center gap-1"
-          >
-            <Trash2 size={12} /> Hapus
-          </button>
+          {canEdit && onEdit && (
+            <button
+              onClick={(e) => { e.stopPropagation(); onEdit(ringkasan); }}
+              className="text-xs text-indigo-600 border border-indigo-300 px-3 py-1.5 rounded-lg hover:bg-indigo-50 flex items-center gap-1"
+            >
+              <Edit2 size={12} /> Edit
+            </button>
+          )}
+          {canEdit && onDelete && (
+            <button
+              onClick={(e) => { e.stopPropagation(); onDelete(ringkasan.id_ringkasan || ringkasan.id || 0); }}
+              className="text-xs text-red-600 border border-red-300 px-3 py-1.5 rounded-lg hover:bg-red-50 flex items-center gap-1"
+            >
+              <Trash2 size={12} /> Hapus
+            </button>
+          )}
           {expanded ? <ChevronUp size={18} className="text-gray-400" /> : <ChevronDown size={18} className="text-gray-400" />}
         </div>
       </div>
@@ -251,7 +256,7 @@ function KelahiranCard({ index, ringkasan, anakList, kehamilanId, ibuId, onEdit,
             )}
           </div>
         </div>
-      )}
+      )} 
     </div>
   );
 }
@@ -260,6 +265,7 @@ function KelahiranCard({ index, ringkasan, anakList, kehamilanId, ibuId, onEdit,
 
 function RingkasanForm({ initial, onSubmit, onCancel, saving, title }) {
   const [form, setForm] = useState(initial || emptyRingkasan());
+  const [errors, setErrors] = useState({});
 
   // Tambahkan ini di sini
   const today = new Date().toISOString().split("T")[0];
@@ -279,10 +285,37 @@ function RingkasanForm({ initial, onSubmit, onCancel, saving, title }) {
     }
 
     setForm((prev) => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
+    // Clear error when field is changed
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: "" }));
+    }
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+    
+    if (!form.tanggal_melahirkan) {
+      newErrors.tanggal_melahirkan = "Tanggal melahirkan wajib diisi";
+    }
+    if (!form.penolong_proses_melahirkan || !form.penolong_proses_melahirkan.trim()) {
+      newErrors.penolong_proses_melahirkan = "Penolong proses melahirkan wajib diisi";
+    }
+    if (!form.cara_melahirkan) {
+      newErrors.cara_melahirkan = "Cara melahirkan wajib dipilih";
+    }
+    if (!form.keadaan_ibu || !form.keadaan_ibu.trim()) {
+      newErrors.keadaan_ibu = "Keadaan ibu wajib diisi";
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (!validateForm()) {
+      return;
+    }
     onSubmit(form);
   };
 
@@ -298,29 +331,34 @@ function RingkasanForm({ initial, onSubmit, onCancel, saving, title }) {
       </div>
 
       {/* Info Persalinan */}
-<div className="border border-gray-200 rounded-2xl p-4 space-y-4">
-  <div className="flex items-center gap-2">
-    <Info size={16} className="text-indigo-500" />
-    <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">Info Persalinan</p>
-  </div>
-  <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-3">
-    <div><label className="block text-xs font-medium mb-1">Tanggal Melahirkan</label>
-      <input type="date" name="tanggal_melahirkan" value={form.tanggal_melahirkan} onChange={handleChange} max={today} className="w-full border rounded-lg px-2 py-1.5 text-sm" /></div>
-    <div><label className="block text-xs font-medium mb-1">Umur Kehamilan (Mgg)</label>
-      <input type="number" name="umur_kehamilan_minggu" value={form.umur_kehamilan_minggu} onChange={handleChange} className="w-full border rounded-lg px-2 py-1.5 text-sm" /></div>
-    <div><label className="block text-xs font-medium mb-1">Penolong</label>
-      <input name="penolong_proses_melahirkan" value={form.penolong_proses_melahirkan} onChange={handleChange} className="w-full border rounded-lg px-2 py-1.5 text-sm" /></div>
-    <div><label className="block text-xs font-medium mb-1">Cara Melahirkan</label>
-      <select name="cara_melahirkan" value={form.cara_melahirkan} onChange={handleChange} className="w-full border rounded-lg px-2 py-1.5 text-sm">
-        <option value="">-- Pilih --</option>
-        <option>Spontan/Normal</option><option>SC</option><option>Vakum</option>
-      </select></div>
-    <div><label className="block text-xs font-medium mb-1">Keadaan Ibu</label>
-      <input name="keadaan_ibu" value={form.keadaan_ibu} onChange={handleChange} className="w-full border rounded-lg px-2 py-1.5 text-sm" /></div>
-    <div><label className="block text-xs font-medium mb-1">KB Pasca Salin</label>
-      <input name="kb_pasca_melahirkan" value={form.kb_pasca_melahirkan} onChange={handleChange} className="w-full border rounded-lg px-2 py-1.5 text-sm" /></div>
-  </div>
-</div>
+      <div>
+        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Info Persalinan</p>
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-3">
+          <div><label className="block text-xs font-medium mb-1">Tanggal Melahirkan <span className="text-red-500">*</span></label>
+            <input type="date" name="tanggal_melahirkan" value={form.tanggal_melahirkan} onChange={handleChange} className={`w-full border rounded-lg px-2 py-1.5 text-sm ${errors.tanggal_melahirkan ? "border-red-500 bg-red-50" : ""}`} />
+            {errors.tanggal_melahirkan && <p className="text-red-500 text-xs mt-1">{errors.tanggal_melahirkan}</p>}
+          </div>
+          <div><label className="block text-xs font-medium mb-1">Umur Kehamilan (Mgg)</label>
+            <input type="number" name="umur_kehamilan_minggu" value={form.umur_kehamilan_minggu} onChange={handleChange} className="w-full border rounded-lg px-2 py-1.5 text-sm" /></div>
+          <div><label className="block text-xs font-medium mb-1">Penolong <span className="text-red-500">*</span></label>
+            <input name="penolong_proses_melahirkan" value={form.penolong_proses_melahirkan} onChange={handleChange} className={`w-full border rounded-lg px-2 py-1.5 text-sm ${errors.penolong_proses_melahirkan ? "border-red-500 bg-red-50" : ""}`} />
+            {errors.penolong_proses_melahirkan && <p className="text-red-500 text-xs mt-1">{errors.penolong_proses_melahirkan}</p>}
+          </div>
+          <div><label className="block text-xs font-medium mb-1">Cara Melahirkan <span className="text-red-500">*</span></label>
+            <select name="cara_melahirkan" value={form.cara_melahirkan} onChange={handleChange} className={`w-full border rounded-lg px-2 py-1.5 text-sm ${errors.cara_melahirkan ? "border-red-500 bg-red-50" : ""}`}>
+              <option value="">-- Pilih --</option>
+              <option>Spontan/Normal</option><option>SC</option><option>Vakum</option>
+            </select>
+            {errors.cara_melahirkan && <p className="text-red-500 text-xs mt-1">{errors.cara_melahirkan}</p>}
+          </div>
+          <div><label className="block text-xs font-medium mb-1">Keadaan Ibu <span className="text-red-500">*</span></label>
+            <input name="keadaan_ibu" value={form.keadaan_ibu} onChange={handleChange} className={`w-full border rounded-lg px-2 py-1.5 text-sm ${errors.keadaan_ibu ? "border-red-500 bg-red-50" : ""}`} />
+            {errors.keadaan_ibu && <p className="text-red-500 text-xs mt-1">{errors.keadaan_ibu}</p>}
+          </div>
+          <div><label className="block text-xs font-medium mb-1">KB Pasca Salin</label>
+            <input name="kb_pasca_melahirkan" value={form.kb_pasca_melahirkan} onChange={handleChange} className="w-full border rounded-lg px-2 py-1.5 text-sm" /></div>
+        </div>
+      </div>
 
       {/* Gravida, Paritas, Abortus (dari ibu / diubah)
       <div className="grid grid-cols-3 gap-3">
@@ -441,6 +479,21 @@ function RingkasanForm({ initial, onSubmit, onCancel, saving, title }) {
 export default function PelayananPersalinan() {
   const { id } = useParams();
   const navigate = useNavigate();
+  
+  // Role-based access control
+  const user = getCurrentUser();
+  const isBidan = isBidanUser(user);
+  const isDokter = isDokterUser(user);
+  
+  // Bingkasan Melahirkan (Ringkasan): dokter melihat, bidan mengelola
+  const canEditRingkasan = isBidan;
+  
+  // Riwayat Melahirkan: dokter melibat, bidan mengelola
+  const canEditRiwayat = isBidan;
+  
+  // Keterangan Lahir: dokter melibat, bidan mengelola
+  const canEditKeterangan = isBidan;
+  
   const [activeTab, setActiveTab] = useState("ringkasan");
   const [kehamilan, setKehamilan] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -776,6 +829,29 @@ export default function PelayananPersalinan() {
   const submitRiwayat = async (e) => {
     e.preventDefault();
     if (!kehamilan) return;
+    
+    // Validation
+    if (!formRiwayat.g_gravida) {
+      Swal.fire({ icon: "warning", title: "Perhatian", text: "Gravida (G) wajib diisi.", confirmButtonColor: "#4f46e5" });
+      return;
+    }
+    if (!formRiwayat.p_partus) {
+      Swal.fire({ icon: "warning", title: "Perhatian", text: "Partus (P) wajib diisi.", confirmButtonColor: "#4f46e5" });
+      return;
+    }
+    if (!formRiwayat.a_abortus) {
+      Swal.fire({ icon: "warning", title: "Perhatian", text: "Abortus (A) wajib diisi.", confirmButtonColor: "#4f46e5" });
+      return;
+    }
+    if (!formRiwayat.tanggal_melahirkan) {
+      Swal.fire({ icon: "warning", title: "Perhatian", text: "Tanggal melahirkan wajib diisi.", confirmButtonColor: "#4f46e5" });
+      return;
+    }
+    if (!formRiwayat.fasyankes_tempat_melahirkan || !formRiwayat.fasyankes_tempat_melahirkan.trim()) {
+      Swal.fire({ icon: "warning", title: "Perhatian", text: "Fasyankes tempat melahirkan wajib diisi.", confirmButtonColor: "#4f46e5" });
+      return;
+    }
+    
     setSaving(true);
     try {
       const payload = { ...formRiwayat, kehamilan_id: kehamilan.id };
@@ -798,6 +874,45 @@ export default function PelayananPersalinan() {
 
   const submitKeterangan = async (e) => {
     e.preventDefault();
+    
+    // Validation
+    if (!formKeterangan.nomor_surat || !formKeterangan.nomor_surat.trim()) {
+      Swal.fire({ icon: "warning", title: "Perhatian", text: "Nomor surat wajib diisi.", confirmButtonColor: "#4f46e5" });
+      return;
+    }
+    if (!formKeterangan.hari_lahir || !formKeterangan.hari_lahir.trim()) {
+      Swal.fire({ icon: "warning", title: "Perhatian", text: "Hari lahir wajib diisi.", confirmButtonColor: "#4f46e5" });
+      return;
+    }
+    if (!formKeterangan.tanggal_lahir) {
+      Swal.fire({ icon: "warning", title: "Perhatian", text: "Tanggal lahir wajib diisi.", confirmButtonColor: "#4f46e5" });
+      return;
+    }
+    if (!formKeterangan.jenis_kelamin) {
+      Swal.fire({ icon: "warning", title: "Perhatian", text: "Jenis kelamin wajib dipilih.", confirmButtonColor: "#4f46e5" });
+      return;
+    }
+    if (!formKeterangan.nama_bayi_diberi_nama || !formKeterangan.nama_bayi_diberi_nama.trim()) {
+      Swal.fire({ icon: "warning", title: "Perhatian", text: "Nama bayi wajib diisi.", confirmButtonColor: "#4f46e5" });
+      return;
+    }
+    if (!formKeterangan.nama_ibu || !formKeterangan.nama_ibu.trim()) {
+      Swal.fire({ icon: "warning", title: "Perhatian", text: "Nama ibu wajib diisi.", confirmButtonColor: "#4f46e5" });
+      return;
+    }
+    if (!formKeterangan.nik_ibu || !formKeterangan.nik_ibu.trim()) {
+      Swal.fire({ icon: "warning", title: "Perhatian", text: "NIK ibu wajib diisi.", confirmButtonColor: "#4f46e5" });
+      return;
+    }
+    if (!formKeterangan.nama_ayah || !formKeterangan.nama_ayah.trim()) {
+      Swal.fire({ icon: "warning", title: "Perhatian", text: "Nama ayah wajib diisi.", confirmButtonColor: "#4f46e5" });
+      return;
+    }
+    if (!formKeterangan.nama_penolong_kelahiran || !formKeterangan.nama_penolong_kelahiran.trim()) {
+      Swal.fire({ icon: "warning", title: "Perhatian", text: "Nama penolong kelahiran wajib diisi.", confirmButtonColor: "#4f46e5" });
+      return;
+    }
+    
     setSaving(true);
     try {
       const payload = { ...formKeterangan, id_ibu_relasi: parseInt(id) };
@@ -984,10 +1099,15 @@ export default function PelayananPersalinan() {
                   </div>
                   <p className="font-semibold text-gray-700">Belum Ada Data Persalinan</p>
                   <p className="text-sm text-gray-400">Tambahkan ringkasan persalinan pertama.</p>
-                  <button onClick={() => setShowNewForm(true)}
-                    className="bg-indigo-600 text-white px-5 py-2 rounded-xl text-sm font-semibold hover:bg-indigo-700 flex items-center gap-2 mt-1">
-                    <Plus size={16} /> Tambah Kelahiran
-                  </button>
+                  {canEditRingkasan && (
+                    <button onClick={() => setShowNewForm(true)}
+                      className="bg-indigo-600 text-white px-5 py-2 rounded-xl text-sm font-semibold hover:bg-indigo-700 flex items-center gap-2 mt-1">
+                      <Plus size={16} /> Tambah Kelahiran
+                    </button>
+                  )}
+                  {!canEditRingkasan && (
+                    <p className="text-xs text-gray-400 mt-2">Hanya Bidan yang dapat menambahkan data persalinan.</p>
+                  )}
                 </div>
               </div>
             )}
@@ -1000,9 +1120,10 @@ export default function PelayananPersalinan() {
                 anakList={anakList}
                 kehamilanId={kehamilan?.id}
                 ibuId={id}
-                onEdit={(r) => { setEditTarget(r); setShowNewForm(false); }}
+                onEdit={canEditRingkasan ? (r) => { setEditTarget(r); setShowNewForm(false); } : undefined}
                 onAnakAdded={() => fetchKelahiran(kehamilan?.id, id)}
-                onDelete={handleDeleteRingkasan}
+                onDelete={canEditRingkasan ? handleDeleteRingkasan : undefined}
+                canEdit={canEditRingkasan}
               />
             ))}
 
@@ -1016,7 +1137,7 @@ export default function PelayananPersalinan() {
               />
             )}
 
-            {!editTarget && !showNewForm && kelahiranList.length > 0 && (
+            {!editTarget && !showNewForm && kelahiranList.length > 0 && canEditRingkasan && (
               <button onClick={() => setShowNewForm(true)}
                 className="w-full py-3 border-2 border-dashed border-indigo-200 rounded-2xl text-indigo-500 font-semibold text-sm hover:border-indigo-400 hover:bg-indigo-50 transition flex items-center justify-center gap-2">
                 <Plus size={18} /> Tambah Kelahiran Baru
@@ -1061,9 +1182,11 @@ export default function PelayananPersalinan() {
                     <CheckCircle size={18} />
                     <h2 className="text-base font-semibold text-gray-800">Riwayat Proses Melahirkan</h2>
                   </div>
-                  <button onClick={() => setModeRiwayat("form")} className="text-xs text-indigo-600 border border-indigo-300 px-3 py-1.5 rounded-lg hover:bg-indigo-50 flex items-center gap-1">
-                    <Edit2 size={12} /> Edit
-                  </button>
+                  {canEditRiwayat && (
+                    <button onClick={() => setModeRiwayat("form")} className="text-xs text-indigo-600 border border-indigo-300 px-3 py-1.5 rounded-lg hover:bg-indigo-50 flex items-center gap-1">
+                      <Edit2 size={12} /> Edit
+                    </button>
+                  )}
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3 bg-gray-50 rounded-xl p-4">
                   <DetailItem label="Gravida (G)" value={formRiwayat.g_gravida} />
@@ -1079,9 +1202,14 @@ export default function PelayananPersalinan() {
               <div className="bg-white rounded-2xl border border-dashed border-gray-200 p-10 text-center">
                 <p className="font-semibold text-gray-700 mb-1">Belum Ada Riwayat Melahirkan</p>
                 <p className="text-sm text-gray-400 mb-4">Silakan isi riwayat proses melahirkan.</p>
-                <button onClick={() => setModeRiwayat("form")} className="bg-indigo-600 text-white px-5 py-2 rounded-xl text-sm font-semibold hover:bg-indigo-700 flex items-center gap-2 mx-auto">
-                  <Plus size={16} /> Tambah Data
-                </button>
+                {canEditRiwayat && (
+                  <button onClick={() => setModeRiwayat("form")} className="bg-indigo-600 text-white px-5 py-2 rounded-xl text-sm font-semibold hover:bg-indigo-700 flex items-center gap-2 mx-auto">
+                    <Plus size={16} /> Tambah Data
+                  </button>
+                )}
+                {!canEditRiwayat && (
+                  <p className="text-xs text-gray-400 mt-2">Hanya Bidan yang dapat mengelola Riwayat Melahirkan.</p>
+                )}
               </div>
             )}
             {modeRiwayat === "form" && (
@@ -1116,7 +1244,9 @@ export default function PelayananPersalinan() {
             {modeKeterangan === "detail" && (
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
-                  <button onClick={() => setModeKeterangan("form")} className="text-sm text-indigo-600 border border-indigo-300 px-3 py-1.5 rounded-lg hover:bg-indigo-50 flex items-center gap-1"><Edit2 size={13} /> Edit Data</button>
+                  {canEditKeterangan && (
+                    <button onClick={() => setModeKeterangan("form")} className="text-sm text-indigo-600 border border-indigo-300 px-3 py-1.5 rounded-lg hover:bg-indigo-50 flex items-center gap-1"><Edit2 size={13} /> Edit Data</button>
+                  )}
                   <button onClick={handlePrint} className="text-sm bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center gap-2"><Printer size={16} /> Cetak</button>
                 </div>
                 <SuratKeteranganLahir data={formKeterangan} />
@@ -1134,7 +1264,12 @@ export default function PelayananPersalinan() {
                   <>
                     <p className="font-semibold text-gray-700 mb-1">Belum Ada Surat Keterangan Lahir</p>
                     <p className="text-sm text-gray-400 mb-4">Silakan pilih kelahiran untuk membuat Surat Keterangan Lahir.</p>
-                    <button onClick={() => setModeKeterangan("form")} className="bg-indigo-600 text-white px-5 py-2 rounded-xl text-sm font-semibold hover:bg-indigo-700 flex items-center gap-2 mx-auto"><Plus size={16} /> Tambah Data</button>
+                    {canEditKeterangan && (
+                      <button onClick={() => setModeKeterangan("form")} className="bg-indigo-600 text-white px-5 py-2 rounded-xl text-sm font-semibold hover:bg-indigo-700 flex items-center gap-2 mx-auto"><Plus size={16} /> Tambah Data</button>
+                    )}
+                    {!canEditKeterangan && (
+                      <p className="text-xs text-gray-400 mt-2">Hanya Bidan yang dapat mengelola Surat Keterangan Lahir.</p>
+                    )}
                   </>
                 )}
               </div>
