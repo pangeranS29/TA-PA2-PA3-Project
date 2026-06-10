@@ -170,9 +170,9 @@ function RingkasanCard({
 
       <div style={{ fontSize: 9, color: "#64748b", marginTop: 2, display: "flex", alignItems: "center", justifyContent: "center", gap: 4 }}>
         <span>{cakupanLabel}: {persentase.toFixed(1)}%</span>
-        <span style={{ cursor: "help", borderBottom: "1px dotted #94a3b8" }} title={tooltipText}>
+        {/* <span style={{ cursor: "help", borderBottom: "1px dotted #94a3b8" }} title={tooltipText}>
           {icons.info}
-        </span>
+        </span> */}
       </div>
     </div>
   );
@@ -500,11 +500,11 @@ export default function Dashboard() {
 
   // Data untuk 6 kartu ringkasan
   const kelompokList = [
-    { key: "balita", label: "Balita (0-5 th)", icon: icons.baby, color: "#d97706", bg: "#fef3c7", tooltip: "Cakupan imunisasi & pemantauan tumbuh kembang balita" },
-    { key: "anak", label: "Anak (6- 9 th)", icon: icons.school, color: "#0284c7", bg: "#e0f2fe", tooltip: "Pemeriksaan kesehatan anak usia sekolah" },
-    { key: "remaja", label: "Remaja (10-18 th)", icon: icons.teen, color: "#16a34a", bg: "#dcfce7", tooltip: "Kesehatan reproduksi & skrining remaja" },
-    { key: "dewasa", label: "Dewasa (19-59 th)", icon: icons.adult, color: "#ca8a04", bg: "#fef9c3", tooltip: "Skrining PTM & pemeriksaan kesehatan umum" },
-    { key: "lansia", label: "Lansia (60+ th)", icon: icons.elderly, color: "#475569", bg: "#f1f5f9", tooltip: "Pemantauan penyakit kronis & kunjungan lansia" },
+    { key: "balita", label: "Balita (0-5 tahun)", color: "#d97706", tooltip: "Cakupan imunisasi & pemantauan tumbuh kembang balita" },
+    { key: "anak", label: "Anak (6- 9 tahun)", color: "#0284c7", tooltip: "Pemeriksaan kesehatan anak usia sekolah" },
+    { key: "remaja", label: "Remaja (10-18 tahun)", tooltip: "Kesehatan reproduksi & skrining remaja" },
+    { key: "dewasa", label: "Dewasa (19-59 tahun)", tooltip: "Skrining PTM & pemeriksaan kesehatan umum" },
+    { key: "lansia", label: "Lansia (60+ tahun)", tooltip: "Pemantauan penyakit kronis & kunjungan lansia" },
   ];
 
   // Kartu Ibu Hamil
@@ -523,9 +523,9 @@ export default function Dashboard() {
     sub2Label: "Non Aktif",
     cakupanLabel: "Cakupan Kehamilan Aktif",
     tooltipText: "Persentase kehamilan yang masih berjalan (trimester 1-3) dari total kehamilan tercatat",
-    icon: icons.preg,
+    // icon: icons.preg,
     color: "#db2777",
-    bg: "#ffe4e6",
+    // bg: "#ffe4e6",
     kategoriKey: "ibu-hamil",   // tambahkan key
   };
 
@@ -556,7 +556,7 @@ export default function Dashboard() {
   return (
     <MainLayout>
       {/* BANNER INFORMASI DESA */}
-      {user && (
+      {/* {user && (
         <div style={{
           margin: "12px 20px 0 20px",
           background: "#e0f2fe",
@@ -578,7 +578,7 @@ export default function Dashboard() {
             )}
           </span>
         </div>
-      )}
+      )} */}
 
       <div style={{ background: "#f0f4f8", borderRadius: 14, border: "1px solid #e2e8f0", overflow: "hidden", position: "relative" }}>
         {showOnboarding && (

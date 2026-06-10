@@ -7,19 +7,20 @@ const DOKTER_ROLE = "dokter";
 
 const normalizeRole = (role) => (role || "").toString().trim().toLowerCase();
 
-export const isSuperadminUser = (user) => normalizeRole(user?.role) === SUPERADMIN_ROLE;
-export const isAdminUser = (user) => [ADMIN_ROLE, SUPERADMIN_ROLE].includes(normalizeRole(user?.role));
+export const isSuperadminUser = (user) =>
+  normalizeRole(user?.role) === SUPERADMIN_ROLE;
+export const isAdminUser = (user) =>
+  [ADMIN_ROLE, SUPERADMIN_ROLE].includes(normalizeRole(user?.role));
 export const isDokterUser = (user) => normalizeRole(user?.role) === DOKTER_ROLE;
 export const isBidanUser = (user) => normalizeRole(user?.role) === BIDAN_ROLE;
 
 export const getUserRedirectRoute = (user) => {
-  
   const role = normalizeRole(user?.role);
   if (role === SUPERADMIN_ROLE) return "/superadmin/dashboard";
   if (role === ADMIN_ROLE) return "/dashboard/admin";
   if (role === DOKTER_ROLE) return "/dashboard/dokter";
   if (role === BIDAN_ROLE) return "/dashboard/bidan";
-  return "/dashboard";
+  return "/login";
 };
 
 export const login = async (identifier, password) => {
@@ -35,7 +36,7 @@ export const login = async (identifier, password) => {
 export const logout = () => {
   localStorage.removeItem("access_token");
   localStorage.removeItem("user");
-  window.location.href = "/dashboard";
+  window.location.href = "/login";
 };
 
 export const getCurrentUser = () => {
@@ -50,7 +51,27 @@ export const getCurrentUser = () => {
 
 export const isAuthenticated = () => {
   const token = localStorage.getItem("access_token");
-  return !!token;
+  const userStr = localStorage.getItem("user");
+
+  if (!token || !userStr) return false;
+
+  try {
+    // Decode JWT payload (tanpa library)
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    const now = Math.floor(Date.now() / 1000);
+
+    // Cek apakah token sudah expired
+    if (payload.exp && payload.exp < now) {
+      // Auto clear jika expired
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("user");
+      return false;
+    }
+
+    return true;
+  } catch {
+    return false;
+  }
 };
 
 export const getPostLoginRoute = (user) => {
@@ -68,7 +89,7 @@ export const registerUser = async (userData) => {
 export const createIbuUser = async (data) => {
   // Endpoint untuk membuat akun Ibu
   // Sesuaikan dengan role user yang login
-  const response = await api.post('tenaga-kesehatan/users', {
+  const response = await api.post("tenaga-kesehatan/users", {
     penduduk_id: data.penduduk_id,
     name: data.name,
     email: data.email,
