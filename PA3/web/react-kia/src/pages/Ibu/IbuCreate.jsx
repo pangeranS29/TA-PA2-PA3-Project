@@ -180,11 +180,7 @@ export default function IbuCreate() {
   const suamiDiKK = suamiList.find(
   (s) =>
     s.kartu_keluarga_id &&
-    String(s.kartu_keluarga_id) === String(selectedIbu.kartu_keluarga_id) &&
-    (
-      s.kedudukan_keluarga === "Kepala Keluarga" ||
-      s.kedudukan_keluarga === "Suami"
-    )
+    String(s.kartu_keluarga_id) === String(selectedIbu.kartu_keluarga_id)
 );
     if (suamiDiKK) {
     const idSuami = String(suamiDiKK.id_kependudukan ?? suamiDiKK.id);
