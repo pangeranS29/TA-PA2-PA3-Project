@@ -243,6 +243,44 @@ class _RiwayatSkriningTandaBahayaScreenState
     return '';
   }
 
+  void _showConfirmationDialog({
+    required BuildContext context,
+    required String title,
+    required String content,
+    required VoidCallback onConfirm,
+  }) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+          content: Text(content),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Batal', style: TextStyle(color: Colors.grey)),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                onConfirm();
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF2563EB),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: const Text('Ya'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final totalPending = _records
@@ -697,7 +735,12 @@ class _RiwayatSkriningTandaBahayaScreenState
                     child: OutlinedButton.icon(
                       onPressed: isBusy
                           ? null
-                          : () => _verifyRecord(record, 'Ditolak'),
+                          : () => _showConfirmationDialog(
+                                context: context,
+                                title: 'Tolak Verifikasi',
+                                content: 'Apakah Anda yakin ingin menolak skrining tanda bahaya $childLabel?',
+                                onConfirm: () => _verifyRecord(record, 'Ditolak'),
+                              ),
                       icon: isBusy
                           ? const SizedBox(
                               width: 14,
@@ -713,7 +756,12 @@ class _RiwayatSkriningTandaBahayaScreenState
                     child: FilledButton.icon(
                       onPressed: isBusy
                           ? null
-                          : () => _verifyRecord(record, 'Diterima'),
+                          : () => _showConfirmationDialog(
+                                context: context,
+                                title: 'Verifikasi Skrining',
+                                content: 'Apakah Anda yakin ingin memverifikasi skrining tanda bahaya $childLabel?',
+                                onConfirm: () => _verifyRecord(record, 'Diterima'),
+                              ),
                       icon: isBusy
                           ? const SizedBox(
                               width: 14,
