@@ -89,6 +89,33 @@ export default function PertumbuhanIndex() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (anak?.tanggal_lahir && formData.tgl_ukur) {
+      const birthDate = new Date(anak.tanggal_lahir);
+      const targetDate = new Date(formData.tgl_ukur);
+      let targetAgeBulan = 0;
+      if (birthDate <= targetDate) {
+        let years = targetDate.getFullYear() - birthDate.getFullYear();
+        let months = targetDate.getMonth() - birthDate.getMonth();
+        if (months < 0) {
+          years--;
+          months += 12;
+        }
+        targetAgeBulan = years * 12 + months;
+      }
+
+      const hasReached60 = riwayat.some(r => r.usia_ukur_bulan >= 60 && r.id !== currentId);
+      if (hasReached60 && targetAgeBulan < 60) {
+        setNotification({
+          type: "error",
+          message: "Permintaan gagal diproses. Silakan coba lagi nanti atau hubungi bantuan.",
+          code: "Kunjungan sudah mencapai usia 60 bulan ke atas. Tidak dapat melakukan pengisian untuk usia di bawah 60 bulan.",
+          time: getCurrentTimeWIB()
+        });
+        return;
+      }
+    }
+
     try {
       const payload = {
         ...formData,
@@ -154,10 +181,10 @@ export default function PertumbuhanIndex() {
 
   // ── Konfigurasi grafik ────────────────────────────────────────────────────
   const chartConfig = {
-    bb:   { label: "Berat Badan (kg)", color: "#6366f1", unit: "kg" },
-    tb:   { label: "Tinggi Badan (cm)", color: "#8b5cf6", unit: "cm" },
+    bb: { label: "Berat Badan (kg)", color: "#6366f1", unit: "kg" },
+    tb: { label: "Tinggi Badan (cm)", color: "#8b5cf6", unit: "cm" },
     lila: { label: "LILA (cm)", color: "#f59e0b", unit: "cm" },
-    lk:   { label: "Lingkar Kepala (cm)", color: "#10b981", unit: "cm" },
+    lk: { label: "Lingkar Kepala (cm)", color: "#10b981", unit: "cm" },
   };
 
   // Notification state
@@ -167,10 +194,10 @@ export default function PertumbuhanIndex() {
   const sortedRiwayat = [...riwayat].sort((a, b) => new Date(a.tgl_ukur) - new Date(b.tgl_ukur));
   const chartData = sortedRiwayat.map((r) => ({
     bulan: `${r.usia_ukur_bulan}bln`,
-    bb:   r.berat_badan   || null,
-    tb:   r.tinggi_badan  || null,
-    lila: r.hasil_lila    || null,
-    lk:   r.lingkar_kepala || null,
+    bb: r.berat_badan || null,
+    tb: r.tinggi_badan || null,
+    lila: r.hasil_lila || null,
+    lk: r.lingkar_kepala || null,
   }));
 
   if (loading) return (
@@ -188,9 +215,9 @@ export default function PertumbuhanIndex() {
     <MainLayout>
       <div className="p-6 bg-[#f8fafc] min-h-screen">
         <div className="max-w-7xl mx-auto space-y-6">
-          <AlertNotification 
-            notification={notification} 
-            onClose={() => setNotification(null)} 
+          <AlertNotification
+            notification={notification}
+            onClose={() => setNotification(null)}
             onRetry={notification?.type === "error" ? () => {
               setNotification(null);
               if (!notification.message.includes("hapus")) {
@@ -238,9 +265,8 @@ export default function PertumbuhanIndex() {
                     <button
                       key={key}
                       onClick={() => setActiveChart(key)}
-                      className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
-                        activeChart === key ? "text-white shadow-sm" : "bg-gray-100 text-gray-400 hover:bg-gray-200"
-                      }`}
+                      className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeChart === key ? "text-white shadow-sm" : "bg-gray-100 text-gray-400 hover:bg-gray-200"
+                        }`}
                       style={activeChart === key ? { backgroundColor: cfg.color } : {}}
                     >
                       {key.toUpperCase()}
@@ -249,7 +275,7 @@ export default function PertumbuhanIndex() {
                 </div>
               </div>
 
-              <GrowthChart 
+              <GrowthChart
                 data={chartData}
                 activeChart={activeChart}
                 chartConfig={chartConfig}
@@ -260,7 +286,7 @@ export default function PertumbuhanIndex() {
             {/* Panel kanan - Ringkasan & Status */}
             <div className="space-y-4">
               {/* Ringkasan Status */}
-              <GrowthSummary 
+              <GrowthSummary
                 lastStatus={lastStatus}
                 lastData={lastData}
                 anak={anak}
@@ -272,10 +298,10 @@ export default function PertumbuhanIndex() {
                   <Scale size={14} className="text-indigo-500" /> Pengukuran Terakhir
                 </p>
                 <div className="grid grid-cols-2 gap-3">
-                  <MiniStat label="BB"   value={lastData?.berat_badan    ?? "-"} unit="kg" color="indigo" />
-                  <MiniStat label="TB"   value={lastData?.tinggi_badan   ?? "-"} unit="cm" color="purple" />
-                  <MiniStat label="LILA" value={lastData?.hasil_lila     || "-"} unit="cm" color="amber" />
-                  <MiniStat label="LK"   value={lastData?.lingkar_kepala || "-"} unit="cm" color="emerald" />
+                  <MiniStat label="BB" value={lastData?.berat_badan ?? "-"} unit="kg" color="indigo" />
+                  <MiniStat label="TB" value={lastData?.tinggi_badan ?? "-"} unit="cm" color="purple" />
+                  <MiniStat label="LILA" value={lastData?.hasil_lila || "-"} unit="cm" color="amber" />
+                  <MiniStat label="LK" value={lastData?.lingkar_kepala || "-"} unit="cm" color="emerald" />
                 </div>
               </div>
             </div>
@@ -284,23 +310,23 @@ export default function PertumbuhanIndex() {
           {/* ── DETAIL STATUS GIZI LENGKAP ── */}
           {lastData && (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <GrowthStatusCard 
+              <GrowthStatusCard
                 status={lastStatus.statusBBU}
                 label="Berat Badan / Usia (BB/U)"
                 zScore={lastData.z_score_bb_u || lastData.zScoreBBU}
-                description="Menunjukkan status berat badan anak dibandingkan dengan standar usia"
+                description="Menunjukkan pertumbuhan berat badan anak sesuai usia"
               />
-              <GrowthStatusCard 
+              <GrowthStatusCard
                 status={lastStatus.statusTBU}
                 label="Tinggi Badan / Usia (TB/U)"
                 zScore={lastData.z_score_tb_u || lastData.zScoreTBU}
                 description="Menunjukkan pertumbuhan tinggi badan anak sesuai usia"
               />
-              <GrowthStatusCard 
+              <GrowthStatusCard
                 status={lastStatus.statusBBTB}
-                label="Berat Badan / Tinggi Badan (BB/TB)"
+                label="BeratBadan / TinggiBadan (BB/TB)"
                 zScore={lastData.z_score_bb_tb || lastData.zScoreBBTB}
-                description="Menunjukkan proporsi berat badan terhadap tinggi badan"
+                description="Menunjukkan proporsi pertumbuhan berat badan terhadap tinggi badan"
               />
             </div>
           )}
@@ -353,20 +379,20 @@ export default function PertumbuhanIndex() {
                         {(() => {
                           const rowStatus = deriveStatusFromZScore(r);
                           return (
-                        <div className="flex flex-col gap-1">
-                          <div className="flex items-center gap-1.5">
-                            <span className="text-[9px] font-black text-gray-400 w-8">BB/U:</span>
-                            <StatusBadge status={rowStatus.statusBBU} />
-                          </div>
-                          <div className="flex items-center gap-1.5">
-                            <span className="text-[9px] font-black text-gray-400 w-8">TB/U:</span>
-                            <StatusBadge status={rowStatus.statusTBU} />
-                          </div>
-                          <div className="flex items-center gap-1.5">
-                            <span className="text-[9px] font-black text-gray-400 w-8">BB/TB:</span>
-                            <StatusBadge status={rowStatus.statusBBTB} />
-                          </div>
-                        </div>
+                            <div className="flex flex-col gap-1">
+                              <div className="flex items-center gap-1.5">
+                                <span className="text-[9px] font-black text-gray-400 w-8">BB/U:</span>
+                                <StatusBadge status={rowStatus.statusBBU} />
+                              </div>
+                              <div className="flex items-center gap-1.5">
+                                <span className="text-[9px] font-black text-gray-400 w-8">TB/U:</span>
+                                <StatusBadge status={rowStatus.statusTBU} />
+                              </div>
+                              <div className="flex items-center gap-1.5">
+                                <span className="text-[9px] font-black text-gray-400 w-8">BB/TB:</span>
+                                <StatusBadge status={rowStatus.statusBBTB} />
+                              </div>
+                            </div>
                           );
                         })()}
                       </td>
@@ -586,12 +612,12 @@ function StatusBadge({ status }) {
   if (!status || status === "Data Standar Tidak Tersedia") {
     return <span className="px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-tight bg-gray-100 text-gray-400">-</span>;
   }
-  const isNormal   = status.includes("Normal") || status.includes("Baik");
-  const isWarning  = status.includes("Kurang") || status.includes("Pendek") || status.includes("Risiko");
-  const isCritical = status.includes("Buruk")  || status.includes("Sangat") || status.includes("Stunting") || status.includes("Obesitas");
+  const isNormal = status.includes("Normal") || status.includes("Baik");
+  const isWarning = status.includes("Kurang") || status.includes("Pendek") || status.includes("Risiko");
+  const isCritical = status.includes("Buruk") || status.includes("Sangat") || status.includes("Stunting") || status.includes("Obesitas");
   let cls = "bg-blue-100 text-blue-700";
-  if (isNormal)   cls = "bg-green-100 text-green-700";
-  if (isWarning)  cls = "bg-orange-100 text-orange-700";
+  if (isNormal) cls = "bg-green-100 text-green-700";
+  if (isWarning) cls = "bg-orange-100 text-orange-700";
   if (isCritical) cls = "bg-red-100 text-red-700";
   return <span className={`px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-tight ${cls}`}>{status}</span>;
 }

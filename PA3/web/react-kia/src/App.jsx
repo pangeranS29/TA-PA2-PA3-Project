@@ -106,8 +106,6 @@ import SetelahMelahirkanPage from "./pages/edukasi-digital/SetelahMelahirkanPage
 import SetelahMelahirkanFormPage from "./pages/edukasi-digital/SetelahMelahirkanFormPage";
 import MenyusuiAsiPage from "./pages/edukasi-digital/MenyusuiAsiPage";
 import MenyusuiAsiFormPage from "./pages/edukasi-digital/MenyusuiAsiFormPage";
-import NifasPage from "./pages/edukasi-digital/NifasPage";
-import NifasFormPage from "./pages/edukasi-digital/NifasFormPage";
 import PolaAsuhPage from "./pages/edukasi-digital/PolaAsuhPage";
 import PolaAsuhFormPage from "./pages/edukasi-digital/PolaAsuhFormPage";
 import KesehatanMentalPage from "./pages/edukasi-digital/KesehatanMentalPage";
@@ -125,7 +123,7 @@ import MpasiResepFormPage from "./pages/edukasi-digital/MpasiResepFormPage";
 import JadwalLayananPage from "./pages/jadwal-layanan/JadwalLayananPage";
 import JadwalLayananForm from "./pages/jadwal-layanan/JadwalLayananForm";
 import KeluhanAnak from "./pages/Anak/Keluhan/KeluhanAnak";
-import PemantauanAnakPage from "./pages/Anak/Pemantauan/PemantauanAnakPage";
+import PemantauanAnakPage from "./pages/Pemantauan-anak/PemantauanAnakPage";
 
 import LihatDataPerkembangan from "./pages/penanda-perkembangan-anak/LihatDataPerkembangan";
 import KelolaPerkembangan from "./pages/penanda-perkembangan-anak/KelolaPerkembangan";
@@ -332,9 +330,6 @@ function App() {
         <Route path="/edukasi-digital/menyusui-asi" element={<MenyusuiAsiPage />} />
         <Route path="/edukasi-digital/menyusui-asi/form" element={<MenyusuiAsiFormPage />} />
         <Route path="/edukasi-digital/menyusui-asi/form/:id" element={<MenyusuiAsiFormPage />} />
-        <Route path="/edukasi-digital/nifas" element={<NifasPage />} />
-        <Route path="/edukasi-digital/nifas/form" element={<NifasFormPage />} />
-        <Route path="/edukasi-digital/nifas/form/:id" element={<NifasFormPage />} />
         <Route path="/edukasi-digital/pola-asuh" element={<PolaAsuhPage />} />
         <Route path="/edukasi-digital/pola-asuh/form" element={<PolaAsuhFormPage />} />
         <Route path="/edukasi-digital/pola-asuh/form/:id" element={<PolaAsuhFormPage />} />

@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import MainLayout from "../../../components/Layout/MainLayout";
+import MainLayout from "../../components/Layout/MainLayout";
 import { ChevronLeft, ClipboardList, Info } from "lucide-react";
-import { getAnakById } from "../../../services/Anak";
+import { getAnakById } from "../../services/Anak";
 import {
   getRentangUsia,
   getKategoriByRentang,
   getPemantauanHistory,
   savePemantauanAnak
-} from "../../../services/pemantauanAnak";
-import LembarPemantauanTable from "../../../components/Pemantauan/LembarPemantauanTable";
+} from "../../services/pemantauanAnak";
+import LembarPemantauanTable from "./LembarPemantauanTable";
 
 export default function PemantauanAnakPage() {
   const { id } = useParams();

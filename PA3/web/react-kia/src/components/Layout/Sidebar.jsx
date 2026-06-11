@@ -84,7 +84,7 @@ const Sidebar = () => {
     //   ],
     // },
     {
-      name: "Monitoring",
+      name: "Pemantauan",
       icon: Activity,
       isDropdown: true,
       dropdownKey: "monitoring",
@@ -157,7 +157,7 @@ const Sidebar = () => {
 
   const superadminMenuItems = useMemo(
     () => [
-      { path: "/superadmin/dashboard", name: "Dashboard", icon: LayoutGrid },
+      { path: "/superadmin/dashboard", name: "Beranda", icon: LayoutGrid },
       { path: "/superadmin/manajemen-keluarga", name: "Manajemen KK", icon: UserCheck },
       { path: "/superadmin/akun-keluarga", name: "Buat Kartu Keluarga", icon: UserPlus },
       { path: "/superadmin/kelola-user", name: "Kelola Bidan&Kader&Admin desa", icon: ShieldPlus },
@@ -174,19 +174,19 @@ const Sidebar = () => {
   if (isSuperadmin) {
     menuItems = superadminMenuItems;
   } else if (isAdmin) {
-    menuItems = [{ path: dashboardPath, name: "Dashboard", icon: LayoutGrid }];
+    menuItems = [{ path: dashboardPath, name: "Beranda", icon: LayoutGrid }];
   } else if (isDokter) {
     menuItems = [
-      { path: dashboardPath, name: "Dashboard", icon: LayoutGrid },
+      { path: dashboardPath, name: "Beranda", icon: LayoutGrid },
       ...dokterMenuItems,
     ];
   } else if (isBidan) {
     menuItems = [
-      { path: dashboardPath, name: "Dashboard", icon: LayoutGrid },
+      { path: dashboardPath, name: "Beranda", icon: LayoutGrid },
       ...bidanMenuItems,
     ];
   } else {
-    menuItems = [{ path: dashboardPath, name: "Dashboard", icon: LayoutGrid }];
+    menuItems = [{ path: dashboardPath, name: "Beranda", icon: LayoutGrid }];
   }
 
   const settingsMenu = { path: "/pengaturan", name: "Pengaturan", icon: Settings };
@@ -264,7 +264,7 @@ const Sidebar = () => {
         </div>
         <div className="min-w-0">
           <h1 className="text-base font-bold text-slate-800 leading-tight">KIA Cerdas</h1>
-          <p className="text-[11px] text-slate-400">Dashboard {isDokter ? "Dokter" : isBidan ? "Bidan" : "Admin"}</p>
+          <p className="text-[11px] text-slate-400">Beranda {isDokter ? "Dokter" : isBidan ? "Bidan" : "Admin"}</p>
         </div>
       </div>
 

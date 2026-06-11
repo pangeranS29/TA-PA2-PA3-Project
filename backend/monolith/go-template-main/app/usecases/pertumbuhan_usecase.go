@@ -372,7 +372,15 @@ func (m *Main) AddCatatanPertumbuhan(req *models.CreatePertumbuhanRequest) (*mod
 	
 	gender := sanitizeGender(rawGender)
 
-	catatan.UsiaUkurBulan = catatan.HitungUsiaBulan(tanggalLahir)
+	catSimple := catatan.HitungUsiaBulan(tanggalLahir)
+	if catSimple < 60 {
+		for _, record := range existing {
+			if record.UsiaUkurBulan >= 60 {
+				return nil, customerror.NewBadRequestError("Kunjungan sudah mencapai usia 60 bulan ke atas. Tidak dapat melakukan pengisian untuk usia di bawah 60 bulan.")
+			}
+		}
+	}
+	catatan.UsiaUkurBulan = catSimple
 	m.recalculateAntropometri(catatan, gender)
 
 	stdIMTU, _ := m.repository.GetStandarAntropometri(ParamIMTU, gender, float64(catatan.UsiaUkurBulan))
@@ -667,7 +675,18 @@ func (m *Main) UpdateCatatanPertumbuhan(id uint, req *models.UpdatePertumbuhanRe
 	}
 	gender := sanitizeGender(rawGender)
 
-	data.UsiaUkurBulan = data.HitungUsiaBulan(tanggalLahir)
+	catSimple := data.HitungUsiaBulan(tanggalLahir)
+	if catSimple < 60 {
+		existing, err := m.repository.GetRiwayatPertumbuhanByAnakID(uint(data.AnakID))
+		if err == nil {
+			for _, record := range existing {
+				if record.ID != data.ID && record.UsiaUkurBulan >= 60 {
+					return customerror.NewBadRequestError("Kunjungan sudah mencapai usia 60 bulan ke atas. Tidak dapat melakukan pengisian untuk usia di bawah 60 bulan.")
+				}
+			}
+		}
+	}
+	data.UsiaUkurBulan = catSimple
 	data.IMT = data.HitungIMT()
 	m.recalculateAntropometri(data, gender)
 
