@@ -397,7 +397,6 @@ class _ImunisasiScreenState extends State<ImunisasiScreen> {
                 //     ),
                 //   ),
                 // ],
-
               ],
             )
           ],
@@ -500,8 +499,16 @@ class _ImunisasiScreenState extends State<ImunisasiScreen> {
                         return status == 'mendekati' || status == 'jatuh tempo';
                       }).toList();
 
+                      final selesai = anak.jadwal.where((j) {
+                        final status = j.status.toLowerCase();
+                        return status == 'selesai' ||
+                            status == 'sudah dilakukan';
+                      }).toList();
+
                       final lainnya = anak.jadwal.where((j) {
-                        return !perhatian.contains(j) && !mendekati.contains(j);
+                        return !perhatian.contains(j) &&
+                            !mendekati.contains(j) &&
+                            !selesai.contains(j);
                       }).toList();
 
                       return Column(
@@ -593,16 +600,21 @@ class _ImunisasiScreenState extends State<ImunisasiScreen> {
                                 isEditable: true)),
                           ],
 
-                          // if (lainnya.isNotEmpty) ...[
-                          //   _buildSectionHeader(
-                          //     title: 'Selesai',
-                          //     color: Colors.greenAccent,
-                          //     subtitle: '${lainnya.length} imunisasi selesai',
-                          //   ),
-                          //   ...lainnya.map((item) => _buildImunisasiItem(
-                          //       context, item,
-                          //       isEditable: false)),
-                          // ],
+                          if (selesai.isNotEmpty) ...[
+                            _buildSectionHeader(
+                              title: 'Selesai',
+                              color: Colors.green,
+                              subtitle:
+                                  '${selesai.length} imunisasi sudah dilakukan',
+                            ),
+                            ...selesai.map(
+                              (item) => _buildImunisasiItem(
+                                context,
+                                item,
+                                isEditable: false,
+                              ),
+                            ),
+                          ],
                         ],
                       );
                     },

@@ -22,6 +22,17 @@ type dashboardUsecase struct {
 	anakUseCase         *AnakUseCase
 }
 
+// KONSTANTA BATAS USIA YANG KONSISTEN UNTUK SEMUA FUNGSI
+const (
+	BALITA_MAX = 5  // 0-5 tahun
+	ANAK_MIN   = 6  // 6 tahun
+	ANAK_MAX   = 9  // 6-9 tahun
+	REMAJA_MIN = 10 // 10 tahun
+	REMAJA_MAX = 18 // 10-18 tahun
+	DEWASA_MAX = 59 // 19-59 tahun
+	// Lansia: 60+ tahun
+)
+
 func NewDashboardUsecase(
 	kependudukanUsecase KependudukanUsecase,
 	pemeriksaanUsecase PemeriksaanUsecase,
@@ -39,6 +50,32 @@ func safePercent(done, total int64) float64 {
 		return 0
 	}
 	return float64(done) / float64(total) * 100
+}
+
+// Helper untuk menentukan kelompok usia
+func getKelompokUsia(umur int) string {
+	switch {
+	case umur <= BALITA_MAX:
+		return "balita"
+	case umur >= ANAK_MIN && umur <= ANAK_MAX:
+		return "anak"
+	case umur >= REMAJA_MIN && umur <= REMAJA_MAX:
+		return "remaja"
+	case umur <= DEWASA_MAX:
+		return "dewasa"
+	default:
+		return "lansia"
+	}
+}
+
+// Helper untuk menentukan apakah umur termasuk anak (6-9 tahun)
+func isAnak(umur int) bool {
+	return umur >= ANAK_MIN && umur <= ANAK_MAX
+}
+
+// Helper untuk menentukan apakah umur termasuk remaja (10-18 tahun)
+func isRemaja(umur int) bool {
+	return umur >= REMAJA_MIN && umur <= REMAJA_MAX
 }
 
 // getFilteredPenduduk mengembalikan daftar penduduk aktif dengan filter desa jika diperlukan
@@ -61,6 +98,7 @@ func (u *dashboardUsecase) getFilteredAnak(desaID *int32, role string) ([]models
 	return u.anakUseCase.ListAnakByDesa(targetDesaID, 0)
 }
 
+// ==================== GET JUMLAH PER KELOMPOK USIA ====================
 func (u *dashboardUsecase) GetJumlahPerKelompokUsia(desaID *int32, role string) (*models.JumlahKelompokUsia, error) {
 	penduduks, err := u.getFilteredPenduduk(desaID, role)
 	if err != nil {
@@ -68,35 +106,39 @@ func (u *dashboardUsecase) GetJumlahPerKelompokUsia(desaID *int32, role string) 
 	}
 
 	result := &models.JumlahKelompokUsia{}
+
+	// Proses penduduk (usia >= 10 tahun dari tabel penduduk)
 	for _, p := range penduduks {
 		umur := utils.HitungUmur(p.TanggalLahir)
 		switch {
-		case umur <= 5:
-			// Dihitung terpisah dari daftar pencatatan anak
-		case umur <= 10:
-			// Dihitung terpisah dari daftar pencatatan anak
-		case umur <= 18:
+		case umur <= BALITA_MAX:
+			// Balita dari tabel anak, diabaikan di sini
+		case isAnak(umur):
+			// Anak dari tabel anak, diabaikan di sini
+		case isRemaja(umur):
 			result.Remaja++
-		case umur <= 59:
+		case umur <= DEWASA_MAX:
 			result.Dewasa++
 		default:
 			result.Lansia++
 		}
 	}
 
+	// Proses anak dari tabel anak (usia 0-9 tahun)
 	anaks, err := u.getFilteredAnak(desaID, role)
 	if err != nil {
 		return nil, err
 	}
+
 	for _, a := range anaks {
 		tglLahir, parseErr := time.Parse("2006-01-02", a.TanggalLahir)
 		if parseErr != nil {
 			continue
 		}
 		umur := utils.HitungUmur(tglLahir)
-		if umur <= 5 {
+		if umur <= BALITA_MAX {
 			result.Balita++
-		} else if umur <= 12 {
+		} else if isAnak(umur) {
 			result.Anak++
 		}
 	}
@@ -104,51 +146,51 @@ func (u *dashboardUsecase) GetJumlahPerKelompokUsia(desaID *int32, role string) 
 	return result, nil
 }
 
+// ==================== GET KESEHATAN PER KELOMPOK ====================
 func (u *dashboardUsecase) GetKesehatanPerKelompok(desaID *int32, role string) (models.KesehatanKelompokResponse, error) {
 	penduduks, err := u.getFilteredPenduduk(desaID, role)
 	if err != nil {
 		return nil, err
 	}
 
-	// Kelompokkan ID per kelompok (sama seperti sebelumnya)
-	kelompokIDs := map[string][]int32{
-		"balita": {}, "anak": {}, "remaja": {}, "dewasa": {}, "lansia": {},
+	// Gunakan map untuk ID unik (menghindari duplikasi)
+	kelompokIDMap := map[string]map[int32]bool{
+		"balita": {},
+		"anak":   {},
+		"remaja": {},
+		"dewasa": {},
+		"lansia": {},
 	}
+
+	// PROSES PENDUDUK (usia >= 10 tahun dari tabel penduduk)
 	for _, p := range penduduks {
 		umur := utils.HitungUmur(p.TanggalLahir)
 		id := p.IDKependudukan
+
 		switch {
-		case umur <= 5:
-			// Dihitung terpisah dari daftar pencatatan anak
-		case umur <= 10:
-			// Dihitung terpisah dari daftar pencatatan anak
-		case umur <= 18:
-			kelompokIDs["remaja"] = append(kelompokIDs["remaja"], id)
-		case umur <= 59:
-			kelompokIDs["dewasa"] = append(kelompokIDs["dewasa"], id)
+		case umur <= BALITA_MAX:
+			// Balita dari tabel anak, abaikan di sini
+		case isAnak(umur):
+			// Anak (6-9 tahun) dari penduduk - dimasukkan
+			kelompokIDMap["anak"][id] = true
+		case isRemaja(umur):
+			kelompokIDMap["remaja"][id] = true
+		case umur <= DEWASA_MAX:
+			kelompokIDMap["dewasa"][id] = true
 		default:
-			kelompokIDs["lansia"] = append(kelompokIDs["lansia"], id)
+			kelompokIDMap["lansia"][id] = true
 		}
 	}
 
+	// PROSES ANAK DARI TABEL ANAK (usia 0-9 tahun)
 	anaks, err := u.getFilteredAnak(desaID, role)
 	if err != nil {
 		return nil, err
 	}
 
-	// Write debug logs to a file in the workspace
-	logContent := fmt.Sprintf("=== DEBUG DASHBOARD %s ===\n", time.Now().Format("2006-01-02 15:04:05"))
-	logContent += fmt.Sprintf("Total raw children returned from getFilteredAnak: %d\n", len(anaks))
-
-	for _, a := range anaks {
-		tglLahir, parseErr := time.Parse("2006-01-02", a.TanggalLahir)
-		var umur int
-		if parseErr == nil {
-			umur = utils.HitungUmur(tglLahir)
-		}
-		logContent += fmt.Sprintf("Anak ID: %d, PendudukID: %d, Nama: %s, DOB: %s, Umur: %d, StatusPrediksi: '%s'\n", 
-			a.ID, a.PendudukID, a.Nama, a.TanggalLahir, umur, a.StatusPrediksi)
-	}
+	// Debug logging
+	logContent := fmt.Sprintf("=== DEBUG KESEHATAN PER KELOMPOK %s ===\n", time.Now().Format("2006-01-02 15:04:05"))
+	logContent += fmt.Sprintf("Total anak dari getFilteredAnak: %d\n", len(anaks))
 
 	for _, a := range anaks {
 		tglLahir, parseErr := time.Parse("2006-01-02", a.TanggalLahir)
@@ -156,18 +198,34 @@ func (u *dashboardUsecase) GetKesehatanPerKelompok(desaID *int32, role string) (
 			continue
 		}
 		umur := utils.HitungUmur(tglLahir)
-		if umur <= 5 {
-			kelompokIDs["balita"] = append(kelompokIDs["balita"], a.PendudukID)
-		} else if umur <= 12 {
-			kelompokIDs["anak"] = append(kelompokIDs["anak"], a.PendudukID)
+
+		logContent += fmt.Sprintf("Anak: Nama=%s, Umur=%d, PendudukID=%d, StatusPrediksi='%s'\n",
+			a.Nama, umur, a.PendudukID, a.StatusPrediksi)
+
+		if umur <= BALITA_MAX {
+			kelompokIDMap["balita"][a.PendudukID] = true
+		} else if isAnak(umur) {
+			kelompokIDMap["anak"][a.PendudukID] = true
 		}
+	}
+
+	// Log jumlah ID per kelompok
+	for kelompok, idMap := range kelompokIDMap {
+		logContent += fmt.Sprintf("Kelompok %s: %d IDs\n", kelompok, len(idMap))
 	}
 
 	result := make(models.KesehatanKelompokResponse)
 
-	// Loop untuk kelompok yang memiliki data pemeriksaan
+	// LOOP UNTUK SEMUA KELOMPOK
 	for _, kelompok := range []string{"balita", "anak", "remaja", "dewasa", "lansia"} {
+		// Konversi map ke slice
+		ids := make([]int32, 0, len(kelompokIDMap[kelompok]))
+		for id := range kelompokIDMap[kelompok] {
+			ids = append(ids, id)
+		}
+
 		if kelompok == "balita" {
+			// BALITA: tetap pakai StatusPrediksi dari tabel anak
 			balitaRisk := models.RiskCount{"Rendah": 0, "Sedang": 0, "Tinggi": 0}
 			for _, a := range anaks {
 				tglLahir, parseErr := time.Parse("2006-01-02", a.TanggalLahir)
@@ -175,7 +233,7 @@ func (u *dashboardUsecase) GetKesehatanPerKelompok(desaID *int32, role string) (
 					continue
 				}
 				umur := utils.HitungUmur(tglLahir)
-				if umur <= 5 {
+				if umur <= BALITA_MAX {
 					switch a.StatusPrediksi {
 					case "Stunting":
 						balitaRisk["Tinggi"]++
@@ -186,27 +244,38 @@ func (u *dashboardUsecase) GetKesehatanPerKelompok(desaID *int32, role string) (
 					}
 				}
 			}
-			logContent += fmt.Sprintf("Processed Balita Risk counts: Rendah=%d, Sedang=%d, Tinggi=%d\n", 
+			logContent += fmt.Sprintf("Balita Risk: Rendah=%d, Sedang=%d, Tinggi=%d\n",
 				balitaRisk["Rendah"], balitaRisk["Sedang"], balitaRisk["Tinggi"])
 			result[kelompok] = balitaRisk
 		} else {
-			ids := kelompokIDs[kelompok]
-			riskCount, err := u.pemeriksaanUsecase.GetLatestRiskCountByPendudukIDs(kelompok, ids)
-			if err != nil {
-				// log error jika perlu, lalu default 0
-				result[kelompok] = models.RiskCount{"Rendah": 0, "Sedang": 0, "Tinggi": 0}
+			// ANAK, REMAJA, DEWASA, LANSIA: pakai dari tabel pemeriksaan
+			logContent += fmt.Sprintf("Memproses kelompok %s dengan %d IDs\n", kelompok, len(ids))
+
+			if len(ids) > 0 {
+				riskCount, err := u.pemeriksaanUsecase.GetLatestRiskCountByPendudukIDs(kelompok, ids)
+				if err != nil {
+					log.Printf("Error GetLatestRiskCountByPendudukIDs untuk %s: %v", kelompok, err)
+					logContent += fmt.Sprintf("ERROR untuk %s: %v\n", kelompok, err)
+					result[kelompok] = models.RiskCount{"Rendah": 0, "Sedang": 0, "Tinggi": 0}
+				} else {
+					result[kelompok] = riskCount
+					logContent += fmt.Sprintf("%s Risk: Rendah=%d, Sedang=%d, Tinggi=%d\n",
+						kelompok, riskCount["Rendah"], riskCount["Sedang"], riskCount["Tinggi"])
+				}
 			} else {
-				result[kelompok] = riskCount
+				logContent += fmt.Sprintf("Kelompok %s: tidak ada IDs\n", kelompok)
+				result[kelompok] = models.RiskCount{"Rendah": 0, "Sedang": 0, "Tinggi": 0}
 			}
 		}
 	}
 
 	// Write log file
-	_ = os.WriteFile("d:\\Perkuliahan\\PA 3\\PA_TA_KIA\\TA-PA2-PA3-Project\\backend\\monolith\\go-template-main\\scratch\\debug_dashboard.log", []byte(logContent), 0644)
+	_ = os.WriteFile("debug_kesehatan_kelompok.log", []byte(logContent), 0644)
 
 	return result, nil
 }
 
+// ==================== GET CAKUPAN PEMERIKSAAN ====================
 func (u *dashboardUsecase) GetCakupanPemeriksaan(desaID *int32, role string) ([]models.CakupanPemeriksaan, error) {
 	log.Println(">>> GetCakupanPemeriksaan called")
 	penduduks, err := u.getFilteredPenduduk(desaID, role)
@@ -214,110 +283,76 @@ func (u *dashboardUsecase) GetCakupanPemeriksaan(desaID *int32, role string) ([]
 		return nil, err
 	}
 
-	// Sama: kelompokkan ID per kelompok usia
-	kelompokIDs := map[string][]int32{
-		"balita": {}, "anak": {}, "remaja": {}, "dewasa": {}, "lansia": {},
+	// Gunakan map untuk ID unik per kelompok
+	kelompokIDMap := map[string]map[int32]bool{
+		"balita": {},
+		"anak":   {},
+		"remaja": {},
+		"dewasa": {},
+		"lansia": {},
 	}
-	
-	// Track ID anak yang sudah diproses dari tabel anak
-	anakProcessedIDs := make(map[int32]bool)
-	
+
+	// PROSES PENDUDUK (usia >= 10 tahun dari tabel penduduk)
 	for _, p := range penduduks {
 		umur := utils.HitungUmur(p.TanggalLahir)
 		id := p.IDKependudukan
+
 		switch {
-		case umur <= 5:
-			// Dihitung terpisah dari daftar pencatatan anak (BALITA)
-			// TIDAK DIUBAH - tetap kosong
-		case umur >= 5 && umur <= 9:
-			// ANAK (5-9 tahun) dari tabel penduduk
-			kelompokIDs["anak"] = append(kelompokIDs["anak"], id)
-		case umur <= 18:
-			kelompokIDs["remaja"] = append(kelompokIDs["remaja"], id)
-		case umur <= 59:
-			kelompokIDs["dewasa"] = append(kelompokIDs["dewasa"], id)
+		case umur <= BALITA_MAX:
+			// Balita dari tabel anak, abaikan di sini
+		case isAnak(umur):
+			// Anak (6-9 tahun) dari penduduk - dimasukkan
+			kelompokIDMap["anak"][id] = true
+		case isRemaja(umur):
+			kelompokIDMap["remaja"][id] = true
+		case umur <= DEWASA_MAX:
+			kelompokIDMap["dewasa"][id] = true
 		default:
-			kelompokIDs["lansia"] = append(kelompokIDs["lansia"], id)
+			kelompokIDMap["lansia"][id] = true
 		}
 	}
 
+	// PROSES ANAK DARI TABEL ANAK (usia 0-9 tahun)
 	anaks, err := u.getFilteredAnak(desaID, role)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	for _, a := range anaks {
 		tglLahir, parseErr := time.Parse("2006-01-02", a.TanggalLahir)
 		if parseErr != nil {
 			continue
 		}
 		umur := utils.HitungUmur(tglLahir)
-		
-		// LOGIKA BALITA TIDAK DIUBAH
-		if umur <= 5 {
-			kelompokIDs["balita"] = append(kelompokIDs["balita"], a.PendudukID)
-		} else if umur >= 5 && umur <= 9 {
-			// ANAK (5-9 tahun) dari tabel anak
-			if !anakProcessedIDs[a.PendudukID] {
-				kelompokIDs["anak"] = append(kelompokIDs["anak"], a.PendudukID)
-				anakProcessedIDs[a.PendudukID] = true
-			}
+
+		if umur <= BALITA_MAX {
+			kelompokIDMap["balita"][a.PendudukID] = true
+		} else if isAnak(umur) {
+			kelompokIDMap["anak"][a.PendudukID] = true
 		}
 	}
 
 	var result []models.CakupanPemeriksaan
 
-	// Kelompok dengan data pemeriksaan
+	// HITUNG CAKUPAN PER KELOMPOK
 	for _, kelompok := range []string{"balita", "anak", "remaja", "dewasa", "lansia"} {
-		ids := kelompokIDs[kelompok]
+		// Konversi map ke slice
+		ids := make([]int32, 0, len(kelompokIDMap[kelompok]))
+		for id := range kelompokIDMap[kelompok] {
+			ids = append(ids, id)
+		}
 		total := int64(len(ids))
 		var sudah int64 = 0
-		
-		// LOGIKA BALITA TIDAK DIUBAH
+
 		if kelompok == "balita" {
+			// BALITA: hitung dari StatusPrediksi tabel anak
 			for _, a := range anaks {
-				tglLahir, parseErr := time.Parse("2006-01-02", a.TanggalLahir)
-				if parseErr != nil {
-					continue
-				}
-				umur := utils.HitungUmur(tglLahir)
-				if umur <= 5 && a.StatusPrediksi != "" {
+				if kelompokIDMap["balita"][a.PendudukID] && a.StatusPrediksi != "" {
 					sudah++
 				}
 			}
-		} else if kelompok == "anak" {
-			// LOGIKA UNTUK ANAK (5-9 tahun)
-			if total > 0 {
-				// 1. Hitung dari tabel anak yang sudah diperiksa (StatusPrediksi)
-				for _, a := range anaks {
-					tglLahir, parseErr := time.Parse("2006-01-02", a.TanggalLahir)
-					if parseErr != nil {
-						continue
-					}
-					umur := utils.HitungUmur(tglLahir)
-					if umur >= 5 && umur <= 9 && a.StatusPrediksi != "" {
-						sudah++
-					}
-				}
-				
-				// 2. Hitung dari tabel penduduk yang belum terhitung
-				var pendudukOnlyIDs []int32
-				for _, id := range ids {
-					if !anakProcessedIDs[id] {
-						pendudukOnlyIDs = append(pendudukOnlyIDs, id)
-					}
-				}
-				
-				if len(pendudukOnlyIDs) > 0 {
-					count, err := u.pemeriksaanUsecase.CountPendudukWithExamination(kelompok, pendudukOnlyIDs)
-					if err != nil {
-						return nil, fmt.Errorf("gagal hitung pemeriksaan anak dari penduduk: %w", err)
-					}
-					sudah += count
-				}
-			}
 		} else {
-			// REMUA, DEWASA, LANSIA (tidak berubah)
+			// ANAK, REMAJA, DEWASA, LANSIA: hitung dari tabel pemeriksaan
 			if total > 0 {
 				count, err := u.pemeriksaanUsecase.CountPendudukWithExamination(kelompok, ids)
 				if err != nil {
@@ -326,7 +361,7 @@ func (u *dashboardUsecase) GetCakupanPemeriksaan(desaID *int32, role string) ([]
 				sudah = count
 			}
 		}
-		
+
 		result = append(result, models.CakupanPemeriksaan{
 			Kelompok:       kelompok,
 			TotalSasaran:   total,

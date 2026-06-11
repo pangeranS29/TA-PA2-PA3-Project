@@ -16,6 +16,8 @@ class ApiConstants {
     }
   }
 
+// static String get baseUrl => 'https://api.generasisehat.com';
+
   static const String authLogin = '/auth/login';
   static const String authMe = '/auth/me';
 

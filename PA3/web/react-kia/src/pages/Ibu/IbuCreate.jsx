@@ -112,10 +112,12 @@ export default function IbuCreate() {
   }, []);
 
   const ibuList = useMemo(() => {
-    return pendudukList.filter(
-      (item) => item.jenis_kelamin === "Perempuan" || item.jenis_kelamin === "P"
-    );
-  }, [pendudukList]);
+  return pendudukList.filter(
+    (item) =>
+      (item.jenis_kelamin === "Perempuan" || item.jenis_kelamin === "P") &&
+      item.kedudukan_keluarga === "Istri"
+  );
+}, [pendudukList]);
 
   const suamiList = useMemo(() => {
     return pendudukList.filter(
@@ -152,7 +154,6 @@ export default function IbuCreate() {
     }
   };
 
-  // Ketika pilihan penduduk berubah
   useEffect(() => {
     if (formIbu.id_kependudukan) {
       checkIbuExists(formIbu.id_kependudukan);
@@ -162,6 +163,35 @@ export default function IbuCreate() {
     }
     setErrorMessage("");
   }, [formIbu.id_kependudukan]);
+  useEffect(() => {
+  if (!formIbu.id_kependudukan) return;
+
+
+  const selectedIbu = ibuList.find(
+    (kk) => String(kk.id_kependudukan ?? kk.id) === formIbu.id_kependudukan
+  );
+
+  if (!selectedIbu || !selectedIbu.kartu_keluarga_id) {
+    setFormIbu((prev) => ({ ...prev, id_suami: "" }));
+    return;
+  }
+
+  let suamiDiKK = suamiList.find(
+    (s) =>
+      s.kartu_keluarga_id &&
+      String(s.kartu_keluarga_id) === String(selectedIbu.kartu_keluarga_id) &&
+      (s.kedudukan_keluarga === "Kepala Keluarga" || s.kedudukan_keluarga === "Suami")
+  );
+
+    if (suamiDiKK) {
+    setFormIbu((prev) => ({
+      ...prev,
+      id_suami: String(suamiDiKK.id_kependudukan ?? suamiDiKK.id),
+    }));
+  } else {
+    setFormIbu((prev) => ({ ...prev, id_suami: "not_found" }));
+  }
+}, [formIbu.id_kependudukan, ibuList, suamiList]);
 
   // Handle perubahan form ibu
   const handleChangeIbu = (e) => {
@@ -476,7 +506,7 @@ export default function IbuCreate() {
                   const idPenduduk = kk.id_kependudukan ?? kk.id;
                   return (
                     <option key={idPenduduk} value={String(idPenduduk)}>
-                      {kk.nama_lengkap} — NIK: {kk.nik} {kk.telepon ? `— 📞 ${kk.telepon}` : "— ⚠️ No HP kosong"}
+                      {kk.nama_lengkap} — NIK: {kk.nik} {kk.telepon ? `— NO.HP:  ${kk.telepon}` : "— No HP kosong"}
                     </option>
                   );
                 })}
@@ -498,7 +528,7 @@ export default function IbuCreate() {
               {/* Form data ibu (muncul hanya jika ibu belum terdaftar) */}
               {!ibuExists && !checkingIbu && formIbu.id_kependudukan && (
                 <>
-                  <div className="mt-4 p-3 bg-indigo-50 rounded-lg">
+                  <div className="mt-4 p-3 border border-green-500 bg-green-50 rounded-lg">
                     <p><strong>Nama:</strong> {ibuList.find(kk => String(kk.id_kependudukan ?? kk.id) === formIbu.id_kependudukan)?.nama_lengkap}</p>
                     <p><strong>NIK:</strong> {ibuList.find(kk => String(kk.id_kependudukan ?? kk.id) === formIbu.id_kependudukan)?.nik}</p>
                     <p><strong>No. Telepon:</strong> {
@@ -508,19 +538,45 @@ export default function IbuCreate() {
                   </div>
 
                   <div className="mt-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Pilih Suami (Opsional)</label>
-                    <select name="id_suami" value={formIbu.id_suami} onChange={handleChangeIbu} className="w-full border rounded-xl p-3">
-                      <option value="">-- Tidak ada suami / pilih --</option>
-                      {suamiList.map((suami) => {
-                        const idPenduduk = suami.id_kependudukan ?? suami.id;
-                        return (
-                          <option key={idPenduduk} value={String(idPenduduk)}>
-                            {suami.nama_lengkap} — NIK: {suami.nik}
-                          </option>
-                        );
-                      })}
-                    </select>
-                  </div>
+  <label className="block text-sm font-medium text-gray-700 mb-1">
+    Suami
+    {formIbu.id_suami && formIbu.id_suami !== "not_found" && (
+      <span className="ml-2 text-xs text-green-600 font-normal">
+      </span>
+    )}
+  </label>
+
+  {formIbu.id_suami === "not_found" ? (
+    // Tampilkan keterangan, bukan dropdown
+    <div className="w-full border border-yellow-500 bg-yellow-50 rounded-xl p-3 flex items-center gap-2">
+      <span className="text-gray-600 text-sm">
+      Kepala Keluarga belum terdaftar di data penduduk
+      </span>
+    </div>
+  ) : (
+    <select
+      name="id_suami"
+      value={formIbu.id_suami}
+      onChange={handleChangeIbu}
+      disabled={!!formIbu.id_suami}
+      className={`w-full border rounded-xl p-3 ${
+        formIbu.id_suami
+          ? "bg-gray-100 text-black opacity-100 cursor-not-allowed appearance-none pointer-events-none"
+          : ""
+      }`}
+    >
+      <option value="">-- Tidak ada suami / pilih --</option>
+      {suamiList.map((suami) => {
+        const idPenduduk = suami.id_kependudukan ?? suami.id;
+        return (
+          <option key={idPenduduk} value={String(idPenduduk)}>
+            {suami.nama_lengkap} — NIK: {suami.nik}
+          </option>
+        );
+      })}
+    </select>
+  )}
+</div>
 
                   <div className="grid grid-cols-3 gap-4 mt-4">
                     <div>

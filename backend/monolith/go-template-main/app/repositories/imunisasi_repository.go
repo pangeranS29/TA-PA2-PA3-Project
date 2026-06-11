@@ -112,31 +112,47 @@ func (m *Main) CreateJadwalImunisasiAnak(
 }
 
 func (m *Main) UpdateJadwalStatus() error {
-	var jadwals []models.JadwalImunisasiAnak
+	type JadwalWithTanggalLahir struct {
+		ID                 uint
+		TanggalEstimasi    *time.Time
+		TanggalLahir       time.Time
+		StatusJadwalID     uint
+	}
 
-	if err := m.postgres.Find(&jadwals).Error; err != nil {
+	var jadwals []JadwalWithTanggalLahir
+
+	err := m.postgres.
+		Table("jadwal_imunisasi_anak jia").
+		Select("jia.id, jia.tanggal_estimasi, p.tanggal_lahir, jia.id_status_jadwal").
+		Joins("JOIN anak a ON a.id = jia.anak_id").
+		Joins("JOIN penduduk p ON p.id = a.penduduk_id").
+		Find(&jadwals).Error
+
+	if err != nil {
 		return err
 	}
 
-	today := time.Now()
-
 	for _, jadwal := range jadwals {
+		if jadwal.TanggalEstimasi == nil {
+			continue
+		}
 
-		diff := int(jadwal.TanggalEstimasi.Sub(today).Hours() / 24)
+		// Hitung diff antara TanggalEstimasi dengan TanggalLahir
+		diff := int(jadwal.TanggalEstimasi.Sub(jadwal.TanggalLahir).Hours() / 24)
 
 		var statusID int32
 
 		switch {
-		case diff >= -7 && diff < 0:
-			statusID = 1 // mendekati
+		case diff >= 1:
+			statusID = 1 // lebih 1 hari dari tanggal lahir
 		case diff == 0:
-			statusID = 2 // jatuh tempo
-		case diff >= -3:
-			statusID = 3 // terlewat
-		case diff >= -13:
-			statusID = 4 // terlambat
+			statusID = 2 // 0 hari dari tanggal lahir
+		case diff >= -6 && diff < 0:
+			statusID = 3 // kurang 1-6 hari
+		case diff >= -14 && diff < -6:
+			statusID = 4 // kurang 7-14 hari
 		default:
-			statusID = 5 // krisis
+			statusID = 5 // lebih dari 14 hari
 		}
 
 		_ = m.postgres.
