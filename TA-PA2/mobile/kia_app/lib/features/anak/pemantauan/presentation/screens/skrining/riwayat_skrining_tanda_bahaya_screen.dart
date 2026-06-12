@@ -25,6 +25,8 @@ class _RiwayatSkriningTandaBahayaScreenState
   bool _loading = true;
   List<LembarPemantauanModel> _records = const [];
   final Set<int> _verifyingIds = {};
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
 
   String get _namaAnak => (widget.anak?['nama'] ?? 'Si Kecil').toString();
   String get _usiaAnak =>
@@ -37,10 +39,16 @@ class _RiwayatSkriningTandaBahayaScreenState
   void initState() {
     super.initState();
     _loadRecords();
+    _searchController.addListener(() {
+      setState(() {
+        _searchQuery = _searchController.text;
+      });
+    });
   }
 
   @override
   void dispose() {
+    _searchController.dispose();
     _service.dispose();
     super.dispose();
   }
@@ -286,6 +294,16 @@ class _RiwayatSkriningTandaBahayaScreenState
     final totalPending = _records
         .where((record) => record.status == 'Menunggu verifikasi')
         .length;
+
+    final filteredRecords = _records.where((record) {
+      final query = _searchQuery.toLowerCase();
+      if (query.isEmpty) return true;
+      final childName = _childName(record).toLowerCase();
+      final motherName = _motherName(record).toLowerCase();
+      final exam = record.namaPemeriksa.toLowerCase();
+      return childName.contains(query) || motherName.contains(query) || exam.contains(query);
+    }).toList();
+
     return Scaffold(
       backgroundColor: const Color(0xFFF1F5F9),
       appBar: AppBar(
@@ -305,33 +323,57 @@ class _RiwayatSkriningTandaBahayaScreenState
         onRefresh: _loadRecords,
         child: _loading
             ? const Center(child: CircularProgressIndicator())
-            : _records.isEmpty
-                ? ListView(
-                    padding: const EdgeInsets.all(20),
-                    children: [
-                      const SizedBox(height: 24),
-                      if (!_isKaderMode) _buildPrimaryActionCard(),
-                      if (_isKaderMode) _buildKaderSummaryCard(totalPending),
-                      const SizedBox(height: 16),
-                      _buildEmptyState(context),
-                    ],
-                  )
-                : ListView(
-                    padding: const EdgeInsets.all(16),
-                    children: [
-                      if (!_isKaderMode) _buildPrimaryActionCard(),
-                      if (_isKaderMode) _buildKaderSummaryCard(totalPending),
-                      const SizedBox(height: 16),
-                      _buildHeaderCard(),
-                      const SizedBox(height: 16),
-                      ..._records.map((record) {
+            : ListView(
+                padding: const EdgeInsets.all(16),
+                children: [
+                  if (!_isKaderMode) _buildPrimaryActionCard(),
+                  if (_isKaderMode) _buildKaderSummaryCard(totalPending),
+                  const SizedBox(height: 16),
+                  
+                  if (_isKaderMode && _records.isNotEmpty) ...[
+                    TextField(
+                      controller: _searchController,
+                      decoration: InputDecoration(
+                        hintText: 'Cari nama anak atau ibu...',
+                        prefixIcon: const Icon(Icons.search),
+                        filled: true,
+                        fillColor: Colors.white,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+
+                  if (_records.isEmpty) 
+                    _buildEmptyState(context)
+                  else ...[
+                    _buildHeaderCard(),
+                    const SizedBox(height: 16),
+                    if (filteredRecords.isEmpty)
+                      const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(20.0),
+                          child: Text('Data tidak ditemukan.'),
+                        ),
+                      )
+                    else
+                      ...filteredRecords.map((record) {
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 12),
                           child: _buildRecordCard(record),
                         );
                       }),
-                    ],
-                  ),
+                  ],
+                ],
+              ),
       ),
     );
   }
