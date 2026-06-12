@@ -26,7 +26,7 @@ class AbsensiKelasIbuBalitaApiService {
 
   Future<List<AbsensiKelasIbuBalitaModel>> getMine() async {
     final uri = Uri.parse(
-      '${ApiConstants.baseUrl}/modul-ibu/absensi-kelas-ibu-balita/me',
+      '${ApiConstants.baseUrl}/ibu/absensi-kelas-ibu-balita/me',
     );
 
     final response = await _client.get(uri, headers: _headers);
@@ -59,7 +59,7 @@ class AbsensiKelasIbuBalitaApiService {
     AbsensiKelasIbuBalitaModel data,
   ) async {
     final uri = Uri.parse(
-      '${ApiConstants.baseUrl}/modul-ibu/absensi-kelas-ibu-balita',
+      '${ApiConstants.baseUrl}/ibu/absensi-kelas-ibu-balita',
     );
 
     final response = await _client.post(

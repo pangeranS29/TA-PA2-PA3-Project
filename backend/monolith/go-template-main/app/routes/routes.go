@@ -1,4 +1,4 @@
-﻿package routes
+package routes
 
 import (
 	"fmt"
@@ -291,6 +291,7 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	// tenaga.DELETE("/kategori-capaian/:id", controller.KategoriCapaian.Delete)
 
 	// ==================== PERAWATAN ANAK (Lembar Capaian) ====================
+	tenaga.POST("/perawatan/bulk", controller.CreateBulkPerawatan)
 	tenaga.GET("/perawatan", controller.GetPerawatanByAnakID)
 	tenaga.GET("/perawatan/:id", controller.GetPerawatanByID)
 	tenaga.POST("/perawatan", controller.CreatePerawatan)
@@ -758,10 +759,6 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	ibuk.GET("/absensi-kelas-ibu-hamil/me", controller.AbsensiKelasIbuHamil.GetMine)
 	ibuk.POST("/absensi-kelas-ibu-hamil", controller.AbsensiKelasIbuHamil.SaveMine)
 
-	// Absensi Kelas Ibu Balita
-	ibuk.GET("/absensi-kelas-ibu-balita/me", controller.AbsensiKelasIbuBalita.GetMine)
-	ibuk.POST("/absensi-kelas-ibu-balita", controller.AbsensiKelasIbuBalita.SaveMine)
-
 	// Checklist Pemantauan Ibu Nifas
 	ibuk.GET("/checklist-pemantauan-ibu-nifas/me", controller.ChecklistPemantauanIbuNifas.GetMine)
 	ibuk.POST("/checklist-pemantauan-ibu-nifas", controller.ChecklistPemantauanIbuNifas.SaveMine)
@@ -829,10 +826,15 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	ibu.GET("/perawatan/:id", controller.GetPerawatanByID)
 	ibu.GET("/perawatan/anak/:anak_id", controller.GetPerawatanByAnakID)
 	ibu.GET("/perawatan/anak/:anak_id/rentang-usia/:rentang_usia", controller.GetPerawatanByAnakIDAndRentangUsia)
+	ibu.POST("/perawatan/bulk", controller.CreateBulkPerawatan)
 	ibu.POST("/perawatan", controller.CreatePerawatan)
 	ibu.PUT("/perawatan/:id", controller.UpdatePerawatan)
 	ibu.DELETE("/perawatan/:id", controller.DeletePerawatan)
 	// Catatan: Ibu tidak memiliki akses UPDATE/DELETE/VERIFY untuk menjaga integritas rekam medis
+
+	// Absensi Kelas Ibu Balita
+	ibu.GET("/absensi-kelas-ibu-balita/me", controller.AbsensiKelasIbuBalita.GetMine)
+	ibu.POST("/absensi-kelas-ibu-balita", controller.AbsensiKelasIbuBalita.SaveMine)
 
 	// ==================== IMUNISASI ====================
 	ibu.GET("/jadwal-imunisasi", controller.GetJadwalImunisasi)

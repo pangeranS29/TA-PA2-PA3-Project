@@ -147,64 +147,67 @@ Stimulasi Motorik Halus:
         }
       }
 
-      for (final range in _ageRanges) {
-        try {
-          debugPrint('[Perawatan] Loading kategori capaian for: $range');
-
-          // Load kategori capaian
-          final kategori =
-              await _apiService.getKategoriCapaianByRentangUsia(range);
-          debugPrint('[Perawatan] ✓ Loaded ${kategori.length} kategori for $range');
-
-          if (mounted) {
-            setState(() {
-              _kategoriByCageRange[range] = kategori;
-            });
-          }
-
-          // Load existing perawatan data for this age range
-          try {
-            final perawatan = await _apiService
-                .getPerawatanByAnakIdAndRentangUsia(widget.anakId, range);
-            debugPrint(
-                '[Perawatan] ✓ Loaded ${perawatan.length} existing perawatan for $range');
-
-            final checklist = <int, bool?>{};
-            final perawatanIds = <int, int?>{};
-
-            for (final item in perawatan) {
-              checklist[item.kategoriCapaianId] = item.jawaban;
-              perawatanIds[item.kategoriCapaianId] = item.id;
-            }
-
-            if (mounted) {
-              setState(() {
-                _checklistByRange[range] = checklist;
-                _perawatanIdsByRange[range] = perawatanIds;
-              });
-            }
-          } catch (e) {
-            debugPrint('[Perawatan] ⚠ No existing perawatan for $range: $e');
-            // No existing data is OK, continue
-          }
-
-          if (mounted) {
-            setState(() {
-              _loadingStatus[range] = false;
-            });
-          }
-        } catch (e) {
-          debugPrint('[Perawatan] ✗ Error loading $range: $e');
-          if (mounted) {
-            setState(() {
-              _loadingStatus[range] = false;
-              _errorStatus[range] = e.toString();
-            });
-          }
-        }
-      }
+      await Future.wait(
+        _ageRanges.map((range) => _loadKategoriCapaianForRange(range)),
+      );
     } catch (e) {
       debugPrint('[Perawatan] ✗ Unexpected error: $e');
+    }
+  }
+
+  Future<void> _loadKategoriCapaianForRange(String range) async {
+    try {
+      debugPrint('[Perawatan] Loading kategori capaian for: $range');
+
+      // Load kategori capaian
+      final kategori = await _apiService.getKategoriCapaianByRentangUsia(range);
+      debugPrint('[Perawatan] ✓ Loaded ${kategori.length} kategori for $range');
+
+      if (mounted) {
+        setState(() {
+          _kategoriByCageRange[range] = kategori;
+        });
+      }
+
+      // Load existing perawatan data for this age range
+      try {
+        final perawatan = await _apiService.getPerawatanByAnakIdAndRentangUsia(
+            widget.anakId, range);
+        debugPrint(
+            '[Perawatan] ✓ Loaded ${perawatan.length} existing perawatan for $range');
+
+        final checklist = <int, bool?>{};
+        final perawatanIds = <int, int?>{};
+
+        for (final item in perawatan) {
+          checklist[item.kategoriCapaianId] = item.jawaban;
+          perawatanIds[item.kategoriCapaianId] = item.id;
+        }
+
+        if (mounted) {
+          setState(() {
+            _checklistByRange[range] = checklist;
+            _perawatanIdsByRange[range] = perawatanIds;
+          });
+        }
+      } catch (e) {
+        debugPrint('[Perawatan] ⚠ No existing perawatan for $range: $e');
+        // No existing data is OK, continue
+      }
+
+      if (mounted) {
+        setState(() {
+          _loadingStatus[range] = false;
+        });
+      }
+    } catch (e) {
+      debugPrint('[Perawatan] ✗ Error loading $range: $e');
+      if (mounted) {
+        setState(() {
+          _loadingStatus[range] = false;
+          _errorStatus[range] = e.toString();
+        });
+      }
     }
   }
 
@@ -224,51 +227,47 @@ Stimulasi Motorik Halus:
 
     try {
       final kategori = _kategoriByCageRange[rentangUsia] ?? [];
-      int successCount = 0;
-      int errorCount = 0;
+      final List<BulkPerawatanItem> itemsToSave = [];
 
       for (final kat in kategori) {
         final jawaban = checklist[kat.id];
         if (jawaban != null) {
-          try {
-            final perawatanId = perawatanIds[kat.id];
-
-            if (perawatanId != null) {
-              // Update existing
-              await _apiService.updatePerawatan(
-                perawatanId,
-                UpdatePerawatanRequest(
-                  jawaban: jawaban,
-                  tanggalPeriksa: DateTime.now(),
-                ),
-              );
-              debugPrint('[Perawatan] ✓ Updated perawatan $perawatanId');
-            } else {
-              // Create new
-              final response = await _apiService.createPerawatan(
-                CreatePerawatanRequest(
-                  anakId: widget.anakId,
-                  kategoriCapaianId: kat.id,
-                  jawaban: jawaban,
-                  tanggalPeriksa: DateTime.now(),
-                ),
-              );
-              debugPrint('[Perawatan] ✓ Created perawatan ${response.id}');
-              
-              // Update ID for future reference
-              if (mounted) {
-                setState(() {
-                  _perawatanIdsByRange[rentangUsia]![kat.id] = response.id;
-                });
-              }
-            }
-            successCount++;
-          } catch (e) {
-            debugPrint('[Perawatan] ✗ Error save jawaban untuk kategori ${kat.id}: $e');
-            errorCount++;
-          }
+          itemsToSave.add(
+            BulkPerawatanItem(
+              kategoriCapaianId: kat.id,
+              jawaban: jawaban,
+              tanggalPeriksa: DateTime.now(),
+            )
+          );
         }
       }
+
+      if (itemsToSave.isEmpty) {
+        if (mounted) {
+          setState(() => _submittingStatus[rentangUsia] = false);
+        }
+        return;
+      }
+
+      final request = BulkPerawatanRequest(
+        anakId: widget.anakId,
+        data: itemsToSave,
+      );
+
+      final response = await _apiService.createBulkPerawatan(request);
+      
+      // Update IDs
+      if (mounted) {
+        setState(() {
+          for (final peraw in response) {
+            _perawatanIdsByRange[rentangUsia] ??= {};
+            _perawatanIdsByRange[rentangUsia]![peraw.kategoriCapaianId] = peraw.id;
+          }
+        });
+      }
+      
+      int successCount = response.length;
+      int errorCount = itemsToSave.length - response.length;
 
       if (mounted) {
         if (errorCount == 0) {
@@ -276,8 +275,8 @@ Stimulasi Motorik Halus:
             '$successCount jawaban berhasil disimpan',
             isError: false,
           );
-          // Reload data
-          await _loadKategoriCapaian();
+          // Reload data only for this range
+          await _loadKategoriCapaianForRange(rentangUsia);
         } else {
           _showSnackBar(
             'Tersimpan: $successCount, Gagal: $errorCount',
