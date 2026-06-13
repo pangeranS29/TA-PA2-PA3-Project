@@ -1,4 +1,4 @@
-package routes
+﻿package routes
 
 import (
 	"fmt"
@@ -45,7 +45,7 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	// auth.POST("/register/ortu", controller.RegisterOrangTua) // registrasi khusus orang tua
 	secured := auth.Group("")
 	secured.Use(middlewares.JWTAuth(controller.JWTSecret()))
-	secured.Use(middlewares.AuditTrail(controller.AuditTrail))
+	// secured.Use(middlewares.AuditTrail(controller.AuditTrail))
 	secured.GET("/me", controller.Me)
 	secured.POST("/logout", controller.Logout)
 
@@ -78,7 +78,7 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 
 	admin := e.Group("/admin")
 	admin.Use(middlewares.JWTAuth(controller.JWTSecret()))
-	admin.Use(middlewares.AuditTrail(controller.AuditTrail))
+	// admin.Use(middlewares.AuditTrail(controller.AuditTrail))
 	admin.Use(middlewares.AdminOnly())
 	// NOTE: Admin hanya bisa membuat Kartu Keluarga + Anggota (Penduduk)
 	// Tidak bisa membuat akun user lagi
@@ -87,7 +87,7 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	// ==================== MODUL SUPERADMIN ====================
 	superadmin := e.Group("/superadmin")
 	superadmin.Use(middlewares.JWTAuth(controller.JWTSecret()))
-	superadmin.Use(middlewares.AuditTrail(controller.AuditTrail))
+	// superadmin.Use(middlewares.AuditTrail(controller.AuditTrail))
 	superadmin.Use(middlewares.SuperAdminOnly())
 	superadmin.GET("/audit-trail", controller.AuditTrail.List)
 	superadmin.GET("/audit-trail/summary", controller.AuditTrail.Summary)
@@ -123,7 +123,7 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 
 	bidan := e.Group("/bidan")
 	bidan.Use(middlewares.JWTAuth(controller.JWTSecret()))
-	bidan.Use(middlewares.AuditTrail(controller.AuditTrail))
+	// bidan.Use(middlewares.AuditTrail(controller.AuditTrail))
 	bidan.Use(middlewares.BidanOnly())
 
 	// Posyandu Management (Bidan manage posyandu mereka)
@@ -163,12 +163,12 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	// ==================== MODUL Anak ====================
 	anak := e.Group("/anak")
 	anak.Use(middlewares.JWTAuth(controller.JWTSecret()))
-	anak.Use(middlewares.AuditTrail(controller.AuditTrail))
+	// anak.Use(middlewares.AuditTrail(controller.AuditTrail))
 	_ = anak
 
 	masterStandar := e.Group("/master-standar")
 	masterStandar.Use(middlewares.JWTAuth(controller.JWTSecret()))
-	masterStandar.Use(middlewares.AuditTrail(controller.AuditTrail))
+	// masterStandar.Use(middlewares.AuditTrail(controller.AuditTrail))
 	_ = masterStandar
 	masterStandar.GET("", controller.GetMasterStandar)
 	masterStandar.POST("", controller.CreateMasterStandar)
@@ -190,7 +190,7 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	// Group untuk tenaga kesehatan (termasuk bidan, dokter, tenaga-kesehatan)
 	tenaga := e.Group("/tenaga-kesehatan")
 	tenaga.Use(middlewares.JWTAuth(controller.JWTSecret()))
-	tenaga.Use(middlewares.AuditTrail(controller.AuditTrail))
+	// tenaga.Use(middlewares.AuditTrail(controller.AuditTrail))
 	tenaga.Use(middlewares.TenagaKesehatan())
 
 	// ==================== PERTUMBUHAN ANAK ====================
@@ -672,7 +672,7 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	//==== IBU ====
 	ibu := e.Group("/ibu")
 	ibu.Use(middlewares.JWTAuth(controller.JWTSecret()))
-	ibu.Use(middlewares.AuditTrail(controller.AuditTrail))
+	// ibu.Use(middlewares.AuditTrail(controller.AuditTrail))
 	ibu.Use(middlewares.IbuOnly())
 
 	//untuk pencatatan kesehatan ANC
