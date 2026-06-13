@@ -346,7 +346,6 @@ const NeonatusIndex = () => {
       if (!formData.vitk) emptyFields.push("Pemberian Vitamin K1");
       if (!formData.salep) emptyFields.push("Salep/Tetes Mata Antibiotik");
       if (!formData.hb) emptyFields.push("Imunisasi Hepatitis B (HB0)");
-      if (!formData.batch_imunisasi) emptyFields.push("No. Batch Imunisasi");
     } else if (activeTab === 'KN1') {
       if (!formData.bb) emptyFields.push("Berat Badan (BB)");
       if (!formData.pb) emptyFields.push("Panjang Badan (PB)");
@@ -356,23 +355,17 @@ const NeonatusIndex = () => {
       if (!formData.vitk) emptyFields.push("Pemberian Vitamin K1");
       if (!formData.salep) emptyFields.push("Salep/Tetes Mata Antibiotik");
       if (!formData.hb) emptyFields.push("Imunisasi Hepatitis B");
-      if (!formData.skrining_hipotiroid) emptyFields.push("Skrining Hipotiroid");
-      if (!formData.jantung_bawaan) emptyFields.push("Hasil Skrining Jantung Bawaan");
-      if (!formData.batch_imunisasi) emptyFields.push("No. Batch Imunisasi");
     } else if (activeTab === 'KN2') {
       if (!formData.menyusu) emptyFields.push("Bayi Menyusu Baik");
       if (!formData.tali_pusat) emptyFields.push("Perawatan Tali Pusat");
       if (!formData.tanda_bahaya) emptyFields.push("Pemeriksaan Tanda Bahaya");
       if (!formData.kuning) emptyFields.push("Identifikasi Bayi Kuning");
       if (!formData.hb) emptyFields.push("Imunisasi Hepatitis B");
-      if (!formData.skrining_hipotiroid) emptyFields.push("Skrining Hipotiroid");
-      if (!formData.batch_imunisasi) emptyFields.push("No. Batch Imunisasi");
     } else if (activeTab === 'KN3') {
       if (!formData.menyusu) emptyFields.push("Bayi Menyusu Baik");
       if (!formData.tali_pusat) emptyFields.push("Perawatan Tali Pusat");
       if (!formData.tanda_bahaya) emptyFields.push("Pemeriksaan Tanda Bahaya");
       if (!formData.kuning) emptyFields.push("Identifikasi Bayi Kuning");
-      if (!formData.skrining_hipotiroid) emptyFields.push("Skrining Hipotiroid");
       if (!formData.bagian_kuning) emptyFields.push("Kramer Jaundice Scale (Kuning)");
     }
 
@@ -752,11 +745,11 @@ const NeonatusIndex = () => {
                       <div className={`w-5 h-5 rounded-lg flex items-center justify-center border transition-colors ${formData.skrining_hipotiroid ? "bg-green-600 border-green-600 text-white" : "bg-white border-slate-300"}`}>
                         {formData.skrining_hipotiroid && <Check size={12} strokeWidth={4} />}
                       </div>
-                      <span>Skrining Hipotiroid Kongenital</span>
+                      <span>Skrining Hipotiroid Kongenital (Opsional)</span>
                     </button>
 
                     <div className="pt-2 border-t border-slate-50">
-                      <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5 px-1">Skrining Jantung Bawaan Kritis (Hasil)</label>
+                      <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5 px-1">Skrining Jantung Bawaan Kritis (Hasil) (Opsional)</label>
                       <input
                         type="text"
                         placeholder="Contoh: Normal / Dirujuk"
@@ -845,7 +838,7 @@ const NeonatusIndex = () => {
                       <div className={`w-5 h-5 rounded-lg flex items-center justify-center border transition-colors ${formData.skrining_hipotiroid ? "bg-green-600 border-green-600 text-white" : "bg-white border-slate-300"}`}>
                         {formData.skrining_hipotiroid && <Check size={12} strokeWidth={4} />}
                       </div>
-                      <span>Skrining Hipotiroid Kongenital (Bila belum)</span>
+                      <span>Skrining Hipotiroid Kongenital (Bila belum) (Opsional)</span>
                     </button>
                   </div>
                 )}
@@ -914,7 +907,7 @@ const NeonatusIndex = () => {
                       <div className={`w-5 h-5 rounded-lg flex items-center justify-center border transition-colors ${formData.skrining_hipotiroid ? "bg-green-600 border-green-600 text-white" : "bg-white border-slate-300"}`}>
                         {formData.skrining_hipotiroid && <Check size={12} strokeWidth={4} />}
                       </div>
-                      <span>Skrining Hipotiroid s.d 14 Hari (Bila belum)</span>
+                      <span>Skrining Hipotiroid s.d 14 Hari (Bila belum) (Opsional)</span>
                     </button>
                   </div>
                 )}
@@ -950,7 +943,7 @@ const NeonatusIndex = () => {
                           />
                         </div>
                         <div>
-                          <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 px-1">No. Batch</label>
+                          <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 px-1">No. Batch (Opsional)</label>
                           <input
                             type="text"
                             placeholder="Batch #"

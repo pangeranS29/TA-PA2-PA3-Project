@@ -1,13 +1,15 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import MainLayout from "../../components/Layout/MainLayout";
 import { PelayananVitaminService } from "../../services/pelayananvitaminanak";
+import { getAnakById } from "../../services/Anak";
 import { Save, ArrowLeft, Pill, AlertTriangle, CheckCircle2, Info, Loader2, Code, User, Lock } from 'lucide-react';
 
 const PelayananVitaminCreate = () => {
   const { id: anakId } = useParams();
   const navigate = useNavigate();
   const [submitting, setSubmitting] = useState(false);
+  const [dataAnak, setDataAnak] = useState(null);
 
   // 'bulan' disimpan di state untuk validasi UI, namun akan dibuang saat getPreparedPayload()
   const [formData, setFormData] = useState({
@@ -16,6 +18,37 @@ const PelayananVitaminCreate = () => {
     bulan: "", 
     detail: []
   });
+
+  const calculateAgeInMonths = (birthDateString) => {
+    if (!birthDateString) return 1;
+    const birth = new Date(birthDateString);
+    const now = new Date();
+    const diffYears = now.getFullYear() - birth.getFullYear();
+    const diffMonths = now.getMonth() - birth.getMonth();
+    let months = diffYears * 12 + diffMonths;
+    if (now.getDate() < birth.getDate()) {
+      months--;
+    }
+    return months < 1 ? 1 : months;
+  };
+
+  useEffect(() => {
+    const fetchAnak = async () => {
+      try {
+        const res = await getAnakById(anakId);
+        const child = res.data || res;
+        setDataAnak(child);
+        const age = calculateAgeInMonths(child.tanggal_lahir);
+        setFormData(prev => ({
+          ...prev,
+          bulan: age
+        }));
+      } catch (err) {
+        console.error("Gagal mengambil data anak:", err);
+      }
+    };
+    if (anakId) fetchAnak();
+  }, [anakId]);
 
   // 1. Validasi Jadwal Nasional Vitamin A (Februari = 2, Agustus = 8)
   const isJadwalNasional = () => {
@@ -127,7 +160,7 @@ const PelayananVitaminCreate = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="space-y-3">
                 <label className="text-[10px] font-black text-pink-600 uppercase tracking-widest ml-1">
-                  Umur Anak (Bulan) *Validasi
+                  Umur Anak (Bulan) {dataAnak ? `(Usia Sekarang: ${calculateAgeInMonths(dataAnak.tanggal_lahir)} Bulan)` : "*Validasi"}
                 </label>
                 <input 
                   type="number" 

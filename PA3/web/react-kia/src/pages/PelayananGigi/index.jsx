@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import { Plus, X, Save, ShieldAlert, Smile, Loader2, Info, Calendar, Activity } from 'lucide-react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { Plus, X, Save, ShieldAlert, Smile, Loader2, Info, Calendar, Activity, ArrowLeft, ChevronRight } from 'lucide-react';
 import MainLayout from "../../components/Layout/MainLayout";
 import AlertNotification from "../../components/AlertNotification";
 import { dentalService } from '../../services/dentalService';
+import { getAnakById } from '../../services/Anak';
 
 const PelayananGigi = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -35,13 +37,43 @@ const PelayananGigi = () => {
     }
   };
 
+  const [anakData, setAnakData] = useState(null);
+
+  const calculateAgeInMonths = (birthDateString) => {
+    if (!birthDateString) return 1;
+    const birth = new Date(birthDateString);
+    const now = new Date();
+    const diffYears = now.getFullYear() - birth.getFullYear();
+    const diffMonths = now.getMonth() - birth.getMonth();
+    let months = diffYears * 12 + diffMonths;
+    if (now.getDate() < birth.getDate()) {
+      months--;
+    }
+    return months < 1 ? 1 : months;
+  };
+
+  const fetchAnak = async () => {
+    try {
+      const res = await getAnakById(id);
+      if (res && res.data) {
+        setAnakData(res.data);
+      }
+    } catch (error) {
+      console.error("Gagal mengambil data anak:", error);
+    }
+  };
+
   useEffect(() => {
-    if (id) fetchData();
+    if (id) {
+      fetchData();
+      fetchAnak();
+    }
   }, [id]);
 
   const handleOpenModal = () => {
+    const ageMonths = anakData ? calculateAgeInMonths(anakData.tanggal_lahir) : "";
     setFormData({
-      bulan_ke: "",
+      bulan_ke: ageMonths > 60 ? 60 : ageMonths,
       tanggal: new Date().toISOString().split('T')[0],
       jumlah_gigi: 0,
       gigi_berlubang: 0,
@@ -111,6 +143,14 @@ const PelayananGigi = () => {
 
         <div className="max-w-6xl mx-auto relative z-10">
 
+          {/* NAVIGASI KEMBALI */}
+          <button
+            onClick={() => navigate(`/data-anak/dashboard/${id}`)}
+            className="flex items-center gap-2 text-slate-500 hover:text-slate-800 font-bold text-xs uppercase tracking-wider mb-5 mt-2 transition-all group"
+          >
+            <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" /> Kembali ke Detail Anak
+          </button>
+
           <div className="bg-white/80 backdrop-blur-xl shadow-[0_20px_50px_rgba(0,0,0,0.05)] border border-white rounded-[40px] overflow-hidden">
 
             <div className="p-8 md:p-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 border-b border-blue-50">
@@ -119,6 +159,11 @@ const PelayananGigi = () => {
                   <Smile className="text-white w-8 h-8" />
                 </div>
                 <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-slate-600 cursor-pointer" onClick={() => navigate(`/data-anak/dashboard/${id}`)}>Detail Anak</span>
+                    <ChevronRight size={10} className="text-slate-300" />
+                    <span className="text-[10px] font-black text-blue-600 uppercase tracking-widest">Catatan Gigi</span>
+                  </div>
                   <h1 className="text-3xl font-black text-black tracking-tight flex items-center gap-3">
                     Catatan Gigi <span className="px-3 py-1 bg-slate-100 text-slate-600 text-[10px] rounded-full uppercase tracking-widest font-black border border-slate-200">Aktif</span>
                   </h1>
@@ -256,9 +301,16 @@ const PelayananGigi = () => {
             <div className="p-6 pb-2 flex justify-between items-start">
               <div>
                 <h2 className="text-xl font-bold text-black tracking-tight">Form Input Pelayanan Gigi</h2>
-                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">
-                  ID ANAK: {id}
-                </p>
+                <div className="flex items-center gap-3 mt-0.5">
+                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">
+                    ID ANAK: {id}
+                  </p>
+                  {anakData && (
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-blue-50 text-blue-700 text-[10px] font-black rounded-full border border-blue-100">
+                      Usia: <strong>{calculateAgeInMonths(anakData.tanggal_lahir)} Bulan</strong>
+                    </span>
+                  )}
+                </div>
               </div>
               <button 
                 onClick={() => setIsModalOpen(false)}
@@ -288,7 +340,16 @@ const PelayananGigi = () => {
                       <span className="text-[11px] font-bold tracking-tight">Waktu Kunjungan</span>
                     </div>
                     <div>
-                      <label className="block mb-1 text-[9px] font-bold text-slate-400 uppercase tracking-widest">Bulan Ke-</label>
+                      <label className="block mb-1 text-[9px] font-bold text-slate-400 uppercase tracking-widest">
+                        Bulan Ke- {anakData ? `(Usia Saat Ini: ${calculateAgeInMonths(anakData.tanggal_lahir)} Bulan — Dipilih Otomatis)` : ""}
+                      </label>
+                      {anakData && (
+                        <div className="mb-2 flex items-center gap-2 bg-blue-50 border border-blue-100 rounded-lg px-2.5 py-1.5">
+                          <span className="text-[10px] text-blue-700 font-bold">
+                            ✓ Bulan ke-<strong>{calculateAgeInMonths(anakData.tanggal_lahir)}</strong> dipilih otomatis sesuai usia anak.
+                          </span>
+                        </div>
+                      )}
                       <select 
                         className="w-full bg-[#f8fafc] border border-slate-100 rounded-lg p-2.5 outline-none focus:ring-1 focus:ring-black text-black text-xs font-bold transition-all"
                         value={formData.bulan_ke}
@@ -296,9 +357,15 @@ const PelayananGigi = () => {
                         required
                       >
                         <option value="">Pilih Jadwal</option>
-                        {[...Array(60)].map((_, i) => (
-                          <option key={i} value={i + 1}>Bulan {i + 1}</option>
-                        ))}
+                        {[...Array(60)].map((_, i) => {
+                          const month = i + 1;
+                          const currentAge = anakData ? calculateAgeInMonths(anakData.tanggal_lahir) : null;
+                          return (
+                            <option key={i} value={month}>
+                              Bulan {month}{currentAge === month ? " ← Usia Sekarang" : ""}
+                            </option>
+                          );
+                        })}
                       </select>
                     </div>
                     <div>
