@@ -47,6 +47,9 @@ import Monitoring from "./pages/Monitoring";
 import Laporan from "./pages/Laporan";
 import LaporanIbuPreview from "./pages/previewlaporanibu";
 import LaporanAnakPreview from "./pages/previewlaporananak";
+import LaporanRemajaPreview from "./pages/previewlaporanremaja";
+import LaporanDewasaPreview from "./pages/previewlaporandewasa";
+import LaporanLansiaPreview from "./pages/previewlaporanlansia";
 import IbuCreate from "./pages/Ibu/IbuCreate";
 
 // Kependudukan
@@ -233,6 +236,9 @@ function App() {
           <Route path="/laporan" element={<Laporan />} />
           <Route path="/laporan/ibu/preview" element={<LaporanIbuPreview />} />
           <Route path="/laporan/anak/preview" element={<LaporanAnakPreview />} />
+          <Route path="/laporan/remaja/preview" element={<LaporanRemajaPreview />} />
+          <Route path="/laporan/dewasa/preview" element={<LaporanDewasaPreview />} />
+          <Route path="/laporan/lansia/preview" element={<LaporanLansiaPreview />} />
         </Route>
 
         {/* ADMIN ROUTES */}

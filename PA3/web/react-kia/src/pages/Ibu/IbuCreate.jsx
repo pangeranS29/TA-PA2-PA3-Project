@@ -42,6 +42,10 @@ export default function IbuCreate() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
+  // ========== STATE UNTUK AUTOCOMPLETE SEARCH ==========
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showAutocomplete, setShowAutocomplete] = useState(false);
+
   // Form data ibu (muncul jika belum terdaftar)
   const [formIbu, setFormIbu] = useState({
     id_kependudukan: "",
@@ -125,6 +129,16 @@ export default function IbuCreate() {
     );
   }, [pendudukList]);
 
+  // Filter ibu list based on search query
+  const filteredIbuList = useMemo(() => {
+    if (!searchQuery.trim()) return ibuList;
+    const query = searchQuery.toLowerCase();
+    return ibuList.filter((ibu) =>
+      ibu.nama_lengkap.toLowerCase().includes(query) ||
+      ibu.nik.includes(query)
+    );
+  }, [ibuList, searchQuery]);
+
   // Cek apakah penduduk sudah terdaftar sebagai ibu
   const checkIbuExists = async (pendudukId) => {
     if (!pendudukId) {
@@ -199,6 +213,37 @@ export default function IbuCreate() {
     setFormIbu((prev) => ({ ...prev, [name]: value }));
     if (errorMessage) setErrorMessage("");
   };
+
+  // Handle search input change
+  const handleSearchChange = (e) => {
+    const value = e.target.value;
+    setSearchQuery(value);
+    setShowAutocomplete(true);
+    // Reset formIbu.id_kependudukan when search is cleared
+    if (!value.trim()) {
+      setFormIbu((prev) => ({ ...prev, id_kependudukan: "" }));
+    }
+  };
+
+  // Handle selection from autocomplete
+  const handleSelectIbu = (ibu) => {
+    const idPenduduk = String(ibu.id_kependudukan ?? ibu.id);
+    setFormIbu((prev) => ({ ...prev, id_kependudukan: idPenduduk }));
+    setSearchQuery(ibu.nama_lengkap);
+    setShowAutocomplete(false);
+  };
+
+  // Handle click outside to close autocomplete
+  const handleClickOutside = (e) => {
+    if (!e.target.closest('.autocomplete-container')) {
+      setShowAutocomplete(false);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
   
   // Handle perubahan form akun
   const handleChangeAkun = (e) => {
@@ -494,23 +539,40 @@ export default function IbuCreate() {
             <div className="bg-white rounded-2xl p-6 shadow-sm">
               {/* Pilih Penduduk */}
               <h3 className="font-semibold mb-4">Pilih Penduduk Perempuan</h3>
-              <select
-                name="id_kependudukan"
-                value={formIbu.id_kependudukan}
-                onChange={handleChangeIbu}
-                className="w-full border rounded-xl p-3 focus:ring-2 focus:ring-indigo-500"
-                required
-              >
-                <option value="">-- Pilih Data Penduduk --</option>
-                {ibuList.map((kk) => {
-                  const idPenduduk = kk.id_kependudukan ?? kk.id;
-                  return (
-                    <option key={idPenduduk} value={String(idPenduduk)}>
-                      {kk.nama_lengkap} — NIK: {kk.nik} {kk.telepon ? `— NO.HP:  ${kk.telepon}` : "— No HP kosong"}
-                    </option>
-                  );
-                })}
-              </select>
+              <div className="autocomplete-container relative">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={handleSearchChange}
+                  onFocus={() => setShowAutocomplete(true)}
+                  placeholder="Cari nama ibu atau NIK..."
+                  className="w-full border rounded-xl p-3 focus:ring-2 focus:ring-indigo-500"
+                  required
+                />
+                {showAutocomplete && (
+                  <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-xl shadow-lg max-h-60 overflow-y-auto">
+                    {filteredIbuList.length === 0 ? (
+                      <div className="p-3 text-gray-500 text-sm">Tidak ada hasil ditemukan</div>
+                    ) : (
+                      filteredIbuList.map((kk) => {
+                        const idPenduduk = kk.id_kependudukan ?? kk.id;
+                        return (
+                          <div
+                            key={idPenduduk}
+                            onClick={() => handleSelectIbu(kk)}
+                            className="p-3 hover:bg-indigo-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+                          >
+                            <div className="font-medium">{kk.nama_lengkap}</div>
+                            <div className="text-sm text-gray-500">
+                              NIK: {kk.nik} {kk.telepon ? `— NO.HP: ${kk.telepon}` : "— No HP kosong"}
+                            </div>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+                )}
+              </div>
               {checkingIbu && (
                 <div className="flex items-center gap-2 mt-2 text-sm text-gray-500">
                   <Loader2 size={14} className="animate-spin" /> Mengecek data ibu...

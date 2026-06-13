@@ -25,13 +25,13 @@ type KunjunganImunisasiDetailResponse struct {
 	NamaAnak     string     `json:"nama_anak"`
 	TanggalLahir *time.Time `json:"tanggal_lahir,omitempty"`
 
-	NamaIbu         string     `json:"nama_ibu"`
-	NomorTeleponIbu string     `json:"nomor_telepon_ibu"`
+	NamaIbu         string `json:"nama_ibu"`
+	NomorTeleponIbu string `json:"nomor_telepon_ibu"`
 
-	NamaAyah        string     `json:"nama_ayah"`
-	NomorTeleponAyah string    `json:"nomor_telepon_ayah"`
-	Dusun			string     `json:"dusun"`
-	
+	NamaAyah         string `json:"nama_ayah"`
+	NomorTeleponAyah string `json:"nomor_telepon_ayah"`
+	Dusun            string `json:"dusun"`
+
 	NamaVaksin      string     `json:"nama_vaksin"`
 	NamaDosis       string     `json:"nama_dosis"`
 	JadwalImunisasi *time.Time `json:"jadwal_imunisasi,omitempty"`

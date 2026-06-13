@@ -712,7 +712,7 @@ export default function PemeriksaanKehamilanForm() {
               <ArrowLeft size={24} />
             </button>
             <div>
-              <h1 className="text-2xl font-bold text-gray-800">
+              <h1 className="text-[28px] font-bold text-gray-900">
                 {isEdit ? "Edit" : "Input"} Pemeriksaan ANC
               </h1>
               <p className="text-gray-500">Formulir standar pelayanan kehamilan terintegrasi</p>
@@ -739,7 +739,7 @@ export default function PemeriksaanKehamilanForm() {
             {/* Step 1: Fisik & Antropometri */}
             {step === 1 && (
               <div className="bg-white rounded-xl shadow-sm p-6 space-y-6 border border-gray-100">
-                <h2 className="text-lg font-semibold flex items-center gap-2 text-indigo-800 border-b pb-2">
+                <h2 className="text-[22px] font-semibold text-[#185FA5] flex items-center gap-2 border-b pb-2">
                   <Activity size={20} /> Pemeriksaan Fisik & Antropometri
                 </h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

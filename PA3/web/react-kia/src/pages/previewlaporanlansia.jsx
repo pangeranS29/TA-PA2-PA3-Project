@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import MainLayout from "../components/Layout/MainLayout";
-import { previewLaporanAnak, exportLaporanAnak } from "../services/laporan";
+import { previewLaporanLansia, exportLaporanLansia } from "../services/laporan";
 import {
 	Download,
 	ArrowLeft,
@@ -15,15 +15,12 @@ import {
 } from "lucide-react";
 import Swal from "sweetalert2";
 
-export default function LaporanAnakPreview() {
+export default function LaporanLansiaPreview() {
 	const navigate = useNavigate();
-	const [data, setData] = useState({ anak: [], pertumbuhan: [], imunisasi: [] });
+	const [data, setData] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState("");
 	const [exporting, setExporting] = useState(false);
-
-	// Tabs: "anak" | "pertumbuhan" | "imunisasi"
-	const [activeTab, setActiveTab] = useState("anak");
 
 	// Filter state
 	const [startDate, setStartDate] = useState("");
@@ -40,30 +37,25 @@ export default function LaporanAnakPreview() {
 		try {
 			let rawData;
 			if (filterEnabled && startDate && endDate) {
-				rawData = await previewLaporanAnak(startDate, endDate);
+				rawData = await previewLaporanLansia(startDate, endDate);
 			} else {
-				rawData = await previewLaporanAnak();
+				rawData = await previewLaporanLansia();
 			}
 			
 			// Normalize response
-			const normalized = rawData?.data || { anak: [], pertumbuhan: [], imunisasi: [] };
-			setData({
-				anak: Array.isArray(normalized.anak) ? normalized.anak : [],
-				pertumbuhan: Array.isArray(normalized.pertumbuhan) ? normalized.pertumbuhan : [],
-				imunisasi: Array.isArray(normalized.imunisasi) ? normalized.imunisasi : [],
-			});
+			const normalized = rawData?.data || rawData || [];
+			setData(Array.isArray(normalized) ? normalized : []);
 
-			const totalItems = (normalized.anak?.length || 0) + (normalized.pertumbuhan?.length || 0) + (normalized.imunisasi?.length || 0);
-			if (totalItems === 0 && filterEnabled) {
+			if (normalized.length === 0 && filterEnabled) {
 				setError(`Tidak ada data ditemukan untuk rentang tanggal ${startDate} s.d. ${endDate}`);
-			} else if (totalItems === 0) {
-				setError("Belum ada data laporan anak yang tersedia");
+			} else if (normalized.length === 0) {
+				setError("Belum ada data laporan lansia yang tersedia");
 			}
 		} catch (err) {
 			console.error("Preview error:", err);
-			const msg = err.response?.data?.message || err.message || "Gagal memuat preview data anak";
+			const msg = err.response?.data?.message || err.message || "Gagal memuat preview data lansia";
 			setError(msg);
-			setData({ anak: [], pertumbuhan: [], imunisasi: [] });
+			setData([]);
 		} finally {
 			setLoading(false);
 		}
@@ -74,21 +66,21 @@ export default function LaporanAnakPreview() {
 		try {
 			let blob;
 			if (filterEnabled && startDate && endDate) {
-				blob = await exportLaporanAnak(startDate, endDate);
+				blob = await exportLaporanLansia(startDate, endDate);
 			} else {
-				blob = await exportLaporanAnak();
+				blob = await exportLaporanLansia();
 			}
 			const url = window.URL.createObjectURL(blob);
 			const a = document.createElement("a");
 			a.href = url;
-			a.download = `laporan_anak_${filterEnabled ? `${startDate}_to_${endDate}` : "semua"}.xlsx`;
+			a.download = `laporan_lansia_${filterEnabled ? `${startDate}_to_${endDate}` : "semua"}.xlsx`;
 			a.click();
 			window.URL.revokeObjectURL(url);
 		} catch (err) {
 			Swal.fire({
 				icon: "error",
 				title: "Gagal Mengekspor",
-				text: "Gagal mengekspor laporan anak: " + (err.response?.data?.message || err.message),
+				text: "Gagal mengekspor laporan lansia: " + (err.response?.data?.message || err.message),
 				confirmButtonColor: "#185FA5",
 			});
 		} finally {
@@ -125,13 +117,13 @@ export default function LaporanAnakPreview() {
 		</tr>
 	);
 
-	const renderTable = (currentData, columns) => {
+	const renderTable = (currentData) => {
 		if (currentData.length === 0) {
 			return (
 				<div className="bg-gray-50 border border-gray-200 rounded-xl p-12 text-center mt-4">
 					<Table size={48} className="mx-auto text-gray-400 mb-3" />
 					<p className="text-gray-600 font-medium">
-						Tidak ada data untuk tab ini
+						Tidak ada data untuk ditampilkan
 					</p>
 					<p className="text-sm text-gray-400 mt-1">
 						Data tidak ditemukan atau belum dicatat pada sistem.
@@ -139,6 +131,8 @@ export default function LaporanAnakPreview() {
 				</div>
 			);
 		}
+
+		const columns = Object.keys(currentData[0]);
 
 		return (
 			<div className="mt-4">
@@ -151,10 +145,10 @@ export default function LaporanAnakPreview() {
 								</th>
 								{columns.map((col) => (
 									<th
-										key={col.field}
+										key={col}
 										className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider bg-gray-50"
 									>
-										{col.label}
+										{col.replace(/_/g, " ")}
 									</th>
 								))}
 							</tr>
@@ -163,22 +157,25 @@ export default function LaporanAnakPreview() {
 							{currentData.map((row, idx) => (
 								<tr
 									key={idx}
-									className="hover:bg-green-50/30 transition-colors duration-150"
+									className="hover:bg-orange-50/30 transition-colors duration-150"
 								>
 									<td className="px-4 py-2.5 text-sm text-gray-500 whitespace-nowrap">
 										{idx + 1}
 									</td>
 									{columns.map((col) => {
-										let val = row[col.field];
-										if (col.type === "date" && val) {
-											val = new Date(val).toLocaleDateString("id-ID", {
-												year: "numeric",
-												month: "long",
-												day: "numeric",
-											});
+										let val = row[col];
+										// Check if it's a date field
+										if (col.toLowerCase().includes('tanggal') || col.toLowerCase().includes('tgl') || col.toLowerCase().includes('date')) {
+											if (val) {
+												val = new Date(val).toLocaleDateString("id-ID", {
+													year: "numeric",
+													month: "long",
+													day: "numeric",
+												});
+											}
 										}
 										return (
-											<td key={col.field} className="px-4 py-2.5 text-sm text-gray-700 whitespace-nowrap">
+											<td key={col} className="px-4 py-2.5 text-sm text-gray-700 whitespace-nowrap">
 												{val !== undefined && val !== null && val !== "" ? String(val) : "-"}
 											</td>
 										);
@@ -195,50 +192,6 @@ export default function LaporanAnakPreview() {
 		);
 	};
 
-	// Column definitions
-	const anakCols = [
-		{ field: "no_kk", label: "No KK" },
-		{ field: "nik", label: "NIK Anak" },
-		{ field: "nama_anak", label: "Nama Anak" },
-		{ field: "nama_ibu", label: "Nama Ibu" },
-		{ field: "nama_ayah", label: "Nama Ayah" },
-		{ field: "tanggal_lahir", label: "Tanggal Lahir", type: "date" },
-		{ field: "usia", label: "Usia" },
-		{ field: "berat_lahir_kg", label: "BB Lahir (Kg)" },
-		{ field: "tinggi_lahir_cm", label: "TB Lahir (Cm)" },
-		{ field: "lila", label: "LILA" },
-		{ field: "golongan_darah", label: "Golongan Darah" },
-		{ field: "kecamatan", label: "Kecamatan" },
-		{ field: "desa", label: "Desa" },
-	];
-
-	const pertumbuhanCols = [
-		{ field: "nik", label: "NIK Anak" },
-		{ field: "nama_anak", label: "Nama Anak" },
-		{ field: "tgl_ukur", label: "Tgl Pengukuran", type: "date" },
-		{ field: "usia_ukur_bulan", label: "Usia Ukur (Bulan)" },
-		{ field: "berat_badan", label: "BB (Kg)" },
-		{ field: "tinggi_badan", label: "TB (Cm)" },
-		{ field: "hasil_lila", label: "LILA" },
-		{ field: "lingkar_kepala", label: "Lingkar Kepala" },
-		{ field: "imt", label: "IMT" },
-		{ field: "status_bb_u", label: "Status BB/U" },
-		{ field: "status_tb_u", label: "Status TB/U" },
-		{ field: "status_bb_tb", label: "Status BB/TB" },
-		{ field: "status_imt_u", label: "Status IMT/U" },
-		{ field: "catatan_nakes", label: "Catatan Nakes" },
-	];
-
-	const imunisasiCols = [
-		{ field: "nik", label: "NIK Anak" },
-		{ field: "nama_anak", label: "Nama Anak" },
-		{ field: "nama_vaksin", label: "Nama Vaksin" },
-		{ field: "tgl_pemberian", label: "Tgl Pemberian", type: "date" },
-		{ field: "status", label: "Status" },
-		{ field: "lokasi", label: "Lokasi" },
-		{ field: "petugas", label: "Petugas" },
-	];
-
 	return (
 		<MainLayout>
 			<div className="p-4 md:p-6 max-w-7xl mx-auto">
@@ -246,12 +199,12 @@ export default function LaporanAnakPreview() {
 				<div className="flex flex-wrap items-center justify-between gap-3 mb-6">
 					<button
 						onClick={() => navigate(-1)}
-						className="inline-flex items-center gap-2 text-gray-600 hover:text-green-600 transition-colors"
+						className="inline-flex items-center gap-2 text-gray-600 hover:text-orange-600 transition-colors"
 					>
 						<ArrowLeft size={18} /> Kembali
 					</button>
 					<h1 className="text-xl md:text-2xl font-bold text-gray-800">
-						Preview Laporan Data Anak
+						Preview Laporan Data Lansia
 					</h1>
 					<div className="w-20 md:w-auto"></div>
 				</div>
@@ -260,8 +213,8 @@ export default function LaporanAnakPreview() {
 				<div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-6">
 					<div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
 						<div className="flex flex-wrap items-center gap-3">
-							<div className="bg-green-100 p-2 rounded-full">
-								<Filter size={18} className="text-green-600" />
+							<div className="bg-orange-100 p-2 rounded-full">
+								<Filter size={18} className="text-orange-600" />
 							</div>
 							<div className="flex flex-wrap items-center gap-3">
 								<span className="text-sm font-medium text-gray-700">
@@ -272,20 +225,20 @@ export default function LaporanAnakPreview() {
 										type="date"
 										value={startDate}
 										onChange={(e) => setStartDate(e.target.value)}
-										className="border rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-green-300 bg-white"
+										className="border rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-orange-300 bg-white"
 									/>
 									<span className="text-gray-400 text-sm">s.d.</span>
 									<input
 										type="date"
 										value={endDate}
 										onChange={(e) => setEndDate(e.target.value)}
-										className="border rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-green-300 bg-white"
+										className="border rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-orange-300 bg-white"
 									/>
 								</div>
 								<div className="flex gap-2">
 									<button
 										onClick={handleApplyFilter}
-										className="bg-green-600 text-white px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-green-700 transition shadow-sm"
+										className="bg-orange-600 text-white px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-orange-700 transition shadow-sm"
 									>
 										Terapkan Filter
 									</button>
@@ -303,56 +256,20 @@ export default function LaporanAnakPreview() {
 
 						<button
 							onClick={handleExport}
-							disabled={exporting || (data.anak.length === 0 && data.pertumbuhan.length === 0 && data.imunisasi.length === 0)}
-							className="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2 rounded-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition shadow-sm w-full lg:w-auto"
+							disabled={exporting || data.length === 0}
+							className="bg-orange-600 hover:bg-orange-700 text-white px-5 py-2 rounded-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition shadow-sm w-full lg:w-auto"
 						>
 							{exporting ? <Loader2 className="animate-spin" size={18} /> : <Download size={18} />}
-							{exporting ? "Mengekspor..." : "Download Excel (3 Sheet)"}
+							{exporting ? "Mengekspor..." : "Download Excel"}
 						</button>
 					</div>
 
 					{filterEnabled && startDate && endDate && (
-						<div className="mt-3 text-xs text-green-600 bg-green-50 p-2 rounded-lg inline-flex items-center gap-1">
+						<div className="mt-3 text-xs text-orange-600 bg-orange-50 p-2 rounded-lg inline-flex items-center gap-1">
 							<Calendar size={12} /> Memfilter data dari {new Date(startDate).toLocaleDateString("id-ID")} s.d. {new Date(endDate).toLocaleDateString("id-ID")}
 						</div>
 					)}
 				</div>
-
-				{/* Tab Buttons */}
-				{!loading && !error && (
-					<div className="flex border-b border-gray-200 mb-4 overflow-x-auto whitespace-nowrap">
-						<button
-							onClick={() => setActiveTab("anak")}
-							className={`py-2.5 px-4 font-medium text-sm border-b-2 transition-all ${
-								activeTab === "anak"
-									? "border-green-600 text-green-600"
-									: "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-							}`}
-						>
-							Data Anak ({data.anak.length})
-						</button>
-						<button
-							onClick={() => setActiveTab("pertumbuhan")}
-							className={`py-2.5 px-4 font-medium text-sm border-b-2 transition-all ${
-								activeTab === "pertumbuhan"
-									? "border-green-600 text-green-600"
-									: "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-							}`}
-						>
-							Riwayat Pertumbuhan ({data.pertumbuhan.length})
-						</button>
-						<button
-							onClick={() => setActiveTab("imunisasi")}
-							className={`py-2.5 px-4 font-medium text-sm border-b-2 transition-all ${
-								activeTab === "imunisasi"
-									? "border-green-600 text-green-600"
-									: "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-							}`}
-						>
-							Riwayat Imunisasi ({data.imunisasi.length})
-						</button>
-					</div>
-				)}
 
 				{/* Loading skeleton */}
 				{loading && (
@@ -379,17 +296,15 @@ export default function LaporanAnakPreview() {
 						<p className="text-red-700 font-medium">{error}</p>
 						<button
 							onClick={() => fetchPreview()}
-							className="mt-4 inline-flex items-center gap-2 text-green-600 text-sm hover:underline"
+							className="mt-4 inline-flex items-center gap-2 text-orange-600 text-sm hover:underline"
 						>
 							<RefreshCw size={14} /> Muat ulang
 						</button>
 					</div>
 				)}
 
-				{/* Table Views based on Active Tab */}
-				{!loading && !error && activeTab === "anak" && renderTable(data.anak, anakCols)}
-				{!loading && !error && activeTab === "pertumbuhan" && renderTable(data.pertumbuhan, pertumbuhanCols)}
-				{!loading && !error && activeTab === "imunisasi" && renderTable(data.imunisasi, imunisasiCols)}
+				{/* Table View */}
+				{!loading && !error && renderTable(data)}
 			</div>
 		</MainLayout>
 	);

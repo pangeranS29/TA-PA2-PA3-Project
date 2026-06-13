@@ -669,6 +669,18 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	tenaga.GET("/laporan/anak/preview", controller.LaporanAnak.Preview)
 	tenaga.GET("/laporan/anak/export/excel", controller.LaporanAnak.ExportExcel)
 
+	// untuk laporan remaja
+	tenaga.GET("/laporan/remaja/preview", controller.LaporanRemaja.Preview)
+	tenaga.GET("/laporan/remaja/export/excel", controller.LaporanRemaja.ExportExcel)
+
+	// untuk laporan dewasa
+	tenaga.GET("/laporan/dewasa/preview", controller.LaporanDewasa.Preview)
+	tenaga.GET("/laporan/dewasa/export/excel", controller.LaporanDewasa.ExportExcel)
+
+	// untuk laporan lansia
+	tenaga.GET("/laporan/lansia/preview", controller.LaporanLansia.Preview)
+	tenaga.GET("/laporan/lansia/export/excel", controller.LaporanLansia.ExportExcel)
+
 	//==== IBU ====
 	ibu := e.Group("/ibu")
 	ibu.Use(middlewares.JWTAuth(controller.JWTSecret()))
@@ -805,12 +817,12 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	ibu.POST("/warna-tinja", controller.WarnaTinja.SaveForIbu)
 
 	// ==================== BBL (BAYI BARU LAHIR) ====================
-	ibu.GET("/bbl/anak/:anak_id", controller.Bbl.GetByAnakID)
-	ibu.POST("/bbl/anak/:anak_id", controller.Bbl.Upsert)
-	tenaga.GET("/bbl/anak/:anak_id", controller.Bbl.GetByAnakID)
-	tenaga.POST("/bbl/anak/:anak_id", controller.Bbl.Upsert)
-	tenaga.PUT("/bbl/anak/:anak_id/verifikasi", controller.Bbl.Verify)
-	tenaga.GET("/bbl", controller.Bbl.GetAll)
+	// ibu.GET("/bbl/anak/:anak_id", controller.Bbl.GetByAnakID)
+	// ibu.POST("/bbl/anak/:anak_id", controller.Bbl.Upsert)
+	// tenaga.GET("/bbl/anak/:anak_id", controller.Bbl.GetByAnakID)
+	// tenaga.POST("/bbl/anak/:anak_id", controller.Bbl.Upsert)
+	// tenaga.PUT("/bbl/anak/:anak_id/verifikasi", controller.Bbl.Verify)
+	// tenaga.GET("/bbl", controller.Bbl.GetAll)
 
 	// ==================== PERTUMBUHAN ANAK (IBU) ====================
 	ibu.GET("/pertumbuhan/anak/:anak_id", controller.GetRiwayatPertumbuhan)
@@ -878,9 +890,9 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	kader.GET("/log-ttd-mms/rekap", controller.LogTTDMMS.GetRekapKader)
 	kader.GET("/log-ttd-mms/:kehamilan_id", controller.LogTTDMMS.GetDetailLogKader)
 
-	kader.GET("/bbl/anak/:anak_id", controller.Bbl.GetByAnakID)
-	kader.PUT("/bbl/anak/:anak_id/verifikasi", controller.Bbl.Verify)
-	kader.GET("/bbl", controller.Bbl.GetAll)
+	// kader.GET("/bbl/anak/:anak_id", controller.Bbl.GetByAnakID)
+	// kader.PUT("/bbl/anak/:anak_id/verifikasi", controller.Bbl.Verify)
+	// kader.GET("/bbl", controller.Bbl.GetAll)
 
 	// ==================== KELUHAN ANAK ====================
 	ibu.GET("/keluhan-anak", controller.KeluhanAnak.GetByAnakIDForIbu)

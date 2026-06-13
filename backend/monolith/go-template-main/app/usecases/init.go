@@ -123,6 +123,9 @@ type Main struct {
 	// EdukasiTandaBahayaTrimester EdukasiTandaBahayaTrimesterUsecase
 	LaporanIbu        LaporanIbuUsecase
 	LaporanAnak       LaporanAnakUsecase
+	LaporanRemaja     LaporanRemajaUsecase
+	LaporanDewasa     LaporanDewasaUsecase
+	LaporanLansia     LaporanLansiaUsecase
 	PrediksiStunting  PrediksiStuntingUsecase
 	PemeriksaanAnak   PemeriksaanAnakUsecase
 	PemeriksaanRemaja PemeriksaanRemajaUsecase
@@ -295,6 +298,9 @@ func Init(opts Options) *Main {
 	m.EdukasiMPASI = NewEdukasiMPASIUsecase(opts.Repository.EdukasiMPASI)
 	m.LaporanIbu = NewLaporanIbuUsecase(opts.Repository.LaporanIbu)
 	m.LaporanAnak = NewLaporanAnakUsecase(opts.Repository.LaporanAnak)
+	m.LaporanRemaja = NewLaporanRemajaUsecase(opts.Repository.LaporanRemaja)
+	m.LaporanDewasa = NewLaporanDewasaUsecase(opts.Repository.LaporanDewasa)
+	m.LaporanLansia = NewLaporanLansiaUsecase(opts.Repository.LaporanLansia)
 
 	stuntingMLURL := "http://localhost:8000"
 	if opts.Config != nil && opts.Config.MLServiceURL != "" {
@@ -316,8 +322,8 @@ func Init(opts Options) *Main {
 	)
 	m.Pencatatan = NewPencatatanUsecase(
 		opts.Repository.Kependudukan,
-		opts.Repository.Pemeriksaan,   //
-		 //
+		opts.Repository.Pemeriksaan, //
+		//
 	)
 	m.Form = NewFormUsecase(opts.Repository.Form) // Inisialisasi FormUsecase dengan repository yang sesuai
 	m.Pemeriksaan = NewPemeriksaanUsecase(opts.Repository.Form, opts.Repository.Pemeriksaan, opts.Repository)

@@ -536,9 +536,8 @@ export default function PemeriksaanDokterT3CompleteDetail() {
         {!canEdit && (
           <div className="mb-6 p-3 bg-blue-50 rounded-lg border border-blue-200">
             <p className="text-sm text-blue-700 flex items-center gap-2">
-              <AlertCircle size={16} />
-              Anda login sebagai BIDAN. Data hanya dapat dilihat, tidak dapat
-              diedit atau dihapus.
+              <Eye size={16} />
+              Anda dalam mode baca (Bidan). Data hanya dapat dilihat, tidak dapat diubah.
             </p>
           </div>
         )}

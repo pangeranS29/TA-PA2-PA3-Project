@@ -1412,13 +1412,13 @@ export default function EvaluasiKesehatanIbu() {
 
           {/* Status banner */}
           {!isActive && (
-            <div className="bg-[#FAEEDA] border-l-4 border-[#BA7517] rounded-lg p-4 text-[#633806] text-base flex items-center gap-2">
-              <EyeOff size={18} /> Kehamilan ini sudah selesai (NON-AKTIF). Hanya mode baca.
+            <div className="bg-blue-50 border border-blue-200 p-3 rounded-lg text-blue-700 text-base flex items-center gap-2">
+              <EyeOff size={16} /> Kehamilan ini sudah selesai (NON-AKTIF). Data hanya dapat dilihat, tidak dapat diubah.
             </div>
           )}
           {!canEdit && isActive && (
-            <div className="bg-blue-50 border-l-4 border-[#185FA5] rounded-lg p-4 text-[#185FA5] text-base flex items-center gap-2">
-              <Eye size={18} /> Anda dalam mode baca. Data hanya dapat dilihat.
+            <div className="bg-blue-50 border border-blue-200 p-3 rounded-lg text-blue-700 text-base flex items-center gap-2">
+              <Eye size={16} /> Anda dalam mode baca (Dokter). Data hanya dapat dilihat, tidak dapat diubah.
             </div>
           )}
 

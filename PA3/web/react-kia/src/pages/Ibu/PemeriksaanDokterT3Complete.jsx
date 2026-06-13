@@ -186,6 +186,9 @@ export default function PemeriksaanDokterT3Complete() {
   const [canAccessT3, setCanAccessT3] = useState(true);
   const [usiaKehamilanSaatIni, setUsiaKehamilanSaatIni] = useState(0);
   const [usiaKehamilanError, setUsiaKehamilanError] = useState(null);
+  // VALIDASI: Cek kelengkapan T1 untuk sequence validation
+  const [t1Complete, setT1Complete] = useState(false);
+  const [sequenceMessage, setSequenceMessage] = useState("");
   // Fungsi untuk menghitung usia kehamilan dari HPHT
   const hitungUsiaKehamilanDariHPHT = (hpht, tanggalPeriksa = null) => {
     if (!hpht) return null;
@@ -358,6 +361,24 @@ export default function PemeriksaanDokterT3Complete() {
 
         setCanAccessT3(true);
         setUsiaKehamilanError(null);
+
+        // VALIDASI: Cek kelengkapan T1 untuk sequence validation
+        try {
+          const t1Data = await getDokterT1CompleteByKehamilanId(aktif.id);
+          
+          // Cek apakah T1 lengkap (minimal tanggal_periksa terisi)
+          if (t1Data && t1Data.dokter && t1Data.dokter.tanggal_periksa) {
+            setT1Complete(true);
+            setSequenceMessage("");
+          } else {
+            setT1Complete(false);
+            setSequenceMessage("Pemeriksaan Trimester 1 belum lengkap. Silakan lengkapi data pemeriksaan Trimester 1 terlebih dahulu sebelum mengisi Trimester 3.");
+          }
+        } catch (seqErr) {
+          console.warn("Gagal mengecek kelengkapan T1:", seqErr);
+          setT1Complete(false);
+          setSequenceMessage("Gagal memverifikasi kelengkapan data pemeriksaan sebelumnya.");
+        }
 
         const res = await getDokterT3CompleteByKehamilanId(aktif.id);
         if (res && res.dokter) {
@@ -755,6 +776,17 @@ export default function PemeriksaanDokterT3Complete() {
       return;
     }
 
+    // VALIDASI: Cek sequence T1 -> T3 sebelum mengizinkan submit
+    if (!t1Complete) {
+      Swal.fire({
+        icon: "warning",
+        title: "Urutan Pemeriksaan Tidak Sesuai",
+        text: sequenceMessage || "Pemeriksaan Trimester 1 harus lengkap sebelum dapat mengisi Trimester 3.",
+        confirmButtonColor: "#4f46e5",
+      });
+      return;
+    }
+
     if (!canEdit) {
       Swal.fire({
         icon: "error",
@@ -1011,6 +1043,35 @@ export default function PemeriksaanDokterT3Complete() {
                 Kembali ke Profil Ibu
               </button>
               
+            </div>
+          </div>
+        </div>
+      </MainLayout>
+    );
+  }
+
+  // VALIDASI: Tampilkan pesan sequence validation jika T1/T2 belum lengkap
+  if (sequenceMessage && !existingData) {
+    return (
+      <MainLayout>
+        <div className="p-6 max-w-2xl mx-auto mt-10">
+          <div className="bg-amber-50 border border-amber-200 rounded-2xl p-8 text-center">
+            <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <AlertCircle className="text-amber-600" size={32} />
+            </div>
+            <h2 className="text-xl font-bold text-amber-700 mb-2">
+              Urutan Pemeriksaan Tidak Sesuai
+            </h2>
+            <div className="text-gray-600 mb-6 text-sm whitespace-pre-line">
+              {sequenceMessage}
+            </div>
+            <div className="flex gap-3 justify-center">
+              <button
+                onClick={() => navigate(`/data-ibu/${id}`)}
+                className="bg-gray-100 text-gray-700 px-5 py-2 rounded-lg text-sm font-medium hover:bg-gray-200"
+              >
+                Kembali ke Profil Ibu
+              </button>
             </div>
           </div>
         </div>
