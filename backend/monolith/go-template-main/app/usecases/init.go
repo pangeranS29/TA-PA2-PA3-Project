@@ -119,6 +119,10 @@ type Main struct {
 	EdukasiAturanPorsiMPASI  AturanPorsiMPASIUsecase
 	EdukasiJadwalHarianMPASI JadwalHarianMPASIUsecase
 	JadwalLayanan            JadwalLayananUsecase
+
+	// Vaksin & Dosis Vaksin
+	Vaksin      VaksinUsecase
+	DosisVaksin DosisVaksinUsecase
 	EdukasiResepMPASI        ResepMPASIUsecase
 	// EdukasiTandaBahayaTrimester EdukasiTandaBahayaTrimesterUsecase
 	LaporanIbu        LaporanIbuUsecase
@@ -304,6 +308,10 @@ func Init(opts Options) *Main {
 
 	// Jadwal Layanan (imunisasi) usecase
 	m.JadwalLayanan = NewJadwalLayananUsecase(opts.Repository.JadwalLayanan)
+
+	// Vaksin & Dosis Vaksin usecase
+	m.Vaksin = NewVaksinUsecase(opts.Repository.Vaksin)
+	m.DosisVaksin = NewDosisVaksinUsecase(opts.Repository.DosisVaksin)
 	m.PemeriksaanAnak = NewPemeriksaanAnakUsecase(opts.Repository.PemeriksaanAnak)
 	m.PemeriksaanRemaja = NewPemeriksaanRemajaUsecase(opts.Repository.PemeriksaanRemaja)
 	m.PemeriksaanDewasa = NewPemeriksaanDewasaUsecase(opts.Repository.PemeriksaanDewasa)

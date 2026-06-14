@@ -73,6 +73,10 @@ import PemeriksaanDokterT3Complete from "./pages/Ibu/PemeriksaanDokterT3Complete
 //Dokter
 import ProtectedRoute from "./components/ProtectedRoute";
 import DokterDashboard from "./pages/Dokter/index";
+
+// Puskesmas
+import DashboardPuskesmas from "./pages/Puskesmas/DashboardPuskesmas";
+import KelolaVaksin from "./pages/Puskesmas/KelolaVaksin";
 // import PelayananGiziIndex from "./pages/Pelayanan-Gizi-Anak/index";
 // import PelayananGiziCreate from "./pages/Pelayanan-Gizi-Anak/create";
 import PelayananVitaminIndex from "./pages/Pelayanan-Vitamin-Anak/index";
@@ -132,6 +136,8 @@ import AuditTrail from "./pages/SuperAdmin/AuditTrail";
 import KelolaDesa from "./pages/SuperAdmin/KelolaDesa";
 import KelolaUser from "./pages/SuperAdmin/Kelola Bidan&Kader&Admin desa";
 import KelolaUserPerDesa from "./pages/SuperAdmin/Kelola Akun User Per Desa";
+import KelolaPuskesmas from "./pages/SuperAdmin/KelolaPuskesmas";
+import KelolaPosyandu from "./pages/SuperAdmin/KelolaPosyandu";
 import RequestPerubahanImunisasiPage from "./pages/RequestPerubahanImunisasi";
 
 // Detail penduduk
@@ -239,6 +245,8 @@ function App() {
         <Route path="/superadmin/kelola-user" element={<ProtectedRoute allowedRoles={["superadmin"]}><KelolaUser /></ProtectedRoute>} />
         <Route path="/superadmin/kelola-user-per-desa" element={<ProtectedRoute allowedRoles={["superadmin"]}><KelolaUserPerDesa /></ProtectedRoute>} />
         <Route path="/superadmin/kelola-desa" element={<ProtectedRoute allowedRoles={["superadmin"]}><KelolaDesa /></ProtectedRoute>} />
+        <Route path="/superadmin/kelola-puskesmas" element={<ProtectedRoute allowedRoles={["superadmin"]}><KelolaPuskesmas /></ProtectedRoute>} />
+        <Route path="/superadmin/kelola-posyandu" element={<ProtectedRoute allowedRoles={["superadmin"]}><KelolaPosyandu /></ProtectedRoute>} />
         <Route path="/superadmin/akun-keluarga" element={<ProtectedRoute allowedRoles={["superadmin"]}><AdminAkunKeluargaCreate /></ProtectedRoute>} />
         <Route path="/superadmin/manajemen-keluarga" element={<ProtectedRoute allowedRoles={["superadmin"]}><AkunKeluargaManagement /></ProtectedRoute>} />
         <Route path="/superadmin/users" element={<Navigate to="/superadmin/kelola-user" replace />} />
@@ -275,7 +283,6 @@ function App() {
         <Route path="/data-anak/perawatan/:id" element={<LembarPerawatanAnak />} />
 
 
-        <Route path="/dashboard/dokter" element={<ProtectedRoute allowedRoles={["dokter"]}> <Dashboard /></ProtectedRoute>} />
         {/* ── PEMANTAUAN & PERKEMBANGAN ── */}
         <Route path="/pemantauan/lihat" element={<LihatDataPemantauan />} />
         <Route path="/pemantauan/perkembangan" element={<LihatDataPerkembangan />} />
@@ -332,6 +339,11 @@ function App() {
 
         {/* ── DOKTER ── */}
         <Route path="/dashboard/dokter" element={<ProtectedRoute allowedRoles={["dokter"]}><DokterDashboard /></ProtectedRoute>} />
+
+        {/* ── PUSKESMAS (Bidan Puskesmas & Dokter) ── */}
+        <Route path="/dashboard/puskesmas" element={<ProtectedRoute allowedRoles={["bidan_puskesmas", "dokter"]}><DashboardPuskesmas /></ProtectedRoute>} />
+        <Route path="/puskesmas/kelola-vaksin" element={<ProtectedRoute allowedRoles={["bidan_puskesmas", "dokter"]}><KelolaVaksin /></ProtectedRoute>} />
+        <Route path="/puskesmas/dashboard-dokter" element={<ProtectedRoute allowedRoles={["bidan_puskesmas", "dokter"]}><DokterDashboard /></ProtectedRoute>} />
 
         {/* ── DEFAULT ── */}
         <Route path="/dashboard" element={<RootRoute />} />

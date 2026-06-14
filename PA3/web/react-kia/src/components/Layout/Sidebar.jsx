@@ -7,7 +7,8 @@ import {
   isSuperadminUser,
   isAdminUser,
   isBidanUser,
-  isDokterUser
+  isDokterUser,
+  isPuskesmasUser,
 } from "../../services/auth";
 import {
   ChevronDown,
@@ -28,6 +29,9 @@ import {
   CalendarClock,
   BookOpenCheck,
   History,
+  Building2,
+  Home,
+  Syringe,
 } from "lucide-react";
 import logo from "./LOGO.png";
 
@@ -44,6 +48,7 @@ const Sidebar = () => {
   const isAdmin = isAdminUser(user);
   const isBidan = isBidanUser(user);
   const isDokter = isDokterUser(user);
+  const isPuskesmas = isPuskesmasUser(user);
   const location = useLocation();
 
   const dashboardPath = getUserRedirectRoute(user);
@@ -149,6 +154,12 @@ const Sidebar = () => {
     { path: "/daftar-rujukan", name: "Rujukan", icon: ClipboardList },
   ];
 
+  // Menu untuk puskesmas (bidan_puskesmas & dokter)
+  const puskesmasMenuItems = [
+    { path: "/puskesmas/kelola-vaksin", name: "Kelola Vaksin", icon: Syringe },
+    { path: "/puskesmas/dashboard-dokter", name: "Dashboard Dokter", icon: BriefcaseMedical },
+  ];
+
   // Menu admin dihapus karena keluarga dipindahkan ke superadmin
   const adminFamilyMenuItems = useMemo(
     () => [],
@@ -163,7 +174,9 @@ const Sidebar = () => {
       { path: "/superadmin/kelola-user", name: "Kelola Bidan&Kader&Admin desa", icon: ShieldPlus },
       { path: "/superadmin/kelola-user-per-desa", name: "Kelola Akun User Per Desa", icon: Users },
       { path: "/superadmin/kelola-desa", name: "Kelola Desa", icon: TableProperties },
-      { path: "/superadmin/audit-trail", name: "Audit Trail", icon: History },
+      { path: "/superadmin/kelola-puskesmas", name: "Kelola Puskesmas", icon: Building2 },
+      { path: "/superadmin/kelola-posyandu", name: "Kelola Posyandu", icon: Home },
+      // { path: "/superadmin/audit-trail", name: "Audit Trail", icon: History },
       { path: "/superadmin/form-versi", name: "Kelola Form Versi", icon: BriefcaseMedical },
     ],
     []
@@ -175,6 +188,11 @@ const Sidebar = () => {
     menuItems = superadminMenuItems;
   } else if (isAdmin) {
     menuItems = [{ path: dashboardPath, name: "Beranda", icon: LayoutGrid }];
+  } else if (isPuskesmas) {
+    menuItems = [
+      { path: dashboardPath, name: "Beranda", icon: LayoutGrid },
+      ...puskesmasMenuItems,
+    ];
   } else if (isDokter) {
     menuItems = [
       { path: dashboardPath, name: "Beranda", icon: LayoutGrid },
@@ -264,7 +282,7 @@ const Sidebar = () => {
         </div>
         <div className="min-w-0">
           <h1 className="text-base font-bold text-slate-800 leading-tight">KIA Cerdas</h1>
-          <p className="text-[11px] text-slate-400">Beranda {isDokter ? "Dokter" : isBidan ? "Bidan" : "Admin"}</p>
+          <p className="text-[11px] text-slate-400">Beranda {isPuskesmas ? "Puskesmas" : isDokter ? "Dokter" : isBidan ? "Bidan" : "Admin"}</p>
         </div>
       </div>
 

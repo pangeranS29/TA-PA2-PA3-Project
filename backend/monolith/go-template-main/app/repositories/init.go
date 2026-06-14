@@ -108,6 +108,10 @@ type Main struct {
 	EdukasiJadwalHarianMPASI JadwalHarianMPASIRepository
 	JadwalLayanan            JadwalLayananRepository
 	EdukasiResepMPASI        ResepMPASIRepository
+
+	// Vaksin & Dosis Vaksin
+	Vaksin      VaksinRepository
+	DosisVaksin DosisVaksinRepository
 	LaporanIbu               LaporanIbuRepository
 	LaporanAnak              LaporanAnakRepository
 	PrediksiStunting         PrediksiStuntingRepository
@@ -220,6 +224,10 @@ func Init(opts Options) *Main {
 	m.EdukasiJadwalHarianMPASI = NewJadwalHarianMPASIRepository(opts.Postgres)
 	m.JadwalLayanan = NewJadwalLayananRepository(opts.Postgres)
 	m.EdukasiResepMPASI = NewResepMPASIRepository(opts.Postgres)
+
+	// Vaksin & Dosis Vaksin
+	m.Vaksin = NewVaksinRepository(opts.Postgres)
+	m.DosisVaksin = NewDosisVaksinRepository(opts.Postgres)
 	m.LaporanIbu = NewLaporanIbuRepository(opts.Postgres)
 	m.LaporanAnak = NewLaporanAnakRepository(opts.Postgres)
 	m.PrediksiStunting = NewPrediksiStuntingRepository(opts.Postgres)
