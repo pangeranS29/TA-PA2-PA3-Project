@@ -79,6 +79,15 @@ const FormSDIDTK = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const todayStr = new Date().toISOString().split('T')[0];
+    if (formData.tanggal > todayStr) {
+      setNotification({
+        type: "error",
+        message: "Tanggal periksa tidak boleh tanggal yang akan datang!"
+      });
+      return;
+    }
+
     const nakesId = Number(userLogin?.user_id || userLogin?.id);
     if (!nakesId || nakesId === 0) {
       setNotification({
@@ -279,6 +288,7 @@ const FormSDIDTK = () => {
                       type="date"
                       value={formData.tanggal}
                       onChange={e => setFormData({ ...formData, tanggal: e.target.value })}
+                      max={new Date().toISOString().split('T')[0]}
                       required
                     />
                     <div className="p-4 bg-blue-50 rounded-2xl border border-blue-100">

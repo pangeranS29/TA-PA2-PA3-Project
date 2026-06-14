@@ -309,7 +309,7 @@ const NeonatusIndex = () => {
     addDetail("imd", formData.imd ? "1" : "0");
     addDetail("vitamin k1", formData.vitk ? "1" : "0");
     addDetail("salep", formData.salep ? "1" : "0");
-    const hbKet = `Tgl: ${formData.tgl_imunisasi} | Jam: ${formData.jam_imunisasi} | Batch: ${formData.batch_imunisasi}`;
+    const hbKet = `Tgl: ${tanggal} | Jam: ${formData.jam_imunisasi} | Batch: ${formData.batch_imunisasi}`;
     addDetail("hb", formData.hb ? "1" : "0", hbKet);
     addDetail("menyusu", formData.menyusu ? "1" : "0");
     addDetail("tali_pusat", formData.tali_pusat ? "1" : "0");
@@ -336,6 +336,15 @@ const NeonatusIndex = () => {
   const requestPayload = useMemo(() => buildRequestPayload(), [id, tanggal, activeTab, formData, authUser, fallbackIds]);
 
   const handleFinalSubmit = async () => {
+    const todayStr = new Date().toISOString().split('T')[0];
+    if (tanggal > todayStr) {
+      setNotification({
+        type: "error",
+        message: "Tanggal pemeriksaan tidak boleh tanggal yang akan datang!"
+      });
+      return;
+    }
+
     let emptyFields = [];
 
     if (activeTab === '0-6 JAM') {
@@ -530,6 +539,7 @@ const NeonatusIndex = () => {
                   <Calendar className="absolute left-3 top-3 text-blue-600" size={15} />
                   <input
                     type="date" value={tanggal} onChange={(e) => setTanggal(e.target.value)}
+                    max={new Date().toISOString().split('T')[0]}
                     className="pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-[11px] font-black outline-none focus:ring-2 focus:ring-blue-500/10"
                   />
                 </div>
@@ -923,15 +933,6 @@ const NeonatusIndex = () => {
                       <Clock size={16} /> Log Tindakan / Imunisasi
                     </h3>
                     <div className="space-y-3">
-                      <div>
-                        <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 px-1">Tanggal Pemberian</label>
-                        <input
-                          type="date"
-                          className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-4 text-xs font-bold text-slate-700 outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-                          value={formData.tgl_imunisasi}
-                          onChange={(e) => setFormData({ ...formData, tgl_imunisasi: e.target.value })}
-                        />
-                      </div>
                       <div className="grid grid-cols-2 gap-3">
                         <div>
                           <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 px-1">Jam</label>

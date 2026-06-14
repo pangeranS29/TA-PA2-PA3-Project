@@ -86,6 +86,15 @@ const PelayananGigi = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const todayStr = new Date().toISOString().split('T')[0];
+    if (formData.tanggal > todayStr) {
+      setNotification({
+        type: "error",
+        message: "Tanggal periksa tidak boleh tanggal yang akan datang!"
+      });
+      return;
+    }
+
     if (Number(formData.gigi_berlubang) > Number(formData.jumlah_gigi)) {
       setNotification({
         type: "error",
@@ -362,6 +371,7 @@ const PelayananGigi = () => {
                       <label className="block mb-1 text-[9px] font-bold text-slate-400 uppercase tracking-widest">Tanggal Periksa</label>
                       <input
                         type="date"
+                        max={new Date().toISOString().split('T')[0]}
                         className="w-full bg-[#f8fafc] border border-slate-100 rounded-lg p-2.5 outline-none focus:ring-1 focus:ring-black text-black text-xs font-bold transition-all"
                         value={formData.tanggal}
                         onChange={e => setFormData({ ...formData, tanggal: e.target.value })}
