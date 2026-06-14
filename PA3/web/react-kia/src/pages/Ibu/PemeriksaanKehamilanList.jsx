@@ -337,28 +337,8 @@ export default function PemeriksaanKehamilanList() {
           <div className="flex-1">
             <div className="flex items-center gap-3 flex-wrap">
               <h1 className="text-3xl font-extrabold text-gray-900">Pemantauan ANC</h1>
-
-              {/* Badge status risiko */}
-              {hasExaminations && risk && (
-                <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide border ${getBadgeStyles(risk.status_risiko)}`}>
-                  <span className="w-2 h-2 rounded-full bg-current animate-pulse"></span>
-                  {normalizeDisplayStatus(risk.status_risiko)}
-                </span>
-              )}
             </div>
             <p className="text-gray-500 italic mt-1">Berdasarkan Standar Buku KIA & Skrining Risiko</p>
-
-            {/* Peringatan jika status bukan NORMAL */}
-            {showWarning && (
-              <div className={`mt-2 text-sm p-2 rounded-lg inline-block ${
-                normalizeDisplayStatus(risk.status_risiko) === "PERLU RUJUKAN"
-                  ? "text-red-600 bg-red-50"
-                  : "text-yellow-700 bg-yellow-50"
-              }`}>
-                <AlertTriangle size={14} className="inline" /> Ibu hamil dengan status {normalizeDisplayStatus(risk.status_risiko)} memerlukan perhatian khusus.
-                {normalizeDisplayStatus(risk.status_risiko) === "PERLU RUJUKAN" && " Segera lakukan rujukan."}
-              </div>
-            )}
           </div>
 
           <div className="flex gap-3 flex-shrink-0">

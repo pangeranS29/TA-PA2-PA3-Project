@@ -25,28 +25,28 @@ func NewLaporanRemajaRepository(db *gorm.DB) LaporanRemajaRepository {
 func (r *laporanRemajaRepository) GetLaporanRemaja(startDate, endDate string, desaID *int32, role string) ([]models.LaporanRemaja, error) {
 	var result []models.LaporanRemaja
 
-	query := r.db.Table("pemeriksaan_remaja pr").
+	query := r.db.Table("pemeriksaans pr").
 		Select(`
 			COALESCE(p.nik, '') AS nik,
 			COALESCE(p.nama_lengkap, '') AS nama_lengkap,
 			p.tanggal_lahir,
-			pr.umur,
+			EXTRACT(YEAR FROM AGE(pr.tanggal_pemeriksaan, p.tanggal_lahir))::int AS umur,
 			COALESCE(p.jenis_kelamin, '') AS jenis_kelamin,
 			pr.tanggal_pemeriksaan,
-			pr.berat_badan,
-			pr.tinggi_badan,
-			pr.imt,
-			COALESCE(pr.tekanan_darah, '') AS tekanan_darah,
+			(pr.jawaban->>'berat_badan')::float AS berat_badan,
+			(pr.jawaban->>'tinggi_badan')::float AS tinggi_badan,
+			(pr.jawaban->>'imt')::float AS imt,
+			COALESCE(pr.jawaban->>'tekanan_darah', '') AS tekanan_darah,
 			COALESCE(pr.kategori_risiko, '') AS kategori_risiko,
-			COALESCE(pr.status_pemantauan, '') AS status_pemantauan,
-			COALESCE(pr.riwayat_penyakit, '') AS riwayat_penyakit,
-			COALESCE(pr.catatan_khusus, '') AS catatan_khusus,
+			COALESCE(pr.jawaban->>'status_pemantauan', '') AS status_pemantauan,
+			COALESCE(pr.jawaban->>'riwayat_penyakit', '') AS riwayat_penyakit,
+			COALESCE(pr.jawaban->>'catatan_khusus', '') AS catatan_khusus,
 			COALESCE(p.kecamatan, '') AS kecamatan,
 			COALESCE(d.nama_desa, '') AS desa
 		`).
 		Joins("JOIN penduduk p ON p.id = pr.penduduk_id AND p.deleted_at IS NULL").
 		Joins("LEFT JOIN desa d ON d.id = p.desa_id").
-		Where("pr.deleted_at IS NULL")
+		Where("pr.deleted_at IS NULL AND pr.kelompok = 'remaja'")
 
 	// Filter tanggal pemeriksaan
 	if startDate != "" && endDate != "" {

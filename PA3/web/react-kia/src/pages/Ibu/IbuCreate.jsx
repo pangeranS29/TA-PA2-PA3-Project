@@ -363,7 +363,26 @@ export default function IbuCreate() {
     const akunErrors = validateAkunForm();
     if (Object.keys(akunErrors).length > 0) {
       setErrors(akunErrors);
-      setErrorMessage("Silakan lengkapi data akun dengan benar.");
+      
+      // Show alert with list of errors
+      const errorList = Object.entries(akunErrors)
+        .map(([field, message]) => `• ${message}`)
+        .join('\n');
+      
+      Swal.fire({
+        icon: 'warning',
+        title: 'Data Akun Belum Lengkap',
+        html: `<div class="text-left" style="white-space: pre-line;">${errorList}</div>`,
+        confirmButtonColor: '#185FA5',
+      });
+
+      // Scroll to first error field
+      const firstErrorField = Object.keys(akunErrors)[0];
+      const errorElement = document.querySelector(`[name="${firstErrorField}"]`);
+      if (errorElement) {
+        errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        errorElement.focus();
+      }
       return;
     }
 
@@ -428,7 +447,28 @@ export default function IbuCreate() {
     }
 
     setErrors(newErrors);
-    if (Object.keys(newErrors).length > 0) return;
+    if (Object.keys(newErrors).length > 0) {
+      // Show alert with list of errors
+      const errorList = Object.entries(newErrors)
+        .map(([field, message]) => `• ${message}`)
+        .join('\n');
+      
+      Swal.fire({
+        icon: 'warning',
+        title: 'Data Belum Lengkap',
+        html: `<div class="text-left" style="white-space: pre-line;">${errorList}</div>`,
+        confirmButtonColor: '#185FA5',
+      });
+
+      // Scroll to first error field
+      const firstErrorField = Object.keys(newErrors)[0];
+      const errorElement = document.querySelector(`[name="${firstErrorField}"]`);
+      if (errorElement) {
+        errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        errorElement.focus();
+      }
+      return;
+    }
 
     if (!createdIbu) {
       setErrorMessage("Data ibu belum tersedia. Silakan ulangi proses.");
