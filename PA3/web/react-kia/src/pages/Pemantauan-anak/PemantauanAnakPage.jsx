@@ -112,11 +112,14 @@ export default function PemantauanAnakPage() {
   return (
     <MainLayout>
       <div className="p-4 md:p-8 bg-[#f8fafc] min-h-screen space-y-6">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div className="flex items-center gap-4 mb-2">
+          <Link
+            to="/pemantauan/lihat"
+            className="p-2 hover:bg-slate-100 rounded-lg transition-colors flex items-center justify-center text-slate-600"
+          >
+            <ChevronLeft size={24} />
+          </Link>
           <div>
-            <Link to={`/data-anak/dashboard/${id}`} className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-indigo-600 mb-1 transition-all">
-              <ChevronLeft size={14} /> Kembali ke Dashboard
-            </Link>
             <h1 className="text-2xl font-bold text-gray-800 tracking-tight">Lembar Pemantauan</h1>
             <p className="text-sm text-gray-500">Pemantauan kondisi kesehatan {child.nama}</p>
           </div>

@@ -6,10 +6,8 @@ import {
   FileText,
   TriangleAlert,
   AlertCircle,
-  Download,
   RotateCcw,
   Eye,
-  PhoneCall,
   Search
 } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -87,15 +85,11 @@ export default function LihatDataPemantauan() {
   return (
     <MainLayout>
       <div className="p-6 space-y-6 bg-[#F8FAFC] min-h-screen">
-        {/* Header Section */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-slate-800">Data Pemantauan Anak</h1>
             <p className="text-slate-500">Pantau kondisi anak berdasarkan laporan checklist harian ibu.</p>
           </div>
-          <button className="flex items-center gap-2 bg-[#0052CC] hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-all text-sm font-semibold">
-            <Download size={18} /> Ekspor Laporan
-          </button>
         </div>
 
         {/* Stats Cards */}
@@ -194,9 +188,6 @@ export default function LihatDataPemantauan() {
                           >
                             <Eye size={18} />
                           </Link>
-                          <button className="p-2 bg-[#0052CC] text-white rounded-lg hover:bg-blue-700">
-                            <PhoneCall size={18} />
-                          </button>
                         </div>
                       </td>
                     </tr>
