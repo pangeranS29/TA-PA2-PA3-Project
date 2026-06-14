@@ -119,6 +119,20 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	superadmin.PATCH("/users/:id/aktif", controller.ActivateUser)
 	superadmin.GET("/posyandu", controller.SuperadminListPosyandu)
 
+	// Kelola Puskesmas
+	superadmin.GET("/puskesmas", controller.Puskesmas.GetAll)
+	superadmin.GET("/puskesmas/:id", controller.Puskesmas.GetByID)
+	superadmin.POST("/puskesmas", controller.Puskesmas.Create)
+	superadmin.PUT("/puskesmas/:id", controller.Puskesmas.Update)
+	superadmin.DELETE("/puskesmas/:id", controller.Puskesmas.Delete)
+
+	// Kelola Posyandu
+	superadmin.GET("/posyandu-manage", controller.Posyandu.GetAll)
+	superadmin.GET("/posyandu-manage/:id", controller.Posyandu.GetByID)
+	superadmin.POST("/posyandu-manage", controller.Posyandu.Create)
+	superadmin.PUT("/posyandu-manage/:id", controller.Posyandu.Update)
+	superadmin.DELETE("/posyandu-manage/:id", controller.Posyandu.Delete)
+
 	// ==================== MODUL BIDAN ====================
 
 	bidan := e.Group("/bidan")
@@ -141,13 +155,19 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	bidan.GET("/dashboard/jadwal-layanan/:id", controller.JadwalLayanan.GetByID)
 	bidan.PUT("/dashboard/jadwal-layanan/:id", controller.JadwalLayanan.Update)
 	bidan.DELETE("/dashboard/jadwal-layanan/:id", controller.JadwalLayanan.Delete)
-	// Vaksin routes - TAMBAHKAN INI (gunakan controller.Vaksin)
+	// Vaksin routes - CRUD (Bidan)
 	bidan.GET("/vaksin", controller.Vaksin.GetAll)
 	bidan.GET("/vaksin/:id", controller.Vaksin.GetByID)
+	bidan.POST("/vaksin", controller.Vaksin.Create)
+	bidan.PUT("/vaksin/:id", controller.Vaksin.Update)
+	bidan.DELETE("/vaksin/:id", controller.Vaksin.Delete)
 
-	// Dosis Vaksin routes - TAMBAHKAN
+	// Dosis Vaksin routes - CRUD (Bidan)
 	bidan.GET("/dosis-vaksin", controller.DosisVaksin.GetAll)
 	bidan.GET("/dosis-vaksin/by-vaksin/:vaksin_id", controller.DosisVaksin.GetByVaksinID)
+	bidan.POST("/dosis-vaksin", controller.DosisVaksin.Create)
+	bidan.PUT("/dosis-vaksin/:id", controller.DosisVaksin.Update)
+	bidan.DELETE("/dosis-vaksin/:id", controller.DosisVaksin.Delete)
 
 	bidan.GET("/request-perubahan-jadwal-imunisasi", controller.GetAllRequestPerubahanJadwal)
 	bidan.PUT("/request-perubahan-jadwal-imunisasi/:id/approve", controller.ApproveRequestPerubahanJadwal)
@@ -998,4 +1018,28 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 
 	//bidan create akun ibu
 	tenaga.POST("/users", controller.CreateIbuUser)
+
+	// ==================== MODUL PUSKESMAS (Bidan Puskesmas & Dokter) ====================
+	puskesmas := e.Group("/puskesmas")
+	puskesmas.Use(middlewares.JWTAuth(controller.JWTSecret()))
+	puskesmas.Use(middlewares.PuskesmasAccess())
+
+	// Dashboard Puskesmas
+	puskesmas.GET("/dashboard", func(c echo.Context) error {
+		return c.JSON(200, map[string]string{"status": "ok", "message": "Dashboard Puskesmas"})
+	})
+
+	// CRUD Vaksin
+	puskesmas.GET("/vaksin", controller.Vaksin.GetAll)
+	puskesmas.GET("/vaksin/:id", controller.Vaksin.GetByID)
+	puskesmas.POST("/vaksin", controller.Vaksin.Create)
+	puskesmas.PUT("/vaksin/:id", controller.Vaksin.Update)
+	puskesmas.DELETE("/vaksin/:id", controller.Vaksin.Delete)
+
+	// CRUD Dosis Vaksin
+	puskesmas.GET("/dosis-vaksin", controller.DosisVaksin.GetAll)
+	puskesmas.GET("/dosis-vaksin/by-vaksin/:vaksin_id", controller.DosisVaksin.GetByVaksinID)
+	puskesmas.POST("/dosis-vaksin", controller.DosisVaksin.Create)
+	puskesmas.PUT("/dosis-vaksin/:id", controller.DosisVaksin.Update)
+	puskesmas.DELETE("/dosis-vaksin/:id", controller.DosisVaksin.Delete)
 }

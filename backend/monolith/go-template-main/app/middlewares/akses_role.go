@@ -198,3 +198,29 @@ func Kader() echo.MiddlewareFunc {
 		}
 	}
 }
+
+// PuskesmasAccess mengizinkan akses untuk role bidan_puskesmas dan dokter
+func PuskesmasAccess() echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			role, _ := c.Get("role").(string)
+
+			if role == "" {
+				return c.JSON(http.StatusUnauthorized, map[string]interface{}{
+					"status_code": http.StatusUnauthorized,
+					"message":     "role tidak ditemukan",
+				})
+			}
+
+			normalized := normalizeRole(role)
+			if normalized != "bidanpuskesmas" && normalized != "dokter" {
+				return c.JSON(http.StatusForbidden, map[string]interface{}{
+					"status_code": http.StatusForbidden,
+					"message":     "Anda Tidak Memiliki Akses",
+				})
+			}
+
+			return next(c)
+		}
+	}
+}
