@@ -229,7 +229,7 @@ const PelayananGiziIndex = () => {
           onClick={() => navigate(`/data-anak/dashboard/${anakId}`)}
           className="flex items-center gap-2 text-slate-500 hover:text-slate-800 font-bold text-xs uppercase tracking-wider mb-6 mt-2 transition-all group"
         >
-          <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" /> Kembali ke Detail Anak
+          <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" /> Kembali
         </button>
 
         {/* HEADER SECTION */}
@@ -309,7 +309,7 @@ const PelayananGiziIndex = () => {
                 <div>
                   <h2 className="text-xl font-bold text-slate-800">Form Input Pelayanan Gizi</h2>
                   <div className="flex items-center gap-3 mt-1">
-                    <p className="text-xs text-slate-400 uppercase font-bold tracking-widest">ID Anak: {anakId} • {authUser.nama}</p>
+                    <p className="text-xs text-slate-400 uppercase font-bold tracking-widest">Petugas: {authUser.nama}</p>
                     {ageNow && (
                       <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 text-blue-700 text-[10px] font-black rounded-full border border-blue-100">
                         <User size={10} /> Usia Anak: <strong>{ageNow} Bulan</strong>
@@ -352,14 +352,6 @@ const PelayananGiziIndex = () => {
                       <h4 className="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">
                         <Calendar size={18} className="text-blue-500" /> Waktu Kunjungan
                       </h4>
-                      {ageNow && (
-                        <div className="mb-3 flex items-center gap-2 bg-blue-50 border border-blue-100 rounded-xl px-3 py-2">
-                          <User size={14} className="text-blue-500 shrink-0" />
-                          <span className="text-xs text-blue-700 font-bold">
-                            Usia anak saat ini: <strong>{ageNow} bulan</strong> — bulan ke-{ageNow} dipilih otomatis.
-                          </span>
-                        </div>
-                      )}
                       <div className="space-y-1">
                         <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
                           Bulan Ke-{ageNow ? ` (Usia Sekarang: ${ageNow} Bulan)` : ""}

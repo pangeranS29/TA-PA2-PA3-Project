@@ -144,9 +144,6 @@ const PelayananVitaminCreate = () => {
               <h1 className="text-3xl font-black tracking-tight flex items-center gap-3">
                 <Pill className="text-pink-500" size={36} /> Input Pelayanan
               </h1>
-              <p className="text-slate-400 text-[10px] font-black uppercase mt-2 tracking-widest flex items-center gap-2">
-                <User size={12} /> ID Anak: {anakId}
-              </p>
             </div>
             
             <div className={`px-5 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center gap-3 shadow-xl transition-all ${isJadwalNasional() ? 'bg-green-600' : 'bg-amber-500'}`}>

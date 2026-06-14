@@ -84,7 +84,25 @@ export default function AnakDashboard() {
   if (loading) return <MainLayout><div className="p-10 text-center font-medium text-gray-400">Memuat...</div></MainLayout>;
   if (error) return <MainLayout><div className="p-10 text-center text-red-500">{error}</div></MainLayout>;
 
-  const growthData = chartData?.riwayat || child?.pertumbuhan || [];
+  const baseGrowthData = chartData?.riwayat || child?.pertumbuhan || [];
+  const growthData = [...baseGrowthData];
+
+  // Jika tidak ada data ukur bulan 0 (saat lahir) tapi ada data lahir anak, tambahkan sebagai titik awal
+  const hasMonthZero = growthData.some((r) => r.usia_ukur_bulan === 0);
+  if (!hasMonthZero && child) {
+    const hasBirthData = child.berat_lahir_kg || child.tinggi_lahir_cm || child.lingkar_kepala_cm;
+    if (hasBirthData) {
+      growthData.unshift({
+        usia_ukur_bulan: 0,
+        berat_badan: child.berat_lahir_kg || null,
+        tinggi_badan: child.tinggi_lahir_cm || null,
+        lingkar_kepala: child.lingkar_kepala_cm || null,
+        hasil_lila: null,
+        tgl_ukur: child.tanggal_lahir || "",
+      });
+    }
+  }
+
   const lastGrowth = growthData.length > 0 ? growthData[growthData.length - 1] : null;
   const isLaki = child?.jenis_kelamin?.toLowerCase() === "laki-laki";
   const themeColor = isLaki ? "#3b82f6" : "#ec4899";

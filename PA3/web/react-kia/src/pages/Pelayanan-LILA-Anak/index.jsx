@@ -96,7 +96,7 @@ const PelayananLilaIndex = () => {
               Pencatatan LILA
             </h1>
             <p className="text-slate-400 font-bold text-[10px] uppercase tracking-[0.2em] mt-3 ml-1">
-              ID Anak: {anakId} • Pantau Lingkar Lengan Atas
+              Pantau Lingkar Lengan Atas
             </p>
           </div>
 

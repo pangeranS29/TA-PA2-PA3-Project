@@ -128,9 +128,9 @@ const PelayananGigi = () => {
 
   return (
     <MainLayout>
-      <AlertNotification 
-        notification={notification} 
-        onClose={() => setNotification(null)} 
+      <AlertNotification
+        notification={notification}
+        onClose={() => setNotification(null)}
         onRetry={notification?.type === "error" ? () => {
           setNotification(null);
           setIsModalOpen(true);
@@ -148,7 +148,7 @@ const PelayananGigi = () => {
             onClick={() => navigate(`/data-anak/dashboard/${id}`)}
             className="flex items-center gap-2 text-slate-500 hover:text-slate-800 font-bold text-xs uppercase tracking-wider mb-5 mt-2 transition-all group"
           >
-            <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" /> Kembali ke Detail Anak
+            <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" /> Kembali
           </button>
 
           <div className="bg-white/80 backdrop-blur-xl shadow-[0_20px_50px_rgba(0,0,0,0.05)] border border-white rounded-[40px] overflow-hidden">
@@ -302,9 +302,6 @@ const PelayananGigi = () => {
               <div>
                 <h2 className="text-xl font-bold text-black tracking-tight">Form Input Pelayanan Gigi</h2>
                 <div className="flex items-center gap-3 mt-0.5">
-                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">
-                    ID ANAK: {id}
-                  </p>
                   {anakData && (
                     <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-blue-50 text-blue-700 text-[10px] font-black rounded-full border border-blue-100">
                       Usia: <strong>{calculateAgeInMonths(anakData.tanggal_lahir)} Bulan</strong>
@@ -312,7 +309,7 @@ const PelayananGigi = () => {
                   )}
                 </div>
               </div>
-              <button 
+              <button
                 onClick={() => setIsModalOpen(false)}
                 className="text-slate-300 hover:text-slate-600 transition-colors p-1.5 hover:bg-slate-50 rounded-full"
               >
@@ -330,7 +327,7 @@ const PelayananGigi = () => {
                   <span className="font-bold">Informasi:</span> Masukkan data pemeriksaan gigi anak untuk pemantauan rutin.
                 </p>
               </div>
-              
+
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* Waktu Kunjungan Card */}
@@ -341,16 +338,9 @@ const PelayananGigi = () => {
                     </div>
                     <div>
                       <label className="block mb-1 text-[9px] font-bold text-slate-400 uppercase tracking-widest">
-                        Bulan Ke- {anakData ? `(Usia Saat Ini: ${calculateAgeInMonths(anakData.tanggal_lahir)} Bulan — Dipilih Otomatis)` : ""}
+                        Bulan Ke-{anakData ? ` (Usia Sekarang: ${calculateAgeInMonths(anakData.tanggal_lahir)} Bulan)` : ""}
                       </label>
-                      {anakData && (
-                        <div className="mb-2 flex items-center gap-2 bg-blue-50 border border-blue-100 rounded-lg px-2.5 py-1.5">
-                          <span className="text-[10px] text-blue-700 font-bold">
-                            ✓ Bulan ke-<strong>{calculateAgeInMonths(anakData.tanggal_lahir)}</strong> dipilih otomatis sesuai usia anak.
-                          </span>
-                        </div>
-                      )}
-                      <select 
+                      <select
                         className="w-full bg-[#f8fafc] border border-slate-100 rounded-lg p-2.5 outline-none focus:ring-1 focus:ring-black text-black text-xs font-bold transition-all"
                         value={formData.bulan_ke}
                         onChange={e => setFormData({ ...formData, bulan_ke: e.target.value })}
@@ -417,8 +407,8 @@ const PelayananGigi = () => {
                             type="button"
                             onClick={() => setFormData({ ...formData, status_plak: status })}
                             className={`flex-1 py-1.5 rounded-md text-[10px] font-bold transition-all ${formData.status_plak === status
-                                ? 'bg-blue-600 text-white shadow-sm'
-                                : 'text-slate-400 hover:text-slate-600'
+                              ? 'bg-blue-600 text-white shadow-sm'
+                              : 'text-slate-400 hover:text-slate-600'
                               }`}
                           >
                             {status}
@@ -443,8 +433,8 @@ const PelayananGigi = () => {
                         type="button"
                         onClick={() => setFormData({ ...formData, resiko_gigi_berlubang: item.val })}
                         className={`py-3 rounded-xl border transition-all flex flex-col items-center gap-1.5 ${formData.resiko_gigi_berlubang === item.val
-                            ? `border-blue-600 bg-blue-600 text-white shadow-md scale-[1.02]`
-                            : `border-white bg-white text-slate-400 hover:border-slate-100 shadow-sm`
+                          ? `border-blue-600 bg-blue-600 text-white shadow-md scale-[1.02]`
+                          : `border-white bg-white text-slate-400 hover:border-slate-100 shadow-sm`
                           }`}
                       >
                         <div className={`w-2 h-2 rounded-full ${item.color}`}></div>
@@ -456,7 +446,7 @@ const PelayananGigi = () => {
 
                 {/* Action Buttons */}
                 <div className="flex items-center justify-end gap-4 pt-2">
-                  <button 
+                  <button
                     type="button"
                     onClick={() => setIsModalOpen(false)}
                     className="text-xs font-bold text-slate-400 hover:text-slate-600 transition-colors"

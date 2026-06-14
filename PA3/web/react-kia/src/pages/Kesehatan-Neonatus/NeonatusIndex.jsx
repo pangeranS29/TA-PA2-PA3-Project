@@ -439,7 +439,7 @@ const NeonatusIndex = () => {
                 )}
               </div>
               <p className="text-[10px] text-slate-400 font-bold mt-2 uppercase tracking-widest">
-                ID Anak: {id} • Petugas: {authUser.nama}
+                Petugas: {authUser.nama}
               </p>
             </div>
           </div>
@@ -448,7 +448,7 @@ const NeonatusIndex = () => {
             onClick={() => navigate(`/data-anak/dashboard/${id}`)}
             className="flex items-center gap-2 px-5 py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl font-bold text-[10px] uppercase tracking-widest transition-all"
           >
-            <ClipboardCheck size={14} /> Kembali ke Dashboard
+            <ClipboardCheck size={14} /> Kembali
           </button>
         </header>
 
@@ -973,8 +973,8 @@ const NeonatusIndex = () => {
                             type="button"
                             onClick={() => setFormData({ ...formData, bagian_kuning: isSel ? "" : num.toString() })}
                             className={`py-3.5 rounded-xl font-black text-sm border transition-all flex flex-col items-center justify-center ${isSel
-                                ? 'bg-amber-500 border-amber-600 text-white shadow-md shadow-amber-100 scale-105'
-                                : 'bg-slate-50 border-slate-100 text-slate-400 hover:bg-slate-100'
+                              ? 'bg-amber-500 border-amber-600 text-white shadow-md shadow-amber-100 scale-105'
+                              : 'bg-slate-50 border-slate-100 text-slate-400 hover:bg-slate-100'
                               }`}
                           >
                             <span>{num}</span>
@@ -1011,8 +1011,8 @@ const NeonatusIndex = () => {
                                 type="button"
                                 onClick={() => setFormData({ ...formData, [item.key]: opt })}
                                 className={`px-3 py-1 rounded-md text-[9px] font-bold uppercase transition-all ${isSel
-                                    ? opt === 'Reaktif' ? 'bg-red-600 text-white shadow-sm' : 'bg-blue-600 text-white shadow-sm'
-                                    : 'text-slate-400 hover:text-slate-600'
+                                  ? opt === 'Reaktif' ? 'bg-red-600 text-white shadow-sm' : 'bg-blue-600 text-white shadow-sm'
+                                  : 'text-slate-400 hover:text-slate-600'
                                   }`}
                               >
                                 {opt === 'Non-Reaktif' ? 'NR' : 'R'}

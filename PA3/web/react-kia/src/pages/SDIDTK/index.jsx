@@ -261,17 +261,6 @@ const FormSDIDTK = () => {
 
                   {/* Kolom Kiri: Hanya Informasi Utama */}
                   <div className="space-y-6">
-                    {anakData && (
-                      <div className="p-3 bg-blue-50 rounded-xl border border-blue-100 flex items-start gap-2">
-                        <span className="text-blue-500 text-lg shrink-0">✓</span>
-                        <div>
-                          <p className="text-[10px] font-black text-blue-800 uppercase tracking-widest mb-0.5">Auto-isi Usia</p>
-                          <p className="text-[10px] text-blue-600 leading-relaxed">
-                            Bulan ke-<strong>{calculateAgeInMonths(anakData.tanggal_lahir)}</strong> dipilih otomatis sesuai usia anak saat ini.
-                          </p>
-                        </div>
-                      </div>
-                    )}
                     <InputField
                       label={anakData ? `Bulan Ke- (Usia Sekarang: ${calculateAgeInMonths(anakData.tanggal_lahir)} Bulan)` : "Bulan Ke-"}
                       type="number"

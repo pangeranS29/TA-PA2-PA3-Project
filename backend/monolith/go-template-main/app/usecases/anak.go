@@ -15,6 +15,7 @@ type AnakUseCase struct {
 	anakRepo             *repositories.AnakRepository
 	kependudukanRepo     *repositories.KependudukanRepository
 	prediksiStuntingRepo repositories.PrediksiStuntingRepository
+	ibuRepo              *repositories.IbuRepository
 	onAnakCreated        func(anakID int32) // ← callback untuk auto-generate jadwal
 }
 
@@ -22,11 +23,13 @@ func NewAnakUseCase(
 	anakRepo *repositories.AnakRepository,
 	kependudukanRepo *repositories.KependudukanRepository,
 	prediksiStuntingRepo repositories.PrediksiStuntingRepository,
+	ibuRepo *repositories.IbuRepository,
 ) *AnakUseCase {
 	return &AnakUseCase{
 		anakRepo:             anakRepo,
 		kependudukanRepo:     kependudukanRepo,
 		prediksiStuntingRepo: prediksiStuntingRepo,
+		ibuRepo:              ibuRepo,
 	}
 }
 
@@ -72,11 +75,20 @@ func (u *AnakUseCase) CreateAnak(req models.CreateAnakRequest) (*models.AnakResp
 		// Generate NIK sementara jika tidak ada (karena NOT NULL di DB)
 		nik := fmt.Sprintf("A%d", time.Now().UnixNano())
 
+		var desaID *int32
+		if req.IbuID > 0 {
+			ibuRecord, errIbuTable := u.ibuRepo.FindByID(req.IbuID)
+			if errIbuTable == nil && ibuRecord != nil && ibuRecord.Kependudukan != nil {
+				desaID = ibuRecord.Kependudukan.DesaID
+			}
+		}
+
 		newPenduduk := &models.Kependudukan{
 			NIK:          &nik,
 			NamaLengkap:  req.Nama,
 			JenisKelamin: req.JenisKelamin,
 			TanggalLahir: tglLahir,
+			DesaID:       desaID,
 		}
 
 		if err := u.kependudukanRepo.Create(newPenduduk); err != nil {
@@ -148,9 +160,9 @@ func (u *AnakUseCase) CreateAnakDenganPenduduk(req models.CreateAnakDenganPendud
 	}
 
 	var desaID *int32
-	ibuPenduduk, errIbu := u.kependudukanRepo.FindByID(req.IbuID)
-	if errIbu == nil && ibuPenduduk != nil {
-		desaID = ibuPenduduk.DesaID
+	ibuRecord, errIbuTable := u.ibuRepo.FindByID(req.IbuID)
+	if errIbuTable == nil && ibuRecord != nil && ibuRecord.Kependudukan != nil {
+		desaID = ibuRecord.Kependudukan.DesaID
 	}
 
 	nikSementara := fmt.Sprintf("A%d", time.Now().UnixNano())

@@ -82,18 +82,12 @@ import PelayananGigiIndex from "./pages/PelayananGigi/index";
 import TumbuhKembangAnak from "./pages/SDIDTK/index";
 // import NeonatusIndex from "./pages/Kesehatan-Neonatus/NeonatusIndex";
 
-// Pelayanan LILA Anak
-import PelayananLilaGlobalList from "./pages/Pelayanan-LILA-Anak/GlobalList";
-import PelayananLilaIndex from "./pages/Pelayanan-LILA-Anak/index";
-import PelayananLilaCreate from "./pages/Pelayanan-LILA-Anak/create";
-import PelayananLilaEdit from "./pages/Pelayanan-LILA-Anak/edit";
-
 // Pemantauan
 import KelolaPemantauan from "./pages/Pemantauan-anak/KelolaPemantauan";
 import LihatDataPemantauan from "./pages/Pemantauan-anak/LihatDataPemantauan";
 
 // Pencatatan
-import KesehatanLingkunganCatatanPage from "./pages/Pencatatan/KesehatanLingkunganCatatan";
+// import KesehatanLingkunganCatatanPage from "./pages/Pencatatan/KesehatanLingkunganCatatan";
 import InformasiUmumPage from "./pages/edukasi-digital/InformasiUmumPage";
 import InformasiUmumFormPage from "./pages/edukasi-digital/InformasiUmumFormPage";
 import TrimesterPage from "./pages/edukasi-digital/TrimesterPage";
@@ -127,9 +121,9 @@ import PemantauanAnakPage from "./pages/Pemantauan-anak/PemantauanAnakPage";
 
 import LihatDataPerkembangan from "./pages/penanda-perkembangan-anak/LihatDataPerkembangan";
 import KelolaPerkembangan from "./pages/penanda-perkembangan-anak/KelolaPerkembangan";
-import KelolaLingkungan from "./pages/KesehatanLingkungan/KelolaLingkungan";
-import DataLingkungan from "./pages/KesehatanLingkungan/DataLingkungan";
-import DetailLembarLingkungan from "./pages/KesehatanLingkungan/DetailLembarLingkungan";
+// import KelolaLingkungan from "./pages/KesehatanLingkungan/KelolaLingkungan";
+// import DataLingkungan from "./pages/KesehatanLingkungan/DataLingkungan";
+// import DetailLembarLingkungan from "./pages/KesehatanLingkungan/DetailLembarLingkungan";
 import PertumbuhanIndex from "./pages/Pertumbuhan/index";
 
 // Manajemen Bidan Kader
@@ -276,24 +270,6 @@ function App() {
         <Route path="/data-anak/pelayanan-Imunisasi/:id" element={<PelayananImunisasiIndex />} />
         <Route path="/data-anak/pelayanan-Gigi/:id" element={<PelayananGigiIndex />} />
         <Route path="/data-anak/Tumbuh-kembang-Anak/:id" element={<TumbuhKembangAnak />} />
-        <Route path="/data-anak/lila" element={<PelayananLilaGlobalList />} />
-        <Route path="/data-anak/lila/:id" element={<PelayananLilaIndex />} />
-        <Route
-          path="/data-anak/lila/:id/create"
-          element={
-            <ProtectedRoute allowedRoles={["bidan"]}>
-              <PelayananLilaCreate />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/data-anak/lila/:id/edit/:lilaId"
-          element={
-            <ProtectedRoute allowedRoles={["bidan"]}>
-              <PelayananLilaEdit />
-            </ProtectedRoute>
-          }
-        />
         <Route path="/data-anak/keluhan/:id" element={<KeluhanAnak />} />
         <Route path="/data-anak/pemantauan/:id" element={<PemantauanAnakPage />} />
         <Route path="/data-anak/perawatan/:id" element={<LembarPerawatanAnak />} />
@@ -305,11 +281,6 @@ function App() {
         <Route path="/pemantauan/perkembangan" element={<LihatDataPerkembangan />} />
         <Route path="/pemantauan/kelola-perkembangan" element={<KelolaPerkembangan />} />
         <Route path="/pemantauan/kelola" element={<KelolaPemantauan />} />
-
-        {/* ── PENCATATAN ── */}
-        <Route path="/pencatatan/kesehatan-lingkungan" element={<DataLingkungan />} />
-        <Route path="/pencatatan/kesehatan-lingkungan/kelola" element={<KelolaLingkungan />} />
-        <Route path="/pencatatan/kesehatan-lingkungan/detail/:id" element={<DetailLembarLingkungan />} />
 
         {/* ── EDUKASI DIGITAL ── */}
         <Route path="/edukasi-digital/informasi-umum" element={<InformasiUmumPage />} />

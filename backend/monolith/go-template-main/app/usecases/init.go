@@ -180,7 +180,7 @@ func Init(opts Options) *Main {
 	}
 	prediksiUc := NewPrediksiRisikoUsecase(mlURL)
 	// Inisialisasi usecase yang sudah ada
-	m.Anak = NewAnakUseCase(opts.Repository.Anak, opts.Repository.Kependudukan, opts.Repository.PrediksiStunting)
+	m.Anak = NewAnakUseCase(opts.Repository.Anak, opts.Repository.Kependudukan, opts.Repository.PrediksiStunting, opts.Repository.Ibu)
 	m.Anak.SetOnAnakCreated(func(anakID int32) {
 		if err := m.GenerateJadwalImunisasiByAnakID(anakID); err != nil {
 			fmt.Println("[AUTO JADWAL] ERROR:", err)
