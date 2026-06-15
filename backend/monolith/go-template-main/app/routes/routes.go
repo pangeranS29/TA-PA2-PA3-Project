@@ -177,6 +177,7 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	bidan.GET("/imunisasi/anak/:anak_id", controller.GetJadwalImunisasiByAnakIDBidan)
 	bidan.PUT("/imunisasi/:id/selesai", controller.SetJadwalSelesaiBidan)
 	bidan.GET("/imunisasi/:id", controller.GetJadwalImunisasiByIDBidan)
+	bidan.GET("/aturan-vaksin-anak", controller.GetAturanVaksinAnak)
 
 	// Kader Management dipindahkan ke superadmin
 

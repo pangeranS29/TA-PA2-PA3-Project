@@ -59,3 +59,13 @@ func (m *Main) GetJadwalImunisasiByIDBidan(c echo.Context) error {
 
 	return helpers.StandardResponse(c, http.StatusOK, []string{constants.SUCCESS_RESPONSE_MESSAGE}, data, nil)
 }
+
+// GetAturanVaksinAnak returns all aturan vaksin anak for color coding
+func (m *Main) GetAturanVaksinAnak(c echo.Context) error {
+	data, err := m.usecases.GetAturanVaksinAnak()
+	if err != nil {
+		return helpers.Response(c, http.StatusInternalServerError, []string{err.Error()})
+	}
+
+	return helpers.StandardResponse(c, http.StatusOK, []string{constants.SUCCESS_RESPONSE_MESSAGE}, data, nil)
+}
