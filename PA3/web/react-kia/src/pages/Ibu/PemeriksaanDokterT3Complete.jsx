@@ -316,6 +316,9 @@ export default function PemeriksaanDokterT3Complete() {
     kebutuhan_konseling: "Tidak",
     penjelasan: "",
     kesimpulan_rekomendasi_tempat_melahirkan: "",
+    tanggal_periksa_stamp_paraf: "",
+    keluhan_pemeriksaan_tindakan_saran: "",
+    tanggal_kembali: "",
   });
 
   /* ── Fetch data ─────────────────────────────────────────────────────── */
@@ -555,6 +558,14 @@ export default function PemeriksaanDokterT3Complete() {
               lanjutan?.kesimpulan_rekomendasi_tempat_melahirkan ||
               d.kesimpulan_rekomendasi_tempat_melahirkan ||
               "",
+            tanggal_periksa_stamp_paraf: d.tanggal_periksa_stamp_paraf
+              ? d.tanggal_periksa_stamp_paraf.split("T")[0]
+              : "",
+            keluhan_pemeriksaan_tindakan_saran:
+              d.keluhan_pemeriksaan_tindakan_saran || "",
+            tanggal_kembali: d.tanggal_kembali
+              ? d.tanggal_kembali.split("T")[0]
+              : "",
           }));
 
           // Jika ada gambar USG, tampilkan preview
@@ -1210,12 +1221,12 @@ export default function PemeriksaanDokterT3Complete() {
               const Icon = stepIcons[step - 1];
               const color = stepColors[step - 1];
               const bgColor = isActive
-                ? `bg-${color}-500 text-white shadow-lg scale-110`
+                ? `bg-${color}-100 text-${color}-600 shadow-lg scale-110`
                 : isCompleted
                   ? "bg-emerald-500 text-white"
                   : "bg-gray-200 text-gray-500";
               const titleColor = isActive
-                ? `text-${color}-600`
+                ? `text-${color}-600 font-bold`
                 : isCompleted
                   ? "text-emerald-600"
                   : "text-gray-500";
@@ -1838,12 +1849,13 @@ export default function PemeriksaanDokterT3Complete() {
 
           {/* ══ STEP 4: Skrining Jiwa & Rencana Lanjutan ══ */}
           {currentStep === 4 && (
-            <Section
-              icon={Brain}
-              title="Skrining Jiwa & Rencana Lanjutan"
-              color="rose"
-              defaultOpen={true}
-            >
+            <>
+              <Section
+                icon={Brain}
+                title="Skrining Jiwa & Rencana Lanjutan"
+                color="rose"
+                defaultOpen={true}
+              >
               {/* Skrining Jiwa Lanjutan (dari tabel dokter T3) */}
               <div className="mb-5">
                 <h3 className="text-xs font-bold text-rose-600 uppercase tracking-widest mb-3">
@@ -2051,6 +2063,42 @@ export default function PemeriksaanDokterT3Complete() {
                 </Field>
               </div>
             </Section>
+
+            <Section icon={Save} title="Catatan Pemeriksaan" color="amber">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                <Field label="Tanggal Periksa / Stempel / Paraf">
+                  <input
+                    type="date"
+                    name="tanggal_periksa_stamp_paraf"
+                    value={form.tanggal_periksa_stamp_paraf}
+                    onChange={handleChange}
+                    className={inputCls}
+                  />
+                </Field>
+                <Field label="Tanggal Kembali">
+                  <input
+                    type="date"
+                    name="tanggal_kembali"
+                    value={form.tanggal_kembali}
+                    onChange={handleChange}
+                    className={inputCls}
+                  />
+                </Field>
+              </div>
+              <div className="mt-4">
+                <Field label="Keluhan / Pemeriksaan / Tindakan / Saran">
+                  <textarea
+                    name="keluhan_pemeriksaan_tindakan_saran"
+                    value={form.keluhan_pemeriksaan_tindakan_saran}
+                    onChange={handleChange}
+                    placeholder="Tuliskan keluhan, hasil pemeriksaan, tindakan yang dilakukan, dan saran untuk pasien..."
+                    className={inputCls}
+                    rows={4}
+                  />
+                </Field>
+              </div>
+            </Section>
+            </>
           )}
 
           {/* Navigation Buttons */}

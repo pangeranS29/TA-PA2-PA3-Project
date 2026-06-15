@@ -283,6 +283,9 @@ const INITIAL_FORM = {
   skrining_jiwa_perlu_rujukan: "Tidak",
   kesimpulan: "",
   rekomendasi: "",
+  tanggal_periksa_stamp_paraf: "",
+  keluhan_pemeriksaan_tindakan_saran: "",
+  tanggal_kembali: "",
 };
 
 export default function PemeriksaanDokterT1Complete() {
@@ -508,6 +511,9 @@ export default function PemeriksaanDokterT1Complete() {
           lab.skrining_jiwa_perlu_rujukan || dokter.skrining_jiwa_perlu_rujukan || "Tidak",
         kesimpulan: lab.kesimpulan || dokter.kesimpulan || "",
         rekomendasi: lab.rekomendasi || dokter.rekomendasi || "",
+        tanggal_periksa_stamp_paraf: toDateOnly(dokter.tanggal_periksa_stamp_paraf),
+        keluhan_pemeriksaan_tindakan_saran: dokter.keluhan_pemeriksaan_tindakan_saran || "",
+        tanggal_kembali: toDateOnly(dokter.tanggal_kembali),
       });
 
       const img = dokter.gambar_usg || dokter.GambarUSG;
@@ -768,13 +774,18 @@ export default function PemeriksaanDokterT1Complete() {
     return errors;
   };
 
-  const showValidationAlert = () =>
+  const showValidationAlert = (errors) => {
+    const errorList = Object.entries(errors)
+      .map(([field, message]) => `• ${message}`)
+      .join('\n');
+    
     Swal.fire({
       icon: "warning",
       title: "Data Belum Lengkap",
-      text: "Mohon lengkapi data wajib sebelum melanjutkan.",
+      html: `<div class="text-left" style="white-space: pre-line;">${errorList}</div>`,
       confirmButtonColor: "#185FA5",
     });
+  };
 
   const handleNextStep = () => {
     let errors = {};
@@ -784,7 +795,17 @@ export default function PemeriksaanDokterT1Complete() {
 
     if (Object.keys(errors).length > 0) {
       setValidationErrors(errors);
-      showValidationAlert();
+      showValidationAlert(errors);
+      
+      // Scroll to first error field
+      const firstErrorField = Object.keys(errors)[0];
+      const errorElement = document.querySelector(`[name="${firstErrorField}"]`);
+      if (errorElement) {
+        setTimeout(() => {
+          errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          errorElement.focus();
+        }, 100);
+      }
       return;
     }
     setCurrentStep((s) => s + 1);
@@ -1148,7 +1169,7 @@ export default function PemeriksaanDokterT1Complete() {
               canEdit ? "bg-green-100 text-green-700" : "bg-blue-100 text-blue-700"
             }`}
           >
-            {canEdit ? "✏️ Mode Edit (Dokter)" : "👁️ Mode Baca (Bidan)"}
+            {/* {canEdit ? "Mode Edit (Dokter)" : "Mode Baca (Bidan)"} */}
           </div>
         </div>
 
@@ -1288,12 +1309,12 @@ export default function PemeriksaanDokterT1Complete() {
               const Icon = stepIcons[step - 1];
               const color = stepColors[step - 1];
               const bgColor = isActive
-                ? `bg-${color}-500 text-white shadow-lg scale-110`
+                ? `bg-${color}-100 text-${color}-600 shadow-lg scale-110`
                 : isCompleted
                   ? "bg-emerald-500 text-white"
                   : "bg-gray-200 text-gray-500";
               const titleColor = isActive
-                ? `text-${color}-600`
+                ? `text-${color}-600 font-bold`
                 : isCompleted
                   ? "text-emerald-600"
                   : "text-gray-500";
@@ -1361,21 +1382,6 @@ export default function PemeriksaanDokterT1Complete() {
               </Section>
 
               <Section icon={Activity} title="Pemeriksaan Fisik" color="teal">
-                <div className="mb-4 p-3 bg-gray-50 rounded-xl">
-                  <p className="text-xs text-gray-500 mb-2 font-medium">Ringkasan Status</p>
-                  <div className="flex flex-wrap gap-2">
-                    {fisikFields.map((f) => (
-                      <span key={f.name} className="text-xs text-gray-600">
-                        <span className="font-medium">{f.label}:</span>{" "}
-                        {form[f.name] === "Normal" ? (
-                          <span className="text-emerald-600 font-semibold">✓</span>
-                        ) : (
-                          <span className="text-red-500 font-semibold">!</span>
-                        )}
-                      </span>
-                    ))}
-                  </div>
-                </div>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
                   {fisikFields.map((field) => (
                     <div key={field.name}>
@@ -1390,9 +1396,7 @@ export default function PemeriksaanDokterT1Complete() {
                         className={`${selectCls} ${
                           validationErrors[field.name]
                             ? "border-red-500 bg-red-50"
-                            : form[field.name] === "Abnormal"
-                              ? "border-red-300 bg-red-50 text-red-700"
-                              : "border-gray-200"
+                            : "border-gray-200"
                         }`}
                       >
                         <option value="Normal">Normal</option>
@@ -1871,7 +1875,7 @@ export default function PemeriksaanDokterT1Complete() {
                               }
                             }}
                             disabled={!canEdit}
-                            className={`${selectCls} flex-1 ${
+                            className={`${selectCls} flex-2 ${
                               validationErrors.lab_golongan_darah_rhesus_hasil
                                 ? "border-red-500 bg-red-50"
                                 : ""
@@ -2031,12 +2035,13 @@ export default function PemeriksaanDokterT1Complete() {
 
           {/* ══ STEP 4 ══ */}
           {currentStep === 4 && (
-            <Section
-              icon={Brain}
-              title="Skrining Kesehatan Jiwa & Kesimpulan"
-              color="rose"
-              defaultOpen={true}
-            >
+            <>
+              <Section
+                icon={Brain}
+                title="Skrining Kesehatan Jiwa & Kesimpulan"
+                color="rose"
+                defaultOpen={true}
+              >
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                 <Field label="Tanggal Skrining Jiwa">
                   <input
@@ -2136,6 +2141,47 @@ export default function PemeriksaanDokterT1Complete() {
                 </Field>
               </div>
             </Section>
+
+            <Section icon={Save} title="Catatan Pemeriksaan" color="amber">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                <Field label="Tanggal Periksa / Stempel / Paraf">
+                  <input
+                    type="date"
+                    name="tanggal_periksa_stamp_paraf"
+                    value={form.tanggal_periksa_stamp_paraf}
+                    onChange={handleChange}
+                    readOnly={!canEdit}
+                    max={new Date().toISOString().split("T")[0]}
+                    className={inputCls}
+                  />
+                </Field>
+                <Field label="Tanggal Kembali">
+                  <input
+                    type="date"
+                    name="tanggal_kembali"
+                    value={form.tanggal_kembali}
+                    onChange={handleChange}
+                    readOnly={!canEdit}
+                    max={new Date().toISOString().split("T")[0]}
+                    className={inputCls}
+                  />
+                </Field>
+              </div>
+              <div className="mt-4">
+                <Field label="Keluhan / Pemeriksaan / Tindakan / Saran">
+                  <textarea
+                    name="keluhan_pemeriksaan_tindakan_saran"
+                    value={form.keluhan_pemeriksaan_tindakan_saran}
+                    onChange={handleChange}
+                    readOnly={!canEdit}
+                    placeholder="Tuliskan keluhan, hasil pemeriksaan, tindakan yang dilakukan, dan saran untuk pasien..."
+                    className={inputCls}
+                    rows={4}
+                  />
+                </Field>
+              </div>
+            </Section>
+            </>
           )}
         </div>
 

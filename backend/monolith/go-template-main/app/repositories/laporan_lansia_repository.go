@@ -25,31 +25,31 @@ func NewLaporanLansiaRepository(db *gorm.DB) LaporanLansiaRepository {
 func (r *laporanLansiaRepository) GetLaporanLansia(startDate, endDate string, desaID *int32, role string) ([]models.LaporanLansia, error) {
 	var result []models.LaporanLansia
 
-	query := r.db.Table("pemeriksaan_lansia pl").
+	query := r.db.Table("pemeriksaans pl").
 		Select(`
 			COALESCE(p.nik, '') AS nik,
 			COALESCE(p.nama_lengkap, '') AS nama_lengkap,
 			p.tanggal_lahir,
-			pl.umur,
+			EXTRACT(YEAR FROM AGE(pl.tanggal_pemeriksaan, p.tanggal_lahir))::int AS umur,
 			COALESCE(p.jenis_kelamin, '') AS jenis_kelamin,
 			pl.tanggal_pemeriksaan,
-			pl.berat_badan,
-			pl.tinggi_badan,
-			pl.imt,
-			COALESCE(pl.tekanan_darah, '') AS tekanan_darah,
-			pl.gula_darah,
+			(pl.jawaban->>'berat_badan')::float AS berat_badan,
+			(pl.jawaban->>'tinggi_badan')::float AS tinggi_badan,
+			(pl.jawaban->>'imt')::float AS imt,
+			COALESCE(pl.jawaban->>'tekanan_darah', '') AS tekanan_darah,
+			(pl.jawaban->>'gula_darah')::float AS gula_darah,
 			COALESCE(pl.kategori_risiko, '') AS kategori_risiko,
-			COALESCE(pl.status_pemantauan, '') AS status_pemantauan,
-			COALESCE(pl.penyakit_kronis, '') AS penyakit_kronis,
-			COALESCE(pl.status_kemandirian, '') AS status_kemandirian,
-			pl.riwayat_jatuh,
-			COALESCE(pl.catatan_khusus, '') AS catatan_khusus,
+			COALESCE(pl.jawaban->>'status_pemantauan', '') AS status_pemantauan,
+			COALESCE(pl.jawaban->>'penyakit_kronis', '') AS penyakit_kronis,
+			COALESCE(pl.jawaban->>'status_kemandirian', '') AS status_kemandirian,
+			(pl.jawaban->>'riwayat_jatuh')::boolean AS riwayat_jatuh,
+			COALESCE(pl.jawaban->>'catatan_khusus', '') AS catatan_khusus,
 			COALESCE(p.kecamatan, '') AS kecamatan,
 			COALESCE(d.nama_desa, '') AS desa
 		`).
 		Joins("JOIN penduduk p ON p.id = pl.penduduk_id AND p.deleted_at IS NULL").
 		Joins("LEFT JOIN desa d ON d.id = p.desa_id").
-		Where("pl.deleted_at IS NULL")
+		Where("pl.deleted_at IS NULL AND pl.kelompok = 'lansia'")
 
 	// Filter tanggal pemeriksaan
 	if startDate != "" && endDate != "" {

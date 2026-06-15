@@ -37,6 +37,30 @@ const DetailItem = ({ label, value }) => (
   </div>
 );
 
+// Helper function to convert month number to Roman numeral
+const toRomanNumeral = (month) => {
+  const romanNumerals = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
+  return romanNumerals[month - 1] || "";
+};
+
+// Helper function to generate official nomor surat format
+// Format: 09.[nomor_urut]/[nama_lembaga]/[bulan_romawi]/[tahun]
+const generateNomorSurat = (nomorUrut, namaLembaga, tanggal) => {
+  const date = new Date(tanggal);
+  const month = date.getMonth() + 1;
+  const year = date.getFullYear();
+  const monthRoman = toRomanNumeral(month);
+  const paddedNomor = String(nomorUrut).padStart(3, '0');
+  return `09.${paddedNomor}/${namaLembaga}/${monthRoman}/${year}`;
+};
+
+// Validation function for nomor surat format
+const validateNomorSuratFormat = (nomorSurat) => {
+  // Expected format: 09.[nomor_urut]/[nama_lembaga]/[bulan_romawi]/[tahun]
+  const pattern = /^09\.\d{3}\/[^\/]+\/[IVX]+\/\d{4}$/;
+  return pattern.test(nomorSurat);
+};
+
 const emptyRingkasan = (ibuData) => ({
   tanggal_melahirkan: "", umur_kehamilan_minggu: "",
   penolong_proses_melahirkan: "", cara_melahirkan: "",
@@ -456,17 +480,11 @@ function RingkasanForm({ initial, onSubmit, onCancel, saving, title }) {
               <option value="Perempuan">Perempuan</option>
             </select></div>
           <div>
-            <label className="block text-xs font-medium mb-1 flex items-center justify-between">
-              Nama Ibu
-              <span className="text-[9px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded font-semibold">Terkunci</span>
-            </label>
+            <label className="block text-xs font-medium mb-1">Nama Ibu</label>
             <input name="anak_nama_ibu" value={form.anak_nama_ibu} onChange={handleChange} disabled className="w-full bg-gray-100 border border-gray-200 text-gray-500 rounded-lg px-2 py-1.5 text-sm cursor-not-allowed" />
           </div>
           <div>
-            <label className="block text-xs font-medium mb-1 flex items-center justify-between">
-              Nama Ayah
-              <span className="text-[9px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded font-semibold">Terkunci</span>
-            </label>
+            <label className="block text-xs font-medium mb-1">Nama Ayah</label>
             <input name="anak_nama_ayah" value={form.anak_nama_ayah} onChange={handleChange} disabled className="w-full bg-gray-100 border border-gray-200 text-gray-500 rounded-lg px-2 py-1.5 text-sm cursor-not-allowed" />
           </div>
         </div>
@@ -538,6 +556,32 @@ export default function PelayananPersalinan() {
     nama_ayah: "", pekerjaan_orang_tua: "", alamat_orang_tua: "",
     nama_penolong_kelahiran: "",
   });
+
+  // Auto-generate nomor surat when switching to form mode for new keterangan
+  useEffect(() => {
+    if (modeKeterangan === "form" && !keterangan) {
+      // Generate default nomor surat with current date and placeholder values
+      const today = new Date();
+      const defaultNomor = generateNomorSurat(1, "PUSKESMAS", today);
+      setFormKeterangan(prev => ({
+        ...prev,
+        nomor_surat: defaultNomor,
+      }));
+    }
+  }, [modeKeterangan, keterangan]);
+
+  // Auto-update nomor surat when tanggal_lahir changes
+  useEffect(() => {
+    if (modeKeterangan === "form" && formKeterangan.tanggal_lahir) {
+      const nomorUrut = 1; // Default sequence number
+      const namaLembaga = "PUSKESMAS"; // Default institution name
+      const updatedNomor = generateNomorSurat(nomorUrut, namaLembaga, formKeterangan.tanggal_lahir);
+      setFormKeterangan(prev => ({
+        ...prev,
+        nomor_surat: updatedNomor,
+      }));
+    }
+  }, [formKeterangan.tanggal_lahir, modeKeterangan]);
 
   // Auto-fill locked fields from ibuData when ibuData changes
   useEffect(() => {
@@ -994,6 +1038,15 @@ export default function PelayananPersalinan() {
       Swal.fire({ icon: "warning", title: "Perhatian", text: "Nomor surat wajib diisi.", confirmButtonColor: "#4f46e5" });
       return;
     }
+    if (!validateNomorSuratFormat(formKeterangan.nomor_surat)) {
+      Swal.fire({ 
+        icon: "warning", 
+        title: "Format Nomor Surat Salah", 
+        text: "Format nomor surat harus: 09.[nomor_urut]/[nama_lembaga]/[bulan_romawi]/[tahun]\nContoh: 09.004/PUSKESMAS/V/2024", 
+        confirmButtonColor: "#4f46e5" 
+      });
+      return;
+    }
     if (!formKeterangan.hari_lahir || !formKeterangan.hari_lahir.trim()) {
       Swal.fire({ icon: "warning", title: "Perhatian", text: "Hari lahir wajib diisi.", confirmButtonColor: "#4f46e5" });
       return;
@@ -1396,7 +1449,7 @@ export default function PelayananPersalinan() {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   {[
-                    { label: "Nomor Surat", name: "nomor_surat", type: "text" },
+                    { label: "Nomor Surat", name: "nomor_surat", type: "text", placeholder: "09.001/PUSKESMAS/V/2024", readOnly: true },
                     { label: "Nama Bayi", name: "nama_bayi_diberi_nama", type: "text" },
                     { label: "Tanggal Lahir", name: "tanggal_lahir", type: "date" },
                     { label: "Hari Lahir", name: "hari_lahir", type: "text", placeholder: "Senin" },
@@ -1413,24 +1466,18 @@ export default function PelayananPersalinan() {
                     { label: "Alamat", name: "alamat_orang_tua", type: "text" },
                     { label: "Penolong Kelahiran", name: "nama_penolong_kelahiran", type: "text" },
                     { label: "Lokasi Persalinan", name: "lokasi_persalinan", type: "text" },
-                  ].map(({ label, name, type, placeholder }) => {
+                  ].map(({ label, name, type, placeholder, readOnly }) => {
                     const isAuto = autoFilledFields.includes(name);
                     const isLocked = ["nama_ibu", "nik_ibu", "nama_ayah", "pekerjaan_orang_tua", "alamat_orang_tua"].includes(name);
+                    const isReadOnly = readOnly === true;
                     return (
                     <div key={name}>
-                      <label className="block text-xs font-medium mb-1 flex items-center justify-between">
-                        {label}
-                        {isLocked ? (
-                          <span className="text-[9px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded flex items-center gap-0.5 font-semibold">Terkunci</span>
-                        ) : isAuto && (
-                          <span className="text-[9px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded flex items-center gap-0.5"><Link2 size={10}/> auto</span>
-                        )}
-                      </label>
+                      <label className="block text-xs font-medium mb-1">{label}</label>
                       {type === "time-select" ? (
                         <select name={name} value={formKeterangan[name] || ""} 
                           onChange={(e) => setFormKeterangan((p) => ({ ...p, [name]: e.target.value }))}
-                          disabled={isLocked}
-                          className={`w-full rounded-lg px-2 py-1.5 text-sm ${isLocked ? "bg-gray-100 border-gray-200 text-gray-500 cursor-not-allowed" : isAuto ? "border-green-300 bg-green-50/30 focus:ring-green-100" : "border focus:ring-indigo-100"} focus:ring-2 outline-none transition-all`}>
+                          disabled={isLocked || isReadOnly}
+                          className={`w-full rounded-lg px-2 py-1.5 text-sm ${isLocked || isReadOnly ? "bg-gray-100 border-gray-200 text-gray-500 cursor-not-allowed" : isAuto ? "border-green-300 bg-green-50/30 focus:ring-green-100" : "border focus:ring-indigo-100"} focus:ring-2 outline-none transition-all`}>
                           <option value="">-- Pilih --</option>
                           {Array.from({ length: 24 }, (_, i) => {
                             const hour = i.toString().padStart(2, '0');
@@ -1442,16 +1489,14 @@ export default function PelayananPersalinan() {
                       ) : (
                         <input type={type} name={name} value={formKeterangan[name] || ""} placeholder={placeholder}
                           onChange={(e) => setFormKeterangan((p) => ({ ...p, [name]: e.target.value }))}
-                          disabled={isLocked}
-                          className={`w-full rounded-lg px-2 py-1.5 text-sm ${isLocked ? "bg-gray-100 border-gray-200 text-gray-500 cursor-not-allowed" : isAuto ? "border-green-300 bg-green-50/30 focus:ring-green-100" : "border focus:ring-indigo-100"} focus:ring-2 outline-none transition-all`} />
+                          disabled={isLocked || isReadOnly}
+                          readOnly={isReadOnly}
+                          className={`w-full rounded-lg px-2 py-1.5 text-sm ${isLocked || isReadOnly ? "bg-gray-100 border-gray-200 text-gray-500 cursor-not-allowed" : isAuto ? "border-green-300 bg-green-50/30 focus:ring-green-100" : "border focus:ring-indigo-100"} focus:ring-2 outline-none transition-all`} />
                       )}
                     </div>
                   )})}
                   <div>
-                    <label className="block text-xs font-medium mb-1 flex items-center justify-between">
-                      Jenis Kelamin
-                      {autoFilledFields.includes("jenis_kelamin") && <span className="text-[9px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded flex items-center gap-0.5"><Link2 size={10}/> auto</span>}
-                    </label>
+                    <label className="block text-xs font-medium mb-1">Jenis Kelamin</label>
                     <select name="jenis_kelamin" value={formKeterangan.jenis_kelamin} onChange={(e) => setFormKeterangan((p) => ({ ...p, jenis_kelamin: e.target.value }))} className={`w-full rounded-lg px-2 py-1.5 text-sm ${autoFilledFields.includes("jenis_kelamin") ? "border-green-300 bg-green-50/30 focus:ring-green-100" : "border focus:ring-indigo-100"} focus:ring-2 outline-none transition-all`}>
                       <option value="">-- Pilih --</option><option>Laki-laki</option><option>Perempuan</option>
                     </select>

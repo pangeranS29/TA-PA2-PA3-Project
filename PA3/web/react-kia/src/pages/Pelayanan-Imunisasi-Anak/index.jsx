@@ -1,20 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { 
-  Save, Syringe, CheckSquare, Square, Calendar, 
-  CheckCircle2, RefreshCw, X, ArrowLeft, AlertTriangle, Clock 
+import {
+  Save, Syringe, CheckSquare, Square, Calendar,
+  CheckCircle2, RefreshCw, X, ArrowLeft, AlertTriangle, Clock
 } from 'lucide-react';
 import MainLayout from "../../components/Layout/MainLayout";
 import { getImunisasiByAnakId, setJadwalSelesai } from "../../services/imunisasiBidanService";
 
 const PelayananImunisasi = () => {
   const { id } = useParams();
-  
+
   const [jadwalList, setJadwalList] = useState([]);
   const [dataAnak, setDataAnak] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
@@ -32,7 +32,7 @@ const PelayananImunisasi = () => {
       setLoading(true);
       setError(null);
       const res = await getImunisasiByAnakId(id);
-      
+
       if (Array.isArray(res) && res.length > 0) {
         setDataAnak(res[0]);
         setJadwalList(res[0].jadwal || []);
@@ -47,8 +47,8 @@ const PelayananImunisasi = () => {
     }
   };
 
-  useEffect(() => { 
-    if (id) fetchData(); 
+  useEffect(() => {
+    if (id) fetchData();
   }, [id]);
 
   // ─── HELPERS ────────────────────────────────────
@@ -114,11 +114,11 @@ const PelayananImunisasi = () => {
 
     try {
       setIsSubmitting(true);
-      
+
       for (const jadwalId of formData.selectedJadwalIds) {
         await setJadwalSelesai(jadwalId);
       }
-      
+
       setIsModalOpen(false);
       setFormData({ selectedJadwalIds: [], keterangan: "", tanggal: new Date().toISOString().split('T')[0] });
       fetchData();
@@ -170,15 +170,15 @@ const PelayananImunisasi = () => {
     <MainLayout>
       <div className="p-4 md:p-6 bg-gray-50 min-h-screen">
         <div className="max-w-7xl mx-auto">
-          
+
           {/* HEADER */}
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
             <div>
-              <Link 
+              <Link
                 to={`/data-anak/dashboard/${id}`}
                 className="flex items-center gap-2 text-gray-500 hover:text-blue-600 text-sm mb-2 transition-colors"
               >
-                <ArrowLeft size={16} /> Kembali ke Dashboard
+                <ArrowLeft size={16} /> Kembali
               </Link>
               <h1 className="text-2xl font-bold text-gray-800">
                 Pelayanan Imunisasi
@@ -189,8 +189,8 @@ const PelayananImunisasi = () => {
                 </p>
               )}
             </div>
-            
-            <button 
+
+            <button
               onClick={() => setIsModalOpen(true)}
               disabled={jadwalBelumSelesai.length === 0}
               className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-md transition-all active:scale-95 disabled:bg-gray-300 disabled:cursor-not-allowed"
@@ -238,7 +238,7 @@ const PelayananImunisasi = () => {
                     {Object.entries(groupedJadwal).map(([namaDosis, items]) => {
                       const doneItem = items.find(j => j.status_id === 6);
                       const estimasiBulan = getBulanEstimasi(items[0]?.tanggal_estimasi);
-                      
+
                       return (
                         <tr key={namaDosis} className="hover:bg-blue-50 h-14 transition-colors">
                           <td className="border border-gray-400 p-2 bg-gray-50 font-bold text-gray-700 leading-tight uppercase">
@@ -253,7 +253,7 @@ const PelayananImunisasi = () => {
                             const isThisMonth = estimasiBulan !== null && estimasiBulan === monthValue;
                             const isPast = estimasiBulan !== null && estimasiBulan < monthValue && m !== "23-59";
                             const isRange = m === "23-59" && estimasiBulan !== null && estimasiBulan >= 23;
-                            
+
                             // Warna cell
                             let cellColor = "bg-white";
                             if (isDone) {
@@ -267,10 +267,10 @@ const PelayananImunisasi = () => {
                                 cellColor = "bg-yellow-100";
                               }
                             }
-                            
+
                             return (
-                              <td 
-                                key={mIdx} 
+                              <td
+                                key={mIdx}
                                 className={`border border-gray-400 text-center relative ${cellColor}`}
                               >
                                 {(isThisMonth || isRange) && (
@@ -338,27 +338,27 @@ const PelayananImunisasi = () => {
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
           <div className="bg-white rounded-2xl w-full max-w-md overflow-hidden shadow-2xl border-t-4 border-blue-600">
-            
+
             <div className="bg-gray-800 p-4 text-white flex justify-between items-center">
               <span className="flex items-center gap-2 font-bold text-sm uppercase tracking-wider">
-                <Syringe size={18} className="text-blue-400"/> Paraf Imunisasi
+                <Syringe size={18} className="text-blue-400" /> Paraf Imunisasi
               </span>
               <button onClick={() => setIsModalOpen(false)} className="hover:rotate-90 transition-transform">
-                <X size={20}/>
+                <X size={20} />
               </button>
             </div>
-            
+
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
               <div>
                 <label className="text-gray-500 mb-1 block text-xs font-bold uppercase tracking-wider">Tanggal Pelayanan</label>
                 <div className="flex items-center gap-2 border-b-2 focus-within:border-blue-600 pb-2">
                   <Calendar size={16} className="text-gray-400" />
-                  <input 
-                    type="date" 
-                    className="w-full outline-none font-bold text-sm bg-transparent" 
-                    value={formData.tanggal} 
-                    onChange={e => setFormData({...formData, tanggal: e.target.value})} 
-                    required 
+                  <input
+                    type="date"
+                    className="w-full outline-none font-bold text-sm bg-transparent"
+                    value={formData.tanggal}
+                    onChange={e => setFormData({ ...formData, tanggal: e.target.value })}
+                    required
                   />
                 </div>
               </div>
@@ -371,16 +371,16 @@ const PelayananImunisasi = () => {
 
                 <div className="space-y-2 max-h-56 overflow-y-auto">
                   {jadwalBelumSelesai.map(jadwal => (
-                    <div 
-                      key={jadwal.jadwal_id} 
+                    <div
+                      key={jadwal.jadwal_id}
                       onClick={() => handleToggleJadwal(jadwal.jadwal_id)}
                       className={`flex items-center justify-between gap-3 p-3 rounded-lg border-2 transition-all cursor-pointer
-                      ${formData.selectedJadwalIds.includes(jadwal.jadwal_id) 
-                        ? 'bg-blue-600 text-white border-blue-600' 
-                        : 'bg-white border-gray-100 text-gray-700 hover:border-blue-300'}`}
+                      ${formData.selectedJadwalIds.includes(jadwal.jadwal_id)
+                          ? 'bg-blue-600 text-white border-blue-600'
+                          : 'bg-white border-gray-100 text-gray-700 hover:border-blue-300'}`}
                     >
                       <div className="flex items-center gap-3">
-                        {formData.selectedJadwalIds.includes(jadwal.jadwal_id) ? <CheckSquare size={18}/> : <Square size={18}/>}
+                        {formData.selectedJadwalIds.includes(jadwal.jadwal_id) ? <CheckSquare size={18} /> : <Square size={18} />}
                         <span className="text-xs font-medium">{jadwal.nama_dosis}</span>
                       </div>
                       <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold ${getStatusColor(jadwal.status_id)}`}>
@@ -399,24 +399,24 @@ const PelayananImunisasi = () => {
 
               <div>
                 <label className="text-gray-500 mb-1 block text-xs font-bold uppercase tracking-wider">No Batch / Catatan</label>
-                <input 
-                  type="text" 
-                  className="w-full border-b-2 p-2 outline-none text-sm focus:border-blue-600" 
-                  placeholder="catatan batch vaksin..." 
-                  value={formData.keterangan} 
-                  onChange={e => setFormData({...formData, keterangan: e.target.value})} 
+                <input
+                  type="text"
+                  className="w-full border-b-2 p-2 outline-none text-sm focus:border-blue-600"
+                  placeholder="catatan batch vaksin..."
+                  value={formData.keterangan}
+                  onChange={e => setFormData({ ...formData, keterangan: e.target.value })}
                 />
               </div>
 
-              <button 
-                disabled={isSubmitting || formData.selectedJadwalIds.length === 0} 
-                type="submit" 
+              <button
+                disabled={isSubmitting || formData.selectedJadwalIds.length === 0}
+                type="submit"
                 className="w-full bg-blue-600 text-white py-3.5 rounded-xl hover:bg-blue-700 flex justify-center items-center gap-3 transition-all font-bold text-sm uppercase tracking-wider disabled:bg-gray-300"
               >
                 {isSubmitting ? (
-                  <><RefreshCw size={18} className="animate-spin"/> MEMPROSES...</>
+                  <><RefreshCw size={18} className="animate-spin" /> MEMPROSES...</>
                 ) : (
-                  <><Save size={18}/> SIMPAN ({formData.selectedJadwalIds.length}) PARAF</>
+                  <><Save size={18} /> SIMPAN ({formData.selectedJadwalIds.length}) PARAF</>
                 )}
               </button>
             </form>
