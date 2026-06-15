@@ -234,7 +234,7 @@ export default function PertumbuhanIndex() {
                 className="flex items-center gap-1.5 text-xs font-bold text-gray-400 hover:text-indigo-600 mb-2 transition-all group"
               >
                 <ChevronLeft size={14} className="group-hover:-translate-x-0.5 transition-transform" />
-                Kembali ke Dashboard
+                Kembali
               </Link>
               <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">Manajemen Pertumbuhan</h1>
               <p className="text-sm font-semibold text-gray-500 mt-1">
@@ -427,11 +427,33 @@ export default function PertumbuhanIndex() {
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-blue-900/40 backdrop-blur-sm" onClick={() => setIsModalOpen(false)} />
           <div className="relative bg-white w-full max-w-md rounded-[32px] p-8 shadow-2xl border border-white overflow-y-auto max-h-[90vh]">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-black text-gray-900">{isEdit ? "Update Pengukuran" : "Input Pengukuran"}</h2>
-              <div className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${isEdit ? "bg-orange-100 text-orange-600" : "bg-green-100 text-green-600"}`}>
-                {isEdit ? "Mode Edit" : "Data Baru"}
+            <div className="mb-6">
+              <div className="flex justify-between items-center">
+                <h2 className="text-2xl font-black text-gray-900">{isEdit ? "Update Pengukuran" : "Input Pengukuran"}</h2>
+                <div className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${isEdit ? "bg-orange-100 text-orange-600" : "bg-green-100 text-green-600"}`}>
+                  {isEdit ? "Mode Edit" : "Data Baru"}
+                </div>
               </div>
+              {anak && formData.tgl_ukur && (
+                <div className="mt-3 p-4 bg-indigo-50/50 rounded-2xl border border-indigo-100 flex flex-col gap-1">
+                  <p className="text-xs font-bold text-slate-700">
+                    Nama Anak: <span className="text-indigo-600">{anak.nama}</span>
+                  </p>
+                  <p className="text-xs font-bold text-slate-700">
+                    Usia Saat Pengukuran: <span className="text-blue-600">{(() => {
+                      const birth = new Date(anak.tanggal_lahir);
+                      const target = new Date(formData.tgl_ukur);
+                      let years = target.getFullYear() - birth.getFullYear();
+                      let months = target.getMonth() - birth.getMonth();
+                      if (target.getDate() < birth.getDate()) {
+                        months--;
+                      }
+                      const ageMonths = years * 12 + months;
+                      return ageMonths < 0 ? "0 Bulan (Belum Lahir)" : `${ageMonths} Bulan`;
+                    })()}</span>
+                  </p>
+                </div>
+              )}
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">

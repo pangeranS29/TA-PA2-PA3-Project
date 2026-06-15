@@ -97,7 +97,12 @@ type Main struct {
 	JadwalLayanan            *JadwalLayananController
 	Vaksin                   *VaksinController      // ← TAMBAHKAN INI
 	DosisVaksin              *DosisVaksinController // ← TAMBAHKAN
+	Puskesmas                *PuskesmasController   // Kelola Puskesmas
+	Posyandu                 *PosyanduController    // Kelola Posyandu
 	LaporanAnak              *LaporanAnakController
+	LaporanRemaja            *LaporanRemajaController
+	LaporanDewasa            *LaporanDewasaController
+	LaporanLansia            *LaporanLansiaController
 	PemeriksaanAnak          *PemeriksaanAnakController
 	PemeriksaanRemaja        *PemeriksaanRemajaController
 	PemeriksaanDewasa        *PemeriksaanDewasaController
@@ -212,10 +217,15 @@ func Init(opts Options) *Main {
 	m.EdukasiResepMPASI = NewResepMPASIController(opts.UseCases.EdukasiResepMPASI)
 	m.LaporanIbu = NewLaporanIbuController(opts.UseCases.LaporanIbu)
 	m.LaporanAnak = NewLaporanAnakController(opts.UseCases.LaporanAnak)
+	m.LaporanRemaja = NewLaporanRemajaController(opts.UseCases.LaporanRemaja)
+	m.LaporanDewasa = NewLaporanDewasaController(opts.UseCases.LaporanDewasa)
+	m.LaporanLansia = NewLaporanLansiaController(opts.UseCases.LaporanLansia)
 
 	m.JadwalLayanan = NewJadwalLayananController(opts.UseCases.JadwalLayanan)
-	m.Vaksin = NewVaksinController(opts.DB)
-	m.DosisVaksin = NewDosisVaksinController(m.db) // ← TAMBAHKAN
+	m.Vaksin = NewVaksinController(opts.UseCases.Vaksin)
+	m.DosisVaksin = NewDosisVaksinController(opts.UseCases.DosisVaksin, opts.UseCases.Vaksin)
+	m.Puskesmas = &PuskesmasController{Main: m}
+	m.Posyandu = &PosyanduController{Main: m}
 	m.PemeriksaanAnak = NewPemeriksaanAnakController(opts.UseCases.PemeriksaanAnak, opts.UseCases.Kependudukan)
 	m.PemeriksaanRemaja = NewPemeriksaanRemajaController(opts.UseCases.PemeriksaanRemaja, opts.UseCases.Kependudukan)
 	m.PemeriksaanDewasa = NewPemeriksaanDewasaController(opts.UseCases.PemeriksaanDewasa, opts.UseCases.Kependudukan)
@@ -261,4 +271,8 @@ func (m *Main) JWTSecret() string {
 
 func (m *Main) GetUseCases() *usecases.Main {
 	return m.usecases
+}
+
+func (m *Main) DB() *gorm.DB {
+	return m.db
 }

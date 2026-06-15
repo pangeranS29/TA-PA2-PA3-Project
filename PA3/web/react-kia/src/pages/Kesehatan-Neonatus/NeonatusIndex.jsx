@@ -309,7 +309,7 @@ const NeonatusIndex = () => {
     addDetail("imd", formData.imd ? "1" : "0");
     addDetail("vitamin k1", formData.vitk ? "1" : "0");
     addDetail("salep", formData.salep ? "1" : "0");
-    const hbKet = `Tgl: ${formData.tgl_imunisasi} | Jam: ${formData.jam_imunisasi} | Batch: ${formData.batch_imunisasi}`;
+    const hbKet = `Tgl: ${tanggal} | Jam: ${formData.jam_imunisasi} | Batch: ${formData.batch_imunisasi}`;
     addDetail("hb", formData.hb ? "1" : "0", hbKet);
     addDetail("menyusu", formData.menyusu ? "1" : "0");
     addDetail("tali_pusat", formData.tali_pusat ? "1" : "0");
@@ -336,6 +336,15 @@ const NeonatusIndex = () => {
   const requestPayload = useMemo(() => buildRequestPayload(), [id, tanggal, activeTab, formData, authUser, fallbackIds]);
 
   const handleFinalSubmit = async () => {
+    const todayStr = new Date().toISOString().split('T')[0];
+    if (tanggal > todayStr) {
+      setNotification({
+        type: "error",
+        message: "Tanggal pemeriksaan tidak boleh tanggal yang akan datang!"
+      });
+      return;
+    }
+
     let emptyFields = [];
 
     if (activeTab === '0-6 JAM') {
@@ -346,7 +355,6 @@ const NeonatusIndex = () => {
       if (!formData.vitk) emptyFields.push("Pemberian Vitamin K1");
       if (!formData.salep) emptyFields.push("Salep/Tetes Mata Antibiotik");
       if (!formData.hb) emptyFields.push("Imunisasi Hepatitis B (HB0)");
-      if (!formData.batch_imunisasi) emptyFields.push("No. Batch Imunisasi");
     } else if (activeTab === 'KN1') {
       if (!formData.bb) emptyFields.push("Berat Badan (BB)");
       if (!formData.pb) emptyFields.push("Panjang Badan (PB)");
@@ -356,23 +364,17 @@ const NeonatusIndex = () => {
       if (!formData.vitk) emptyFields.push("Pemberian Vitamin K1");
       if (!formData.salep) emptyFields.push("Salep/Tetes Mata Antibiotik");
       if (!formData.hb) emptyFields.push("Imunisasi Hepatitis B");
-      if (!formData.skrining_hipotiroid) emptyFields.push("Skrining Hipotiroid");
-      if (!formData.jantung_bawaan) emptyFields.push("Hasil Skrining Jantung Bawaan");
-      if (!formData.batch_imunisasi) emptyFields.push("No. Batch Imunisasi");
     } else if (activeTab === 'KN2') {
       if (!formData.menyusu) emptyFields.push("Bayi Menyusu Baik");
       if (!formData.tali_pusat) emptyFields.push("Perawatan Tali Pusat");
       if (!formData.tanda_bahaya) emptyFields.push("Pemeriksaan Tanda Bahaya");
       if (!formData.kuning) emptyFields.push("Identifikasi Bayi Kuning");
       if (!formData.hb) emptyFields.push("Imunisasi Hepatitis B");
-      if (!formData.skrining_hipotiroid) emptyFields.push("Skrining Hipotiroid");
-      if (!formData.batch_imunisasi) emptyFields.push("No. Batch Imunisasi");
     } else if (activeTab === 'KN3') {
       if (!formData.menyusu) emptyFields.push("Bayi Menyusu Baik");
       if (!formData.tali_pusat) emptyFields.push("Perawatan Tali Pusat");
       if (!formData.tanda_bahaya) emptyFields.push("Pemeriksaan Tanda Bahaya");
       if (!formData.kuning) emptyFields.push("Identifikasi Bayi Kuning");
-      if (!formData.skrining_hipotiroid) emptyFields.push("Skrining Hipotiroid");
       if (!formData.bagian_kuning) emptyFields.push("Kramer Jaundice Scale (Kuning)");
     }
 
@@ -446,7 +448,7 @@ const NeonatusIndex = () => {
                 )}
               </div>
               <p className="text-[10px] text-slate-400 font-bold mt-2 uppercase tracking-widest">
-                ID Anak: {id} • Petugas: {authUser.nama}
+                Petugas: {authUser.nama}
               </p>
             </div>
           </div>
@@ -455,7 +457,7 @@ const NeonatusIndex = () => {
             onClick={() => navigate(`/data-anak/dashboard/${id}`)}
             className="flex items-center gap-2 px-5 py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl font-bold text-[10px] uppercase tracking-widest transition-all"
           >
-            <ClipboardCheck size={14} /> Kembali ke Dashboard
+            <ClipboardCheck size={14} /> Kembali
           </button>
         </header>
 
@@ -537,6 +539,7 @@ const NeonatusIndex = () => {
                   <Calendar className="absolute left-3 top-3 text-blue-600" size={15} />
                   <input
                     type="date" value={tanggal} onChange={(e) => setTanggal(e.target.value)}
+                    max={new Date().toISOString().split('T')[0]}
                     className="pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-[11px] font-black outline-none focus:ring-2 focus:ring-blue-500/10"
                   />
                 </div>
@@ -752,11 +755,11 @@ const NeonatusIndex = () => {
                       <div className={`w-5 h-5 rounded-lg flex items-center justify-center border transition-colors ${formData.skrining_hipotiroid ? "bg-green-600 border-green-600 text-white" : "bg-white border-slate-300"}`}>
                         {formData.skrining_hipotiroid && <Check size={12} strokeWidth={4} />}
                       </div>
-                      <span>Skrining Hipotiroid Kongenital</span>
+                      <span>Skrining Hipotiroid Kongenital (Opsional)</span>
                     </button>
 
                     <div className="pt-2 border-t border-slate-50">
-                      <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5 px-1">Skrining Jantung Bawaan Kritis (Hasil)</label>
+                      <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5 px-1">Skrining Jantung Bawaan Kritis (Hasil) (Opsional)</label>
                       <input
                         type="text"
                         placeholder="Contoh: Normal / Dirujuk"
@@ -845,7 +848,7 @@ const NeonatusIndex = () => {
                       <div className={`w-5 h-5 rounded-lg flex items-center justify-center border transition-colors ${formData.skrining_hipotiroid ? "bg-green-600 border-green-600 text-white" : "bg-white border-slate-300"}`}>
                         {formData.skrining_hipotiroid && <Check size={12} strokeWidth={4} />}
                       </div>
-                      <span>Skrining Hipotiroid Kongenital (Bila belum)</span>
+                      <span>Skrining Hipotiroid Kongenital (Bila belum) (Opsional)</span>
                     </button>
                   </div>
                 )}
@@ -914,7 +917,7 @@ const NeonatusIndex = () => {
                       <div className={`w-5 h-5 rounded-lg flex items-center justify-center border transition-colors ${formData.skrining_hipotiroid ? "bg-green-600 border-green-600 text-white" : "bg-white border-slate-300"}`}>
                         {formData.skrining_hipotiroid && <Check size={12} strokeWidth={4} />}
                       </div>
-                      <span>Skrining Hipotiroid s.d 14 Hari (Bila belum)</span>
+                      <span>Skrining Hipotiroid s.d 14 Hari (Bila belum) (Opsional)</span>
                     </button>
                   </div>
                 )}
@@ -930,15 +933,6 @@ const NeonatusIndex = () => {
                       <Clock size={16} /> Log Tindakan / Imunisasi
                     </h3>
                     <div className="space-y-3">
-                      <div>
-                        <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 px-1">Tanggal Pemberian</label>
-                        <input
-                          type="date"
-                          className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-4 text-xs font-bold text-slate-700 outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-                          value={formData.tgl_imunisasi}
-                          onChange={(e) => setFormData({ ...formData, tgl_imunisasi: e.target.value })}
-                        />
-                      </div>
                       <div className="grid grid-cols-2 gap-3">
                         <div>
                           <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 px-1">Jam</label>
@@ -950,7 +944,7 @@ const NeonatusIndex = () => {
                           />
                         </div>
                         <div>
-                          <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 px-1">No. Batch</label>
+                          <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 px-1">No. Batch (Opsional)</label>
                           <input
                             type="text"
                             placeholder="Batch #"
@@ -980,8 +974,8 @@ const NeonatusIndex = () => {
                             type="button"
                             onClick={() => setFormData({ ...formData, bagian_kuning: isSel ? "" : num.toString() })}
                             className={`py-3.5 rounded-xl font-black text-sm border transition-all flex flex-col items-center justify-center ${isSel
-                                ? 'bg-amber-500 border-amber-600 text-white shadow-md shadow-amber-100 scale-105'
-                                : 'bg-slate-50 border-slate-100 text-slate-400 hover:bg-slate-100'
+                              ? 'bg-amber-500 border-amber-600 text-white shadow-md shadow-amber-100 scale-105'
+                              : 'bg-slate-50 border-slate-100 text-slate-400 hover:bg-slate-100'
                               }`}
                           >
                             <span>{num}</span>
@@ -1018,8 +1012,8 @@ const NeonatusIndex = () => {
                                 type="button"
                                 onClick={() => setFormData({ ...formData, [item.key]: opt })}
                                 className={`px-3 py-1 rounded-md text-[9px] font-bold uppercase transition-all ${isSel
-                                    ? opt === 'Reaktif' ? 'bg-red-600 text-white shadow-sm' : 'bg-blue-600 text-white shadow-sm'
-                                    : 'text-slate-400 hover:text-slate-600'
+                                  ? opt === 'Reaktif' ? 'bg-red-600 text-white shadow-sm' : 'bg-blue-600 text-white shadow-sm'
+                                  : 'text-slate-400 hover:text-slate-600'
                                   }`}
                               >
                                 {opt === 'Non-Reaktif' ? 'NR' : 'R'}
