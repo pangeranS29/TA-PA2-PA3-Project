@@ -113,7 +113,7 @@ const Breadcrumb = () => {
     dewasa: "Dewasa",
     lansia: "Lansia",
     preview: "Preview",
-    "audit-trail": "Audit Trail",
+    // "audit-trail": "Audit Trail",
     "kelola-user": "Kelola User",
     "kelola-user-per-desa": "Kelola Akun User Per Desa",
     "kelola-puskesmas": "Kelola Puskesmas",

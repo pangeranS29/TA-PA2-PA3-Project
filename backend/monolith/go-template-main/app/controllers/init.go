@@ -100,6 +100,9 @@ type Main struct {
 	Puskesmas                *PuskesmasController   // Kelola Puskesmas
 	Posyandu                 *PosyanduController    // Kelola Posyandu
 	LaporanAnak              *LaporanAnakController
+	LaporanRemaja            *LaporanRemajaController
+	LaporanDewasa            *LaporanDewasaController
+	LaporanLansia            *LaporanLansiaController
 	PemeriksaanAnak          *PemeriksaanAnakController
 	PemeriksaanRemaja        *PemeriksaanRemajaController
 	PemeriksaanDewasa        *PemeriksaanDewasaController
@@ -214,6 +217,9 @@ func Init(opts Options) *Main {
 	m.EdukasiResepMPASI = NewResepMPASIController(opts.UseCases.EdukasiResepMPASI)
 	m.LaporanIbu = NewLaporanIbuController(opts.UseCases.LaporanIbu)
 	m.LaporanAnak = NewLaporanAnakController(opts.UseCases.LaporanAnak)
+	m.LaporanRemaja = NewLaporanRemajaController(opts.UseCases.LaporanRemaja)
+	m.LaporanDewasa = NewLaporanDewasaController(opts.UseCases.LaporanDewasa)
+	m.LaporanLansia = NewLaporanLansiaController(opts.UseCases.LaporanLansia)
 
 	m.JadwalLayanan = NewJadwalLayananController(opts.UseCases.JadwalLayanan)
 	m.Vaksin = NewVaksinController(opts.UseCases.Vaksin)

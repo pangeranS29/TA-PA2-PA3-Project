@@ -29,6 +29,11 @@ class _WarnaTinjaScreenState extends State<WarnaTinjaScreen> {
     '1_bulan': null,
     '2_4_bulan': null,
   };
+  final Map<String, bool> _isSubmittedByPeriode = {
+    '2_minggu': false,
+    '1_bulan': false,
+    '2_4_bulan': false,
+  };
 
   bool _loading = true;
   bool _saving = false;
@@ -63,6 +68,9 @@ class _WarnaTinjaScreenState extends State<WarnaTinjaScreen> {
         _nomorWarnaByPeriode[row.periodeKey] =
             row.nomorWarna > 0 ? row.nomorWarna : null;
         _tanggalByPeriode[row.periodeKey] = DateTime.tryParse(row.tanggalCatat);
+        if (row.nomorWarna > 0 && row.tanggalCatat.isNotEmpty) {
+          _isSubmittedByPeriode[row.periodeKey] = true;
+        }
       }
     } catch (e) {
       if (!mounted) return;
@@ -77,12 +85,14 @@ class _WarnaTinjaScreenState extends State<WarnaTinjaScreen> {
   }
 
   Future<void> _pickDate(String periodeKey) async {
+    if (_isSubmittedByPeriode[periodeKey] == true) return;
+
     final now = DateTime.now();
     final picked = await showDatePicker(
       context: context,
       initialDate: _tanggalByPeriode[periodeKey] ?? now,
       firstDate: DateTime(now.year - 2),
-      lastDate: DateTime(now.year + 1),
+      lastDate: now,
     );
 
     if (picked != null) {
@@ -101,14 +111,16 @@ class _WarnaTinjaScreenState extends State<WarnaTinjaScreen> {
 
   Future<void> _simpan() async {
     final keys = _periodeLabels.keys.toList(growable: false);
-    final filledCount = keys
+    final newlyFilledCount = keys
         .where((k) =>
-            _tanggalByPeriode[k] != null && _nomorWarnaByPeriode[k] != null)
+            _isSubmittedByPeriode[k] != true &&
+            _tanggalByPeriode[k] != null &&
+            _nomorWarnaByPeriode[k] != null)
         .length;
 
-    if (filledCount == 0) {
+    if (newlyFilledCount == 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Isi minimal 1 periode terlebih dahulu.')),
+        const SnackBar(content: Text('Tidak ada data baru untuk disimpan.')),
       );
       return;
     }
@@ -116,6 +128,8 @@ class _WarnaTinjaScreenState extends State<WarnaTinjaScreen> {
     setState(() => _saving = true);
     try {
       for (final key in keys) {
+        if (_isSubmittedByPeriode[key] == true) continue;
+        
         final tanggal = _tanggalByPeriode[key];
         final nomor = _nomorWarnaByPeriode[key];
         if (tanggal == null || nomor == null) {
@@ -162,14 +176,16 @@ class _WarnaTinjaScreenState extends State<WarnaTinjaScreen> {
 
   void _showSavePopup() {
     final keys = _periodeLabels.keys.toList(growable: false);
-    final filledCount = keys
+    final newlyFilledCount = keys
         .where((k) =>
-            _tanggalByPeriode[k] != null && _nomorWarnaByPeriode[k] != null)
+            _isSubmittedByPeriode[k] != true &&
+            _tanggalByPeriode[k] != null &&
+            _nomorWarnaByPeriode[k] != null)
         .length;
 
-    if (filledCount == 0) {
+    if (newlyFilledCount == 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Isi minimal 1 periode terlebih dahulu.')),
+        const SnackBar(content: Text('Tidak ada data baru untuk disimpan.')),
       );
       return;
     }
@@ -467,8 +483,9 @@ class _WarnaTinjaScreenState extends State<WarnaTinjaScreen> {
   }
 
   Widget _dateCell(String periodeKey) {
+    final bool isSubmitted = _isSubmittedByPeriode[periodeKey] == true;
     return InkWell(
-      onTap: () => _pickDate(periodeKey),
+      onTap: isSubmitted ? null : () => _pickDate(periodeKey),
       child: SizedBox(
         height: 68,
         child: Center(
@@ -479,9 +496,12 @@ class _WarnaTinjaScreenState extends State<WarnaTinjaScreen> {
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 11,
-              color: _tanggalByPeriode[periodeKey] == null
-                  ? Colors.grey.shade600
-                  : Colors.black87,
+              color: isSubmitted 
+                  ? Colors.grey.shade700
+                  : _tanggalByPeriode[periodeKey] == null
+                      ? Colors.grey.shade600
+                      : Colors.black87,
+              fontWeight: isSubmitted ? FontWeight.w600 : FontWeight.normal,
             ),
           ),
         ),
@@ -490,6 +510,7 @@ class _WarnaTinjaScreenState extends State<WarnaTinjaScreen> {
   }
 
   Widget _nomorCell(String periodeKey) {
+    final bool isSubmitted = _isSubmittedByPeriode[periodeKey] == true;
     return SizedBox(
       height: 68,
       child: Center(
@@ -497,6 +518,11 @@ class _WarnaTinjaScreenState extends State<WarnaTinjaScreen> {
           value: _nomorWarnaByPeriode[periodeKey],
           hint: const Text('No.', style: TextStyle(fontSize: 11)),
           underline: const SizedBox.shrink(),
+          icon: isSubmitted ? const SizedBox.shrink() : null,
+          disabledHint: Text(
+            _nomorWarnaByPeriode[periodeKey]?.toString() ?? 'No.',
+            style: const TextStyle(fontSize: 12, color: Colors.black87, fontWeight: FontWeight.w600),
+          ),
           items: List.generate(
             7,
             (index) => DropdownMenuItem<int>(
@@ -504,7 +530,7 @@ class _WarnaTinjaScreenState extends State<WarnaTinjaScreen> {
               child: Text('${index + 1}', style: const TextStyle(fontSize: 12)),
             ),
           ),
-          onChanged: (val) {
+          onChanged: isSubmitted ? null : (val) {
             setState(() {
               _nomorWarnaByPeriode[periodeKey] = val;
             });

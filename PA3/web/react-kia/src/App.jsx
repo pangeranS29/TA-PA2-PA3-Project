@@ -47,6 +47,9 @@ import Monitoring from "./pages/Monitoring";
 import Laporan from "./pages/Laporan";
 import LaporanIbuPreview from "./pages/previewlaporanibu";
 import LaporanAnakPreview from "./pages/previewlaporananak";
+import LaporanRemajaPreview from "./pages/previewlaporanremaja";
+import LaporanDewasaPreview from "./pages/previewlaporandewasa";
+import LaporanLansiaPreview from "./pages/previewlaporanlansia";
 import IbuCreate from "./pages/Ibu/IbuCreate";
 
 // Kependudukan
@@ -132,7 +135,7 @@ import PertumbuhanIndex from "./pages/Pertumbuhan/index";
 
 // Manajemen Bidan Kader
 import SuperAdminDashboard from "./pages/SuperAdmin/Dashboard";
-import AuditTrail from "./pages/SuperAdmin/AuditTrail";
+// import AuditTrail from "./pages/SuperAdmin/AuditTrail";
 import KelolaDesa from "./pages/SuperAdmin/KelolaDesa";
 import KelolaUser from "./pages/SuperAdmin/Kelola Bidan&Kader&Admin desa";
 import KelolaUserPerDesa from "./pages/SuperAdmin/Kelola Akun User Per Desa";
@@ -233,6 +236,9 @@ function App() {
           <Route path="/laporan" element={<Laporan />} />
           <Route path="/laporan/ibu/preview" element={<LaporanIbuPreview />} />
           <Route path="/laporan/anak/preview" element={<LaporanAnakPreview />} />
+          <Route path="/laporan/remaja/preview" element={<LaporanRemajaPreview />} />
+          <Route path="/laporan/dewasa/preview" element={<LaporanDewasaPreview />} />
+          <Route path="/laporan/lansia/preview" element={<LaporanLansiaPreview />} />
         </Route>
 
         {/* ADMIN ROUTES */}
@@ -241,7 +247,7 @@ function App() {
         </Route>
 
         <Route path="/superadmin/dashboard" element={<ProtectedRoute allowedRoles={["superadmin"]}><SuperAdminDashboard /></ProtectedRoute>} />
-        <Route path="/superadmin/audit-trail" element={<ProtectedRoute allowedRoles={["superadmin"]}><AuditTrail /></ProtectedRoute>} />
+        {/* <Route path="/superadmin/audit-trail" element={<ProtectedRoute allowedRoles={["superadmin"]}><AuditTrail /></ProtectedRoute>} /> */}
         <Route path="/superadmin/kelola-user" element={<ProtectedRoute allowedRoles={["superadmin"]}><KelolaUser /></ProtectedRoute>} />
         <Route path="/superadmin/kelola-user-per-desa" element={<ProtectedRoute allowedRoles={["superadmin"]}><KelolaUserPerDesa /></ProtectedRoute>} />
         <Route path="/superadmin/kelola-desa" element={<ProtectedRoute allowedRoles={["superadmin"]}><KelolaDesa /></ProtectedRoute>} />
