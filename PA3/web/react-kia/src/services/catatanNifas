@@ -6,11 +6,11 @@
 //     const cleanData = { ...data };
 //     delete cleanData.id_catatan_nifas;
 //     delete cleanData.id;
-    
+
 //     // PERBAIKI: tenaga-kesehatan (bukan tengaa-kesehatan)
 //     const response = await api.post('/tenaga-kesehatan/catatan-pelayanan-nifas', cleanData);
 //     console.log('CREATE - Response:', response.data);
-    
+
 //     return response.data?.data || response.data;
 //   } catch (error) {
 //     console.error('CREATE - Error:', error.response?.data);

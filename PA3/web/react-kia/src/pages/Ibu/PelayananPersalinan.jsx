@@ -81,11 +81,17 @@ const emptyRingkasan = (ibuData) => ({
   asuhan_salep_mata_antibiotika: false,
   asuhan_imunisasi_hb0: false,
   keterangan_tambahan_bayi: "",
+<<<<<<< Updated upstream
   bayi_anak_ke: "", bayi_berat_lahir_gram: "",
   bayi_panjang_badan_cm: "", bayi_lingkar_kepala_cm: "",
   nama_anak: "", anak_tanggal_lahir: "", anak_jenis_kelamin: "",
   anak_nama_ibu: ibuData?.kependudukan?.nama_lengkap || "",
   anak_nama_ayah: ibuData?.suami?.nama_lengkap || "",
+=======
+  bayi_anak_ke: "", bayi_berat_lahir_kg: "",
+  bayi_panjang_badan_cm: "", bayi_lingkar_kepala_cm: "",
+  nama_anak: "", anak_tanggal_lahir: "", anak_jenis_kelamin: "",
+>>>>>>> Stashed changes
 });
 
 // ─── SuratKeteranganLahir ───────────────────────────────────────────────────
@@ -110,12 +116,25 @@ const SuratKeteranganLahir = ({ data }) => (
     <p className="font-bold mb-3">Telah lahir seorang bayi:</p>
     <table className="w-full mb-4 text-sm">
       <tbody>
+<<<<<<< Updated upstream
+=======
+
+        <tr><td className="py-1 w-36">Jenis Kelamin</td><td><span className="border-b border-dotted border-gray-400 block w-full">{data?.jenis_kelamin || ""}</span></td></tr>
+        <tr><td className="py-1">Jenis Kelahiran</td><td><span className="border-b border-dotted border-gray-400 block w-full">{data?.jenis_kelahiran || ""}</span></td></tr>
+        <tr><td className="py-1">Anak ke-</td><td><span className="border-b border-dotted border-gray-400 w-16 inline-block">{data?.anak_ke || ""}</span> Usia gestasi <span className="border-b border-dotted border-gray-400 w-20 inline-block">{data?.usia_gestasi_minggu ? `${data.usia_gestasi_minggu} minggu` : ""}</span></td></tr>
+        <tr><td className="py-1">Berat Lahir</td><td><span className="border-b border-dotted border-gray-400 w-20 inline-block">{data?.berat_lahir_kg || ""}</span> kg Panjang <span className="border-b border-dotted border-gray-400 w-14 inline-block">{data?.panjang_badan_cm || ""}</span> cm LK <span className="border-b border-dotted border-gray-400 w-12 inline-block">{data?.lingkar_kepala_cm || ""}</span> cm</td></tr>
+
+>>>>>>> Stashed changes
         <tr><td className="py-1.5 w-40">Nama</td><td><span className="inline-block border-b border-gray-800 w-full">{data?.nama_bayi_diberi_nama || ""}</span></td></tr>
         <tr><td className="py-1.5">Jenis Kelamin</td><td><span className="inline-block border-b border-gray-800 w-full">{data?.jenis_kelamin || ""}</span></td></tr>
         <tr><td className="py-1.5">Anak ke-</td><td><span className="inline-block border-b border-gray-800 w-24">{data?.anak_ke || ""}</span></td></tr>
         <tr><td className="py-1.5">Berat</td><td><span className="inline-block border-b border-gray-800 w-24">{data?.berat_lahir_gram || ""}</span> gram</td></tr>
         <tr><td className="py-1.5">Panjang</td><td><span className="inline-block border-b border-gray-800 w-24">{data?.panjang_badan_cm || ""}</span> cm</td></tr>
         <tr><td className="py-1.5">Lingkar Kepala</td><td><span className="inline-block border-b border-gray-800 w-24">{data?.lingkar_kepala_cm || ""}</span> cm</td></tr>
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
       </tbody>
     </table>
     
@@ -308,6 +327,12 @@ function KelahiranCard({ index, ringkasan, anakList, kehamilanId, ibuId, onEdit,
 function RingkasanForm({ initial, onSubmit, onCancel, saving, title }) {
   const [form, setForm] = useState(initial || emptyRingkasan());
   const [errors, setErrors] = useState({});
+<<<<<<< Updated upstream
+=======
+  useEffect(() => {
+  setForm((prev) => ({ ...prev, anak_tanggal_lahir: prev.tanggal_melahirkan }));
+}, [form.tanggal_melahirkan]);
+>>>>>>> Stashed changes
 
   // Auto-fill anak_tanggal_lahir when tanggal_melahirkan changes
   useEffect(() => {
@@ -365,11 +390,19 @@ function RingkasanForm({ initial, onSubmit, onCancel, saving, title }) {
       </div>
 
       {/* Info Persalinan */}
+<<<<<<< Updated upstream
       <div>
         <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Info Persalinan</p>
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-3">
           <div><label className="block text-xs font-medium mb-1">Tanggal Melahirkan <span className="text-red-500">*</span></label>
             <input type="date" name="tanggal_melahirkan" value={form.tanggal_melahirkan} onChange={handleChange} className={`w-full border rounded-lg px-2 py-1.5 text-sm ${errors.tanggal_melahirkan ? "border-red-500 bg-red-50" : ""}`} />
+=======
+      <div className="border border-gray-200 rounded-xl p-4 bg-white">
+  <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Info Persalinan</p>
+  <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-3">
+          <div><label className="block text-xs font-medium mb-1">Tanggal Melahirkan <span className="text-red-500">*</span></label>
+            <input type="date" name="tanggal_melahirkan" value={form.tanggal_melahirkan} onChange={handleChange} max={new Date().toISOString().split("T")[0]} className={`w-full border rounded-lg px-2 py-1.5 text-sm ${errors.tanggal_melahirkan ? "border-red-500 bg-red-50" : ""}`} />
+>>>>>>> Stashed changes
             {errors.tanggal_melahirkan && <p className="text-red-500 text-xs mt-1">{errors.tanggal_melahirkan}</p>}
           </div>
           <div><label className="block text-xs font-medium mb-1">Umur Kehamilan (Mgg)</label>
@@ -393,6 +426,7 @@ function RingkasanForm({ initial, onSubmit, onCancel, saving, title }) {
             <input name="kb_pasca_melahirkan" value={form.kb_pasca_melahirkan} onChange={handleChange} className="w-full border rounded-lg px-2 py-1.5 text-sm" /></div>
         </div>
       </div>
+<<<<<<< Updated upstream
 
       {/* Gravida, Paritas, Abortus (dari ibu / diubah) */}
       <div className="grid grid-cols-3 gap-3">
@@ -412,6 +446,28 @@ function RingkasanForm({ initial, onSubmit, onCancel, saving, title }) {
             <input type="number" name="bayi_anak_ke" value={form.bayi_anak_ke} onChange={handleChange} className="w-full border rounded-lg px-2 py-1.5 text-sm" /></div>
           <div><label className="block text-xs font-medium mb-1">Berat (gram)</label>
             <input type="number" name="bayi_berat_lahir_gram" value={form.bayi_berat_lahir_gram} onChange={handleChange} className="w-full border rounded-lg px-2 py-1.5 text-sm" /></div>
+=======
+      {/* Data Bayi */}
+      <div className="border border-gray-200 rounded-xl p-4 ">
+  <p className="text-xs font-bold uppercase tracking-widest mb-3">
+    Data Anak Lahir <span className="normal-case font-normal text-gray-400"></span>
+  </p>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div><label className="block text-xs font-medium mb-1">Nama Anak</label>
+            <input name="nama_anak" value={form.nama_anak} onChange={handleChange} className="w-full border rounded-lg px-2 py-1.5 text-sm" /></div>
+            <div><label className="block text-xs font-medium mb-1">Tanggal Lahir Anak</label>
+            <input type="date" name="anak_tanggal_lahir" value={form.anak_tanggal_lahir} onChange={handleChange} disabled className="w-full border rounded-lg px-2 py-1.5 text-sm" /></div>
+          <div><label className="block text-xs font-medium mb-1">Jenis Kelamin</label>
+            <select name="anak_jenis_kelamin" value={form.anak_jenis_kelamin} onChange={handleChange} className="w-full border rounded-lg px-2 py-1.5 text-sm">
+              <option value="">-- Pilih --</option>
+              <option value="Laki-laki">Laki-laki</option>
+              <option value="Perempuan">Perempuan</option>
+            </select></div>
+          <div><label className="block text-xs font-medium mb-1">Anak Ke</label>
+            <input type="number" name="bayi_anak_ke" value={form.bayi_anak_ke} onChange={handleChange} className="w-full border rounded-lg px-2 py-1.5 text-sm" /></div>
+          <div><label className="block text-xs font-medium mb-1">Berat (kg)</label>
+            <input type="number" name="bayi_berat_lahir_kg" value={form.bayi_berat_lahir_kg} onChange={handleChange} className="w-full border rounded-lg px-2 py-1.5 text-sm" /></div>
+>>>>>>> Stashed changes
           <div><label className="block text-xs font-medium mb-1">Panjang (cm)</label>
             <input type="number" name="bayi_panjang_badan_cm" value={form.bayi_panjang_badan_cm} onChange={handleChange} className="w-full border rounded-lg px-2 py-1.5 text-sm" /></div>
           <div><label className="block text-xs font-medium mb-1">Lingkar Kepala (cm)</label>
@@ -501,6 +557,14 @@ function RingkasanForm({ initial, onSubmit, onCancel, saving, title }) {
             Batal
           </button>
         )}
+<<<<<<< Updated upstream
+=======
+        <button type="submit" disabled={saving}
+          className="bg-indigo-600 text-white px-6 py-2.5 rounded-xl flex items-center gap-2 hover:bg-indigo-700 font-semibold text-sm">
+          <Save size={16} /> {saving ? "Menyimpan..." : "Simpan"}
+        </button>
+        
+>>>>>>> Stashed changes
       </div>
     </form>
   );
@@ -550,7 +614,11 @@ export default function PelayananPersalinan() {
   const [formKeterangan, setFormKeterangan] = useState({
     nomor_surat: "", hari_lahir: "", tanggal_lahir: "", pukul_lahir: "",
     jenis_kelamin: "", jenis_kelahiran: "", anak_ke: "", usia_gestasi_minggu: "",
+<<<<<<< Updated upstream
     berat_lahir_gram: "", panjang_badan_cm: "", lingkar_kepala_cm: "",
+=======
+    berat_lahir_kg: "", panjang_badan_cm: "", lingkar_kepala_cm: "",
+>>>>>>> Stashed changes
     lokasi_persalinan: "", alamat_lokasi_persalinan: "",
     nama_bayi_diberi_nama: "", nama_ibu: "", nik_ibu: "",
     nama_ayah: "", pekerjaan_orang_tua: "", alamat_orang_tua: "",
@@ -744,7 +812,11 @@ export default function PelayananPersalinan() {
             pukul_lahir: d.pukul_lahir || "", jenis_kelamin: d.jenis_kelamin || "",
             jenis_kelahiran: d.jenis_kelahiran || "", anak_ke: d.anak_ke ?? "",
             usia_gestasi_minggu: d.usia_gestasi_minggu ?? "",
+<<<<<<< Updated upstream
             berat_lahir_gram: d.berat_lahir_gram ?? "", panjang_badan_cm: d.panjang_badan_cm ?? "",
+=======
+            berat_lahir_kg: d.berat_lahir_kg ?? "", panjang_badan_cm: d.panjang_badan_cm ?? "",
+>>>>>>> Stashed changes
             lingkar_kepala_cm: d.lingkar_kepala_cm ?? "", lokasi_persalinan: d.lokasi_persalinan || "",
             alamat_lokasi_persalinan: d.alamat_lokasi_persalinan || "",
             nama_bayi_diberi_nama: d.nama_bayi_diberi_nama || "",
@@ -842,7 +914,11 @@ export default function PelayananPersalinan() {
       asuhan_imunisasi_hb0: form.asuhan_imunisasi_hb0,
       keterangan_tambahan_bayi: form.keterangan_tambahan_bayi,
       bayi_anak_ke: parseInt(form.bayi_anak_ke) || 0,
+<<<<<<< Updated upstream
       bayi_berat_lahir_gram: parseFloat(form.bayi_berat_lahir_gram) || 0,
+=======
+      bayi_berat_lahir_kg: parseFloat(form.bayi_berat_lahir_kg) || 0,
+>>>>>>> Stashed changes
       bayi_panjang_badan_cm: parseFloat(form.bayi_panjang_badan_cm) || 0,
       bayi_lingkar_kepala_cm: parseFloat(form.bayi_lingkar_kepala_cm) || 0,
       bayi_jenis_kelamin: form.anak_jenis_kelamin || "",
@@ -897,7 +973,11 @@ export default function PelayananPersalinan() {
           jenis_kelamin: form.anak_jenis_kelamin || "",
           tanggal_lahir: form.anak_tanggal_lahir || "",
           anak_ke: parseInt(form.bayi_anak_ke) || 0,
+<<<<<<< Updated upstream
           berat_lahir_kg: form.bayi_berat_lahir_gram ? parseFloat(form.bayi_berat_lahir_gram) / 1000 : null,
+=======
+          berat_lahir_kg: form.bayi_berat_lahir_kg ? parseFloat(form.bayi_berat_lahir_kg) : null,
+>>>>>>> Stashed changes
           tinggi_lahir_cm: form.bayi_panjang_badan_cm ? parseFloat(form.bayi_panjang_badan_cm) : null,
           lingkar_kepala_cm: form.bayi_lingkar_kepala_cm ? parseFloat(form.bayi_lingkar_kepala_cm) : null,
           nama_ibu: form.anak_nama_ibu || "",
@@ -957,7 +1037,11 @@ export default function PelayananPersalinan() {
           jenis_kelamin: form.anak_jenis_kelamin || "",
           tanggal_lahir: form.anak_tanggal_lahir || "",
           anak_ke: parseInt(form.bayi_anak_ke) || 0,
+<<<<<<< Updated upstream
           berat_lahir_kg: form.bayi_berat_lahir_gram ? parseFloat(form.bayi_berat_lahir_gram) / 1000 : null,
+=======
+          berat_lahir_kg: form.bayi_berat_lahir_kg ? parseFloat(form.bayi_berat_lahir_kg) : null,
+>>>>>>> Stashed changes
           tinggi_lahir_cm: form.bayi_panjang_badan_cm ? parseFloat(form.bayi_panjang_badan_cm) : null,
           lingkar_kepala_cm: form.bayi_lingkar_kepala_cm ? parseFloat(form.bayi_lingkar_kepala_cm) : null,
           nama_ibu: form.anak_nama_ibu || "",
@@ -1080,7 +1164,11 @@ export default function PelayananPersalinan() {
     setSaving(true);
     try {
       const payload = { ...formKeterangan, id_ibu_relasi: parseInt(id) };
+<<<<<<< Updated upstream
       payload.berat_lahir_gram = parseInt(payload.berat_lahir_gram) || 0;
+=======
+      payload.berat_lahir_kg = parseInt(payload.berat_lahir_kg) || 0;
+>>>>>>> Stashed changes
       payload.panjang_badan_cm = parseInt(payload.panjang_badan_cm) || 0;
       payload.lingkar_kepala_cm = parseInt(payload.lingkar_kepala_cm) || 0;
       payload.usia_gestasi_minggu = parseInt(payload.usia_gestasi_minggu) || 0;
@@ -1126,7 +1214,11 @@ export default function PelayananPersalinan() {
       setFormKeterangan(prev => ({
         ...prev,
         tanggal_lahir: "", pukul_lahir: "", anak_ke: "", usia_gestasi_minggu: "",
+<<<<<<< Updated upstream
         berat_lahir_gram: "", panjang_badan_cm: "", lingkar_kepala_cm: "",
+=======
+        berat_lahir_kg: "", panjang_badan_cm: "", lingkar_kepala_cm: "",
+>>>>>>> Stashed changes
         jenis_kelamin: "", nama_penolong_kelahiran: "", nama_bayi_diberi_nama: ""
       }));
       return;
@@ -1139,7 +1231,11 @@ export default function PelayananPersalinan() {
       
       setAutoFilledFields([
         "tanggal_lahir", "anak_ke", "usia_gestasi_minggu", 
+<<<<<<< Updated upstream
         "berat_lahir_gram", "panjang_badan_cm", "lingkar_kepala_cm", 
+=======
+        "berat_lahir_kg", "panjang_badan_cm", "lingkar_kepala_cm", 
+>>>>>>> Stashed changes
         "jenis_kelamin", "nama_penolong_kelahiran", "nama_bayi_diberi_nama"
       ]);
 
@@ -1149,7 +1245,11 @@ export default function PelayananPersalinan() {
         pukul_lahir: r.pukul_melahirkan ? r.pukul_melahirkan.slice(0,5) : prev.pukul_lahir,
         anak_ke: r.bayi_anak_ke || "",
         usia_gestasi_minggu: r.umur_kehamilan_minggu || "",
+<<<<<<< Updated upstream
         berat_lahir_gram: r.bayi_berat_lahir_gram || "",
+=======
+        berat_lahir_kg: r.bayi_berat_lahir_kg || "",
+>>>>>>> Stashed changes
         panjang_badan_cm: r.bayi_panjang_badan_cm || "",
         lingkar_kepala_cm: r.bayi_lingkar_kepala_cm || "",
         jenis_kelamin: anak?.jenis_kelamin || r.bayi_jenis_kelamin || "",
@@ -1159,6 +1259,7 @@ export default function PelayananPersalinan() {
     }
   };
 
+<<<<<<< Updated upstream
   const handleDeleteRingkasan = async (ringkasanId) => {
     const result = await Swal.fire({
       title: 'Hapus Kelahiran?',
@@ -1185,6 +1286,43 @@ export default function PelayananPersalinan() {
       setSaving(false);
     }
   };
+=======
+  const handleDeleteRingkasan = async (ringkasanId, anakListToDelete = []) => {
+  const result = await Swal.fire({
+    title: 'Hapus Kelahiran?',
+    text: 'Data kelahiran ini akan dihapus secara permanen! Ini juga akan menghapus data anak yang terkait dengan kelahiran ini.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#dc2626',
+    cancelButtonColor: '#6b7280',
+    confirmButtonText: 'Ya, Hapus!',
+    cancelButtonText: 'Batal'
+  });
+
+  if (!result.isConfirmed) return;
+
+  setSaving(true);
+  try {
+    // Hapus semua anak yang terkait dengan kelahiran ini
+    for (const anak of anakListToDelete) {
+      try {
+        await deleteAnak(anak.id);
+      } catch (err) {
+        console.error("Gagal menghapus anak:", anak.id, err);
+      }
+    }
+
+    await deleteRingkasanPersalinan(ringkasanId);
+    await Swal.fire({ icon: "success", title: "Terhapus", text: "Data kelahiran dan anak terkait berhasil dihapus.", timer: 1500, showConfirmButton: false });
+    await fetchKelahiran(kehamilan.id, id);
+  } catch (err) {
+    console.error("Error deleting ringkasan:", err);
+    Swal.fire({ icon: "error", title: "Gagal", text: 'Gagal menghapus data: ' + (err.response?.data?.message || err.message) });
+  } finally {
+    setSaving(false);
+  }
+};
+>>>>>>> Stashed changes
 
   const TabButton = ({ tabId, label }) => (
     <button onClick={() => setActiveTab(tabId)}
@@ -1240,12 +1378,19 @@ export default function PelayananPersalinan() {
                 initial={{
                   ...editTarget,
                   bayi_anak_ke: editTarget.bayi_anak_ke ?? "",
+<<<<<<< Updated upstream
                   bayi_berat_lahir_gram: editTarget.bayi_berat_lahir_gram ?? "",
                   bayi_panjang_badan_cm: editTarget.bayi_panjang_badan_cm ?? "",
                   bayi_lingkar_kepala_cm: editTarget.bayi_lingkar_kepala_cm ?? "",
                   nama_anak: "", anak_tanggal_lahir: "", anak_jenis_kelamin: "",
                   anak_nama_ibu: ibuData?.kependudukan?.nama_lengkap || editTarget.anak_nama_ibu || "",
                   anak_nama_ayah: ibuData?.suami?.nama_lengkap || editTarget.anak_nama_ayah || "",
+=======
+                  bayi_berat_lahir_kg: editTarget.bayi_berat_lahir_kg ?? "",
+                  bayi_panjang_badan_cm: editTarget.bayi_panjang_badan_cm ?? "",
+                  bayi_lingkar_kepala_cm: editTarget.bayi_lingkar_kepala_cm ?? "",
+                  nama_anak: "", anak_tanggal_lahir: "", anak_jenis_kelamin: "",
+>>>>>>> Stashed changes
                 }}
                 title={`Edit Kelahiran`}
                 onSubmit={handleSubmitEdit}
@@ -1294,7 +1439,12 @@ export default function PelayananPersalinan() {
                 ibuId={id}
                 onEdit={canEditRingkasan ? (r) => { setEditTarget(r); setShowNewForm(false); } : undefined}
                 onAnakAdded={() => fetchKelahiran(kehamilan?.id, id)}
+<<<<<<< Updated upstream
                 onDelete={canEditRingkasan ? handleDeleteRingkasan : undefined}
+=======
+                onClick={(e) => { e.stopPropagation(); onDelete(ringkasan.id_ringkasan || ringkasan.id || 0, anakList); }}
+                onDelete={canEditRingkasan ? (id) => handleDeleteRingkasan(id, anakList) : undefined}
+>>>>>>> Stashed changes
                 canEdit={canEditRingkasan}
               />
             ))}
@@ -1456,7 +1606,11 @@ export default function PelayananPersalinan() {
                     { label: "Pukul Lahir", name: "pukul_lahir", type: "time-select" },
                     { label: "Anak Ke", name: "anak_ke", type: "number" },
                     { label: "Usia Gestasi (Mgg)", name: "usia_gestasi_minggu", type: "number" },
+<<<<<<< Updated upstream
                     { label: "Berat Lahir (gram)", name: "berat_lahir_gram", type: "number" },
+=======
+                    { label: "Berat Lahir (kg)", name: "berat_lahir_kg", type: "number" },
+>>>>>>> Stashed changes
                     { label: "Panjang Badan (cm)", name: "panjang_badan_cm", type: "number" },
                     { label: "Lingkar Kepala (cm)", name: "lingkar_kepala_cm", type: "number" },
                     { label: "Nama Ibu", name: "nama_ibu", type: "text" },
