@@ -81,7 +81,12 @@ const PelayananImunisasi = () => {
         const resPencatatan = await getPencatatanByAnakId(id);
         const list = Array.isArray(resPencatatan) ? resPencatatan : [];
         setPencatatanList(list);
-        console.log('[DEBUG] Pencatatan data:', list.length, 'records', list);
+        console.log('[DEBUG] Pencatatan data:', list.length, 'records');
+        console.log('[DEBUG] Pencatatan sample FULL:', JSON.stringify(list[0], null, 2)); // Log full JSON
+        if (list.length > 0) {
+          console.log('[DEBUG] Bidan petugas:', list[0]?.bidan_petugas);
+          console.log('[DEBUG] id_bidan_petugas:', list[0]?.id_bidan_petugas);
+        }
       } catch {
         setPencatatanList([]);
         console.log('[DEBUG] Pencatatan fetch failed');
@@ -198,22 +203,37 @@ const PelayananImunisasi = () => {
     const aturan = findAturanByDosisId(dosisVaksinId);
     if (!aturan || aturan.min_usia_hari == null) return 'bg-gray-100 border-gray-200';
 
-    const minBulan = Math.floor(aturan.min_usia_hari / 30);
-    const maxBulan = Math.floor(aturan.max_usia_hari / 30);
+    const minHari = aturan.min_usia_hari;
+    const maxHari = aturan.max_usia_hari || minHari;
 
-    // Before min usia → neutral
-    if (monthEnd < minBulan)
+    // Convert month column to days range
+    // Month 0 = 0-29 days, Month 1 = 30-59 days, etc.
+    const monthStartDays = monthStart * 30;
+    const monthEndDays = (monthEnd + 1) * 30 - 1;
+
+    // Past max usia → GRAY (Tidak Diperbolehkan)
+    // If the month START is already past the max allowed days
+    if (monthStartDays > maxHari)
+      return 'bg-[#A9A9A9] border-[#888888]';
+
+    // Before min usia → neutral gray
+    // If the month END is before the min allowed days
+    if (monthEndDays < minHari)
       return 'bg-gray-100 border-gray-200';
 
-    // At min usia window (minBulan to minBulan+1) → WHITE (Usia Tepat)
-    if (monthStart >= minBulan && monthStart <= minBulan + 1)
+    // Calculate ideal window: minHari to minHari + 30 days (1 month tolerance)
+    const idealEndDays = minHari + 30;
+
+    // At ideal usia window → WHITE (Usia Tepat)
+    // If month overlaps with ideal period
+    if (monthStartDays <= idealEndDays && monthEndDays >= minHari)
       return 'bg-white border-gray-300';
 
     // After ideal, up to max usia → ORANGE (Masih Diperbolehkan)
-    if (monthStart <= maxBulan)
+    if (monthStartDays <= maxHari)
       return 'bg-[#F4B183] border-[#D99A6C]';
 
-    // Past max usia → GRAY (Tidak Diperbolehkan)
+    // Fallback: past max → GRAY
     return 'bg-[#A9A9A9] border-[#888888]';
   };
 
@@ -441,13 +461,14 @@ const PelayananImunisasi = () => {
             <div className="overflow-x-auto">
               <table className="w-full border-collapse text-[11px]">
                 <thead>
+                  {/* Row 1: Umur | Bulan */}
                   <tr className="bg-gray-800 text-white">
                     <th
                       rowSpan={2}
-                      className="border border-gray-500 p-2 text-left font-bold text-[11px] uppercase"
+                      className="border border-gray-500 p-2 text-center font-bold text-[11px] uppercase"
                       style={{ width: '200px', minWidth: '200px' }}
                     >
-                      Jenis Vaksin
+                      Umur
                     </th>
                     <th
                       colSpan={MONTHS.length}
@@ -456,6 +477,7 @@ const PelayananImunisasi = () => {
                       Bulan
                     </th>
                   </tr>
+                  {/* Row 2: Month numbers (0, 1, 2, ..., 23-59) */}
                   <tr className="bg-gray-700 text-white">
                     {MONTHS.map((m, i) => (
                       <th
@@ -466,6 +488,22 @@ const PelayananImunisasi = () => {
                         {m}
                       </th>
                     ))}
+                  </tr>
+                  {/* Row 3: Jenis Vaksin | Tanggal Pemberian dan Paraf Petugas */}
+                  <tr className="bg-gray-200 text-gray-800">
+                    <th
+                    
+
+                       className="border border-gray-500 p-2 text-center font-bold text-[11px] uppercase"
+                    >
+                      Jenis Vaksin
+                    </th>
+                    <th
+                      colSpan={MONTHS.length}
+                      className="border border-gray-500 p-2 text-center font-bold text-[11px] uppercase"
+                    >
+                      Tanggal Pemberian dan Paraf Petugas
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -484,7 +522,7 @@ const PelayananImunisasi = () => {
                           vIdx % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'
                         }`}
                       >
-                        {/* Vaccine Name Cell */}
+                        {/* Vaccine Name Cell (Jenis Vaksin) */}
                         <td className="border border-gray-300 p-2 font-semibold text-gray-700 text-[10px] leading-tight">
 <<<<<<< HEAD
                           {namaDosis}
@@ -539,7 +577,7 @@ const PelayananImunisasi = () => {
         
 
           {/* ═══════════ LEGENDA WARNA ═══════════ */}
-          <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+          <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm mb-6">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-5 bg-white border border-gray-300 rounded flex-shrink-0" />
@@ -554,6 +592,98 @@ const PelayananImunisasi = () => {
               </div>
             </div>
           </div>
+
+          {/* ═══════════ TABEL CATATAN IMUNISASI ═══════════ */}
+          {pencatatanList.filter(p => p.is_selesai).length > 0 && (
+            <div className="bg-white shadow-xl border border-gray-300 rounded-xl overflow-hidden">
+              <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-4 border-b border-blue-800">
+                <h2 className="text-white font-bold text-lg flex items-center gap-2">
+                  <Syringe size={20} />
+                  Catatan Imunisasi
+                </h2>
+                <p className="text-blue-100 text-xs mt-1">
+                  Riwayat pemberian imunisasi yang telah dilakukan
+                </p>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="bg-gray-100 border-b border-gray-300">
+                      <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                        No
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                        Jenis Vaksin
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                        Tanggal Pemberian
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                        No. Batch
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                        Nama Bidan/Petugas
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                        Catatan
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {pencatatanList
+                      .filter(p => p.is_selesai)
+                      .sort((a, b) => new Date(b.tanggal_pemberian) - new Date(a.tanggal_pemberian))
+                      .map((pencatatan, index) => {
+                        const namaDosis = pencatatan.jadwal_imunisasi_anak?.dosis_vaksin?.nama_dosis || '-';
+                        const namaBidan = pencatatan.bidan_petugas?.name || 'Tidak tersedia';  // Changed from 'nama' to 'name'
+                        
+                        return (
+                          <tr 
+                            key={pencatatan.id} 
+                            className="hover:bg-blue-50 transition-colors"
+                          >
+                            <td className="px-4 py-3 text-sm text-gray-700 font-medium">
+                              {index + 1}
+                            </td>
+                            <td className="px-4 py-3 text-sm text-gray-900 font-semibold">
+                              {namaDosis}
+                            </td>
+                            <td className="px-4 py-3 text-sm text-gray-700">
+                              {formatTanggal(pencatatan.tanggal_pemberian)}
+                            </td>
+                            <td className="px-4 py-3 text-sm text-gray-700">
+                              {pencatatan.nomor_batch || '-'}
+                            </td>
+                            <td className="px-4 py-3 text-sm text-gray-900">
+                              <div className="flex items-center gap-2">
+                                <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                                  <span className="text-blue-700 font-bold text-xs">
+                                    {namaBidan.charAt(0).toUpperCase()}
+                                  </span>
+                                </div>
+                                <span className="font-medium">{namaBidan}</span>
+                              </div>
+                            </td>
+                            <td className="px-4 py-3 text-sm text-gray-600">
+                              {pencatatan.catatan || '-'}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                  </tbody>
+                </table>
+              </div>
+
+              {pencatatanList.filter(p => p.is_selesai).length === 0 && (
+                <div className="p-8 text-center text-gray-500">
+                  <Syringe size={48} className="mx-auto mb-3 text-gray-300" />
+                  <p className="font-medium">Belum ada catatan imunisasi</p>
+                  <p className="text-xs mt-1">Catatan akan muncul setelah melakukan paraf imunisasi</p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
 

@@ -47,12 +47,31 @@ func (c *PencatatanImunisasiController) Create(ctx echo.Context) error {
 		tanggalPemberian = &t
 	}
 
+	// Ambil ID bidan/petugas yang sedang login dari JWT token
+	var idBidanPetugas *int32
+	if userID := ctx.Get("user_id"); userID != nil {
+		// Middleware menyimpan sebagai int64
+		if id, ok := userID.(int64); ok {
+			idu := int32(id)
+			idBidanPetugas = &idu
+		} else if id, ok := userID.(int32); ok {
+			idBidanPetugas = &id
+		} else if id, ok := userID.(uint); ok {
+			idu := int32(id)
+			idBidanPetugas = &idu
+		} else if id, ok := userID.(float64); ok {
+			idu := int32(id)
+			idBidanPetugas = &idu
+		}
+	}
+
 	data := &models.PencatatanImunisasi{
 		IdJadwalImunisasiAnak: req.IdJadwalImunisasiAnak,
 		TanggalPemberian:      tanggalPemberian,
 		NomorBatch:            req.NomorBatch,
 		Catatan:               req.Catatan,
 		IsSelesai:             false,
+		IdBidanPetugas:        idBidanPetugas,
 	}
 
 	if err := c.usecase.Create(data); err != nil {
@@ -72,6 +91,15 @@ func (c *PencatatanImunisasiController) GetByAnakID(ctx echo.Context) error {
 	data, err := c.usecase.GetByAnakID(uint(anakID))
 	if err != nil {
 		return helpers.Response(ctx, http.StatusInternalServerError, []string{err.Error()})
+	}
+
+	// DEBUG: Log untuk melihat data bidan_petugas
+	for i, record := range data {
+		if record.BidanPetugas != nil {
+			ctx.Logger().Info("Record ", i, " - id_bidan_petugas: ", *record.IdBidanPetugas, " - BidanPetugas loaded: ", record.BidanPetugas.Name)
+		} else {
+			ctx.Logger().Info("Record ", i, " - id_bidan_petugas: ", record.IdBidanPetugas, " - BidanPetugas is nil")
+		}
 	}
 
 	return helpers.StandardResponse(ctx, http.StatusOK, []string{constants.SUCCESS_RESPONSE_MESSAGE}, data, nil)

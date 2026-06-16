@@ -41,6 +41,8 @@ func (r *PencatatanImunisasiRepository) GetByAnakID(anakID uint) ([]models.Penca
 	// Then fetch pencatatan records matching those jadwal IDs
 	err = r.postgres.
 		Preload("JadwalImunisasiAnak").
+		Preload("JadwalImunisasiAnak.DosisVaksin").
+		Preload("BidanPetugas").
 		Where("id_jadwal_imunisasi_anak IN ?", jadwalIDs).
 		Order("id ASC").
 		Find(&records).Error
