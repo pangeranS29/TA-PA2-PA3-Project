@@ -1034,10 +1034,8 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	puskesmas.Use(middlewares.JWTAuth(controller.JWTSecret()))
 	puskesmas.Use(middlewares.PuskesmasAccess())
 
-	// Dashboard Puskesmas
-	puskesmas.GET("/dashboard", func(c echo.Context) error {
-		return c.JSON(200, map[string]string{"status": "ok", "message": "Dashboard Puskesmas"})
-	})
+	// Dashboard Puskesmas (multi-desa recap)
+	puskesmas.GET("/dashboard", controller.PuskesmasDashboard.GetDashboard)
 
 	// CRUD Vaksin
 	puskesmas.GET("/vaksin", controller.Vaksin.GetAll)

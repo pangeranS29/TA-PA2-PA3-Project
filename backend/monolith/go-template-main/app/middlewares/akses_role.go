@@ -40,7 +40,7 @@ func TenagaKesehatan() echo.MiddlewareFunc {
 			}
 
 			normalized := normalizeRole(role)
-			if normalized != "bidan" && normalized != "dokter" && normalized != "tenagakesehatan" {
+			if normalized != "bidan" && normalized != "dokter" && normalized != "tenagakesehatan" && normalized != "bidanpuskesmas" {
 				return c.JSON(http.StatusForbidden, map[string]interface{}{
 					"status_code": http.StatusForbidden,
 					"message":     "Anda Tidak Memiliki Akses",

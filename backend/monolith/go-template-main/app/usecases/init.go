@@ -147,6 +147,9 @@ type Main struct {
 
 	// Pencatatan Imunisasi (Web)
 	PencatatanImunisasi *PencatatanImunisasiUsecase
+
+	// Puskesmas Dashboard (multi-desa recap)
+	PuskesmasDashboard PuskesmasDashboardUsecase
 }
 
 type Options struct {
@@ -387,6 +390,9 @@ func Init(opts Options) *Main {
 
 	// Pencatatan Imunisasi (Web)
 	m.PencatatanImunisasi = NewPencatatanImunisasiUsecase(opts.Repository.PencatatanImunisasi)
+
+	// Puskesmas Dashboard (multi-desa recap)
+	m.PuskesmasDashboard = NewPuskesmasDashboardUsecase(opts.Repository.PuskesmasDashboard)
 
 	return m
 }
