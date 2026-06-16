@@ -251,6 +251,7 @@ func (m *Main) GetJadwalImunisasiByAnakIDBidan(anakID int32) ([]models.JadwalImu
 
 			anakMap[row.AnakID].Jadwal = append(anakMap[row.AnakID].Jadwal, models.JadwalImunisasiItem{
 				JadwalID:        row.JadwalID,
+				DosisVaksinID:   row.DosisVaksinID,
 				NamaDosis:       row.NamaDosis,
 				TanggalEstimasi: row.TanggalEstimasi,
 				Deskripsi:       row.Deskripsi,
@@ -292,6 +293,7 @@ func (m *Main) GetJadwalImunisasiByJadwalIDBidan(jadwalID uint) (*models.JadwalI
 		Jadwal: []models.JadwalImunisasiItem{
 			{
 				JadwalID:        row.JadwalID,
+				DosisVaksinID:   row.DosisVaksinID,
 				NamaDosis:       row.NamaDosis,
 				TanggalEstimasi: row.TanggalEstimasi,
 				Deskripsi:       row.Deskripsi,

@@ -122,8 +122,9 @@ type Main struct {
 	PemeriksaanRemaja        PemeriksaanRemajaRepository
 	PemeriksaanDewasa        PemeriksaanDewasaRepository
 	PemeriksaanLansia        PemeriksaanLansiaRepository
-	Form                     FormRepository // Repository untuk Form (misalnya untuk pertanyaan pemeriksaan)
+	Form                     FormRepository
 	Pemeriksaan              PemeriksaanRepository
+	PencatatanImunisasi      *PencatatanImunisasiRepository
 }
 
 // DB returns the underlying *gorm.DB instance for direct queries and transactions.
@@ -243,6 +244,7 @@ func Init(opts Options) *Main {
 	m.PemeriksaanLansia = NewPemeriksaanLansiaRepository(opts.Postgres)
 	m.Form = NewFormRepository(opts.Postgres) // Inisialisasi FormRepository dengan database yang sesuai
 	m.Pemeriksaan = NewPemeriksaanRepository(opts.Postgres)
+	m.PencatatanImunisasi = NewPencatatanImunisasiRepository(opts.Postgres)
 	// return m
 
 	// MODUL IBU

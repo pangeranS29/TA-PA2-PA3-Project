@@ -143,6 +143,9 @@ type Main struct {
 	EdukasiMPASI      EdukasiMPASIUsecase
 	// Profile Ibu
 	ProfilIbu ProfilIbuUsecase
+
+	// Pencatatan Imunisasi (Web)
+	PencatatanImunisasi *PencatatanImunisasiUsecase
 }
 
 type Options struct {
@@ -379,5 +382,9 @@ func Init(opts Options) *Main {
 		opts.Repository.RiwayatKehamilanLalu,
 		opts.Repository.Desa,
 	)
+
+	// Pencatatan Imunisasi (Web)
+	m.PencatatanImunisasi = NewPencatatanImunisasiUsecase(opts.Repository.PencatatanImunisasi)
+
 	return m
 }

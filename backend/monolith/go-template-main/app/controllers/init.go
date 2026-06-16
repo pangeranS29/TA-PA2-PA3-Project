@@ -116,6 +116,9 @@ type Main struct {
 	Pemeriksaan              *PemeriksaanController
 
 	ProfilIbu *ProfilIbuController
+
+	// Pencatatan Imunisasi (Web)
+	PencatatanImunisasi *PencatatanImunisasiController
 }
 
 type Options struct {
@@ -261,6 +264,9 @@ func Init(opts Options) *Main {
 	m.EdukasiTrimester = NewEdukasiTrimesterController(opts.UseCases.EdukasiTrimester)
 	m.ProfilIbu = NewProfilIbuController(opts.UseCases.ProfilIbu)
 	m.GrafikEvaluasiKehamilan = NewGrafikEvaluasiKehamilanController(opts.UseCases.GrafikEvaluasiKehamilan)
+
+	// Pencatatan Imunisasi (Web)
+	m.PencatatanImunisasi = NewPencatatanImunisasiController(opts.UseCases.PencatatanImunisasi)
 
 	return m
 }

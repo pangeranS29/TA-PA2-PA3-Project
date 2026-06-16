@@ -10,6 +10,7 @@ type JadwalImunisasiJoin struct {
 	NamaAnak        string
 	TanggalLahir    *time.Time
 	JadwalID        uint
+	DosisVaksinID   uint `gorm:"column:dosis_vaksin_id"`
 	NamaDosis       string
 	TanggalEstimasi *time.Time
 	Deskripsi       string
@@ -271,6 +272,7 @@ func (m *Main) GetJadwalImunisasiByAnakIDBidan(anakID int32) ([]JadwalImunisasiJ
 			pd_anak.tanggal_lahir,
 
 			j.id as jadwal_id,
+			j.id_dosis_vaksin as dosis_vaksin_id,
 			dv.nama_dosis,
 			j.tanggal_estimasi,
 
@@ -308,6 +310,7 @@ func (m *Main) GetJadwalImunisasiByJadwalIDBidan(jadwalID uint) (*models.JadwalI
 			pd_anak.tanggal_lahir,
 
 			j.id as jadwal_id,
+			j.id_dosis_vaksin as dosis_vaksin_id,
 			dv.nama_dosis,
 			j.tanggal_estimasi,
 

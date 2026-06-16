@@ -15,7 +15,7 @@ export async function getImunisasiByAnakId(anakId) {
 }
 
 // ============================================
-// MARK JADWAL SELESAI (Simple)
+// MARK JADWAL SELESAI (existing endpoint)
 // ============================================
 
 export async function setJadwalSelesai(jadwalId) {
@@ -29,16 +29,44 @@ export async function setJadwalSelesai(jadwalId) {
 }
 
 // ============================================
-// CREATE PELAYANAN IMUNISASI (Full Detail)
+// MARK PENCATATAN SELESAI (new table)
+// ============================================
+
+export async function setPencatatanSelesai(pencatatanId) {
+  try {
+    const response = await api.put(`/bidan/pencatatan-imunisasi/${pencatatanId}/selesai`);
+    return response.data?.data ?? response.data;
+  } catch (error) {
+    console.error("Error set pencatatan selesai:", error);
+    throw error;
+  }
+}
+
+// ============================================
+// CREATE PENCATATAN IMUNISASI (via pencatatan_imunisasi table)
 // ============================================
 
 export async function createPelayananImunisasi(data) {
   try {
-    const response = await api.post('/tenaga-kesehatan/Pelayanan-Imunisasi', data);
+    const response = await api.post('/bidan/pencatatan-imunisasi', data);
     return response.data?.data ?? response.data;
   } catch (error) {
-    console.error("Error creating pelayanan imunisasi:", error);
+    console.error("Error creating pencatatan imunisasi:", error);
     throw error;
+  }
+}
+
+// ============================================
+// GET PENCATATAN IMUNISASI BY ANAK ID
+// ============================================
+
+export async function getPencatatanByAnakId(anakId) {
+  try {
+    const response = await api.get(`/bidan/pencatatan-imunisasi/anak/${anakId}`);
+    return response.data?.data ?? response.data ?? [];
+  } catch (error) {
+    console.error("Error fetching pencatatan imunisasi:", error);
+    return [];
   }
 }
 
