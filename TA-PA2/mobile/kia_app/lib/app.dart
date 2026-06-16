@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'core/services/auth_session.dart';
 import 'core/themes/app_theme.dart';
+import 'core/services/notification_service.dart';
 
 import 'features/auth/presentation/screens/login_screen.dart';
 
@@ -13,6 +14,7 @@ class KiaApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: NotificationService.navigatorKey,
       title: 'Aplikasi KIA Cerdas',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
