@@ -143,7 +143,7 @@ export default function LihatDataPemantauan() {
               <thead>
                 <tr className="text-[11px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100">
                   <th className="pb-4 px-2">IDENTITAS</th>
-                  <th className="pb-4 px-2">USIA & TERAKHIR UPDATE</th>
+                  <th className="pb-4 px-2">USIA</th>
                   <th className="pb-4 px-2 text-center">GEJALA TERDETEKSI</th>
                   <th className="pb-4 px-2 text-center">STATUS</th>
                   <th className="pb-4 px-2 text-right">AKSI</th>

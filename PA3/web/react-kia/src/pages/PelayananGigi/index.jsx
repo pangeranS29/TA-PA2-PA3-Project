@@ -155,7 +155,7 @@ const PelayananGigi = () => {
           {/* NAVIGASI KEMBALI */}
           <button
             onClick={() => navigate(`/data-anak/dashboard/${id}`)}
-            className="flex items-center gap-2 text-slate-500 hover:text-slate-800 font-bold text-xs uppercase tracking-wider mb-5 mt-2 transition-all group"
+            className="flex items-center gap-2 px-6 py-2 border border-blue-600 text-blue-600 hover:bg-blue-50 rounded-full font-medium text-sm transition-all group w-fit mb-5 mt-2"
           >
             <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" /> Kembali
           </button>

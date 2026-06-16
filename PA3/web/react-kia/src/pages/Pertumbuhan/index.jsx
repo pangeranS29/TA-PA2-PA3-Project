@@ -10,7 +10,7 @@ import {
 } from "../../services/pertumbuhan";
 import { getAnakById } from "../../services/Anak";
 import {
-  ChevronLeft, Plus, Trash2, Calendar, Scale, Ruler,
+  ChevronLeft, ArrowLeft, Plus, Trash2, Calendar, Scale, Ruler,
   Info, Pencil, TrendingUp, Target, Heart,
   AlertTriangle, Check, X, Smile,
 } from "lucide-react";
@@ -231,9 +231,9 @@ export default function PertumbuhanIndex() {
             <div>
               <Link
                 to={`/data-anak/dashboard/${id}`}
-                className="flex items-center gap-1.5 text-xs font-bold text-gray-400 hover:text-indigo-600 mb-2 transition-all group"
+                className="flex items-center gap-2 px-6 py-2 border border-blue-600 text-blue-600 hover:bg-blue-50 rounded-full font-medium text-sm transition-all group w-fit mb-4 mt-2"
               >
-                <ChevronLeft size={14} className="group-hover:-translate-x-0.5 transition-transform" />
+                <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
                 Kembali
               </Link>
               <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">Manajemen Pertumbuhan</h1>
@@ -551,6 +551,8 @@ function parseZScore(value) {
   if (value === null || value === undefined || value === "") return null;
   const raw = typeof value === "string" ? value.replace(",", ".") : value;
   const parsed = Number(raw);
+  // Number.isFinite memastikan NaN dan Infinity tidak lolos
+  // Nilai 0 adalah z-score valid (tepat di median), jangan dianggap null
   return Number.isFinite(parsed) ? parsed : null;
 }
 
@@ -562,13 +564,6 @@ function firstValidZScore(candidates) {
   return null;
 }
 
-function normalizeStatusText(value) {
-  if (value === null || value === undefined) return null;
-  const text = String(value).trim();
-  if (!text) return null;
-  if (text.toLowerCase() === "data standar tidak tersedia") return null;
-  return text;
-}
 
 function labelFromZScoreBBU(z) {
   if (z === null) return null;
@@ -597,6 +592,32 @@ function labelFromZScoreBBTB(z) {
   return "Obesitas";
 }
 
+// Normalisasi teks status dari backend agar cocok dengan deteksi warna StatusBadge
+function normalizeBackendStatus(value) {
+  if (!value) return null;
+  const text = String(value).trim();
+  if (!text || text.toLowerCase() === "data standar tidak tersedia") return null;
+
+  // BB/U
+  if (text.includes("Severely Underweight") || text.includes("Sangat Kurang")) return "Berat Badan Sangat Kurang";
+  if (text.includes("Underweight") && !text.includes("Severely")) return "Berat Badan Kurang";
+  if (text.includes("Berat Badan Normal")) return "Normal";
+  if (text.includes("Risiko Berat Badan Lebih")) return "Risiko Berat Badan Lebih";
+
+  // TB/U
+  if (text.includes("Severely Stunted") || text === "Sangat Pendek (Severely Stunted)") return "Sangat Pendek";
+  if (text.includes("Stunted") || text === "Pendek (Stunted)") return "Pendek";
+
+  // BB/TB & IMT/U
+  if (text.includes("Severely Wasted") || text === "Gizi Buruk (Severely Wasted)") return "Gizi Buruk";
+  if (text.includes("Wasted") || text === "Gizi Kurang (Wasted)") return "Gizi Kurang";
+  if (text === "Gizi Baik (Normal)" || text.includes("Gizi Baik")) return "Gizi Baik";
+  if (text.includes("Possible Risk") || text.includes("Berisiko Gizi Lebih")) return "Berisiko Gizi Lebih";
+  if (text === "Gizi Lebih (Overweight)" || text === "Gizi Lebih") return "Gizi Lebih";
+
+  return text;
+}
+
 function deriveStatusFromZScore(row) {
   const zBBU = firstValidZScore([
     row?.z_score_bb_u,
@@ -619,14 +640,16 @@ function deriveStatusFromZScore(row) {
     row?.z_score?.bb_tb,
   ]);
 
-  const fallbackBBU = normalizeStatusText(row?.status_bb_u) || normalizeStatusText(row?.statusBBU);
-  const fallbackTBU = normalizeStatusText(row?.status_tb_u) || normalizeStatusText(row?.statusTBU);
-  const fallbackBBTB = normalizeStatusText(row?.status_bb_tb) || normalizeStatusText(row?.statusBBTB);
+  // Prioritas: status teks dari backend (sudah dihitung dengan standar WHO)
+  const fallbackBBU = normalizeBackendStatus(row?.status_bb_u) || normalizeBackendStatus(row?.statusBBU);
+  const fallbackTBU = normalizeBackendStatus(row?.status_tb_u) || normalizeBackendStatus(row?.statusTBU);
+  const fallbackBBTB = normalizeBackendStatus(row?.status_bb_tb) || normalizeBackendStatus(row?.statusBBTB);
 
   return {
-    statusBBU: labelFromZScoreBBU(zBBU) || fallbackBBU || "Belum dihitung",
-    statusTBU: labelFromZScoreTBU(zTBU) || fallbackTBU || "Belum dihitung",
-    statusBBTB: labelFromZScoreBBTB(zBBTB) || fallbackBBTB || "Belum dihitung",
+    // Gunakan status dari backend jika ada, fallback ke perhitungan z-score lokal
+    statusBBU: fallbackBBU || labelFromZScoreBBU(zBBU) || "Belum dihitung",
+    statusTBU: fallbackTBU || labelFromZScoreTBU(zTBU) || "Belum dihitung",
+    statusBBTB: fallbackBBTB || labelFromZScoreBBTB(zBBTB) || "Belum dihitung",
   };
 }
 
@@ -634,13 +657,14 @@ function StatusBadge({ status }) {
   if (!status || status === "Data Standar Tidak Tersedia") {
     return <span className="px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-tight bg-gray-100 text-gray-400">-</span>;
   }
-  const isNormal = status.includes("Normal") || status.includes("Baik");
-  const isWarning = status.includes("Kurang") || status.includes("Pendek") || status.includes("Risiko");
-  const isCritical = status.includes("Buruk") || status.includes("Sangat") || status.includes("Stunting") || status.includes("Obesitas");
+  const s = status.toLowerCase();
+  const isNormal = s.includes("normal") || s.includes("baik") || s === "tinggi";
+  const isWarning = s.includes("kurang") || s.includes("pendek") || s.includes("risiko") || s.includes("berisiko");
+  const isCritical = s.includes("buruk") || s.includes("sangat") || s.includes("stunting") || s.includes("obesitas") || s.includes("lebih");
   let cls = "bg-blue-100 text-blue-700";
   if (isNormal) cls = "bg-green-100 text-green-700";
-  if (isWarning) cls = "bg-orange-100 text-orange-700";
-  if (isCritical) cls = "bg-red-100 text-red-700";
+  else if (isCritical) cls = "bg-red-100 text-red-700";
+  else if (isWarning) cls = "bg-orange-100 text-orange-700";
   return <span className={`px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-tight ${cls}`}>{status}</span>;
 }
 

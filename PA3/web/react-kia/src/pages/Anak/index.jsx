@@ -24,7 +24,16 @@ export default function AnakListNakes() {
         setLoading(true);
         const res = await getAnak();
         const list = res.data || [];
-        setChildren(list);
+        const balitaList = list.filter((c) => {
+          if (!c.tanggal_lahir) return false;
+          const birthDate = new Date(c.tanggal_lahir);
+          if (isNaN(birthDate.getTime())) return false;
+          const currentDate = new Date();
+          const limitDate = new Date(birthDate);
+          limitDate.setFullYear(birthDate.getFullYear() + 5);
+          return currentDate <= limitDate;
+        });
+        setChildren(balitaList);
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {

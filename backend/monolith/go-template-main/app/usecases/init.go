@@ -200,6 +200,9 @@ func Init(opts Options) *Main {
 			fmt.Println("[AUTO JADWAL] ERROR:", err)
 		}
 	})
+	m.Anak.SetOnAnakCreatedSync(func(anakID int32) error {
+		return m.EnsurePrediksiForAnak(anakID)
+	})
 	m.PelayananKesehatanAnak = NewPelayananKesehatanAnakUseCase(opts.Repository.PelayananKesehatanAnak)
 	m.Neonatus = NewPelayananNeonatusUseCase(opts.Repository.Neonatus)
 	m.KunjunganGizi = NewKunjunganGiziUseCase(opts.Repository.KunjunganGizi)
