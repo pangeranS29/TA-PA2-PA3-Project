@@ -83,4 +83,21 @@ export async function getAturanVaksinAnak() {
     // Return empty array jika endpoint belum ada
     return [];
   }
+<<<<<<< HEAD
+=======
+}
+
+// ============================================
+// BATAL PARAF IMUNISASI (cancel)
+// ============================================
+
+export async function batalParafImunisasi(jadwalId) {
+  try {
+    const response = await api.put(`/bidan/imunisasi/${jadwalId}/batal-paraf`);
+    return response.data?.data ?? response.data;
+  } catch (error) {
+    console.error("Error batal paraf imunisasi:", error);
+    throw error;
+  }
+>>>>>>> 0fae71ba4f3fe0d5a6f09c8c8c3bf4261b8de4b6
 }

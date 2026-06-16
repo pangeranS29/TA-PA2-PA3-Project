@@ -97,7 +97,7 @@ const SuratKeteranganLahir = ({ data }) => (
       <span className="text-sm">No. <span className="inline-block border-b border-gray-800 w-56 ml-1">{data?.nomor_surat || ""}</span></span>
     </div>
     <p className="mb-4">Yang bertandatangan di bawah ini menerangkan bahwa:</p>
-    
+
     <div className="mb-4">
       <span>Pada hari ini </span>
       <span className="inline-block border-b border-gray-800 w-32 mx-1">{data?.hari_lahir || ""}</span>
@@ -106,7 +106,7 @@ const SuratKeteranganLahir = ({ data }) => (
       <span> pukul </span>
       <span className="inline-block border-b border-gray-800 w-24 mx-1">{data?.pukul_lahir || ""}</span>
     </div>
-    
+
     <p className="font-bold mb-3">Telah lahir seorang bayi:</p>
     <table className="w-full mb-4 text-sm">
       <tbody>
@@ -118,7 +118,7 @@ const SuratKeteranganLahir = ({ data }) => (
         <tr><td className="py-1.5">Lingkar Kepala</td><td><span className="inline-block border-b border-gray-800 w-24">{data?.lingkar_kepala_cm || ""}</span> cm</td></tr>
       </tbody>
     </table>
-    
+
     <p className="font-bold mb-3">Dari orang tua:</p>
     <table className="w-full mb-4 text-sm">
       <tbody>
@@ -128,14 +128,14 @@ const SuratKeteranganLahir = ({ data }) => (
         <tr><td className="py-1.5">Alamat</td><td><span className="inline-block border-b border-gray-800 w-full">{data?.alamat_orang_tua || ""}</span></td></tr>
       </tbody>
     </table>
-    
+
     <table className="w-full mb-4 text-sm">
       <tbody>
         <tr><td className="py-1.5 w-48">Tempat lahir</td><td><span className="inline-block border-b border-gray-800 w-full">{data?.lokasi_persalinan || ""}</span></td></tr>
         <tr><td className="py-1.5">Alamat tempat lahir</td><td><span className="inline-block border-b border-gray-800 w-full">{data?.alamat_lokasi_persalinan || ""}</span></td></tr>
       </tbody>
     </table>
-    
+
     <div className="grid grid-cols-3 text-center gap-6 mt-8 mb-4">
       <div>
         <p className="mb-20">Saksi I</p>
@@ -150,7 +150,7 @@ const SuratKeteranganLahir = ({ data }) => (
         <p className="border-t border-gray-800 pt-1">(<span className="inline-block border-b border-gray-800 w-28">{data?.nama_penolong_kelahiran || ""}</span>)</p>
       </div>
     </div>
-    
+
     <div className="text-right mt-4">
       <p className="mb-1">{data?.tanggal_surat ? new Date(data.tanggal_surat).toLocaleDateString("id-ID", { day: 'numeric', month: 'long', year: 'numeric' }) : ""}</p>
     </div>
@@ -327,7 +327,7 @@ function RingkasanForm({ initial, onSubmit, onCancel, saving, title }) {
 
   const validateForm = () => {
     const newErrors = {};
-    
+
     if (!form.tanggal_melahirkan) {
       newErrors.tanggal_melahirkan = "Tanggal melahirkan wajib diisi";
     }
@@ -340,7 +340,7 @@ function RingkasanForm({ initial, onSubmit, onCancel, saving, title }) {
     if (!form.keadaan_ibu || !form.keadaan_ibu.trim()) {
       newErrors.keadaan_ibu = "Keadaan ibu wajib diisi";
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -511,21 +511,21 @@ function RingkasanForm({ initial, onSubmit, onCancel, saving, title }) {
 export default function PelayananPersalinan() {
   const { id } = useParams();
   const navigate = useNavigate();
-  
+
   // Role-based access control
   const user = getCurrentUser();
   const isBidan = isBidanUser(user);
   const isDokter = isDokterUser(user);
-  
+
   // Bingkasan Melahirkan (Ringkasan): dokter melihat, bidan mengelola
   const canEditRingkasan = isBidan;
-  
+
   // Riwayat Melahirkan: dokter melibat, bidan mengelola
   const canEditRiwayat = isBidan;
-  
+
   // Keterangan Lahir: dokter melibat, bidan mengelola
   const canEditKeterangan = isBidan;
-  
+
   const [activeTab, setActiveTab] = useState("ringkasan");
   const [kehamilan, setKehamilan] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -597,7 +597,7 @@ export default function PelayananPersalinan() {
     }
   }, [ibuData]);
   const [autoFilledFields, setAutoFilledFields] = useState([]);
-  
+
   // VALIDASI: Cek rencana persalinan untuk date-based locking
   const [rencanaPersalinan, setRencanaPersalinan] = useState(null);
   const [canAccessPersalinan, setCanAccessPersalinan] = useState(false);
@@ -659,29 +659,29 @@ export default function PelayananPersalinan() {
             const rencanaData = await getRencanaByKehamilanId(aktif.id);
             if (rencanaData && rencanaData.length > 0) {
               setRencanaPersalinan(rencanaData[0]);
-              
+
               // Cek apakah tanggal hari ini sudah melewati atau sama dengan tanggal rencana persalinan
               const today = new Date();
               today.setHours(0, 0, 0, 0);
-              
+
               // Parse tanggal rencana dari bulan dan tahun
               const rencanaBulan = rencanaData[0].perkiraan_bulan_persalinan;
               const rencanaTahun = rencanaData[0].perkiraan_tahun_persalinan;
-              
+
               if (rencanaBulan && rencanaTahun) {
                 // Normalize month name (trim and capitalize first letter)
                 const normalizedBulan = rencanaBulan.trim().charAt(0).toUpperCase() + rencanaBulan.trim().slice(1).toLowerCase();
-                
+
                 const monthMap = {
                   'Januari': 0, 'Februari': 1, 'Maret': 2, 'April': 3, 'Mei': 4, 'Juni': 5,
                   'Juli': 6, 'Agustus': 7, 'September': 8, 'Oktober': 9, 'November': 10, 'Desember': 11
                 };
                 const monthIndex = monthMap[normalizedBulan];
-                
+
                 if (monthIndex !== undefined) {
                   const rencanaDate = new Date(rencanaTahun, monthIndex, 1);
                   rencanaDate.setHours(0, 0, 0, 0);
-                  
+
                   if (today >= rencanaDate) {
                     setCanAccessPersalinan(true);
                     setLockMessage("");
@@ -800,7 +800,7 @@ export default function PelayananPersalinan() {
         const saved = await createRiwayatMelahirkan(payloadRiwayat);
         setRiwayat(saved);
       }
-      
+
       // Update state form riwayat
       setFormRiwayat(prev => ({
         ...prev,
@@ -852,7 +852,7 @@ export default function PelayananPersalinan() {
 
   const handleSubmitNew = async (form) => {
     if (!kehamilan) return;
-    
+
     // VALIDASI: Cek date-based locking sebelum mengizinkan submit
     if (!canAccessPersalinan) {
       Swal.fire({
@@ -863,7 +863,7 @@ export default function PelayananPersalinan() {
       });
       return;
     }
-    
+
     setSaving(true);
     try {
       const payload = buildPayload(form, kehamilan.id);
@@ -921,7 +921,7 @@ export default function PelayananPersalinan() {
 
   const handleSubmitEdit = async (form) => {
     if (!editTarget || !kehamilan) return;
-    
+
     // VALIDASI: Cek date-based locking sebelum mengizinkan submit
     if (!canAccessPersalinan) {
       Swal.fire({
@@ -932,7 +932,7 @@ export default function PelayananPersalinan() {
       });
       return;
     }
-    
+
     setSaving(true);
     try {
       const idR = editTarget.id_ringkasan || editTarget.id || editTarget.ID;
@@ -949,20 +949,29 @@ export default function PelayananPersalinan() {
         }
       }
 
+      // ✅ Hanya buat anak baru jika belum ada anak yang terkait dengan ringkasan ini
       if (form.nama_anak && form.nama_anak.trim()) {
-        await createAnakDenganPenduduk({
-          kehamilan_id: kehamilan.id,
-          ibu_id: kehamilan.ibu_id,
-          nama: form.nama_anak,
-          jenis_kelamin: form.anak_jenis_kelamin || "",
-          tanggal_lahir: form.anak_tanggal_lahir || "",
-          anak_ke: parseInt(form.bayi_anak_ke) || 0,
-          berat_lahir_kg: form.bayi_berat_lahir_gram ? parseFloat(form.bayi_berat_lahir_gram) / 1000 : null,
-          tinggi_lahir_cm: form.bayi_panjang_badan_cm ? parseFloat(form.bayi_panjang_badan_cm) : null,
-          lingkar_kepala_cm: form.bayi_lingkar_kepala_cm ? parseFloat(form.bayi_lingkar_kepala_cm) : null,
-          nama_ibu: form.anak_nama_ibu || "",
-          nama_ayah: form.anak_nama_ayah || "",
-        });
+        const idR = editTarget.id_ringkasan || editTarget.id || editTarget.ID;
+        const groupForThis = kelahiranList.find(
+          (g) => (g.ringkasan?.id_ringkasan || g.ringkasan?.id || g.ringkasan?.ID) === idR
+        );
+        const sudahAdaAnak = groupForThis && groupForThis.anakList && groupForThis.anakList.length > 0;
+
+        if (!sudahAdaAnak) {
+          await createAnakDenganPenduduk({
+            kehamilan_id: kehamilan.id,
+            ibu_id: kehamilan.ibu_id,
+            nama: form.nama_anak,
+            jenis_kelamin: form.anak_jenis_kelamin || "",
+            tanggal_lahir: form.anak_tanggal_lahir || "",
+            anak_ke: parseInt(form.bayi_anak_ke) || 0,
+            berat_lahir_kg: form.bayi_berat_lahir_gram ? parseFloat(form.bayi_berat_lahir_gram) / 1000 : null,
+            tinggi_lahir_cm: form.bayi_panjang_badan_cm ? parseFloat(form.bayi_panjang_badan_cm) : null,
+            lingkar_kepala_cm: form.bayi_lingkar_kepala_cm ? parseFloat(form.bayi_lingkar_kepala_cm) : null,
+            nama_ibu: form.anak_nama_ibu || "",
+            nama_ayah: form.anak_nama_ayah || "",
+          });
+        }
       }
 
       // Sinkronisasi ke Riwayat Melahirkan
@@ -982,7 +991,7 @@ export default function PelayananPersalinan() {
   const submitRiwayat = async (e) => {
     e.preventDefault();
     if (!kehamilan) return;
-    
+
     // Validation
     if (!formRiwayat.g_gravida) {
       Swal.fire({ icon: "warning", title: "Perhatian", text: "Gravida (G) wajib diisi.", confirmButtonColor: "#4f46e5" });
@@ -1004,7 +1013,7 @@ export default function PelayananPersalinan() {
       Swal.fire({ icon: "warning", title: "Perhatian", text: "Fasyankes tempat melahirkan wajib diisi.", confirmButtonColor: "#4f46e5" });
       return;
     }
-    
+
     setSaving(true);
     try {
       const payload = { ...formRiwayat, kehamilan_id: kehamilan.id };
@@ -1032,18 +1041,18 @@ export default function PelayananPersalinan() {
 
   const submitKeterangan = async (e) => {
     e.preventDefault();
-    
+
     // Validation
     if (!formKeterangan.nomor_surat || !formKeterangan.nomor_surat.trim()) {
       Swal.fire({ icon: "warning", title: "Perhatian", text: "Nomor surat wajib diisi.", confirmButtonColor: "#4f46e5" });
       return;
     }
     if (!validateNomorSuratFormat(formKeterangan.nomor_surat)) {
-      Swal.fire({ 
-        icon: "warning", 
-        title: "Format Nomor Surat Salah", 
-        text: "Format nomor surat harus: 09.[nomor_urut]/[nama_lembaga]/[bulan_romawi]/[tahun]\nContoh: 09.004/PUSKESMAS/V/2024", 
-        confirmButtonColor: "#4f46e5" 
+      Swal.fire({
+        icon: "warning",
+        title: "Format Nomor Surat Salah",
+        text: "Format nomor surat harus: 09.[nomor_urut]/[nama_lembaga]/[bulan_romawi]/[tahun]\nContoh: 09.004/PUSKESMAS/V/2024",
+        confirmButtonColor: "#4f46e5"
       });
       return;
     }
@@ -1076,7 +1085,7 @@ export default function PelayananPersalinan() {
       Swal.fire({ icon: "warning", title: "Perhatian", text: "Nama penolong kelahiran wajib diisi.", confirmButtonColor: "#4f46e5" });
       return;
     }
-    
+
     setSaving(true);
     try {
       const payload = { ...formKeterangan, id_ibu_relasi: parseInt(id) };
@@ -1136,17 +1145,17 @@ export default function PelayananPersalinan() {
       const r = chosen.ringkasan;
       // Gunakan data anak pertama yang terkait (jika ada) untuk nama bayi & jam lahir (jika ada properti jam)
       const anak = chosen.anakList?.[0];
-      
+
       setAutoFilledFields([
-        "tanggal_lahir", "anak_ke", "usia_gestasi_minggu", 
-        "berat_lahir_gram", "panjang_badan_cm", "lingkar_kepala_cm", 
+        "tanggal_lahir", "anak_ke", "usia_gestasi_minggu",
+        "berat_lahir_gram", "panjang_badan_cm", "lingkar_kepala_cm",
         "jenis_kelamin", "nama_penolong_kelahiran", "nama_bayi_diberi_nama"
       ]);
 
       setFormKeterangan(prev => ({
         ...prev,
         tanggal_lahir: r.tanggal_melahirkan || "",
-        pukul_lahir: r.pukul_melahirkan ? r.pukul_melahirkan.slice(0,5) : prev.pukul_lahir,
+        pukul_lahir: r.pukul_melahirkan ? r.pukul_melahirkan.slice(0, 5) : prev.pukul_lahir,
         anak_ke: r.bayi_anak_ke || "",
         usia_gestasi_minggu: r.umur_kehamilan_minggu || "",
         berat_lahir_gram: r.bayi_berat_lahir_gram || "",
@@ -1345,7 +1354,7 @@ export default function PelayananPersalinan() {
                 {kelahiranList.map((k, i) => (
                   <div key={k.ringkasan.id || i} className="bg-white rounded-xl border border-gray-100 p-4 flex items-center justify-between shadow-sm">
                     <div>
-                      <p className="font-semibold text-sm text-gray-800">Kelahiran ke-{i+1} ({k.ringkasan.tanggal_melahirkan || "-"})</p>
+                      <p className="font-semibold text-sm text-gray-800">Kelahiran ke-{i + 1} ({k.ringkasan.tanggal_melahirkan || "-"})</p>
                       <p className="text-xs text-gray-500 mt-0.5">Cara: {k.ringkasan.cara_melahirkan || "-"} &bull; Penolong: {k.ringkasan.penolong_proses_melahirkan || "-"}</p>
                     </div>
                     <span className="bg-green-100 text-green-800 text-[10px] px-2 py-1 rounded-md font-medium flex items-center gap-1">
@@ -1442,7 +1451,7 @@ export default function PelayananPersalinan() {
                     <option value="">-- Pilih Kelahiran --</option>
                     {kelahiranList.map((item, idx) => (
                       <option key={item.ringkasan.id} value={item.ringkasan.id}>
-                        Kelahiran {idx+1} ({item.ringkasan.tanggal_melahirkan || "tanpa tgl"})
+                        Kelahiran {idx + 1} ({item.ringkasan.tanggal_melahirkan || "tanpa tgl"})
                       </option>
                     ))}
                   </select>
@@ -1471,30 +1480,31 @@ export default function PelayananPersalinan() {
                     const isLocked = ["nama_ibu", "nik_ibu", "nama_ayah", "pekerjaan_orang_tua", "alamat_orang_tua"].includes(name);
                     const isReadOnly = readOnly === true;
                     return (
-                    <div key={name}>
-                      <label className="block text-xs font-medium mb-1">{label}</label>
-                      {type === "time-select" ? (
-                        <select name={name} value={formKeterangan[name] || ""} 
-                          onChange={(e) => setFormKeterangan((p) => ({ ...p, [name]: e.target.value }))}
-                          disabled={isLocked || isReadOnly}
-                          className={`w-full rounded-lg px-2 py-1.5 text-sm ${isLocked || isReadOnly ? "bg-gray-100 border-gray-200 text-gray-500 cursor-not-allowed" : isAuto ? "border-green-300 bg-green-50/30 focus:ring-green-100" : "border focus:ring-indigo-100"} focus:ring-2 outline-none transition-all`}>
-                          <option value="">-- Pilih --</option>
-                          {Array.from({ length: 24 }, (_, i) => {
-                            const hour = i.toString().padStart(2, '0');
-                            return (
-                              <option key={hour} value={`${hour}:00`}>{hour}:00</option>
-                            );
-                          })}
-                        </select>
-                      ) : (
-                        <input type={type} name={name} value={formKeterangan[name] || ""} placeholder={placeholder}
-                          onChange={(e) => setFormKeterangan((p) => ({ ...p, [name]: e.target.value }))}
-                          disabled={isLocked || isReadOnly}
-                          readOnly={isReadOnly}
-                          className={`w-full rounded-lg px-2 py-1.5 text-sm ${isLocked || isReadOnly ? "bg-gray-100 border-gray-200 text-gray-500 cursor-not-allowed" : isAuto ? "border-green-300 bg-green-50/30 focus:ring-green-100" : "border focus:ring-indigo-100"} focus:ring-2 outline-none transition-all`} />
-                      )}
-                    </div>
-                  )})}
+                      <div key={name}>
+                        <label className="block text-xs font-medium mb-1">{label}</label>
+                        {type === "time-select" ? (
+                          <select name={name} value={formKeterangan[name] || ""}
+                            onChange={(e) => setFormKeterangan((p) => ({ ...p, [name]: e.target.value }))}
+                            disabled={isLocked || isReadOnly}
+                            className={`w-full rounded-lg px-2 py-1.5 text-sm ${isLocked || isReadOnly ? "bg-gray-100 border-gray-200 text-gray-500 cursor-not-allowed" : isAuto ? "border-green-300 bg-green-50/30 focus:ring-green-100" : "border focus:ring-indigo-100"} focus:ring-2 outline-none transition-all`}>
+                            <option value="">-- Pilih --</option>
+                            {Array.from({ length: 24 }, (_, i) => {
+                              const hour = i.toString().padStart(2, '0');
+                              return (
+                                <option key={hour} value={`${hour}:00`}>{hour}:00</option>
+                              );
+                            })}
+                          </select>
+                        ) : (
+                          <input type={type} name={name} value={formKeterangan[name] || ""} placeholder={placeholder}
+                            onChange={(e) => setFormKeterangan((p) => ({ ...p, [name]: e.target.value }))}
+                            disabled={isLocked || isReadOnly}
+                            readOnly={isReadOnly}
+                            className={`w-full rounded-lg px-2 py-1.5 text-sm ${isLocked || isReadOnly ? "bg-gray-100 border-gray-200 text-gray-500 cursor-not-allowed" : isAuto ? "border-green-300 bg-green-50/30 focus:ring-green-100" : "border focus:ring-indigo-100"} focus:ring-2 outline-none transition-all`} />
+                        )}
+                      </div>
+                    )
+                  })}
                   <div>
                     <label className="block text-xs font-medium mb-1">Jenis Kelamin</label>
                     <select name="jenis_kelamin" value={formKeterangan.jenis_kelamin} onChange={(e) => setFormKeterangan((p) => ({ ...p, jenis_kelamin: e.target.value }))} className={`w-full rounded-lg px-2 py-1.5 text-sm ${autoFilledFields.includes("jenis_kelamin") ? "border-green-300 bg-green-50/30 focus:ring-green-100" : "border focus:ring-indigo-100"} focus:ring-2 outline-none transition-all`}>

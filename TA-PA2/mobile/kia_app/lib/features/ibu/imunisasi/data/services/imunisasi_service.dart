@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart'; // Ditambahkan untuk debugPrint jika diperlukan
 import 'package:http/http.dart' as http;
+import 'package:ta_pa2_pa3_project/core/network/app_http_client.dart';
 import 'package:ta_pa2_pa3_project/core/constants/api_constants.dart';
 import 'package:ta_pa2_pa3_project/core/services/auth_session.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/imunisasi/data/models/imunisasi_model.dart';
@@ -11,7 +12,7 @@ class ImunisasiService {
 
   ImunisasiService({
     http.Client? client,
-  }) : _client = client ?? http.Client();
+  }) : _client = client ?? AppHttpClient();
 
   Map<String, String> get _headers {
     final token = AuthSession.token;

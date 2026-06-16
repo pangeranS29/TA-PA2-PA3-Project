@@ -32,3 +32,8 @@ func (u *PencatatanImunisasiUsecase) SetSelesai(id uint) error {
 func (u *PencatatanImunisasiUsecase) GetByID(id uint) (*models.PencatatanImunisasi, error) {
 	return u.repo.GetByID(id)
 }
+
+// CancelByJadwalID soft-deletes pencatatan record(s) for a given jadwal
+func (u *PencatatanImunisasiUsecase) CancelByJadwalID(jadwalID uint) error {
+	return u.repo.CancelByJadwalID(jadwalID)
+}

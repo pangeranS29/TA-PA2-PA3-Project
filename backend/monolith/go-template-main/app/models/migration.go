@@ -161,6 +161,10 @@ func AutoMigrate(db *gorm.DB) error {
 
 		// ==================== AUDIT TRAIL ====================
 		&AuditTrail{},
+
+		// ==================== GEJALA DARURAT ANAK ====================
+		&RiwayatDeteksi{},
+		&DetailDeteksi{},
 	}
 
 	// Jalankan automigrate

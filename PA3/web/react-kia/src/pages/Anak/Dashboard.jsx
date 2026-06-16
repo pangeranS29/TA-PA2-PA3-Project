@@ -16,7 +16,7 @@ import {
 } from "recharts";
 
 import {
-  ChevronLeft, Baby, Ruler, Activity, Calendar, User,
+  ChevronLeft, ArrowLeft, Baby, Ruler, Activity, Calendar, User,
   Plus, X, Apple, Syringe, TrendingUp, Smile, ChartLine, Stethoscope, ClipboardList, ArrowRight
 } from "lucide-react";
 
@@ -123,8 +123,11 @@ export default function AnakDashboard() {
         {/* HEADER: Lebih rapat */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
           <div>
-            <Link to="/daftar-anak" className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-blue-600 mb-1 transition-all">
-              <ChevronLeft size={14} /> Kembali
+            <Link
+              to="/daftar-anak"
+              className="flex items-center gap-2 px-6 py-2 border border-blue-600 text-blue-600 hover:bg-blue-50 rounded-full font-medium text-sm transition-all group w-fit mb-4 mt-2"
+            >
+              <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" /> Kembali
             </Link>
             <h1 className="text-2xl font-bold text-gray-800 tracking-tight">{child.nama}</h1>
           </div>

@@ -62,9 +62,11 @@ type Main struct {
 	RiwayatProsesMelahirkan       *RiwayatProsesMelahirkanRepository
 	PelayananIbuNifas             *PelayananIbuNifasRepository
 	CatatanPelayananNifas         *CatatanPelayananNifasRepository
+	CatatanPelayananKehamilan     *CatatanPelayananKehamilanRepository
 	Rujukan                       *RujukanRepository
 	JenisPelayanan                JenisPelayananRepository
 	KategoriUmur                  KategoriUmurRepository
+	GejalaDaruratAnak             GejalaDaruratAnakRepository
 
 	// Repository tambahan
 	// KesehatanLingkunganDanCatatanKader *KesehatanLingkunganDanCatatanKaderRepository
@@ -125,6 +127,7 @@ type Main struct {
 	Form                     FormRepository
 	Pemeriksaan              PemeriksaanRepository
 	PencatatanImunisasi      *PencatatanImunisasiRepository
+	PuskesmasDashboard       *PuskesmasDashboardRepository
 }
 
 // DB returns the underlying *gorm.DB instance for direct queries and transactions.
@@ -181,6 +184,7 @@ func Init(opts Options) *Main {
 	m.RiwayatProsesMelahirkan = NewRiwayatProsesMelahirkanRepository(opts.Postgres)
 	m.PelayananIbuNifas = NewPelayananIbuNifasRepository(opts.Postgres)
 	m.CatatanPelayananNifas = NewCatatanPelayananNifasRepository(opts.Postgres)
+	m.CatatanPelayananKehamilan = NewCatatanPelayananKehamilanRepository(opts.Postgres)
 	m.Rujukan = NewRujukanRepository(opts.Postgres)
 
 	m.Neonatus = NewPelayananNeonatusRepository(opts.Postgres)
@@ -200,6 +204,7 @@ func Init(opts Options) *Main {
 	// m.SkriningPemantauan = NewSkriningPemantauanRepository(opts.Postgres)
 	m.JenisPelayanan = NewJenisPelayananRepository(opts.Postgres)
 	m.KategoriUmur = NewKategoriUmurRepository(opts.Postgres)
+	m.GejalaDaruratAnak = NewGejalaDaruratAnakRepository(opts.Postgres)
 
 	// Repository tambahan
 	m.KeluhanAnak = NewKeluhanAnakRepository(opts.Postgres)
@@ -245,6 +250,7 @@ func Init(opts Options) *Main {
 	m.Form = NewFormRepository(opts.Postgres) // Inisialisasi FormRepository dengan database yang sesuai
 	m.Pemeriksaan = NewPemeriksaanRepository(opts.Postgres)
 	m.PencatatanImunisasi = NewPencatatanImunisasiRepository(opts.Postgres)
+	m.PuskesmasDashboard = NewPuskesmasDashboardRepository(opts.Postgres)
 	// return m
 
 	// MODUL IBU

@@ -202,13 +202,11 @@ class _PerawatanPerkembanganScreenState
       final jawaban = checklist[kat.id];
       if (jawaban == null) continue;
 
-      itemsToSave.add(
-        BulkPerawatanItem(
-          kategoriCapaianId: kat.id,
-          jawaban: jawaban,
-          tanggalPeriksa: _tanggalPeriksa,
-        )
-      );
+      itemsToSave.add(BulkPerawatanItem(
+        kategoriCapaianId: kat.id,
+        jawaban: jawaban,
+        tanggalPeriksa: _tanggalPeriksa,
+      ));
     }
 
     if (itemsToSave.isEmpty) {
@@ -223,11 +221,11 @@ class _PerawatanPerkembanganScreenState
       );
 
       final response = await _apiService.createBulkPerawatan(request);
-      
+
       for (final peraw in response) {
         ids[peraw.kategoriCapaianId] = peraw.id;
       }
-      
+
       successCount = response.length;
       failCount = itemsToSave.length - response.length;
     } catch (e) {

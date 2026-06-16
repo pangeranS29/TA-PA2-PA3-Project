@@ -60,6 +60,13 @@ func (r *PencatatanImunisasiRepository) SetSelesai(id uint) error {
 		Update("is_selesai", true).Error
 }
 
+// Cancel deletes (soft-delete) a pencatatan record by jadwal_imunisasi_anak ID
+func (r *PencatatanImunisasiRepository) CancelByJadwalID(jadwalID uint) error {
+	return r.postgres.
+		Where("id_jadwal_imunisasi_anak = ?", jadwalID).
+		Delete(&models.PencatatanImunisasi{}).Error
+}
+
 // GetByID retrieves a single pencatatan record by ID
 func (r *PencatatanImunisasiRepository) GetByID(id uint) (*models.PencatatanImunisasi, error) {
 	var record models.PencatatanImunisasi

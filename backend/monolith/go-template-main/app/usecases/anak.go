@@ -17,6 +17,7 @@ type AnakUseCase struct {
 	prediksiStuntingRepo repositories.PrediksiStuntingRepository
 	ibuRepo              *repositories.IbuRepository
 	onAnakCreated        func(anakID int32) // ← callback untuk auto-generate jadwal
+	onAnakCreatedSync    func(anakID int32) error // ← callback untuk auto-generate pertumbuhan pertama
 }
 
 func NewAnakUseCase(
@@ -38,6 +39,11 @@ func (u *AnakUseCase) SetOnAnakCreated(fn func(anakID int32)) {
 	u.onAnakCreated = fn
 }
 
+// SetOnAnakCreatedSync mendaftarkan callback sinkron yang dipanggil setelah anak berhasil dibuat
+func (u *AnakUseCase) SetOnAnakCreatedSync(fn func(anakID int32) error) {
+	u.onAnakCreatedSync = fn
+}
+
 // ====================== GET ======================
 func (u *AnakUseCase) GetAnak(id int32) (*models.AnakResponse, error) {
 	anak, err := u.anakRepo.FindByID(id)
@@ -52,6 +58,13 @@ func (u *AnakUseCase) GetAnak(id int32) (*models.AnakResponse, error) {
 	pred, predErr := u.prediksiStuntingRepo.GetLatestPredictionByAnakID(id)
 	if predErr == nil && pred != nil {
 		resp.StatusPrediksi = pred.StatusPrediksi
+	} else if u.onAnakCreatedSync != nil {
+		// Secara retroaktif buat data pertumbuhan awal jika belum ada
+		if err := u.onAnakCreatedSync(id); err == nil {
+			if latestPred, errPred := u.prediksiStuntingRepo.GetLatestPredictionByAnakID(id); errPred == nil && latestPred != nil {
+				resp.StatusPrediksi = latestPred.StatusPrediksi
+			}
+		}
 	}
 
 	return &resp, nil
@@ -111,6 +124,13 @@ func (u *AnakUseCase) CreateAnak(req models.CreateAnakRequest) (*models.AnakResp
 
 	if err := u.anakRepo.Create(anak); err != nil {
 		return nil, err
+	}
+
+	// ✅ Auto-generate catatan pertumbuhan pertama dan prediksi stunting (sinkron)
+	if u.onAnakCreatedSync != nil {
+		if err := u.onAnakCreatedSync(anak.ID); err != nil {
+			fmt.Printf("Warning: gagal membuat catatan pertumbuhan awal: %v\n", err)
+		}
 	}
 
 	// Fetch complete data with relations
@@ -196,6 +216,13 @@ func (u *AnakUseCase) CreateAnakDenganPenduduk(req models.CreateAnakDenganPendud
 
 	if err := u.anakRepo.Create(anak); err != nil {
 		return nil, fmt.Errorf("gagal membuat data anak: %w", err)
+	}
+
+	// ✅ Auto-generate catatan pertumbuhan pertama dan prediksi stunting (sinkron)
+	if u.onAnakCreatedSync != nil {
+		if err := u.onAnakCreatedSync(anak.ID); err != nil {
+			fmt.Printf("Warning: gagal membuat catatan pertumbuhan awal: %v\n", err)
+		}
 	}
 
 	// Fetch complete data with relations
@@ -334,6 +361,27 @@ func (u *AnakUseCase) AdminListAnak(kehamilanID int32) ([]models.AnakResponse, e
 	}
 	predMap, _ := u.prediksiStuntingRepo.GetLatestPredictionsByAnakIDs(ids)
 
+	// Kumpulkan anak yang belum punya prediksi untuk di-sync secara sinkron
+	var missingIDs []int32
+	for _, k := range list {
+		if predMap == nil {
+			missingIDs = append(missingIDs, k.ID)
+		} else if _, ok := predMap[k.ID]; !ok {
+			missingIDs = append(missingIDs, k.ID)
+		}
+	}
+
+	// Jalankan retroaktif sync sinkron untuk anak yang belum punya prediksi
+	if u.onAnakCreatedSync != nil && len(missingIDs) > 0 {
+		for _, anakID := range missingIDs {
+			if err := u.onAnakCreatedSync(anakID); err != nil {
+				fmt.Printf("[AUTO SYNC] Gagal retroaktif sync anak ID %d: %v\n", anakID, err)
+			}
+		}
+		// Re-fetch predMap setelah sync
+		predMap, _ = u.prediksiStuntingRepo.GetLatestPredictionsByAnakIDs(ids)
+	}
+
 	for _, k := range list {
 		resp := u.toAnakResponse(&k)
 		if predMap != nil {
@@ -375,6 +423,27 @@ func (u *AnakUseCase) ListAnakByDesa(desaID *int32, kehamilanID int32) ([]models
 		ids = append(ids, k.ID)
 	}
 	predMap, _ := u.prediksiStuntingRepo.GetLatestPredictionsByAnakIDs(ids)
+
+	// Kumpulkan anak yang belum punya prediksi untuk di-sync secara sinkron
+	var missingIDs []int32
+	for _, k := range list {
+		if predMap == nil {
+			missingIDs = append(missingIDs, k.ID)
+		} else if _, ok := predMap[k.ID]; !ok {
+			missingIDs = append(missingIDs, k.ID)
+		}
+	}
+
+	// Jalankan retroaktif sync sinkron untuk anak yang belum punya prediksi
+	if u.onAnakCreatedSync != nil && len(missingIDs) > 0 {
+		for _, anakID := range missingIDs {
+			if err := u.onAnakCreatedSync(anakID); err != nil {
+				fmt.Printf("[AUTO SYNC] Gagal retroaktif sync anak ID %d: %v\n", anakID, err)
+			}
+		}
+		// Re-fetch predMap setelah sync
+		predMap, _ = u.prediksiStuntingRepo.GetLatestPredictionsByAnakIDs(ids)
+	}
 
 	for _, k := range list {
 		resp := u.toAnakResponse(&k)
@@ -419,35 +488,45 @@ func FormatUsiaTeks(tanggalLahir time.Time) string {
 		return "0 Hari"
 	}
 
-	days := int(now.Sub(tanggalLahir).Hours() / 24)
-	if days <= 28 {
-		return fmt.Sprintf("%d Hari", days)
-	}
-
+	// Hitung beda tahun, bulan, hari secara bertahap
 	years := now.Year() - tanggalLahir.Year()
 	months := int(now.Month()) - int(tanggalLahir.Month())
-	total := years*12 + months
+	days := now.Day() - tanggalLahir.Day()
 
-	if now.Day() < tanggalLahir.Day() {
-		total--
+	if days < 0 {
+		months--
+		// Dapatkan jumlah hari pada bulan sebelum 'now'
+		t := time.Date(now.Year(), now.Month(), 0, 0, 0, 0, 0, time.UTC)
+		days += t.Day()
 	}
 
-	if total < 0 {
-		total = 0
+	if months < 0 {
+		years--
+		months += 12
 	}
 
-	if total < 12 {
-		return fmt.Sprintf("%d Bulan", total)
+	// Susun teks usia
+	if years > 0 {
+		if months > 0 {
+			if days > 0 {
+				return fmt.Sprintf("%d Tahun %d Bulan %d Hari", years, months, days)
+			}
+			return fmt.Sprintf("%d Tahun %d Bulan", years, months)
+		}
+		if days > 0 {
+			return fmt.Sprintf("%d Tahun %d Hari", years, days)
+		}
+		return fmt.Sprintf("%d Tahun", years)
 	}
 
-	tahun := total / 12
-	sisa := total % 12
-
-	if sisa == 0 {
-		return fmt.Sprintf("%d Tahun", tahun)
+	if months > 0 {
+		if days > 0 {
+			return fmt.Sprintf("%d Bulan %d Hari", months, days)
+		}
+		return fmt.Sprintf("%d Bulan", months)
 	}
 
-	return fmt.Sprintf("%d Tahun %d Bulan", tahun, sisa)
+	return fmt.Sprintf("%d Hari", days)
 }
 
 func FormatLabelUsia(bulan int) string {
