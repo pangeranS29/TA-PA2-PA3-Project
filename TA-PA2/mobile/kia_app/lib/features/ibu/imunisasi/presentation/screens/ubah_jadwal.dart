@@ -23,9 +23,9 @@ class _UbahJadwalScreenState extends State<UbahJadwalScreen> {
 
   ImunisasiDetailModel? data;
 
-List<JadwalLayananModel> jadwalLayanan = [];
+  List<JadwalLayananModel> jadwalLayanan = [];
 
-JadwalLayananModel? selectedJadwal;
+  JadwalLayananModel? selectedJadwal;
 
   DateTime? selectedDate;
   final TextEditingController tanggalController = TextEditingController();
@@ -44,37 +44,34 @@ JadwalLayananModel? selectedJadwal;
   }
 
   Future<void> fetchJadwalLayanan() async {
-  try {
-    final result =
-        await service.getJadwalLayananUpcoming();
+    try {
+      final result = await service.getJadwalLayananUpcoming();
 
-    setState(() {
-      jadwalLayanan = result;
-    });
-  } catch (e) {
-    debugPrint(
-      'Error getJadwalLayananUpcoming: $e',
-    );
+      setState(() {
+        jadwalLayanan = result;
+      });
+    } catch (e) {
+      debugPrint(
+        'Error getJadwalLayananUpcoming: $e',
+      );
+    }
   }
-}
 
   Future<void> fetchData() async {
     try {
-      final result =
-    await service.getJadwalImunisasiById(
-      widget.jadwalId,
-    );
+      final result = await service.getJadwalImunisasiById(
+        widget.jadwalId,
+      );
 
-final layanan =
-    await service.getJadwalLayananUpcoming();
+      final layanan = await service.getJadwalLayananUpcoming();
 
       final jadwalItem = result.jadwal.isNotEmpty ? result.jadwal.first : null;
 
-setState(() {
-  data = result;
-  jadwalLayanan = layanan;
-  isLoading = false;
-});
+      setState(() {
+        data = result;
+        jadwalLayanan = layanan;
+        isLoading = false;
+      });
     } catch (e) {
       setState(() {
         isLoading = false;
@@ -83,16 +80,16 @@ setState(() {
   }
 
   Future<void> submitRequestPerubahan() async {
-if (selectedJadwal == null) {
-  ScaffoldMessenger.of(context).showSnackBar(
-    const SnackBar(
-      content: Text(
-        "Pilih jadwal posyandu terlebih dahulu",
-      ),
-    ),
-  );
-  return;
-}
+    if (selectedJadwal == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            "Pilih jadwal posyandu terlebih dahulu",
+          ),
+        ),
+      );
+      return;
+    }
 
     if (alasanController.text.isEmpty) {
       debugPrint("❌ alasan kosong");
@@ -106,16 +103,15 @@ if (selectedJadwal == null) {
     }
 
     final tanggalBaru =
-    DateFormat('yyyy-MM-dd')
-        .format(selectedJadwal!.tanggal);
+        DateFormat('yyyy-MM-dd').format(selectedJadwal!.tanggal);
     setState(() => isSubmitting = true);
 
     try {
-await service.requestPerubahanJadwal(
-  widget.jadwalId,
-  selectedJadwal!.id,
-  alasanController.text,
-);
+      await service.requestPerubahanJadwal(
+        widget.jadwalId,
+        selectedJadwal!.id,
+        alasanController.text,
+      );
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -251,27 +247,27 @@ await service.requestPerubahanJadwal(
                         title: "Ubah Tanggal Estimasi",
                         children: [
                           DropdownButtonFormField<JadwalLayananModel>(
-  value: selectedJadwal,
-  decoration: InputDecoration(
-    labelText: "Pilih Jadwal Posyandu",
-    border: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(12),
-    ),
-  ),
-  items: jadwalLayanan.map((item) {
-    return DropdownMenuItem(
-      value: item,
-      child: Text(
-        "${DateFormat('dd MMM yyyy').format(item.tanggal)} - ${item.layanan}",
-      ),
-    );
-  }).toList(),
-  onChanged: (value) {
-    setState(() {
-      selectedJadwal = value;
-    });
-  },
-),
+                            value: selectedJadwal,
+                            decoration: InputDecoration(
+                              labelText: "Pilih Jadwal Posyandu",
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            items: jadwalLayanan.map((item) {
+                              return DropdownMenuItem(
+                                value: item,
+                                child: Text(
+                                  "${DateFormat('dd MMM yyyy').format(item.tanggal)} - ${item.layanan}",
+                                ),
+                              );
+                            }).toList(),
+                            onChanged: (value) {
+                              setState(() {
+                                selectedJadwal = value;
+                              });
+                            },
+                          ),
                         ],
                       ),
 

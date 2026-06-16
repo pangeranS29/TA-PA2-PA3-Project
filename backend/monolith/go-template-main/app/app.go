@@ -72,6 +72,20 @@ func (m *Main) startCronJob() {
 		} else {
 			log.Println("[CRON] reminder kontrol selesai")
 		}
+
+		// 4. Update status jadwal imunisasi
+		if err := m.usecase.UpdateStatusJadwal(); err != nil {
+			log.Printf("[CRON] update status jadwal imunisasi error: %v", err)
+		} else {
+			log.Println("[CRON] update status jadwal imunisasi selesai")
+		}
+
+		// 5. Update overdue kunjungan imunisasi
+		if err := m.usecase.ProcessOverdueKunjunganImunisasi(); err != nil {
+			log.Printf("[CRON] overdue kunjungan imunisasi error: %v", err)
+		} else {
+			log.Println("[CRON] overdue kunjungan imunisasi selesai")
+		}
 	})
 	if err != nil {
 		log.Fatalf("[CRON] Gagal menjadwalkan job: %v", err)

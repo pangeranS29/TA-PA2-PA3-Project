@@ -301,23 +301,23 @@ func (u *Main) UpdateStatusJadwal() error {
 
 		diff :=
 			int(
-				nowDate.Sub(tgl).Hours() / 24,
+				tgl.Sub(nowDate).Hours() / 24,
 			)
 
 		var newStatus uint
 
 		switch {
 
-		case diff < 0:
+		case diff >= 1:
 			newStatus = 1
 
-		case diff <= 3:
+		case diff == 0:
 			newStatus = 2
 
-		case diff <= 6:
+		case diff >= -6:
 			newStatus = 3
 
-		case diff <= 13:
+		case diff >= -14:
 			newStatus = 4
 
 		default:

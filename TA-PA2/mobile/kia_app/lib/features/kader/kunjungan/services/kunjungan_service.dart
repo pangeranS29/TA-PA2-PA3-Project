@@ -334,6 +334,154 @@ class KunjunganImunisasiService {
     }
   }
 
+Future<List<JadwalImunisasiTerlewatModel>>
+    getAllJadwalImunisasiTerlewat() async {
+
+  final uri = Uri.parse(
+    '${ApiConstants.baseUrl}/kader/imunisasi-terlewat',
+  );
+
+  try {
+    final response = await _client.get(
+      uri,
+      headers: _headers,
+    );
+
+    if (response.statusCode == 404) {
+      return [];
+    }
+
+    final body = jsonDecode(
+      response.body,
+    ) as Map<String, dynamic>;
+
+    if (response.statusCode < 200 ||
+        response.statusCode >= 300) {
+
+      final msg = body['message'];
+
+      final errorText = (msg is List)
+          ? msg.join(', ')
+          : (msg ??
+              'Gagal mengambil jadwal imunisasi terlewat');
+
+      throw Exception(errorText);
+    }
+
+    final data = body['data'];
+
+    if (data is List) {
+      return data.map((item) {
+        return JadwalImunisasiTerlewatModel.fromJson(
+          Map<String, dynamic>.from(
+            item as Map,
+          ),
+        );
+      }).toList();
+    }
+
+    return [];
+  } catch (e) {
+    debugPrint(
+      'Error getAllJadwalImunisasiTerlewat: $e',
+    );
+
+    rethrow;
+  }
+}
+
+Future<DetailJadwalImunisasiTerlewatModel>
+    getJadwalImunisasiTerlewatById(
+  int jadwalId,
+) async {
+  final uri = Uri.parse(
+    '${ApiConstants.baseUrl}/kader/imunisasi-terlewat/$jadwalId',
+  );
+
+  try {
+    final response = await _client.get(
+      uri,
+      headers: _headers,
+    );
+
+    if (response.statusCode == 404) {
+      throw Exception(
+        'Data imunisasi terlewat tidak ditemukan',
+      );
+    }
+
+    final body = jsonDecode(
+      response.body,
+    ) as Map<String, dynamic>;
+
+    if (response.statusCode < 200 ||
+        response.statusCode >= 300) {
+      final msg = body['message'];
+
+      final errorText = (msg is List)
+          ? msg.join(', ')
+          : (msg ??
+              'Gagal mengambil detail imunisasi terlewat');
+
+      throw Exception(
+        errorText,
+      );
+    }
+
+    return DetailJadwalImunisasiTerlewatModel.fromJson(
+      body['data'],
+    );
+  } catch (e) {
+    debugPrint(
+      'Error getJadwalImunisasiTerlewatById: $e',
+    );
+
+    rethrow;
+  }
+}
+
+  Future<void> postKunjunganImunisasi(
+    PostKunjunganImunisasiRequest request,
+  ) async {
+    final uri = Uri.parse(
+      '${ApiConstants.baseUrl}/kader/kunjungan-imunisasi',
+    );
+
+    try {
+      final body = jsonEncode(
+        request.toJson(),
+      );
+
+      final response = await _client.post(
+        uri,
+        headers: _headers,
+        body: body,
+      );
+
+      final decoded = jsonDecode(
+        response.body,
+      );
+
+      if (response.statusCode < 200 || response.statusCode >= 300) {
+        final msg = decoded['message'];
+
+        final errorText = (msg is List)
+            ? msg.join(', ')
+            : (msg ?? 'Gagal membuat kunjungan imunisasi');
+
+        throw Exception(
+          errorText,
+        );
+      }
+    } catch (e) {
+      debugPrint(
+        'Error postKunjunganImunisasi: $e',
+      );
+
+      rethrow;
+    }
+  }
+
   void dispose() {
     _client.close();
   }

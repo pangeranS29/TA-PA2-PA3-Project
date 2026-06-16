@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ta_pa2_pa3_project/core/services/auth_session.dart';
 import 'package:ta_pa2_pa3_project/features/kader/screens/pilih_status_kunjungan.dart';
+import 'package:ta_pa2_pa3_project/features/kader/screens/imunisasi_terlewat.dart';
 import 'package:ta_pa2_pa3_project/features/kader/screens/profil_screen.dart';
 import 'package:ta_pa2_pa3_project/features/kader/widgets/dashboard_bottom_nav.dart';
 import 'package:ta_pa2_pa3_project/features/kader/widgets/dashboard_header.dart';
@@ -71,7 +72,7 @@ class _DashboardKaderScreenState extends State<DashboardKaderScreen> {
         body = _buildHomeBody();
         break;
       case 1:
-        body = const Center(child: Text('Kunjungan'));
+        body = const DaftarImunisasiTerlewatScreen();
         break;
       case 2:
         body = const ProfilScreen();
