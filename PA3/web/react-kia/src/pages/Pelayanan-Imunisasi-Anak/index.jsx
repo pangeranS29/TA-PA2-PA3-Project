@@ -2,7 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import {
   Save, Syringe, CheckSquare, Square, Calendar,
+<<<<<<< HEAD
+  CheckCircle2, RefreshCw, X, ArrowLeft, AlertTriangle
+=======
   CheckCircle2, RefreshCw, X, ArrowLeft, AlertTriangle, XCircle
+>>>>>>> 0fae71ba4f3fe0d5a6f09c8c8c3bf4261b8de4b6
 } from 'lucide-react';
 import Swal from 'sweetalert2';
 import MainLayout from "../../components/Layout/MainLayout";
@@ -12,8 +16,12 @@ import {
   setPencatatanSelesai,
   createPelayananImunisasi,
   getAturanVaksinAnak,
+<<<<<<< HEAD
+  getPencatatanByAnakId
+=======
   getPencatatanByAnakId,
   batalParafImunisasi
+>>>>>>> 0fae71ba4f3fe0d5a6f09c8c8c3bf4261b8de4b6
 } from "../../services/imunisasiBidanService";
 
 const MONTHS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 18, 23, '23-59'];
@@ -478,6 +486,9 @@ const PelayananImunisasi = () => {
                       >
                         {/* Vaccine Name Cell */}
                         <td className="border border-gray-300 p-2 font-semibold text-gray-700 text-[10px] leading-tight">
+<<<<<<< HEAD
+                          {namaDosis}
+=======
                           <div className="flex items-center justify-between gap-1">
                             <span>{namaDosis}</span>
                             {doneItem && (
@@ -490,6 +501,7 @@ const PelayananImunisasi = () => {
                               </button>
                             )}
                           </div>
+>>>>>>> 0fae71ba4f3fe0d5a6f09c8c8c3bf4261b8de4b6
                         </td>
 
                         {/* Month Cells */}
@@ -548,9 +560,15 @@ const PelayananImunisasi = () => {
       {/* ═══════════ MODAL PARAF IMUNISASI ═══════════ */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+<<<<<<< HEAD
+          <div className="bg-white rounded-2xl w-full max-w-md overflow-hidden shadow-2xl border-t-4 border-blue-600">
+            {/* Modal Header */}
+            <div className="bg-gray-800 p-4 text-white flex justify-between items-center">
+=======
           <div className="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-hidden shadow-2xl border-t-4 border-blue-600 flex flex-col">
             {/* Modal Header */}
             <div className="bg-gray-800 p-4 text-white flex justify-between items-center flex-shrink-0">
+>>>>>>> 0fae71ba4f3fe0d5a6f09c8c8c3bf4261b8de4b6
               <span className="flex items-center gap-2 font-bold text-sm uppercase tracking-wider">
                 <Syringe size={18} className="text-blue-400" /> Paraf Imunisasi
               </span>
@@ -562,6 +580,25 @@ const PelayananImunisasi = () => {
               </button>
             </div>
 
+<<<<<<< HEAD
+            {/* Modal Form */}
+            <form onSubmit={handleSubmit} className="p-6 space-y-4">
+              {/* Tanggal */}
+              <div>
+                <label className="text-gray-500 mb-1 block text-xs font-bold uppercase tracking-wider">
+                  Tanggal Pelayanan
+                </label>
+                <div className="flex items-center gap-2 border-b-2 focus-within:border-blue-600 pb-2">
+                  <Calendar size={16} className="text-gray-400" />
+                  <input
+                    type="date"
+                    className="w-full outline-none font-bold text-sm bg-transparent"
+                    value={formData.tanggal}
+                    onChange={(e) =>
+                      setFormData({ ...formData, tanggal: e.target.value })
+                    }
+                    required
+=======
             {/* Modal Form - Scrollable */}
             <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto">
               <div className="p-6 space-y-4">
@@ -697,10 +734,84 @@ const PelayananImunisasi = () => {
                     onChange={(e) =>
                       setFormData({ ...formData, catatan: e.target.value })
                     }
+>>>>>>> 0fae71ba4f3fe0d5a6f09c8c8c3bf4261b8de4b6
                   />
                 </div>
               </div>
 
+<<<<<<< HEAD
+              {/* Vaccine Selection */}
+              <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                <div className="flex justify-between items-center mb-3">
+                  <label className="text-gray-400 text-[10px] font-bold uppercase tracking-widest">
+                    Vaksin yang Diberikan:
+                  </label>
+                  <span className="text-[10px] text-gray-500">
+                    {jadwalBelumSelesai.length} tersedia
+                  </span>
+                </div>
+
+                <div className="space-y-2 max-h-96 overflow-y-auto pr-2">
+                  {jadwalBelumSelesai.map((jadwal) => {
+                    const isSelected = formData.selectedJadwalIds.includes(
+                      jadwal.jadwal_id
+                    );
+                    return (
+                      <div key={jadwal.jadwal_id} className="space-y-2">
+                        <div
+                          onClick={() => handleToggleJadwal(jadwal.jadwal_id)}
+                          className={`flex items-center justify-between gap-3 p-3 rounded-lg border-2 transition-all cursor-pointer ${
+                            isSelected
+                              ? 'bg-blue-600 text-white border-blue-600'
+                              : 'bg-white border-gray-100 text-gray-700 hover:border-blue-300'
+                          }`}
+                        >
+                          <div className="flex items-center gap-3">
+                            {isSelected ? (
+                              <CheckSquare size={18} />
+                            ) : (
+                              <Square size={18} />
+                            )}
+                            <span className="text-xs font-medium">
+                              {jadwal.nama_dosis}
+                            </span>
+                          </div>
+                          <CheckCircle2
+                            size={16}
+                            className={isSelected ? 'text-white' : 'text-gray-300'}
+                          />
+                        </div>
+
+                        {isSelected && (
+                          <div className="pl-8 pr-2">
+                            <input
+                              type="text"
+                              placeholder="No. Batch Vaksin (opsional)"
+                              className="w-full text-xs border-2 border-blue-200 rounded-lg px-3 py-2 outline-none focus:border-blue-400 bg-blue-50/30"
+                              value={formData.batches[jadwal.jadwal_id] || ''}
+                              onChange={(e) =>
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  batches: {
+                                    ...prev.batches,
+                                    [jadwal.jadwal_id]: e.target.value,
+                                  },
+                                }))
+                              }
+                              onClick={(e) => e.stopPropagation()}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+
+                  {jadwalBelumSelesai.length === 0 && (
+                    <div className="text-center py-6 text-green-600 font-bold text-sm">
+                      <CheckCircle2 size={32} className="mx-auto mb-2" />
+                      Semua jadwal sudah selesai!
+                    </div>
+=======
               {/* Submit Button - Fixed at bottom */}
               <div className="p-6 pt-0 border-t border-gray-100 bg-white flex-shrink-0">
                 <button
@@ -718,9 +829,49 @@ const PelayananImunisasi = () => {
                     <>
                       <Save size={18} /> SIMPAN ({formData.selectedJadwalIds.length}) PARAF
                     </>
+>>>>>>> 0fae71ba4f3fe0d5a6f09c8c8c3bf4261b8de4b6
                   )}
                 </button>
               </div>
+<<<<<<< HEAD
+
+              {/* Catatan */}
+              <div>
+                <label className="text-gray-500 mb-1 block text-xs font-bold uppercase tracking-wider">
+                  Catatan Umum
+                </label>
+                <textarea
+                  className="w-full border-2 border-gray-200 p-2 outline-none text-sm focus:border-blue-600 rounded-lg resize-none"
+                  placeholder="Catatan tambahan (opsional)..."
+                  rows="2"
+                  value={formData.catatan}
+                  onChange={(e) =>
+                    setFormData({ ...formData, catatan: e.target.value })
+                  }
+                />
+              </div>
+
+              {/* Submit */}
+              <button
+                disabled={
+                  isSubmitting || formData.selectedJadwalIds.length === 0
+                }
+                type="submit"
+                className="w-full bg-blue-600 text-white py-3.5 rounded-xl hover:bg-blue-700 flex justify-center items-center gap-3 transition-all font-bold text-sm uppercase tracking-wider disabled:bg-gray-300"
+              >
+                {isSubmitting ? (
+                  <>
+                    <RefreshCw size={18} className="animate-spin" /> MEMPROSES...
+                  </>
+                ) : (
+                  <>
+                    <Save size={18} /> SIMPAN (
+                    {formData.selectedJadwalIds.length}) PARAF
+                  </>
+                )}
+              </button>
+=======
+>>>>>>> 0fae71ba4f3fe0d5a6f09c8c8c3bf4261b8de4b6
             </form>
           </div>
         </div>

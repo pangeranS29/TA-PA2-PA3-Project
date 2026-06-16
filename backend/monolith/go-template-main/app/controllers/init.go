@@ -40,6 +40,7 @@ type Main struct {
 	CatatanPelayananTrimester2    *CatatanPelayananTrimester2Controller
 	CatatanPelayananTrimester3    *CatatanPelayananTrimester3Controller
 	CatatanPelayananNifas         *CatatanPelayananNifasController
+	CatatanPelayananKehamilan     *CatatanPelayananKehamilanController
 	GrafikPeningkatanBB           *GrafikPeningkatanBBController
 	PenjelasanHasilGrafik         *PenjelasanHasilGrafikController
 	RencanaPersalinan             *RencanaPersalinanController
@@ -118,6 +119,7 @@ type Main struct {
 	Pemeriksaan              *PemeriksaanController
 
 	ProfilIbu *ProfilIbuController
+	DetailKehamilanIbu *DetailKehamilanIbuController
 
 	// Pencatatan Imunisasi (Web)
 	PencatatanImunisasi *PencatatanImunisasiController
@@ -167,6 +169,7 @@ func Init(opts Options) *Main {
 	m.CatatanPelayananTrimester2 = NewCatatanPelayananTrimester2Controller(opts.UseCases.CatatanPelayananTrimester2)
 	m.CatatanPelayananTrimester3 = NewCatatanPelayananTrimester3Controller(opts.UseCases.CatatanPelayananTrimester3)
 	m.CatatanPelayananNifas = NewCatatanPelayananNifasController(opts.UseCases.CatatanPelayananNifas)
+	m.CatatanPelayananKehamilan = NewCatatanPelayananKehamilanController(opts.UseCases.CatatanPelayananKehamilan)
 	m.GrafikEvaluasiKehamilan = NewGrafikEvaluasiKehamilanController(opts.UseCases.GrafikEvaluasiKehamilan)
 	m.GrafikPeningkatanBB = NewGrafikPeningkatanBBController(opts.UseCases.GrafikPeningkatanBB)
 	m.PenjelasanHasilGrafik = NewPenjelasanHasilGrafikController(opts.UseCases.PenjelasanHasilGrafik)
@@ -272,6 +275,8 @@ func Init(opts Options) *Main {
 	m.ProfilIbu = NewProfilIbuController(opts.UseCases.ProfilIbu)
 	m.GrafikEvaluasiKehamilan = NewGrafikEvaluasiKehamilanController(opts.UseCases.GrafikEvaluasiKehamilan)
 
+	// Riwayat kehamilan ibu 
+	m.DetailKehamilanIbu = NewDetailKehamilanIbuController(opts.UseCases.DetailKehamilanIbu)
 	// Pencatatan Imunisasi (Web)
 	m.PencatatanImunisasi = NewPencatatanImunisasiController(opts.UseCases.PencatatanImunisasi)
 
