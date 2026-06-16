@@ -274,6 +274,11 @@ func (m *Main) SetJadwalSelesaiBidan(jadwalID uint) error {
 	return m.repository.UpdateStatusJadwalImunisasi(jadwalID, 6)
 }
 
+// SetJadwalSelesaiBidanReset resets a completed jadwal back to status 1 (belum)
+func (m *Main) SetJadwalSelesaiBidanReset(jadwalID uint) error {
+	return m.repository.UpdateStatusJadwalImunisasi(jadwalID, 1)
+}
+
 func (m *Main) GetJadwalImunisasiByJadwalIDBidan(jadwalID uint) (*models.JadwalImunisasiResponse, error) {
 
 	row, err := m.repository.GetJadwalImunisasiByJadwalIDBidan(jadwalID)

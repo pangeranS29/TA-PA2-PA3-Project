@@ -1,4 +1,4 @@
-package routes
+﻿package routes
 
 import (
 	"fmt"
@@ -176,6 +176,7 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	// Imunisasi - Dashboard Bidan
 	bidan.GET("/imunisasi/anak/:anak_id", controller.GetJadwalImunisasiByAnakIDBidan)
 	bidan.PUT("/imunisasi/:id/selesai", controller.SetJadwalSelesaiBidan)
+	bidan.PUT("/imunisasi/:id/batal-paraf", controller.BatalParafBidan)
 	bidan.GET("/imunisasi/:id", controller.GetJadwalImunisasiByIDBidan)
 	bidan.GET("/aturan-vaksin-anak", controller.GetAturanVaksinAnak)
 
