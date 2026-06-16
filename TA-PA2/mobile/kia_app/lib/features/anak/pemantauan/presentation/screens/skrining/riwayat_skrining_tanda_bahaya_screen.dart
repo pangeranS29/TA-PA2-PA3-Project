@@ -227,16 +227,26 @@ class _RiwayatSkriningTandaBahayaScreenState
     final child = record.anak;
     final candidates = <dynamic>[
       child?['kehamilan'] is Map<String, dynamic>
-          ? (child!['kehamilan'] as Map<String, dynamic>)['ibu'] is Map<String, dynamic>
-              ? ((child['kehamilan'] as Map<String, dynamic>)['ibu'] as Map<String, dynamic>)['kependudukan'] is Map<String, dynamic>
-                  ? (((child['kehamilan'] as Map<String, dynamic>)['ibu'] as Map<String, dynamic>)['kependudukan'] as Map<String, dynamic>)['nama_lengkap']
+          ? (child!['kehamilan'] as Map<String, dynamic>)['ibu']
+                  is Map<String, dynamic>
+              ? ((child['kehamilan'] as Map<String, dynamic>)['ibu']
+                          as Map<String, dynamic>)['kependudukan']
+                      is Map<String, dynamic>
+                  ? (((child['kehamilan'] as Map<String, dynamic>)['ibu']
+                          as Map<String, dynamic>)['kependudukan']
+                      as Map<String, dynamic>)['nama_lengkap']
                   : null
               : null
           : null,
       child?['kehamilan'] is Map<String, dynamic>
-          ? (child!['kehamilan'] as Map<String, dynamic>)['ibu'] is Map<String, dynamic>
-              ? ((child['kehamilan'] as Map<String, dynamic>)['ibu'] as Map<String, dynamic>)['kependudukan'] is Map<String, dynamic>
-                  ? (((child['kehamilan'] as Map<String, dynamic>)['ibu'] as Map<String, dynamic>)['kependudukan'] as Map<String, dynamic>)['nama']
+          ? (child!['kehamilan'] as Map<String, dynamic>)['ibu']
+                  is Map<String, dynamic>
+              ? ((child['kehamilan'] as Map<String, dynamic>)['ibu']
+                          as Map<String, dynamic>)['kependudukan']
+                      is Map<String, dynamic>
+                  ? (((child['kehamilan'] as Map<String, dynamic>)['ibu']
+                          as Map<String, dynamic>)['kependudukan']
+                      as Map<String, dynamic>)['nama']
                   : null
               : null
           : null,
@@ -261,9 +271,11 @@ class _RiwayatSkriningTandaBahayaScreenState
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+          title:
+              Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
           content: Text(content),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
@@ -301,7 +313,9 @@ class _RiwayatSkriningTandaBahayaScreenState
       final childName = _childName(record).toLowerCase();
       final motherName = _motherName(record).toLowerCase();
       final exam = record.namaPemeriksa.toLowerCase();
-      return childName.contains(query) || motherName.contains(query) || exam.contains(query);
+      return childName.contains(query) ||
+          motherName.contains(query) ||
+          exam.contains(query);
     }).toList();
 
     return Scaffold(
@@ -329,7 +343,6 @@ class _RiwayatSkriningTandaBahayaScreenState
                   if (!_isKaderMode) _buildPrimaryActionCard(),
                   if (_isKaderMode) _buildKaderSummaryCard(totalPending),
                   const SizedBox(height: 16),
-                  
                   if (_isKaderMode && _records.isNotEmpty) ...[
                     TextField(
                       controller: _searchController,
@@ -340,19 +353,21 @@ class _RiwayatSkriningTandaBahayaScreenState
                         fillColor: Colors.white,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                          borderSide:
+                              const BorderSide(color: Color(0xFFE2E8F0)),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                          borderSide:
+                              const BorderSide(color: Color(0xFFE2E8F0)),
                         ),
-                        contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+                        contentPadding: const EdgeInsets.symmetric(
+                            vertical: 0, horizontal: 16),
                       ),
                     ),
                     const SizedBox(height: 16),
                   ],
-
-                  if (_records.isEmpty) 
+                  if (_records.isEmpty)
                     _buildEmptyState(context)
                   else ...[
                     _buildHeaderCard(),
@@ -630,7 +645,9 @@ class _RiwayatSkriningTandaBahayaScreenState
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      _isKaderMode ? childLabel : (record.rentangUsia?.namaRentang ?? '-'),
+                      _isKaderMode
+                          ? childLabel
+                          : (record.rentangUsia?.namaRentang ?? '-'),
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w800,
@@ -780,8 +797,10 @@ class _RiwayatSkriningTandaBahayaScreenState
                           : () => _showConfirmationDialog(
                                 context: context,
                                 title: 'Tolak Verifikasi',
-                                content: 'Apakah Anda yakin ingin menolak skrining tanda bahaya $childLabel?',
-                                onConfirm: () => _verifyRecord(record, 'Ditolak'),
+                                content:
+                                    'Apakah Anda yakin ingin menolak skrining tanda bahaya $childLabel?',
+                                onConfirm: () =>
+                                    _verifyRecord(record, 'Ditolak'),
                               ),
                       icon: isBusy
                           ? const SizedBox(
@@ -801,8 +820,10 @@ class _RiwayatSkriningTandaBahayaScreenState
                           : () => _showConfirmationDialog(
                                 context: context,
                                 title: 'Verifikasi Skrining',
-                                content: 'Apakah Anda yakin ingin memverifikasi skrining tanda bahaya $childLabel?',
-                                onConfirm: () => _verifyRecord(record, 'Diterima'),
+                                content:
+                                    'Apakah Anda yakin ingin memverifikasi skrining tanda bahaya $childLabel?',
+                                onConfirm: () =>
+                                    _verifyRecord(record, 'Diterima'),
                               ),
                       icon: isBusy
                           ? const SizedBox(

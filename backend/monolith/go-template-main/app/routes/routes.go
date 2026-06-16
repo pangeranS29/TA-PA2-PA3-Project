@@ -1,4 +1,4 @@
-﻿package routes
+package routes
 
 import (
 	"fmt"
@@ -646,6 +646,12 @@ func ConfigureRouter(e *echo.Echo, controller *controllers.Main) {
 	tenaga.GET("/skrining-pemantauan/anak/:anak_id", controller.SkriningPemantauan.GetByAnakID)
 	tenaga.PUT("/skrining-pemantauan/:id", controller.SkriningPemantauan.Update)
 	tenaga.DELETE("/skrining-pemantauan/:id", controller.SkriningPemantauan.Delete)
+
+	// ==================== DETEKSI GEJALA DARURAT ANAK ====================
+	gejalaDarurat := e.Group("/gejala-darurat")
+	gejalaDarurat.Use(middlewares.JWTAuth(controller.JWTSecret()))
+	gejalaDarurat.POST("/deteksi", controller.GejalaDaruratAnak.ProsesDeteksi)
+	gejalaDarurat.GET("/riwayat/:anak_id", controller.GejalaDaruratAnak.GetRiwayatAnak)
 
 	// ==================== KARTU KELUARGA ====================
 	// tenaga.GET("/kartu-keluarga", controller.KartuKeluarga.GetAll)

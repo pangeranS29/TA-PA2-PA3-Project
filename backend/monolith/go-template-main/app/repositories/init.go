@@ -65,6 +65,7 @@ type Main struct {
 	Rujukan                       *RujukanRepository
 	JenisPelayanan                JenisPelayananRepository
 	KategoriUmur                  KategoriUmurRepository
+	GejalaDaruratAnak             GejalaDaruratAnakRepository
 
 	// Repository tambahan
 	// KesehatanLingkunganDanCatatanKader *KesehatanLingkunganDanCatatanKaderRepository
@@ -199,6 +200,7 @@ func Init(opts Options) *Main {
 	// m.SkriningPemantauan = NewSkriningPemantauanRepository(opts.Postgres)
 	m.JenisPelayanan = NewJenisPelayananRepository(opts.Postgres)
 	m.KategoriUmur = NewKategoriUmurRepository(opts.Postgres)
+	m.GejalaDaruratAnak = NewGejalaDaruratAnakRepository(opts.Postgres)
 
 	// Repository tambahan
 	m.KeluhanAnak = NewKeluhanAnakRepository(opts.Postgres)

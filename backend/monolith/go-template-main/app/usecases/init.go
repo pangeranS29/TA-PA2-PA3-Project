@@ -71,6 +71,7 @@ type Main struct {
 	Bbl                  BblUsecase
 	JenisPelayanan       JenisPelayananUsecase
 	KategoriUmur         KategoriUmurUsecase
+	GejalaDaruratAnak    GejalaDaruratAnakUsecase
 
 	// Usecase tambahan
 	KeluhanAnak KeluhanAnakUseCase
@@ -271,6 +272,7 @@ func Init(opts Options) *Main {
 	m.JenisPelayanan = NewJenisPelayananUsecase(opts.Repository.JenisPelayanan)
 	m.KeluhanAnak = NewKeluhanAnakUseCase(opts.Repository.KeluhanAnak)
 	m.KategoriUmur = NewKategoriUmurUsecase(opts.Repository.KategoriUmur)
+	m.GejalaDaruratAnak = NewGejalaDaruratAnakUsecase(opts.Repository.GejalaDaruratAnak)
 
 	// Usecase tambahan
 	m.KeluhanAnak = NewKeluhanAnakUseCase(opts.Repository.KeluhanAnak)

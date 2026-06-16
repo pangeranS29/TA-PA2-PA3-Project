@@ -58,6 +58,7 @@ type Main struct {
 	KategoriUmur                  *KategoriUmurController
 	Kader                         *KaderController
 	AuditTrail                    *AuditTrailController
+	GejalaDaruratAnak             *GejalaDaruratAnakController
 
 	// Controller tambahan
 	PemantauanAnak      *PemantauanAnakController
@@ -191,6 +192,7 @@ func Init(opts Options) *Main {
 		opts.UseCases.PemeriksaanDokterTrimester1,
 		opts.UseCases.PemeriksaanDokterTrimester3,
 	)
+	m.GejalaDaruratAnak = NewGejalaDaruratAnakController(opts.UseCases.GejalaDaruratAnak)
 
 	// Controller tambahan
 	m.KeluhanAnak = NewKeluhanAnakController(opts.UseCases.KeluhanAnak)
