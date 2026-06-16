@@ -17,7 +17,6 @@ class KiaApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      navigatorKey: NotificationService.navigatorKey,
       title: 'Aplikasi KIA Cerdas',
       debugShowCheckedModeBanner: false,
       navigatorKey: navigatorKey,
