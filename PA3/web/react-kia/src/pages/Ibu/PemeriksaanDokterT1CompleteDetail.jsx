@@ -889,6 +889,30 @@ export default function PemeriksaanDokterT1CompleteDetail() {
               </div>
             </div>
           </DetailSection>
+
+          {/* Catatan Pemeriksaan */}
+          <DetailSection
+            icon={StickyNote}
+            title="Catatan Pemeriksaan"
+            colorCls="bg-amber-50 text-amber-700 border-amber-100"
+          >
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <InfoRow
+                label="Tanggal Periksa / Stempel / Paraf"
+                value={fmtDate(d.tanggal_periksa_stamp_paraf)}
+              />
+              <InfoRow
+                label="Tanggal Kembali"
+                value={fmtDate(d.tanggal_kembali)}
+              />
+              <div className="sm:col-span-2">
+                <InfoRow
+                  label="Keluhan / Pemeriksaan / Tindakan / Saran"
+                  value={d.keluhan_pemeriksaan_tindakan_saran}
+                />
+              </div>
+            </div>
+          </DetailSection>
         </div>
       </div>
     </MainLayout>

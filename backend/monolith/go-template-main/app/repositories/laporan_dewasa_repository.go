@@ -36,7 +36,7 @@ func (r *laporanDewasaRepository) GetLaporanDewasa(startDate, endDate string, de
 			(pd.jawaban->>'berat_badan')::float AS berat_badan,
 			(pd.jawaban->>'tinggi_badan')::float AS tinggi_badan,
 			(pd.jawaban->>'imt')::float AS imt,
-			COALESCE(pd.jawaban->>'tekanan_darah', '') AS tekanan_darah,
+			COALESCE((pd.jawaban->>'sistole')::text || '/' || (pd.jawaban->>'diastole')::text, '') AS tekanan_darah,
 			(pd.jawaban->>'gula_darah')::float AS gula_darah,
 			(pd.jawaban->>'kolesterol')::float AS kolesterol,
 			COALESCE(pd.kategori_risiko, '') AS kategori_risiko,
