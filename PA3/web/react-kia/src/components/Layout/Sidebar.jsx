@@ -7,7 +7,8 @@ import {
   isSuperadminUser,
   isAdminUser,
   isBidanUser,
-  isDokterUser
+  isDokterUser,
+  isBidanPuskesmasUser
 } from "../../services/auth";
 import {
   ChevronDown,
@@ -44,6 +45,7 @@ const Sidebar = () => {
   const isAdmin = isAdminUser(user);
   const isBidan = isBidanUser(user);
   const isDokter = isDokterUser(user);
+  const isBidanPuskesmas = isBidanPuskesmasUser(user);
   const location = useLocation();
 
   const dashboardPath = getUserRedirectRoute(user);
@@ -55,6 +57,7 @@ const Sidebar = () => {
     kesehatanLingkungan: pathname.startsWith("/pencatatan/kesehatan-lingkungan"),
     mpasi: pathname.startsWith("/edukasi-digital/mpasi"),
     pencatatanKesehatan: pathname.startsWith("/pencatatan-kesehatan"),
+    dashboardDokter: pathname.startsWith("/data-ibu") || pathname.startsWith("/daftar-rujukan"),
   });
 
   const [dropdownOpen, setDropdownOpen] = useState(() => getDropdownOpenState(location.pathname));
@@ -142,11 +145,36 @@ const Sidebar = () => {
     { path: "/perubahan-jadwal-imunisasi", name: "Perubahan Jadwal Imunisasi", icon: CalendarClock },
   ];
 
-  // Menu untuk dokter (hanya Data Ibu & Laporan)
+  // Menu untuk dokter (menampilkan semua fitur puskesmas)
   const dokterMenuItems = [
-    { path: "/data-ibu", name: "Data Ibu Hamil", icon: Users },
+    { path: "/puskesmas/kelola-vaksin", name: "Kelola Vaksin", icon: ShieldPlus },
+    {
+      name: "Dashboard Dokter",
+      icon: BriefcaseMedical,
+      isDropdown: true,
+      dropdownKey: "dashboardDokter",
+      children: [
+        { path: "/data-ibu", name: "Data Ibu Hamil", icon: Users },
+        { path: "/daftar-rujukan", name: "Rujukan", icon: ClipboardList },
+      ],
+    },
     { path: "/laporan", name: "Laporan", icon: BarChart3 },
-    { path: "/daftar-rujukan", name: "Rujukan", icon: ClipboardList },
+  ];
+
+  // Menu untuk bidan puskesmas (menampilkan semua fitur puskesmas)
+  const bidanPuskesmasMenuItems = [
+    { path: "/puskesmas/kelola-vaksin", name: "Kelola Vaksin", icon: ShieldPlus },
+    {
+      name: "Dashboard Dokter",
+      icon: BriefcaseMedical,
+      isDropdown: true,
+      dropdownKey: "dashboardDokter",
+      children: [
+        { path: "/data-ibu", name: "Data Ibu Hamil", icon: Users },
+        { path: "/daftar-rujukan", name: "Rujukan", icon: ClipboardList },
+      ],
+    },
+    { path: "/laporan", name: "Laporan", icon: BarChart3 },
   ];
 
   // Menu admin dihapus karena keluarga dipindahkan ke superadmin
@@ -179,6 +207,12 @@ const Sidebar = () => {
     menuItems = [
       { path: dashboardPath, name: "Beranda", icon: LayoutGrid },
       ...dokterMenuItems,
+    ];
+  } else if (isBidanPuskesmas) {
+    // Menu khusus untuk bidan_puskesmas (akses ke dashboard puskesmas dan fiturnya)
+    menuItems = [
+      { path: dashboardPath, name: "Beranda", icon: LayoutGrid },
+      ...bidanPuskesmasMenuItems,
     ];
   } else if (isBidan) {
     menuItems = [
@@ -264,7 +298,9 @@ const Sidebar = () => {
         </div>
         <div className="min-w-0">
           <h1 className="text-base font-bold text-slate-800 leading-tight">KIA Cerdas</h1>
-          <p className="text-[11px] text-slate-400">Beranda {isDokter ? "Dokter" : isBidan ? "Bidan" : "Admin"}</p>
+          <p className="text-[11px] text-slate-400">
+            Beranda {isDokter || isBidanPuskesmas ? "Puskesmas" : isBidan ? "Bidan" : "Admin"}
+          </p>
         </div>
       </div>
 

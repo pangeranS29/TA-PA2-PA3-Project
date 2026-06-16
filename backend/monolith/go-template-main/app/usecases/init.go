@@ -147,6 +147,9 @@ type Main struct {
 
 	// Pencatatan Imunisasi (Web)
 	PencatatanImunisasi *PencatatanImunisasiUsecase
+
+	// Puskesmas Dashboard (multi-desa recap)
+	PuskesmasDashboard PuskesmasDashboardUsecase
 }
 
 type Options struct {
@@ -196,6 +199,9 @@ func Init(opts Options) *Main {
 		if err := m.GenerateJadwalImunisasiByAnakID(anakID); err != nil {
 			fmt.Println("[AUTO JADWAL] ERROR:", err)
 		}
+	})
+	m.Anak.SetOnAnakCreatedSync(func(anakID int32) error {
+		return m.EnsurePrediksiForAnak(anakID)
 	})
 	m.PelayananKesehatanAnak = NewPelayananKesehatanAnakUseCase(opts.Repository.PelayananKesehatanAnak)
 	m.Neonatus = NewPelayananNeonatusUseCase(opts.Repository.Neonatus)
@@ -387,6 +393,9 @@ func Init(opts Options) *Main {
 
 	// Pencatatan Imunisasi (Web)
 	m.PencatatanImunisasi = NewPencatatanImunisasiUsecase(opts.Repository.PencatatanImunisasi)
+
+	// Puskesmas Dashboard (multi-desa recap)
+	m.PuskesmasDashboard = NewPuskesmasDashboardUsecase(opts.Repository.PuskesmasDashboard)
 
 	return m
 }

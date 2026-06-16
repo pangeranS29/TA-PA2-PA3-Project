@@ -5,7 +5,7 @@ import AlertNotification from "../../components/AlertNotification";
 import { neonatusService } from "../../services/Neonatus";
 import {
   Scale, User, Loader2, ClipboardCheck, Stethoscope,
-  ChevronLeft, Calendar, Edit3, PlusCircle, Save, Check,
+  ChevronLeft, ArrowLeft, Calendar, Edit3, PlusCircle, Save, Check,
   Activity, ShieldAlert, Thermometer, Clock
 } from 'lucide-react';
 
@@ -455,9 +455,9 @@ const NeonatusIndex = () => {
 
           <button
             onClick={() => navigate(`/data-anak/dashboard/${id}`)}
-            className="flex items-center gap-2 px-5 py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl font-bold text-[10px] uppercase tracking-widest transition-all"
+            className="flex items-center gap-2 px-6 py-2 border border-blue-600 text-blue-600 hover:bg-blue-50 rounded-full font-medium text-sm transition-all group w-fit"
           >
-            <ClipboardCheck size={14} /> Kembali
+            <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" /> Kembali
           </button>
         </header>
 

@@ -126,6 +126,7 @@ type Main struct {
 	Form                     FormRepository
 	Pemeriksaan              PemeriksaanRepository
 	PencatatanImunisasi      *PencatatanImunisasiRepository
+	PuskesmasDashboard       *PuskesmasDashboardRepository
 }
 
 // DB returns the underlying *gorm.DB instance for direct queries and transactions.
@@ -247,6 +248,7 @@ func Init(opts Options) *Main {
 	m.Form = NewFormRepository(opts.Postgres) // Inisialisasi FormRepository dengan database yang sesuai
 	m.Pemeriksaan = NewPemeriksaanRepository(opts.Postgres)
 	m.PencatatanImunisasi = NewPencatatanImunisasiRepository(opts.Postgres)
+	m.PuskesmasDashboard = NewPuskesmasDashboardRepository(opts.Postgres)
 	// return m
 
 	// MODUL IBU

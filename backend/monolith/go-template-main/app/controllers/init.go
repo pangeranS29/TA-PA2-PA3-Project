@@ -109,6 +109,7 @@ type Main struct {
 	PemeriksaanDewasa        *PemeriksaanDewasaController
 	PemeriksaanLansia        *PemeriksaanLansiaController
 	Dashboard                *DashboardController
+	PuskesmasDashboard       *PuskesmasDashboardController
 	PendudukRisk             *PendudukRiskController
 	RiwayatCard              *RiwayatCardController
 	Pencatatan               *PencatatanController
@@ -242,6 +243,10 @@ func Init(opts Options) *Main {
 		opts.UseCases.Anak,
 	)
 	m.Dashboard = NewDashboardController(dashboardUsecase)
+
+	// Puskesmas Dashboard Controller (multi-desa recap)
+	m.PuskesmasDashboard = NewPuskesmasDashboardController(opts.UseCases.PuskesmasDashboard)
+
 	m.PendudukRisk = NewPendudukRiskController(opts.UseCases.PendudukRisk)
 	m.RiwayatCard = NewRiwayatCardController(opts.UseCases.RiwayatCard)
 	m.Pencatatan = NewPencatatanController(opts.UseCases.Pencatatan)

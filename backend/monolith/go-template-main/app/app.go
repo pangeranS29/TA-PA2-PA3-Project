@@ -104,6 +104,21 @@ func (m *Main) Init() (err error) {
 	}
 	fmt.Println("✅ BERHASIL KONEK KE DATABASE")
 
+	// Patch kolom yang terlalu pendek (one-time idempotent fix)
+	fixQueries := []string{
+		`ALTER TABLE prediksi_stunting ALTER COLUMN status_tbu TYPE varchar(100)`,
+		`ALTER TABLE prediksi_stunting ALTER COLUMN status_prediksi TYPE varchar(50)`,
+		`ALTER TABLE prediksi_stunting ALTER COLUMN classification TYPE varchar(30)`,
+	}
+	for _, q := range fixQueries {
+		if execErr := m.database.Postgres.Exec(q).Error; execErr != nil {
+			// Abaikan error jika kolom tidak ada atau sudah sesuai
+			fmt.Printf("[MIGRATION] Skipped: %v\n", execErr)
+		} else {
+			fmt.Printf("[MIGRATION] OK: %s\n", q)
+		}
+	}
+
 	// // Migrate only the specific tables needed to ensure rentang_usia_id exists
 	// _ = m.database.Postgres.AutoMigrate(&models.RentangUsia{}, &models.KategoriCapaian{})
 

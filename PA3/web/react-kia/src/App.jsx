@@ -75,7 +75,8 @@ import PemeriksaanDokterT3Complete from "./pages/Ibu/PemeriksaanDokterT3Complete
 
 //Dokter
 import ProtectedRoute from "./components/ProtectedRoute";
-import DokterDashboard from "./pages/Dokter/index";
+import RoleAccessGuard from "./components/RoleAccessGuard";
+
 
 // Puskesmas
 import DashboardPuskesmas from "./pages/Puskesmas/DashboardPuskesmas";
@@ -343,13 +344,35 @@ function App() {
         <Route path="/edukasi-digital/mpasi-resep/form" element={<MpasiResepFormPage />} />
         <Route path="/edukasi-digital/mpasi-resep/form/:id" element={<MpasiResepFormPage />} />
 
-        {/* ── DOKTER ── */}
-        <Route path="/dashboard/dokter" element={<ProtectedRoute allowedRoles={["dokter"]}><DokterDashboard /></ProtectedRoute>} />
-
         {/* ── PUSKESMAS (Bidan Puskesmas & Dokter) ── */}
-        <Route path="/dashboard/puskesmas" element={<ProtectedRoute allowedRoles={["bidan_puskesmas", "dokter"]}><DashboardPuskesmas /></ProtectedRoute>} />
-        <Route path="/puskesmas/kelola-vaksin" element={<ProtectedRoute allowedRoles={["bidan_puskesmas", "dokter"]}><KelolaVaksin /></ProtectedRoute>} />
-        <Route path="/puskesmas/dashboard-dokter" element={<ProtectedRoute allowedRoles={["bidan_puskesmas", "dokter"]}><DokterDashboard /></ProtectedRoute>} />
+        <Route 
+          path="/dashboard/puskesmas" 
+          element={
+            <ProtectedRoute allowedRoles={["bidan_puskesmas", "dokter"]}>
+              <DashboardPuskesmas />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/puskesmas/kelola-vaksin" 
+          element={
+            <ProtectedRoute allowedRoles={["bidan_puskesmas", "dokter"]}>
+              <RoleAccessGuard allowedRoles={["bidan_puskesmas"]} featureName="Kelola Vaksin">
+                <KelolaVaksin />
+              </RoleAccessGuard>
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/puskesmas/dashboard-dokter" 
+          element={
+            <ProtectedRoute allowedRoles={["bidan_puskesmas", "dokter"]}>
+              <RoleAccessGuard allowedRoles={["dokter"]} featureName="Dashboard Dokter">
+                <Dashboard/>
+              </RoleAccessGuard>
+            </ProtectedRoute>
+          } 
+        />
 
         {/* ── DEFAULT ── */}
         <Route path="/dashboard" element={<RootRoute />} />
