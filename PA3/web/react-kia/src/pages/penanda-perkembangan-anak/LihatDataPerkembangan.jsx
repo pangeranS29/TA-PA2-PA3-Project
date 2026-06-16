@@ -31,6 +31,9 @@ export default function LihatDataPerkembangan() {
 
       const listAnak = resAnak.data || resAnak;
       const balitaList = listAnak.filter((c) => {
+        if (c.usia_bulan !== undefined) {
+          return c.usia_bulan < 60;
+        }
         if (!c.tanggal_lahir) return false;
         const birthDate = new Date(c.tanggal_lahir);
         if (isNaN(birthDate.getTime())) return false;
