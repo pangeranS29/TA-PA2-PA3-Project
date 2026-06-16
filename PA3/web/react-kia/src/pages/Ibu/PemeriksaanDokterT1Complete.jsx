@@ -1163,14 +1163,6 @@ export default function PemeriksaanDokterT1Complete() {
             </div>
           </div>
 
-          {/* Badge Role */}
-          <div
-            className={`px-3 py-1 rounded-full text-xs font-semibold ${
-              canEdit ? "bg-green-100 text-green-700" : "bg-blue-100 text-blue-700"
-            }`}
-          >
-            {/* {canEdit ? "Mode Edit (Dokter)" : "Mode Baca (Bidan)"} */}
-          </div>
         </div>
 
         {/* Info bar untuk bidan yang ada datanya (bisa lihat tapi tidak edit) */}
@@ -1271,9 +1263,9 @@ export default function PemeriksaanDokterT1Complete() {
                           title: "Data Terisi Otomatis",
                           html: `
                             <div class="text-left">
-                              <p>📅 HPHT: <strong>${formatTanggalIndo(kehamilanDetail.hpht)}</strong></p>
-                              <p>🤰 Usia Kehamilan: <strong>${usia.display}</strong></p>
-                              <p>🎯 HPL: <strong>${hpl?.display || "-"}</strong></p>
+                              <p>HPHT: <strong>${formatTanggalIndo(kehamilanDetail.hpht)}</strong></p>
+                              <p>Usia Kehamilan: <strong>${usia.display}</strong></p>
+                              <p>HPL: <strong>${hpl?.display || "-"}</strong></p>
                             </div>
                           `,
                           timer: 3000,

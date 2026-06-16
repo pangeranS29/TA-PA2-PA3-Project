@@ -469,7 +469,7 @@ export default function PencatatanKesehatanKategori() {
     }
     
     // Pisahkan error dan warning
-    if (error && error.includes("rendah") || error.includes("tinggi") || error.includes("di atas") || error.includes("di bawah")) {
+    if (error && (error.includes("rendah") || error.includes("tinggi") || error.includes("di atas") || error.includes("di bawah"))) {
       return { error: null, warning: error };
     }
     return { error: error, warning: null };
