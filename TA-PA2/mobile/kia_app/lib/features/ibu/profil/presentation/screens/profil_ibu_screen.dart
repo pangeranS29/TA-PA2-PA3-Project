@@ -147,20 +147,32 @@ class _ProfilIbuScreenState extends State<ProfilIbuScreen>
           ),
         ],
       ),
-      body: _futureProfil == null
-          ? const Center(child: CircularProgressIndicator())
-          : FutureBuilder<ProfilIbuModel>(
-              future: _futureProfil,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                if (snapshot.hasError) {
-                  return _buildError(snapshot.error.toString());
-                }
-                return _buildContent(snapshot.data!);
-              },
+      body: Column(
+        children: [
+          Expanded(
+            child: _futureProfil == null
+                ? const Center(child: CircularProgressIndicator())
+                : FutureBuilder<ProfilIbuModel>(
+                    future: _futureProfil,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+                      if (snapshot.hasError) {
+                        return _buildError(snapshot.error.toString());
+                      }
+                      return _buildContent(snapshot.data!);
+                    },
+                  ),
+          ),
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: _buildLogoutButton(),
             ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -259,8 +271,6 @@ class _ProfilIbuScreenState extends State<ProfilIbuScreen>
           const SizedBox(height: 16),
           _buildRiwayatKehamilan(profil.riwayatKehamilan),
           const SizedBox(height: 24),
-          _buildLogoutButton(),
-          const SizedBox(height: 12),
         ],
       ),
     );

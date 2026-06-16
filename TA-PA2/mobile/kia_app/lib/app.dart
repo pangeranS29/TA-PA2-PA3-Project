@@ -7,6 +7,8 @@ import 'features/auth/presentation/screens/login_screen.dart';
 import 'features/dashboard/presentation/screens/dashboard_screen.dart';
 import 'features/kader/presentation/dashboard_screen.dart';
 
+import 'core/routes/navigator_key.dart';
+
 class KiaApp extends StatelessWidget {
   const KiaApp({super.key});
 
@@ -15,6 +17,7 @@ class KiaApp extends StatelessWidget {
     return MaterialApp(
       title: 'Aplikasi KIA Cerdas',
       debugShowCheckedModeBanner: false,
+      navigatorKey: navigatorKey,
       theme: AppTheme.lightTheme,
       home: _buildHome(),
     );

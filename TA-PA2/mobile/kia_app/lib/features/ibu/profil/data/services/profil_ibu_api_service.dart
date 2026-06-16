@@ -2,6 +2,7 @@
 
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:ta_pa2_pa3_project/core/network/app_http_client.dart';
 import 'package:ta_pa2_pa3_project/core/constants/api_constants.dart';
 import 'package:ta_pa2_pa3_project/core/services/auth_session.dart';
 import 'package:ta_pa2_pa3_project/features/ibu/profil/data/models/profil_ibu_model.dart';
@@ -10,7 +11,7 @@ class ProfilIbuApiService {
   final http.Client _client;
 
   ProfilIbuApiService({http.Client? client})
-      : _client = client ?? http.Client();
+      : _client = client ?? AppHttpClient();
 
   Future<ProfilIbuModel> getProfilSaya() async {
     final token = AuthSession.token;

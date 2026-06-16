@@ -188,12 +188,25 @@ class _RiwayatSkriningTandaBahayaScreenState
 
   String _periodeLabel(LembarPemantauanModel record) {
     final satuan = record.rentangUsia?.satuanWaktu.toLowerCase().trim() ?? '';
+    final namaRentang = record.rentangUsia?.namaRentang;
     final periode = record.periodeWaktu;
-    if (satuan == 'hari') return 'Hari ke-$periode';
-    if (satuan == 'minggu') return 'Minggu ke-$periode';
-    if (satuan == 'bulan') return 'Bulan ke-$periode';
-    if (satuan == 'tahun') return 'Tahun ke-$periode';
-    return 'Periode ke-$periode';
+    
+    int displayNumber = periode;
+    if (namaRentang != null) {
+      final match = RegExp(r'^(\d+)').firstMatch(namaRentang.trim());
+      if (match != null) {
+        int startNum = int.tryParse(match.group(1) ?? '0') ?? 0;
+        if (startNum > 0) {
+          displayNumber = startNum + (periode - 1);
+        }
+      }
+    }
+
+    if (satuan == 'hari') return 'Hari ke-$displayNumber';
+    if (satuan == 'minggu') return 'Minggu ke-$displayNumber';
+    if (satuan == 'bulan') return 'Bulan ke-$displayNumber';
+    if (satuan == 'tahun') return 'Tahun ke-$displayNumber';
+    return 'Periode ke-$displayNumber';
   }
 
   String _examinerLabel(String value) {

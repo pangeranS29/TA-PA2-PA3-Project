@@ -761,18 +761,31 @@ class _LembarPemantauanScreenState extends State<LembarPemantauanScreen> {
 
   String _buildPeriodeLabel(int periode) {
     final satuan = _selectedRentang?.satuanWaktu.trim().toLowerCase() ?? '';
+    final namaRentang = _selectedRentang?.namaRentang;
+    
+    int displayNumber = periode;
+    if (namaRentang != null) {
+      final match = RegExp(r'^(\d+)').firstMatch(namaRentang.trim());
+      if (match != null) {
+        int startNum = int.tryParse(match.group(1) ?? '0') ?? 0;
+        if (startNum > 0) {
+          displayNumber = startNum + (periode - 1);
+        }
+      }
+    }
+
     if (satuan == 'hari') {
-      return 'Hari ke-$periode';
+      return 'Hari ke-$displayNumber';
     }
     if (satuan == 'minggu') {
-      return 'Minggu ke-$periode';
+      return 'Minggu ke-$displayNumber';
     }
     if (satuan == 'bulan') {
-      return 'Bulan ke-$periode';
+      return 'Bulan ke-$displayNumber';
     }
     if (satuan == 'tahun') {
-      return 'Tahun ke-$periode';
+      return 'Tahun ke-$displayNumber';
     }
-    return 'Periode ke-$periode';
+    return 'Periode ke-$displayNumber';
   }
 }
