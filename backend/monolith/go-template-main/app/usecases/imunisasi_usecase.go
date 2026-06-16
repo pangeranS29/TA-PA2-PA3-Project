@@ -305,3 +305,8 @@ func calculateStatusID(
 		return 5
 	}
 }
+
+// GetAturanVaksinAnak returns all aturan vaksin anak (for color coding in frontend)
+func (m *Main) GetAturanVaksinAnak() ([]models.AturanVaksinAnak, error) {
+	return m.repository.GetAturanVaksinAnak()
+}

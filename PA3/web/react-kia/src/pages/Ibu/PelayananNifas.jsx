@@ -434,21 +434,6 @@ export default function PelayananNifas() {
   };
 
   const handleEdit = () => {
-    // ========== VALIDASI STAGE ==========
-    if (isKunjunganLocked(selectedKunjungan)) {
-      const kunjunganLabel = getKunjunganLabel();
-      const currentStageLabel = getCurrentNifasStage() === "KF1" ? "6-48 Jam" : getCurrentNifasStage() === "KF2" ? "3-7 Hari" : getCurrentNifasStage() === "KF3" ? "8-28 Hari" : getCurrentNifasStage() === "KF4" ? "29-42 Hari" : "Di luar masa nifas";
-      
-      Swal.fire({
-        icon: 'warning',
-        title: 'Tahapan Terkunci',
-        text: `Data untuk ${kunjunganLabel} sudah terisi dan tidak dapat diedit karena ibu sudah memasuki masa ${currentStageLabel}.`,
-        confirmButtonColor: '#4f46e5'
-      });
-      return;
-    }
-    // ====================================
-
     // ========== VALIDASI AKSES ==========
   if (!canAccessNifas) {
     Swal.fire({
@@ -471,6 +456,8 @@ export default function PelayananNifas() {
   }
   // ====================================
 
+    // Allow editing of existing data regardless of time period
+    // Only restrict NEW data entry based on time
     setMode("form");
   };
 
@@ -514,7 +501,9 @@ export default function PelayananNifas() {
   // ====================================
 
     // ========== VALIDASI KUNJUNGAN BERDASARKAN TANGGAL ==========
-  if (!canAccessKunjungan(selectedKunjungan)) {
+  // Only apply time restrictions for NEW data entry, not for editing existing data
+  const existing = nifas.find((n) => n.kunjungan_ke === selectedKunjungan);
+  if (!existing && !canAccessKunjungan(selectedKunjungan)) {
     Swal.fire({
       icon: 'warning',
       title: 'Kunjungan Tidak Dapat Diakses',
@@ -718,6 +707,21 @@ if (selectedKunjungan === "KF4") {
   };
 
   const handleKunjunganChange = (kunjungan) => {
+    const existingNifas = nifas.find((n) => n.kunjungan_ke === kunjungan);
+    
+    // Allow navigation if:
+    // 1. Data already exists (for viewing/editing), OR
+    // 2. User is bidan and wants to add new data (subject to time restrictions)
+    if (existingNifas) {
+      // Allow navigation to view/edit existing data regardless of time period
+      setSelectedKunjungan(kunjungan);
+      setCurrentData(existingNifas);
+      setMode("detail");
+      populateForm(existingNifas);
+      return;
+    }
+    
+    // For NEW data entry, apply time restrictions
     // ========== VALIDASI KUNJUNGAN BERDASARKAN STAGE ==========
     if (isKunjunganLocked(kunjungan)) {
       const kunjunganLabel = kunjungan === "KF1" ? "6-48 Jam" : kunjungan === "KF2" ? "3-7 Hari" : kunjungan === "KF3" ? "8-28 Hari" : "29-42 Hari";
@@ -746,24 +750,15 @@ if (selectedKunjungan === "KF4") {
     // =========================================================
 
     setSelectedKunjungan(kunjungan);
-    
-    const existingNifas = nifas.find((n) => n.kunjungan_ke === kunjungan);
-    
-    if (existingNifas) {
-      setCurrentData(existingNifas);
-      setMode("detail");
-      populateForm(existingNifas);
+    setCurrentData(null);
+    // Only bidan can switch to empty mode (which allows adding data)
+    if (canEdit) {
+      setMode("empty");
     } else {
-      setCurrentData(null);
-      // Only bidan can switch to empty mode (which allows adding data)
-      if (canEdit) {
-        setMode("empty");
-      } else {
-        // For dokter, show empty state but without add button
-        setMode("empty");
-      }
-      resetForm(kunjungan);
+      // For dokter, show empty state but without add button
+      setMode("empty");
     }
+    resetForm(kunjungan);
   };
 
   const getKunjunganLabel = () => {
@@ -854,26 +849,31 @@ if (selectedKunjungan === "KF4") {
             const locked = isKunjunganLocked(k);
             const currentStage = getCurrentNifasStage();
             
+            // Enable button if:
+            // 1. Data already exists (for viewing/editing), OR
+            // 2. Not locked (for adding new data)
+            const isDisabled = locked && !hasData;
+            
             return (
               <button 
                 key={k} 
                 type="button"
                 onClick={() => handleKunjunganChange(k)} 
-                disabled={locked && !hasData}
+                disabled={isDisabled}
                 className={`px-4 py-2 rounded-lg transition-colors flex items-center gap-2 ${
                   selectedKunjungan === k 
                     ? "bg-indigo-600 text-white" 
                     : hasData 
                       ? "bg-green-100 text-green-700 border border-green-300" 
-                      : locked && !hasData
+                      : isDisabled
                         ? "bg-gray-200 text-gray-400 cursor-not-allowed"
                         : "bg-gray-100 text-gray-700"
                 }`}
-                title={locked && !hasData ? `Terkunci - Belum memasuki masa ${kunjunganLabel}` : ""}
+                title={isDisabled ? `Terkunci - Belum memasuki masa ${kunjunganLabel}` : hasData ? `Data tersedia - Klik untuk melihat/edit` : `Klik untuk menambah data`}
               >
                 {kunjunganLabel}
                 {hasData && selectedKunjungan !== k && <CheckCircle size={14} />}
-                {locked && !hasData && <Lock size={14} />}
+                {isDisabled && <Lock size={14} />}
               </button>
             );
           })}

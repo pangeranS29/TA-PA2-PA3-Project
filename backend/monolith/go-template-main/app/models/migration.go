@@ -151,6 +151,7 @@ func AutoMigrate(db *gorm.DB) error {
 		&JadwalImunisasiAnak{},
 		&MasterImunisasi{},
 		&RequestPerubahanImunisasi{},
+		&PencatatanImunisasi{},
 
 		// ==================== JADWAL LAYANAN ====================
 		&JadwalLayanan{},

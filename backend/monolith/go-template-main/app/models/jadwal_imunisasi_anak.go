@@ -40,6 +40,7 @@ type JadwalImunisasiResponse struct {
 
 type JadwalImunisasiItem struct {
 	JadwalID        uint       `json:"jadwal_id"`
+	DosisVaksinID   uint       `json:"dosis_vaksin_id"`
 	NamaDosis       string     `json:"nama_dosis"`
 	TanggalEstimasi *time.Time `json:"tanggal_estimasi,omitempty"`
 	Deskripsi       string     `json:"deskripsi"`
@@ -57,8 +58,9 @@ type JadwalImunisasiJoin struct {
 	NamaAnak     string
 	TanggalLahir *time.Time
 
-	JadwalID        uint
-	NamaDosis       string
+	JadwalID      uint
+	DosisVaksinID uint `gorm:"column:dosis_vaksin_id"`
+	NamaDosis     string
 	TanggalEstimasi *time.Time
 
 	StatusID uint `gorm:"column:status_id"`

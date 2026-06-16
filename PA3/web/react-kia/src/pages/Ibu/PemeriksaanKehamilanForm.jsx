@@ -678,9 +678,9 @@ export default function PemeriksaanKehamilanForm() {
                             icon: "success",
                             title: "Usia Kehamilan Terisi",
                             html: `<div class="text-left">
-                              <p>📅 Usia kehamilan: <strong>${usia.display}</strong></p>
-                              <p>📊 Trimester: <strong>${newTrimester}</strong></p>
-                              <p>🔄 Kunjungan ke-: <strong>${newKunjungan}</strong></p>
+                              <p>Usia kehamilan: <strong>${usia.display}</strong></p>
+                              <p>Trimester: <strong>${newTrimester}</strong></p>
+                              <p>Kunjungan ke-: <strong>${newKunjungan}</strong></p>
                             </div>`,
                             timer: 2500,
                             showConfirmButton: false

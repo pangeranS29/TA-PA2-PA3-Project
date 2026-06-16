@@ -57,25 +57,21 @@ function InfoRow({ label, value, highlight = false }) {
 function StatusBadge({ value }) {
   if (!value || value === "-") return <span className="text-gray-400 text-sm italic">-</span>;
   return value === "Normal" ? (
-    <span className="inline-flex items-center gap-1 text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-semibold">
-      <CheckCircle size={10} /> Normal
-    </span>
+    <span className="text-xs text-emerald-700 font-semibold">Normal</span>
   ) : (
-    <span className="inline-flex items-center gap-1 text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-semibold">
-      <XCircle size={10} /> Abnormal
-    </span>
+    <span className="text-xs text-red-700 font-semibold">Abnormal</span>
   );
 }
 
 function ReaktifBadge({ value }) {
   if (!value || value === "-") return <span className="text-gray-400 text-sm italic">-</span>;
   return value === "NonReaktif" || value === "Non Reaktif" ? (
-    <span className="inline-flex items-center gap-1 text-xs bg-emerald-100 text-emerald-700 px-2 py-1 rounded-full font-semibold">
-      <CheckCircle size={10} /> Non Reaktif
+    <span className="text-xs text-emerald-700 font-semibold">
+      Non Reaktif
     </span>
   ) : (
-    <span className="inline-flex items-center gap-1 text-xs bg-red-100 text-red-700 px-2 py-1 rounded-full font-semibold">
-      <XCircle size={10} /> Reaktif
+    <span className="text-xs text-red-700 font-semibold">
+      Reaktif
     </span>
   );
 }
@@ -392,12 +388,6 @@ export default function PemeriksaanDokterT1CompleteDetail() {
               </p>
             </div>
           </div>
-           {/* ✅ Badge Role */}
-          <div className={`px-3 py-1 rounded-full text-xs font-semibold ${
-            canEdit ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'
-          }`}>
-            {canEdit ? '✏️ Mode Edit (Dokter)' : '👁️ Mode Baca (Bidan)'}
-          </div>
         </div>
 
         {/* ✅ Informasi akses untuk BIDAN */}
@@ -659,11 +649,11 @@ export default function PemeriksaanDokterT1CompleteDetail() {
                   </span>
                   {d.usg_kecurigaan_temuan_abnormal === "Ya" ? (
                     <span className="inline-flex items-center gap-1 text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-semibold">
-                      <XCircle size={10} /> Ya
+                      Ya
                     </span>
                   ) : (
                     <span className="inline-flex items-center gap-1 text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-semibold">
-                      <CheckCircle size={10} /> Tidak
+                      Tidak
                     </span>
                   )}
                 </div>
@@ -867,11 +857,11 @@ export default function PemeriksaanDokterT1CompleteDetail() {
                 </span>
                 {lab?.skrining_jiwa_perlu_rujukan === "Ya" ? (
                   <span className="inline-flex items-center gap-1 text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-semibold w-fit">
-                    <XCircle size={10} /> Ya, Perlu Rujukan
+                    Ya, Perlu Rujukan
                   </span>
                 ) : (
                   <span className="inline-flex items-center gap-1 text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-semibold w-fit">
-                    <CheckCircle size={10} /> Tidak Perlu
+                    Tidak Perlu
                   </span>
                 )}
               </div>
@@ -904,3 +894,4 @@ export default function PemeriksaanDokterT1CompleteDetail() {
     </MainLayout>
   );
 }
+
