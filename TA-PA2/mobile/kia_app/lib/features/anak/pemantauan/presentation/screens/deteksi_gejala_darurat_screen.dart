@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ta_pa2_pa3_project/features/anak/pemantauan/data/services/gejala_darurat_anak_api_service.dart';
+import 'package:ta_pa2_pa3_project/core/widgets/verification_popup.dart';
 
 class DeteksiGejalaDaruratScreen extends StatefulWidget {
   final Map<String, dynamic>? anak;
@@ -18,7 +19,8 @@ class _DeteksiGejalaDaruratScreenState extends State<DeteksiGejalaDaruratScreen>
   final GejalaDaruratAnakApiService _apiService = GejalaDaruratAnakApiService();
 
   bool _isLoading = false;
-  bool _isLoadingRiwayat = false;
+  bool _isLoadingRiwayat = true;
+  bool _isDirty = false;
 
   final Map<String, String> _gejalaMap = {
     'Suhu di atas 39.5°C': 'suhu_c_lebih_39_5',
@@ -104,6 +106,51 @@ class _DeteksiGejalaDaruratScreenState extends State<DeteksiGejalaDaruratScreen>
         });
       }
     }
+  }
+
+  void _handleBack() {
+    if (_isDirty) {
+      _showExitPopup();
+    } else {
+      Navigator.pop(context);
+    }
+  }
+
+  void _showExitPopup() {
+    showVerificationPopup(
+      context: context,
+      type: VerificationPopupType.exit,
+      title: 'Yakin ingin keluar?',
+      content:
+          'Apakah Anda yakin ingin keluar tanpa menyimpan? Data yang belum disimpan akan hilang dan tidak dapat dikembalikan.',
+      onConfirm: () {
+        Navigator.pop(context);
+        Navigator.pop(context);
+      },
+      onCancel: () => Navigator.pop(context),
+    );
+  }
+
+  void _showSavePopup() {
+    final hasChecked = _checks.values.any((v) => v == true);
+    if (!hasChecked) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Minimal pilih satu gejala untuk disimpan.')),
+      );
+      return;
+    }
+
+    showVerificationPopup(
+      context: context,
+      type: VerificationPopupType.save,
+      title: 'Konfirmasi Simpan',
+      content: 'Apakah Anda yakin data gejala yang diisi sudah benar? Data yang sudah disimpan tidak dapat diubah kembali.',
+      onConfirm: () {
+        Navigator.pop(context); // close dialog
+        _evaluasiGejala();
+      },
+      onCancel: () => Navigator.pop(context),
+    );
   }
 
   Future<void> _evaluasiGejala() async {
@@ -265,8 +312,9 @@ class _DeteksiGejalaDaruratScreenState extends State<DeteksiGejalaDaruratScreen>
                       onPressed: () {
                         Navigator.pop(ctx);
                         _resetForm();
-                        _tabController.animateTo(1); // Go to history
-                        _loadRiwayat(); // reload explicitly to get the new backend data
+                        _isDirty = false;
+                        _loadRiwayat();
+                        _tabController.animateTo(1);
                       },
                       child: const Text('Tutup & Lihat Riwayat',
                           style: TextStyle(fontWeight: FontWeight.bold)),
@@ -313,7 +361,7 @@ class _DeteksiGejalaDaruratScreenState extends State<DeteksiGejalaDaruratScreen>
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
+          onPressed: _handleBack,
         ),
         bottom: TabBar(
           controller: _tabController,
@@ -327,12 +375,19 @@ class _DeteksiGejalaDaruratScreenState extends State<DeteksiGejalaDaruratScreen>
           ],
         ),
       ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          _buildFormTab(),
-          _buildRiwayatTab(),
-        ],
+      body: PopScope(
+        canPop: false,
+        onPopInvoked: (didPop) {
+          if (didPop) return;
+          _handleBack();
+        },
+        child: TabBarView(
+          controller: _tabController,
+          children: [
+            _buildFormTab(),
+            _buildRiwayatTab(),
+          ],
+        ),
       ),
       bottomNavigationBar: _tabController.index == 0 ? _buildSubmitBar() : null,
     );
@@ -381,8 +436,8 @@ class _DeteksiGejalaDaruratScreenState extends State<DeteksiGejalaDaruratScreen>
             SizedBox(
               width: double.infinity,
               height: 52,
-              child: FilledButton(
-                onPressed: _isLoading ? null : _evaluasiGejala,
+              child: ElevatedButton(
+                onPressed: _isLoading ? null : _showSavePopup,
                 child: _isLoading
                     ? const SizedBox(
                         width: 20,
@@ -531,6 +586,7 @@ class _DeteksiGejalaDaruratScreenState extends State<DeteksiGejalaDaruratScreen>
               onChanged: (value) {
                 setState(() {
                   _checks[gejala] = value ?? false;
+                  _isDirty = true;
                 });
               },
             ),

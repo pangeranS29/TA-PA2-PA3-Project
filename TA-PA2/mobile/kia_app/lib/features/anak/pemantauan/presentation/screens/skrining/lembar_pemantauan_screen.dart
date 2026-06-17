@@ -36,6 +36,7 @@ class _LembarPemantauanScreenState extends State<LembarPemantauanScreen> {
   final Map<int, bool> _checks = {};
   final Map<int, Set<int>> _submittedPeriodsByRentangId = {};
   DateTime _tanggalPeriksa = DateTime.now();
+  bool _isDirty = false;
 
   @override
   void initState() {
@@ -247,6 +248,14 @@ class _LembarPemantauanScreenState extends State<LembarPemantauanScreen> {
     });
   }
 
+  void _handleBack() {
+    if (_isDirty) {
+      _showExitPopup();
+    } else {
+      Navigator.pop(context);
+    }
+  }
+
   void _showExitPopup() {
     showVerificationPopup(
       context: context,
@@ -319,6 +328,12 @@ class _LembarPemantauanScreenState extends State<LembarPemantauanScreen> {
       return;
     }
 
+    final hasChecked = _checks.values.any((v) => v == true);
+    if (!hasChecked) {
+      _showError('Minimal pilih satu gejala untuk disimpan.');
+      return;
+    }
+
     final detailGejala = _kategori
         .map(
           (item) => {
@@ -343,6 +358,7 @@ class _LembarPemantauanScreenState extends State<LembarPemantauanScreen> {
       );
 
       if (!mounted) return;
+      _isDirty = false;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content:
@@ -401,14 +417,14 @@ class _LembarPemantauanScreenState extends State<LembarPemantauanScreen> {
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: _showExitPopup,
+          onPressed: _handleBack,
         ),
       ),
       body: PopScope(
         canPop: false,
         onPopInvoked: (didPop) {
           if (didPop) return;
-          _showExitPopup();
+          _handleBack();
         },
         child: _buildFormTab(),
       ),
@@ -591,6 +607,7 @@ class _LembarPemantauanScreenState extends State<LembarPemantauanScreen> {
               setState(() {
                 _selectedRentangId = value;
                 _selectedRentang = selectedRentang;
+                _isDirty = true;
               });
               _loadKategori(value);
               _syncSelectedPeriodeForCurrentRentang();
@@ -685,6 +702,7 @@ class _LembarPemantauanScreenState extends State<LembarPemantauanScreen> {
               onChanged: (value) {
                 setState(() {
                   _checks[item.id] = value ?? false;
+                  _isDirty = true;
                 });
               },
             ),
@@ -754,7 +772,10 @@ class _LembarPemantauanScreenState extends State<LembarPemantauanScreen> {
           .toList(),
       onChanged: (v) {
         if (v == null) return;
-        setState(() => _selectedPeriode = v);
+        setState(() {
+          _selectedPeriode = v;
+          _isDirty = true;
+        });
       },
     );
   }

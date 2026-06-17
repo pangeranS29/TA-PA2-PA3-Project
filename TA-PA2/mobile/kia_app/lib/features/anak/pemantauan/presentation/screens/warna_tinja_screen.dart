@@ -37,6 +37,7 @@ class _WarnaTinjaScreenState extends State<WarnaTinjaScreen> {
 
   bool _loading = true;
   bool _saving = false;
+  bool _isDirty = false;
 
   int get _anakId {
     final dynamic id = widget.anak['id'];
@@ -98,6 +99,7 @@ class _WarnaTinjaScreenState extends State<WarnaTinjaScreen> {
     if (picked != null) {
       setState(() {
         _tanggalByPeriode[periodeKey] = picked;
+        _isDirty = true;
       });
     }
   }
@@ -144,6 +146,7 @@ class _WarnaTinjaScreenState extends State<WarnaTinjaScreen> {
       }
 
       if (!mounted) return;
+      _isDirty = false;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Data warna tinja berhasil disimpan.')),
       );
@@ -157,6 +160,14 @@ class _WarnaTinjaScreenState extends State<WarnaTinjaScreen> {
       if (mounted) {
         setState(() => _saving = false);
       }
+    }
+  }
+
+  void _handleBack() {
+    if (_isDirty) {
+      _showExitPopup();
+    } else {
+      Navigator.pop(context);
     }
   }
 
@@ -284,14 +295,14 @@ class _WarnaTinjaScreenState extends State<WarnaTinjaScreen> {
         iconTheme: const IconThemeData(color: Colors.black),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios, size: 20),
-          onPressed: _showExitPopup,
+          onPressed: _handleBack,
         ),
       ),
       body: PopScope(
         canPop: false,
         onPopInvoked: (didPop) {
           if (didPop) return;
-          _showExitPopup();
+          _handleBack();
         },
         child: _loading
             ? const Center(child: CircularProgressIndicator())
@@ -527,6 +538,7 @@ class _WarnaTinjaScreenState extends State<WarnaTinjaScreen> {
               : (val) {
                   setState(() {
                     _nomorWarnaByPeriode[periodeKey] = val;
+                    _isDirty = true;
                   });
                 },
         ),

@@ -53,20 +53,7 @@ class _AbsensiKelasIbuBalitaScreenState
   bool get _adaYangBelumVerifikasi =>
       _absensiList.any((a) => a.status == 'Menunggu Verifikasi');
 
-  void _showExitPopup() {
-    showVerificationPopup(
-      context: context,
-      type: VerificationPopupType.exit,
-      title: 'Yakin ingin keluar?',
-      content:
-          'Apakah Anda yakin ingin keluar tanpa menyimpan? Data yang belum disimpan akan hilang dan tidak dapat dikembalikan.',
-      onConfirm: () {
-        Navigator.pop(context);
-        Navigator.pop(context);
-      },
-      onCancel: () => Navigator.pop(context),
-    );
-  }
+
 
   void _showTambahAbsensi() {
     DateTime? selectedDate;
@@ -377,22 +364,16 @@ class _AbsensiKelasIbuBalitaScreenState
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Color(0xFF1E293B)),
-          onPressed: _showExitPopup,
+          onPressed: () => Navigator.pop(context),
         ),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),
           child: Container(color: const Color(0xFFE5E7EB), height: 1),
         ),
       ),
-      body: PopScope(
-        canPop: false,
-        onPopInvoked: (didPop) {
-          if (didPop) return;
-          _showExitPopup();
-        },
-        child: _isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : RefreshIndicator(
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : RefreshIndicator(
                 onRefresh: _loadAbsensi,
                 child: ListView(
                   padding: const EdgeInsets.all(16),
@@ -662,7 +643,6 @@ class _AbsensiKelasIbuBalitaScreenState
                   ],
                 ),
               ),
-      ),
     );
   }
 }

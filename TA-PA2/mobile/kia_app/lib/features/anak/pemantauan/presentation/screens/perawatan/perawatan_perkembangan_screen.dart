@@ -65,6 +65,7 @@ class _PerawatanPerkembanganScreenState
 
   // Tanggal periksa (sama untuk seluruh submit)
   DateTime _tanggalPeriksa = DateTime.now();
+  bool _isDirty = false;
 
   @override
   void initState() {
@@ -139,6 +140,14 @@ class _PerawatanPerkembanganScreenState
         _loadingByRange[range] = false;
         _errorByRange[range] = e.toString();
       });
+    }
+  }
+
+  void _handleBack() {
+    if (_isDirty) {
+      _showExitPopup();
+    } else {
+      Navigator.pop(context);
     }
   }
 
@@ -237,6 +246,7 @@ class _PerawatanPerkembanganScreenState
     setState(() {
       _submittingByRange[range] = false;
       _idsByRange[range] = ids;
+      _isDirty = false;
       if (failCount == 0) {
         _submittedByRange[range] = true;
       }
@@ -274,7 +284,10 @@ class _PerawatanPerkembanganScreenState
       ),
     );
     if (picked != null && mounted) {
-      setState(() => _tanggalPeriksa = picked);
+      setState(() {
+        _tanggalPeriksa = picked;
+        _isDirty = true;
+      });
     }
   }
 
@@ -517,14 +530,14 @@ class _PerawatanPerkembanganScreenState
         foregroundColor: Colors.white,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: _showExitPopup,
+          onPressed: _handleBack,
         ),
       ),
       body: PopScope(
         canPop: false,
         onPopInvoked: (didPop) {
           if (didPop) return;
-          _showExitPopup();
+          _handleBack();
         },
         child: _buildKuesionerTab(),
       ),
@@ -1160,12 +1173,13 @@ class _PerawatanPerkembanganScreenState
                             onChanged: isLocked
                                 ? null
                                 : (v) {
-                                    setState(() {
-                                      final map = Map<int, bool?>.from(
-                                          _checklistByRange[range] ?? {});
-                                      map[item.id] = (v == true) ? true : null;
-                                      _checklistByRange[range] = map;
-                                    });
+                                      setState(() {
+                                        final map = Map<int, bool?>.from(
+                                            _checklistByRange[range] ?? {});
+                                        map[item.id] = (v == true) ? true : null;
+                                        _checklistByRange[range] = map;
+                                        _isDirty = true;
+                                      });
                                   },
                           ),
                         ),
@@ -1180,12 +1194,13 @@ class _PerawatanPerkembanganScreenState
                             onChanged: isLocked
                                 ? null
                                 : (v) {
-                                    setState(() {
-                                      final map = Map<int, bool?>.from(
-                                          _checklistByRange[range] ?? {});
-                                      map[item.id] = (v == true) ? false : null;
-                                      _checklistByRange[range] = map;
-                                    });
+                                      setState(() {
+                                        final map = Map<int, bool?>.from(
+                                            _checklistByRange[range] ?? {});
+                                        map[item.id] = (v == true) ? false : null;
+                                        _checklistByRange[range] = map;
+                                        _isDirty = true;
+                                      });
                                   },
                           ),
                         ),

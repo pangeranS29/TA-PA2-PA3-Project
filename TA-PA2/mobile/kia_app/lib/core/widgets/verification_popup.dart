@@ -1,7 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 
-enum VerificationPopupType { exit, save }
+enum VerificationPopupType { exit, save, delete }
 
 class VerificationPopup extends StatelessWidget {
   final VerificationPopupType type;
@@ -22,10 +22,11 @@ class VerificationPopup extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isExit = type == VerificationPopupType.exit;
+    final isDelete = type == VerificationPopupType.delete;
 
-    final Color primaryColor = isExit ? const Color(0xFFA83232) : const Color(0xFF155E9E);
-    final Color secondaryColor = isExit ? const Color(0xFFF4DADA) : const Color(0xFFD4E6FA);
-    final IconData iconData = isExit ? Icons.close : Icons.save;
+    final Color primaryColor = (isExit || isDelete) ? const Color(0xFFA83232) : const Color(0xFF155E9E);
+    final Color secondaryColor = (isExit || isDelete) ? const Color(0xFFF4DADA) : const Color(0xFFD4E6FA);
+    final IconData iconData = isExit ? Icons.close : (isDelete ? Icons.delete_outline : Icons.save);
 
     return BackdropFilter(
       filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
@@ -86,7 +87,7 @@ class VerificationPopup extends StatelessWidget {
                     elevation: 0,
                   ),
                   child: Text(
-                    isExit ? "Ya, Keluar" : "Ya, Simpan",
+                    isExit ? "Ya, Keluar" : (isDelete ? "Ya, Hapus" : "Ya, Simpan"),
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
