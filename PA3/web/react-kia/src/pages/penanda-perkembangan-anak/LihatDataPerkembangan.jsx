@@ -43,6 +43,20 @@ export default function LihatDataPerkembangan() {
         return currentDate <= limitDate;
       });
 
+      // Urutkan dari usia termuda ke tertua (tanggal lahir terbaru/terbesar dahulu)
+      balitaList.sort((a, b) => {
+        const timeA = a.tanggal_lahir ? new Date(a.tanggal_lahir).getTime() : 0;
+        const timeB = b.tanggal_lahir ? new Date(b.tanggal_lahir).getTime() : 0;
+        
+        if (timeA && timeB) {
+          return timeB - timeA; // Tanggal lahir terbaru (termuda) duluan
+        }
+        if (a.usia_bulan !== undefined && b.usia_bulan !== undefined) {
+          return a.usia_bulan - b.usia_bulan; // Bulan terkecil (termuda) duluan
+        }
+        return 0;
+      });
+
       const totalIndikator = Array.isArray(kategoriList) ? kategoriList.length : 0;
 
       // Untuk setiap anak, ambil data perawatan yang sudah diisi

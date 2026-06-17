@@ -36,6 +36,22 @@ export default function AnakListNakes() {
           limitDate.setFullYear(birthDate.getFullYear() + 5);
           return currentDate <= limitDate;
         });
+
+        // Urutkan dari usia termuda ke tertua (tanggal lahir terbaru/terbesar dahulu)
+        balitaList.sort((a, b) => {
+          const timeA = a.tanggal_lahir ? new Date(a.tanggal_lahir).getTime() : 0;
+          const timeB = b.tanggal_lahir ? new Date(b.tanggal_lahir).getTime() : 0;
+          
+          if (timeA && timeB) {
+            return timeB - timeA; // Tanggal lahir terbaru (termuda) duluan
+          }
+          // Jika salah satu tanggal lahir tidak valid/kosong, gunakan usia_bulan
+          if (a.usia_bulan !== undefined && b.usia_bulan !== undefined) {
+            return a.usia_bulan - b.usia_bulan; // Bulan terkecil (termuda) duluan
+          }
+          return 0;
+        });
+
         setChildren(balitaList);
       } catch (error) {
         console.error("Error fetching data:", error);

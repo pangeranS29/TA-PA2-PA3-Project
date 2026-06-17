@@ -125,6 +125,8 @@ func (m *Main) Init() (err error) {
 		`ALTER TABLE prediksi_stunting ALTER COLUMN classification TYPE varchar(30)`,
 		`ALTER TABLE aturan_porsi_mpasi ADD COLUMN IF NOT EXISTS gambar_url text`,
 		`ALTER TABLE jadwal_harian_mpasi ADD COLUMN IF NOT EXISTS gambar_url text`,
+		`SELECT setval('catatan_pertumbuhan_id_seq', COALESCE((SELECT MAX(id) FROM catatan_pertumbuhan), 1))`,
+		`SELECT setval('prediksi_stunting_id_seq', COALESCE((SELECT MAX(id) FROM prediksi_stunting), 1))`,
 	}
 	for _, q := range fixQueries {
 		if execErr := m.database.Postgres.Exec(q).Error; execErr != nil {

@@ -28,7 +28,7 @@ func normalizeGender(gender string) string {
 
 func (m *Main) CreateCatatanPertumbuhan(data *models.CatatanPertumbuhan) error {
 	if err := m.postgres.Create(data).Error; err != nil {
-		return customerror.NewInternalServiceError("gagal membuat catatan pertumbuhan")
+		return customerror.NewInternalServiceError("gagal membuat catatan pertumbuhan: " + err.Error())
 	}
 	return nil
 }
