@@ -1,11 +1,11 @@
 // src/pages/Laporan.jsx
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom"; // import useNavigate
+import { useNavigate } from "react-router-dom";
 import MainLayout from "../components/Layout/MainLayout";
 import {
-  previewLaporanAnak,   // tetap digunakan untuk preview inline anak
+  previewLaporanAnak,
   exportLaporanAnak,
-  exportLaporanIbu,     // masih diperlukan untuk export langsung jika ada, tapi untuk ibu kita arahkan ke halaman terpisah
+  exportLaporanIbu,
 } from "../services/laporan";
 import { FileDown, Download, Eye, Loader2, Table, Users, UserCheck, HeartPulse } from "lucide-react";
 import Swal from "sweetalert2";
@@ -13,13 +13,13 @@ import Swal from "sweetalert2";
 export default function Laporan() {
   const navigate = useNavigate();
 
-  // State untuk Laporan Anak (preview inline)
+  // State untuk Laporan Anak (preview inline) - masih dipertahankan untuk keperluan jika suatu saat digunakan
   const [loadingAnak, setLoadingAnak] = useState(false);
   const [previewAnak, setPreviewAnak] = useState(null);
   const [loadingPreviewAnak, setLoadingPreviewAnak] = useState(false);
   const [errorPreviewAnak, setErrorPreviewAnak] = useState("");
 
-  // Helper untuk normalisasi response (sama seperti sebelumnya)
+  // Helper untuk normalisasi response
   const normalizeResponse = (responseData) => {
     if (Array.isArray(responseData)) return responseData;
     if (responseData && Array.isArray(responseData.data)) return responseData.data;
@@ -27,7 +27,7 @@ export default function Laporan() {
     return null;
   };
 
-  // Handler Preview Anak (inline)
+  // Handler Preview Anak (inline) - masih ada
   const handlePreviewAnak = async () => {
     setLoadingPreviewAnak(true);
     setErrorPreviewAnak("");
@@ -47,7 +47,7 @@ export default function Laporan() {
     }
   };
 
-  // Handler Export untuk Anak (inline)
+  // Handler Export untuk Anak (inline) - masih ada
   const handleExportAnak = async () => {
     try {
       setLoadingAnak(true);
@@ -71,7 +71,7 @@ export default function Laporan() {
     }
   };
 
-  // Render tabel preview untuk Anak
+  // Render tabel preview untuk Anak - masih ada
   const renderPreviewTable = (data) => {
     if (!Array.isArray(data) || data.length === 0) {
       return (
@@ -136,7 +136,7 @@ export default function Laporan() {
         <h1 className="text-2xl font-bold mb-6">Laporan Data</h1>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Card Laporan Ibu - LANGSUNG NAVIGASI KE HALAMAN PREVIEW */}
+          {/* Card Laporan Ibu */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
             <div className="p-6">
               <div className="flex items-center gap-3 mb-4">
@@ -188,7 +188,14 @@ export default function Laporan() {
             </div>
           </div>
 
-          {/* Card Laporan Remaja */}
+          {/* 
+            ============================================================
+            KOMENTAR: Card untuk Laporan Remaja, Dewasa, dan Lansia
+            Sementara dinonaktifkan sesuai permintaan.
+            ============================================================
+          */}
+
+          {/*
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
             <div className="p-6">
               <div className="flex items-center gap-3 mb-4">
@@ -213,8 +220,9 @@ export default function Laporan() {
               </button>
             </div>
           </div>
+          */}
 
-          {/* Card Laporan Dewasa */}
+          {/*
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
             <div className="p-6">
               <div className="flex items-center gap-3 mb-4">
@@ -239,8 +247,9 @@ export default function Laporan() {
               </button>
             </div>
           </div>
+          */}
 
-          {/* Card Laporan Lansia */}
+          {/*
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
             <div className="p-6">
               <div className="flex items-center gap-3 mb-4">
@@ -265,6 +274,7 @@ export default function Laporan() {
               </button>
             </div>
           </div>
+          */}
         </div>
       </div>
     </MainLayout>
