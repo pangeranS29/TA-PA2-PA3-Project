@@ -22,8 +22,7 @@ class _LembarPemantauanScreenState extends State<LembarPemantauanScreen> {
   final LembarPemantauanApiService _service = LembarPemantauanApiService();
 
   int? _selectedPeriode = 1;
-  final TextEditingController _namaPemeriksaController =
-      TextEditingController(text: '-');
+
 
   bool _loadingRentang = true;
   bool _loadingKategori = false;
@@ -47,7 +46,6 @@ class _LembarPemantauanScreenState extends State<LembarPemantauanScreen> {
   @override
   void dispose() {
     _service.dispose();
-    _namaPemeriksaController.dispose();
     super.dispose();
   }
 
@@ -293,9 +291,7 @@ class _LembarPemantauanScreenState extends State<LembarPemantauanScreen> {
         : int.tryParse((anakRaw ?? '').toString()) ?? 0;
     final rentangUsiaId = _selectedRentangId ?? 0;
     final periode = _selectedPeriode ?? 0;
-    final namaPemeriksa = _namaPemeriksaController.text.trim().isEmpty
-        ? '-'
-        : _namaPemeriksaController.text.trim();
+    final namaPemeriksa = '-';
 
     if (anakId <= 0) {
       _showError('Data anak tidak valid. Silakan pilih ulang anak.');
@@ -616,20 +612,7 @@ class _LembarPemantauanScreenState extends State<LembarPemantauanScreen> {
           const SizedBox(height: 12),
           _buildPeriodeDropdown(),
           const SizedBox(height: 12),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF1F5F9),
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: const Color(0xFFE2E8F0)),
-            ),
-            child: Text(
-              'Pemeriksa: -',
-              style: const TextStyle(color: Color(0xFF334155)),
-            ),
-          ),
-          const SizedBox(height: 12),
+
           Container(
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),

@@ -13,12 +13,15 @@ void main() async {
     null,
   );
   await AuthSession.initialize();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-
-  // Initialize notification service (FCM listeners + local notifications)
-  await NotificationService.initialize();
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    // Initialize notification service (FCM listeners + local notifications)
+    await NotificationService.initialize();
+  } catch (e) {
+    debugPrint('Gagal inisialisasi Firebase/Notifikasi: $e');
+  }
 
   runApp(const KiaApp());
 }

@@ -352,18 +352,19 @@ class _WarnaTinjaScreenState extends State<WarnaTinjaScreen> {
                       style: TextStyle(fontSize: 13, height: 1.4),
                     ),
                     const SizedBox(height: 16),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: Table(
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Table(
                             border:
                                 TableBorder.all(color: const Color(0xFF9E9E9E)),
                             columnWidths: const {
                               0: FixedColumnWidth(96),
-                              1: FlexColumnWidth(),
-                              2: FlexColumnWidth(),
-                              3: FlexColumnWidth(),
+                              1: FixedColumnWidth(88),
+                              2: FixedColumnWidth(88),
+                              3: FixedColumnWidth(88),
                             },
                             children: [
                               TableRow(
@@ -394,7 +395,6 @@ class _WarnaTinjaScreenState extends State<WarnaTinjaScreen> {
                               ),
                             ],
                           ),
-                        ),
                         const SizedBox(width: 10),
                         Column(
                           children: List.generate(7, (i) {
@@ -426,7 +426,8 @@ class _WarnaTinjaScreenState extends State<WarnaTinjaScreen> {
                             );
                           }),
                         ),
-                      ],
+                        ],
+                      ),
                     ),
                     const SizedBox(height: 16),
                     const Text(
