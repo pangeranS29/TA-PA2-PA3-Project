@@ -1059,7 +1059,7 @@ export default function EvaluasiKesehatanIbu() {
 
         // Nama dokter dari localStorage
         const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
-        const dokterNama = storedUser.nama || "";
+        const dokterNama = storedUser.name || "";
 
         // Ambil evaluasi
         const evalData = await getEvaluasiByKehamilanId(targetKehamilan.id);
@@ -1299,7 +1299,7 @@ export default function EvaluasiKesehatanIbu() {
       const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
       setForm((prev) => ({
         ...prev,
-        nama_dokter: storedUser.nama || "",
+        nama_dokter: storedUser.name || "",
         tanggal_periksa: new Date().toISOString().split("T")[0],
         fasilitas_kesehatan: "",
         tb_cm: "",

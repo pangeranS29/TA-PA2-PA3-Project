@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'core/services/auth_session.dart';
+import 'core/services/unauthorized_handler.dart';
 import 'core/themes/app_theme.dart';
+import 'core/services/notification_service.dart';
 
 import 'features/auth/presentation/screens/login_screen.dart';
 
@@ -19,6 +21,7 @@ class KiaApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       navigatorKey: navigatorKey,
       theme: AppTheme.lightTheme,
+      // navigatorKey: UnauthorizedHandler.navigatorKey,
       home: _buildHome(),
     );
   }

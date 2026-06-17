@@ -36,7 +36,7 @@ func (r *laporanLansiaRepository) GetLaporanLansia(startDate, endDate string, de
 			(pl.jawaban->>'berat_badan')::float AS berat_badan,
 			(pl.jawaban->>'tinggi_badan')::float AS tinggi_badan,
 			(pl.jawaban->>'imt')::float AS imt,
-			COALESCE(pl.jawaban->>'tekanan_darah', '') AS tekanan_darah,
+			COALESCE((pl.jawaban->>'sistole')::text || '/' || (pl.jawaban->>'diastole')::text, '') AS tekanan_darah,
 			(pl.jawaban->>'gula_darah')::float AS gula_darah,
 			COALESCE(pl.kategori_risiko, '') AS kategori_risiko,
 			COALESCE(pl.jawaban->>'status_pemantauan', '') AS status_pemantauan,

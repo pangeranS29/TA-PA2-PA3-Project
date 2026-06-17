@@ -36,7 +36,7 @@ func (r *laporanRemajaRepository) GetLaporanRemaja(startDate, endDate string, de
 			(pr.jawaban->>'berat_badan')::float AS berat_badan,
 			(pr.jawaban->>'tinggi_badan')::float AS tinggi_badan,
 			(pr.jawaban->>'imt')::float AS imt,
-			COALESCE(pr.jawaban->>'tekanan_darah', '') AS tekanan_darah,
+			COALESCE((pr.jawaban->>'sistole')::text || '/' || (pr.jawaban->>'diastole')::text, '') AS tekanan_darah,
 			COALESCE(pr.kategori_risiko, '') AS kategori_risiko,
 			COALESCE(pr.jawaban->>'status_pemantauan', '') AS status_pemantauan,
 			COALESCE(pr.jawaban->>'riwayat_penyakit', '') AS riwayat_penyakit,

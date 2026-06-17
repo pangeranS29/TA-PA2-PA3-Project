@@ -50,6 +50,7 @@ type Main struct {
 	CatatanPelayananTrimester2    CatatanPelayananTrimester2Usecase
 	CatatanPelayananTrimester3    CatatanPelayananTrimester3Usecase
 	CatatanPelayananNifas         CatatanPelayananNifasUsecase
+	CatatanPelayananKehamilan     CatatanPelayananKehamilanUsecase
 	// GrafikEvaluasiKehamilan       GrafikEvaluasiKehamilanUsecase
 	GrafikPeningkatanBB          GrafikPeningkatanBBUsecase
 	PenjelasanHasilGrafik        PenjelasanHasilGrafikUsecase
@@ -144,6 +145,7 @@ type Main struct {
 	EdukasiMPASI      EdukasiMPASIUsecase
 	// Profile Ibu
 	ProfilIbu ProfilIbuUsecase
+	DetailKehamilanIbu DetailKehamilanIbuUsecase
 
 	// Pencatatan Imunisasi (Web)
 	PencatatanImunisasi *PencatatanImunisasiUsecase
@@ -238,6 +240,7 @@ func Init(opts Options) *Main {
 	m.CatatanPelayananTrimester2 = NewCatatanPelayananTrimester2Usecase(opts.Repository.CatatanPelayananTrimester2)
 	m.CatatanPelayananTrimester3 = NewCatatanPelayananTrimester3Usecase(opts.Repository.CatatanPelayananTrimester3)
 	m.CatatanPelayananNifas = NewCatatanPelayananNifasUsecase(opts.Repository.CatatanPelayananNifas)
+	m.CatatanPelayananKehamilan = NewCatatanPelayananKehamilanUsecase(opts.Repository.CatatanPelayananKehamilan)
 	m.GrafikEvaluasiKehamilan = NewGrafikEvaluasiKehamilanUsecase(opts.Repository.GrafikEvaluasiKehamilan, opts.Repository.Kehamilan)
 	m.GrafikPeningkatanBB = NewGrafikPeningkatanBBUsecase(opts.Repository.GrafikPeningkatanBB, opts.Repository.Kehamilan)
 	m.PenjelasanHasilGrafik = NewPenjelasanHasilGrafikUsecase(opts.Repository.PenjelasanHasilGrafik)
@@ -389,6 +392,16 @@ func Init(opts Options) *Main {
 		opts.Repository.EvaluasiKesehatanIbu,
 		opts.Repository.RiwayatKehamilanLalu,
 		opts.Repository.Desa,
+	)
+	// Riwayat Kehamilan Ibu 
+	m.DetailKehamilanIbu = NewDetailKehamilanIbuUsecase(
+		opts.Repository.Kehamilan,
+		opts.Repository.SkriningPreeklampsia,
+		opts.Repository.GrafikEvaluasiKehamilan,
+		opts.Repository.GrafikPeningkatanBB,
+		opts.Repository.RingkasanPelayananPersalinan,
+		opts.Repository.Ibu,
+		opts.Repository.User,
 	)
 
 	// Pencatatan Imunisasi (Web)

@@ -454,7 +454,20 @@ export default function PemeriksaanKehamilanForm() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const validateStep3 = () => true;
+  const validateStep3 = () => {
+    const newErrors = {};
+    if (!form.skrining_dokter?.trim()) {
+      newErrors.skrining_dokter = "Skrining dokter / temuan harus diisi";
+    }
+    if (!form.konseling?.trim()) {
+      newErrors.konseling = "Konseling yang diberikan harus diisi";
+    }
+    if (!form.tata_laksana_kasus?.trim()) {
+      newErrors.tata_laksana_kasus = "Tata laksana kasus harus diisi";
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleNext = () => {
     const valid = step === 1 ? validateStep1() : step === 2 ? validateStep2() : validateStep3();
@@ -532,8 +545,9 @@ export default function PemeriksaanKehamilanForm() {
     
     const step1Valid = validateStep1();
     const step2Valid = validateStep2();
+    const step3Valid = validateStep3();
     
-    if (!step1Valid || !step2Valid) {
+    if (!step1Valid || !step2Valid || !step3Valid) {
       // Show alert with list of errors
       const errorList = Object.entries(errors)
         .map(([field, message]) => `• ${message}`)
@@ -548,6 +562,7 @@ export default function PemeriksaanKehamilanForm() {
       
       if (!step1Valid) setStep(1);
       else if (!step2Valid) setStep(2);
+      else if (!step3Valid) setStep(3);
       
       // Scroll to first error field
       const firstErrorField = Object.keys(errors)[0];

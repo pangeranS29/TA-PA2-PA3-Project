@@ -39,7 +39,7 @@ class AuthApiService {
               if (fcmToken != null) 'fcm_token': fcmToken,
             }),
           )
-          .timeout(const Duration(seconds: 12));
+          .timeout(const Duration(seconds: 30));
     } on TimeoutException {
       throw Exception(
         'Login timeout. Pastikan backend dapat diakses dari Android fisik.',

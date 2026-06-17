@@ -2154,7 +2154,6 @@ export default function PemeriksaanDokterT1Complete() {
                     value={form.tanggal_kembali}
                     onChange={handleChange}
                     readOnly={!canEdit}
-                    max={new Date().toISOString().split("T")[0]}
                     className={inputCls}
                   />
                 </Field>

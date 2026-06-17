@@ -170,3 +170,28 @@ func (r *KehamilanRepository) FindAktifByUserID(userID int32) (*models.Kehamilan
 func (r *KehamilanRepository) UpdateAllActiveGestationalAge() error {
 	return nil
 }
+
+
+
+
+
+// Untuk bagian pemantauan NIFAS
+func (r *KehamilanRepository) FindNifasByUserID(userID int32) (*models.Kehamilan, error) {
+	var kehamilan models.Kehamilan
+ 
+	err := r.db.
+		Table("kehamilan AS k").
+		Select("k.*").
+		Joins("JOIN ibu AS i ON i.id = k.ibu_id").
+		Joins("JOIN penduduk AS p ON p.id = i.penduduk_id").
+		Joins("JOIN pengguna AS u ON u.penduduk_id = p.id").
+		Where("u.id = ?", userID).
+		Where("k.status_kehamilan = ?", "NIFAS").
+		Order("k.created_at DESC").
+		First(&kehamilan).Error
+ 
+	if err != nil {
+		return nil, err
+	}
+	return &kehamilan, nil
+}
